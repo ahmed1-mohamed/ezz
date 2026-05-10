@@ -1,0 +1,169 @@
+{
+  "appName": "Manarat Al-Ezz Academy",
+  "home": {
+    "title": "Welcome to the Professional Learning Dashboard",
+    "subtitle": "A modern education platform for Admins, Managers, Teachers, and Students.",
+    "description": "Built with React, Vite and Tailwind with RTL support, login, and role-based access.",
+    "button": "Get Started",
+    "features": {
+      "secureRouting": "Secure role routing",
+      "protectedPages": "Protected pages",
+      "persistentAuth": "Persistent local auth",
+      "responsiveUI": "Responsive UI",
+      "viewMore": "View more dashboards"
+    },
+    "learnMore": "Learn more",
+    "promoTitle": "Trusted by education teams worldwide",
+    "promoText": "A modern learning platform for role-based access, multilingual support, and secure admin workflows."
+  },
+  "login": {
+    "title": "Sign in",
+    "description": "Access the dashboard for your role.",
+    "email": "Email address",
+    "password": "Password",
+    "remember": "Remember me",
+    "submit": "Sign in",
+    "signingIn": "Signing in…",
+    "emailRequired": "Email is required.",
+    "validEmail": "Provide a valid email address.",
+    "passwordRequired": "Password is required.",
+    "passwordLength": "Password must be at least 6 characters.",
+    "invalid": "Invalid login details.",
+    "testAccounts": "Test accounts",
+    "help": "Need help?",
+    "noAccount": "Don’t have an account?",
+    "register": "Create account"
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "students": "Students",
+    "teachers": "Teachers",
+    "courses": "Courses",
+    "schedule": "Schedule",
+    "grades": "Grades",
+    "reports": "Reports",
+    "classes": "Classes",
+    "logout": "Logout",
+    "welcome": "Welcome back",
+    "rolePanel": "{role} Panel",
+    "cards": {
+      "performance": "Platform performance",
+      "participants": "Participants",
+      "courses": "Available courses",
+      "activeSessions": "Active sessions"
+    }
+  },
+  "auth": {
+    "admin": "Admin",
+    "manager": "Manager",
+    "teacher": "Teacher",
+    "student": "Student"
+  },
+  "pagination": {
+    "page": "Page",
+    "search": "Search"
+  },
+  "schedule": {
+    "today": "Today",
+    "noClasses": "No classes scheduled",
+    "weekOverview": "Flexible weekly schedule for your role.",
+    "roleSummary": "Showing the current week schedule for {role}.",
+    "summaryText": "This overview keeps you aligned with expected sessions all week.",
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized access",
+    "goHome": "Return home"
+  },
+  "language": {
+    "arabic": "Arabic",
+    "english": "English"
+  },
+  "public": {
+    "login": "Login",
+    "register": "Register",
+    "nav": {
+      "home": "Home",
+      "teachers": "Teachers",
+      "curriculums": "Curriculums",
+      "dailySchedule": "Daily Schedule",
+      "pricing": "Pricing",
+      "aboutUs": "About Us",
+      "contactUs": "Contact Us"
+    },
+    "footer": {
+      "tagline": "Built for modern learning teams.",
+      "copyright": "© 2026 Manarat Al-Ezz Academy. All rights reserved."
+    },
+    "about": {
+      "title": "A modern public learning website",
+      "description": "We help education teams connect, publish courses, and support learners in Arabic and English.",
+      "missionTitle": "Our mission",
+      "missionText": "Deliver simple, secure learning tools for every role in the school ecosystem.",
+      "visionTitle": "Our vision",
+      "visionText": "Enable accessible digital learning that works across devices and languages.",
+      "valuesTitle": "Our values",
+      "valuesText": "Clear communication, reliable access, and scalable user experiences.",
+      "teamTitle": "Meet our education team",
+      "teamText": "Our platform is designed for administrators, teachers, and students who need a polished, responsive interface.",
+      "quickLinks": "Quick links",
+      "quickLink1": "Explore public course details",
+      "quickLink2": "Learn about teaching support",
+      "quickLink3": "Contact our team for demos",
+      "contactButton": "Contact support"
+    },
+    "courses": {
+      "title": "Featured learning paths",
+      "description": "Browse a small selection of ready-to-use courses for modern classrooms.",
+      "ctaTitle": "Ready to review courses?",
+      "ctaText": "Our platform makes it easy to share structured learning experiences for every role.",
+      "ctaButton": "View course catalog"
+    },
+    "teachers": {
+      "title": "Experienced faculty",
+      "description": "Educators who know how to combine strong instruction with digital tools.",
+      "experience": "{years} experience"
+    },
+    "contact": {
+      "title": "Get in touch",
+      "description": "Send a message to our team and we will follow up with more details.",
+      "address": "123 Education Street, Cairo, Egypt",
+      "email": "hello@eduplatform.com",
+      "phone": "+20 123 456 7890",
+      "form": {
+        "name": "Full name",
+        "namePlaceholder": "Enter your name",
+        "email": "Email address",
+        "emailPlaceholder": "Enter your email",
+        "message": "Your message",
+        "messagePlaceholder": "Write a quick message",
+        "submit": "Send message"
+      }
+    }
+  },
+  "register": {
+    "title": "Create account",
+    "description": "Register now and access your personalized dashboard.",
+    "help": "This is a static registration form prepared for future backend integration.",
+    "noteTitle": "Ready for backend integration",
+    "noteText": "The form captures structured registration data and validates fields before submission.",
+    "name": "Full name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email address",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordRequired": "Please confirm your password.",
+    "passwordMismatch": "Passwords do not match.",
+    "submit": "Create account",
+    "submitting": "Registering…",
+    "haveAccount": "Already have an account?",
+    "login": "Sign in"
+  }
+}
