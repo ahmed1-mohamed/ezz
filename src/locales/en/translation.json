@@ -1,20 +1,13 @@
 {
   "appName": "Manarat Al-Ezz Academy",
   "home": {
-    "title": "Welcome to the Professional Learning Dashboard",
-    "subtitle": "A modern education platform for Admins, Managers, Teachers, and Students.",
-    "description": "Built with React, Vite and Tailwind with RTL support, login, and role-based access.",
-    "button": "Get Started",
-    "features": {
-      "secureRouting": "Secure role routing",
-      "protectedPages": "Protected pages",
-      "persistentAuth": "Persistent local auth",
-      "responsiveUI": "Responsive UI",
-      "viewMore": "View more dashboards"
-    },
-    "learnMore": "Learn more",
-    "promoTitle": "Trusted by education teams worldwide",
-    "promoText": "A modern learning platform for role-based access, multilingual support, and secure admin workflows."
+    "badge": "Complete educational academy",
+    "titleLine1": "Start your journey of light..",
+    "titleLine2": "Direct Quranic education",
+    "titleLine3": "With educational values",
+    "description": "We combine the quality of technical education with firmly established Islamic values to build a generation that reads and understands the Quran, in an intelligent and interactive educational environment.",
+    "ctaPrimary": "Get Started",
+    "ctaSecondary": "View Experience"
   },
   "login": {
     "title": "Sign in",
@@ -52,6 +45,87 @@
       "courses": "Available courses",
       "activeSessions": "Active sessions"
     }
+  },
+  "admin": {
+    "performanceTitle": "Platform Performance",
+    "performanceDescription": "Monitor key metrics for the educational platform.",
+    "activityTitle": "Recent Activity",
+    "activityDescription": "Overview of recent events and updates.",
+    "activityItem1": "New courses updated",
+    "activityItem2": "5 new students registered",
+    "activityItem3": "Monthly report completed",
+    "userDirectoryTitle": "User Directory",
+    "studentsTitle": "Student Management",
+    "studentsDescription": "View and manage registered students.",
+    "filteredBy": "Filtered by",
+    "teachersTitle": "Teacher Management",
+    "teachersDescription": "View and manage teachers.",
+    "report1Title": "Performance Report",
+    "report1Description": "Comprehensive analysis of platform performance.",
+    "report2Title": "Usage Report",
+    "report2Description": "Platform usage statistics.",
+    "report3Title": "Financial Report",
+    "report3Description": "Overview of revenues and expenses."
+  },
+  "manager": {
+    "stats": {
+      "projectsActive": "Active Projects",
+      "pendingReviews": "Pending Reviews",
+      "teamCapacity": "Team Capacity",
+      "weeklyGoals": "Weekly Goals"
+    },
+    "pipelineTitle": "Pipeline",
+    "pipelineDescription": "Track ongoing projects and tasks.",
+    "pipelineItem1": "Complete project review",
+    "pipelineItem2": "Update team plan",
+    "pipelineItem3": "Prepare next week meeting",
+    "teamPulseTitle": "Team Pulse",
+    "teamPulseDescription": "Overview of team performance and progress.",
+    "coursesTitle": "Course Management",
+    "coursesDescription": "View courses sorted by {sort}.",
+    "report1Title": "Projects Report",
+    "report1Description": "Analysis of ongoing projects status.",
+    "report2Title": "Team Report",
+    "report2Description": "Team performance and productivity.",
+    "report3Title": "Budget Report",
+    "report3Description": "Track expenses and budget."
+  },
+  "teacher": {
+    "welcomeCardTitle": "Welcome to Teacher Dashboard",
+    "welcomeCardDescription": "Manage your classes and access educational resources.",
+    "classroomCardTitle": "Classroom Management",
+    "classroomCardDescription": "Track student attendance and performance.",
+    "classesTitle": "Class Management",
+    "classesDescription": "View and manage your teaching classes.",
+    "coursesTitle": "Teaching Courses",
+    "coursesDescription": "Courses filtered by {status}.",
+    "teacherDashboard": "Teacher Dashboard"
+  },
+  "student": {
+    "progressCardTitle": "Your Academic Progress",
+    "progressCardDescription": "Track your grades and achievements.",
+    "assignmentsCardTitle": "Assignments",
+    "assignmentsCardDescription": "View submitted and pending assignments.",
+    "coursesTitle": "My Courses",
+    "coursesDescription": "Currently enrolled courses ({status}).",
+    "gradesTitle": "Grades",
+    "gradesDescription": "View your grades in different subjects.",
+    "studentDashboard": "Student Dashboard"
+  },
+  "table": {
+    "name": "Name",
+    "role": "Role",
+    "email": "Email",
+    "status": "Status",
+    "student": "Student",
+    "class": "Class",
+    "teacher": "Teacher",
+    "subject": "Subject",
+    "course": "Course",
+    "tag": "Tag",
+    "students": "Students",
+    "score": "Score",
+    "grade": "Grade"
   },
   "auth": {
     "admin": "Admin",

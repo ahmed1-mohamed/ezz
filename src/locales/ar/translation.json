@@ -1,20 +1,13 @@
 {
   "appName": "منارة العز أكاديمي",
   "home": {
-    "title": "مرحباً بك في لوحة التعليم المهنية",
-    "subtitle": "واجهة تعليمية حديثة للمديرين، المديرين، المعلمين والطلاب.",
-    "description": "بناءً على React و Vite و Tailwind مع دعم RTL، تسجيل دخول ودور المستخدم.",
-    "button": "ابدأ الآن",
-    "features": {
-      "secureRouting": "توجيه آمن حسب الدور",
-      "protectedPages": "صفحات محمية",
-      "persistentAuth": "تسجيل دخول محلي مستمر",
-      "responsiveUI": "تصميم متجاوب",
-      "viewMore": "عرض المزيد من اللوحات"
-    },
-    "learnMore": "المزيد",
-    "promoTitle": "موثوق به من فرق التعليم حول العالم",
-    "promoText": "منصة حديثة للتعلم مع وصول حسب الدور، ودعم متعدد اللغات، وسير عمل آمن للإدارة."
+    "badge": "أكاديمية تعليمية متكاملة",
+    "titleLine1": "ابدأ رحلة النور..",
+    "titleLine2": "تعليم قرآني مباشر",
+    "titleLine3": "بقيم تربوية",
+    "description": "نجمع بين جودة التعليم التقني والقيم الإسلامية الراسخة لنبني جيلاً قارئاً فاهماً لكتاب الله، في بيئة تعليمية ذكية وتفاعلية.",
+    "ctaPrimary": "ابدأ الآن",
+    "ctaSecondary": "شاهد التجربة"
   },
   "login": {
     "title": "تسجيل الدخول",
@@ -52,6 +45,87 @@
       "courses": "الدورات المتاحة",
       "activeSessions": "الجلسات النشطة"
     }
+  },
+  "admin": {
+    "performanceTitle": "أداء المنصة",
+    "performanceDescription": "مراقبة المقاييس الرئيسية للمنصة التعليمية.",
+    "activityTitle": "النشاط الأخير",
+    "activityDescription": "نظرة على الأحداث والتحديثات الأخيرة.",
+    "activityItem1": "تم تحديث الدورات الجديدة",
+    "activityItem2": "تم تسجيل 5 طلاب جدد",
+    "activityItem3": "تم إكمال تقرير الشهر",
+    "userDirectoryTitle": "دليل المستخدمين",
+    "studentsTitle": "إدارة الطلاب",
+    "studentsDescription": "عرض وإدارة قائمة الطلاب المسجلين.",
+    "filteredBy": "تم التصفية حسب",
+    "teachersTitle": "إدارة المعلمين",
+    "teachersDescription": "عرض وإدارة قائمة المعلمين.",
+    "report1Title": "تقرير الأداء",
+    "report1Description": "تحليل شامل لأداء المنصة.",
+    "report2Title": "تقرير الاستخدام",
+    "report2Description": "إحصائيات استخدام المنصة.",
+    "report3Title": "تقرير المالي",
+    "report3Description": "نظرة على الإيرادات والمصروفات."
+  },
+  "manager": {
+    "stats": {
+      "projectsActive": "المشاريع النشطة",
+      "pendingReviews": "المراجعات المعلقة",
+      "teamCapacity": "سعة الفريق",
+      "weeklyGoals": "الأهداف الأسبوعية"
+    },
+    "pipelineTitle": "خط الأنابيب",
+    "pipelineDescription": "تتبع المشاريع والمهام الجارية.",
+    "pipelineItem1": "إكمال مراجعة المشروع",
+    "pipelineItem2": "تحديث خطة الفريق",
+    "pipelineItem3": "إعداد اجتماع الأسبوع القادم",
+    "teamPulseTitle": "نبض الفريق",
+    "teamPulseDescription": "رؤية عامة على أداء الفريق والتقدم.",
+    "coursesTitle": "إدارة الدورات",
+    "coursesDescription": "عرض الدورات المصنفة حسب {sort}.",
+    "report1Title": "تقرير المشاريع",
+    "report1Description": "تحليل حالة المشاريع الجارية.",
+    "report2Title": "تقرير الفريق",
+    "report2Description": "أداء وإنتاجية الفريق.",
+    "report3Title": "تقرير الميزانية",
+    "report3Description": "تتبع المصروفات والميزانية."
+  },
+  "teacher": {
+    "welcomeCardTitle": "مرحباً بك في لوحة المعلم",
+    "welcomeCardDescription": "إدارة فصولك والوصول إلى الموارد التعليمية.",
+    "classroomCardTitle": "إدارة الفصل",
+    "classroomCardDescription": "تتبع حضور الطلاب وأدائهم.",
+    "classesTitle": "إدارة الفصول",
+    "classesDescription": "عرض وإدارة فصولك التدريسية.",
+    "coursesTitle": "الدورات التدريسية",
+    "coursesDescription": "الدورات المصنفة حسب {status}.",
+    "teacherDashboard": "لوحة المعلم"
+  },
+  "student": {
+    "progressCardTitle": "تقدمك الدراسي",
+    "progressCardDescription": "تتبع درجاتك وإنجازاتك.",
+    "assignmentsCardTitle": "الواجبات",
+    "assignmentsCardDescription": "عرض الواجبات المقدمة والمستحقة.",
+    "coursesTitle": "دوراتي",
+    "coursesDescription": "الدورات المسجلة حالياً ({status}).",
+    "gradesTitle": "المستويات",
+    "gradesDescription": "عرض درجاتك في المواد المختلفة.",
+    "studentDashboard": "لوحة الطالب"
+  },
+  "table": {
+    "name": "الاسم",
+    "role": "الدور",
+    "email": "البريد الإلكتروني",
+    "status": "الحالة",
+    "student": "الطالب",
+    "class": "الفصل",
+    "teacher": "المعلم",
+    "subject": "المادة",
+    "course": "الدورة",
+    "tag": "الوسم",
+    "students": "الطلاب",
+    "score": "النتيجة",
+    "grade": "المستوى"
   },
   "auth": {
     "admin": "مسؤول",

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AuthLayout from '../layouts/AuthLayout.jsx'
 import Button from '../components/ui/Button.jsx'
@@ -114,10 +114,7 @@ export default function Login() {
                             </Button>
                         </form>
                         <p className="mt-5 text-center text-sm text-slate-400">
-                            {t('login.noAccount')}{' '}
-                            <Link className="font-semibold text-sky-400 hover:text-sky-200" to="/register">
-                                {t('login.register')}
-                            </Link>
+                            {t('login.help')}
                         </p>
                     </Card>
                 </div>

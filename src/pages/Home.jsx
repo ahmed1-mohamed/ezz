@@ -1,50 +1,179 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import Button from '../components/ui/Button.jsx'
+import gsap from 'gsap'
+import StatisticsBanner from '../components/ui/StatisticsBanner.jsx'
 
 export default function Home() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const containerRef = useRef(null)
+    const badgeRef = useRef(null)
+    const titleRef = useRef(null)
+    const descRef = useRef(null)
+    const buttonsRef = useRef(null)
+    const imageWrapperRef = useRef(null)
 
-    const features = [
-        { label: t('home.features.secureRouting'), value: 'Admin / Manager / Teacher / Student' },
-        { label: t('home.features.protectedPages'), value: t('home.features.protectedPages') },
-        { label: t('home.features.persistentAuth'), value: t('home.features.persistentAuth') },
-        { label: t('home.features.responsiveUI'), value: t('home.features.responsiveUI') },
-    ]
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+            tl.from(badgeRef.current, {
+                opacity: 0,
+                y: -20,
+                duration: 0.6,
+            })
+
+                .from(
+                    titleRef.current.children,
+                    {
+                        opacity: 0,
+                        y: 40,
+                        stagger: 0.15,
+                        duration: 0.9,
+                    },
+                    '-=0.2'
+                )
+
+                .from(
+                    descRef.current,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.7,
+                    },
+                    '-=0.5'
+                )
+
+                .from(
+                    buttonsRef.current.children,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        stagger: 0.12,
+                        duration: 0.5,
+                    },
+                    '-=0.4'
+                )
+
+                .from(
+                    imageWrapperRef.current,
+                    {
+                        opacity: 0,
+                        scale: 0.9,
+                        x: 60,
+                        rotate: 4,
+                        duration: 1,
+                        ease: 'power4.out',
+                    },
+                    '-=1'
+                )
+
+            gsap.to(imageWrapperRef.current, {
+                y: -12,
+                duration: 3,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+            })
+        }, containerRef)
+
+        return () => ctx.revert()
+    }, [])
 
     return (
-        <div className="space-y-10">
-            <section className="rounded-3xl border border-slate-200/80 bg-white/90 p-10 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
-                <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
-                    <div className="space-y-8">
-                        <div className="space-y-4">
-                            <p className="text-sm uppercase tracking-[0.3em] text-sky-500">{t('appName')}</p>
-                            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">{t('home.title')}</h1>
-                            <p className="max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg">{t('home.description')}</p>
+        <div ref={containerRef} className="space-y-8 sm:space-y-12 lg:space-y-16">
+            <section
+                dir={i18n.dir()}
+                className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm"
+            >
+                <div className={`grid items-center gap-8 sm:gap-12 lg:gap-16 lg:grid-cols-2 ${i18n.language === 'ar' ? 'rtl' : 'ltr'}`}>
+
+                    <div className={`order-2 space-y-6 sm:space-y-8 ${i18n.language === 'ar' ? 'text-right lg:order-1' : 'text-left lg:order-1'}`}>
+
+                        <div
+                            ref={badgeRef}
+                            className="inline-flex items-center rounded-full border border-[#735C00] bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm"
+                        >
+                            {t('home.badge')}
                         </div>
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+
+                        <div
+                            ref={titleRef}
+                            className="space-y-2 sm:space-y-4"
+                        >
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
+                                {t('home.titleLine1')}
+                            </h1>
+
+                            <h1 className="bg-gradient-to-r from-[#0F7A6C] to-[#005F54] bg-clip-text text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.2] sm:leading-[1.3] text-transparent">
+                                {t('home.titleLine2')}
+                            </h1>
+
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
+                                {t('home.titleLine3')}
+                            </h1>
+                        </div>
+
+                        <p
+                            ref={descRef}
+                            className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600"
+                        >
+                            {t('home.description')}
+                        </p>
+
+                        <div
+                            ref={buttonsRef}
+                            className={`flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-5 ${i18n.language === 'ar' ? 'justify-start' : 'justify-start'}`}
+                        >
+                            <Link to="/about">
+                                <button className="w-full sm:w-auto rounded-2xl border border-[#0F7A6C] bg-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-[#0F7A6C] transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F7A6C]/5 hover:shadow-lg">
+                                    {t('home.ctaSecondary')}
+                                </button>
+                            </Link>
+
                             <Link to="/login">
-                                <Button>{t('home.button')}</Button>
-                            </Link>
-                            <Link to="/about" className="text-sm font-semibold text-slate-700 transition hover:text-slate-900 dark:text-slate-200 dark:hover:text-white">
-                                {t('home.learnMore')} →
+                                <button className="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-[#0F7A6C] to-[#005F54] px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                                    {t('home.ctaPrimary')}
+                                </button>
                             </Link>
                         </div>
                     </div>
-                    <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-8 text-slate-900 shadow-sm dark:border-slate-700/60 dark:bg-slate-950 dark:text-slate-100">
-                        <h2 className="text-xl font-semibold">{t('home.promoTitle')}</h2>
-                        <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">{t('home.promoText')}</p>
-                        <div className="mt-6 grid gap-4">
-                            {features.map((item) => (
-                                <div key={item.label} className="rounded-3xl bg-white p-4 shadow-sm dark:bg-slate-900">
-                                    <p className="font-semibold text-slate-900 dark:text-white">{item.label}</p>
-                                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{item.value}</p>
-                                </div>
-                            ))}
+
+                    <div className="order-1 flex justify-center lg:order-2">
+                        <div className="relative flex items-center justify-center w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl">
+
+                            <div
+                                className="absolute z-0 h-[300px] w-[300px] sm:h-[400px] sm:w-[400px] lg:h-[500px] lg:w-[500px] xl:h-[540px] xl:w-[540px]"
+                                style={{
+                                    background: 'rgba(254, 214, 91, 0.2)',
+                                    borderRadius: '199px 117px 459px 433px',
+                                    transform: 'matrix(0.99, -0.11, 0.1, 1, 0, 0)',
+                                }}
+                            />
+
+                            <div className="absolute -left-5 -top-5 sm:-left-8 sm:-top-8 lg:-left-10 lg:-top-10 z-0 h-20 w-20 sm:h-32 sm:w-32 lg:h-44 lg:w-44 rounded-full bg-[#0F7A6C]/10 blur-3xl" />
+                            <div className="absolute -bottom-5 -right-5 sm:-bottom-8 sm:-right-8 lg:-bottom-10 lg:-right-10 z-0 h-20 w-20 sm:h-32 sm:w-32 lg:h-44 lg:w-44 rounded-full bg-[#005F54]/10 blur-3xl" />
+
+                            <div
+                                ref={imageWrapperRef}
+                                className="relative z-10 overflow-hidden rounded-2xl sm:rounded-[36px] border border-slate-200 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.12)] w-full"
+                            >
+                                <img
+                                    src="/src/images/منارة العز.jpg"
+                                    alt="Islamic Education"
+                                    loading="lazy"
+                                    className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain transition duration-700 hover:scale-105"
+                                />
+                            </div>
+
                         </div>
                     </div>
+
                 </div>
             </section>
+
+            {/* Statistics Banner */}
+            <StatisticsBanner />
         </div>
     )
 }
