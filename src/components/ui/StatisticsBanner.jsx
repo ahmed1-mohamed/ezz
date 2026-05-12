@@ -64,29 +64,29 @@ export default function StatisticsBanner() {
         <section
             ref={bannerRef}
             dir={i18n.dir()}
-            className="w-full h-[232px] bg-gradient-to-r from-[#0F7A6C] to-[#005F54] relative overflow-hidden"
+            className="w-full min-h-[200px] sm:min-h-[232px] lg:h-[232px] bg-gradient-to-r from-[#0F7A6C] to-[#005F54] relative overflow-hidden"
         >
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_50%)]" />
                 <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.05),transparent_50%)]" />
             </div>
 
-            <div className="relative z-10 h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 max-w-6xl w-full">
+            <div className="relative z-10 h-full flex items-center justify-center px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 lg:gap-12 max-w-8xl w-full mx-auto">
                     {statistics.map((stat, index) => (
                         <div
                             key={index}
                             ref={(el) => (statsRef.current[index] = el)}
-                            className="flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3"
+                            className="flex flex-col items-center justify-center text-center space-y-1.5 sm:space-y-3"
                         >
                             <div className="relative">
                                 <div className="absolute inset-0 bg-[#FFD700] blur-xl opacity-30 rounded-full scale-150" />
-                                <h2 className="stat-number relative text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-[#FFD700] leading-none drop-shadow-lg">
+                                <h2 className="stat-number relative text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-[#FFD700] leading-none drop-shadow-lg">
                                     0
                                 </h2>
                             </div>
 
-                            <p className="text-white text-sm sm:text-base lg:text-lg xl:text-xl font-medium leading-tight max-w-xs px-2">
+                            <p className="text-white text-xs sm:text-base lg:text-lg xl:text-xl font-medium leading-tight max-w-xs px-1 sm:px-2">
                                 {stat.label}
                             </p>
                         </div>
@@ -94,10 +94,10 @@ export default function StatisticsBanner() {
                 </div>
             </div>
 
-            <div className="absolute top-4 left-4 w-2 h-2 bg-white/20 rounded-full" />
-            <div className="absolute top-8 right-8 w-1 h-1 bg-white/30 rounded-full" />
-            <div className="absolute bottom-6 left-12 w-3 h-3 bg-white/10 rounded-full" />
-            <div className="absolute bottom-4 right-6 w-2 h-2 bg-white/20 rounded-full" />
-        </section>
+            <div className="absolute top-2 sm:top-4 left-2 sm:left-4 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/20 rounded-full" />
+            <div className="absolute top-4 sm:top-8 right-4 sm:right-8 w-0.5 h-0.5 sm:w-1 sm:h-1 bg-white/30 rounded-full" />
+            <div className="absolute bottom-4 sm:bottom-6 left-6 sm:left-12 w-2 h-2 sm:w-3 sm:h-3 bg-white/10 rounded-full" />
+            <div className="absolute bottom-2 sm:bottom-4 right-3 sm:right-6 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/20 rounded-full" />
+        </section >
     )
 }

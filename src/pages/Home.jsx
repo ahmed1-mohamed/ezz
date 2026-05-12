@@ -3,6 +3,9 @@ import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import gsap from 'gsap'
 import StatisticsBanner from '../components/ui/StatisticsBanner.jsx'
+import PremiumParentsSection from '../components/ui/PremiumParentsSection.jsx'
+import Teachers from './Teachers.jsx'
+import EducationalPrograms from '../components/ui/EducationalPrograms.jsx'
 
 export default function Home() {
     const { t, i18n } = useTranslation()
@@ -105,7 +108,7 @@ export default function Home() {
                                 {t('home.titleLine1')}
                             </h1>
 
-                            <h1 className="bg-gradient-to-r from-[#0F7A6C] to-[#005F54] bg-clip-text text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.2] sm:leading-[1.3] text-transparent">
+                            <h1 className="bg-gradient-to-r from-[#0F7A6C] to-[#005F54] bg-clip-text text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
                                 {t('home.titleLine2')}
                             </h1>
 
@@ -172,8 +175,10 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Statistics Banner */}
-            <StatisticsBanner />
+                <StatisticsBanner />
+            <PremiumParentsSection />
+                <EducationalPrograms />
+                <Teachers/>
         </div>
     )
 }

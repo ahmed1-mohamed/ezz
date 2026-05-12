@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '../context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
+import RoleBasedRoute from './RoleBasedRoute.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import { getRedirectPath } from '../services/authService.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
@@ -121,7 +122,6 @@ export default function AppRoutes() {
                         />
 
                         <Route element={<ProtectedRoute />}>
-
                             <Route
                                 path="/dashboard"
                                 element={
@@ -136,85 +136,81 @@ export default function AppRoutes() {
                                 }
                             />
 
-                            <Route
-                                path="/dashboard/admin"
-                                element={<AnimatedPage><AdminDashboard /></AnimatedPage>}
-                            />
+                            <Route element={<RoleBasedRoute allowedRoles={['Admin']} />}>
+                                <Route
+                                    path="/dashboard/admin"
+                                    element={<AnimatedPage><AdminDashboard /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/admin/students"
+                                    element={<AnimatedPage><AdminStudents /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/admin/teachers"
+                                    element={<AnimatedPage><AdminTeachers /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/admin/reports"
+                                    element={<AnimatedPage><AdminReports /></AnimatedPage>}
+                                />
+                            </Route>
 
-                            <Route
-                                path="/dashboard/admin/students"
-                                element={<AnimatedPage><AdminStudents /></AnimatedPage>}
-                            />
+                            <Route element={<RoleBasedRoute allowedRoles={['Manager']} />}>
+                                <Route
+                                    path="/dashboard/manager"
+                                    element={<AnimatedPage><ManagerDashboard /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/manager/courses"
+                                    element={<AnimatedPage><ManagerCourses /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/manager/schedule"
+                                    element={<AnimatedPage><ManagerSchedule /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/manager/reports"
+                                    element={<AnimatedPage><ManagerReports /></AnimatedPage>}
+                                />
+                            </Route>
 
-                            <Route
-                                path="/dashboard/admin/teachers"
-                                element={<AnimatedPage><AdminTeachers /></AnimatedPage>}
-                            />
+                            <Route element={<RoleBasedRoute allowedRoles={['Teacher']} />}>
+                                <Route
+                                    path="/dashboard/teacher"
+                                    element={<AnimatedPage><TeacherDashboard /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/teacher/schedule"
+                                    element={<AnimatedPage><TeacherSchedule /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/teacher/classes"
+                                    element={<AnimatedPage><TeacherClasses /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/teacher/courses"
+                                    element={<AnimatedPage><TeacherCourses /></AnimatedPage>}
+                                />
+                            </Route>
 
-                            <Route
-                                path="/dashboard/admin/reports"
-                                element={<AnimatedPage><AdminReports /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/manager"
-                                element={<AnimatedPage><ManagerDashboard /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/manager/courses"
-                                element={<AnimatedPage><ManagerCourses /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/manager/schedule"
-                                element={<AnimatedPage><ManagerSchedule /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/manager/reports"
-                                element={<AnimatedPage><ManagerReports /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/teacher"
-                                element={<AnimatedPage><TeacherDashboard /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/teacher/schedule"
-                                element={<AnimatedPage><TeacherSchedule /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/teacher/classes"
-                                element={<AnimatedPage><TeacherClasses /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/teacher/courses"
-                                element={<AnimatedPage><TeacherCourses /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/student"
-                                element={<AnimatedPage><StudentDashboard /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/student/courses"
-                                element={<AnimatedPage><StudentCourses /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/student/schedule"
-                                element={<AnimatedPage><StudentSchedule /></AnimatedPage>}
-                            />
-
-                            <Route
-                                path="/dashboard/student/grades"
-                                element={<AnimatedPage><StudentGrades /></AnimatedPage>}
-                            />
+                            <Route element={<RoleBasedRoute allowedRoles={['Student']} />}>
+                                <Route
+                                    path="/dashboard/student"
+                                    element={<AnimatedPage><StudentDashboard /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/student/courses"
+                                    element={<AnimatedPage><StudentCourses /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/student/schedule"
+                                    element={<AnimatedPage><StudentSchedule /></AnimatedPage>}
+                                />
+                                <Route
+                                    path="/dashboard/student/grades"
+                                    element={<AnimatedPage><StudentGrades /></AnimatedPage>}
+                                />
+                            </Route>
                         </Route>
 
                         <Route

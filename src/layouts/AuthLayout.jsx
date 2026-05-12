@@ -1,4 +1,5 @@
 import LanguageSwitcher from '../components/layout/LanguageSwitcher.jsx'
+import Container from '../components/ui/Container.jsx'
 
 export default function AuthLayout({ children }) {
     return (
@@ -6,9 +7,9 @@ export default function AuthLayout({ children }) {
             <div className="absolute right-4 top-4 sm:right-6 sm:top-6">
                 <LanguageSwitcher />
             </div>
-            <div className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-12 sm:px-10">
+            <Container className="flex min-h-screen flex-col justify-center py-12 sm:py-16">
                 {children}
-            </div>
+            </Container>
         </div>
     )
 }

@@ -1,13 +1,13 @@
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.jsx'
 
-export default function RoleBasedRoute({ allowedRoles, children }) {
+export default function RoleBasedRoute({ allowedRoles }) {
     const { user } = useAuth()
     const location = useLocation()
 
     if (!user || !allowedRoles.includes(user.role)) {
-        return <Navigate to="/dashboard" state={{ from: location }} replace />
+        return <Navigate to="/unauthorized" state={{ from: location }} replace />
     }
 
-    return children
+    return <Outlet />
 }

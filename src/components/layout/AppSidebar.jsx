@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../context/useAuth.jsx'
 import Button from '../ui/Button.jsx'
@@ -6,6 +6,7 @@ import Button from '../ui/Button.jsx'
 export default function AppSidebar({ links, role }) {
     const { logout } = useAuth()
     const { t } = useTranslation()
+    const navigate = useNavigate()
     const location = useLocation()
 
     return (
@@ -27,7 +28,14 @@ export default function AppSidebar({ links, role }) {
                 </div>
             </div>
             <div className="mt-auto">
-                <Button variant="ghost" onClick={() => { logout(); window.location.href = '/login' }} className="w-full justify-center border border-brand-200 dark:border-brand-700/60 text-sm sm:text-base">
+                <Button
+                    variant="ghost"
+                    onClick={() => {
+                        logout()
+                        navigate('/login')
+                    }}
+                    className="w-full justify-center border border-brand-200 dark:border-brand-700/60 text-sm sm:text-base"
+                >
                     {t('dashboard.logout')}
                 </Button>
             </div>

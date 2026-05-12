@@ -4,6 +4,7 @@ import { Globe, Menu, X } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../ui/Button.jsx'
+import Container from '../ui/Container.jsx'
 import { setLanguage } from '../../i18n.js'
 import { publicNavigation } from '../../constants/publicNavigation.js'
 
@@ -36,7 +37,7 @@ export default function AppNavbar() {
         }
     }
 
-    const navItems = publicNavigation.slice(0, -1).map((item) => ({
+    const navItems = publicNavigation.map((item) => ({
         label: item.labelKey,
         to: item.path,
     }))
@@ -52,7 +53,7 @@ export default function AppNavbar() {
                 : 'bg-white shadow-sm border-b border-slate-100/50'
                 }`}
         >
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Container>
                 <div
                     dir={i18n.dir()}
                     className="flex items-center justify-between h-14 sm:h-16"
@@ -74,7 +75,7 @@ export default function AppNavbar() {
                             title={t('language.english')}
                             aria-label="Toggle language"
                         >
-                            <Globe size={18} xl:size={20} strokeWidth={1.5} />
+                            <Globe size={20} strokeWidth={1.5} />
                         </button>
 
                         <nav className="flex items-center space-x-1">
@@ -122,7 +123,7 @@ export default function AppNavbar() {
                         className="lg:hidden inline-flex items-center justify-center h-9 w-9 xl:h-10 xl:w-10 rounded-lg text-slate-700 hover:bg-[#0F7A6C]/10 hover:text-[#0F7A6C] transition-all duration-200"
                         aria-label="Toggle mobile menu"
                     >
-                        {isMobileMenuOpen ? <X size={18} xl:size={20} /> : <Menu size={18} xl:size={20} />}
+                        {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                     </button>
                 </div>
 
@@ -186,7 +187,7 @@ export default function AppNavbar() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </div>
+            </Container>
         </motion.header>
     )
 }
