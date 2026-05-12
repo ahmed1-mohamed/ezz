@@ -77,7 +77,6 @@ export default function PremiumParentsSection() {
                         ref={(el) => (cardsRef.current[index] = el)}
                         className="group relative flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_80px_rgba(0,0,0,0.12)]"
                     >
-                        {/* Top */}
                         <div className="mb-2 flex items-center justify-between">
                             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] bg-gradient-to-br from-[#0F7A6C]/20 to-[#005F54]/10 shadow-lg">
                                 <Icon
@@ -89,7 +88,6 @@ export default function PremiumParentsSection() {
 
                         </div>
 
-                        {/* Content */}
                         <div className="flex flex-1 flex-col">
                             <h3 className="min-h-[32px] text-2xl font-extrabold leading-relaxed text-[#0F172A]">
                                 {title}
@@ -100,7 +98,6 @@ export default function PremiumParentsSection() {
                             </p>
                         </div>
 
-                        {/* Bottom Hover Line */}
                         <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#D4AF37] transition-all duration-500 group-hover:w-full" />                        </article>
                 ))}
                 </div>

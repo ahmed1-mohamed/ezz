@@ -1,9 +1,3 @@
-/**
- * Public website navigation configuration
- * Used in PublicLayout to render the main header navigation
- * Supports RTL/LTR and language switching via i18n
- */
-
 export const publicNavigation = [
   {
     labelKey: "public.nav.home",

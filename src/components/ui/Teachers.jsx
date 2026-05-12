@@ -32,7 +32,7 @@ const teachers = [
     },
 ]
 
-function StarRating({ rating }: { rating: number }) {
+function StarRating({ rating }) {
     return (
         <div className="flex gap-0.5 justify-center" dir="ltr">
             {[...Array(5)].map((_, index) => (
@@ -55,7 +55,6 @@ export default function TeachersSection() {
         <section className="bg-[#D9E5E3] py-20 px-4" dir="rtl">
             <div className="max-w-6xl mx-auto">
 
-                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -71,7 +70,6 @@ export default function TeachersSection() {
                     </p>
                 </motion.div>
 
-                {/* Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
                     {teachers.map((teacher, index) => (
                         <motion.div
@@ -88,7 +86,6 @@ export default function TeachersSection() {
                             className="flex flex-col items-center text-center"
                         >
 
-                            {/* Image */}
                             <div className="relative w-32 h-32 md:w-40 md:h-40 mb-4">
                                 <motion.div
                                     className="absolute inset-0 rounded-full border-4 border-[#A8D4D4]"
@@ -108,7 +105,6 @@ export default function TeachersSection() {
                                 />
                             </div>
 
-                            {/* Info */}
                             <h3 className="text-lg font-semibold text-[#2D3E40] mb-1">
                                 {teacher.name}
                             </h3>

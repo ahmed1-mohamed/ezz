@@ -58,7 +58,6 @@ export default function AppNavbar() {
                     dir={i18n.dir()}
                     className="flex items-center justify-between h-14 sm:h-16"
                 >
-                    {/* Logo */}
                     <Link
                         to="/"
                         className="flex-shrink-0 text-lg sm:text-xl font-bold bg-gradient-to-r from-[#0F7A6C] to-[#005F54] bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-200"
@@ -66,7 +65,6 @@ export default function AppNavbar() {
                         {t('appName')}
                     </Link>
 
-                    {/* Desktop Navigation */}
                     <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
                         <button
                             onClick={handleLanguageToggle}
@@ -96,7 +94,6 @@ export default function AppNavbar() {
                         </nav>
                     </div>
 
-                    {/* Desktop Auth Buttons */}
                     <div className="hidden lg:flex items-center space-x-3">
                         <Link to="/login">
                             <Button
@@ -117,7 +114,6 @@ export default function AppNavbar() {
                         </Link>
                     </div>
 
-                    {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className="lg:hidden inline-flex items-center justify-center h-9 w-9 xl:h-10 xl:w-10 rounded-lg text-slate-700 hover:bg-[#0F7A6C]/10 hover:text-[#0F7A6C] transition-all duration-200"
@@ -127,7 +123,6 @@ export default function AppNavbar() {
                     </button>
                 </div>
 
-                {/* Mobile Menu */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div

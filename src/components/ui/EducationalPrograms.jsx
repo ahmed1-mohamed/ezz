@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import gsap from "gsap";
 
-// 👇 استيراد الصور من الجهاز
 import program1 from "../../images/برامجنا/2.jpg";
 import program2 from "../../images/برامجنا/1.jpg";
 import program3 from "../../images/برامجنا/3.jpg";
@@ -72,13 +71,11 @@ export default function EducationalPrograms() {
             dir="rtl"
             className="relative bg-[#F8FAFC] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
         >
-            {/* Background Effects */}
             <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-[#0F7A6C]/10 blur-3xl" />
             <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-[#D4AF37]/10 blur-3xl" />
 
             <div className="relative mx-auto max-w-8xl">
 
-                {/* Header */}
                 <div ref={titleRef} className="text-center mb-14">
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F7A6C]">
                         برامجنا التعليمية
@@ -91,7 +88,6 @@ export default function EducationalPrograms() {
                     </p>
                 </div>
 
-                {/* Cards */}
                 <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
                     {programs.map((program, index) => (
                         <article
@@ -99,7 +95,6 @@ export default function EducationalPrograms() {
                             ref={(el) => (cardsRef.current[index] = el)}
                             className="group flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_15px_50px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_70px_rgba(0,0,0,0.12)]"
                         >
-                            {/* Image */}
                             <div className="relative h-56 overflow-hidden">
                                 <img
                                     src={program.image}
@@ -112,7 +107,6 @@ export default function EducationalPrograms() {
                                 </span>
                             </div>
 
-                            {/* Content */}
                             <div className="flex flex-1 flex-col p-7">
 
                                 <h3 className="text-2xl font-extrabold text-[#0F172A]">
@@ -123,7 +117,6 @@ export default function EducationalPrograms() {
                                     {program.description}
                                 </p>
 
-                                {/* Tags */}
                                 <div className="mt-6 flex flex-wrap gap-2">
                                     {program.tags.map((tag, i) => (
                                         <span
@@ -135,7 +128,6 @@ export default function EducationalPrograms() {
                                     ))}
                                 </div>
 
-                                {/* Features */}
                                 <div className="mt-8 flex flex-col gap-4">
                                     {program.features.map((feature, i) => (
                                         <div key={i} className="flex items-center gap-3">
@@ -149,7 +141,6 @@ export default function EducationalPrograms() {
                                     ))}
                                 </div>
 
-                                {/* Button */}
                                 <button className="mt-8 rounded-2xl bg-[#0F7A6C] py-3.5 font-bold text-white transition hover:bg-[#005F54]">
                                     سجل الآن
                                 </button>
