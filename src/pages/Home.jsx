@@ -167,7 +167,7 @@ export default function Home() {
                                     className="relative z-10 overflow-hidden rounded-2xl sm:rounded-[36px] border border-slate-200 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.12)] w-full"
                                 >
                                     <img
-                                        src="/src/images/منارة العز.jpg"
+                                        src="/src/images/5.jpg"
                                         alt="Islamic Education"
                                         loading="lazy"
                                         className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain transition duration-700 hover:scale-105"
