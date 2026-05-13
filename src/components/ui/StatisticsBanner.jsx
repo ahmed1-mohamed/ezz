@@ -64,7 +64,7 @@ export default function StatisticsBanner() {
         <section
             ref={bannerRef}
             dir={i18n.dir()}
-            className="w-full min-h-[200px] sm:min-h-[232px] lg:min-h-[280px] bg-gradient-to-r from-brand-500 to-brand-700 relative overflow-hidden"
+            className="w-full min-h-[100px] sm:min-h-[132px] lg:min-h-[180px] bg-gradient-to-r from-brand-500 to-brand-700 relative overflow-hidden"
         >
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_50%)]" />
@@ -81,7 +81,7 @@ export default function StatisticsBanner() {
                         >
                             <div className="relative">
                                 <div className="absolute inset-0 bg-gold-light blur-xl opacity-30 rounded-full scale-150" />
-                                <h2 className="stat-number relative text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-gold-light leading-none drop-shadow-lg">
+                                <h2 className="stat-number relative text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-[#D3A900] leading-none drop-shadow-lg">
                                     0
                                 </h2>
                             </div>
