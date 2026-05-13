@@ -63,10 +63,10 @@ export default function TestimonialsSection() {
                             }}
                             className="group relative"
                         >
-                            <div className="absolute inset-0 rounded-[32px] bg-[#0F7A6C]/10 blur-2xl opacity-0 group-hover:opacity-100 transition duration-500" />
+                            <div className="absolute inset-0 rounded-[32px] bg-[#0F7A6C] blur-2xl opacity-10 group-hover:opacity-100 transition duration-500" />
 
                             <div className="relative bg-white/90 backdrop-blur-xl rounded-[32px] p-10 shadow-[0_10px_50px_rgba(0,0,0,0.05)] border border-white overflow-hidden min-h-[280px] flex flex-col justify-between">
-                                <div className="absolute top-6 left-6 text-[#0F7A6C]/10 text-7xl font-black">
+                                <div className="absolute top-6 left-6 text-[#0F7A6C] text-7xl font-black">
                                     "
                                 </div>
 

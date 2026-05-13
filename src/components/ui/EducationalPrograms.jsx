@@ -49,7 +49,6 @@ export default function EducationalPrograms() {
 
             <div className="relative mx-auto max-w-6xl">
 
-                {/* Title */}
                 <motion.div
                     initial={{ opacity: 0, y: 25 }}
                     whileInView={{ opacity: 1, y: 0 }}
