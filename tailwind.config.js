@@ -16,6 +16,24 @@ export default {
           800: "#024F45",
           900: "#013F38",
         },
+        accent: {
+          teal: "#1a8a7a",
+          darkGray: "#2D3E40",
+          mediumGray: "#5A6B6D",
+          lightMint: "#D9E5E3",
+          lightTeal: "#A8D4D4",
+          mint: "#F8FFFD",
+          paleMint: "#F5FFFC",
+        },
+        gold: {
+          light: "#FED700",
+          main: "#D4AF37",
+          dark: "#C9A227",
+          darker: "#8B7D3A",
+        },
+        secondary: {
+          teal: "#17B89C",
+        },
       },
       boxShadow: {
         soft: "0 24px 80px rgba(15, 23, 42, 0.08)",

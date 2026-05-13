@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Star } from "lucide-react";
 
 const teachers = [
@@ -33,8 +34,9 @@ const teachers = [
 ];
 
 export default function Teachers() {
+    const { i18n } = useTranslation();
     return (
-        <section className="w-full py-20 bg-gradient-to-b from-[#F8FFFD] via-white to-[#F5FFFC] overflow-hidden">
+        <section dir={i18n.dir()} className="w-full py-20 bg-gradient-to-b from-accent-mint via-white to-accent-paleMint overflow-hidden">
             <div className="max-w-7xl mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 25 }}
@@ -43,7 +45,7 @@ export default function Teachers() {
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 text-[#0F7A6C] text-sm font-semibold mb-4">
+                    <span className="inline-block px-5 py-2 rounded-full bg-brand-500/10 text-brand-500 text-sm font-semibold mb-4">
                         فريقنا التعليمي
                     </span>
 
@@ -71,7 +73,7 @@ export default function Teachers() {
                             className="flex flex-col items-center text-center group"
                         >
                             <div className="relative">
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#17B89C] blur-2xl opacity-25 group-hover:opacity-50 transition duration-500" />
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-500 to-secondary-teal blur-2xl opacity-25 group-hover:opacity-50 transition duration-500" />
 
                                 <div className="rounded-full p-2 border-4 border-white shadow-[0_10px_40px_rgba(15,122,108,0.25)] bg-white">
                                     <img
@@ -81,8 +83,8 @@ export default function Teachers() {
                                     />
                                 </div>
 
-                                <span className="absolute top-3 right-2 w-3 h-3 bg-[#17B89C] rounded-full animate-bounce" />
-                                <span className="absolute bottom-4 left-2 w-2 h-2 bg-[#0F7A6C] rounded-full animate-ping" />
+                                <span className="absolute top-3 right-2 w-3 h-3 bg-secondary-teal rounded-full animate-bounce" />
+                                <span className="absolute bottom-4 left-2 w-2 h-2 bg-brand-500 rounded-full animate-ping" />
                             </div>
 
                             <div className="mt-5">

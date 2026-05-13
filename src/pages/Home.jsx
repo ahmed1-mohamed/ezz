@@ -100,7 +100,7 @@ export default function Home() {
 
                             <div
                                 ref={badgeRef}
-                                className="inline-flex items-center rounded-full border border-[#735C00] bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm"
+                                className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm"
                             >
                                 {t('home.badge')}
                             </div>
@@ -113,7 +113,7 @@ export default function Home() {
                                     {t('home.titleLine1')}
                                 </h1>
 
-                                <h1 className="bg-gradient-to-r from-[#0F7A6C] to-[#005F54] bg-clip-text text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
+                                <h1 className="bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
                                     {t('home.titleLine2')}
                                 </h1>
 
@@ -134,13 +134,13 @@ export default function Home() {
                                 className={`flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-5 ${i18n.language === 'ar' ? 'justify-start' : 'justify-start'}`}
                             >
                                 <Link to="/about">
-                                    <button className="w-full sm:w-auto rounded-2xl border border-[#0F7A6C] bg-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-[#0F7A6C] transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F7A6C]/5 hover:shadow-lg">
+                                    <button className="w-full sm:w-auto rounded-2xl border border-brand-500 bg-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-brand-500 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-500/5 hover:shadow-lg">
                                         {t('home.ctaSecondary')}
                                     </button>
                                 </Link>
 
                                 <Link to="/login">
-                                    <button className="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-[#0F7A6C] to-[#005F54] px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                                    <button className="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
                                         {t('home.ctaPrimary')}
                                     </button>
                                 </Link>

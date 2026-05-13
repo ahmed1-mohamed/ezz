@@ -1,12 +1,14 @@
+import { useTranslation } from "react-i18next"
 import { Mail, Phone, MapPin } from "lucide-react"
 
 export default function Footer() {
+    const { i18n } = useTranslation()
     return (
-        <footer dir="rtl">
+        <footer dir={i18n.dir()}>
             <div className="container mx-auto px-6 py-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <div className="space-y-4">
-                        <h2 className="text-2xl font-bold text-[#1a8a7a]">منارة العز</h2>
+                        <h2 className="text-2xl font-bold text-accent-teal">منارة العز</h2>
                         <p className="text-gray-600 text-sm leading-relaxed">
                             أكاديمية رائدة في مجال التعليم القرآني والتربوي
                             عن بعد. نسعى لنشر نور الوحي في كل بيت عبر
@@ -15,7 +17,7 @@ export default function Footer() {
                         <div className="flex gap-3">
                             <a
                                 href="#"
-                                className="w-10 h-10 rounded-full border border-[#1a8a7a] flex items-center justify-center text-[#1a8a7a] hover:bg-[#1a8a7a] hover:text-white transition-colors"
+                                className="w-10 h-10 rounded-full border border-accent-teal flex items-center justify-center text-accent-teal hover:bg-accent-teal hover:text-white transition-colors"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +36,7 @@ export default function Footer() {
                             </a>
                             <a
                                 href="#"
-                                className="w-10 h-10 rounded-full border border-[#1a8a7a] flex items-center justify-center text-[#1a8a7a] hover:bg-[#1a8a7a] hover:text-white transition-colors"
+                                className="w-10 h-10 rounded-full border border-accent-teal flex items-center justify-center text-accent-teal hover:bg-accent-teal hover:text-white transition-colors"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +56,7 @@ export default function Footer() {
                             </a>
                             <a
                                 href="#"
-                                className="w-10 h-10 rounded-full border border-[#1a8a7a] flex items-center justify-center text-[#1a8a7a] hover:bg-[#1a8a7a] hover:text-white transition-colors"
+                                className="w-10 h-10 rounded-full border border-accent-teal flex items-center justify-center text-accent-teal hover:bg-accent-teal hover:text-white transition-colors"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -73,50 +75,50 @@ export default function Footer() {
                         </div>
                     </div>
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-[#1a8a7a]">القوانين والسياسات</h3>
+                        <h3 className="text-lg font-semibold text-accent-teal">القوانين والسياسات</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     الخصوصية
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     الشروط والأحكام
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     سياسة الاسترجاع
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     الدعم الفني
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-[#1a8a7a]">روابط سريعة</h3>
+                        <h3 className="text-lg font-semibold text-accent-teal">روابط سريعة</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     من نحن
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     الأسئلة الشائعة
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     مدونة المنارة
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-[#1a8a7a] transition-colors">
+                                <a href="#" className="text-gray-600 hover:text-accent-teal transition-colors">
                                     فرص العمل
                                 </a>
                             </li>
@@ -124,18 +126,18 @@ export default function Footer() {
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-[#1a8a7a]">تواصل معنا</h3>
+                        <h3 className="text-lg font-semibold text-accent-teal">تواصل معنا</h3>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-gray-600">
-                                <Mail className="w-5 h-5 text-[#c9a227]" />
+                                <Mail className="w-5 h-5 text-gold-dark" />
                                 <span>info@manaratezz.com</span>
                             </li>
                             <li className="flex items-center gap-2 text-gray-600">
-                                <Phone className="w-5 h-5 text-[#c9a227]" />
+                                <Phone className="w-5 h-5 text-gold-dark" />
                                 <span dir="ltr">+0201012345678</span>
                             </li>
                             <li className="flex items-center gap-2 text-gray-600">
-                                <MapPin className="w-5 h-5 text-[#c9a227]" />
+                                <MapPin className="w-5 h-5 text-gold-dark" />
                                 <span>القاهرة , جمهورية مصر العربية</span>
                             </li>
                         </ul>

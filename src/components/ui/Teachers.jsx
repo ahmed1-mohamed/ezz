@@ -1,5 +1,5 @@
-import Image from "next/image"
 import { motion } from "framer-motion"
+import { useTranslation } from "react-i18next"
 
 const teachers = [
     {
@@ -38,7 +38,7 @@ function StarRating({ rating }) {
             {[...Array(5)].map((_, index) => (
                 <svg
                     key={index}
-                    className={`w-4 h-4 transition-colors duration-300 ${index < rating ? "text-[#8B7D3A]" : "text-gray-300"
+                    className={`w-4 h-4 transition-colors duration-300 ${index < rating ? "text-gold-darker" : "text-gray-300"
                         }`}
                     fill="currentColor"
                     viewBox="0 0 20 20"
@@ -51,8 +51,9 @@ function StarRating({ rating }) {
 }
 
 export default function TeachersSection() {
+    const { i18n } = useTranslation()
     return (
-        <section className="bg-[#D9E5E3] py-20 px-4" dir="rtl">
+        <section className="bg-accent-lightMint py-20 px-4" dir={i18n.dir()}>
             <div className="max-w-6xl mx-auto">
 
                 <motion.div
@@ -62,10 +63,10 @@ export default function TeachersSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-14"
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2D3E40] mb-3">
+                    <h2 className="text-3xl md:text-4xl font-bold text-accent-darkGray mb-3">
                         نخبة من معلمينا
                     </h2>
-                    <p className="text-[#5A6B6D] text-lg">
+                    <p className="text-accent-mediumGray text-lg">
                         نفخر بكوادرنا التعليمية المؤهلة والمتميزة
                     </p>
                 </motion.div>
@@ -88,7 +89,7 @@ export default function TeachersSection() {
 
                             <div className="relative w-32 h-32 md:w-40 md:h-40 mb-4">
                                 <motion.div
-                                    className="absolute inset-0 rounded-full border-4 border-[#A8D4D4]"
+                                    className="absolute inset-0 rounded-full border-4 border-accent-lightTeal"
                                     animate={{ rotate: 360 }}
                                     transition={{
                                         duration: 20,
@@ -97,18 +98,17 @@ export default function TeachersSection() {
                                     }}
                                 />
 
-                                <Image
+                                <img
                                     src={teacher.image}
                                     alt={teacher.name}
-                                    fill
-                                    className="rounded-full object-cover p-1 shadow-md"
+                                    className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover p-1 shadow-md"
                                 />
                             </div>
 
-                            <h3 className="text-lg font-semibold text-[#2D3E40] mb-1">
+                            <h3 className="text-lg font-semibold text-accent-darkGray mb-1">
                                 {teacher.name}
                             </h3>
-                            <p className="text-sm text-[#5A6B6D] mb-2">
+                            <p className="text-sm text-accent-mediumGray mb-2">
                                 {teacher.title}
                             </p>
 
