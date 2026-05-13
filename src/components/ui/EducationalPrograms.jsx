@@ -69,51 +69,54 @@ export default function EducationalPrograms() {
         <section
             ref={sectionRef}
             dir="rtl"
-            className="relative bg-[#F8FAFC] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+            className="relative bg-[#F8FAFC] py-24 px-4 sm:px-6 lg:px-10 overflow-hidden"
         >
-            <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-[#0F7A6C]/10 blur-3xl" />
-            <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+            <div className="absolute top-[-120px] left-[-120px] h-[400px] w-[400px] rounded-full bg-[#0F7A6C]/10 blur-[120px]" />
+            <div className="absolute bottom-[-120px] right-[-120px] h-[400px] w-[400px] rounded-full bg-[#D4AF37]/10 blur-[120px]" />
 
-            <div className="relative mx-auto max-w-8xl">
+            <div className="relative mx-auto max-w-7xl">
 
-                <div ref={titleRef} className="text-center mb-14">
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F7A6C]">
+                <div ref={titleRef} className="text-center mb-16">
+                    <h2 className="text-3xl sm:text-5xl font-black text-[#0F7A6C] tracking-tight">
                         برامجنا التعليمية
                     </h2>
 
-                    <div className="mx-auto mt-4 h-1 w-28 rounded-full bg-[#D4AF37]" />
+                    <div className="mx-auto mt-5 h-1 w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
 
                     <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-slate-600 leading-8">
-                        صممنا برامجنا التعليمية بعناية لتناسب جميع المستويات والأعمار بأساليب حديثة وتفاعلية.
+                        صممنا برامجنا التعليمية بعناية لتناسب جميع المستويات بأسلوب حديث تفاعلي
+                        يدمج بين الفهم العميق والتطبيق العملي.
                     </p>
                 </div>
 
-                <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+
                     {programs.map((program, index) => (
                         <article
                             key={index}
                             ref={(el) => (cardsRef.current[index] = el)}
-                            className="group flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_15px_50px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_70px_rgba(0,0,0,0.12)]"
+                            className="group relative overflow-hidden rounded-[2.2rem] bg-white border border-slate-200 shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_25px_80px_rgba(0,0,0,0.12)]"
                         >
-                            <div className="relative h-56 overflow-hidden">
+                            <div className="relative h-60 overflow-hidden">
                                 <img
                                     src={program.image}
                                     alt={program.title}
-                                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                                    className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
-                                <span className="absolute left-4 top-4 rounded-full bg-[#0F7A6C] px-4 py-1.5 text-sm font-semibold text-white shadow-lg">
+                                <span className="absolute top-4 left-4 rounded-full bg-white/90 backdrop-blur px-4 py-1 text-sm font-bold text-[#0F7A6C] shadow-md">
                                     {program.badge}
                                 </span>
                             </div>
 
-                            <div className="flex flex-1 flex-col p-7">
+                            <div className="p-7 flex flex-col">
 
-                                <h3 className="text-2xl font-extrabold text-[#0F172A]">
+                                <h3 className="text-2xl font-extrabold text-slate-900 group-hover:text-[#0F7A6C] transition">
                                     {program.title}
                                 </h3>
 
-                                <p className="mt-4 text-slate-600 leading-8">
+                                <p className="mt-4 text-slate-600 leading-8 text-sm sm:text-base">
                                     {program.description}
                                 </p>
 
@@ -121,18 +124,18 @@ export default function EducationalPrograms() {
                                     {program.tags.map((tag, i) => (
                                         <span
                                             key={i}
-                                            className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm text-slate-700"
+                                            className="rounded-full bg-slate-50 border border-slate-200 px-4 py-1 text-xs text-slate-600 hover:border-[#0F7A6C] hover:text-[#0F7A6C] transition"
                                         >
                                             {tag}
                                         </span>
                                     ))}
                                 </div>
 
-                                <div className="mt-8 flex flex-col gap-4">
+                                <div className="mt-6 space-y-3">
                                     {program.features.map((feature, i) => (
                                         <div key={i} className="flex items-center gap-3">
-                                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0F7A6C]">
-                                                <Check className="h-3.5 w-3.5 text-white" />
+                                            <div className="h-5 w-5 rounded-full bg-[#0F7A6C] flex items-center justify-center shadow-sm">
+                                                <Check className="h-3 w-3 text-white" />
                                             </div>
                                             <span className="text-sm text-slate-700">
                                                 {feature}
@@ -141,15 +144,16 @@ export default function EducationalPrograms() {
                                     ))}
                                 </div>
 
-                                <button className="mt-8 rounded-2xl bg-[#0F7A6C] py-3.5 font-bold text-white transition hover:bg-[#005F54]">
-                                    سجل الآن
+                                <button className="mt-8 relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-3.5 font-bold text-white transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98]">
+                                    <span className="relative z-10">سجل الآن</span>
+                                    <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
                                 </button>
 
                             </div>
                         </article>
                     ))}
-                </div>
 
+                </div>
             </div>
         </section>
     );

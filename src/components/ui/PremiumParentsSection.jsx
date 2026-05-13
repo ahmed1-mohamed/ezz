@@ -40,11 +40,12 @@ export default function PremiumParentsSection() {
 
             gsap.from(cardsRef.current, {
                 opacity: 0,
-                y: 32,
-                stagger: 0.16,
-                duration: 0.8,
-                ease: 'power3.out',
-                delay: 0.2,
+                y: 60,
+                scale: 0.92,
+                stagger: 0.18,
+                duration: 1,
+                ease: 'power4.out',
+                delay: 0.25,
             })
         })
 
@@ -54,10 +55,10 @@ export default function PremiumParentsSection() {
     return (
         <section
             dir={i18n.dir()}
-            className="relative overflow-hidden rounded-2xl sm:rounded-[2.5rem] border border-[#D4AF37]/20 bg-white/95 px-4 py-8 shadow-[0_20px_40px_rgba(15,122,108,0.08)] dark:border-[#D4AF37]/15 dark:bg-slate-950/85 sm:px-6 sm:py-12 lg:px-8 lg:py-16 xl:px-10 xl:py-20"
+            className="relative  rounded-2xl sm:rounded-[2.5rem] border border-[#D4AF37]/2 px-4 py-8 shadow-[0_20px_40px_rgba(15,122,108,0.08)]  sm:px-6 sm:py-12 lg:px-8 lg:py-16 xl:px-10 xl:py-20"
         >
 
-            <div className="relative z-10 mx-auto flex max-w-8xl flex-col gap-8 sm:gap-12">
+            <div className=" z-50 mx-auto flex max-w-8xl flex-col gap-8 sm:gap-12">
                 <div ref={titleRef} className="max-w-3xl mx-auto w-full text-center">
 
                     <div className="mt-1 sm:mt-6 text-2xl flex flex-col items-center justify-center gap-2 sm:gap-3">
@@ -71,34 +72,38 @@ export default function PremiumParentsSection() {
                     </p>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">                    {cards.map(({ title, description, Icon }, index) => (
+                <div className="grid auto-rows-fr gap-6 md:grid-cols-2 lg:grid-cols-3">                                       {cards.map(({ title, description, Icon }, index) => (
                     <article
                         key={title}
                         ref={(el) => (cardsRef.current[index] = el)}
-                        className="group relative flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_80px_rgba(0,0,0,0.12)]"
+                        className="group relative flex h-full min-h-[320px] flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 transition-all duration-500 hover:-translate-y-3 hover:border-[#0F7A6C]/30 hover:shadow-[0_30px_80px_rgba(15,122,108,0.12)]"
                     >
-                        <div className="mb-2 flex items-center justify-between">
-                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] bg-gradient-to-br from-[#0F7A6C]/20 to-[#005F54]/10 shadow-lg">
+                        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0F7A6C]/5 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+
+                        <div className="relative z-10 mb-7">
+                            <div className="flex h-20 w-20 items-center justify-center rounded-[1.8rem] bg-[#F5FAF9] transition-all duration-500 group-hover:scale-110 group-hover:bg-[#0F7A6C]">
                                 <Icon
-                                    size={28}
-                                    className="text-[#0F7A6C] group-hover:text-[#005F54] transition-colors duration-300"
+                                    size={34}
+                                    className="text-[#0F7A6C] transition-all duration-500 group-hover:text-white"
                                     aria-hidden="true"
                                 />
                             </div>
-
                         </div>
 
-                        <div className="flex flex-1 flex-col">
-                            <h3 className="min-h-[32px] text-2xl font-extrabold leading-relaxed text-[#0F172A]">
+                        <div className="relative z-10 flex flex-1 flex-col">
+                            <h3 className="min-h-[72px] text-2xl font-extrabold leading-[1.7] text-[#0F172A]">
                                 {title}
                             </h3>
 
-                            <p className="mt-2 flex-1 text-base leading-[2] text-[#334155]">
+                            <p className="mt-4 flex-1 text-[15px] leading-[2.1] text-slate-600">
                                 {description}
                             </p>
                         </div>
 
-                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#D4AF37] transition-all duration-500 group-hover:w-full" />                        </article>
+                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#D4AF37] transition-all duration-500 group-hover:w-full" />
+
+                        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#0F7A6C]/5 blur-3xl transition-all duration-500 group-hover:bg-[#0F7A6C]/10" />
+                    </article>
                 ))}
                 </div>
 

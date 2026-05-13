@@ -1,30 +1,113 @@
-import { useTranslation } from 'react-i18next'
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 const teachers = [
-    { name: 'Mariam Fathy', subject: 'Science', experience: '8 years' },
-    { name: 'Hassan Adel', subject: 'Mathematics', experience: '10 years' },
-    { name: 'Nada Samir', subject: 'English', experience: '6 years' },
-]
+    {
+        id: 1,
+        name: "د. أحمد المنصوري",
+        title: "مجاز بالقراءات العشر",
+        image:
+            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+        id: 2,
+        name: "د. خالد الشامسي",
+        title: "مجاز بالقراءات العشر",
+        image:
+            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+        id: 3,
+        name: "د. يوسف الحربي",
+        title: "مجاز بالقراءات العشر",
+        image:
+            "https://images.unsplash.com/photo-1504257432389-52343af06ae3?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+        id: 4,
+        name: "د. محمد القحطاني",
+        title: "مجاز بالقراءات العشر",
+        image:
+            "https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1200&auto=format&fit=crop",
+    },
+];
 
 export default function Teachers() {
-    const { t } = useTranslation()
-
     return (
-        <div className="space-y-6 sm:space-y-8 lg:space-y-10">
-            <section className="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-8 lg:p-10 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
-                <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-sky-500">{t('public.nav.teachers')}</p>
-                <h1 className="mt-3 sm:mt-4 text-2xl sm:text-3xl lg:text-4xl font-semibold text-slate-900 dark:text-white leading-tight">{t('public.teachers.title')}</h1>
-                <p className="mt-3 sm:mt-4 text-base sm:text-lg leading-7 sm:leading-8 text-slate-600 dark:text-slate-300">{t('public.teachers.description')}</p>
-            </section>
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {teachers.map((teacher) => (
-                    <article key={teacher.name} className="rounded-xl sm:rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-8 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80 flex flex-col h-full">
-                        <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.24em] text-slate-500 dark:text-slate-400">{teacher.subject}</p>
-                        <h2 className="mt-2 sm:mt-4 text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white">{teacher.name}</h2>
-                        <p className="mt-2 sm:mt-3 text-sm text-slate-600 dark:text-slate-300">{t('public.teachers.experience', { years: teacher.experience })}</p>
-                    </article>
-                ))}
+        <section className="w-full py-20 bg-gradient-to-b from-[#F8FFFD] via-white to-[#F5FFFC] overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 25 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-16"
+                >
+                    <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 text-[#0F7A6C] text-sm font-semibold mb-4">
+                        فريقنا التعليمي
+                    </span>
+
+                    <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+                        نخبة من معلمينا
+                    </h2>
+
+                    <p className="mt-5 text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                        نفخر بكوادرنا التعليمية المؤهلة والمتميزة
+                    </p>
+                </motion.div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    {teachers.map((teacher, index) => (
+                        <motion.div
+                            key={teacher.id}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{
+                                duration: 0.6,
+                                delay: index * 0.15,
+                            }}
+                            viewport={{ once: true }}
+                            whileHover={{ y: -10 }}
+                            className="flex flex-col items-center text-center group"
+                        >
+                            <div className="relative">
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#17B89C] blur-2xl opacity-25 group-hover:opacity-50 transition duration-500" />
+
+                                <div className="rounded-full p-2 border-4 border-white shadow-[0_10px_40px_rgba(15,122,108,0.25)] bg-white">
+                                    <img
+                                        src={teacher.image}
+                                        alt={teacher.name}
+                                        className="w-36 h-36 md:w-44 md:h-44 rounded-full object-cover transition duration-500 group-hover:scale-105"
+                                    />
+                                </div>
+
+                                <span className="absolute top-3 right-2 w-3 h-3 bg-[#17B89C] rounded-full animate-bounce" />
+                                <span className="absolute bottom-4 left-2 w-2 h-2 bg-[#0F7A6C] rounded-full animate-ping" />
+                            </div>
+
+                            <div className="mt-5">
+                                <h3 className="text-lg md:text-xl font-bold text-gray-900">
+                                    {teacher.name}
+                                </h3>
+
+                                <p className="mt-2 text-sm md:text-base text-gray-600">
+                                    {teacher.title}
+                                </p>
+
+                                <div className="flex items-center justify-center gap-1 mt-3">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            size={16}
+                                            className="fill-yellow-400 text-yellow-400"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
             </div>
-        </div>
-    )
+        </section>
+    );
 }
