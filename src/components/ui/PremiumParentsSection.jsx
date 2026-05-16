@@ -2,33 +2,30 @@ import { useTranslation } from "react-i18next";
 import { ShieldCheck, BookOpen, Video } from "lucide-react";
 import { motion } from "framer-motion";
 
-const cards = [
-    {
-        title: "متابعة دقيقة",
-        description:
-            "لوحة تحكم شاملة لأولياء الأمور توفر رؤية كاملة عن مستوى الطالب والتقدم في الحفظ والدروس لحظة بلحظة.",
-        Icon: ShieldCheck,
-    },
-    {
-        title: "معلمون معتمدون",
-        description:
-            "نخبة من المعلمين المتميزين الحاصلين على إجازات عالية في القرآن وشهادات مؤهلة في التربية والتعليم.",
-        Icon: BookOpen,
-    },
-    {
-        title: "حصص مباشرة",
-        description:
-            "جلسات تفاعلية حية مباشرة تضمن التركيز والمتابعة المستمرة بين المعلم والطالب بأحدث التقنيات.",
-        Icon: Video,
-    },
-];
 
 export default function PremiumParentsSection() {
-    const { i18n } = useTranslation();
+    const { t,i18n } = useTranslation();
+
+    const cards = [
+        {
+            title: t('premiumParents.cards.tracking.title'),
+            description: t('premiumParents.cards.tracking.description'),
+            Icon: ShieldCheck,
+        },
+        {
+            title: t('premiumParents.cards.certified.title'),
+            description: t('premiumParents.cards.certified.description'),
+            Icon: BookOpen,
+        },
+        {
+            title: t('premiumParents.cards.live.title'),
+            description: t('premiumParents.cards.live.description'),
+            Icon: Video,
+        },
+    ];
 
     return (
         <section
-            dir={i18n.dir()}
             className="relative rounded-3xl border border-[#0F7A6C]/20 px-4 py-10 sm:px-6 sm:py-14 lg:px-10 lg:py-20 shadow-[0_20px_60px_rgba(15,122,108,0.08)]"
         >
             <div className="mx-auto max-w-7xl flex flex-col gap-10 sm:gap-14">
@@ -41,13 +38,13 @@ export default function PremiumParentsSection() {
                     className="text-center max-w-3xl mx-auto"
                 >
                     <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C]">
-                        لماذا يختارنا الأهالى؟
+                        {t('premiumParents.title')}
                     </h2>
 
                     <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
 
                     <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-600 leading-7">
-                        نقدم تجربة متكاملة بخدمات تعليمية ذكية واحترافية لمتابعة العملية التعليمية بكل وضوح وشفافية.
+                        {t('premiumParents.description')}
                     </p>
                 </motion.div>
 
@@ -61,7 +58,7 @@ export default function PremiumParentsSection() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: index * 0.15 }}
                             whileHover={{ y: -10 }}
-                            className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 transition-all duration-500 shadow-md hover:shadow-[0_30px_90px_rgba(15,122,108,0.12)]"
+                            className={`group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 transition-all duration-500 shadow-md hover:shadow-[0_30px_90px_rgba(15,122,108,0.12)] ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}
                         >
                             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0F7A6C]/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
@@ -81,7 +78,7 @@ export default function PremiumParentsSection() {
                                 </p>
                             </div>
 
-                            <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#D4AF37] group-hover:w-full transition-all duration-500" />
+                            <div className="absolute bottom-0 start-0 h-1 w-0 bg-[#D4AF37] group-hover:w-full transition-all duration-500" />
                         </motion.article>
                     ))}
 

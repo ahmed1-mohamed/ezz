@@ -65,13 +65,7 @@ export default function AppRoutes() {
     return (
         <div className="min-h-screen bg-[#FFFFFF] text-[#111827]">
 
-            <div className="fixed inset-0 z-50 overflow-hidden">
-
-                <div className="absolute left-[-120px] top-[-120px] h-[340px] w-[340px] rounded-full bg-[#0F7A6C]/15 blur-3xl" />
-
-                <div className="absolute bottom-[-140px] right-[-100px] h-[340px] w-[340px] rounded-full bg-[#005F54]/15 blur-3xl" />
-
-                <div className="absolute left-1/2 top-[30%] h-[240px] w-[240px] -translate-x-1/2 rounded-full bg-[#FED65B]/20 blur-3xl" />
+            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
 
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(15,122,108,0.04),transparent_45%)]" />
 

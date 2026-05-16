@@ -55,7 +55,6 @@ export default function AppNavbar() {
         >
             <Container>
                 <div
-                    dir={i18n.dir()}
                     className="flex items-center justify-between h-14 sm:h-16"
                 >
                     <Link
@@ -65,7 +64,7 @@ export default function AppNavbar() {
                         {t('appName')}
                     </Link>
 
-                    <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+                    <div className="hidden lg:flex items-center gap-6 xl:gap-8">
                         <button
                             onClick={handleLanguageToggle}
                             ref={globeRef}
@@ -94,7 +93,7 @@ export default function AppNavbar() {
                         </nav>
                     </div>
 
-                    <div className="hidden lg:flex items-center space-x-3">
+                    <div className="hidden lg:flex items-center gap-3">
                         <Link to="/login">
                             <Button
                                 variant="ghost"
@@ -103,13 +102,13 @@ export default function AppNavbar() {
                                 {t('public.login')}
                             </Button>
                         </Link>
-                        <Link to="/login">
+                        <Link to="/contact">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 xl:px-6 py-2.5 xl:py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
                             >
-                                {t('public.register')}
+                                {t('public.joinUs')}
                             </motion.button>
                         </Link>
                     </div>
@@ -159,7 +158,7 @@ export default function AppNavbar() {
                                     ))}
                                 </nav>
 
-                                <div className="flex flex-col space-y-2 pt-4 border-t border-slate-200">
+                                <div className="flex flex-col gap-2 pt-4 border-t border-slate-200">
                                     <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
                                         <Button
                                             variant="ghost"
@@ -168,13 +167,13 @@ export default function AppNavbar() {
                                             {t('public.login')}
                                         </Button>
                                     </Link>
-                                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             className="w-full rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
                                         >
-                                            {t('public.register')}
+                                            {t('public.joinUs')}
                                         </motion.button>
                                     </Link>
                                 </div>

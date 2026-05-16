@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next'
 import gsap from 'gsap'
 import StatisticsBanner from '../components/ui/StatisticsBanner.jsx'
 import PremiumParentsSection from '../components/ui/PremiumParentsSection.jsx'
-import Teachers from './Teachers.jsx'
 import EducationalPrograms from '../components/ui/EducationalPrograms.jsx'
 import JourneySteps from '../components/ui/JourneySteps.jsx'
 import TestimonialsSection from '../components/ui/TestimonialsSection.jsx'
-import HeroSection from '../components/ui/HeroSection.jsx'
+import Button from '../components/ui/Button.jsx'
 import imageSrc from '../images/برامجنا/5.jpg'
 export default function Home() {
     const { t, i18n } = useTranslation()
@@ -88,15 +87,13 @@ export default function Home() {
 
     return (
         <div>
-
             <div ref={containerRef} className="space-y-8 sm:space-y-12 lg:space-y-16">
                 <section
-                    dir={i18n.dir()}
                     className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm"
                 >
-                    <div className={`grid items-center gap-8 sm:gap-12 lg:gap-16 lg:grid-cols-2 ${i18n.language === 'ar' ? 'rtl' : 'ltr'}`}>
+                    <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
 
-                        <div className={`order-2 space-y-6 sm:space-y-8 ${i18n.language === 'ar' ? 'text-right lg:order-1' : 'text-left lg:order-1'}`}>
+                        <div className="space-y-6 sm:space-y-8 text-start">
 
                             <div
                                 ref={badgeRef}
@@ -109,7 +106,7 @@ export default function Home() {
                                 ref={titleRef}
                                 className="space-y-2 sm:space-y-4"
                             >
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
+                                <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
                                     {t('home.titleLine1')}
                                 </h1>
 
@@ -131,23 +128,23 @@ export default function Home() {
 
                             <div
                                 ref={buttonsRef}
-                                className={`flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-5 ${i18n.language === 'ar' ? 'justify-start' : 'justify-start'}`}
+                                className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-start"
                             >
-                                <Link to="/about">
-                                    <button className="w-full sm:w-auto rounded-2xl border border-brand-500 bg-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-brand-500 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-500/5 hover:shadow-lg">
+                                <Link to="/about" className="w-full sm:w-auto">
+                                    <Button variant="secondary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg">
                                         {t('home.ctaSecondary')}
-                                    </button>
+                                    </Button>
                                 </Link>
 
-                                <Link to="/login">
-                                    <button className="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                                <Link to="/login" className="w-full sm:w-auto">
+                                    <Button variant="primary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg">
                                         {t('home.ctaPrimary')}
-                                    </button>
+                                    </Button>
                                 </Link>
                             </div>
                         </div>
 
-                        <div className="order-1 flex justify-center lg:order-2">
+                        <div className="flex justify-center">
                             <div className="relative flex items-center justify-center w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl">
 
                                 <div
@@ -158,9 +155,6 @@ export default function Home() {
                                         transform: 'matrix(0.99, -0.11, 0.1, 1, 0, 0)',
                                     }}
                                 />
-
-                                <div className="absolute -left-5 -top-5 sm:-left-8 sm:-top-8 lg:-left-10 lg:-top-10 z-0 h-20 w-20 sm:h-32 sm:w-32 lg:h-44 lg:w-44 rounded-full bg-[#0F7A6C]/10 blur-3xl" />
-                                <div className="absolute -bottom-5 -right-5 sm:-bottom-8 sm:-right-8 lg:-bottom-10 lg:-right-10 z-0 h-20 w-20 sm:h-32 sm:w-32 lg:h-44 lg:w-44 rounded-full bg-[#005F54]/10 blur-3xl" />
 
                                 <div
                                     ref={imageWrapperRef}
@@ -184,10 +178,9 @@ export default function Home() {
             <StatisticsBanner />
             <PremiumParentsSection />
             <EducationalPrograms />
-            <Teachers />
             <JourneySteps />
             <TestimonialsSection />
-            <HeroSection />
         </div>
+
     )
 }

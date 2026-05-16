@@ -1,115 +1,305 @@
-import { motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
-import { Star } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Filter, Star, BookOpen, Clock, Award, ChevronLeft, ChevronRight } from 'lucide-react'
+import gsap from 'gsap'
+import imageSrc from '../images/برامجنا/6.jpg'
 
-const teachers = [
-    {
-        id: 1,
-        name: "د. أحمد المنصوري",
-        title: "مجاز بالقراءات العشر",
-        image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop",
-    },
-    {
-        id: 2,
-        name: "د. خالد الشامسي",
-        title: "مجاز بالقراءات العشر",
-        image:
-            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1200&auto=format&fit=crop",
-    },
-    {
-        id: 3,
-        name: "د. يوسف الحربي",
-        title: "مجاز بالقراءات العشر",
-        image:
-            "https://images.unsplash.com/photo-1504257432389-52343af06ae3?q=80&w=1200&auto=format&fit=crop",
-    },
-    {
-        id: 4,
-        name: "د. محمد القحطاني",
-        title: "مجاز بالقراءات العشر",
-        image:
-            "https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1200&auto=format&fit=crop",
-    },
+const portraitImages = [
+    "1500648767791-00dcc994a43e",
+    "1506794778202-cad84cf45f1d",
+    "1504257432389-52343af06ae3",
+    "1504593811423-6dd665756598",
+    "1535713875002-d1d0cf377fde",
+    "1560250097-0b93528c311a",
+    "1507003211169-0a1dd7228f2d",
+    "1519085360753-af0119f7cbe7",
+    "1552058544-e397bfc48364",
+    "1556157382-97eda2d62296",
+    "1501196354995-cbb51c65aaea",
+    "1527980965255-d3b416303d12"
 ];
 
+
+
 export default function Teachers() {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation()
+    const containerRef = useRef(null)
+    const badgeRef = useRef(null)
+    const titleRef = useRef(null)
+    const descRef = useRef(null)
+    const imageWrapperRef = useRef(null)
+
+    // Filter states
+    const [searchTerm, setSearchTerm] = useState('')
+    const [selectedSubject, setSelectedSubject] = useState('')
+    const [selectedLevel, setSelectedLevel] = useState('')
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 8
+
+    // Teachers data with translations
+    const teachersData = useMemo(() => Array.from({ length: 24 }).map((_, i) => ({
+        id: i + 1,
+        name: i % 3 === 0 ? t('teacher.names.1', "د. أحمد المنصوري") : i % 3 === 1 ? t('teacher.names.2', "د. خالد الشامسي") : t('teacher.names.3', "د. يوسف الحربي"),
+        title: t('teacher.jobTitle', "مجاز بالقراءات العشر"),
+        subject: i % 2 === 0 ? t('teacher.subject1', "القرآن الكريم") : t('teacher.subject2', "اللغة العربية"),
+        level: i % 3 === 0 ? t('teacher.level1', "مبتدئ") : i % 3 === 1 ? t('teacher.level2', "متوسط") : t('teacher.level3', "متقدم"),
+        image: `https://images.unsplash.com/photo-${portraitImages[i % portraitImages.length]}?q=80&w=400&h=400&auto=format&fit=crop`,
+        rating: (Math.random() * (5 - 4) + 4).toFixed(1),
+        experience: `${Math.floor(Math.random() * 10) + 5} ${t('teacher.yearsExperience', 'سنوات خبرة')}`,
+        tags: [t('teacher.tag1', "التجويد"), i % 2 === 0 ? t('teacher.tag2', "تحفيظ") : t('teacher.tag3', "نحو"), t('teacher.tag4', "أونلاين")]
+    })), [t])
+
+    // Subjects and Levels for the dropdowns
+    const subjects = useMemo(() => [...new Set(teachersData.map(t => t.subject))], [teachersData])
+    const levels = useMemo(() => [...new Set(teachersData.map(t => t.level))], [teachersData])
+
+    // Hero Section GSAP Animation
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+            tl.from(badgeRef.current, { opacity: 0, y: -20, duration: 0.6 })
+                .from(titleRef.current.children, { opacity: 0, y: 40, stagger: 0.15, duration: 0.9 }, '-=0.2')
+                .from(descRef.current, { opacity: 0, y: 20, duration: 0.7 }, '-=0.5')
+                .from(imageWrapperRef.current, { opacity: 0, scale: 0.9, x: 60, rotate: 4, duration: 1, ease: 'power4.out' }, '-=1')
+
+            gsap.to(imageWrapperRef.current, { y: -12, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut' })
+        }, containerRef)
+        return () => ctx.revert()
+    }, [])
+
+    // Filtering logic
+    const filteredTeachers = useMemo(() => {
+        return teachersData.filter(teacher => {
+            const matchName = teacher.name.toLowerCase().includes(searchTerm.toLowerCase())
+            const matchSubject = selectedSubject ? teacher.subject === selectedSubject : true
+            const matchLevel = selectedLevel ? teacher.level === selectedLevel : true
+            return matchName && matchSubject && matchLevel
+        })
+    }, [searchTerm, selectedSubject, selectedLevel])
+
+    // Reset pagination when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchTerm, selectedSubject, selectedLevel])
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage)
+    const paginatedTeachers = filteredTeachers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    const isRtl = i18n.language === 'ar'
+    const ArrowNext = isRtl ? ChevronLeft : ChevronRight
+    const ArrowPrev = isRtl ? ChevronRight : ChevronLeft
+
     return (
-        <section dir={i18n.dir()} className="w-full py-20 bg-gradient-to-b from-accent-mint via-white to-accent-paleMint overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 25 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
-                    <span className="inline-block px-5 py-2 rounded-full bg-brand-500/10 text-brand-500 text-sm font-semibold mb-4">
-                        فريقنا التعليمي
-                    </span>
-
-                    <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-                        نخبة من معلمينا
-                    </h2>
-
-                    <p className="mt-5 text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                        نفخر بكوادرنا التعليمية المؤهلة والمتميزة
-                    </p>
-                </motion.div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {teachers.map((teacher, index) => (
-                        <motion.div
-                            key={teacher.id}
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{
-                                duration: 0.6,
-                                delay: index * 0.15,
-                            }}
-                            viewport={{ once: true }}
-                            whileHover={{ y: -10 }}
-                            className="flex flex-col items-center text-center group"
-                        >
-                            <div className="relative">
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-500 to-secondary-teal blur-2xl opacity-25 group-hover:opacity-50 transition duration-500" />
-
-                                <div className="rounded-full p-2 border-4 border-white shadow-[0_10px_40px_rgba(15,122,108,0.25)] bg-white">
-                                    <img
-                                        src={teacher.image}
-                                        alt={teacher.name}
-                                        className="w-36 h-36 md:w-44 md:h-44 rounded-full object-cover transition duration-500 group-hover:scale-105"
-                                    />
-                                </div>
-
-                                <span className="absolute top-3 right-2 w-3 h-3 bg-secondary-teal rounded-full animate-bounce" />
-                                <span className="absolute bottom-4 left-2 w-2 h-2 bg-brand-500 rounded-full animate-ping" />
+        <div className="min-h-screen bg-slate-50/50 pb-20">
+            {/* Hero Section */}
+            <div ref={containerRef} className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
+                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
+                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
+                        <div className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1">
+                            <div ref={badgeRef} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
+                                {t('teacher.badge', 'معلمونا')}
                             </div>
-
-                            <div className="mt-5">
-                                <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                                    {teacher.name}
-                                </h3>
-
-                                <p className="mt-2 text-sm md:text-base text-gray-600">
-                                    {teacher.title}
+                            <div ref={titleRef} className="space-y-4">
+                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] text-transparent pb-2">
+                                    {t('teacher.titleLine1', 'نخبة من')}
+                                </h1>
+                                <h1 className="text-[#735C00] text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pb-2">
+                                    {t('teacher.titleLine2', 'أفضل المعلمين المجازين')}
+                                </h1>
+                                <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
+                                    {t('teacher.titleLine3', 'تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.')}
                                 </p>
-
-                                <div className="flex items-center justify-center gap-1 mt-3">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star
-                                            key={i}
-                                            size={16}
-                                            className="fill-yellow-400 text-yellow-400"
-                                        />
-                                    ))}
+                            </div>
+                        </div>
+                        <div className="order-1 lg:order-2 flex justify-center flex-1">
+                            <div className="relative w-full max-w-lg">
+                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-brand-100/50 blur-3xl mix-blend-multiply" />
+                                <div ref={imageWrapperRef} className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl">
+                                    <img src={imageSrc} alt="Teachers" className="w-full h-64 sm:h-72 lg:h-[320px] object-cover" />
                                 </div>
                             </div>
-                        </motion.div>
-                    ))}
-                </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Filter Section */}
+                <section className="sticky top-20 sm:top-20 z-50 bg-white/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 w-full mx-auto transition-all duration-300">
+                    <div className="flex flex-col md:flex-row items-end gap-5">
+                        <div className="flex-1 w-full space-y-2 text-start">
+                            <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.searchLabel', 'ابحث عن معلم')}</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
+                                    <Search className="h-5 w-5 text-slate-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder={t('teacher.searchPlaceholder', 'الاسم...')}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block ps-12 p-4 transition-colors relative z-50 shadow-sm"
+                                />
+                            </div>
+                        </div>
+                        <div className="w-full md:w-64 space-y-2 text-start">
+                            <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.subjectLabel', 'المادة')}</label>
+                            <div className="relative">
+                                <select
+                                    value={selectedSubject}
+                                    onChange={(e) => setSelectedSubject(e.target.value)}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 relative z-50 shadow-sm"
+                                >
+                                    <option value="">{t('teacher.allSubjects', 'جميع المواد')}</option>
+                                    {subjects.map(subj => <option key={subj} value={subj}>{subj}</option>)}
+                                </select>
+                                <BookOpen className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                            </div>
+                        </div>
+                        <div className="w-full md:w-64 space-y-2 text-start">
+                            <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.levelLabel', 'المستوى')}</label>
+                            <div className="relative">
+                                <select
+                                    value={selectedLevel}
+                                    onChange={(e) => setSelectedLevel(e.target.value)}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 relative z-50 shadow-sm"
+                                >
+                                    <option value="">{t('teacher.allLevels', 'جميع المستويات')}</option>
+                                    {levels.map(lvl => <option key={lvl} value={lvl}>{lvl}</option>)}
+                                </select>
+                                <Award className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setSearchTerm('')
+                                setSelectedSubject('')
+                                setSelectedLevel('')
+                            }}
+                            className="w-full bg-[#735C00] md:w-56 hover:bg-[#5c4a00] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 ease-out flex items-center justify-center gap-2 shadow-md hover:shadow-lg h-[58px] text-lg active:scale-95 hover:-translate-y-1"
+                        >
+                            {t('teacher.clearFilter', 'تطبيق التصفية')}
+                            <Filter className="h-5 w-5" />
+
+                        </button>
+                    </div>
+                </section>
+
+                {/* Teachers Grid */}
+                <section>
+                    {paginatedTeachers.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
+                            <AnimatePresence mode="popLayout">
+                                {paginatedTeachers.map((teacher, idx) => (
+                                    <motion.article
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ duration: 0.4, delay: idx * 0.05 }}
+                                        key={teacher.id}
+                                        className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                                    >
+                                        {/* Image */}
+                                        <div className="relative overflow-hidden rounded-[28px] p-3 pb-0">
+                                            <img
+                                                src={teacher.image}
+                                                alt={teacher.name}
+                                                className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="space-y-5 p-6 text-start">
+                                            {/* Name + Rating */}
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex flex-col">
+                                                    <h3 className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1">
+                                                        {teacher.name}
+                                                    </h3>
+                                                    <p className="mt-2 text-base font-semibold text-[#8B6B15] line-clamp-1">
+                                                        {teacher.title}
+                                                    </p>
+                                                </div>
+
+                                                <div className="flex items-center gap-1 text-[#9B7B16] shrink-0 mt-1">
+                                                    <Star className="h-4 w-4 fill-[#9B7B16] text-[#9B7B16]" />
+                                                    <span className="text-sm font-semibold">{teacher.rating}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Tags */}
+                                            <div className="flex flex-wrap justify-start gap-2">
+                                                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                                                    {teacher.experience}
+                                                </span>
+                                                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                                                    {teacher.subject}
+                                                </span>
+                                                {teacher.tags.map(tag => (
+                                                    <span key={tag} className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+
+                                            {/* Button */}
+                                            <button className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1">
+                                                {t('teacher.viewProfile', 'عرض الملف الشخصي')}
+                                            </button>
+                                        </div>
+                                    </motion.article>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 bg-white rounded-[32px] border border-slate-100 shadow-sm">
+                            <p className="text-[#00695C] font-bold text-xl">{t('teacher.noResults', 'لا يوجد معلمين يطابقون بحثك.')}</p>
+                        </div>
+                    )}
+                </section>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 pt-8">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 active:scale-95 hover:-translate-y-[1px] hover:shadow-sm"
+                            aria-label={t('teacher.previous', 'السابق')}
+                        >
+                            <ArrowPrev className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex gap-1">
+                            {Array.from({ length: totalPages }).map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`w-10 h-10 rounded-xl font-medium text-sm transition-all duration-300 active:scale-95 hover:-translate-y-[1px] hover:shadow-sm ${currentPage === i + 1
+                                        ? 'bg-[#00695C] text-white shadow-md'
+                                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 active:scale-95 hover:-translate-y-[1px] hover:shadow-sm"
+                            aria-label={t('teacher.next', 'التالي')}
+                        >
+                            <ArrowNext className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
             </div>
-        </section>
-    );
+        </div>
+    )
 }

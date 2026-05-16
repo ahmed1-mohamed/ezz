@@ -2,7 +2,7 @@
   "appName": "Manarat Al-Ezz Academy",
   "home": {
     "badge": "Complete educational academy",
-    "titleLine1": "Start your journey of light..",
+    "titleLine1": "Start your journey of light",
     "titleLine2": "Direct Quranic education",
     "titleLine3": "With educational values",
     "description": "We combine the quality of technical education with firmly established Islamic values to build a generation that reads and understands the Quran, in an intelligent and interactive educational environment.",
@@ -25,7 +25,11 @@
     "testAccounts": "Test accounts",
     "help": "Need help?",
     "noAccount": "Don’t have an account?",
-    "register": "Create account"
+    "register": "Create account",
+    "adminAccount": "Admin: admin@eduplatform.com / Admin@123",
+    "managerAccount": "Manager: manager@eduplatform.com / Manager@123",
+    "teacherAccount": "Teacher: teacher@eduplatform.com / Teacher@123",
+    "studentAccount": "Student: student@eduplatform.com / Student@123"
   },
   "dashboard": {
     "overview": "Overview",
@@ -99,7 +103,20 @@
     "classesDescription": "View and manage your teaching classes.",
     "coursesTitle": "Teaching Courses",
     "coursesDescription": "Courses filtered by {status}.",
-    "teacherDashboard": "Teacher Dashboard"
+    "teacherDashboard": "Teacher Dashboard",
+    "badge": "Academy teachers",
+    "titleLine1": "Elite Teachers",
+    "titleLine2": "For a bright future and outstanding education",
+    "titleLine3": "Discover a selection of certified teachers specializing in teaching the Holy Quran and Arabic language using modern and enjoyable teaching methods",
+    "searchPlaceholder": "Search by teacher name...",
+    "allSubjects": "All Subjects",
+    "allLevels": "All Levels",
+    "filter": "Filter",
+    "viewProfile": "View Profile",
+    "subject": "Subject",
+    "level": "Level",
+    "next": "Next",
+    "previous": "Previous"
   },
   "student": {
     "progressCardTitle": "Your Academic Progress",
@@ -160,9 +177,54 @@
     "arabic": "Arabic",
     "english": "English"
   },
+  "programs": {
+    "title": "Our Educational Programs",
+    "description": "Our programs are carefully designed to suit all levels with a modern, interactive approach that combines deep understanding and practical application.",
+    "cta": "Register Now",
+    "list": {
+      "integrated": {
+        "title": "Integrated Program",
+        "description": "A comprehensive program combining Quran and Arabic language education in an integrated path to build a generation proud of its Islamic identity.",
+        "badge": "Best Value",
+        "tags": ["8 months", "All levels", "Dual certificate"],
+        "features": [
+          "Comprehensive curriculum",
+          "Detailed progress tracking",
+          "Special program discount"
+        ]
+      },
+      "arabic": {
+        "title": "Arabic Language Program",
+        "description": "Learn Arabic from scratch in an easy, simplified way with direct practical applications.",
+        "badge": "Featured",
+        "tags": [
+          "10 sessions",
+          "Beginner - Intermediate",
+          "Completion certificate"
+        ],
+        "features": [
+          "Live interactive lessons",
+          "Continuous practical application",
+          "Comprehensive language foundation"
+        ]
+      },
+      "quran": {
+        "title": "Quran Memorization Program",
+        "description": "A gradual memorization methodology focusing on pronunciation and Tajweed rules, with personalized plans for each student.",
+        "badge": "Most Popular",
+        "tags": ["12 sessions", "All levels", "Certified Ijazah"],
+        "features": [
+          "Individual memorization plan",
+          "Recitation correction sessions",
+          "Regular review"
+        ]
+      }
+    }
+  },
   "public": {
     "login": "Login",
     "register": "Register",
+    "joinUs": "Join Us",
     "nav": {
       "home": "Home",
       "teachers": "Teachers",
@@ -174,7 +236,21 @@
     },
     "footer": {
       "tagline": "Built for modern learning teams.",
-      "copyright": "© 2026 Manarat Al-Ezz Academy. All rights reserved."
+      "copyright": "© 2026 Manarat Al-Ezz Academy. All rights reserved.",
+      "brand": "Manarat Al-Ezz",
+      "description": "A leading academy in the field of Quranic and educational distance learning. We strive to spread the light of revelation in every home through modern technologies and global educational standards.",
+      "policies": "Policies & Terms",
+      "privacy": "Privacy",
+      "terms": "Terms & Conditions",
+      "refund": "Refund Policy",
+      "support": "Technical Support",
+      "quickLinks": "Quick Links",
+      "about": "About Us",
+      "courses": "Courses",
+      "contact": "Contact Us",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email"
     },
     "about": {
       "title": "A modern public learning website",
@@ -239,5 +315,282 @@
     "submitting": "Registering…",
     "haveAccount": "Already have an account?",
     "login": "Sign in"
+  },
+  "heroSection": {
+    "title": "Are you ready to start your journey of light?",
+    "description": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
+    "cta": "Join now and start"
+  },
+  "statistics": {
+    "students": "Students",
+    "teachers": "Certified Teachers",
+    "classes": "Successful Classes"
+  },
+  "premiumParents": {
+    "title": "Why do parents choose us?",
+    "description": "We offer an integrated experience with smart and professional educational services to monitor the educational process with clarity and transparency.",
+    "cards": {
+      "tracking": {
+        "title": "Precise Tracking",
+        "description": "A comprehensive dashboard for parents providing a complete view of the student's level and progress in memorization and lessons moment by moment."
+      },
+      "certified": {
+        "title": "Certified Teachers",
+        "description": "An elite of distinguished teachers holding high ijazahs in Quran and qualified certificates in education and teaching."
+      },
+      "live": {
+        "title": "Live Sessions",
+        "description": "Live interactive sessions ensuring focus and continuous follow-up between teacher and student with the latest technologies."
+      }
+    }
+  },
+  "journey": {
+    "badge": "Simple Steps",
+    "title": "Start your journey in 3 steps",
+    "description": "Simply access quality education",
+    "steps": {
+      "register": {
+        "title": "Register your account",
+        "description": "Create your profile and set your educational goals, a fast and secure registration process ensuring your data privacy."
+      },
+      "choose": {
+        "title": "Choose your teacher",
+        "description": "Browse lists of specialized teachers, review their ratings and experiences, and choose who suits your learning style."
+      },
+      "start": {
+        "title": "Start your live session",
+        "description": "Embark on your learning journey through our advanced virtual classrooms, direct interaction, motivating environment, and tangible results."
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Parents' Reviews",
+    "subtitle": "Success stories from the Manarat Al-Ezz family",
+    "items": [
+      {
+        "name": "Khaled Al-Rashid",
+        "text": "The technical quality is very high, we faced no connection issues, and the teachers are very patient and explain with a modern and innovative teaching style."
+      },
+      {
+        "name": "Umm Layan",
+        "text": "The system and precise tracking impressed me the most, I can follow my daughter in every session directly through my phone, excellent experience."
+      },
+      {
+        "name": "Abu Saif",
+        "text": "I didn't expect my daughter to love Quran lessons this much, the teachers have a wonderful educational style that makes the child love memorization and learning."
+      }
+    ]
+  },
+  "teachers": {
+    "badge": "Our Educational Team",
+    "title": "Elite of Our Teachers",
+    "description": "We take pride in our qualified and distinguished educational staff",
+    "heroBadge": "Distinguished Teachers",
+    "heroTitleLine1": "Islamic Education",
+    "heroTitleLine2": "With Highest",
+    "heroTitleLine3": "Professional Standards",
+    "heroDescription": "We present to you a selection of qualified and certified teachers in the Ten Qira'at and Tajweed, ensuring distinguished Islamic education for your children",
+    "heroCtaSecondary": "Learn More",
+    "heroCtaPrimary": "Start Learning",
+    "items": [
+      {
+        "name": "Dr. Ahmed Al-Mansouri",
+        "title": "Certified in the Ten Qira'at",
+        "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "name": "Dr. Khaled Al-Shamsi",
+        "title": "Certified in the Ten Qira'at",
+        "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "name": "Dr. Youssef Al-Harbi",
+        "title": "Certified in the Ten Qira'at",
+        "image": "https://images.unsplash.com/photo-1504257432389-52343af06ae3?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "name": "Dr. Mohammed Al-Qahtani",
+        "title": "Certified in the Ten Qira'at",
+        "image": "https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1200&auto=format&fit=crop"
+      }
+    ]
+  },
+  "courses": {
+    "items": [
+      {
+        "title": "Design Thinking",
+        "description": "Build creative classroom systems and flexible learning workflows."
+      },
+      {
+        "title": "Leadership & Management",
+        "description": "Empower school teams and staff with modern administrative tools."
+      },
+      {
+        "title": "Digital Teaching",
+        "description": "Create engaging courses with digital-first teaching practices."
+      }
+    ]
+  },
+  "pricing": {
+    "subtitle": "Transparent Pricing",
+    "title": "Choose Your Plan",
+    "description": "Select the perfect plan for your learning journey.",
+    "plans": {
+      "basic": {
+        "name": "Basic",
+        "price": "Free",
+        "description": "Perfect for getting started",
+        "features": [
+          "Access to public curriculums",
+          "Community support",
+          "Mobile app access",
+          "Basic progress tracking"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "$99",
+        "period": "/month",
+        "description": "Best for active learners",
+        "popular": "Most Popular",
+        "features": [
+          "All Basic features",
+          "Unlimited curriculum access",
+          "Live classes with instructors",
+          "Personalized learning paths",
+          "Priority email support",
+          "Certificate of completion"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Custom",
+        "description": "For organizations",
+        "features": [
+          "All Professional features",
+          "Custom curriculum design",
+          "Dedicated account manager",
+          "Advanced analytics",
+          "Team collaboration tools",
+          "API access"
+        ]
+      }
+    },
+    "cta": "Get Started",
+    "faqTitle": "Have questions?",
+    "faqText": "Contact our support team for more details about pricing and available options.",
+    "contactCta": "Contact Sales"
+  },
+  "curriculums": {
+    "subtitle": "Our Learning Pathways",
+    "title": "Featured Learning Curriculums",
+    "ctaText": "Ready to explore our curriculums? Join us today!",
+    "items": [
+      {
+        "title": "Arabic Language",
+        "description": "Master Arabic grammar, literature, and writing skills."
+      },
+      {
+        "title": "English Language",
+        "description": "Comprehensive English course covering grammar, communication, and literature."
+      },
+      {
+        "title": "Mathematics",
+        "description": "Build strong foundational and advanced mathematical concepts."
+      },
+      {
+        "title": "Science",
+        "description": "Explore physics, chemistry, and biology fundamentals."
+      },
+      {
+        "title": "Social Studies",
+        "description": "Learn about history, geography, and cultural awareness."
+      },
+      {
+        "title": "Information Technology",
+        "description": "Introduction to computer science and digital literacy."
+      }
+    ]
+  },
+  "about": {
+    "features": {
+      "title": "Why do parents choose us?",
+      "f1": {
+        "title": "Empowering learners",
+        "desc": "Our goal is not merely indoctrination, but empowering every learner with the tools that help them understand the meanings of the Quran and appreciate its beauty, to become capable of expressing this great language and spreading its message across the world. We strive to instill a love of learning and contemplation so the Quran becomes a guiding light in their daily lives."
+      },
+      "f2": {
+        "title": "Modern technology",
+        "desc": "We use the latest remote education technologies to make lessons interactive and enjoyable, suitable for today's tech-savvy generation."
+      },
+      "f3": {
+        "title": "Safe environment",
+        "desc": "We provide a safe digital haven for your children, where teachers are selected through rigorous tests to ensure their scientific competence and educational integrity."
+      },
+      "f4": {
+        "title": "Academic excellence",
+        "desc": "Our academy relies on curriculums carefully selected by senior scholars and educators, ensuring a precise balance between memorization and understanding, and between grammar and practical application, creating a comprehensive educational environment."
+      }
+    },
+    "vision": {
+      "title": "Our Vision",
+      "desc": "Providing outstanding Quranic and Arabic education accessible to everyone everywhere, we believe that knowledge is a shared right, and that the beauty of our language and religion must reach every heart clearly and easily."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "desc": "Empowering Muslims worldwide to learn their language and religion through modern educational technologies and specialized teachers, while preserving Islamic values and role models."
+    },
+    "values": {
+      "mainTitle": "Our Core Values",
+      "v1": {
+        "title": "Scientific Integrity",
+        "desc": "Transmitting knowledge with an uninterrupted chain and a solid methodology that preserves authenticity."
+      },
+      "v2": {
+        "title": "Gentleness and Softness",
+        "desc": "Education with love and encouragement according to the honorable prophetic methodology."
+      },
+      "v3": {
+        "title": "Facilitation and Inclusivity",
+        "desc": "Making knowledge accessible to everyone regardless of distances and circumstances."
+      }
+    }
+  },
+  "contact": {
+    "hero": {
+      "badge": "Complete educational academy",
+      "title1": "Where the light of knowledge",
+      "title2": "meets the purity of the soul",
+      "subtitle": "Manarat Al-Ezz is not just an academy, it is a journey into the depths of knowledge, designed to be a digital haven combining the authenticity of heritage and the modernity of technology."
+    },
+    "banner": {
+      "title": "Contact us to register and subscribe",
+      "desc": "Give your children the opportunity to learn and grow through our educational courses designed to develop skills and build confidence in a fun and safe way."
+    },
+    "form": {
+      "name": "Full Name",
+      "namePlaceholder": "Enter your name here",
+      "email": "Email Address",
+      "emailPlaceholder": "example@mail.com",
+      "subject": "Message Subject",
+      "subjectPlaceholder": "Enter the subject",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+0201012345678",
+      "message": "Your Message",
+      "messagePlaceholder": "How can we help you today?",
+      "submit": "Send Message"
+    },
+    "info": {
+      "emailTitle": "Email Address",
+      "whatsappTitle": "WhatsApp",
+      "phoneTitle": "Call Us"
+    }
+  },
+  "cta": {
+    "default": {
+      "title": "Start your educational journey now",
+      "desc": "Join thousands of students who have started their journey towards excellence and creativity, we are here to support you step by step.",
+      "btn": "Register Now"
+    }
   }
 }

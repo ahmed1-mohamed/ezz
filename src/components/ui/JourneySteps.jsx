@@ -1,38 +1,36 @@
 import { motion } from "framer-motion";
 import { UserPlus, GraduationCap, MonitorPlay } from "lucide-react";
-
-const steps = [
-    {
-        id: "1",
-        title: "سجل حسابك",
-        description:
-            "أنشئ ملفك الشخصي وحدد أهدافك التعليمية، عملية تسجيل سريعة وآمنة تضمن خصوصية بياناتك.",
-        icon: UserPlus,
-        position: "right",
-    },
-    {
-        id: "2",
-        title: "اختر معلمك",
-        description:
-            "تصفح قوائم المعلمين المتخصصين، اطلع على تقييماتهم وخبراتهم واختر من يناسب أسلوب تعلمك.",
-        icon: GraduationCap,
-        position: "center",
-    },
-    {
-        id: "3",
-        title: "ابدأ جلستك المباشرة",
-        description:
-            "انطلق في رحلة التعلم عبر فصولنا الافتراضية المتطورة، تفاعل مباشر وبيئة محفزة ونتائج ملموسة.",
-        icon: MonitorPlay,
-        position: "left",
-    },
-];
+import { useTranslation } from "react-i18next";
 
 export default function JourneySteps() {
+    const { t } = useTranslation();
+
+    const steps = [
+        {
+            id: "1",
+            title: t('journey.steps.register.title'),
+            description: t('journey.steps.register.description'),
+            icon: UserPlus,
+            position: "right",
+        },
+        {
+            id: "2",
+            title: t('journey.steps.choose.title'),
+            description: t('journey.steps.choose.description'),
+            icon: GraduationCap,
+            position: "center",
+        },
+        {
+            id: "3",
+            title: t('journey.steps.start.title'),
+            description: t('journey.steps.start.description'),
+            icon: MonitorPlay,
+            position: "left",
+        },
+    ];
+
     return (
         <section className="relative overflow-hidden bg-[#F4FAF8] py-24">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#0F7A6C]/5 blur-3xl rounded-full" />
-
             <div className="relative max-w-7xl mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 35 }}
@@ -42,20 +40,20 @@ export default function JourneySteps() {
                     className="text-center mb-24"
                 >
                     <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 text-[#0F7A6C] text-sm font-bold mb-5">
-                        خطوات بسيطة
+                        {t('journey.badge')}
                     </span>
 
                     <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] leading-tight">
-                        ابدأ رحلتك في 3 خطوات
+                        {t('journey.title')}
                     </h2>
 
                     <p className="mt-5 text-[#6B7280] text-lg max-w-2xl mx-auto">
-                        ببساطة في الوصول لجودة في التعليم
+                        {t('journey.description')}
                     </p>
                 </motion.div>
 
                 <div className="relative">
-                    <div className="hidden md:block absolute top-[-25px] left-[14%] right-[14%] z-0 pointer-events-none">
+                    <div className="hidden md:block absolute top-[-25px] start-[14%] end-[14%] z-0 pointer-events-none">
                         <svg
                             width="100%"
                             height="120"
@@ -105,22 +103,20 @@ export default function JourneySteps() {
                                             repeat: Infinity,
                                             ease: "easeInOut",
                                         }}
-                                        className="absolute top-0 right-[35%] md:right-[30%] z-20"
+                                        className="absolute top-0 end-[35%] md:end-[30%] z-20"
                                     >
-                                        <div className="w-14 h-14 rounded-full bg-[#8B6B00] shadow-xl flex items-center justify-center border-4 border-white">
+                                        <div className="w-14 h-14 rounded-full bg-[#8B6B00] shadow-md flex items-center justify-center border-4 border-white">
                                             <Icon className="w-6 h-6 text-white" />
                                         </div>
                                     </motion.div>
 
                                     <motion.div
                                         whileHover={{ scale: 1.08 }}
-                                        className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] shadow-[0_10px_40px_rgba(240,195,67,0.2)] flex items-center justify-center"
+                                        className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] shadow-sm flex items-center justify-center"
                                     >
                                         <span className="text-4xl font-black text-[#005F54]">
                                             {step.id}
                                         </span>
-
-                                        <div className="absolute inset-0 rounded-full bg-[#F0C343]/20 blur-2xl -z-10" />
                                     </motion.div>
 
                                     <div className="mt-10">

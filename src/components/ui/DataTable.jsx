@@ -1,7 +1,7 @@
 export default function DataTable({ headers, rows }) {
     return (
         <div className="overflow-x-auto rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
-            <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
+            <table className="min-w-full border-separate border-spacing-0 text-start text-sm">
                 <thead className="bg-slate-50 text-slate-500 dark:bg-slate-900/70 dark:text-slate-300">
                     <tr>
                         {headers.map((header) => (

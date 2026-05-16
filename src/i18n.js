@@ -4,13 +4,23 @@ import enTranslation from "./locales/en/translation.json";
 import arTranslation from "./locales/ar/translation.json";
 
 const storedLang = localStorage.getItem("appLanguage") || "ar";
+const initialLanguage = storedLang;
+
+function setDocumentDirection(language) {
+  if (typeof document !== "undefined") {
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = language;
+  }
+}
+
+setDocumentDirection(initialLanguage);
 
 i18n.use(initReactI18next).init({
   resources: {
     en: { translation: enTranslation },
     ar: { translation: arTranslation },
   },
-  lng: storedLang,
+  lng: initialLanguage,
   fallbackLng: "ar",
   interpolation: {
     escapeValue: false,
@@ -20,9 +30,7 @@ i18n.use(initReactI18next).init({
 export function setLanguage(language) {
   i18n.changeLanguage(language);
   localStorage.setItem("appLanguage", language);
-  document.documentElement.dir = i18n.dir(language);
+  setDocumentDirection(language);
 }
-
-setLanguage(storedLang);
 
 export default i18n;

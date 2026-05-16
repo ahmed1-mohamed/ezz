@@ -53,7 +53,7 @@ function StarRating({ rating }) {
 export default function TeachersSection() {
     const { i18n } = useTranslation()
     return (
-        <section className="bg-accent-lightMint py-20 px-4" dir={i18n.dir()}>
+        <section className="bg-accent-lightMint py-20 px-4">
             <div className="max-w-6xl mx-auto">
 
                 <motion.div
