@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, BookOpen, Clock, Award, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -20,7 +20,68 @@ const portraitImages = [
     "1527980965255-d3b416303d12"
 ];
 
+const TeacherCard = React.memo(({ teacher, t, index }) => (
+    <motion.article
+        layout="position" // Optimize layout animations (less heavy than full 'layout')
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }} // Reduced scale jump for smoothness
+        transition={{ duration: 0.4, delay: index * 0.05 }}
+        style={{ willChange: 'transform, opacity' }} // GPU Hint
+        className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+    >
+        {/* Image */}
+        <div className="relative overflow-hidden rounded-[28px] p-3 pb-0">
+            <img
+                src={teacher.image}
+                alt={teacher.name}
+                className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+                decoding="async" // Optimize image decoding
+            />
+        </div>
 
+        {/* Content */}
+        <div className="space-y-5 p-6 text-start">
+            {/* Name + Rating */}
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col">
+                    <h3 className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1">
+                        {teacher.name}
+                    </h3>
+                    <p className="mt-2 text-base font-semibold text-[#8B6B15] line-clamp-1">
+                        {teacher.title}
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-1 text-[#9B7B16] shrink-0 mt-1">
+                    <Star className="h-4 w-4 fill-[#9B7B16] text-[#9B7B16]" />
+                    <span className="text-sm font-semibold">{teacher.rating}</span>
+                </div>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap justify-start gap-2">
+                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                    {teacher.experience}
+                </span>
+                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                    {teacher.subject}
+                </span>
+                {teacher.tags.map(tag => (
+                    <span key={tag} className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                        {tag}
+                    </span>
+                ))}
+            </div>
+
+            {/* Button */}
+            <button className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1">
+                {t('teacher.viewProfile', 'عرض الملف الشخصي')}
+            </button>
+        </div>
+    </motion.article>
+));
 
 export default function Teachers() {
     const { t, i18n } = useTranslation()
@@ -193,65 +254,7 @@ export default function Teachers() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
                             <AnimatePresence mode="popLayout">
                                 {paginatedTeachers.map((teacher, idx) => (
-                                    <motion.article
-                                        layout
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        transition={{ duration: 0.4, delay: idx * 0.05 }}
-                                        key={teacher.id}
-                                        className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
-                                    >
-                                        {/* Image */}
-                                        <div className="relative overflow-hidden rounded-[28px] p-3 pb-0">
-                                            <img
-                                                src={teacher.image}
-                                                alt={teacher.name}
-                                                className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="space-y-5 p-6 text-start">
-                                            {/* Name + Rating */}
-                                            <div className="flex items-start justify-between gap-2">
-                                                <div className="flex flex-col">
-                                                    <h3 className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1">
-                                                        {teacher.name}
-                                                    </h3>
-                                                    <p className="mt-2 text-base font-semibold text-[#8B6B15] line-clamp-1">
-                                                        {teacher.title}
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-1 text-[#9B7B16] shrink-0 mt-1">
-                                                    <Star className="h-4 w-4 fill-[#9B7B16] text-[#9B7B16]" />
-                                                    <span className="text-sm font-semibold">{teacher.rating}</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Tags */}
-                                            <div className="flex flex-wrap justify-start gap-2">
-                                                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
-                                                    {teacher.experience}
-                                                </span>
-                                                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
-                                                    {teacher.subject}
-                                                </span>
-                                                {teacher.tags.map(tag => (
-                                                    <span key={tag} className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-
-                                            {/* Button */}
-                                            <button className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1">
-                                                {t('teacher.viewProfile', 'عرض الملف الشخصي')}
-                                            </button>
-                                        </div>
-                                    </motion.article>
+                                    <TeacherCard key={teacher.id} teacher={teacher} t={t} index={idx} />
                                 ))}
                             </AnimatePresence>
                         </div>

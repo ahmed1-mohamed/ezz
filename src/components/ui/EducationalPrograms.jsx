@@ -1,3 +1,4 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -22,7 +23,7 @@ const programs = [
 ];
 
 
-export default function EducationalPrograms() {
+export default React.memo(function EducationalPrograms() {
     const { t,i18n } = useTranslation();
 
     return (
@@ -64,6 +65,7 @@ export default function EducationalPrograms() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
+                                style={{ willChange: 'transform, opacity' }}
                                 className="group relative overflow-hidden rounded-[2.2rem] bg-white border border-slate-200 shadow-md  transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_25px_80px_rgba(0,0,0,0.12)]"
                             >
                                 <div className="relative h-48 sm:h-56 overflow-hidden">
@@ -71,6 +73,8 @@ export default function EducationalPrograms() {
                                         src={program.image}
                                         alt={t(`${base}.title`)}
                                         className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
 
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
@@ -127,4 +131,4 @@ export default function EducationalPrograms() {
             </div>
         </section>
     );
-}
+})

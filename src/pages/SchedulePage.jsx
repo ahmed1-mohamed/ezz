@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, User, PlayCircle, CalendarClock, MonitorPlay, CheckCircle2 } from 'lucide-react'
@@ -8,14 +8,14 @@ export default function SchedulePage() {
     const isRtl = i18n.language === 'ar'
 
     const mockDays = useMemo(() => [
-        { day: t('schedule.sat', 'السبت'), date: '١٩', id: 'sat' },
-        { day: t('schedule.sun', 'الأحد'), date: '٢٠', id: 'sun' },
-        { day: t('schedule.mon', 'الاثنين'), date: '٢١', id: 'mon' },
-        { day: t('schedule.tue', 'الثلاثاء'), date: '٢٢', id: 'tue' },
-        { day: t('schedule.wed', 'الأربعاء'), date: '٢٣', id: 'wed' },
-        { day: t('schedule.thu', 'الخميس'), date: '٢٤', id: 'thu' },
-        { day: t('schedule.fri', 'الجمعة'), date: '٢٥', id: 'fri' },
-    ], [t])
+        { day: t('schedule.sat', 'السبت'), date: isRtl ? '١٩' : '19', id: 'sat' },
+        { day: t('schedule.sun', 'الأحد'), date: isRtl ? '٢٠' : '20', id: 'sun' },
+        { day: t('schedule.mon', 'الاثنين'), date: isRtl ? '٢١' : '21', id: 'mon' },
+        { day: t('schedule.tue', 'الثلاثاء'), date: isRtl ? '٢٢' : '22', id: 'tue' },
+        { day: t('schedule.wed', 'الأربعاء'), date: isRtl ? '٢٣' : '23', id: 'wed' },
+        { day: t('schedule.thu', 'الخميس'), date: isRtl ? '٢٤' : '24', id: 'thu' },
+        { day: t('schedule.fri', 'الجمعة'), date: isRtl ? '٢٥' : '25', id: 'fri' },
+    ], [t, isRtl])
 
     const [activeDay, setActiveDay] = useState('mon')
 
@@ -121,55 +121,7 @@ export default function SchedulePage() {
                         className="space-y-6"
                     >
                         {classes.map((cls) => (
-                            <motion.div
-                                variants={itemVariants}
-                                key={cls.id}
-                                className="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-start md:items-center gap-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
-                            >
-                                {/* Image Side */}
-                                <div className="relative shrink-0 mx-auto md:mx-0">
-                                    <img src={cls.image} alt={cls.teacher} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-sm transition-transform duration-500 group-hover:scale-105" />
-                                    {cls.isVerified && (
-                                        <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm">
-                                            <CheckCircle2 className="w-5 h-5 text-white fill-[#00695C]" />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Details Side */}
-                                <div className="flex-1 space-y-4 w-full">
-                                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                        <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 transition-colors group-hover:text-[#00695C]">
-                                            {cls.title}
-                                        </h3>
-                                        <StatusBadge status={cls.status} t={t} />
-                                    </div>
-                                    
-                                    <div className="flex flex-wrap items-center gap-4 text-sm sm:text-base text-slate-600 font-medium">
-                                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full">
-                                            <User className="w-4 h-4 text-slate-400" />
-                                            {cls.teacher}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full">
-                                            <Clock className="w-4 h-4 text-slate-400" />
-                                            {cls.time}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        {cls.tags.map(tag => (
-                                            <span key={tag} className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold transition-colors group-hover:bg-[#E6F0ED] group-hover:text-[#00695C]">
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Action Side */}
-                                <div className="shrink-0 w-full md:w-auto flex justify-end mt-4 md:mt-0">
-                                    <ActionButton status={cls.status} t={t} />
-                                </div>
-                            </motion.div>
+                            <ClassCard key={cls.id} cls={cls} t={t} variants={itemVariants} />
                         ))}
                     </motion.div>
                 </AnimatePresence>
@@ -205,7 +157,7 @@ export default function SchedulePage() {
     )
 }
 
-const StatusBadge = ({ status, t }) => {
+const StatusBadge = React.memo(({ status, t }) => {
     if (status === 'live') {
         return (
             <span className="inline-flex items-center gap-1.5 bg-[#E6F0ED] text-[#00695C] px-3 py-1 rounded-full text-xs font-bold border border-[#00695C]/10">
@@ -226,9 +178,9 @@ const StatusBadge = ({ status, t }) => {
             {t('schedule.status.finished', 'انتهى')}
         </span>
     )
-}
+})
 
-const ActionButton = ({ status, t }) => {
+const ActionButton = React.memo(({ status, t }) => {
     if (status === 'live') {
         return (
             <button className="flex items-center justify-center gap-2 bg-[#00695C] hover:bg-[#005247] text-white px-8 py-3.5 rounded-2xl font-bold w-full md:w-auto transition-all active:scale-95 shadow-md shadow-[#00695C]/20">
@@ -251,4 +203,64 @@ const ActionButton = ({ status, t }) => {
             {t('schedule.btn.finished', 'مشاهدة التسجيل')}
         </button>
     )
+
 }
+)
+
+const ClassCard = React.memo(({ cls, t, variants }) => (
+    <motion.div
+        variants={variants}
+        style={{ willChange: 'transform, opacity' }} // GPU hint
+        className="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-start md:items-center gap-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
+    >
+        {/* Image Side */}
+        <div className="relative shrink-0 mx-auto md:mx-0">
+            <img 
+                src={cls.image} 
+                alt={cls.teacher} 
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-sm transition-transform duration-500 group-hover:scale-105" 
+                loading="lazy"
+                decoding="async"
+            />
+            {cls.isVerified && (
+                <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm">
+                    <CheckCircle2 className="w-5 h-5 text-white fill-[#00695C]" />
+                </div>
+            )}
+        </div>
+
+        {/* Details Side */}
+        <div className="flex-1 space-y-4 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 transition-colors group-hover:text-[#00695C]">
+                    {cls.title}
+                </h3>
+                <StatusBadge status={cls.status} t={t} />
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-4 text-sm sm:text-base text-slate-600 font-medium">
+                <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full">
+                    <User className="w-4 h-4 text-slate-400" />
+                    {cls.teacher}
+                </div>
+                <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full">
+                    <Clock className="w-4 h-4 text-slate-400" />
+                    {cls.time}
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+                {cls.tags.map(tag => (
+                    <span key={tag} className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold transition-colors group-hover:bg-[#E6F0ED] group-hover:text-[#00695C]">
+                        {tag}
+                    </span>
+                ))}
+            </div>
+        </div>
+
+        {/* Action Side */}
+        <div className="shrink-0 w-full md:w-auto flex justify-end mt-4 md:mt-0">
+            <ActionButton status={cls.status} t={t} />
+        </div>
+    </motion.div>
+))

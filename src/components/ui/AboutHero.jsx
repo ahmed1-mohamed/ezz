@@ -1,9 +1,10 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import bgImage from '../../images/من نحن/1.png'
 import mainImage from '../../images/من نحن/2.png'
 
-export default function AboutHero() {
+export default React.memo(function AboutHero() {
     const { t } = useTranslation()
 
     return (
@@ -23,6 +24,7 @@ export default function AboutHero() {
                     initial={{ opacity: 0, x: 40 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
+                    style={{ willChange: 'transform, opacity' }}
                     className="w-full lg:w-7/12 space-y-6 text-start"
                 >
                     <div className="inline-flex items-center rounded-full bg-[#735C00] px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
@@ -43,11 +45,13 @@ export default function AboutHero() {
                     initial={{ opacity: 0, scale: 0.9, y: 30 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                    style={{ willChange: 'transform, opacity' }}
                     className="w-full lg:w-5/12 flex justify-center lg:justify-end"
                 >
                     <motion.div 
                         animate={{ y: [-10, 10, -10] }}
                         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                        style={{ willChange: 'transform' }}
                         className="relative w-full max-w-sm lg:max-w-md"
                     >
                         <div className="absolute inset-0 bg-[#00695C]/15 rounded-[2rem] blur-2xl transform translate-y-6 scale-95" />
@@ -57,6 +61,7 @@ export default function AboutHero() {
                             alt="Academy" 
                             className="relative w-full h-auto rounded-[2rem] aspect-square lg:aspect-[4/3] object-cover shadow-xl transition-transform duration-700 hover:scale-[1.03]"
                             loading="lazy"
+                            decoding="async"
                         />
                     </motion.div>
                 </motion.div>
@@ -64,4 +69,4 @@ export default function AboutHero() {
             </div>
         </section>
     )
-}
+})

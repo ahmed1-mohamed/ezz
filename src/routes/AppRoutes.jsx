@@ -17,6 +17,7 @@ const Teachers = lazy(() => import('../pages/Teachers.jsx'))
 const Contact = lazy(() => import('../pages/Contact.jsx'))
 const SchedulePage = lazy(() => import('../pages/SchedulePage.jsx'))
 const Login = lazy(() => import('../pages/Login.jsx'))
+const Register = lazy(() => import('../pages/Register.jsx'))
 
 const AdminDashboard = lazy(() => import('../dashboards/admin/AdminDashboard.jsx'))
 const AdminStudents = lazy(() => import('../dashboards/admin/AdminStudents.jsx'))
@@ -110,6 +111,22 @@ export default function AppRoutes() {
                                 ) : (
                                     <AnimatedPage>
                                         <Login />
+                                    </AnimatedPage>
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/register"
+                            element={
+                                user ? (
+                                    <Navigate
+                                        to={getRedirectPath(user.role)}
+                                        replace
+                                    />
+                                ) : (
+                                    <AnimatedPage>
+                                        <Register />
                                     </AnimatedPage>
                                 )
                             }

@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, BookText, GraduationCap, Award, Users, ArrowLeft, ArrowRight, Mic, Lightbulb, Star, Book } from 'lucide-react'
 
-export default function CurriculumUnits() {
+export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowLeft : ArrowRight
@@ -125,6 +125,7 @@ export default function CurriculumUnits() {
                                 hidden: { opacity: 0, y: 20 },
                                 visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
                             }}
+                            style={{ willChange: 'transform, opacity' }}
                             className="w-full lg:w-1/3"
                         >
                             <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 h-full flex flex-col relative overflow-hidden group">
@@ -171,7 +172,6 @@ export default function CurriculumUnits() {
                                         }}
                                         key={unit.id} 
                                         className="group bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-[#00695C]/30 text-start relative overflow-hidden focus:outline-none focus:ring-4 focus:ring-[#00695C]/20"
-                                        onClick={() => console.log('Navigate to unit:', unit.id)}
                                     >
                                         <div className={`absolute top-0 ${isRtl ? 'left-0' : 'right-0'} w-32 h-32 bg-gradient-to-br from-[#00695C] to-[#004D40] opacity-[0.02] rounded-full blur-2xl transition-transform duration-500 group-hover:scale-150 group-hover:opacity-[0.06]`} />
                                         
@@ -199,4 +199,4 @@ export default function CurriculumUnits() {
             </div>
         </section>
     )
-}
+})

@@ -10,26 +10,23 @@
     "ctaSecondary": "View Experience"
   },
   "login": {
-    "title": "Sign in",
-    "description": "Access the dashboard for your role.",
-    "email": "Email address",
-    "password": "Password",
-    "remember": "Remember me",
-    "submit": "Sign in",
-    "signingIn": "Signing in…",
+    "academyName": "Manarat Al-Ezz Academy",
+    "academySubtitle": "A modern and spiritual educational academy",
+    "formTitle": "Login",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "submitBtn": "Enter Manara",
+    "orLoginWith": "Or login with Google",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now",
+    "backToHome": "Back to Home",
+    "signingIn": "Signing in...",
     "emailRequired": "Email is required.",
-    "validEmail": "Provide a valid email address.",
     "passwordRequired": "Password is required.",
+    "validEmail": "Provide a valid email address.",
     "passwordLength": "Password must be at least 6 characters.",
-    "invalid": "Invalid login details.",
-    "testAccounts": "Test accounts",
-    "help": "Need help?",
-    "noAccount": "Don’t have an account?",
-    "register": "Create account",
-    "adminAccount": "Admin: admin@eduplatform.com / Admin@123",
-    "managerAccount": "Manager: manager@eduplatform.com / Manager@123",
-    "teacherAccount": "Teacher: teacher@eduplatform.com / Teacher@123",
-    "studentAccount": "Student: student@eduplatform.com / Student@123"
+    "invalid": "Invalid login details."
   },
   "dashboard": {
     "overview": "Overview",
@@ -116,7 +113,28 @@
     "subject": "Subject",
     "level": "Level",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "names": {
+      "1": "Dr. Ahmed Al-Mansouri",
+      "2": "Dr. Khaled Al-Shamsi",
+      "3": "Dr. Youssef Al-Harbi"
+    },
+    "jobTitle": "Certified in Ten Qira'at",
+    "subject1": "Holy Quran",
+    "subject2": "Arabic Language",
+    "level1": "Beginner",
+    "level2": "Intermediate",
+    "level3": "Advanced",
+    "yearsExperience": "Years Experience",
+    "tag1": "Tajweed",
+    "tag2": "Memorization",
+    "tag3": "Grammar",
+    "tag4": "Online",
+    "searchLabel": "Search for a teacher",
+    "subjectLabel": "Subject",
+    "levelLabel": "Level",
+    "clearFilter": "Apply Filter",
+    "noResults": "No teachers match your search."
   },
   "student": {
     "progressCardTitle": "Your Academic Progress",
@@ -155,6 +173,49 @@
     "search": "Search"
   },
   "schedule": {
+    "pageTitle": "Daily Classes Schedule",
+    "pageSubtitle": "Follow your Quranic and scientific journey with an elite group of certified teachers at Manarat Al-Ezz.",
+    "sat": "Saturday",
+    "sun": "Sunday",
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "wed": "Wednesday",
+    "thu": "Thursday",
+    "fri": "Friday",
+    "c1": {
+      "title": "Memorization of Surah Al-Baqarah - Advanced Level",
+      "teacher": "Sheikh Dr. Abdullah Ahmed",
+      "time": "04:00 PM - 05:30 PM (1.5 hours)"
+    },
+    "c2": {
+      "title": "Prophets' Stories for Children",
+      "teacher": "Ms. Fatima Al-Zahraa",
+      "time": "06:00 PM - 07:00 PM"
+    },
+    "c3": {
+      "title": "Explanation of Al-Ajurrumiyyah Text",
+      "teacher": "Sheikh Mohammed Mahmoud",
+      "time": "01:00 PM - 02:30 PM"
+    },
+    "tag": {
+      "tajweed": "Tajweed",
+      "level3": "Third Level"
+    },
+    "status": {
+      "live": "Live Now",
+      "upcoming": "Upcoming",
+      "finished": "Finished"
+    },
+    "btn": {
+      "live": "Started Now",
+      "upcoming": "Set Reminder",
+      "finished": "Watch Recording"
+    },
+    "cta": {
+      "title": "Are you ready to start your journey towards the light?",
+      "desc": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
+      "btn": "Join Now and Start"
+    },
     "today": "Today",
     "noClasses": "No classes scheduled",
     "weekOverview": "Flexible weekly schedule for your role.",
@@ -299,22 +360,28 @@
     }
   },
   "register": {
-    "title": "Create account",
+    "title": "Create a new account",
     "description": "Register now and access your personalized dashboard.",
-    "help": "This is a static registration form prepared for future backend integration.",
-    "noteTitle": "Ready for backend integration",
-    "noteText": "The form captures structured registration data and validates fields before submission.",
-    "name": "Full name",
-    "namePlaceholder": "Enter your name",
-    "email": "Email address",
+    "subtitle": "Join our distinguished educational community and start the journey of knowledge",
+    "accountType": "Account Type",
+    "roleStudent": "Student",
+    "roleParent": "Parent",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "email": "Email Address",
+    "emailPlaceholder": "example@domain.com",
+    "phone": "Phone Number",
+    "phonePlaceholder": "01012345678",
     "password": "Password",
-    "confirmPassword": "Confirm password",
+    "confirmPassword": "Confirm Password",
     "confirmPasswordRequired": "Please confirm your password.",
     "passwordMismatch": "Passwords do not match.",
-    "submit": "Create account",
-    "submitting": "Registering…",
+    "submit": "Create Account",
+    "submitting": "Registering...",
+    "orRegisterWith": "Or register via",
+    "googleBtn": "Register with Google",
     "haveAccount": "Already have an account?",
-    "login": "Sign in"
+    "login": "Login"
   },
   "heroSection": {
     "title": "Are you ready to start your journey of light?",
@@ -432,54 +499,43 @@
     ]
   },
   "pricing": {
-    "subtitle": "Transparent Pricing",
-    "title": "Choose Your Plan",
-    "description": "Select the perfect plan for your learning journey.",
-    "plans": {
-      "basic": {
-        "name": "Basic",
-        "price": "Free",
-        "description": "Perfect for getting started",
-        "features": [
-          "Access to public curriculums",
-          "Community support",
-          "Mobile app access",
-          "Basic progress tracking"
-        ]
-      },
-      "professional": {
-        "name": "Professional",
-        "price": "$99",
-        "period": "/month",
-        "description": "Best for active learners",
-        "popular": "Most Popular",
-        "features": [
-          "All Basic features",
-          "Unlimited curriculum access",
-          "Live classes with instructors",
-          "Personalized learning paths",
-          "Priority email support",
-          "Certificate of completion"
-        ]
-      },
-      "enterprise": {
-        "name": "Enterprise",
-        "price": "Custom",
-        "description": "For organizations",
-        "features": [
-          "All Professional features",
-          "Custom curriculum design",
-          "Dedicated account manager",
-          "Advanced analytics",
-          "Team collaboration tools",
-          "API access"
-        ]
-      }
+    "header": {
+      "title": "Invest in your child's spiritual journey",
+      "subtitle": "Flexible plans tailored to fit every family's needs, with elite certified teachers in a safe and inspiring educational environment."
     },
-    "cta": "Get Started",
-    "faqTitle": "Have questions?",
-    "faqText": "Contact our support team for more details about pricing and available options.",
-    "contactCta": "Contact Sales"
+    "popular": "Most Popular",
+    "monthly": "/monthly",
+    "btn": "Start Now",
+    "basic": {
+      "name": "Basic Plan",
+      "f1": "4 sessions/month (1 session/week)",
+      "f2": "30 minutes per session",
+      "f3": "Memorization and recitation correction",
+      "f4": "Monthly performance reports"
+    },
+    "advanced": {
+      "name": "Advanced Plan",
+      "f1": "8 sessions/month (2 sessions/week)",
+      "f2": "45 minutes per session",
+      "f3": "Simplified Tafseer and Prophets' stories",
+      "f4": "Detailed monthly performance reports"
+    },
+    "elite": {
+      "name": "Elite Plan",
+      "f1": "12 sessions/month (3 sessions/week)",
+      "f2": "60 minutes per session",
+      "f3": "Special follow-up with a certified Sheikh",
+      "f4": "Intensive free Tajweed course"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "Can I change the plan later?",
+      "a1": "Yes, absolutely. You can upgrade or change your plan at any time through your dashboard, and fees will be adjusted starting the following month.",
+      "q2": "What happens if I miss a session?",
+      "a2": "We offer the possibility of making up one session per month provided that the excuse is made at least 24 hours in advance to schedule an alternative time with the teacher.",
+      "q3": "Are there discounts for siblings?",
+      "a3": "Yes, we offer a 15% discount for the second child and 25% for the third child and above when registering in the same plan."
+    }
   },
   "curriculums": {
     "subtitle": "Our Learning Pathways",
@@ -511,6 +567,65 @@
         "description": "Introduction to computer science and digital literacy."
       }
     ]
+  },
+  "curriculum": {
+    "badge": "Journey of Knowledge",
+    "titleLine1": "Educational Curriculums",
+    "titleLine2": "Enlighten the Insight and Elevate the Soul",
+    "description": "We offer specialized educational content designed with the latest pedagogical methods to instill values and build a generation armed with knowledge and faith",
+    "cta": {
+      "title": "Are you ready to start your journey?",
+      "desc": "Join over 5,000 students enjoying a unique educational experience.",
+      "button": "Register Now for Free"
+    }
+  },
+  "curriculumUnits": {
+    "mainTitle": "Educational Units",
+    "badgeCount": "12 Study Units",
+    "tabs": {
+      "quran": "Holy Quran",
+      "arabic": "Arabic Language",
+      "islamic": "Islamic Studies"
+    },
+    "quran": {
+      "sidebar": {
+        "title": "About the Holy Quran Curriculum",
+        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
+      },
+      "feat1": { "title": "Certified Certificate", "desc": "Upon completing each part" },
+      "feat2": { "title": "Interactive Sessions", "desc": "With the most skilled reciters" },
+      "btn": "View Curriculum",
+      "u1": { "title": "Principles of Tajweed", "desc": "Learn the articulation points of letters and their basic attributes for a correct recitation.", "level": "Beginner Level" },
+      "u2": { "title": "Juz Amma Recitation & Memorization", "desc": "Memorizing and contemplating short Surahs in an enjoyable way.", "level": "First Stage" },
+      "u3": { "title": "Maqamat of Recitation", "desc": "Improving the voice with Quranic performance and learning basic Maqamat.", "level": "Advanced Level" },
+      "u4": { "title": "Stories from the Quran", "desc": "Extracting lessons and morals from the stories of the Prophets.", "level": "Enrichment Curriculum" }
+    },
+    "arabic": {
+      "sidebar": {
+        "title": "About the Arabic Language Curriculum",
+        "desc": "A curriculum that establishes the four language skills: listening, speaking, reading, and writing using modern methods that connect language to daily life."
+      },
+      "feat1": { "title": "Continuous Evaluation", "desc": "To measure skills development" },
+      "feat2": { "title": "Practical Practice", "desc": "Through interactive activities" },
+      "btn": "View Curriculum",
+      "u1": { "title": "Grammar Basics", "desc": "Understanding basic grammatical rules and applying them in speaking and writing.", "level": "Beginner Level" },
+      "u2": { "title": "Expression Skills", "desc": "Developing the student's ability to express their thoughts clearly and smoothly.", "level": "First Stage" },
+      "u3": { "title": "Literature and Rhetoric", "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.", "level": "Advanced Level" },
+      "u4": { "title": "Free Reading", "desc": "Encouraging reading and expanding linguistic and cognitive horizons.", "level": "Enrichment Curriculum" }
+    },
+    "islamic": {
+      "sidebar": {
+        "title": "About Islamic Studies Curriculum",
+        "desc": "A program aimed at instilling the correct creed, teaching simplified jurisprudence, and drawing lessons from the Prophet's biography."
+      },
+      "feat1": { "title": "Certificate of Completion", "desc": "After passing the exams" },
+      "feat2": { "title": "Meaningful Discussions", "desc": "To consolidate concepts" },
+      "btn": "View Curriculum",
+      "u1": { "title": "Islamic Creed", "desc": "Consolidating the pillars of faith and explaining the concepts of monotheism.", "level": "Beginner Level" },
+      "u2": { "title": "Fiqh of Worship", "desc": "Learning the rules of purification, prayer, and fasting practically and theoretically.", "level": "First Stage" },
+      "u3": { "title": "Prophet's Biography", "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.", "level": "Advanced Level" },
+      "u4": { "title": "Ethics and Manners", "desc": "Promoting positive behaviors and Islamic manners in daily life.", "level": "Enrichment Curriculum" }
+    }
   },
   "about": {
     "features": {
@@ -557,6 +672,11 @@
     }
   },
   "contact": {
+    "topHero": {
+      "badge": "Leave an impact",
+      "title": "Contact us for inquiries and registration",
+      "desc": "Manarat Al-Ezz team is always with you to support your children educationally and answer all inquiries and complaints regarding courses, registration, and follow-up."
+    },
     "hero": {
       "badge": "Complete educational academy",
       "title1": "Where the light of knowledge",

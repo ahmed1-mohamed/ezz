@@ -1,8 +1,9 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { UserPlus, GraduationCap, MonitorPlay } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-export default function JourneySteps() {
+export default React.memo(function JourneySteps() {
     const { t } = useTranslation();
 
     const steps = [
@@ -92,6 +93,7 @@ export default function JourneySteps() {
                                     }}
                                     viewport={{ once: true }}
                                     whileHover={{ y: -10 }}
+                                    style={{ willChange: 'transform, opacity' }}
                                     className="relative flex flex-col items-center text-center"
                                 >
                                     <motion.div
@@ -136,4 +138,4 @@ export default function JourneySteps() {
             </div>
         </section>
     );
-}
+})

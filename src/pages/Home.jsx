@@ -1,5 +1,5 @@
+import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import gsap from 'gsap'
 import StatisticsBanner from '../components/ui/StatisticsBanner.jsx'
@@ -9,6 +9,7 @@ import JourneySteps from '../components/ui/JourneySteps.jsx'
 import TestimonialsSection from '../components/ui/TestimonialsSection.jsx'
 import Button from '../components/ui/Button.jsx'
 import imageSrc from '../images/برامجنا/5.jpg'
+
 export default function Home() {
     const { t, i18n } = useTranslation()
     const containerRef = useRef(null)
@@ -97,8 +98,7 @@ export default function Home() {
 
                             <div
                                 ref={badgeRef}
-                                className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm"
-                            >
+                                className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm">
                                 {t('home.badge')}
                             </div>
 
@@ -163,8 +163,10 @@ export default function Home() {
                                     <img
                                         src={imageSrc}
                                         alt="Islamic Education"
-                                        loading="lazy"
-                                        className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain transition duration-700 hover:scale-105"
+                                        loading="eager"
+                                        fetchPriority="high"
+                                        decoding="async"
+                                        className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain transition-transform duration-700 hover:scale-105 will-change-transform"
                                     />
                                 </div>
 

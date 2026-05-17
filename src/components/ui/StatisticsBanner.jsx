@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import gsap from 'gsap'
 
-export default function StatisticsBanner() {
-    const { t } = useTranslation()
+export default React.memo(function StatisticsBanner() {
+    const { t, i18n } = useTranslation()
     const bannerRef = useRef(null)
     const statsRef = useRef([])
 
@@ -49,7 +49,7 @@ export default function StatisticsBanner() {
                     delay: 0.8 + index * 0.2,
                     onUpdate: () => {
                         if (numberElement) {
-                            numberElement.textContent = Math.floor(obj.count).toLocaleString('en-EG')
+                            numberElement.textContent = Math.floor(obj.count).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')
                         }
                     },
                 })
@@ -58,7 +58,7 @@ export default function StatisticsBanner() {
         }, bannerRef)
 
         return () => ctx.revert()
-    }, [statistics])
+    }, [statistics, i18n.language])
 
     return (
         <section
@@ -89,4 +89,4 @@ export default function StatisticsBanner() {
             </div>
         </section >
     )
-}
+})

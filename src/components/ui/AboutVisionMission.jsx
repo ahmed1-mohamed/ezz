@@ -1,8 +1,9 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Eye, Target } from 'lucide-react'
 
-export default function AboutVisionMission() {
+export default React.memo(function AboutVisionMission() {
     const { t } = useTranslation()
 
     return (
@@ -11,7 +12,8 @@ export default function AboutVisionMission() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                    style={{ willChange: 'transform, opacity' }}
                     className="bg-white rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center gap-6"
                 >
                     <div className="w-16 h-16 rounded-full bg-[#00695C]/10 flex items-center justify-center">
@@ -30,8 +32,9 @@ export default function AboutVisionMission() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                     transition={{ delay: 0.1 }}
+                    style={{ willChange: 'transform, opacity' }}
                     className="bg-white rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center gap-6"
                 >
                     <div className="w-16 h-16 rounded-full bg-[#735C00]/10 flex items-center justify-center">
@@ -50,4 +53,4 @@ export default function AboutVisionMission() {
             </div>
         </section>
     )
-}
+})
