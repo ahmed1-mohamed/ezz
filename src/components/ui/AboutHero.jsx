@@ -5,7 +5,8 @@ import bgImage from '../../images/من نحن/1.png'
 import mainImage from '../../images/من نحن/2.png'
 
 export default React.memo(function AboutHero() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const isRtl = i18n.language === 'ar'
 
     return (
         <section className="relative w-full mb-20">
@@ -21,23 +22,23 @@ export default React.memo(function AboutHero() {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-16 sm:pt-24 pb-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
                 
                 <motion.div 
-                    initial={{ opacity: 0, x: 40 }}
+                    initial={{ opacity: 0, x: isRtl ? 40 : -40 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
                     style={{ willChange: 'transform, opacity' }}
-                    className="w-full lg:w-7/12 space-y-6 text-start"
+                    className={`w-full lg:w-7/12 space-y-6 flex flex-col ${isRtl ? 'lg:items-start text-right' : 'lg:items-start text-left'} items-center`}
                 >
                     <div className="inline-flex items-center rounded-full bg-[#735C00] px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
-                        {t('contact.hero.badge', 'أكاديمية تعليمية متكاملة')}
+                        {t('about.hero.badge', 'أكاديمية تعليمية متكاملة')}
                     </div>
                     
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] pb-2">
-                        <span className="text-[#00695C] block pb-3">{t('contact.hero.title1', 'حيث يلتقي')}</span>
-                        <span className="text-[#735C00] block">{t('contact.hero.title2', 'نور العلم بصفاء الروح')}</span>
+                        <span className="text-[#00695C] block pb-3">{t('about.hero.title1', 'حيث يلتقي')}</span>
+                        <span className="text-[#735C00] block">{t('about.hero.title2', 'نور العلم بصفاء الروح')}</span>
                     </h1>
                     
                     <p className="text-lg sm:text-xl text-slate-700 font-medium leading-relaxed max-w-xl">
-                        {t('contact.hero.subtitle', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة، صُممت لتكون ملاذاً رقمياً يجمع بين أصالة التراث وحداثة التكنولوجيا.')}
+                        {t('about.hero.subtitle', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة، صُممت لتكون ملاذاً رقمياً يجمع بين أصالة التراث وحداثة التكنولوجيا.')}
                     </p>
                 </motion.div>
 

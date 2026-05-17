@@ -7,7 +7,6 @@ export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowLeft : ArrowRight
-    const arrowSlide = isRtl ? 'translate-x-4' : '-translate-x-4'
 
     const [activeTab, setActiveTab] = useState('quran')
 
@@ -128,8 +127,8 @@ export default React.memo(function CurriculumUnits() {
                             style={{ willChange: 'transform, opacity' }}
                             className="w-full lg:w-1/3"
                         >
-                            <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 h-full flex flex-col relative overflow-hidden group">
-                                <div className={`absolute top-0 ${isRtl ? 'left-0' : 'right-0'} w-48 h-48 bg-[#00695C] opacity-[0.03] rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:opacity-[0.06]`} />
+                            <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 h-full flex flex-col relative overflow-hidden group text-start">
+                                <div className="absolute top-0 end-0 w-48 h-48 bg-[#00695C] opacity-[0.03] rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:opacity-[0.06]" />
                                 
                                 <h3 className="text-2xl font-extrabold text-[#00695C] mb-4 relative z-10">
                                     {currentData.sidebar.title}
@@ -155,7 +154,7 @@ export default React.memo(function CurriculumUnits() {
                                 <div className="mt-auto relative z-10">
                                     <button className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-xl hover:-translate-y-1 active:scale-95 group/btn">
                                         {currentData.sidebar.buttonText}
-                                        <ArrowIcon className={`w-5 h-5 transition-transform duration-300 group-hover/btn:${isRtl ? '-translate-x-1' : 'translate-x-1'}`} />
+                                        <ArrowIcon className="w-5 h-5 transition-transform duration-300 rtl:group-hover/btn:-translate-x-1 ltr:group-hover/btn:translate-x-1" />
                                     </button>
                                 </div>
                             </div>
@@ -173,13 +172,13 @@ export default React.memo(function CurriculumUnits() {
                                         key={unit.id} 
                                         className="group bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-[#00695C]/30 text-start relative overflow-hidden focus:outline-none focus:ring-4 focus:ring-[#00695C]/20"
                                     >
-                                        <div className={`absolute top-0 ${isRtl ? 'left-0' : 'right-0'} w-32 h-32 bg-gradient-to-br from-[#00695C] to-[#004D40] opacity-[0.02] rounded-full blur-2xl transition-transform duration-500 group-hover:scale-150 group-hover:opacity-[0.06]`} />
+                                        <div className="absolute top-0 end-0 w-32 h-32 bg-gradient-to-br from-[#00695C] to-[#004D40] opacity-[0.02] rounded-full blur-2xl transition-transform duration-500 group-hover:scale-150 group-hover:opacity-[0.06]" />
                                         
                                         <div className="flex justify-between items-start mb-6 relative z-10">
                                             <div className="bg-[#E7E7E4]/50 w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#00695C]/10">
                                                 <unit.icon className="w-7 h-7 text-[#00695C] transition-colors duration-300" />
                                             </div>
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 transition-all duration-300 opacity-0 ${arrowSlide} group-hover:opacity-100 group-hover:translate-x-0 group-hover:bg-[#00695C]/10 text-[#00695C]`}>
+                                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 transition-all duration-300 opacity-0 rtl:translate-x-4 ltr:-translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:bg-[#00695C]/10 text-[#00695C]">
                                                 <ArrowIcon className="w-5 h-5" />
                                             </div>
                                         </div>

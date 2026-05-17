@@ -60,7 +60,7 @@ export default React.memo(function PremiumParentsSection() {
                             transition={{ duration: 0.6, delay: index * 0.15 }}
                             whileHover={{ y: -10 }}
                             style={{ willChange: 'transform, opacity' }}
-                            className={`group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 transition-all duration-500 shadow-md hover:shadow-[0_30px_90px_rgba(15,122,108,0.12)] ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}
+                            className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 transition-all duration-500 shadow-md hover:shadow-[0_30px_90px_rgba(15,122,108,0.12)] text-start"
                         >
                             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0F7A6C]/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
 

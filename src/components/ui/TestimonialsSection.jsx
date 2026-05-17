@@ -55,9 +55,9 @@ const TestimonialCard = React.memo(({ item, index }) => {
             style={{ willChange: 'transform, opacity' }}
             className="group relative"
         >
-            <div className="absolute inset-0 rounded-[32px] bg-[#0F7A6C] blur-2xl opacity-10 group-hover:opacity-100 transition-opacity duration-500 will-change-[opacity]" />
+            <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-[#0F7A6C]/5 to-[#17B89C]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 will-change-[opacity]" />
 
-            <div className="relative bg-white/90 backdrop-blur-xl rounded-[32px] p-10 shadow-[0_10px_50px_rgba(0,0,0,0.05)] border border-white overflow-hidden min-h-[280px] flex flex-col justify-between">
+            <div className="relative bg-white/95 rounded-[32px] p-10 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden min-h-[280px] flex flex-col justify-between">
                 <div className="absolute top-6 start-6 text-[#0F7A6C] text-7xl font-black opacity-40">
                     "
                 </div>
@@ -85,7 +85,7 @@ const TestimonialCard = React.memo(({ item, index }) => {
                 </div>
 
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none will-change-[opacity]">
-                    <div className="absolute -top-20 start-[-120px] rotate-12 w-40 h-[400px] bg-white/30 blur-2xl" />
+                    <div className="absolute -top-20 start-[-120px] rotate-12 w-40 h-[400px] bg-white/20 blur-xl" />
                 </div>
             </div>
         </motion.div>

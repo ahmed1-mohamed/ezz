@@ -671,17 +671,19 @@
       }
     }
   },
-  "contact": {
-    "topHero": {
-      "badge": "Leave an impact",
-      "title": "Contact us for inquiries and registration",
-      "desc": "Manarat Al-Ezz team is always with you to support your children educationally and answer all inquiries and complaints regarding courses, registration, and follow-up."
-    },
+  "about": {
     "hero": {
       "badge": "Complete educational academy",
       "title1": "Where the light of knowledge",
       "title2": "meets the purity of the soul",
       "subtitle": "Manarat Al-Ezz is not just an academy, it is a journey into the depths of knowledge, designed to be a digital haven combining the authenticity of heritage and the modernity of technology."
+    }
+  },
+  "contact": {
+    "topHero": {
+      "badge": "Leave an impact",
+      "title": "Contact us for inquiries and registration",
+      "desc": "Manarat Al-Ezz team is always with you to support your children educationally and answer all inquiries and complaints regarding courses, registration, and follow-up."
     },
     "banner": {
       "title": "Contact us to register and subscribe",

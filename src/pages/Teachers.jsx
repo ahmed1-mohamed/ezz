@@ -1,9 +1,24 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Filter, Star, BookOpen, Clock, Award, ChevronLeft, ChevronRight } from 'lucide-react'
-import gsap from 'gsap'
+import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight } from 'lucide-react'
 import imageSrc from '../images/برامجنا/6.jpg'
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15,
+            delayChildren: 0.1
+        }
+    }
+}
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+}
 
 const portraitImages = [
     "1500648767791-00dcc994a43e",
@@ -85,11 +100,6 @@ const TeacherCard = React.memo(({ teacher, t, index }) => (
 
 export default function Teachers() {
     const { t, i18n } = useTranslation()
-    const containerRef = useRef(null)
-    const badgeRef = useRef(null)
-    const titleRef = useRef(null)
-    const descRef = useRef(null)
-    const imageWrapperRef = useRef(null)
 
     // Filter states
     const [searchTerm, setSearchTerm] = useState('')
@@ -117,19 +127,6 @@ export default function Teachers() {
     const subjects = useMemo(() => [...new Set(teachersData.map(t => t.subject))], [teachersData])
     const levels = useMemo(() => [...new Set(teachersData.map(t => t.level))], [teachersData])
 
-    // Hero Section GSAP Animation
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-            tl.from(badgeRef.current, { opacity: 0, y: -20, duration: 0.6 })
-                .from(titleRef.current.children, { opacity: 0, y: 40, stagger: 0.15, duration: 0.9 }, '-=0.2')
-                .from(descRef.current, { opacity: 0, y: 20, duration: 0.7 }, '-=0.5')
-                .from(imageWrapperRef.current, { opacity: 0, scale: 0.9, x: 60, rotate: 4, duration: 1, ease: 'power4.out' }, '-=1')
-
-            gsap.to(imageWrapperRef.current, { y: -12, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut' })
-        }, containerRef)
-        return () => ctx.revert()
-    }, [])
 
     // Filtering logic
     const filteredTeachers = useMemo(() => {
@@ -157,14 +154,19 @@ export default function Teachers() {
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20">
             {/* Hero Section */}
-            <div ref={containerRef} className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
+            <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
                 <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
-                        <div className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1">
-                            <div ref={badgeRef} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
+                        <motion.div 
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            className={`order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col ${isRtl ? 'lg:items-start text-right' : 'lg:items-start text-left'} items-center text-center lg:text-start`}
+                        >
+                            <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
                                 {t('teacher.badge', 'معلمونا')}
-                            </div>
-                            <div ref={titleRef} className="space-y-4">
+                            </motion.div>
+                            <motion.div variants={itemVariants} className="space-y-4">
                                 <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] text-transparent pb-2">
                                     {t('teacher.titleLine1', 'نخبة من')}
                                 </h1>
@@ -174,16 +176,25 @@ export default function Teachers() {
                                 <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
                                     {t('teacher.titleLine3', 'تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.')}
                                 </p>
-                            </div>
-                        </div>
-                        <div className="order-1 lg:order-2 flex justify-center flex-1">
+                            </motion.div>
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, x: isRtl ? 40 : -40 }}
+                            animate={{ opacity: 1, scale: 1, x: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                            className="order-1 lg:order-2 flex justify-center flex-1"
+                        >
                             <div className="relative w-full max-w-lg">
                                 <div className="absolute z-0 inset-0 -m-8 rounded-full bg-brand-100/50 blur-3xl mix-blend-multiply" />
-                                <div ref={imageWrapperRef} className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl">
+                                <motion.div 
+                                    animate={{ y: [0, -15, 0] }}
+                                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl"
+                                >
                                     <img src={imageSrc} alt="Teachers" className="w-full h-64 sm:h-72 lg:h-[320px] object-cover" />
-                                </div>
+                                </motion.div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </section>
 

@@ -5,7 +5,8 @@ import { Check, Heart, Globe } from 'lucide-react'
 import quranImage from '../../images/من نحن/2.png'
 
 export default React.memo(function AboutCoreValues() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const isRtl = i18n.language === 'ar'
 
     const values = useMemo(() => [
         {
@@ -32,7 +33,7 @@ export default React.memo(function AboutCoreValues() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-20">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.95, x: 30 }}
+                    initial={{ opacity: 0, scale: 0.95, x: isRtl ? 30 : -30 }}
                     whileInView={{ opacity: 1, scale: 1, x: 0 }}
                     viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                     transition={{ duration: 0.7, ease: "easeOut" }}
@@ -51,7 +52,7 @@ export default React.memo(function AboutCoreValues() {
                 </motion.div>
 
                 <motion.div 
-                    initial={{ opacity: 0, x: -30 }}
+                    initial={{ opacity: 0, x: isRtl ? -30 : 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                     transition={{ duration: 0.7, ease: "easeOut" }}
