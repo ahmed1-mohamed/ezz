@@ -75,8 +75,7 @@ export default React.memo(function CurriculumUnits() {
     return (
         <section className="py-12 sm:py-16 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
                         {t('curriculumUnits.mainTitle', 'الوحدات التعليمية')}
                     </h2>
@@ -85,8 +84,7 @@ export default React.memo(function CurriculumUnits() {
                     </div>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex flex-wrap justify-center gap-4 mb-12">
+                 <div className="flex flex-wrap justify-center gap-4 mb-12">
                     {tabs.map((tab) => {
                         const isActive = activeTab === tab.id
                         return (
@@ -105,8 +103,7 @@ export default React.memo(function CurriculumUnits() {
                     })}
                 </div>
 
-                {/* Content */}
-                <AnimatePresence mode="wait">
+                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
                         initial="hidden"
@@ -118,8 +115,7 @@ export default React.memo(function CurriculumUnits() {
                         }}
                         className="flex flex-col lg:flex-row gap-6 lg:gap-8"
                     >
-                        {/* Sidebar */}
-                        <motion.div 
+                         <motion.div 
                             variants={{
                                 hidden: { opacity: 0, y: 20 },
                                 visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
@@ -160,8 +156,7 @@ export default React.memo(function CurriculumUnits() {
                             </div>
                         </motion.div>
 
-                        {/* Units Grid */}
-                        <div className="w-full lg:w-2/3">
+                         <div className="w-full lg:w-2/3">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 {currentData.units.map((unit) => (
                                     <motion.button 

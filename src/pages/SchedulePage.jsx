@@ -69,10 +69,10 @@ export default function SchedulePage() {
         <div className="min-h-screen bg-[#EEF2F0]/80 py-12 px-4 sm:px-6 lg:px-8 font-sans">
             <div className="max-w-5xl mx-auto space-y-12">
                 
-                {/* Header */}
-                <motion.div 
+                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                     transition={{ duration: 0.5 }}
                     className="text-center space-y-4"
                 >
@@ -84,10 +84,10 @@ export default function SchedulePage() {
                     </p>
                 </motion.div>
 
-                {/* Days Selector */}
-                <motion.div 
+                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="flex justify-center gap-3 sm:gap-4 flex-wrap"
                 >
@@ -110,8 +110,7 @@ export default function SchedulePage() {
                     ))}
                 </motion.div>
 
-                {/* Classes List */}
-                <AnimatePresence mode="wait">
+                 <AnimatePresence mode="wait">
                     <motion.div 
                         key={activeDay}
                         variants={containerVariants}
@@ -126,8 +125,7 @@ export default function SchedulePage() {
                     </motion.div>
                 </AnimatePresence>
 
-                {/* CTA Banner */}
-                <motion.div 
+                 <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -210,11 +208,10 @@ const ActionButton = React.memo(({ status, t }) => {
 const ClassCard = React.memo(({ cls, t, variants }) => (
     <motion.div
         variants={variants}
-        style={{ willChange: 'transform, opacity' }} // GPU hint
+        style={{ willChange: 'transform, opacity' }} 
         className="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-start md:items-center gap-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
     >
-        {/* Image Side */}
-        <div className="relative shrink-0 mx-auto md:mx-0">
+         <div className="relative shrink-0 mx-auto md:mx-0">
             <img 
                 src={cls.image} 
                 alt={cls.teacher} 
@@ -229,8 +226,7 @@ const ClassCard = React.memo(({ cls, t, variants }) => (
             )}
         </div>
 
-        {/* Details Side */}
-        <div className="flex-1 space-y-4 w-full">
+         <div className="flex-1 space-y-4 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 transition-colors group-hover:text-[#00695C]">
                     {cls.title}
@@ -258,8 +254,7 @@ const ClassCard = React.memo(({ cls, t, variants }) => (
             </div>
         </div>
 
-        {/* Action Side */}
-        <div className="shrink-0 w-full md:w-auto flex justify-end mt-4 md:mt-0">
+         <div className="shrink-0 w-full md:w-auto flex justify-end mt-4 md:mt-0">
             <ActionButton status={cls.status} t={t} />
         </div>
     </motion.div>

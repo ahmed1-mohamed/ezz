@@ -8,8 +8,7 @@ export default function ContactForm() {
     return (
         <section className="max-w-5xl mx-auto mb-24 px-4 sm:px-6 lg:px-8">
             
-            {/* Top Banner */}
-            <motion.div 
+             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -23,8 +22,7 @@ export default function ContactForm() {
                 </p>
             </motion.div>
 
-            {/* Form Box */}
-            <motion.div 
+             <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -34,8 +32,7 @@ export default function ContactForm() {
                 <form className="space-y-6 sm:space-y-8" onSubmit={(e) => e.preventDefault()}>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                        {/* Name */}
-                        <div className="space-y-2 text-start">
+                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 px-1">
                                 {t('contact.form.name', 'الاسم الكامل')}
                             </label>
@@ -46,8 +43,7 @@ export default function ContactForm() {
                             />
                         </div>
 
-                        {/* Email */}
-                        <div className="space-y-2 text-start">
+                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 px-1">
                                 {t('contact.form.email', 'البريد الإلكتروني')}
                             </label>
@@ -58,8 +54,7 @@ export default function ContactForm() {
                             />
                         </div>
 
-                        {/* Subject */}
-                        <div className="space-y-2 text-start">
+                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 px-1">
                                 {t('contact.form.subject', 'موضوع الرسالة')}
                             </label>
@@ -70,8 +65,7 @@ export default function ContactForm() {
                             />
                         </div>
 
-                        {/* Phone */}
-                        <div className="space-y-2 text-start">
+                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 px-1">
                                 {t('contact.form.phone', 'رقم الهاتف')}
                             </label>
@@ -83,8 +77,7 @@ export default function ContactForm() {
                         </div>
                     </div>
 
-                    {/* Message */}
-                    <div className="space-y-2 text-start">
+                     <div className="space-y-2 text-start">
                         <label className="block text-sm font-bold text-slate-700 px-1">
                             {t('contact.form.message', 'رسالتك')}
                         </label>
@@ -95,8 +88,7 @@ export default function ContactForm() {
                         ></textarea>
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="flex justify-center pt-4">
+                     <div className="flex justify-center pt-4">
                         <button 
                             type="submit"
                             className="bg-[#00695C] hover:bg-[#005247] text-white font-bold py-4 px-10 rounded-2xl transition-all duration-300 ease-out shadow-md hover:shadow-lg text-lg active:scale-95 hover:-translate-y-1 flex items-center gap-3 cursor-pointer"
@@ -107,8 +99,7 @@ export default function ContactForm() {
                     </div>
                 </form>
 
-                {/* Contact Info Footer */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 pt-12 border-t border-slate-100">
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 pt-12 border-t border-slate-100">
                     <div className="flex items-center justify-center gap-4 group cursor-pointer transition-transform hover:-translate-y-1">
                         <div className="bg-[#FECD31]/20 w-12 h-12 rounded-xl flex items-center justify-center transition-colors group-hover:bg-[#FECD31]/30">
                             <Mail className="w-5 h-5 text-[#735C00]" />

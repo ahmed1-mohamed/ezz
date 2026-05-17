@@ -37,28 +37,25 @@ const portraitImages = [
 
 const TeacherCard = React.memo(({ teacher, t, index }) => (
     <motion.article
-        layout="position" // Optimize layout animations (less heavy than full 'layout')
+        layout="position"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }} // Reduced scale jump for smoothness
+        exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.4, delay: index * 0.05 }}
-        style={{ willChange: 'transform, opacity' }} // GPU Hint
+        style={{ willChange: 'transform, opacity' }}
         className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
     >
-        {/* Image */}
         <div className="relative overflow-hidden rounded-[28px] p-3 pb-0">
             <img
                 src={teacher.image}
                 alt={teacher.name}
                 className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
-                decoding="async" // Optimize image decoding
+                decoding="async"
             />
         </div>
 
-        {/* Content */}
         <div className="space-y-5 p-6 text-start">
-            {/* Name + Rating */}
             <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-col">
                     <h3 className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1">
@@ -75,7 +72,6 @@ const TeacherCard = React.memo(({ teacher, t, index }) => (
                 </div>
             </div>
 
-            {/* Tags */}
             <div className="flex flex-wrap justify-start gap-2">
                 <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
                     {teacher.experience}
@@ -90,7 +86,6 @@ const TeacherCard = React.memo(({ teacher, t, index }) => (
                 ))}
             </div>
 
-            {/* Button */}
             <button className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1">
                 {t('teacher.viewProfile', 'عرض الملف الشخصي')}
             </button>
@@ -101,16 +96,13 @@ const TeacherCard = React.memo(({ teacher, t, index }) => (
 export default function Teachers() {
     const { t, i18n } = useTranslation()
 
-    // Filter states
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedSubject, setSelectedSubject] = useState('')
     const [selectedLevel, setSelectedLevel] = useState('')
 
-    // Pagination states
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 8
 
-    // Teachers data with translations
     const teachersData = useMemo(() => Array.from({ length: 24 }).map((_, i) => ({
         id: i + 1,
         name: i % 3 === 0 ? t('teacher.names.1', "د. أحمد المنصوري") : i % 3 === 1 ? t('teacher.names.2', "د. خالد الشامسي") : t('teacher.names.3', "د. يوسف الحربي"),
@@ -123,12 +115,10 @@ export default function Teachers() {
         tags: [t('teacher.tag1', "التجويد"), i % 2 === 0 ? t('teacher.tag2', "تحفيظ") : t('teacher.tag3', "نحو"), t('teacher.tag4', "أونلاين")]
     })), [t])
 
-    // Subjects and Levels for the dropdowns
     const subjects = useMemo(() => [...new Set(teachersData.map(t => t.subject))], [teachersData])
     const levels = useMemo(() => [...new Set(teachersData.map(t => t.level))], [teachersData])
 
 
-    // Filtering logic
     const filteredTeachers = useMemo(() => {
         return teachersData.filter(teacher => {
             const matchName = teacher.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -138,12 +128,10 @@ export default function Teachers() {
         })
     }, [searchTerm, selectedSubject, selectedLevel])
 
-    // Reset pagination when filters change
     useEffect(() => {
         setCurrentPage(1)
     }, [searchTerm, selectedSubject, selectedLevel])
 
-    // Pagination logic
     const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage)
     const paginatedTeachers = filteredTeachers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
@@ -153,11 +141,10 @@ export default function Teachers() {
 
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20">
-            {/* Hero Section */}
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
                 <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
-                        <motion.div 
+                        <motion.div
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
@@ -178,7 +165,7 @@ export default function Teachers() {
                                 </p>
                             </motion.div>
                         </motion.div>
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, scale: 0.9, x: isRtl ? 40 : -40 }}
                             animate={{ opacity: 1, scale: 1, x: 0 }}
                             transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
@@ -186,7 +173,7 @@ export default function Teachers() {
                         >
                             <div className="relative w-full max-w-lg">
                                 <div className="absolute z-0 inset-0 -m-8 rounded-full bg-brand-100/50 blur-3xl mix-blend-multiply" />
-                                <motion.div 
+                                <motion.div
                                     animate={{ y: [0, -15, 0] }}
                                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                                     className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl"
@@ -198,7 +185,6 @@ export default function Teachers() {
                     </div>
                 </section>
 
-                {/* Filter Section */}
                 <section className="sticky top-20 sm:top-20 z-50 bg-white/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 w-full mx-auto transition-all duration-300">
                     <div className="flex flex-col md:flex-row items-end gap-5">
                         <div className="flex-1 w-full space-y-2 text-start">
@@ -259,7 +245,6 @@ export default function Teachers() {
                     </div>
                 </section>
 
-                {/* Teachers Grid */}
                 <section>
                     {paginatedTeachers.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
@@ -276,7 +261,6 @@ export default function Teachers() {
                     )}
                 </section>
 
-                {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="flex justify-center items-center gap-2 pt-8">
                         <button

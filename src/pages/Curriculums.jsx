@@ -29,8 +29,7 @@ export default React.memo(function Curriculums() {
         <div className="min-h-screen bg-slate-50/50 pb-20">
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
 
-                {/* Hero Section */}
-                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
+                 <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
                         <motion.div
                             variants={containerVariants}
@@ -78,8 +77,7 @@ export default React.memo(function Curriculums() {
 
                 <CurriculumUnits />
 
-                {/* Call To Action Section */}
-                <section className="relative overflow-hidden rounded-[32px] bg-[#FECD31] p-8 sm:p-12 lg:p-16 shadow-md flex  justify-between mt-8">
+                 <section className="relative overflow-hidden rounded-[32px] bg-[#FECD31] p-8 sm:p-12 lg:p-16 shadow-md flex  justify-between mt-8">
                     <div className="relative z-10 space-y-6 max-w-2xl">
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-[#735C00]">
                             {t('curriculum.cta.title', 'هل أنت مستعد لبدء رحلتك؟')}
@@ -94,8 +92,7 @@ export default React.memo(function Curriculums() {
                         </div>
                     </div>
 
-                    {/* Decorative Icon */}
-                    <div className="absolute -bottom-16 sm:-bottom-24 left-0 sm:-left-4 opacity-30 pointer-events-none">
+                     <div className="absolute -bottom-16 sm:-bottom-24 left-0 sm:-left-4 opacity-30 pointer-events-none">
                         <GraduationCap className="w-48 h-48 sm:w-[300px] sm:h-[300px] text-[#735C00] -rotate-2" strokeWidth={2.5} />
                     </div>
                 </section>

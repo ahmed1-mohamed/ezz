@@ -75,10 +75,10 @@ export default function Pricing() {
     return (
         <div className="min-h-screen bg-[#EEF4F2]/50 py-16 sm:py-24 overflow-hidden font-sans">
             
-            {/* Header Section */}
-            <motion.div 
+             <motion.div 
                 initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
                 className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
             >
@@ -90,12 +90,12 @@ export default function Pricing() {
                 </p>
             </motion.div>
 
-            {/* Pricing Cards */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
+             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
-                    animate="visible"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                     className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
                 >
                     {plans.map((plan) => (
@@ -152,8 +152,7 @@ export default function Pricing() {
                 </motion.div>
             </div>
 
-            {/* FAQ Section */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10">
+             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10">
                 <motion.h2 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

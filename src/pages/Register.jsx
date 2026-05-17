@@ -52,13 +52,11 @@ export default function Register() {
         if (!validate()) return
 
         try {
-            // using auth service (if register exists, else fallback to logic or mock)
-            if(register) {
+             if(register) {
                 const user = await register(formValues.email, formValues.password, formValues.fullName, formValues.accountType)
                 navigate(getRedirectPath(user?.role || 'Student'))
             } else {
-                // Mock registration behavior
-                navigate('/login')
+                 navigate('/login')
             }
         } catch (error) {
             setServerError(error.message)
@@ -67,26 +65,22 @@ export default function Register() {
 
     return (
         <div className="min-h-screen bg-[#EEF4F2] flex flex-col relative font-sans">
-            {/* Back Button */}
-            <div className="absolute top-6 start-6 z-10">
+             <div className="absolute top-6 start-6 z-10">
                 <Link to="/" className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold transition-colors bg-white/50 hover:bg-white px-4 py-2 rounded-full shadow-sm">
                     <ArrowIcon className="w-5 h-5" />
                     <span>{t('login.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
             </div>
 
-            {/* Language Switcher */}
-            <div className="absolute top-6 end-6 z-10">
+             <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12 lg:py-20">
                 
-                {/* Register Card */}
-                <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-sm p-8 sm:p-12 border border-slate-100">
+                 <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-sm p-8 sm:p-12 border border-slate-100">
                     
-                    {/* Header */}
-                    <div className="text-center mb-10">
+                     <div className="text-center mb-10">
                         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#00695C] mb-3">
                             {t('register.title', 'إنشاء حساب جديد')}
                         </h1>
@@ -97,8 +91,7 @@ export default function Register() {
 
                     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                         
-                        {/* Account Type Selection */}
-                        <div className="space-y-3">
+                         <div className="space-y-3">
                             <label className="block text-sm font-bold text-[#00695C] px-1 text-end">
                                 {t('register.accountType', 'نوع الحساب')}
                             </label>
@@ -130,8 +123,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* Full Name Input */}
-                        <div className="space-y-2 text-end">
+                         <div className="space-y-2 text-end">
                             <label className="block text-sm font-bold text-slate-500 px-1">
                                 {t('register.name', 'الاسم الكامل')}
                             </label>
@@ -150,8 +142,7 @@ export default function Register() {
                             {errors.fullName && <p className="text-xs text-red-500 px-1 text-end">{errors.fullName}</p>}
                         </div>
 
-                        {/* Email Input */}
-                        <div className="space-y-2 text-end">
+                         <div className="space-y-2 text-end">
                             <label className="block text-sm font-bold text-slate-500 px-1">
                                 {t('register.email', 'البريد الإلكتروني')}
                             </label>
@@ -171,8 +162,7 @@ export default function Register() {
                             {errors.email && <p className="text-xs text-red-500 px-1 text-end">{errors.email}</p>}
                         </div>
 
-                        {/* Phone Input */}
-                        <div className="space-y-2 text-end">
+                         <div className="space-y-2 text-end">
                             <label className="block text-sm font-bold text-slate-500 px-1">
                                 {t('register.phone', 'رقم الهاتف')}
                             </label>
@@ -192,10 +182,8 @@ export default function Register() {
                             {errors.phone && <p className="text-xs text-red-500 px-1 text-end">{errors.phone}</p>}
                         </div>
 
-                        {/* Password Fields */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {/* Password */}
-                            <div className="space-y-2 text-end order-2 sm:order-1">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <div className="space-y-2 text-end order-2 sm:order-1">
                                 <label className="block text-sm font-bold text-slate-500 px-1">
                                     {t('register.password', 'كلمة المرور')}
                                 </label>
@@ -215,8 +203,7 @@ export default function Register() {
                                 {errors.password && <p className="text-xs text-red-500 px-1 text-end">{errors.password}</p>}
                             </div>
 
-                            {/* Confirm Password */}
-                            <div className="space-y-2 text-end order-1 sm:order-2">
+                             <div className="space-y-2 text-end order-1 sm:order-2">
                                 <label className="block text-sm font-bold text-slate-500 px-1">
                                     {t('register.confirmPassword', 'تأكيد كلمة المرور')}
                                 </label>
@@ -239,8 +226,7 @@ export default function Register() {
 
                         {serverError && <p className="text-sm text-center text-red-500 mt-2">{serverError}</p>}
 
-                        {/* Submit Button */}
-                        <button
+                         <button
                             type="submit"
                             disabled={loading}
                             className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
@@ -248,8 +234,7 @@ export default function Register() {
                             {loading ? t('register.submitting', 'جاري التسجيل...') : t('register.submit', 'إنشاء الحساب')}
                         </button>
 
-                        {/* Divider */}
-                        <div className="relative py-4 flex items-center">
+                         <div className="relative py-4 flex items-center">
                             <div className="flex-grow border-t border-slate-100"></div>
                             <span className="shrink-0 px-4 text-xs font-bold text-slate-400">
                                 {t('register.orRegisterWith', 'أو التسجيل عبر')}
@@ -257,8 +242,7 @@ export default function Register() {
                             <div className="flex-grow border-t border-slate-100"></div>
                         </div>
 
-                        {/* Google Button */}
-                        <button
+                         <button
                             type="button"
                             className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl py-3.5 flex items-center justify-center gap-3 transition-all"
                         >
@@ -285,8 +269,7 @@ export default function Register() {
                     </form>
                 </div>
 
-                {/* Footer Link */}
-                <div className="mt-8 text-center flex items-center justify-center gap-1">
+                 <div className="mt-8 text-center flex items-center justify-center gap-1">
                     <span className="text-slate-500 font-medium">{t('register.haveAccount', 'لديك حساب بالفعل؟')}</span>
                     <Link to="/login" className="font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
                         {t('register.login', 'تسجيل الدخول')}

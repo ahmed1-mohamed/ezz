@@ -2,8 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 
-// Using a placeholder image for now, replace with the correct one if available
-import placeholderImg from "../../images/contact/1.jpg"
+ import placeholderImg from "../../images/contact/1.jpg"
 
 export default React.memo(function ContactTopHero() {
     const { t, i18n } = useTranslation()
@@ -13,8 +12,7 @@ export default React.memo(function ContactTopHero() {
         <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
 
-                {/* Text Content */}
-                <motion.div
+                 <motion.div
                     initial={{ opacity: 0, x: isRtl ? -50 : 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -34,24 +32,21 @@ export default React.memo(function ContactTopHero() {
                     </p>
                 </motion.div>
 
-                {/* Image Content */}
-                <motion.div
+                 <motion.div
                     initial={{ opacity: 0, scale: 0.9, x: isRtl ? 50 : -50 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
                     className="w-full lg:w-1/2 relative flex justify-center lg:justify-start order-1 lg:order-2"
                 >
                     <div className="relative w-full max-w-md lg:max-w-lg aspect-[4/3] sm:aspect-square lg:aspect-[4/3] rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl">
-                        {/* Overlay to give the image a greenish tint similar to the design */}
-                        <div className="absolute inset-0 bg-[#00695C]/20 mix-blend-multiply z-10 rounded-[2rem] sm:rounded-[3rem]"></div>
+                         <div className="absolute inset-0 bg-[#00695C]/20 mix-blend-multiply z-10 rounded-[2rem] sm:rounded-[3rem]"></div>
                         <img
                             src={placeholderImg}
                             alt="Contact Us"
                             className="w-full h-full object-cover object-center scale-105 transition-transform duration-700 hover:scale-100"
                         />
                     </div>
-                    {/* Decorative blobs */}
-                    <div className={`absolute -bottom-6 ${isRtl ? '-right-6' : '-left-6'} w-32 h-32 bg-[#FECD31]/30 rounded-full blur-2xl -z-10`}></div>
+                     <div className={`absolute -bottom-6 ${isRtl ? '-right-6' : '-left-6'} w-32 h-32 bg-[#FECD31]/30 rounded-full blur-2xl -z-10`}></div>
                     <div className={`absolute -top-6 ${isRtl ? '-left-6' : '-right-6'} w-40 h-40 bg-[#00695C]/10 rounded-full blur-3xl -z-10`}></div>
                 </motion.div>
 
