@@ -80,59 +80,59 @@ export default React.memo(function JourneySteps() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative z-10">                        {steps.map((step, index) => {
-                            const Icon = step.icon;
+                        const Icon = step.icon;
 
-                            return (
+                        return (
+                            <motion.div
+                                key={step.id}
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{
+                                    duration: 0.7,
+                                    delay: index * 0.2,
+                                }}
+                                viewport={{ once: true }}
+                                whileHover={{ y: -10 }}
+                                style={{ willChange: 'transform, opacity' }}
+                                className="relative flex flex-col items-center text-center"
+                            >
                                 <motion.div
-                                    key={step.id}
-                                    initial={{ opacity: 0, y: 50 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                        duration: 0.7,
-                                        delay: index * 0.2,
+                                    animate={{
+                                        y: [0, -8, 0],
                                     }}
-                                    viewport={{ once: true }}
-                                    whileHover={{ y: -10 }}
-                                    style={{ willChange: 'transform, opacity' }}
-                                    className="relative flex flex-col items-center text-center"
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                    }}
+                                    className="absolute -top-5 end-[35%] md:end-[30%] z-20"
                                 >
-                                    <motion.div
-                                        animate={{
-                                            y: [0, -8, 0],
-                                        }}
-                                        transition={{
-                                            duration: 3,
-                                            repeat: Infinity,
-                                            ease: "easeInOut",
-                                        }}
-                                        className="absolute top-0 end-[35%] md:end-[30%] z-20"
-                                    >
-                                        <div className="w-14 h-14 rounded-full bg-[#8B6B00] shadow-md flex items-center justify-center border-4 border-white">
-                                            <Icon className="w-6 h-6 text-white" />
-                                        </div>
-                                    </motion.div>
-
-                                    <motion.div
-                                        whileHover={{ scale: 1.08 }}
-                                        className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] shadow-sm flex items-center justify-center"
-                                    >
-                                        <span className="text-4xl font-black text-[#005F54]">
-                                            {step.id}
-                                        </span>
-                                    </motion.div>
-
-                                    <div className="mt-10">
-                                        <h3 className="text-2xl font-extrabold text-[#00695C]">
-                                            {step.title}
-                                        </h3>
-
-                                        <p className="mt-4 text-[#6B7280] leading-8 text-base max-w-sm">
-                                            {step.description}
-                                        </p>
+                                    <div className="w-14 h-14 rounded-full bg-[#8B6B00] shadow-md flex items-center justify-center border-4 border-white">
+                                        <Icon className="w-6 h-6 text-white" />
                                     </div>
                                 </motion.div>
-                            );
-                        })}
+
+                                <motion.div
+                                    whileHover={{ scale: 1.08 }}
+                                    className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] shadow-sm flex items-center justify-center"
+                                >
+                                    <span className="text-4xl font-black text-[#005F54]">
+                                        {step.id}
+                                    </span>
+                                </motion.div>
+
+                                <div className="mt-10">
+                                    <h3 className="text-2xl font-extrabold text-[#00695C]">
+                                        {step.title}
+                                    </h3>
+
+                                    <p className="mt-4 text-[#6B7280] leading-8 text-base max-w-sm">
+                                        {step.description}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                     </div>
                 </div>
             </div>

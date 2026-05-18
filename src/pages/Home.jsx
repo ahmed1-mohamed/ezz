@@ -51,10 +51,10 @@ export default React.memo(function Home() {
                                 <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
                                     {t('home.titleLine1')}
                                 </h1>
-                                <h1 className="bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
+                                <h1 className="bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
                                     {t('home.titleLine2')}
                                 </h1>
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
+                                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
                                     {t('home.titleLine3')}
                                 </h1>
                             </motion.div>

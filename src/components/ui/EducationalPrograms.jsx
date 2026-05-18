@@ -33,7 +33,7 @@ export default React.memo(function EducationalPrograms() {
             <div className="absolute top-[-120px] start-[-120px] h-[400px] w-[400px] rounded-full bg-[#0F7A6C]/10 blur-[120px]" />
             <div className="absolute bottom-[-120px] end-[-120px] h-[400px] w-[400px] rounded-full bg-[#D4AF37]/10 blur-[120px]" />
 
-            <div className="relative mx-auto max-w-6xl">
+            <div className="relative mx-auto max-w-7xl">
 
                 <motion.div
                     initial={{ opacity: 0, y: 25 }}
@@ -79,7 +79,7 @@ export default React.memo(function EducationalPrograms() {
 
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
-                                    <span className="absolute top-4 start-4 rounded-full bg-white/90 backdrop-blur px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold text-[#0F7A6C] shadow-md">
+                                    <span className="absolute top-4 start-4 rounded-full bg-white/90 backdrop-blur px-3 sm:px-4 py-1 text-lg sm:text-sm font-bold text-[#0F7A6C] shadow-md">
                                         {t(`${base}.badge`)}
                                     </span>
                                 </div>
