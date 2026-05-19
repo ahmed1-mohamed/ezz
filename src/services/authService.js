@@ -27,6 +27,13 @@ export const users = [
     password: "Student@123",
     role: "Student",
   },
+  {
+    id: 5,
+    name: "Ahmed Mohamed",
+    email: "parent@eduplatform.com",
+    password: "Parent@123",
+    role: "Parent",
+  },
 ];
 
 export function getRedirectPath(role) {
@@ -39,6 +46,8 @@ export function getRedirectPath(role) {
       return "/dashboard/teacher";
     case "Student":
       return "/dashboard/student";
+    case "Parent":
+      return "/dashboard/parent";
     default:
       return "/login";
   }

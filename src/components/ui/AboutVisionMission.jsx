@@ -12,8 +12,8 @@ export default React.memo(function AboutVisionMission() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    style={{ willChange: 'transform, opacity' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
                     className="bg-white rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center gap-6"
                 >
                     <div className="w-16 h-16 rounded-full bg-[#00695C]/10 flex items-center justify-center">
@@ -32,9 +32,8 @@ export default React.memo(function AboutVisionMission() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    transition={{ delay: 0.1 }}
-                    style={{ willChange: 'transform, opacity' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
                     className="bg-white rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center gap-6"
                 >
                     <div className="w-16 h-16 rounded-full bg-[#735C00]/10 flex items-center justify-center">
@@ -54,3 +53,4 @@ export default React.memo(function AboutVisionMission() {
         </section>
     )
 })
+

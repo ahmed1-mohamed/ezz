@@ -2,6 +2,11 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { BookOpen, Award, Gem, CheckCircle2, XCircle } from 'lucide-react'
 
+const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+};
+
 export default function Pricing() {
     const { t } = useTranslation()
 
@@ -62,24 +67,14 @@ export default function Pricing() {
         }
     ]
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
-    }
-    
-    const itemVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
-    }
-
     return (
         <div className="min-h-screen bg-[#EEF4F2]/50 py-16 sm:py-24 overflow-hidden font-sans">
             
              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
+                variants={fadeUp}
                 className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
             >
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#00695C] leading-tight">
@@ -91,21 +86,18 @@ export default function Pricing() {
             </motion.div>
 
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
-                <motion.div 
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
-                >
-                    {plans.map((plan) => (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    {plans.map((plan, index) => (
                         <motion.div 
-                            variants={itemVariants}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.4, delay: index * 0.1 }}
                             key={plan.id}
                             className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 group ${
                                 plan.popular 
-                                ? 'border-2 border-[#735C00] shadow-[0_10px_40px_rgba(115,92,0,0.12)] lg:scale-[1.05] z-10 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(115,92,0,0.15)]' 
-                                : 'shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1'
+                                ? 'border-2 border-[#735C00] shadow-lg lg:scale-105 z-10' 
+                                : 'shadow-sm border border-slate-100 hover:shadow-md'
                             }`}
                         >
                             {plan.popular && (
@@ -114,7 +106,7 @@ export default function Pricing() {
                                 </div>
                             )}
                             
-                            <div className="bg-[#E6F0ED] w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110">
+                            <div className="bg-[#E6F0ED] w-20 h-20 rounded-full flex items-center justify-center mb-6">
                                 <plan.icon className="w-10 h-10 text-[#00695C]" />
                             </div>
 
@@ -140,16 +132,16 @@ export default function Pricing() {
                                 ))}
                             </ul>
 
-                            <button className={`w-full py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                            <button className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 ${
                                 plan.popular 
-                                ? 'bg-[#00695C] text-white hover:bg-[#005247] shadow-lg shadow-[#00695C]/25' 
+                                ? 'bg-[#00695C] text-white hover:bg-[#005247]' 
                                 : 'bg-[#F1F5F9] text-slate-700 hover:bg-[#E2E8F0]'
                             }`}>
                                 {t('pricing.btn', 'ابدأ الآن')}
                             </button>
                         </motion.div>
                     ))}
-                </motion.div>
+                </div>
             </div>
 
              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10">
@@ -162,24 +154,21 @@ export default function Pricing() {
                     {t('pricing.faq.title', 'الأسئلة الشائعة')}
                 </motion.h2>
 
-                <motion.div 
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="space-y-4"
-                >
+                <div className="space-y-4">
                     {faqs.map((faq, idx) => (
                         <motion.div 
-                            variants={itemVariants}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.4, delay: idx * 0.1 }}
                             key={idx} 
-                            className="bg-white rounded-[1.5rem] p-6 sm:p-8 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                            className="bg-white rounded-[1.5rem] p-6 sm:p-8 shadow-sm border border-slate-100"
                         >
                             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">{faq.q}</h3>
                             <p className="text-slate-600 font-medium text-base sm:text-lg leading-relaxed">{faq.a}</p>
                         </motion.div>
                     ))}
-                </motion.div>
+                </div>
             </div>
 
         </div>

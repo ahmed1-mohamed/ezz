@@ -22,8 +22,8 @@ export default React.memo(function AboutFeatures() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    style={{ willChange: 'transform, opacity' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
                     className="lg:col-span-8 bg-white rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-8 shadow-sm border border-slate-100/50"
                 >
                     <div className="flex-1 space-y-4 text-start">
@@ -34,11 +34,11 @@ export default React.memo(function AboutFeatures() {
                             {t('about.features.f1.desc', 'هدفنا ليس مجرد التلقين، بل تمكين كل متعلم من الأدوات التي تساعده على فهم معاني القرآن وتذوق جماله، ليصبح قادراً على التعبير عن هذه اللغة العظيمة ونشر رسالتها في مختلف أنحاء العالم، ونسعى إلى غرس حب التعلم والتدبر ليكون القرآن نوراً يهديه في حياته اليومية.')}
                         </p>
                     </div>
-                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-md shrink-0">
+                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0">
                         <img 
                             src={imagesrc} 
                             alt="Students" 
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover"
                             loading="lazy"
                             decoding="async"
                         />
@@ -48,10 +48,9 @@ export default React.memo(function AboutFeatures() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    transition={{ delay: 0.1 }}
-                    style={{ willChange: 'transform, opacity' }}
-                    className="lg:col-span-4 bg-[#FECD31] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-md"
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="lg:col-span-4 bg-[#FECD31] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-sm"
                 >
                     <div className="w-14 h-14 border-2 border-[#735C00]/20 flex items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm text-[#735C00]">
                         <MonitorPlay className="w-7 h-7" />
@@ -71,16 +70,15 @@ export default React.memo(function AboutFeatures() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    transition={{ delay: 0.3 }}
-                    style={{ willChange: 'transform, opacity' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
                     className="lg:col-span-8 bg-white rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-8 shadow-sm border border-slate-100/50"
                 >
-                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-md shrink-0">
+                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0">
                         <img
-                            src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=600&auto=format&fit=crop"
+                            src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=400&auto=format&fit=crop"
                             alt="Books"
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover"
                             loading="lazy"
                             decoding="async"
                         />
@@ -98,10 +96,9 @@ export default React.memo(function AboutFeatures() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    transition={{ delay: 0.2 }}
-                    style={{ willChange: 'transform, opacity' }}
-                    className="lg:col-span-4 bg-[#00695C] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-md"
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="lg:col-span-4 bg-[#00695C] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-sm"
                 >
                     <div className="w-14 h-14 border-2 border-white/20 flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm text-white">
                         <BookOpen className="w-7 h-7" />
@@ -119,3 +116,4 @@ export default React.memo(function AboutFeatures() {
         </section>
     )
 })
+

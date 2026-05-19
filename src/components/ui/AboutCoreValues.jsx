@@ -33,18 +33,17 @@ export default React.memo(function AboutCoreValues() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-20">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.95, x: isRtl ? 30 : -30 }}
-                    whileInView={{ opacity: 1, scale: 1, x: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                    style={{ willChange: 'transform, opacity' }}
+                    initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
                     className="w-full lg:w-1/2 order-2 lg:order-1"
                 >
-                    <div className="relative rounded-[2rem] overflow-hidden shadow-2xl">
+                    <div className="relative rounded-[2rem] overflow-hidden shadow-lg">
                         <img 
                             src={quranImage} 
                             alt="Core Values" 
-                            className="w-full h-auto aspect-square object-cover transition-transform duration-700 hover:scale-105"
+                            className="w-full h-auto aspect-square object-cover"
                             loading="lazy"
                             decoding="async"
                         />
@@ -52,11 +51,10 @@ export default React.memo(function AboutCoreValues() {
                 </motion.div>
 
                 <motion.div 
-                    initial={{ opacity: 0, x: isRtl ? -30 : 30 }}
+                    initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                    style={{ willChange: 'transform, opacity' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
                     className="w-full lg:w-1/2 order-1 lg:order-2 space-y-10"
                 >
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] text-start">
@@ -69,9 +67,8 @@ export default React.memo(function AboutCoreValues() {
                                 key={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                                transition={{ delay: item.delay, duration: 0.5 }}
-                                style={{ willChange: 'transform, opacity' }}
+                                viewport={{ once: true }}
+                                transition={{ delay: item.delay, duration: 0.4 }}
                                 className="flex items-start gap-5 group"
                             >
                                 <div className="w-12 h-12 rounded-full bg-[#E5ECEB] flex items-center justify-center shrink-0 transition-colors group-hover:bg-[#D1E0DD]">
@@ -94,3 +91,4 @@ export default React.memo(function AboutCoreValues() {
         </section>
     )
 })
+

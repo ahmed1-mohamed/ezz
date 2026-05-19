@@ -714,5 +714,110 @@
       "desc": "Join thousands of students who have started their journey towards excellence and creativity, we are here to support you step by step.",
       "btn": "Register Now"
     }
+  },
+  "parentDashboard": {
+    "nav": {
+      "home": "Home",
+      "children": "Children",
+      "schedule": "Schedule",
+      "attendance": "Attendance",
+      "reports": "Reports",
+      "ratings": "Ratings",
+      "assignments": "Assignments",
+      "exams": "Exams",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "complaints": "Reports & Complaints",
+      "website": "Website",
+      "settings": "Settings"
+    },
+    "header": {
+      "title": "Manarat Al-Ezz Academy",
+      "subtitle": "Parent Dashboard"
+    },
+    "user": {
+      "name": "Ahmed Mohamed",
+      "role": "Parent"
+    },
+    "home": {
+      "totalChildren": "Total Children",
+      "attendanceRate": "Attendance Rate",
+      "attendanceSubtext": "+5% since last month",
+      "completedAssignments": "Completed Assignments",
+      "averageRating": "Average Rating",
+      "trackChildren": "Track Children",
+      "remainingClasses": "Remaining Classes",
+      "showDetails": "Show Details",
+      "upcomingClasses": "Upcoming Classes",
+      "liveNow": "Live Now",
+      "student": "Student:",
+      "teacher": "Teacher:",
+      "liveStreamNow": "Live Stream Now",
+      "cancelClass": "Cancel Class",
+      "availableUntil": "Available until {{time}}",
+      "subscriptionSummary": "Subscription Summary",
+      "selectStudent": "Select Student",
+      "currentPackage": "Current Package",
+      "totalRemainingClasses": "Total Remaining Classes",
+      "classes": "Classes",
+      "renewSubscription": "Renew Subscription",
+      "advancedPackage": "Advanced Package",
+      "children": {
+        "mohamed": "Mohamed Ahmed",
+        "aisha": "Aisha Ahmed",
+        "fatima": "Fatima Ahmed",
+        "subject1": "Quran & Arabic",
+        "subject2": "Arabic Language"
+      },
+      "classesData": {
+        "title1": "Memorizing Surah Al-Baqarah",
+        "title2": "Grammar and Morphology",
+        "teacher": "Sheikh Ahmed Mansour",
+        "today": "Today"
+      }
+    },
+    "ratings": {
+      "title": "Teacher Ratings",
+      "subtitle": "Rate your children's teachers performance",
+      "selectTeacher": "Select Teacher",
+      "evaluations": "evaluations",
+      "yourRating": "Your Rating",
+      "ratingHint": "How do you rate your experience with the teacher?",
+      "submitRating": "Submit Rating",
+      "sending": "Sending...",
+      "complaintQuestion": "Have a complaint or note?",
+      "complaintHint": "You can submit an official complaint",
+      "submitComplaint": "Submit Complaint",
+      "pastRatings": "Past Ratings",
+      "excellent": "Outstanding and cooperative teacher",
+      "good": "Very good performance",
+      "acceptable": "Acceptable level"
+    },
+    "complaints": {
+      "title": "Reports and Complaints",
+      "subtitle": "Submit a complaint or suggestion and we will review it soon",
+      "submissionType": "Submission Type",
+      "complaint": "Complaint",
+      "suggestion": "Suggestion",
+      "selectChild": "Select Child",
+      "selectGroup": "Select Group",
+      "selectTeacher": "Teacher (Optional)",
+      "selectTeacherPlaceholder": "Select Teacher",
+      "details": "{{type}} Details",
+      "detailsPlaceholder": "Write the details of your {{type}} clearly...",
+      "complaintSummary": "Complaint Summary",
+      "suggestionSummary": "Suggestion Summary",
+      "child": "Child",
+      "group": "Group",
+      "teacher": "Teacher",
+      "type": "Type",
+      "notSelected": "Not selected",
+      "submit": "Submit {{type}}",
+      "submitting": "Submitting...",
+      "pastReports": "Past Reports",
+      "reportId": "Report ID:",
+      "underReview": "Under Review",
+      "received": "Received"
+    }
   }
 }

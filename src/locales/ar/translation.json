@@ -584,5 +584,110 @@
       "desc": "انضم إلى آلاف الطلاب الذين بدؤوا رحلتهم نحو التميز والإبداع، نحن هنا لندعمك خطوة بخطوة.",
       "btn": "سجل الآن"
     }
+  },
+  "parentDashboard": {
+    "nav": {
+      "home": "الرئيسية",
+      "children": "متابعة الأبناء",
+      "schedule": "الجدول الدراسي",
+      "attendance": "الحضور",
+      "reports": "التقارير",
+      "ratings": "التقييمات",
+      "assignments": "الواجبات",
+      "exams": "الاختبارات",
+      "notifications": "الإشعارات",
+      "profile": "الملف الشخصي",
+      "complaints": "التقارير والشكاوى",
+      "website": "موقعنا",
+      "settings": "الإعدادات"
+    },
+    "header": {
+      "title": "منارة العز أكاديمي",
+      "subtitle": "لوحة تحكم ولي الأمر"
+    },
+    "user": {
+      "name": "أحمد محمد",
+      "role": "ولي أمر"
+    },
+    "home": {
+      "totalChildren": "إجمالي الأبناء",
+      "attendanceRate": "معدل الحضور",
+      "attendanceSubtext": "+5% عن الشهر الماضي",
+      "completedAssignments": "الواجبات المكتملة",
+      "averageRating": "متوسط التقييم",
+      "trackChildren": "متابعة الأبناء",
+      "remainingClasses": "الحصص المتبقية",
+      "showDetails": "عرض التفاصيل",
+      "upcomingClasses": "الحصص القادمة",
+      "liveNow": "مباشر الآن",
+      "student": "الطالب:",
+      "teacher": "المعلم:",
+      "liveStreamNow": "البث مباشر الآن",
+      "cancelClass": "الاعتذار عن الحصة",
+      "availableUntil": "متاح حتى {{time}}",
+      "subscriptionSummary": "ملخص الاشتراك",
+      "selectStudent": "اختر الطالب",
+      "currentPackage": "الباقة الحالية",
+      "totalRemainingClasses": "إجمالي الحصص المتبقية",
+      "classes": "حصة",
+      "renewSubscription": "تجديد الاشتراك",
+      "advancedPackage": "الباقة المتقدمة",
+      "children": {
+        "mohamed": "محمد أحمد",
+        "aisha": "عائشة أحمد",
+        "fatima": "فاطمة أحمد",
+        "subject1": "القرآن واللغة العربية",
+        "subject2": "اللغة العربية"
+      },
+      "classesData": {
+        "title1": "حفظ سورة البقرة",
+        "title2": "النحو والصرف",
+        "teacher": "الشيخ أحمد منصور",
+        "today": "اليوم"
+      }
+    },
+    "ratings": {
+      "title": "تقييم المعلمين",
+      "subtitle": "قيّم أداء معلمي طفلك",
+      "selectTeacher": "اختر المعلم",
+      "evaluations": "تقييم",
+      "yourRating": "تقييمك",
+      "ratingHint": "كيف تقيم تجربتك مع المعلم؟",
+      "submitRating": "إرسال التقييم",
+      "sending": "جاري الإرسال...",
+      "complaintQuestion": "لديك شكوى أو ملاحظة؟",
+      "complaintHint": "يمكنك تقديم شكوى رسمية",
+      "submitComplaint": "تقديم شكوى",
+      "pastRatings": "تقييماتي السابقة",
+      "excellent": "معلم متميز ومتعاون",
+      "good": "أداء جيد جدًا",
+      "acceptable": "مستوى مقبول"
+    },
+    "complaints": {
+      "title": "التقارير والشكاوي",
+      "subtitle": "قدم شكوى أو مقترح وسنقوم بمراجعته في أقرب وقت",
+      "submissionType": "نوع التقديم",
+      "complaint": "شكوى",
+      "suggestion": "مقترح",
+      "selectChild": "اختر الابن",
+      "selectGroup": "اختر المجموعة",
+      "selectTeacher": "المعلم المشتكى عليه (اختياري)",
+      "selectTeacherPlaceholder": "اختر المعلم",
+      "details": "تفاصيل {{type}}",
+      "detailsPlaceholder": "اكتب تفاصيل {{type}} بوضوح...",
+      "complaintSummary": "ملخص الشكوى",
+      "suggestionSummary": "ملخص المقترح",
+      "child": "الابن",
+      "group": "المجموعة",
+      "teacher": "المعلم",
+      "type": "النوع",
+      "notSelected": "لم يتم الاختيار",
+      "submit": "إرسال {{type}}",
+      "submitting": "جاري الإرسال...",
+      "pastReports": "التقارير السابقة",
+      "reportId": "رقم التقرير:",
+      "underReview": "قيد المراجعة",
+      "received": "تم الاستلام"
+    }
   }
 }
