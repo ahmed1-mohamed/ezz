@@ -44,7 +44,8 @@ const ParentLayout = lazy(() => import('../layouts/ParentLayout.jsx'))
 const ParentDashboard = lazy(() => import('../features/parent/presentation/screens/ParentDashboard.jsx'))
 const ParentRatings = lazy(() => import('../features/parent/presentation/screens/ParentRatings.jsx'))
 const ParentComplaints = lazy(() => import('../features/parent/presentation/screens/ParentComplaints.jsx'))
-import { ParentChildren, ParentAttendance, ParentAssignments, ParentReports, ParentSchedule, ParentSettings, ParentExams, ParentNotifications, ParentProfile } from '../features/parent/presentation/screens/Placeholders.jsx'
+const ParentChildren = lazy(() => import('../features/parent/presentation/screens/ParentChildren.jsx'))
+import { ParentAttendance, ParentAssignments, ParentReports, ParentSchedule, ParentSettings, ParentExams, ParentNotifications, ParentProfile } from '../features/parent/presentation/screens/Placeholders.jsx'
 
 
 const NotFound = lazy(() => import('../pages/NotFound.jsx'))

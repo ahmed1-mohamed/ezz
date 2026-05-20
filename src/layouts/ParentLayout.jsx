@@ -50,17 +50,21 @@ export default function ParentLayout() {
   }, [location]);
 
   return (
-    <div className="flex min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans">
       
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed top-4 end-4 z-50">
+      {/* Mobile Header Bar */}
+      <header className="lg:hidden w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 h-16 px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
+        <div className="text-start">
+          <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-base">{t('parentDashboard.header.title')}</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-xs">{t('parentDashboard.header.subtitle')}</p>
+        </div>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 bg-white dark:bg-slate-800 rounded-md shadow-sm text-slate-700 dark:text-slate-300"
+          className="p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-slate-700 dark:text-slate-300 transition-colors"
         >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-      </div>
+      </header>
 
       {/* Sidebar Overlay */}
       <AnimatePresence>

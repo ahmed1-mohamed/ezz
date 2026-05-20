@@ -592,39 +592,105 @@
         "title": "About the Holy Quran Curriculum",
         "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
       },
-      "feat1": { "title": "Certified Certificate", "desc": "Upon completing each part" },
-      "feat2": { "title": "Interactive Sessions", "desc": "With the most skilled reciters" },
+      "feat1": {
+        "title": "Certified Certificate",
+        "desc": "Upon completing each part"
+      },
+      "feat2": {
+        "title": "Interactive Sessions",
+        "desc": "With the most skilled reciters"
+      },
       "btn": "View Curriculum",
-      "u1": { "title": "Principles of Tajweed", "desc": "Learn the articulation points of letters and their basic attributes for a correct recitation.", "level": "Beginner Level" },
-      "u2": { "title": "Juz Amma Recitation & Memorization", "desc": "Memorizing and contemplating short Surahs in an enjoyable way.", "level": "First Stage" },
-      "u3": { "title": "Maqamat of Recitation", "desc": "Improving the voice with Quranic performance and learning basic Maqamat.", "level": "Advanced Level" },
-      "u4": { "title": "Stories from the Quran", "desc": "Extracting lessons and morals from the stories of the Prophets.", "level": "Enrichment Curriculum" }
+      "u1": {
+        "title": "Principles of Tajweed",
+        "desc": "Learn the articulation points of letters and their basic attributes for a correct recitation.",
+        "level": "Beginner Level"
+      },
+      "u2": {
+        "title": "Juz Amma Recitation & Memorization",
+        "desc": "Memorizing and contemplating short Surahs in an enjoyable way.",
+        "level": "First Stage"
+      },
+      "u3": {
+        "title": "Maqamat of Recitation",
+        "desc": "Improving the voice with Quranic performance and learning basic Maqamat.",
+        "level": "Advanced Level"
+      },
+      "u4": {
+        "title": "Stories from the Quran",
+        "desc": "Extracting lessons and morals from the stories of the Prophets.",
+        "level": "Enrichment Curriculum"
+      }
     },
     "arabic": {
       "sidebar": {
         "title": "About the Arabic Language Curriculum",
         "desc": "A curriculum that establishes the four language skills: listening, speaking, reading, and writing using modern methods that connect language to daily life."
       },
-      "feat1": { "title": "Continuous Evaluation", "desc": "To measure skills development" },
-      "feat2": { "title": "Practical Practice", "desc": "Through interactive activities" },
+      "feat1": {
+        "title": "Continuous Evaluation",
+        "desc": "To measure skills development"
+      },
+      "feat2": {
+        "title": "Practical Practice",
+        "desc": "Through interactive activities"
+      },
       "btn": "View Curriculum",
-      "u1": { "title": "Grammar Basics", "desc": "Understanding basic grammatical rules and applying them in speaking and writing.", "level": "Beginner Level" },
-      "u2": { "title": "Expression Skills", "desc": "Developing the student's ability to express their thoughts clearly and smoothly.", "level": "First Stage" },
-      "u3": { "title": "Literature and Rhetoric", "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.", "level": "Advanced Level" },
-      "u4": { "title": "Free Reading", "desc": "Encouraging reading and expanding linguistic and cognitive horizons.", "level": "Enrichment Curriculum" }
+      "u1": {
+        "title": "Grammar Basics",
+        "desc": "Understanding basic grammatical rules and applying them in speaking and writing.",
+        "level": "Beginner Level"
+      },
+      "u2": {
+        "title": "Expression Skills",
+        "desc": "Developing the student's ability to express their thoughts clearly and smoothly.",
+        "level": "First Stage"
+      },
+      "u3": {
+        "title": "Literature and Rhetoric",
+        "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.",
+        "level": "Advanced Level"
+      },
+      "u4": {
+        "title": "Free Reading",
+        "desc": "Encouraging reading and expanding linguistic and cognitive horizons.",
+        "level": "Enrichment Curriculum"
+      }
     },
     "islamic": {
       "sidebar": {
         "title": "About Islamic Studies Curriculum",
         "desc": "A program aimed at instilling the correct creed, teaching simplified jurisprudence, and drawing lessons from the Prophet's biography."
       },
-      "feat1": { "title": "Certificate of Completion", "desc": "After passing the exams" },
-      "feat2": { "title": "Meaningful Discussions", "desc": "To consolidate concepts" },
+      "feat1": {
+        "title": "Certificate of Completion",
+        "desc": "After passing the exams"
+      },
+      "feat2": {
+        "title": "Meaningful Discussions",
+        "desc": "To consolidate concepts"
+      },
       "btn": "View Curriculum",
-      "u1": { "title": "Islamic Creed", "desc": "Consolidating the pillars of faith and explaining the concepts of monotheism.", "level": "Beginner Level" },
-      "u2": { "title": "Fiqh of Worship", "desc": "Learning the rules of purification, prayer, and fasting practically and theoretically.", "level": "First Stage" },
-      "u3": { "title": "Prophet's Biography", "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.", "level": "Advanced Level" },
-      "u4": { "title": "Ethics and Manners", "desc": "Promoting positive behaviors and Islamic manners in daily life.", "level": "Enrichment Curriculum" }
+      "u1": {
+        "title": "Islamic Creed",
+        "desc": "Consolidating the pillars of faith and explaining the concepts of monotheism.",
+        "level": "Beginner Level"
+      },
+      "u2": {
+        "title": "Fiqh of Worship",
+        "desc": "Learning the rules of purification, prayer, and fasting practically and theoretically.",
+        "level": "First Stage"
+      },
+      "u3": {
+        "title": "Prophet's Biography",
+        "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.",
+        "level": "Advanced Level"
+      },
+      "u4": {
+        "title": "Ethics and Manners",
+        "desc": "Promoting positive behaviors and Islamic manners in daily life.",
+        "level": "Enrichment Curriculum"
+      }
     }
   },
   "about": {
@@ -818,6 +884,71 @@
       "reportId": "Report ID:",
       "underReview": "Under Review",
       "received": "Received"
+    },
+    "childrenDetails": {
+      "joinDate": "Join Date: {{date}}",
+      "teacherEvaluation": "Teachers Evaluation",
+      "totalClasses": "Total Classes",
+      "attendanceRate": "Attendance Rate",
+      "averageRating": "Average Rating",
+      "badgesTitle": "Badges & Achievements",
+      "recentEvaluationsTitle": "Recent Evaluations",
+      "timelineTitle": "Timeline",
+      "subscriptionSummaryTitle": "Subscription Summary",
+      "currentPackage": "Current Package",
+      "totalRemainingClasses": "Total Remaining Classes",
+      "renewSubscription": "Renew Subscription",
+      "subscriptionRenewal": {
+        "title": "Subscription Renewal",
+        "subtitle": "Choose the appropriate package for your needs",
+        "renewCurrentBtn": "Renew Current Package",
+        "currentPackage": "Current Package",
+        "availablePackages": "Available Packages",
+        "expiresOn": "Expires on {{date}}",
+        "remainingClassesLabel": "Remaining Classes",
+        "remainingClassesVal": "{{count}} classes",
+        "egpPerMonth": "{{price}} EGP / month",
+        "usdPerMonth": "${{price}} / month",
+        "benefitsTitle": "Benefits:",
+        "currentBenefits": {
+          "0": "Quranic Memorization Sessions",
+          "1": "Arabic Language Sessions",
+          "2": "Weekly Follow-up from Teacher",
+          "3": "Detailed Monthly Reports"
+        },
+        "packages": {
+          "beginners": {
+            "title": "Beginner Package",
+            "features": {
+              "0": "4 classes per month (1 class per week)",
+              "1": "45 minutes per class",
+              "2": "Support from beginner teacher",
+              "3": "Free introductory lessons"
+            }
+          },
+          "special": {
+            "title": "Special Package",
+            "features": {
+              "0": "8 classes per month (2 classes per week)",
+              "1": "60 minutes per class",
+              "2": "Guidance from qualified teacher",
+              "3": "Access to additional educational resources"
+            }
+          },
+          "elite": {
+            "title": "Elite Package",
+            "features": {
+              "0": "12 classes per month (3 classes per week)",
+              "1": "60 minutes per class",
+              "2": "Private follow-up with certified scholar",
+              "3": "Free intensive Tajweed course"
+            }
+          }
+        },
+        "importantNoteTitle": "Important Note",
+        "importantNoteText": "When upgrading to a higher package or renewing subscription, only the price difference will be calculated, and remaining classes from your current package will be retained.",
+        "subscribeNow": "Subscribe Now"
+      }
     }
   }
 }

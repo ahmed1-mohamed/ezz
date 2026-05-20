@@ -688,6 +688,71 @@
       "reportId": "رقم التقرير:",
       "underReview": "قيد المراجعة",
       "received": "تم الاستلام"
+    },
+    "childrenDetails": {
+      "joinDate": "تاريخ الانضمام: {{date}}",
+      "teacherEvaluation": "تقييم المعلمين",
+      "totalClasses": "إجمالي الحصص",
+      "attendanceRate": "معدل الحضور",
+      "averageRating": "متوسط التقييم",
+      "badgesTitle": "الشارات والإنجازات",
+      "recentEvaluationsTitle": "التقييمات الأخيرة",
+      "timelineTitle": "السجل الزمني",
+      "subscriptionSummaryTitle": "ملخص الاشتراك",
+      "currentPackage": "الباقة الحالية",
+      "totalRemainingClasses": "إجمالي الحصص المتبقية",
+      "renewSubscription": "تجديد الاشتراك",
+      "subscriptionRenewal": {
+        "title": "تجديد الاشتراك",
+        "subtitle": "اختر الباقة المناسبة لاحتياجاتك",
+        "renewCurrentBtn": "تجديد الباقة الحالية",
+        "currentPackage": "الباقة الحالية",
+        "availablePackages": "الباقات المتاحة",
+        "expiresOn": "ينتهي في {{date}}",
+        "remainingClassesLabel": "الحصص المتبقية",
+        "remainingClassesVal": "{{count}} حصة",
+        "egpPerMonth": "{{price}} ج.م شهرياً",
+        "usdPerMonth": "${{price}} شهرياً",
+        "benefitsTitle": "المزايا:",
+        "currentBenefits": {
+          "0": "حصص حفظ القرآن الكريم",
+          "1": "حصص اللغة العربية",
+          "2": "متابعة أسبوعية من المعلم",
+          "3": "تقارير شهرية تفصيلية"
+        },
+        "packages": {
+          "beginners": {
+            "title": "الباقة الأساسية",
+            "features": {
+              "0": "4 حصص شهرياً (1 حصة أسبوعياً)",
+              "1": "45 دقيقة للحصة الواحدة",
+              "2": "دعم من معلم مبتدئ",
+              "3": "دروس تمهيدية مجانية"
+            }
+          },
+          "special": {
+            "title": "الباقة المميزة",
+            "features": {
+              "0": "8 حصص شهرياً (2 حصة أسبوعياً)",
+              "1": "60 دقيقة للحصة الواحدة",
+              "2": "توجيه من معلم مؤهل",
+              "3": "وصول للموارد التعليمية الإضافية"
+            }
+          },
+          "elite": {
+            "title": "الباقة النخبة",
+            "features": {
+              "0": "12 حصة شهرياً (3 حصص أسبوعياً)",
+              "1": "60 دقيقة للحصة الواحدة",
+              "2": "متابعة خاصة مع شيخ مجاز",
+              "3": "دورة تجويد مكثفة مجانية"
+            }
+          }
+        },
+        "importantNoteTitle": "ملاحظة هامة",
+        "importantNoteText": "عند الترقية إلى باقة أعلى أو تجديد الاشتراك، سيتم احتساب الفرق في السعر فقط، وسيتم الاحتفاظ بالحصص المتبقية من باقتك الحالية.",
+        "subscribeNow": "اشترك الآن"
+      }
     }
   }
 }
