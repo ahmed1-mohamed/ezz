@@ -110,8 +110,8 @@ export default function Teachers() {
         subject: i % 2 === 0 ? t('teacher.subject1', "القرآن الكريم") : t('teacher.subject2', "اللغة العربية"),
         level: i % 3 === 0 ? t('teacher.level1', "مبتدئ") : i % 3 === 1 ? t('teacher.level2', "متوسط") : t('teacher.level3', "متقدم"),
         image: `https://images.unsplash.com/photo-${portraitImages[i % portraitImages.length]}?q=80&w=400&h=400&auto=format&fit=crop`,
-        rating: (Math.random() * (5 - 4) + 4).toFixed(1),
-        experience: `${Math.floor(Math.random() * 10) + 5} ${t('teacher.yearsExperience', 'سنوات خبرة')}`,
+        rating: (((i * 7) % 10) / 10 + 4).toFixed(1),
+        experience: `${((i * 3) % 10) + 5} ${t('teacher.yearsExperience', 'سنوات خبرة')}`,
         tags: [t('teacher.tag1', "التجويد"), i % 2 === 0 ? t('teacher.tag2', "تحفيظ") : t('teacher.tag3', "نحو"), t('teacher.tag4', "أونلاين")]
     })), [t])
 
@@ -126,11 +126,12 @@ export default function Teachers() {
             const matchLevel = selectedLevel ? teacher.level === selectedLevel : true
             return matchName && matchSubject && matchLevel
         })
-    }, [searchTerm, selectedSubject, selectedLevel])
+    }, [searchTerm, selectedSubject, selectedLevel, teachersData])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentPage(1)
-    }, [searchTerm, selectedSubject, selectedLevel])
+    }, [searchTerm, selectedSubject, selectedLevel, teachersData])
 
     const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage)
     const paginatedTeachers = filteredTeachers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)

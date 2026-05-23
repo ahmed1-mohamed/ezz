@@ -12,7 +12,7 @@ export default function Login() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
-    
+
     const [formValues, setFormValues] = useState(initialState)
     const [errors, setErrors] = useState({})
     const [serverError, setServerError] = useState('')
@@ -32,7 +32,7 @@ export default function Login() {
         setServerError('')
         if (!validate()) return
         try {
-             const user = await login(formValues.email, formValues.password, true)
+            const user = await login(formValues.email, formValues.password, true)
             navigate(getRedirectPath(user.role))
         } catch (error) {
             setServerError(error.message)
@@ -41,19 +41,19 @@ export default function Login() {
 
     return (
         <div className="min-h-screen bg-[#EEF4F2] flex flex-col relative font-sans">
-             <div className="absolute top-6 start-6 z-10">
+            <div className="absolute top-6 start-6 z-10">
                 <Link to="/" className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold transition-colors bg-white/50 hover:bg-white px-4 py-2 rounded-full shadow-sm">
                     <ArrowIcon className="w-5 h-5" />
                     <span>{t('login.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
             </div>
 
-             <div className="absolute top-6 end-6 z-10">
+            <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
-                 <div className="text-center mb-8">
+                <div className="text-center mb-8">
                     <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
                         <BookOpen className="w-10 h-10 text-[#00695C]" />
                     </div>
@@ -65,14 +65,13 @@ export default function Login() {
                     </p>
                 </div>
 
-                 <div className="bg-white w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100">
+                <div className="bg-white w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100">
                     <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center sm:text-start">
                         {t('login.formTitle', 'تسجيل الدخول')}
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                        
-                        {/* Hint for Parent Dashboard */}
+
                         <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 p-3 rounded-xl text-sm text-center shadow-sm">
                             <p className="font-semibold mb-1">{isRtl ? 'بيانات دخول لوحة ولي الأمر (للتجربة):' : 'Parent Dashboard Demo Credentials:'}</p>
                             <p dir="ltr" className="font-mono bg-white inline-block px-2 py-1 rounded text-xs border border-emerald-100">
@@ -80,7 +79,7 @@ export default function Login() {
                             </p>
                         </div>
 
-                         <div className="space-y-2">
+                        <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 px-1">
                                 {t('login.emailLabel', 'البريد الإلكتروني')}
                             </label>
@@ -99,7 +98,7 @@ export default function Login() {
                             {errors.email && <p className="text-xs text-red-500 px-1">{errors.email}</p>}
                         </div>
 
-                         <div className="space-y-2">
+                        <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 px-1">
                                 {t('login.passwordLabel', 'كلمة المرور')}
                             </label>
@@ -117,7 +116,7 @@ export default function Login() {
                             </div>
                             {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                         </div>
-                         <div className="flex justify-end pt-1">
+                        <div className="flex justify-end pt-1">
                             <a href="#" className="text-sm font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
                                 {t('login.forgotPassword', 'نسيت كلمة المرور؟')}
                             </a>
@@ -125,7 +124,7 @@ export default function Login() {
 
                         {serverError && <p className="text-sm text-center text-red-500 mt-2">{serverError}</p>}
 
-                         <button
+                        <button
                             type="submit"
                             disabled={loading}
                             className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
@@ -133,7 +132,7 @@ export default function Login() {
                             {loading ? t('login.signingIn', 'جاري الدخول...') : t('login.submitBtn', 'دخول للمنارة')}
                         </button>
 
-                         <div className="relative py-6 flex items-center">
+                        <div className="relative py-6 flex items-center">
                             <div className="flex-grow border-t border-slate-100"></div>
                             <span className="shrink-0 px-4 text-xs font-medium text-slate-400">
                                 {t('login.orLoginWith', 'أو سجل الدخول عبر حساب جوجل')}
@@ -141,7 +140,7 @@ export default function Login() {
                             <div className="flex-grow border-t border-slate-100"></div>
                         </div>
 
-                         <button
+                        <button
                             type="button"
                             className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl py-3.5 flex items-center justify-center gap-3 transition-all"
                         >
@@ -167,7 +166,7 @@ export default function Login() {
                     </form>
                 </div>
 
-                 <div className="mt-8 text-center flex items-center justify-center gap-1">
+                <div className="mt-8 text-center flex items-center justify-center gap-1">
                     <span className="text-slate-500 font-medium">{t('login.noAccount', 'ليس لديك حساب؟')}</span>
                     <Link to="/register" className="font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
                         {t('login.registerNow', 'سجل الآن')}

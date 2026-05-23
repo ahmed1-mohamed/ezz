@@ -24,7 +24,7 @@ const programs = [
 
 
 export default React.memo(function EducationalPrograms() {
-    const { t,i18n } = useTranslation();
+    const { t } = useTranslation();
 
     return (
         <section

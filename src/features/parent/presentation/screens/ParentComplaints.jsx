@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageSquare, Star, CheckCircle2, ChevronDown, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -13,12 +13,12 @@ export default function ParentComplaints() {
   const [selectedTeacher, setSelectedTeacher] = useState('');
   const [details, setDetails] = useState('');
 
-  const teachers = [
+  const teachers = useMemo(() => [
     { id: 't1', name: 'الشيخ أحمد منصور', nameEn: 'Sheikh Ahmed Mansour', avatar: 'أ' },
     { id: 't2', name: 'الشيخ محمد علي', nameEn: 'Sheikh Mohamed Ali', avatar: 'م' },
-  ];
+  ], []);
 
-  const pastReports = [
+  const pastReports = useMemo(() => [
     {
       id: 1,
       title: 'تأخر في بدء الحصة',
@@ -45,7 +45,7 @@ export default function ParentComplaints() {
       icon: Star,
       isSuggestion: true
     }
-  ];
+  ], []);
 
   const containerVariants = {
     hidden: { opacity: 0 },

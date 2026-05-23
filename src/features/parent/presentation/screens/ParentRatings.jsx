@@ -12,7 +12,7 @@ export default function ParentRatings() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { teachers, pastRatings, loading, ratingSubmitStatus } = useSelector((state) => state.parent);
-  
+
   const isRtl = i18n.language.startsWith('ar');
 
   const [selectedTeacherId, setSelectedTeacherId] = useState(null);
@@ -56,14 +56,13 @@ export default function ParentRatings() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
       className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 font-sans"
     >
-      
-      {/* Header Card */}
+
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm text-center border border-slate-100 dark:border-slate-700 transition-all hover:shadow-sm">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
           {t('parentDashboard.ratings.title')}
@@ -73,17 +72,16 @@ export default function ParentRatings() {
         </p>
       </motion.div>
 
-      {/* Select Teacher Section */}
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
         <h2 className="font-semibold text-lg text-slate-800 dark:text-slate-100 text-start">
           {t('parentDashboard.ratings.selectTeacher')}
         </h2>
-        
+
         <div className="space-y-3">
           {teachers.map((teacher) => {
             const isSelected = selectedTeacherId === teacher.id;
             return (
-              <div 
+              <div
                 key={teacher.id}
                 onClick={() => setSelectedTeacherId(teacher.id)}
                 className={`
@@ -125,10 +123,9 @@ export default function ParentRatings() {
         </div>
       </motion.div>
 
-      {/* Rating Stars Section */}
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center min-h-[200px]">
         {selectedTeacherId ? (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-full flex flex-col items-center"
@@ -149,9 +146,9 @@ export default function ParentRatings() {
                 );
               })()}
             </div>
-            
+
             <p className="text-sm text-slate-500 mb-4 font-medium">* {t('parentDashboard.ratings.yourRating')}</p>
-            
+
             <div className="flex items-center justify-center gap-2" dir="ltr">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -161,14 +158,14 @@ export default function ParentRatings() {
                   onClick={() => handleRatingSubmit(star)}
                   className="transition-transform hover:scale-110 focus:outline-none"
                 >
-                  <Star 
-                    size={44} 
+                  <Star
+                    size={44}
                     className={`
-                      ${(hoverRating || ratingValue) >= star 
-                        ? 'text-yellow-400 fill-yellow-400 drop-shadow-sm' 
+                      ${(hoverRating || ratingValue) >= star
+                        ? 'text-yellow-400 fill-yellow-400 drop-shadow-sm'
                         : 'text-slate-200 dark:text-slate-700'}
                       transition-colors duration-200
-                    `} 
+                    `}
                   />
                 </button>
               ))}
@@ -193,13 +190,12 @@ export default function ParentRatings() {
         )}
       </motion.div>
 
-      {/* Complaints Section */}
       <motion.div variants={itemVariants} className="bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10 rounded-xl p-6 shadow-sm border border-[#0f7a6c]/20 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-center sm:text-start order-2 sm:order-1">
           <h3 className="font-bold text-[#0f7a6c] dark:text-emerald-400 text-lg mb-1">{t('parentDashboard.ratings.complaintQuestion')}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400">{t('parentDashboard.ratings.complaintHint')}</p>
         </div>
-        <button 
+        <button
           onClick={handleSubmitComplaint}
           className="flex items-center gap-2 px-6 py-3 bg-[#0f7a6c] hover:bg-[#0c6156] text-white rounded-xl font-bold transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap order-1 sm:order-2"
         >
@@ -208,24 +204,23 @@ export default function ParentRatings() {
         </button>
       </motion.div>
 
-      {/* Past Ratings Section */}
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
         <h2 className="font-semibold text-lg text-slate-800 dark:text-slate-100 text-start">
           {t('parentDashboard.ratings.pastRatings')}
         </h2>
-        
+
         <div className="space-y-4">
           {pastRatings.map((rating) => (
             <div key={rating.id} className="border border-slate-100 dark:border-slate-700 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
-              
+
               <div className="flex flex-col text-start">
                 <h3 className="font-bold text-slate-800 dark:text-slate-100">{isRtl ? rating.teacherName : rating.teacherNameEn}</h3>
                 <div className="flex items-center gap-1 my-1.5" dir="ltr">
                   {[1, 2, 3, 4, 5].map(star => (
-                    <Star 
-                      key={star} 
-                      size={14} 
-                      className={star <= rating.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200 dark:text-slate-700'} 
+                    <Star
+                      key={star}
+                      size={14}
+                      className={star <= rating.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200 dark:text-slate-700'}
                     />
                   ))}
                 </div>
@@ -237,7 +232,7 @@ export default function ParentRatings() {
               <span className="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg shrink-0">
                 {rating.date}
               </span>
-              
+
             </div>
           ))}
           {pastRatings.length === 0 && (

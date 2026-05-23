@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 
 export default React.memo(function PremiumParentsSection() {
-    const { t,i18n } = useTranslation();
+    const { t } = useTranslation();
 
     const cards = [
         {

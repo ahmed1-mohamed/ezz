@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import Button from '../components/ui/Button.jsx'
+
 
 const courses = [
     { title: 'Design Thinking', description: 'Build creative classroom systems and flexible learning workflows.' },

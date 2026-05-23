@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 export default React.memo(function TestimonialsSection() {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     const testimonials = t('testimonials.items', { returnObjects: true });
 

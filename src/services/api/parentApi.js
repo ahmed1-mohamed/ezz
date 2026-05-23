@@ -1,4 +1,4 @@
-import api from './axiosConfig';
+// import api from './axiosConfig';
 import { mockTeachers, mockPastRatings, mockDashboardStats, mockChildren } from '../mockData/parentMock';
 
 // Simulated delay for mock data
@@ -26,7 +26,7 @@ export const parentApi = {
     return { data: mockPastRatings };
   },
 
-  submitRating: async (ratingData) => {
+  submitRating: async () => {
     await delay(800);
     // Simulate successful API response
     return { data: { success: true, message: 'Rating submitted successfully' } };

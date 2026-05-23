@@ -1,11 +1,9 @@
-import { useTranslation } from 'react-i18next'
 import ContactForm from '../components/ui/ContactForm.jsx'
 import CTASection from '../components/ui/CTASection.jsx'
 import ContactTopHero from '../components/ui/ContactTopHero.jsx'
 
 export default function Contact() {
-    const { t } = useTranslation()
-
+    
     return (
         <div className="min-h-screen bg-[#EEF4F2]/50 font-sans overflow-hidden pt-20">
             <ContactTopHero />

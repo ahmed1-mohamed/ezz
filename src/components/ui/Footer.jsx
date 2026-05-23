@@ -2,8 +2,7 @@ import { useTranslation } from "react-i18next"
 import { Mail, Phone, MapPin } from "lucide-react"
 
 export default function Footer() {
-    const { t, i18n } = useTranslation()
-    const isArabic = i18n.language === 'ar'
+    const { t } = useTranslation()
     const policyLinks = [
         { label: t('public.footer.privacy'), href: '#' },
         { label: t('public.footer.terms'), href: '#' },
