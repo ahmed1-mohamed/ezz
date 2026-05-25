@@ -122,7 +122,7 @@ export default function ParentChildren() {
     <motion.div
       variants={containerVariants}
       initial="hidden"
-      animate="show"
+      whileInView="show" viewport={{ once: true, amount: 0.1 }}
       className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans"
     >
 

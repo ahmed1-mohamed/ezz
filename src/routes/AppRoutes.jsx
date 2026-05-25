@@ -44,8 +44,16 @@ const ParentLayout = lazy(() => import('../layouts/ParentLayout.jsx'))
 const ParentDashboard = lazy(() => import('../features/parent/presentation/screens/ParentDashboard.jsx'))
 const ParentRatings = lazy(() => import('../features/parent/presentation/screens/ParentRatings.jsx'))
 const ParentComplaints = lazy(() => import('../features/parent/presentation/screens/ParentComplaints.jsx'))
+const ParentChildrenList = lazy(() => import('../features/parent/presentation/screens/ParentChildrenList.jsx'))
 const ParentChildren = lazy(() => import('../features/parent/presentation/screens/ParentChildren.jsx'))
-import { ParentAttendance, ParentAssignments, ParentReports, ParentSchedule, ParentSettings, ParentExams, ParentNotifications, ParentProfile } from '../features/parent/presentation/screens/Placeholders.jsx'
+const ParentCheckout = lazy(() => import('../features/parent/presentation/screens/ParentCheckout.jsx'))
+const ParentSchedule = lazy(() => import('../features/parent/presentation/screens/ParentSchedule.jsx'))
+const ParentAttendance = lazy(() => import('../features/parent/presentation/screens/ParentAttendance.jsx'))
+const ParentReports = lazy(() => import('../features/parent/presentation/screens/ParentReports.jsx'))
+const ParentAssignments = lazy(() => import('../features/parent/presentation/screens/ParentAssignments.jsx'))
+const ParentAssignmentDetails = lazy(() => import('../features/parent/presentation/screens/ParentAssignmentDetails.jsx'))
+const ParentSettings = lazy(() => import('../features/parent/presentation/screens/ParentSettings.jsx'))
+import { ParentExams, ParentNotifications, ParentProfile } from '../features/parent/presentation/screens/Placeholders.jsx'
 
 
 const NotFound = lazy(() => import('../pages/NotFound.jsx'))
@@ -235,17 +243,20 @@ export default function AppRoutes() {
                             <Route element={<RoleBasedRoute allowedRoles={['Parent']} />}>
                                 <Route element={<ParentLayout />}>
                                     <Route path="/dashboard/parent" element={<AnimatedPage><ParentDashboard /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/children" element={<AnimatedPage><ParentChildren /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/schedule" element={<AnimatedPage><ParentSchedule /></AnimatedPage>} />
+                                    <Route path="/dashboard/parent/children" element={<AnimatedPage><ParentChildrenList /></AnimatedPage>} />
+                                    <Route path="/dashboard/parent/child-details" element={<AnimatedPage><ParentChildren /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/attendance" element={<AnimatedPage><ParentAttendance /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/reports" element={<AnimatedPage><ParentReports /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/ratings" element={<AnimatedPage><ParentRatings /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/assignments" element={<AnimatedPage><ParentAssignments /></AnimatedPage>} />
+                                    <Route path="/dashboard/parent/assignments/:id" element={<AnimatedPage><ParentAssignmentDetails /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/complaints" element={<AnimatedPage><ParentComplaints /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/exams" element={<AnimatedPage><ParentExams /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/notifications" element={<AnimatedPage><ParentNotifications /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/profile" element={<AnimatedPage><ParentProfile /></AnimatedPage>} />
                                     <Route path="/dashboard/parent/settings" element={<AnimatedPage><ParentSettings /></AnimatedPage>} />
+                                    <Route path="/dashboard/parent/checkout" element={<AnimatedPage><ParentCheckout /></AnimatedPage>} />
                                 </Route>
                             </Route>
                         </Route>

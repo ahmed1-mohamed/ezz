@@ -12,11 +12,24 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ChildDetailsView from '../components/child_details/ChildDetailsView';
 
 export default function ParentDashboard() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedChildId, setSelectedChildId] = useState(null);
+
+  if (selectedChildId) {
+    return (
+      <div className="p-4 md:p-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+        <ChildDetailsView 
+          childId={selectedChildId} 
+          onBack={() => setSelectedChildId(null)} 
+        />
+      </div>
+    );
+  }
 
   const stats = useMemo(() => [
     {
@@ -167,12 +180,12 @@ export default function ParentDashboard() {
                 </div>
               </div>
 
-              <Link
-                to={`/dashboard/parent/children?id=${child.id}`}
+              <button
+                onClick={() => setSelectedChildId(child.id)}
                 className="block text-center w-full py-3 bg-emerald-50 text-[#0f7a6c] hover:bg-[#0f7a6c] hover:text-white dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-[#0f7a6c] dark:hover:text-white rounded-xl font-bold transition-colors"
               >
                 {t('parentDashboard.home.showDetails')}
-              </Link>
+              </button>
             </div>
           ))}
         </div>

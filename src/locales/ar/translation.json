@@ -186,7 +186,11 @@
         "title": "البرنامج المتكامل",
         "description": "برنامج شامل يجمع بين تعليم القرآن واللغة العربية في مسار متكامل لبناء جيل يعتز بهويته الإسلامية.",
         "badge": "أفضل قيمة",
-        "tags": ["8 أشهر", "جميع المستويات", "شهادة مزدوجة"],
+        "tags": [
+          "8 أشهر",
+          "جميع المستويات",
+          "شهادة مزدوجة"
+        ],
         "features": [
           "منهج شامل ومتكامل",
           "متابعة دقيقة للتقدم",
@@ -197,7 +201,11 @@
         "title": "برنامج اللغة العربية",
         "description": "تعلم اللغة العربية من البداية بطريقة سهلة ومبسطة مع تطبيقات عملية مباشرة.",
         "badge": "مميز",
-        "tags": ["10 حصص", "مبتدئ - متوسط", "شهادة إتمام"],
+        "tags": [
+          "10 حصص",
+          "مبتدئ - متوسط",
+          "شهادة إتمام"
+        ],
         "features": [
           "دروس تفاعلية مباشرة",
           "تطبيق عملي مستمر",
@@ -208,8 +216,16 @@
         "title": "برنامج تحفيظ القرآن الكريم",
         "description": "منهجية متدرجة للحفظ مع التركيز على مخارج الحروف وأحكام التجويد، مع خطط مخصصة لكل طالب حسب قدراته.",
         "badge": "الأكثر طلبًا",
-        "tags": ["12 حصة", "جميع المستويات", "إجازة معتمدة"],
-        "features": ["خطة حفظ فردية", "جلسات تصحيح تلاوة", "مراجعة دورية"]
+        "tags": [
+          "12 حصة",
+          "جميع المستويات",
+          "إجازة معتمدة"
+        ],
+        "features": [
+          "خطة حفظ فردية",
+          "جلسات تصحيح تلاوة",
+          "مراجعة دورية"
+        ]
       }
     }
   },
@@ -589,7 +605,7 @@
     "nav": {
       "home": "الرئيسية",
       "children": "متابعة الأبناء",
-      "schedule": "الجدول الدراسي",
+      "schedule": "الجدول",
       "attendance": "الحضور",
       "reports": "التقارير",
       "ratings": "التقييمات",
@@ -753,6 +769,285 @@
         "importantNoteText": "عند الترقية إلى باقة أعلى أو تجديد الاشتراك، سيتم احتساب الفرق في السعر فقط، وسيتم الاحتفاظ بالحصص المتبقية من باقتك الحالية.",
         "subscribeNow": "اشترك الآن"
       }
+    }
+  },
+  "parentSettings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة معلومات حسابك وتفضيلاتك",
+    "profile": "الملف الشخصي",
+    "changePhoto": "تغيير الصورة",
+    "photoLimit": "الحد الأقصى 5 ميجابايت. JPG أو PNG",
+    "country": "الدولة",
+    "egypt": "مصر",
+    "ksa": "السعودية",
+    "uae": "الإمارات",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "fullName": "الاسم الكامل",
+    "linkedAccounts": "ربط الحسابات",
+    "continueEmail": "المتابعة باستخدام البريد الإلكتروني",
+    "disconnectGoogle": "إلغاء ربط حساب Google",
+    "continueGoogle": "المتابعة باستخدام Google",
+    "saveChanges": "حفظ التغييرات",
+    "security": "الأمان وكلمة المرور",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "newPassword": "كلمة المرور الجديدة",
+    "updatePassword": "تحديث كلمة المرور",
+    "languageDisplay": "اللغة والعرض",
+    "preferredLanguage": "اللغة المفضلة",
+    "arabic": "العربية",
+    "english": "English",
+    "appearance": "المظهر",
+    "auto": "تلقائي",
+    "light": "فاتح",
+    "dark": "داكن",
+    "displayPreferences": "تفضيلات العرض",
+    "animations": "الرسوم المتحركة",
+    "compactMode": "وضع العرض المكثف",
+    "privacy": "الخصوصية والأمان",
+    "twoFactor": "المصادقة الثنائية",
+    "shareProgress": "مشاركة التقدم الأكاديمي",
+    "saveLog": "حفظ سجل النشاط"
+  },
+  "parent": {
+    "dashboard": {
+      "title": "مرحباً،",
+      "subtitle": "إليك لمحة عامة عن أداء أبنائك اليوم",
+      "quickStats": {
+        "title": "إحصائيات سريعة",
+        "attendance": "نسبة الحضور",
+        "assignments": "الواجبات المنجزة",
+        "nextClass": "الحصة القادمة"
+      },
+      "announcements": {
+        "title": "إعلانات الإدارة",
+        "exam": "موعد اختبار نصف الفصل",
+        "examDesc": "اختبار نصف الفصل الأول سيبدأ الأسبوع القادم",
+        "holiday": "عطلة رسمية",
+        "holidayDesc": "بمناسبة العيد الوطني، ستتوقف الحصص غداً"
+      },
+      "children": {
+        "title": "متابعة الأبناء",
+        "details": "عرض التفاصيل",
+        "joinDate": "تاريخ الانضمام"
+      }
+    },
+    "childrenList": {
+      "title": "متابعة الأبناء",
+      "subtitle": "جميع معلومات أبنائك المسجلين",
+      "addNew": "إضافة ابن جديد",
+      "subject": "المادة",
+      "classes": "الحصص",
+      "used": "مستخدمة",
+      "remaining": "متبقية",
+      "package": "الباقة",
+      "details": "التفاصيل"
+    },
+    "schedule": {
+      "title": "الجدول الأسبوعي",
+      "subtitle": "جدول الحصص الأسبوعية",
+      "selectStudent": "اختر الطالب",
+      "allStudents": "كل الأبناء",
+      "export": "تصدير الجدول",
+      "time": "الوقت",
+      "to": "إلى",
+      "teacher": "المعلم",
+      "status": "الحالة",
+      "live": "مباشر الآن",
+      "upcoming": "قادم",
+      "completed": "مكتمل",
+      "noClasses": "لا توجد حصص في الجدول للطالب المحدد."
+    },
+    "settings": {
+      "title": "الإعدادات",
+      "subtitle": "إدارة معلومات حسابك وتفضيلاتك",
+      "profile": "الملف الشخصي",
+      "changePhoto": "تغيير الصورة",
+      "photoLimits": "الحد الأقصى 5 ميجابايت. JPG أو PNG",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "country": "الدولة",
+      "phone": "رقم الهاتف",
+      "linkedAccounts": "ربط الحسابات",
+      "linkEmail": "المتابعة باستخدام Email",
+      "unlinkEmail": "إلغاء ربط البريد الإلكتروني",
+      "linkGoogle": "المتابعة باستخدام Google",
+      "unlinkGoogle": "إلغاء ربط Google",
+      "security": "الأمان وكلمة المرور",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "savePassword": "حفظ التغييرات",
+      "language": "اللغة المفضلة",
+      "appearance": "المظهر",
+      "privacy": "الخصوصية والإشعارات",
+      "arabic": "العربية",
+      "defaultLang": "اللغة الافتراضية",
+      "english": "English",
+      "secondaryLang": "لغة ثانوية",
+      "light": "فاتح",
+      "dark": "داكن",
+      "auto": "تلقائي",
+      "displayPreferences": "تفضيلات العرض",
+      "showChildrenPhotos": "عرض صور الأبناء",
+      "showChildrenPhotosDesc": "في حالة استخدام الاختيار من حقنا إظهار الصور والتقييمات الخاصة بية على موقعنا في حالة التميز",
+      "showAllChildren": "عرض جميع الأبناء",
+      "showAllChildrenDesc": "إظهار معلومات جميع الأبناء في الصفحة الرئيسية",
+      "shareProgress": "مشاركة التقدم مع المعلمين",
+      "shareProgressDesc": "السماح للمعلمين بالاطلاع على تقدم الابن/الابنة الكامل",
+      "saveActivityLog": "حفظ سجل النشاط",
+      "saveActivityLogDesc": "الاحتفاظ بسجل كامل لنشاط الابن/الابنة في المنصة"
+    },
+    "reports": {
+      "title": "التقارير",
+      "subtitle": "تقرير شامل ومفصل لأداء الطالب",
+      "studentInfo": "معلومات الطالب",
+      "name": "الاسم",
+      "grade": "المرحلة",
+      "joinDate": "تاريخ الانضمام",
+      "attendance": "إحصائيات الحضور",
+      "totalClasses": "إجمالي الحصص",
+      "attended": "حضور",
+      "absent": "غياب",
+      "excused": "مستأذن",
+      "evaluations": "إحصائيات التقييمات",
+      "totalEvaluations": "إجمالي التقييمات",
+      "average": "متوسط التقييم",
+      "excellent": "ممتاز",
+      "good": "جيد جداً",
+      "lastEvaluation": "آخر تقييم",
+      "subject": "المادة",
+      "score": "الدرجة",
+      "teacher": "المعلم",
+      "date": "التاريخ",
+      "teacherNotes": "ملاحظات المعلم"
+    },
+    "ratings": {
+      "title": "التقييمات",
+      "subtitle": "جميع تقييمات الأبناء من المعلمين",
+      "filterAll": "الكل",
+      "filterLastWeek": "آخر أسبوع",
+      "filterLastMonth": "آخر شهر",
+      "subject": "المادة",
+      "evaluator": "المقيم",
+      "date": "تاريخ التقييم",
+      "viewDetails": "التفاصيل",
+      "stats": {
+        "title": "إحصائيات التقييمات",
+        "total": "إجمالي التقييمات",
+        "excellent": "ممتاز",
+        "good": "جيد جداً",
+        "average": "المتوسط"
+      }
+    },
+    "assignments": {
+      "title": "الواجبات",
+      "subtitle": "متابعة واجبات الأبناء وإنجازاتهم",
+      "back": "العودة للواجبات",
+      "status": "حالة الواجب",
+      "completed": "تم التسليم",
+      "pending": "قيد الانتظار",
+      "subject": "المادة",
+      "date": "تاريخ التسليم",
+      "description": "وصف الواجب",
+      "attachments": "المرفقات",
+      "download": "تحميل المرفق",
+      "teacherFeedback": "تقييم المعلم وملاحظاته",
+      "score": "الدرجة",
+      "teacherNotes": "ملاحظات المعلم",
+      "studentSubmission": "تسليم الطالب",
+      "submitAssignment": "تسليم الواجب",
+      "writeAnswer": "اكتب إجابتك هنا...",
+      "uploadFiles": "رفع ملفات (اختياري)",
+      "send": "إرسال الواجب",
+      "stats": {
+        "title": "إحصائيات الواجبات",
+        "total": "إجمالي الواجبات",
+        "completed": "مكتمل",
+        "pending": "قيد الانتظار",
+        "completionRate": "نسبة الإنجاز"
+      },
+      "submissionStatus": "حالة التسليم"
+    },
+    "childDetails": {
+      "evaluateTeachers": "تقييم المعلمين",
+      "latestBadges": "أحدث الشارات المكتسبة",
+      "recentEvaluations": "آخر التقييمات",
+      "timeline": "السجل الزمني الأخير",
+      "submitComplaint": "تقديم شكوى",
+      "hasComplaint": "لديك شكوى أو ملاحظة؟",
+      "canSubmitComplaint": "يمكنك تقديم شكوى رسمية",
+      "selectTeacher": "اختر المعلم للتقييم",
+      "rateTeacher": "تقييم المعلم",
+      "comment": "تعليق إضافي (اختياري)",
+      "writeComment": "اكتب تعليقك هنا...",
+      "submitRating": "إرسال التقييم",
+      "ratingSuccess": "تم إرسال التقييم بنجاح!",
+      "thankYou": "شكراً لك. رأيك يهمنا في تطوير جودة التعليم.",
+      "back": "عودة"
+    },
+    "mockData": {
+      "badges": {
+        "excellentInMemorization": "متميز في الحفظ",
+        "regularAttendance": "حضور منتظم",
+        "bestStudentOfMonth": "أفضل طالب للشهر",
+        "gotExcellentBadge": "حصل على شارة متميز في علوم القرآن"
+      },
+      "evaluations": {
+        "memorizedSurahAlBaqarah": "حفظ سورة البقرة",
+        "excellentAndCooperativeTeacher": "معلم متميز ومتعاون"
+      },
+      "timeline": {
+        "attendedMemorizationClass": "حضر حصة حفظ سورة البقرة",
+        "attendedArabicGrammar": "حضر حصة قواعد اللغة العربية",
+        "missedIslamicHistory": "تغيب عن حصة تاريخ الحضارة الإسلامية",
+        "am": "صباحاً",
+        "pm": "مساءً"
+      },
+      "teachers": {
+        "sheikhAhmedMansour": "المعلم: الشيخ أحمد منصور",
+        "sheikhAhmedMansourName": "الشيخ أحمد منصور",
+        "sheikhSamiAlAli": "المعلم: الشيخ سامي العلي",
+        "ustadhaLailaAlAsiri": "المعلم: الأستاذة ليلى العسيري",
+        "drYoussefAlQahtani": "المعلم: الدكتور يوسف القحطاني",
+        "ustadhaFatimaAli": "الأستاذة فاطمة علي"
+      },
+      "subjects": {
+        "holyQuran": "القرآن الكريم",
+        "tajweed": "التجويد"
+      }
+    },
+    "ratingsComponents": {
+      "academicPerformance": "إحصائيات الأداء الأكاديمي",
+      "overallAverage": "المتوسط العام",
+      "currentMonth": "الشهر الحالي",
+      "lastMonth": "الشهر الماضي",
+      "average": "المتوسط",
+      "lastRating": "آخر تقييم",
+      "improved": "تحسن",
+      "declined": "انخفاض",
+      "assignmentsStats": "إحصائيات الواجبات",
+      "totalAssignments": "إجمالي الواجبات",
+      "completed": "مكتمل",
+      "pending": "قيد الانتظار",
+      "completionRate": "نسبة الإنجاز",
+      "submissionStatus": "حالة التسليم",
+      "onTime": "في الموعد",
+      "late": "متأخر",
+      "rate": "النسبة",
+      "classesStats": "إحصائيات الحصص",
+      "totalClasses": "إجمالي الحصص",
+      "used": "مستخدم",
+      "remaining": "متبقي",
+      "thisMonth": "هذا الشهر",
+      "progressAchievements": "التقدم والإنجازات",
+      "currentMemorization": "الحفظ الحالي",
+      "nextGoal": "الهدف القادم",
+      "achievements": "الإنجازات المحققة",
+      "strengths": "نقاط القوة",
+      "needsImprovement": "نقاط تحتاج للتحسين"
     }
   }
 }

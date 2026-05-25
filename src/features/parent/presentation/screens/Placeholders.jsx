@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 const PlaceholderPage = ({ transKey }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-  
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }}
       className="p-4 md:p-8 max-w-4xl mx-auto font-sans text-start"
@@ -24,10 +24,10 @@ const PlaceholderPage = ({ transKey }) => {
 };
 
 export const ParentChildren = () => <PlaceholderPage transKey="children" />;
+export const ParentSchedule = () => <PlaceholderPage transKey="schedule" />;
 export const ParentAttendance = () => <PlaceholderPage transKey="attendance" />;
 export const ParentAssignments = () => <PlaceholderPage transKey="assignments" />;
 export const ParentReports = () => <PlaceholderPage transKey="reports" />;
-export const ParentSchedule = () => <PlaceholderPage transKey="schedule" />;
 export const ParentSettings = () => <PlaceholderPage transKey="settings" />;
 export const ParentExams = () => <PlaceholderPage transKey="exams" />;
 export const ParentNotifications = () => <PlaceholderPage transKey="notifications" />;

@@ -13,7 +13,7 @@ export default React.memo(function AboutFeatures() {
             <div className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] inline-block relative">
                     {t('about.features.title', 'لماذا يختارنا الأهالي ؟')}
-                    <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-1 bg-[#735C00] rounded-full"></span>
+                    <span className="absolute -bottom-4 start-/2 -translate-x-1/2 w-24 h-1 bg-[#735C00] rounded-full"></span>
                 </h2>
             </div>
 

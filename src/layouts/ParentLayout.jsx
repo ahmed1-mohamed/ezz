@@ -25,15 +25,12 @@ import { useAuth } from '../context/useAuth';
 const navItems = [
   { path: '/dashboard/parent', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/parent/children', icon: Users, transKey: 'children' },
-  { path: '/dashboard/parent/attendance', icon: CheckSquare, transKey: 'attendance' },
-  { path: '/dashboard/parent/assignments', icon: BookOpen, transKey: 'assignments' },
-  { path: '/dashboard/parent/exams', icon: FileText, transKey: 'exams' },
   { path: '/dashboard/parent/schedule', icon: Calendar, transKey: 'schedule' },
-  { path: '/dashboard/parent/notifications', icon: Bell, transKey: 'notifications' },
+  { path: '/dashboard/parent/attendance', icon: CheckSquare, transKey: 'attendance' },
   { path: '/dashboard/parent/reports', icon: BarChart2, transKey: 'reports' },
   { path: '/dashboard/parent/ratings', icon: Star, transKey: 'ratings' },
+  { path: '/dashboard/parent/assignments', icon: BookOpen, transKey: 'assignments' },
   { path: '/dashboard/parent/complaints', icon: MessageSquare, transKey: 'complaints' },
-  { path: '/dashboard/parent/profile', icon: User, transKey: 'profile' },
   { path: '/', icon: Globe, transKey: 'website' },
   { path: '/dashboard/parent/settings', icon: Settings, transKey: 'settings' },
 ];

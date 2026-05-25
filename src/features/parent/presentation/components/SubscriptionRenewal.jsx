@@ -1,8 +1,10 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import PackageCard from './PackageCard';
 
 const SubscriptionRenewal = memo(({ className = "", currentPackageName, remainingClasses }) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const packages = useMemo(() => [
@@ -61,7 +63,10 @@ const SubscriptionRenewal = memo(({ className = "", currentPackageName, remainin
           </p>
         </div>
 
-        <button className="w-full sm:w-auto px-6 py-2.5 bg-[#d4a373] hover:bg-[#c39262] text-white rounded-xl font-bold transition-all shadow-sm text-sm flex items-center justify-center gap-2 active:translate-y-0.5">
+        <button 
+          onClick={() => navigate('/dashboard/parent/checkout')}
+          className="w-full sm:w-auto px-8 py-3.5 bg-[#d4a373] hover:bg-[#c39262] text-white rounded-xl font-bold transition-all shadow-sm text-sm flex items-center justify-center gap-2 active:translate-y-0.5"
+        >
           <svg className="w-4 h-4 shrink-0 transform -scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89H18v3z" />
           </svg>
@@ -142,11 +147,11 @@ const SubscriptionRenewal = memo(({ className = "", currentPackageName, remainin
         </div>
       </div>
 
-      <div className="bg-amber-50/70 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/20 rounded-2xl p-4 text-start">
-        <h4 className="text-sm font-bold text-amber-800 dark:text-amber-400 mb-1">
+      <div className="bg-amber-50/100 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/20 rounded-2xl p-6 text-start">
+        <h4 className="text-sm font-bold  mb-1">
           {t('parentDashboard.childrenDetails.subscriptionRenewal.importantNoteTitle')}
         </h4>
-        <p className="text-xs text-amber-700/90 dark:text-amber-500/90 leading-relaxed font-medium">
+        <p className="text-xs leading-relaxed font-medium">
           {t('parentDashboard.childrenDetails.subscriptionRenewal.importantNoteText')}
         </p>
       </div>

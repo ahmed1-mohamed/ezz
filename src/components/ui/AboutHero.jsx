@@ -26,7 +26,7 @@ export default React.memo(function AboutHero() {
                     initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className={`w-full lg:w-7/12 space-y-6 flex flex-col ${isRtl ? 'lg:items-start text-right' : 'lg:items-start text-left'} items-center`}
+                    className={`w-full lg:w-7/12 space-y-6 flex flex-col ${isRtl ? 'lg:items-start text-end' : 'lg:items-start text-start'} items-center`}
                 >
                     <div className="inline-flex items-center rounded-full bg-[#735C00] px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
                         {t('about.hero.badge', 'أكاديمية تعليمية متكاملة')}

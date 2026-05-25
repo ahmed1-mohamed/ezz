@@ -247,7 +247,11 @@
         "title": "Integrated Program",
         "description": "A comprehensive program combining Quran and Arabic language education in an integrated path to build a generation proud of its Islamic identity.",
         "badge": "Best Value",
-        "tags": ["8 months", "All levels", "Dual certificate"],
+        "tags": [
+          "8 months",
+          "All levels",
+          "Dual certificate"
+        ],
         "features": [
           "Comprehensive curriculum",
           "Detailed progress tracking",
@@ -273,7 +277,11 @@
         "title": "Quran Memorization Program",
         "description": "A gradual memorization methodology focusing on pronunciation and Tajweed rules, with personalized plans for each student.",
         "badge": "Most Popular",
-        "tags": ["12 sessions", "All levels", "Certified Ijazah"],
+        "tags": [
+          "12 sessions",
+          "All levels",
+          "Certified Ijazah"
+        ],
         "features": [
           "Individual memorization plan",
           "Recitation correction sessions",
@@ -694,50 +702,6 @@
     }
   },
   "about": {
-    "features": {
-      "title": "Why do parents choose us?",
-      "f1": {
-        "title": "Empowering learners",
-        "desc": "Our goal is not merely indoctrination, but empowering every learner with the tools that help them understand the meanings of the Quran and appreciate its beauty, to become capable of expressing this great language and spreading its message across the world. We strive to instill a love of learning and contemplation so the Quran becomes a guiding light in their daily lives."
-      },
-      "f2": {
-        "title": "Modern technology",
-        "desc": "We use the latest remote education technologies to make lessons interactive and enjoyable, suitable for today's tech-savvy generation."
-      },
-      "f3": {
-        "title": "Safe environment",
-        "desc": "We provide a safe digital haven for your children, where teachers are selected through rigorous tests to ensure their scientific competence and educational integrity."
-      },
-      "f4": {
-        "title": "Academic excellence",
-        "desc": "Our academy relies on curriculums carefully selected by senior scholars and educators, ensuring a precise balance between memorization and understanding, and between grammar and practical application, creating a comprehensive educational environment."
-      }
-    },
-    "vision": {
-      "title": "Our Vision",
-      "desc": "Providing outstanding Quranic and Arabic education accessible to everyone everywhere, we believe that knowledge is a shared right, and that the beauty of our language and religion must reach every heart clearly and easily."
-    },
-    "mission": {
-      "title": "Our Mission",
-      "desc": "Empowering Muslims worldwide to learn their language and religion through modern educational technologies and specialized teachers, while preserving Islamic values and role models."
-    },
-    "values": {
-      "mainTitle": "Our Core Values",
-      "v1": {
-        "title": "Scientific Integrity",
-        "desc": "Transmitting knowledge with an uninterrupted chain and a solid methodology that preserves authenticity."
-      },
-      "v2": {
-        "title": "Gentleness and Softness",
-        "desc": "Education with love and encouragement according to the honorable prophetic methodology."
-      },
-      "v3": {
-        "title": "Facilitation and Inclusivity",
-        "desc": "Making knowledge accessible to everyone regardless of distances and circumstances."
-      }
-    }
-  },
-  "about": {
     "hero": {
       "badge": "Complete educational academy",
       "title1": "Where the light of knowledge",
@@ -949,6 +913,285 @@
         "importantNoteText": "When upgrading to a higher package or renewing subscription, only the price difference will be calculated, and remaining classes from your current package will be retained.",
         "subscribeNow": "Subscribe Now"
       }
+    }
+  },
+  "parentSettings": {
+    "title": "Settings",
+    "subtitle": "Manage your account information and preferences",
+    "profile": "Profile",
+    "changePhoto": "Change Photo",
+    "photoLimit": "Max 5MB. JPG or PNG",
+    "country": "Country",
+    "egypt": "Egypt",
+    "ksa": "Saudi Arabia",
+    "uae": "UAE",
+    "email": "Email",
+    "phone": "Phone Number",
+    "fullName": "Full Name",
+    "linkedAccounts": "Linked Accounts",
+    "continueEmail": "Continue with Email",
+    "disconnectGoogle": "Disconnect Google Account",
+    "continueGoogle": "Continue with Google",
+    "saveChanges": "Save Changes",
+    "security": "Security & Password",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "confirmPassword": "Confirm Password",
+    "newPassword": "New Password",
+    "updatePassword": "Update Password",
+    "languageDisplay": "Language & Display",
+    "preferredLanguage": "Preferred Language",
+    "arabic": "العربية",
+    "english": "English",
+    "appearance": "Appearance",
+    "auto": "Auto",
+    "light": "Light",
+    "dark": "Dark",
+    "displayPreferences": "Display Preferences",
+    "animations": "Animations",
+    "compactMode": "Compact Mode",
+    "privacy": "Privacy & Security",
+    "twoFactor": "Two-Factor Authentication",
+    "shareProgress": "Share Academic Progress",
+    "saveLog": "Save Activity Log"
+  },
+  "parent": {
+    "dashboard": {
+      "title": "Welcome,",
+      "subtitle": "Here's an overview of your children's performance today",
+      "quickStats": {
+        "title": "Quick Stats",
+        "attendance": "Attendance Rate",
+        "assignments": "Completed Assignments",
+        "nextClass": "Next Class"
+      },
+      "announcements": {
+        "title": "Announcements",
+        "exam": "Midterm Exams",
+        "examDesc": "First term midterms will start next week",
+        "holiday": "Public Holiday",
+        "holidayDesc": "On the occasion of National Day, classes are suspended tomorrow"
+      },
+      "children": {
+        "title": "Follow up on Children",
+        "details": "View Details",
+        "joinDate": "Join Date"
+      }
+    },
+    "childrenList": {
+      "title": "Children List",
+      "subtitle": "All information of your registered children",
+      "addNew": "Add New Child",
+      "subject": "Subject",
+      "classes": "Classes",
+      "used": "Used",
+      "remaining": "Remaining",
+      "package": "Package",
+      "details": "Details"
+    },
+    "schedule": {
+      "title": "Weekly Schedule",
+      "subtitle": "Weekly Classes Schedule",
+      "selectStudent": "Select Student",
+      "allStudents": "All Children",
+      "export": "Export Schedule",
+      "time": "Time",
+      "to": "to",
+      "teacher": "Teacher",
+      "status": "Status",
+      "live": "Live Now",
+      "upcoming": "Upcoming",
+      "completed": "Completed",
+      "noClasses": "No classes found for the selected student."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage your account info and preferences",
+      "profile": "Profile",
+      "changePhoto": "Change Photo",
+      "photoLimits": "Max 5MB. JPG or PNG",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "country": "Country",
+      "phone": "Phone Number",
+      "linkedAccounts": "Linked Accounts",
+      "linkEmail": "Continue with Email",
+      "unlinkEmail": "Unlink Email",
+      "linkGoogle": "Continue with Google",
+      "unlinkGoogle": "Unlink Google",
+      "security": "Security & Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "savePassword": "Save Changes",
+      "language": "Preferred Language",
+      "appearance": "Appearance",
+      "privacy": "Privacy & Notifications",
+      "arabic": "العربية",
+      "defaultLang": "Default Language",
+      "english": "English",
+      "secondaryLang": "Secondary language",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto",
+      "displayPreferences": "Display Preferences",
+      "showChildrenPhotos": "Show Children Photos",
+      "showChildrenPhotosDesc": "By enabling this, we have the right to show their photos and evaluations on our site for excellence",
+      "showAllChildren": "Show All Children",
+      "showAllChildrenDesc": "Show all children's info on the main dashboard",
+      "shareProgress": "Share Progress",
+      "shareProgressDesc": "Allow teachers to view complete progress",
+      "saveActivityLog": "Save Activity Log",
+      "saveActivityLogDesc": "Keep a complete record of the child's activity on the platform"
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Comprehensive report of student performance",
+      "studentInfo": "Student Information",
+      "name": "Name",
+      "grade": "Grade",
+      "joinDate": "Join Date",
+      "attendance": "Attendance Stats",
+      "totalClasses": "Total Classes",
+      "attended": "Attended",
+      "absent": "Absent",
+      "excused": "Excused",
+      "evaluations": "Evaluation Stats",
+      "totalEvaluations": "Total Evaluations",
+      "average": "Average Score",
+      "excellent": "Excellent",
+      "good": "Very Good",
+      "lastEvaluation": "Last Evaluation",
+      "subject": "Subject",
+      "score": "Score",
+      "teacher": "Teacher",
+      "date": "Date",
+      "teacherNotes": "Teacher Notes"
+    },
+    "ratings": {
+      "title": "Ratings",
+      "subtitle": "All teacher evaluations of your children",
+      "filterAll": "All",
+      "filterLastWeek": "Last Week",
+      "filterLastMonth": "Last Month",
+      "subject": "Subject",
+      "evaluator": "Evaluator",
+      "date": "Evaluation Date",
+      "viewDetails": "Details",
+      "stats": {
+        "title": "Ratings Stats",
+        "total": "Total Ratings",
+        "excellent": "Excellent",
+        "good": "Very Good",
+        "average": "Average"
+      }
+    },
+    "assignments": {
+      "title": "Assignments",
+      "subtitle": "Track children assignments and achievements",
+      "back": "Back to Assignments",
+      "status": "Assignment Status",
+      "completed": "Submitted",
+      "pending": "Pending",
+      "subject": "Subject",
+      "date": "Due Date",
+      "description": "Description",
+      "attachments": "Attachments",
+      "download": "Download",
+      "teacherFeedback": "Teacher Feedback",
+      "score": "Score",
+      "teacherNotes": "Teacher Notes",
+      "studentSubmission": "Student Submission",
+      "submitAssignment": "Submit Assignment",
+      "writeAnswer": "Write your answer here...",
+      "uploadFiles": "Upload Files (Optional)",
+      "send": "Send Assignment",
+      "stats": {
+        "title": "Assignments Stats",
+        "total": "Total Assignments",
+        "completed": "Completed",
+        "pending": "Pending",
+        "completionRate": "Completion Rate"
+      },
+      "submissionStatus": "Submission Status"
+    },
+    "childDetails": {
+      "evaluateTeachers": "Evaluate Teachers",
+      "latestBadges": "Latest Badges Earned",
+      "recentEvaluations": "Recent Evaluations",
+      "timeline": "Recent Timeline",
+      "submitComplaint": "Submit Complaint",
+      "hasComplaint": "Have a complaint or feedback?",
+      "canSubmitComplaint": "You can submit an official complaint",
+      "selectTeacher": "Select Teacher to Evaluate",
+      "rateTeacher": "Rate Teacher",
+      "comment": "Additional Comment (Optional)",
+      "writeComment": "Write your comment here...",
+      "submitRating": "Submit Rating",
+      "ratingSuccess": "Rating submitted successfully!",
+      "thankYou": "Thank you. Your feedback is important to us.",
+      "back": "Back"
+    },
+    "mockData": {
+      "badges": {
+        "excellentInMemorization": "Outstanding in Memorization",
+        "regularAttendance": "Regular Attendance",
+        "bestStudentOfMonth": "Best Student of the Month",
+        "gotExcellentBadge": "Got an Outstanding Badge in Quran Sciences"
+      },
+      "evaluations": {
+        "memorizedSurahAlBaqarah": "Memorized Surah Al-Baqarah",
+        "excellentAndCooperativeTeacher": "Excellent and cooperative teacher"
+      },
+      "timeline": {
+        "attendedMemorizationClass": "Attended Surah Al-Baqarah Memorization Class",
+        "attendedArabicGrammar": "Attended Arabic Grammar Class",
+        "missedIslamicHistory": "Missed Islamic History Class",
+        "am": "AM",
+        "pm": "PM"
+      },
+      "teachers": {
+        "sheikhAhmedMansour": "Teacher: Sheikh Ahmed Mansour",
+        "sheikhAhmedMansourName": "Sheikh Ahmed Mansour",
+        "sheikhSamiAlAli": "Teacher: Sheikh Sami Al-Ali",
+        "ustadhaLailaAlAsiri": "Teacher: Ms. Laila Al-Asiri",
+        "drYoussefAlQahtani": "Teacher: Dr. Youssef Al-Qahtani",
+        "ustadhaFatimaAli": "Ms. Fatima Ali"
+      },
+      "subjects": {
+        "holyQuran": "Holy Quran",
+        "tajweed": "Tajweed"
+      }
+    },
+    "ratingsComponents": {
+      "academicPerformance": "Academic Performance Stats",
+      "overallAverage": "Overall Average",
+      "currentMonth": "Current Month",
+      "lastMonth": "Last Month",
+      "average": "Average",
+      "lastRating": "Last Rating",
+      "improved": "Improved",
+      "declined": "Declined",
+      "assignmentsStats": "Assignments Stats",
+      "totalAssignments": "Total Assignments",
+      "completed": "Completed",
+      "pending": "Pending",
+      "completionRate": "Completion Rate",
+      "submissionStatus": "Submission Status",
+      "onTime": "On Time",
+      "late": "Late",
+      "rate": "Rate",
+      "classesStats": "Classes Stats",
+      "totalClasses": "Total Classes",
+      "used": "Used",
+      "remaining": "Remaining",
+      "thisMonth": "This Month",
+      "progressAchievements": "Progress & Achievements",
+      "currentMemorization": "Current Memorization",
+      "nextGoal": "Next Goal",
+      "achievements": "Achievements",
+      "strengths": "Strengths",
+      "needsImprovement": "Needs Improvement"
     }
   }
 }
