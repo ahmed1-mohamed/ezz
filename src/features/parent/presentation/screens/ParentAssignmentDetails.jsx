@@ -15,25 +15,22 @@ export default function ParentAssignmentDetails() {
         const fetchDetails = async () => {
             setIsLoading(true);
             try {
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 800));
-
-                // Mock API response based on ID
                 setAssignmentData({
                     id: id,
-                    title: 'تطبيق أحكام النون الساكنة',
-                    subject: 'التجويد',
-                    teacher: 'الشيخ أحمد منصور',
-                    student: 'فاطمة أحمد',
+                    title: t('parent.assignments.detailTitle'),
+                    subject: t('parent.assignments.detailSubject'),
+                    teacher: t('parent.assignments.detailTeacher'),
+                    student: t('parent.assignments.detailStudent'),
                     score: 95,
                     totalScore: 100,
                     requiredDate: '2026-04-10',
                     actualDate: '2026-04-09',
-                    description: 'قم بتطبيق أحكام النون الساكنة على الآيات التالية من سورة البقرة (1-20). اذكر نوع الحكم في كل حالة مع التوضيح.',
+                    description: t('parent.assignments.detailDescription'),
                     attachments: [
-                        { name: 'احكام_النون_الساكنة.pdf', size: '2.3 MB', url: '#' }
+                        { name: t('parent.assignments.detailFileName'), size: '2.3 MB', url: '#' }
                     ],
-                    teacherNotes: 'ما شاء الله، أداء ممتاز في تطبيق أحكام النون الساكنة. إجاباتك دقيقة وواضحة. استمري على هذا المستوى المتميز. فقط انتبهي للإدغام بغنة في المثال الثالث.'
+                    teacherNotes: t('parent.assignments.detailTeacherNotes')
                 });
             } catch (error) {
                 console.error("Failed to fetch assignment details", error);
@@ -43,7 +40,8 @@ export default function ParentAssignmentDetails() {
         };
 
         fetchDetails();
-    }, [id]);
+    }, [id, i18n.language]);
+
 
     const containerVariants = {
         hidden: { opacity: 0 },

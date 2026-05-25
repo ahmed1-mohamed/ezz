@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 export default function AssignmentsStats({ data, variants }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     if (!data) return null;
 
     return (
@@ -52,7 +53,7 @@ export default function AssignmentsStats({ data, variants }) {
                         <div className="space-y-2">
                             <div className="flex items-center gap-6 text-sm">
                                 <span className="text-slate-500 w-12">{t('parent.ratingsComponents.completed')}</span>
-                                <span className="font-bold text-slate-700">{data.currentMonth.completed} من {data.currentMonth.total}</span>
+                                <span className="font-bold text-slate-700">{data.currentMonth.completed} {t('parent.ratingsComponents.from')} {data.currentMonth.total}</span>
                             </div>
                             <div className="flex items-center gap-6 text-sm">
                                 <span className="text-slate-500 w-12">{t('parent.ratingsComponents.rate')}</span>

@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function AcademicPerformance({ data, variants }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     if (!data) return null;
 
     return (
@@ -29,7 +30,7 @@ export default function AcademicPerformance({ data, variants }) {
             <div className="space-y-4">
                 {data.subjects.map((subject, index) => (
                     <div key={index} className="flex flex-col sm:flex-row items-center justify-between p-4 border border-slate-100 rounded-xl bg-white hover:bg-slate-50 transition-colors gap-4">
-                        <div className="font-bold text-slate-800 w-full sm:w-1/3 text-center sm:text-start">
+                        <div className={`font-bold text-slate-800 w-full sm:w-1/3 text-center ${isRtl ? 'sm:text-end' : 'sm:text-start'}`}>
                             {subject.name}
                         </div>
 
@@ -44,14 +45,14 @@ export default function AcademicPerformance({ data, variants }) {
                             </div>
                         </div>
 
-                        <div className="w-full sm:w-1/3 flex justify-center sm:justify-end">
+                        <div className={`w-full sm:w-1/3 flex justify-center ${isRtl ? 'sm:justify-start' : 'sm:justify-end'}`}>
                             {subject.trend === 'up' ? (
-                                <div className="flex items-center gap-1 text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full">
+                                <div className={`flex items-center gap-1 text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full ${isRtl ? 'flex-row-reverse' : ''}`}>
                                     <span className="text-xs font-bold">{t('parent.ratingsComponents.improved')}</span>
                                     <TrendingUp className="w-4 h-4" />
                                 </div>
                             ) : (
-                                <div className="flex items-center gap-1 text-red-500 bg-red-50 px-3 py-1 rounded-full">
+                                <div className={`flex items-center gap-1 text-red-500 bg-red-50 px-3 py-1 rounded-full ${isRtl ? 'flex-row-reverse' : ''}`}>
                                     <span className="text-xs font-bold">{t('parent.ratingsComponents.declined')}</span>
                                     <TrendingDown className="w-4 h-4" />
                                 </div>

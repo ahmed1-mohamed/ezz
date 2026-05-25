@@ -28,46 +28,46 @@ export default function ParentRatings() {
                     evaluations: [
                         {
                             id: 1,
-                            subject: 'حفظ سورة البقرة',
-                            student: 'فاطمة أحمد',
-                            teacher: 'الشيخ أحمد منصور',
+                            subject: t('parent.ratings.mockEval1Subject'),
+                            student: t('parent.ratings.mockEval1Student'),
+                            teacher: t('parent.ratings.mockEval1Teacher'),
                             date: '2026-04-08',
-                            notes: 'أداء ممتاز في الحفظ والتلاوة. استمري على هذا المستوى المتميز.',
+                            notes: t('parent.ratings.mockEval1Notes'),
                             score: 95,
-                            label: 'ممتاز',
+                            label: t('parent.ratings.labelExcellent'),
                             color: 'text-emerald-500'
                         },
                         {
                             id: 2,
-                            subject: 'حفظ سورة آل عمران',
-                            student: 'علي محمد',
-                            teacher: 'الشيخ محمد علي',
+                            subject: t('parent.ratings.mockEval2Subject'),
+                            student: t('parent.ratings.mockEval2Student'),
+                            teacher: t('parent.ratings.mockEval2Teacher'),
                             date: '2026-04-15',
-                            notes: 'تقدم ملحوظ في الحفظ. يحتاج إلى تحسين في التجويد.',
+                            notes: t('parent.ratings.mockEval2Notes'),
                             score: 88,
-                            label: 'جيد جداً',
+                            label: t('parent.ratings.labelVeryGood'),
                             color: 'text-emerald-500'
                         },
                         {
                             id: 3,
-                            subject: 'حفظ سورة الكهف',
-                            student: 'سارة عادل',
-                            teacher: 'الشيخ يوسف عبد الله',
+                            subject: t('parent.ratings.mockEval3Subject'),
+                            student: t('parent.ratings.mockEval3Student'),
+                            teacher: t('parent.ratings.mockEval3Teacher'),
                             date: '2026-04-22',
-                            notes: 'تحسن كبير في النطق. واصل العمل.',
+                            notes: t('parent.ratings.mockEval3Notes'),
                             score: 90,
-                            label: 'ممتاز',
+                            label: t('parent.ratings.labelExcellent'),
                             color: 'text-emerald-500'
                         },
                         {
                             id: 4,
-                            subject: 'حفظ سورة يس',
-                            student: 'محمد رشاد',
-                            teacher: 'الشيخ سعيد حسني',
+                            subject: t('parent.ratings.mockEval4Subject'),
+                            student: t('parent.ratings.mockEval4Student'),
+                            teacher: t('parent.ratings.mockEval4Teacher'),
                             date: '2026-04-29',
-                            notes: 'يحتاج إلى المزيد من الجهد في الحفظ. لكن لديه إمكانيات عالية.',
+                            notes: t('parent.ratings.mockEval4Notes'),
                             score: 85,
-                            label: 'جيد',
+                            label: t('parent.ratings.labelGood'),
                             color: 'text-amber-500'
                         }
                     ]
@@ -80,7 +80,7 @@ export default function ParentRatings() {
         };
 
         fetchRatings();
-    }, [selectedStudent]);
+    }, [selectedStudent, i18n.language]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -114,11 +114,11 @@ export default function ParentRatings() {
                         <select
                             value={selectedStudent}
                             onChange={(e) => setSelectedStudent(e.target.value)}
-                            className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-400 rounded-xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-medium"
+                            className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-600 rounded-xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-bold"
                         >
-                            <option value="all">فاطمة أحمد</option>
-                            <option value="c2">علي محمد</option>
-                            <option value="c3">سارة عادل</option>
+                            <option value="all">{t('parent.ratings.student1Name')}</option>
+                            <option value="c2">{t('parent.ratings.student2Name')}</option>
+                            <option value="c3">{t('parent.ratings.student3Name')}</option>
                         </select>
                         <div className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none">
                             <ChevronDown className="w-4 h-4" />
@@ -163,15 +163,15 @@ export default function ParentRatings() {
 
                                     <div className="flex flex-wrap items-center gap-4 sm:gap-8 text-xs text-slate-500 font-medium mb-4">
                                         <div className="flex items-center gap-1.5">
-                                            <User className="w-4 h-4" />
+                                            <User className="w-4 h-4 shrink-0" />
                                             <span>{t('parent.ratings.student')}: {evaluation.student}</span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
-                                            <GraduationCap className="w-4 h-4" />
+                                            <GraduationCap className="w-4 h-4 shrink-0" />
                                             <span>{t('parent.ratings.teacher')}: {evaluation.teacher}</span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
-                                            <Calendar className="w-4 h-4" />
+                                            <Calendar className="w-4 h-4 shrink-0" />
                                             <span>{evaluation.date}</span>
                                         </div>
                                     </div>
@@ -182,7 +182,7 @@ export default function ParentRatings() {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-center justify-center min-w-[100px] shrink-0 border-t md:border-t-0 md:border-e border-slate-100 pt-4 md:pt-0">
+                                <div className="flex flex-col items-center justify-center min-w-[100px] shrink-0 border-t md:border-t-0 md:border-s border-slate-100 pt-4 md:pt-0 md:ps-6">
                                     <span className={`text-4xl font-bold ${evaluation.color}`}>{evaluation.score}</span>
                                     <span className={`text-xs font-bold mt-1 ${evaluation.color}`}>{evaluation.label}</span>
                                 </div>

@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 
 export default function ProgressAchievements({ data, variants }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     if (!data) return null;
 
     return (
@@ -29,9 +30,9 @@ export default function ProgressAchievements({ data, variants }) {
                     <span className="text-xs text-emerald-600/70 font-medium mt-1">{t('parent.ratingsComponents.achievements')}</span>
                     <div className="flex flex-col gap-2 w-full sm:w-auto">
                         {data.achievements.map((item, index) => (
-                            <div key={index} className="flex items-center gap-2 justify-end sm:justify-start">
+                            <div key={index} className={`flex items-center gap-2 ${isRtl ? 'flex-row-reverse justify-end' : 'justify-start'}`}>
+                                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                                 <span className="font-bold text-slate-800">{item}</span>
-                                <Check className="w-4 h-4 text-emerald-500" />
                             </div>
                         ))}
                     </div>
