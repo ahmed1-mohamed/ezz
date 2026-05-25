@@ -26,9 +26,9 @@ export default function ParentReports() {
                 // Mock API response based on the student
                 setReportData({
                     studentInfo: {
-                        name: selectedStudent === 'c1' ? 'فاطمة أحمد' : selectedStudent === 'c2' ? 'علي خالد' : 'سعاد عمر',
+                        name: selectedStudent === 'c1' ? (isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed') : selectedStudent === 'c2' ? (isRtl ? 'علي خالد' : 'Ali Khaled') : (isRtl ? 'سعاد عمر' : 'Soad Omar'),
                         joinDate: '2025-01-15',
-                        currentPackage: 'الباقة المتقدمة'
+                        currentPackage: t('parent.mockData.reports.package')
                     },
                     attendanceStats: {
                         total: 24,
@@ -44,11 +44,11 @@ export default function ParentReports() {
                         veryGood: 5,
                         good: 1,
                         lastEvaluation: {
-                            subject: 'حفظ سورة البقرة',
-                            teacher: 'الشيخ أحمد منصور',
+                            subject: t('parent.mockData.reports.subjectBaqarah'),
+                            teacher: t('parent.mockData.reports.teacherAhmed'),
                             score: 97,
                             date: '2026-04-08',
-                            notes: 'أداء ممتاز حفظ متقن مع تجويد جيد'
+                            notes: t('parent.mockData.reports.notes')
                         }
                     },
                     academic: {
@@ -56,9 +56,9 @@ export default function ParentReports() {
                         currentMonthAverage: 94,
                         lastMonthAverage: 90,
                         subjects: [
-                            { name: 'حفظ القرآن الكريم', average: 95, lastRating: 97, trend: 'up' },
-                            { name: 'حفظ القرآن الكريم', average: 95, lastRating: 97, trend: 'up' },
-                            { name: 'حفظ القرآن الكريم', average: 95, lastRating: 97, trend: 'down' }
+                            { name: t('parent.mockData.reports.subjectQuran'), average: 95, lastRating: 97, trend: 'up' },
+                            { name: t('parent.mockData.reports.subjectQuran'), average: 95, lastRating: 97, trend: 'up' },
+                            { name: t('parent.mockData.reports.subjectQuran'), average: 95, lastRating: 97, trend: 'down' }
                         ]
                     },
                     assignments: {
@@ -71,13 +71,13 @@ export default function ParentReports() {
                     },
                     classes: { total: 24, used: 6, remaining: 18, thisMonth: 6 },
                     progress: {
-                        currentMemorization: 'سورة البقرة (1-150 آية)',
-                        nextGoal: 'إكمال سورة البقرة',
-                        achievements: ['حفظ جزء عم', 'إتقان أحكام النون الساكنة', 'حفظ سورة الكهف']
+                        currentMemorization: t('parent.mockData.reports.currentMem'),
+                        nextGoal: t('parent.mockData.reports.nextGoal'),
+                        achievements: t('parent.mockData.reports.achievements', { returnObjects: true })
                     },
                     strengthsWeaknesses: {
-                        strengths: ['انتظام ممتاز في الحضور', 'حفظ متقن ومراجعة مستمرة', 'تفاعل إيجابي مع المعلم'],
-                        weaknesses: ['يحتاج إلى تحسين في التجويد', 'زيادة وقت المراجعة اليومية']
+                        strengths: t('parent.mockData.reports.strengths', { returnObjects: true }),
+                        weaknesses: t('parent.mockData.reports.weaknesses', { returnObjects: true })
                     }
                 });
             } catch (error) {
@@ -124,9 +124,9 @@ export default function ParentReports() {
                             onChange={(e) => setSelectedStudent(e.target.value)}
                             className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-600 rounded-xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-bold"
                         >
-                            <option value="c1">فاطمة أحمد</option>
-                            <option value="c2">علي خالد</option>
-                            <option value="c3">سعاد عمر</option>
+                            <option value="c1">{isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed'}</option>
+                            <option value="c2">{isRtl ? 'علي خالد' : 'Ali Khaled'}</option>
+                            <option value="c3">{isRtl ? 'سعاد عمر' : 'Soad Omar'}</option>
                         </select>
                         <div className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none">
                             <ChevronDown className="w-4 h-4" />
@@ -157,7 +157,7 @@ export default function ParentReports() {
                                 <span className="font-bold text-slate-800">{reportData.studentInfo.joinDate}</span>
                             </div>
                             <div className="flex flex-col items-start p-4 bg-slate-50 rounded-xl border border-slate-100 w-full">
-                                <span className="text-xs text-slate-500 mb-1 font-medium">{t('parentDashboard.home.currentPackage')}</span>
+                                <span className="text-xs text-slate-500 mb-1 font-medium">{t('parent.reports.currentPackage')}</span>
                                 <span className="font-bold text-slate-800">{reportData.studentInfo.currentPackage}</span>
                             </div>
                         </div>
@@ -183,7 +183,7 @@ export default function ParentReports() {
                                 <span className="text-3xl font-bold text-red-500">{reportData.attendanceStats.absent}</span>
                             </div>
                             <div className="bg-amber-50 rounded-xl p-5 flex flex-col items-center justify-center border border-amber-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parentDashboard.home.attendanceRate')}</span>
+                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.attendance.rate')}</span>
                                 <span className="text-3xl font-bold text-amber-500">{reportData.attendanceStats.rate}</span>
                             </div>
                         </div>
@@ -191,14 +191,14 @@ export default function ParentReports() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-center justify-between">
                                 <div>
-                                    <h3 className="font-bold text-slate-800 mb-2">{t('parent.reports.currentMonth', { defaultValue: 'الشهر الحالي' })}</h3>
+                                    <h3 className="font-bold text-slate-800 mb-2">{t('parent.reports.currentMonth')}</h3>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 text-sm">
                                             <span className="text-slate-500">{t('parent.reports.attended')}</span>
-                                            <span className="font-bold text-slate-700">{reportData.attendanceStats.currentMonth.attended} {t('parent.reports.from', { defaultValue: 'من' })} {reportData.attendanceStats.currentMonth.total}</span>
+                                            <span className="font-bold text-slate-700">{reportData.attendanceStats.currentMonth.attended} {t('parent.reports.from')} {reportData.attendanceStats.currentMonth.total}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-slate-500">{t('parent.reports.rate', { defaultValue: 'النسبة' })}</span>
+                                            <span className="text-slate-500">{t('parent.reports.rate')}</span>
                                             <span className="font-bold text-emerald-500">{reportData.attendanceStats.currentMonth.rate}</span>
                                         </div>
                                     </div>
@@ -206,15 +206,15 @@ export default function ParentReports() {
                             </div>
                             <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-center justify-between">
                                 <div>
-                                    <h3 className="font-bold text-slate-800 mb-2">{t('parent.ratings.filterLastMonth')}</h3>
+                                    <h3 className="font-bold text-slate-800 mb-2">{t('parent.reports.lastMonth')}</h3>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 text-sm">
                                             <span className="text-slate-500">{t('parent.reports.attended')}</span>
-                                            <span className="font-bold text-slate-700">{reportData.attendanceStats.lastMonth.attended} {t('parent.reports.from', { defaultValue: 'من' })} {reportData.attendanceStats.lastMonth.total}</span>
+                                            <span className="font-bold text-slate-700">{reportData.attendanceStats.lastMonth.attended} {t('parent.reports.from')} {reportData.attendanceStats.lastMonth.total}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-slate-500">{t('parent.reports.rate', { defaultValue: 'النسبة' })}</span>
-                                            <span className="font-bold text-slate-800">{reportData.attendanceStats.lastMonth.rate}</span>
+                                            <span className="text-slate-500">{t('parent.reports.rate')}</span>
+                                            <span className="font-bold text-emerald-500">{reportData.attendanceStats.lastMonth.rate}</span>
                                         </div>
                                     </div>
                                 </div>

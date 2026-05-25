@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import StatCard from '../components/StatCard';
 import SubscriptionRenewal from '../components/SubscriptionRenewal';
 import {
@@ -18,14 +18,24 @@ export default function ParentDashboard() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [selectedStudent, setSelectedStudent] = useState('');
-  const [selectedChildId, setSelectedChildId] = useState(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedChildId = searchParams.get('childId');
+  const setSelectedChildId = (id) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      if (id) newParams.set('childId', id);
+      else newParams.delete('childId');
+      return newParams;
+    });
+  };
 
   if (selectedChildId) {
     return (
       <div className="p-4 md:p-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-        <ChildDetailsView 
-          childId={selectedChildId} 
-          onBack={() => setSelectedChildId(null)} 
+        <ChildDetailsView
+          childId={selectedChildId}
+          onBack={() => setSelectedChildId(null)}
         />
       </div>
     );

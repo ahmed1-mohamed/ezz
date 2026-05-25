@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ChildDetailsView from '../components/child_details/ChildDetailsView';
 
@@ -11,7 +11,19 @@ export default function ParentChildrenList() {
     const isRtl = i18n.language.startsWith('ar');
     const [isLoading, setIsLoading] = useState(true);
     const [childrenList, setChildrenList] = useState([]);
-    const [selectedChildId, setSelectedChildId] = useState(null);
+    
+    const location = useLocation();
+    
+    const selectedChildId = location.state?.childId || null;
+    const setSelectedChildId = (id) => {
+        if (id) {
+            navigate('.', { state: { ...location.state, childId: id }, replace: true });
+        } else {
+            const newState = { ...location.state };
+            delete newState.childId;
+            navigate('.', { state: newState, replace: true });
+        }
+    };
 
     // Simulate backend fetch
     useEffect(() => {
@@ -25,9 +37,9 @@ export default function ParentChildrenList() {
                 const mockData = [
                     {
                         id: 'c1',
-                        name: 'علي خالد',
+                        name: i18n.language.startsWith('ar') ? 'علي خالد' : 'Ali Khaled',
                         joinDate: '20-02-2025',
-                        subject: 'اللغة العربية',
+                        subject: i18n.language.startsWith('ar') ? 'اللغة العربية' : 'Arabic Language',
                         totalClasses: 16,
                         usedClasses: 4,
                         remainingClasses: 12,
@@ -36,9 +48,9 @@ export default function ParentChildrenList() {
                     },
                     {
                         id: 'c2',
-                        name: 'سعاد عمر',
+                        name: i18n.language.startsWith('ar') ? 'سعاد عمر' : 'Soad Omar',
                         joinDate: '05-03-2025',
-                        subject: 'القرآن',
+                        subject: i18n.language.startsWith('ar') ? 'القرآن' : 'Holy Quran',
                         totalClasses: 18,
                         usedClasses: 8,
                         remainingClasses: 10,
@@ -47,9 +59,9 @@ export default function ParentChildrenList() {
                     },
                     {
                         id: 'c3',
-                        name: 'يوسف منصور',
+                        name: i18n.language.startsWith('ar') ? 'يوسف منصور' : 'Youssef Mansour',
                         joinDate: '10-04-2025',
-                        subject: 'العربية و القرآن',
+                        subject: i18n.language.startsWith('ar') ? 'العربية و القرآن' : 'Arabic & Quran',
                         totalClasses: 8,
                         usedClasses: 5,
                         remainingClasses: 3,

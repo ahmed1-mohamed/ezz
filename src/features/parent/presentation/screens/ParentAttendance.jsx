@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ParentAttendance() {
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState('c1');
     const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)); // Default to April 2026 initially
@@ -10,10 +13,10 @@ export default function ParentAttendance() {
 
     // Stats
     const [stats, setStats] = useState([
-        { id: 1, label: 'معدل الحضور', value: '0%', color: 'text-[#0f7a6c]' },
-        { id: 2, label: 'حضر', value: '0', color: 'text-[#10b981]' },
-        { id: 3, label: 'غياب', value: '0', color: 'text-red-500' },
-        { id: 4, label: 'مؤجل', value: '0', color: 'text-yellow-500' }
+        { id: 1, label: t('parent.attendance.rate'), value: '0%', color: 'text-[#0f7a6c]' },
+        { id: 2, label: t('parent.attendance.attended'), value: '0', color: 'text-[#10b981]' },
+        { id: 3, label: t('parent.attendance.absent'), value: '0', color: 'text-red-500' },
+        { id: 4, label: t('parent.attendance.postponed'), value: '0', color: 'text-yellow-500' }
     ]);
 
     useEffect(() => {
@@ -43,10 +46,10 @@ export default function ParentAttendance() {
 
                 setAttendanceData(newMockDays);
                 setStats([
-                    { id: 1, label: 'معدل الحضور', value: `${rate}%`, color: 'text-[#0f7a6c]' },
-                    { id: 2, label: 'حضر', value: attended.toString(), color: 'text-[#10b981]' },
-                    { id: 3, label: 'غياب', value: absent.toString(), color: 'text-red-500' },
-                    { id: 4, label: 'مؤجل', value: postponed.toString(), color: 'text-yellow-500' }
+                    { id: 1, label: t('parent.attendance.rate'), value: `${rate}%`, color: 'text-[#0f7a6c]' },
+                    { id: 2, label: t('parent.attendance.attended'), value: attended.toString(), color: 'text-[#10b981]' },
+                    { id: 3, label: t('parent.attendance.absent'), value: absent.toString(), color: 'text-red-500' },
+                    { id: 4, label: t('parent.attendance.postponed'), value: postponed.toString(), color: 'text-yellow-500' }
                 ]);
 
             } catch (error) {
@@ -97,9 +100,17 @@ export default function ParentAttendance() {
         }
     };
 
-    const daysOfWeek = ['سبت', 'أحد', 'اثنين', 'ثلاثاء', 'اربعاء', 'خميس', 'جمعة'];
+    const daysOfWeek = [
+        t('parent.attendance.days.sat'),
+        t('parent.attendance.days.sun'),
+        t('parent.attendance.days.mon'),
+        t('parent.attendance.days.tue'),
+        t('parent.attendance.days.wed'),
+        t('parent.attendance.days.thu'),
+        t('parent.attendance.days.fri')
+    ];
 
-    const monthFormatter = new Intl.DateTimeFormat('ar-EG', { month: 'long', year: 'numeric' });
+    const monthFormatter = new Intl.DateTimeFormat(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { month: 'long', year: 'numeric' });
     const formattedMonth = monthFormatter.format(currentDate);
 
     return (
@@ -108,25 +119,25 @@ export default function ParentAttendance() {
             initial="hidden"
             whileInView="show" viewport={{ once: true, amount: 0.1 }}
             className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 font-sans bg-transparent min-h-screen"
-            dir="rtl"
+            dir={isRtl ? 'rtl' : 'ltr'}
         >
             <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="text-center md:text-start">
-                    <h1 className="text-2xl font-extrabold text-slate-800">سجل الحضور</h1>
-                    <p className="text-sm text-slate-500 mt-1">متابعة حضور فاطمة أحمد</p>
+                    <h1 className="text-2xl font-extrabold text-slate-800">{t('parent.attendance.title')}</h1>
+                    <p className="text-sm text-slate-500 mt-1">{t('parent.attendance.subtitle')} {selectedStudent === 'c1' ? (isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed') : selectedStudent === 'c2' ? (isRtl ? 'علي خالد' : 'Ali Khaled') : (isRtl ? 'سعاد عمر' : 'Soad Omar')}</p>
                 </div>
 
                 <div className="flex flex-col items-center md:items-start gap-1 w-full sm:w-64">
-                    <label className="text-xs text-slate-500 font-medium text-center md:text-start w-full">اختر الطالب</label>
+                    <label className="text-xs text-slate-500 font-medium text-center md:text-start w-full">{t('parent.attendance.selectStudent')}</label>
                     <div className="relative w-full">
                         <select
                             value={selectedStudent}
                             onChange={(e) => setSelectedStudent(e.target.value)}
                             className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-400 rounded-xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-medium"
                         >
-                            <option value="c1">فاطمة أحمد</option>
-                            <option value="c2">علي خالد</option>
-                            <option value="c3">سعاد عمر</option>
+                            <option value="c1">{isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed'}</option>
+                            <option value="c2">{isRtl ? 'علي خالد' : 'Ali Khaled'}</option>
+                            <option value="c3">{isRtl ? 'سعاد عمر' : 'Soad Omar'}</option>
                         </select>
                         <div className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none">
                             <ChevronDown className="w-4 h-4" />
@@ -149,13 +160,13 @@ export default function ParentAttendance() {
             </div>
 
             <motion.div variants={itemVariants} className="bg-white rounded-2xl p-4 sm:p-8 shadow-sm border border-slate-100 relative min-h-[400px]">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8" dir="ltr">
                     <button
                         onClick={handlePrevMonth}
                         disabled={isLoading}
                         className="p-2 hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent rounded-lg transition-colors text-slate-800"
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronLeft className="w-5 h-5" />
                     </button>
                     <h2 className="text-lg font-bold text-slate-800">{formattedMonth}</h2>
                     <button
@@ -163,7 +174,7 @@ export default function ParentAttendance() {
                         disabled={isLoading}
                         className="p-2 hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent rounded-lg transition-colors text-slate-800"
                     >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>
 
@@ -195,15 +206,15 @@ export default function ParentAttendance() {
 
                 <div className="flex items-center justify-center gap-6 pt-6 border-t border-slate-100 text-xs font-medium text-slate-500">
                     <div className="flex items-center gap-2">
-                        <span>حضر</span>
+                        <span>{t('parent.attendance.attended')}</span>
                         <div className="w-4 h-4 rounded bg-emerald-100" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span>غياب</span>
+                        <span>{t('parent.attendance.absent')}</span>
                         <div className="w-4 h-4 rounded bg-red-100" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span>مؤجل</span>
+                        <span>{t('parent.attendance.postponed')}</span>
                         <div className="w-4 h-4 rounded bg-yellow-100" />
                     </div>
                 </div>

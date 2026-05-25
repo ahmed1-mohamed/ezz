@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import ChildHeader from './ChildHeader';
@@ -12,7 +13,21 @@ import SubscriptionRenewal from '../SubscriptionRenewal';
 
 export default function ChildDetailsView({ childId, onBack }) {
   const { t, i18n } = useTranslation();
-  const [showEvaluation, setShowEvaluation] = useState(false);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const showEvaluation = location.state?.view === 'evaluation';
+  const setShowEvaluation = (show) => {
+    if (show) {
+      navigate('.', { state: { ...location.state, view: 'evaluation' }, replace: true });
+    } else {
+      const newState = { ...location.state };
+      delete newState.view;
+      navigate('.', { state: newState, replace: true });
+    }
+  };
+
   // In a real app, fetch child details based on childId
   const childInfo = {
     name: i18n.language.startsWith('ar') ? 'محمد أحمد' : 'Mohamed Ahmed',

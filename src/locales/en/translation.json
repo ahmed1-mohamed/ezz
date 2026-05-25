@@ -1004,6 +1004,24 @@
       "completed": "Completed",
       "noClasses": "No classes found for the selected student."
     },
+    "attendance": {
+      "title": "Attendance Record",
+      "subtitle": "Follow up on",
+      "selectStudent": "Select Student",
+      "rate": "Attendance Rate",
+      "attended": "Attended",
+      "absent": "Absent",
+      "postponed": "Postponed",
+      "days": {
+        "sat": "Sat",
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri"
+      }
+    },
     "settings": {
       "title": "Settings",
       "subtitle": "Manage your account info and preferences",
@@ -1051,11 +1069,16 @@
       "name": "Name",
       "grade": "Grade",
       "joinDate": "Join Date",
+      "currentPackage": "Current Package",
       "attendance": "Attendance Stats",
       "totalClasses": "Total Classes",
       "attended": "Attended",
       "absent": "Absent",
       "excused": "Excused",
+      "currentMonth": "Current Month",
+      "lastMonth": "Last Month",
+      "from": "out of",
+      "rate": "Rate",
       "evaluations": "Evaluation Stats",
       "totalEvaluations": "Total Evaluations",
       "average": "Average Score",
@@ -1161,6 +1184,40 @@
       "subjects": {
         "holyQuran": "Holy Quran",
         "tajweed": "Tajweed"
+      },
+      "schedule": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "surahIkhlas": "Memorize Surah Al-Ikhlas",
+        "surahKahf": "Memorize Surah Al-Kahf",
+        "surahYassin": "Memorize Surah Yassin",
+        "fahadSaeed": "Sheikh Fahad Al-Saeed",
+        "aliShammari": "Sheikh Ali Al-Shammari",
+        "saeedMajed": "Sheikh Saeed Al-Majed"
+      },
+      "reports": {
+        "package": "Advanced Package",
+        "subjectBaqarah": "Memorize Surah Al-Baqarah",
+        "teacherAhmed": "Sheikh Ahmed Mansour",
+        "notes": "Excellent performance, perfect memorization with good Tajweed",
+        "subjectQuran": "Memorize Holy Quran",
+        "currentMem": "Surah Al-Baqarah (1-150 Ayahs)",
+        "nextGoal": "Complete Surah Al-Baqarah",
+        "achievements": [
+          "Memorized Juz Amma",
+          "Mastered rules of Noon Sakinah",
+          "Memorized Surah Al-Kahf"
+        ],
+        "strengths": [
+          "Excellent attendance",
+          "Perfect memorization and constant review",
+          "Positive interaction with teacher"
+        ],
+        "weaknesses": [
+          "Needs improvement in Tajweed",
+          "Increase daily review time"
+        ]
       }
     },
     "ratingsComponents": {
