@@ -8,6 +8,7 @@ import Spinner from '../components/ui/Spinner.jsx'
 import { getRedirectPath } from '../services/authService.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
 
+
 const Home = lazy(() => import('../pages/Home.jsx'))
 const About = lazy(() => import('../pages/About.jsx'))
 const Courses = lazy(() => import('../pages/Courses.jsx'))
@@ -34,10 +35,20 @@ const TeacherSchedule = lazy(() => import('../dashboards/teacher/TeacherSchedule
 const TeacherClasses = lazy(() => import('../dashboards/teacher/TeacherClasses.jsx'))
 const TeacherCourses = lazy(() => import('../dashboards/teacher/TeacherCourses.jsx'))
 
-const StudentDashboard = lazy(() => import('../dashboards/student/StudentDashboard.jsx'))
-const StudentCourses = lazy(() => import('../dashboards/student/StudentCourses.jsx'))
-const StudentSchedule = lazy(() => import('../dashboards/student/StudentSchedule.jsx'))
-const StudentGrades = lazy(() => import('../dashboards/student/StudentGrades.jsx'))
+const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
+const StudentHome = lazy(() => import('../features/student/presentation/screens/StudentHome.jsx'))
+const StudentSchedule = lazy(() => import('../features/student/presentation/screens/StudentSchedule.jsx'))
+const StudentLive = lazy(() => import('../features/student/presentation/screens/StudentLive.jsx'))
+const StudentRecorded = lazy(() => import('../features/student/presentation/screens/StudentRecorded.jsx'))
+const StudentTeachers = lazy(() => import('../features/student/presentation/screens/StudentTeachers.jsx'))
+const StudentTeacherProfile = lazy(() => import('../features/student/presentation/screens/StudentTeacherProfile.jsx'))
+const StudentAssignments = lazy(() => import('../features/student/presentation/screens/StudentAssignments.jsx'))
+const StudentGrades = lazy(() => import('../features/student/presentation/screens/StudentGrades.jsx'))
+const StudentAttendance = lazy(() => import('../features/student/presentation/screens/StudentAttendance.jsx'))
+const StudentAchievements = lazy(() => import('../features/student/presentation/screens/StudentAchievements.jsx'))
+const StudentMaterials = lazy(() => import('../features/student/presentation/screens/StudentMaterials.jsx'))
+const StudentProfile = lazy(() => import('../features/student/presentation/screens/StudentProfile.jsx'))
+const StudentSettings = lazy(() => import('../features/student/presentation/screens/StudentSettings.jsx'))
 
 // Parent Dashboard components
 const ParentLayout = lazy(() => import('../layouts/ParentLayout.jsx'))
@@ -222,22 +233,21 @@ export default function AppRoutes() {
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Student']} />}>
-                                <Route
-                                    path="/dashboard/student"
-                                    element={<AnimatedPage><StudentDashboard /></AnimatedPage>}
-                                />
-                                <Route
-                                    path="/dashboard/student/courses"
-                                    element={<AnimatedPage><StudentCourses /></AnimatedPage>}
-                                />
-                                <Route
-                                    path="/dashboard/student/schedule"
-                                    element={<AnimatedPage><StudentSchedule /></AnimatedPage>}
-                                />
-                                <Route
-                                    path="/dashboard/student/grades"
-                                    element={<AnimatedPage><StudentGrades /></AnimatedPage>}
-                                />
+                                <Route element={<StudentLayout />}>
+                                    <Route path="/dashboard/student" element={<AnimatedPage><StudentHome /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/schedule" element={<AnimatedPage><StudentSchedule /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/live" element={<AnimatedPage><StudentLive /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/recorded" element={<AnimatedPage><StudentRecorded /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/teachers" element={<AnimatedPage><StudentTeachers /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/teachers/:id" element={<AnimatedPage><StudentTeacherProfile /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/assignments" element={<AnimatedPage><StudentAssignments /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/grades" element={<AnimatedPage><StudentGrades /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/attendance" element={<AnimatedPage><StudentAttendance /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/achievements" element={<AnimatedPage><StudentAchievements /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/materials" element={<AnimatedPage><StudentMaterials /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/profile" element={<AnimatedPage><StudentProfile /></AnimatedPage>} />
+                                    <Route path="/dashboard/student/settings" element={<AnimatedPage><StudentSettings /></AnimatedPage>} />
+                                </Route>
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Parent']} />}>

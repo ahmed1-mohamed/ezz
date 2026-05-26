@@ -36,7 +36,7 @@ export default React.memo(function Home() {
                 <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
 
-                        <motion.div 
+                        <motion.div
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
@@ -78,7 +78,7 @@ export default React.memo(function Home() {
                             </motion.div>
                         </motion.div>
 
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, scale: 0.9, x: isRtl ? 40 : -40 }}
                             animate={{ opacity: 1, scale: 1, x: 0 }}
                             transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
@@ -115,8 +115,8 @@ export default React.memo(function Home() {
 
                     </div>
                 </section>
-
             </div>
+
             <StatisticsBanner />
             <PremiumParentsSection />
             <EducationalPrograms />

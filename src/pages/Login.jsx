@@ -72,13 +72,6 @@ export default function Login() {
 
                     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
 
-                        <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 p-3 rounded-xl text-sm text-center shadow-sm">
-                            <p className="font-semibold mb-1">{isRtl ? 'بيانات دخول لوحة ولي الأمر (للتجربة):' : 'Parent Dashboard Demo Credentials:'}</p>
-                            <p dir="ltr" className="font-mono bg-white inline-block px-2 py-1 rounded text-xs border border-emerald-100">
-                                parent@eduplatform.com / Parent@123
-                            </p>
-                        </div>
-
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 px-1">
                                 {t('login.emailLabel', 'البريد الإلكتروني')}
