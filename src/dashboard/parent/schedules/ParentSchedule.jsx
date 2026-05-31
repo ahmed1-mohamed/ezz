@@ -10,15 +10,12 @@ export default function ParentSchedule() {
     const [selectedStudent, setSelectedStudent] = useState('all');
     const [scheduleData, setScheduleData] = useState([]);
 
-    // Simulate backend fetch
     useEffect(() => {
         const fetchSchedule = async () => {
             setIsLoading(true);
             try {
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 800));
 
-                // Mock API response
                 const mockData = [
                     {
                         id: 1,
@@ -28,7 +25,7 @@ export default function ParentSchedule() {
                         endTime: `11:30 ${t('parent.mockData.timeline.am')}`,
                         className: t('parent.mockData.schedule.surahIkhlas'),
                         teacherName: t('parent.mockData.schedule.fahadSaeed'),
-                        status: 'live', // live, upcoming, completed
+                        status: 'live',
                         studentId: 'c1'
                     },
                     {

@@ -15,10 +15,8 @@ export default function ParentRatings() {
         const fetchRatings = async () => {
             setIsLoading(true);
             try {
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 800));
 
-                // Mock API response
                 setRatingsData({
                     stats: {
                         average: 90,

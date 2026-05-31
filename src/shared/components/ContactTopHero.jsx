@@ -33,7 +33,6 @@ export default React.memo(function ContactTopHero() {
                     </p>
                 </motion.div>
 
-                {/* Image Content */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 30 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -45,10 +44,8 @@ export default React.memo(function ContactTopHero() {
                         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                         className="relative w-full max-w-sm lg:max-w-md xl:max-w-lg"
                     >
-                        {/* Decorative Glowing Backdrop */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-tr from-[#00695C]/20 to-[#735C00]/20 blur-3xl rounded-full opacity-70 mix-blend-multiply" />
 
-                        {/* Animated Offset Shadows */}
                         <motion.div
                             animate={{ rotate: [0, 3, 0] }}
                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -60,7 +57,6 @@ export default React.memo(function ContactTopHero() {
                             className="absolute inset-0  rounded-2xl transform -translate-y-4 translate-x-4 scale-[1.03] backdrop-blur-sm border border-white/20"
                         />
 
-                        {/* Premium Image Container with Glassmorphism */}
                         <div className="relative group p-2.5  rounded-2xl shadow-2xl">
                             <div className="relative overflow-hidden rounded-xl bg-slate-100">
                                 <motion.img
@@ -72,7 +68,6 @@ export default React.memo(function ContactTopHero() {
                                     loading="lazy"
                                     decoding="async"
                                 />
-                                {/* Hover Gradient Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#00695C]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none" />
                             </div>
                         </div>

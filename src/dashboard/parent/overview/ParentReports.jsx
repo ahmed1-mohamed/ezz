@@ -20,10 +20,8 @@ export default function ParentReports() {
         const fetchReport = async () => {
             setIsLoading(true);
             try {
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 800));
 
-                // Mock API response based on the student
                 setReportData({
                     studentInfo: {
                         name: selectedStudent === 'c1' ? (isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed') : selectedStudent === 'c2' ? (isRtl ? 'علي خالد' : 'Ali Khaled') : (isRtl ? 'سعاد عمر' : 'Soad Omar'),

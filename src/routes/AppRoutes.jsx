@@ -49,7 +49,6 @@ const StudentMaterials = lazy(() => import('../dashboard/student/courses/Student
 const StudentProfile = lazy(() => import('../dashboard/student/settings/StudentProfile.jsx'))
 const StudentSettings = lazy(() => import('../dashboard/student/settings/StudentSettings.jsx'))
 
-// Parent Dashboard components
 const ParentLayout = lazy(() => import('../layouts/ParentLayout.jsx'))
 const ParentDashboard = lazy(() => import('../dashboard/parent/overview/ParentDashboard.jsx'))
 const ParentRatings = lazy(() => import('../dashboard/parent/students/ParentRatings.jsx'))

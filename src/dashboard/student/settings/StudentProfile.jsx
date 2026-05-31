@@ -60,7 +60,6 @@ export default function StudentProfile() {
           </div>
         </motion.div>
 
-        {/* ── Stats ── */}
         <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { value: 45, transKey: 'learningHours', icon: Clock, iconCls: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
@@ -78,7 +77,6 @@ export default function StudentProfile() {
           ))}
         </motion.div>
 
-        {/* ── Enrolled Courses ── */}
         <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }} className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-full font-bold">
@@ -123,7 +121,6 @@ export default function StudentProfile() {
           </div>
         </motion.div>
 
-        {/* ── Account & Subscription (extracted widget) ── */}
         <ProfileAccountSection isRtl={isRtl} />
       </motion.div>
     </div>

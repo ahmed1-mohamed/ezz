@@ -24,7 +24,6 @@ export default function TeacherProfile() {
         window.scrollTo(0, 0)
     }, [id])
 
-    // Mock teacher data (in a real app, you'd fetch this based on the ID)
     const teacher = {
         name: "د. أحمد المنصوري",
         title: "أستاذ دكتور في الفقه وأصوله ومجاز بالقراءات العشر",
@@ -56,11 +55,10 @@ export default function TeacherProfile() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 font-sans">
-            {/* Header / Cover Section */}
             <div className="relative h-64 md:h-80 w-full overflow-hidden">
                 <img src={teacher.coverImage} alt="Cover" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
-                
+
                 <div className="absolute top-6 start-6 z-10">
                     <Link to="/teachers" className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-4 py-2 rounded-full transition-all text-sm font-semibold">
                         <ArrowBack className="w-4 h-4" />
@@ -71,20 +69,18 @@ export default function TeacherProfile() {
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    {/* Left/Main Column - Teacher Info */}
+
                     <div className="lg:col-span-2 space-y-8">
-                        {/* Profile Card */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start text-center md:text-start"
                         >
                             <div className="relative shrink-0">
                                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#00695C] to-[#004D40] blur-md opacity-40" />
-                                <img 
-                                    src={teacher.image} 
-                                    alt={teacher.name} 
+                                <img
+                                    src={teacher.image}
+                                    alt={teacher.name}
                                     className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white shadow-lg"
                                 />
                                 <div className="absolute bottom-2 end-2 bg-emerald-500 w-5 h-5 rounded-full border-2 border-white shadow-sm" title="متصل الآن" />
@@ -121,8 +117,7 @@ export default function TeacherProfile() {
                             </div>
                         </motion.div>
 
-                        {/* About Section */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
@@ -137,8 +132,7 @@ export default function TeacherProfile() {
                             </p>
                         </motion.div>
 
-                        {/* Certifications Section */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
@@ -159,9 +153,8 @@ export default function TeacherProfile() {
                                 ))}
                             </ul>
                         </motion.div>
-                        
-                        {/* Courses Section */}
-                        <motion.div 
+
+                        <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
@@ -176,7 +169,7 @@ export default function TeacherProfile() {
                                     {teacher.coursesCount} دورات
                                 </span>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {teacher.courses.map((course) => (
                                     <div key={course.id} className="border border-slate-100 rounded-2xl p-4 hover:border-[#00695C] transition-colors group cursor-pointer">
@@ -199,9 +192,8 @@ export default function TeacherProfile() {
                         </motion.div>
                     </div>
 
-                    {/* Right Column - Booking & Schedule */}
                     <div className="space-y-6">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
@@ -211,7 +203,7 @@ export default function TeacherProfile() {
                                 <Clock className="w-5 h-5 text-[#00695C]" />
                                 المواعيد المتاحة
                             </h3>
-                            
+
                             <div className="space-y-3 mb-6">
                                 {teacher.schedule.map((slot, i) => (
                                     <div key={i} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">

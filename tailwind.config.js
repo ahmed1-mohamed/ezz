@@ -45,7 +45,6 @@ export default {
   },
   darkMode: "class",
   plugins: [
-    /* eslint-disable-next-line no-undef */
-require('tailwindcss-rtl'),
+    require('tailwindcss-rtl'),
   ],
 };

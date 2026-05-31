@@ -1,4 +1,3 @@
-// Mock Data for Parent Dashboard
 
 export const mockTeachers = [
   {

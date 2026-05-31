@@ -7,7 +7,7 @@ export default function ParentComplaints() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
-  const [submissionType, setSubmissionType] = useState('complaint'); // 'complaint' or 'suggestion'
+  const [submissionType, setSubmissionType] = useState('complaint');
   const [selectedChild, setSelectedChild] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedTeacher, setSelectedTeacher] = useState('');

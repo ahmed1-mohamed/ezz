@@ -13,7 +13,6 @@ function App() {
     document.documentElement.dir = dir
     document.documentElement.lang = i18n.language
 
-    // Handle auto theme
     if (theme === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       const applyTheme = (e) => {

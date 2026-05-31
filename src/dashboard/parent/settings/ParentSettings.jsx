@@ -24,7 +24,6 @@ export default function ParentSettings() {
     const [isGoogleLinked, setIsGoogleLinked] = useState(false);
     const [isEmailLinked, setIsEmailLinked] = useState(false);
 
-    // Preferences Data
     const [preferences, setPreferences] = useState({
         showPhotos: false,
         showAllChildren: true,
@@ -40,7 +39,6 @@ export default function ParentSettings() {
         setLanguage(lang);
     };
 
-    // Custom Toggle Switch
     const ToggleSwitch = ({ checked, onChange }) => (
         <button
             onClick={onChange}

@@ -19,7 +19,6 @@ export default function ParentChildren() {
   const isRtl = i18n.language.startsWith('ar');
   const currentChildId = searchParams.get('id') || 'c1';
 
-  // Handler to switch child
   const handleChildSelect = (childId) => {
     setSearchParams({ id: childId });
   };

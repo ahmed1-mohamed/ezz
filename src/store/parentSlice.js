@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { parentApi } from '@/shared/services/api/parentApi';
 
-// Async Thunks
 export const fetchTeachers = createAsyncThunk(
   'parent/fetchTeachers',
   async (_, { rejectWithValue }) => {
@@ -38,13 +37,12 @@ export const submitTeacherRating = createAsyncThunk(
   }
 );
 
-// Initial State
 const initialState = {
   teachers: [],
   pastRatings: [],
   loading: false,
   error: null,
-  ratingSubmitStatus: 'idle', // 'idle' | 'loading' | 'success' | 'failed'
+  ratingSubmitStatus: 'idle',
 };
 
 const parentSlice = createSlice({
@@ -58,7 +56,6 @@ const parentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Teachers
       .addCase(fetchTeachers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -71,7 +68,6 @@ const parentSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Fetch Past Ratings
       .addCase(fetchPastRatings.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -84,7 +80,6 @@ const parentSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Submit Rating
       .addCase(submitTeacherRating.pending, (state) => {
         state.ratingSubmitStatus = 'loading';
       })

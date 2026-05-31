@@ -8,10 +8,9 @@ export default function ParentAttendance() {
     const isRtl = i18n.language.startsWith('ar');
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState('c1');
-    const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)); // Default to April 2026 initially
+    const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1));
     const [attendanceData, setAttendanceData] = useState([]);
 
-    // Stats
     const [stats, setStats] = useState([
         { id: 1, label: t('parent.attendance.rate'), value: '0%', color: 'text-[#0f7a6c]' },
         { id: 2, label: t('parent.attendance.attended'), value: '0', color: 'text-[#10b981]' },
@@ -20,24 +19,19 @@ export default function ParentAttendance() {
     ]);
 
     useEffect(() => {
-        // Simulate backend fetch API endpoint for given month and student
         const fetchAttendance = async () => {
             setIsLoading(true);
             try {
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 800));
 
-                // Mock dynamic calendar data based on the selected month/student
-                // In a real scenario, this would come from the API Response mapped to days
                 const newMockDays = Array(35).fill('none').map(() => {
                     const rand = Math.random();
-                    if (rand > 0.7) return 'attended'; // 30% chance of attendance
-                    if (rand > 0.85) return 'absent';   // 15% chance of absence
-                    if (rand > 0.95) return 'postponed'; // 5% chance of postponed
+                    if (rand > 0.7) return 'attended';
+                    if (rand > 0.85) return 'absent';
+                    if (rand > 0.95) return 'postponed';
                     return 'none';
                 });
 
-                // Recalculate stats based on fetched data
                 const attended = newMockDays.filter(s => s === 'attended').length;
                 const absent = newMockDays.filter(s => s === 'absent').length;
                 const postponed = newMockDays.filter(s => s === 'postponed').length;
@@ -63,9 +57,6 @@ export default function ParentAttendance() {
     }, [selectedStudent, currentDate]);
 
     const handlePrevMonth = () => {
-        // In Arabic, reading right to left, the right arrow typically means "next month" or "future" 
-        // but traditionally right is "previous" and left is "next" in RTL calendars. 
-        // We will make ChevronRight go to previous month and ChevronLeft go to next month for RTL.
         setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
     };
 

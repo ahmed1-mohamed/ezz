@@ -11,9 +11,9 @@ export default function ParentChildrenList() {
     const isRtl = i18n.language.startsWith('ar');
     const [isLoading, setIsLoading] = useState(true);
     const [childrenList, setChildrenList] = useState([]);
-    
+
     const location = useLocation();
-    
+
     const selectedChildId = location.state?.childId || null;
     const setSelectedChildId = (id) => {
         if (id) {
@@ -25,15 +25,12 @@ export default function ParentChildrenList() {
         }
     };
 
-    // Simulate backend fetch
     useEffect(() => {
         const fetchChildren = async () => {
             setIsLoading(true);
             try {
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 800));
 
-                // Mock API response
                 const mockData = [
                     {
                         id: 'c1',
