@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
-import AppNavbar from '../components/layout/AppNavbar.jsx'
-import Container from '../components/ui/Container.jsx'
-import Footer from '../components/ui/Footer.jsx'
+import AppNavbar from '@/shared/components/AppNavbar.jsx'
+import Container from '@/shared/components/Container.jsx'
+import Footer from '@/shared/components/Footer.jsx'
 
 export default function PublicLayout() {
 

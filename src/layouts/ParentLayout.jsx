@@ -20,7 +20,7 @@ import {
   Bell,
   User
 } from 'lucide-react';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '@/shared/context/useAuth';
 
 const navItems = [
   { path: '/dashboard/parent', icon: Home, transKey: 'home', end: true },

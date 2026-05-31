@@ -1,74 +1,73 @@
 import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useAuth } from '../context/useAuth.jsx'
+import { useAuth } from '@/shared/context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import RoleBasedRoute from './RoleBasedRoute.jsx'
-import Spinner from '../components/ui/Spinner.jsx'
-import { getRedirectPath } from '../services/authService.js'
+import Spinner from '@/shared/components/Spinner.jsx'
+import { getRedirectPath } from '@/shared/services/authService.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
 
+const Home = lazy(() => import('../pages/public/Home.jsx'))
+const About = lazy(() => import('../pages/public/About.jsx'))
+const Courses = lazy(() => import('../pages/public/Courses.jsx'))
+const Curriculums = lazy(() => import('../pages/public/Curriculums.jsx'))
+const Pricing = lazy(() => import('../pages/public/Pricing.jsx'))
+const Teachers = lazy(() => import('../pages/public/Teachers.jsx'))
+const Contact = lazy(() => import('../pages/public/Contact.jsx'))
+const SchedulePage = lazy(() => import('../pages/public/SchedulePage.jsx'))
+const Login = lazy(() => import('../pages/auth/Login.jsx'))
+const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
 
-const Home = lazy(() => import('../pages/Home.jsx'))
-const About = lazy(() => import('../pages/About.jsx'))
-const Courses = lazy(() => import('../pages/Courses.jsx'))
-const Curriculums = lazy(() => import('../pages/Curriculums.jsx'))
-const Pricing = lazy(() => import('../pages/Pricing.jsx'))
-const Teachers = lazy(() => import('../pages/Teachers.jsx'))
-const Contact = lazy(() => import('../pages/Contact.jsx'))
-const SchedulePage = lazy(() => import('../pages/SchedulePage.jsx'))
-const Login = lazy(() => import('../pages/Login.jsx'))
-const TeacherProfile = lazy(() => import('../pages/TeacherProfile.jsx'))
+const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
+const AdminStudents = lazy(() => import('../dashboard/admin/students/AdminStudents.jsx'))
+const AdminTeachers = lazy(() => import('../dashboard/admin/teachers/AdminTeachers.jsx'))
+const AdminReports = lazy(() => import('../dashboard/admin/reports/AdminReports.jsx'))
 
-const AdminDashboard = lazy(() => import('../dashboards/admin/AdminDashboard.jsx'))
-const AdminStudents = lazy(() => import('../dashboards/admin/AdminStudents.jsx'))
-const AdminTeachers = lazy(() => import('../dashboards/admin/AdminTeachers.jsx'))
-const AdminReports = lazy(() => import('../dashboards/admin/AdminReports.jsx'))
+const ManagerDashboard = lazy(() => import('../dashboard/manager/overview/ManagerDashboard.jsx'))
+const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCourses.jsx'))
+const ManagerSchedule = lazy(() => import('../dashboard/manager/schedules/ManagerSchedule.jsx'))
+const ManagerReports = lazy(() => import('../dashboard/manager/reports/ManagerReports.jsx'))
 
-const ManagerDashboard = lazy(() => import('../dashboards/manager/ManagerDashboard.jsx'))
-const ManagerCourses = lazy(() => import('../dashboards/manager/ManagerCourses.jsx'))
-const ManagerSchedule = lazy(() => import('../dashboards/manager/ManagerSchedule.jsx'))
-const ManagerReports = lazy(() => import('../dashboards/manager/ManagerReports.jsx'))
-
-const TeacherDashboard = lazy(() => import('../dashboards/teacher/TeacherDashboard.jsx'))
-const TeacherSchedule = lazy(() => import('../dashboards/teacher/TeacherSchedule.jsx'))
-const TeacherClasses = lazy(() => import('../dashboards/teacher/TeacherClasses.jsx'))
-const TeacherCourses = lazy(() => import('../dashboards/teacher/TeacherCourses.jsx'))
+const TeacherDashboard = lazy(() => import('../dashboard/teacher/overview/TeacherDashboard.jsx'))
+const TeacherSchedule = lazy(() => import('../dashboard/teacher/schedules/TeacherSchedule.jsx'))
+const TeacherClasses = lazy(() => import('../dashboard/teacher/students/TeacherClasses.jsx'))
+const TeacherCourses = lazy(() => import('../dashboard/teacher/students/TeacherCourses.jsx'))
 
 const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
-const StudentHome = lazy(() => import('../features/student/presentation/screens/StudentHome.jsx'))
-const StudentSchedule = lazy(() => import('../features/student/presentation/screens/StudentSchedule.jsx'))
-const StudentLive = lazy(() => import('../features/student/presentation/screens/StudentLive.jsx'))
-const StudentRecorded = lazy(() => import('../features/student/presentation/screens/StudentRecorded.jsx'))
-const StudentTeachers = lazy(() => import('../features/student/presentation/screens/StudentTeachers.jsx'))
-const StudentTeacherProfile = lazy(() => import('../features/student/presentation/screens/StudentTeacherProfile.jsx'))
-const StudentAssignments = lazy(() => import('../features/student/presentation/screens/StudentAssignments.jsx'))
-const StudentGrades = lazy(() => import('../features/student/presentation/screens/StudentGrades.jsx'))
-const StudentAttendance = lazy(() => import('../features/student/presentation/screens/StudentAttendance.jsx'))
-const StudentAchievements = lazy(() => import('../features/student/presentation/screens/StudentAchievements.jsx'))
-const StudentMaterials = lazy(() => import('../features/student/presentation/screens/StudentMaterials.jsx'))
-const StudentProfile = lazy(() => import('../features/student/presentation/screens/StudentProfile.jsx'))
-const StudentSettings = lazy(() => import('../features/student/presentation/screens/StudentSettings.jsx'))
+const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
+const StudentSchedule = lazy(() => import('../dashboard/student/schedule/StudentSchedule.jsx'))
+const StudentLive = lazy(() => import('../dashboard/student/schedule/StudentLive.jsx'))
+const StudentRecorded = lazy(() => import('../dashboard/student/courses/StudentRecorded.jsx'))
+const StudentTeachers = lazy(() => import('../dashboard/student/overview/StudentTeachers.jsx'))
+const StudentTeacherProfile = lazy(() => import('../dashboard/student/components/StudentTeacherProfile.jsx'))
+const StudentAssignments = lazy(() => import('../dashboard/student/courses/StudentAssignments.jsx'))
+const StudentGrades = lazy(() => import('../dashboard/student/grades/StudentGrades.jsx'))
+const StudentAttendance = lazy(() => import('../dashboard/student/schedule/StudentAttendance.jsx'))
+const StudentAchievements = lazy(() => import('../dashboard/student/grades/StudentAchievements.jsx'))
+const StudentMaterials = lazy(() => import('../dashboard/student/courses/StudentMaterials.jsx'))
+const StudentProfile = lazy(() => import('../dashboard/student/settings/StudentProfile.jsx'))
+const StudentSettings = lazy(() => import('../dashboard/student/settings/StudentSettings.jsx'))
 
 // Parent Dashboard components
 const ParentLayout = lazy(() => import('../layouts/ParentLayout.jsx'))
-const ParentDashboard = lazy(() => import('../features/parent/presentation/screens/ParentDashboard.jsx'))
-const ParentRatings = lazy(() => import('../features/parent/presentation/screens/ParentRatings.jsx'))
-const ParentComplaints = lazy(() => import('../features/parent/presentation/screens/ParentComplaints.jsx'))
-const ParentChildrenList = lazy(() => import('../features/parent/presentation/screens/ParentChildrenList.jsx'))
-const ParentChildren = lazy(() => import('../features/parent/presentation/screens/ParentChildren.jsx'))
-const ParentCheckout = lazy(() => import('../features/parent/presentation/screens/ParentCheckout.jsx'))
-const ParentSchedule = lazy(() => import('../features/parent/presentation/screens/ParentSchedule.jsx'))
-const ParentAttendance = lazy(() => import('../features/parent/presentation/screens/ParentAttendance.jsx'))
-const ParentReports = lazy(() => import('../features/parent/presentation/screens/ParentReports.jsx'))
-const ParentAssignments = lazy(() => import('../features/parent/presentation/screens/ParentAssignments.jsx'))
-const ParentAssignmentDetails = lazy(() => import('../features/parent/presentation/screens/ParentAssignmentDetails.jsx'))
-const ParentSettings = lazy(() => import('../features/parent/presentation/screens/ParentSettings.jsx'))
-import { ParentExams, ParentNotifications, ParentProfile } from '../features/parent/presentation/screens/Placeholders.jsx'
+const ParentDashboard = lazy(() => import('../dashboard/parent/overview/ParentDashboard.jsx'))
+const ParentRatings = lazy(() => import('../dashboard/parent/students/ParentRatings.jsx'))
+const ParentComplaints = lazy(() => import('../dashboard/parent/settings/ParentComplaints.jsx'))
+const ParentChildrenList = lazy(() => import('../dashboard/parent/students/ParentChildrenList.jsx'))
+const ParentChildren = lazy(() => import('../dashboard/parent/students/ParentChildren.jsx'))
+const ParentCheckout = lazy(() => import('../dashboard/parent/packages/ParentCheckout.jsx'))
+const ParentSchedule = lazy(() => import('../dashboard/parent/schedules/ParentSchedule.jsx'))
+const ParentAttendance = lazy(() => import('../dashboard/parent/schedules/ParentAttendance.jsx'))
+const ParentReports = lazy(() => import('../dashboard/parent/overview/ParentReports.jsx'))
+const ParentAssignments = lazy(() => import('../dashboard/parent/overview/ParentAssignments.jsx'))
+const ParentAssignmentDetails = lazy(() => import('../dashboard/parent/overview/ParentAssignmentDetails.jsx'))
+const ParentSettings = lazy(() => import('../dashboard/parent/settings/ParentSettings.jsx'))
+import { ParentExams, ParentNotifications, ParentProfile } from '../dashboard/parent/components/Placeholders.jsx'
 
 
-const NotFound = lazy(() => import('../pages/NotFound.jsx'))
-const Unauthorized = lazy(() => import('../pages/Unauthorized.jsx'))
+const NotFound = lazy(() => import('../pages/public/NotFound.jsx'))
+const Unauthorized = lazy(() => import('../pages/public/Unauthorized.jsx'))
 
 function AnimatedPage({ children }) {
     return (

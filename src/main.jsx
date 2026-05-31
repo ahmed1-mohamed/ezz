@@ -6,7 +6,7 @@ import { store } from './store/store.js'
 import App from './App.jsx'
 import './i18n.js'
 import './index.css'
-import { AuthProvider } from './context/AuthContext.jsx'
+import { AuthProvider } from '@/shared/context/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

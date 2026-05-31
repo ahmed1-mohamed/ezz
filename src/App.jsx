@@ -1,7 +1,7 @@
-import { useAuth } from './context/useAuth.jsx'
-import AppRoutes from './routes/AppRoutes.jsx'
 import { useTranslation } from 'react-i18next'
 import { useLayoutEffect } from 'react'
+import { useAuth } from '@/shared/context/useAuth'
+import AppRoutes from './routes/AppRoutes.jsx'
 
 function App() {
   const { theme } = useAuth()

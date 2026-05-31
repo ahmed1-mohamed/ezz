@@ -1,5 +1,5 @@
-import LanguageSwitcher from '../components/layout/LanguageSwitcher.jsx'
-import Container from '../components/ui/Container.jsx'
+import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
+import Container from '@/shared/components/Container.jsx'
 
 export default function AuthLayout({ children }) {
     return (

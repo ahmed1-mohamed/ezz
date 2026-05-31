@@ -1,6 +1,6 @@
-import AppHeader from '../components/layout/AppHeader.jsx'
-import AppSidebar from '../components/layout/AppSidebar.jsx'
-import Container from '../components/ui/Container.jsx'
+import AppHeader from '@/shared/components/AppHeader.jsx'
+import AppSidebar from '@/shared/components/AppSidebar.jsx'
+import Container from '@/shared/components/Container.jsx'
 
 export default function DashboardLayout({ title, role, links, children }) {
     return (

@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import parentReducer from '../features/parent/parentSlice';
+import parentReducer from '@/store/parentSlice';
 
 export const store = configureStore({
   reducer: {

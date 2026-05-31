@@ -20,7 +20,7 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '@/shared/context/useAuth';
 
 const navItems = [
   { path: '/dashboard/student', icon: Home, transKey: 'home', end: true },
