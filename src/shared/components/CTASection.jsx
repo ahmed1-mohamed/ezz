@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 
-export default function CTASection({ 
-    titleKey = 'cta.title', 
+export default function CTASection({
+    titleKey = 'cta.title',
     defaultTitle = 'هل أنت مستعد لبدء رحلتك نحو النور؟',
     descKey = 'cta.desc',
     defaultDesc = 'انضم إلى آلاف الطلاب اليوم واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية.',
@@ -13,16 +13,16 @@ export default function CTASection({
     const { t } = useTranslation()
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className={`relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#00695C] to-[#004D40] p-10 sm:p-14 text-center text-white shadow-2xl ${className}`}
+            className={`relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#00695C] to-[#004D40] p-10 sm:p-14 text-center text-white shadow-2xl mt-12 ${className}`}
         >
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_left,#FEF6E0_0%,transparent_50%)]" />
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_bottom_right,#FEF6E0_0%,transparent_50%)]" />
-            
+
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
                 <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
                     {t(titleKey, defaultTitle)}
