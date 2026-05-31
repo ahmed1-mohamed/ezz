@@ -9,12 +9,12 @@ export default React.memo(function AboutHero() {
     const isRtl = i18n.language === 'ar'
 
     return (
-        <section className="relative h-[600px] sm:h-[700px] flex items-center mb-20 w-full overflow-hidden bg-slate-50 rounded-2xl sm:rounded-[40px] border border-slate-100 shadow-sm mt-4 lg:mt-6">
+        <section className="relative min-h-[600px] sm:min-h-[700px] py-24 lg:py-0 flex items-center mb-20 w-full overflow-hidden rounded-xl sm:rounded-[20px] shadow-sm">
             <div className="absolute inset-0 z-0">
                 <img
                     src={bgImage}
                     alt="Background Pattern"
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-center opacity-30"
                     loading="lazy"
                 />
                 <div className="absolute inset-0 " />
@@ -27,9 +27,9 @@ export default React.memo(function AboutHero() {
                     initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, ease: 'easeOut' }}
-                    className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start text-center lg:text-start"
+                    className="w-full lg:w-1/2 space-y-8 flex  flex-col items-center lg:items-start text-center lg:text-start"
                 >
-                    <div className="inline-flex items-center rounded-full bg-[#735C00]/10 border border-[#735C00]/20 px-6 py-2.5 text-sm font-bold text-[#735C00] shadow-sm">
+                    <div className="inline-flex items-center rounded-full bg-[#735C00] px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
                         {t('about.hero.badge', 'أكاديمية تعليمية متكاملة')}
                     </div>
 
