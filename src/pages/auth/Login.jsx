@@ -166,12 +166,7 @@ export default function Login() {
                     </form>
                 </div>
 
-                <div className="mt-8 text-center flex items-center justify-center gap-1">
-                    <span className="text-slate-500 font-medium">{t('login.noAccount', 'ليس لديك حساب؟')}</span>
-                    <Link to="/register" className="font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
-                        {t('login.registerNow', 'سجل الآن')}
-                    </Link>
-                </div>
+
             </div>
         </div>
     )
