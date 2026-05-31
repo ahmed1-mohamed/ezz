@@ -77,7 +77,7 @@ export default function StudentLayout() {
       </AnimatePresence>
 
       <aside className={`
-        fixed lg:sticky top-0 h-screen z-40
+        fixed lg:sticky top-0 start-0 h-screen z-40
         w-60 bg-white dark:bg-slate-900 border-e border-slate-200 dark:border-slate-800
         transition-transform duration-300 ease-in-out
         flex flex-col

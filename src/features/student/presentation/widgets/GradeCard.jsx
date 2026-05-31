@@ -37,7 +37,6 @@ export function GradeCard({ grade, isRtl }) {
       className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Card header */}
       <div className="p-5 border-b border-slate-100 dark:border-slate-700">
         <div className="flex items-start justify-between gap-3 mb-2">
           <StarDisplay rating={grade.rating} />
@@ -61,7 +60,6 @@ export function GradeCard({ grade, isRtl }) {
         </div>
       </div>
 
-      {/* Skills */}
       <div className="p-5 space-y-4">
         <div className="grid grid-cols-4 gap-2">
           {grade.skills.map((s) => (
@@ -69,7 +67,6 @@ export function GradeCard({ grade, isRtl }) {
           ))}
         </div>
 
-        {/* Teacher note */}
         <div>
           <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             {t('studentDashboard.grades.teacherNotes')}
@@ -79,7 +76,6 @@ export function GradeCard({ grade, isRtl }) {
           </p>
         </div>
 
-        {/* Strengths & improvements */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {strengths.length > 0 && (
             <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3">

@@ -5,11 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../../../../i18n.js';
 import { useAuth } from '../../../../context/useAuth.jsx';
 
-/** ─────────────────────────────────────────────
- *  Storage key is isolated per dashboard role.
- *  Parent uses: 'parentSettings'  (untouched)
- *  Student uses: 'studentSettings' (this file)
- * ───────────────────────────────────────────── */
 const STORAGE_KEY = 'studentSettings';
 
 const defaultProfile = {
@@ -41,7 +36,6 @@ function saveToStorage(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// ── Sub-components ────────────────────────────────
 
 function ToggleSwitch({ checked, onChange, isRtl }) {
   return (
@@ -52,8 +46,8 @@ function ToggleSwitch({ checked, onChange, isRtl }) {
     >
       <div
         className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${checked
-            ? isRtl ? '-translate-x-6' : 'translate-x-6'
-            : 'translate-x-0'
+          ? isRtl ? '-translate-x-6' : 'translate-x-6'
+          : 'translate-x-0'
           }`}
       />
     </button>
@@ -125,7 +119,6 @@ function PreferenceRow({ label, desc, checked, onChange, isRtl }) {
   );
 }
 
-// ── Main Component ────────────────────────────────
 
 export default function StudentSettings() {
   const { t, i18n } = useTranslation();
@@ -183,7 +176,6 @@ export default function StudentSettings() {
       className="p-4 md:p-8 max-w-7xl mx-auto space-y-5 font-sans bg-transparent min-h-screen"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* ── Page Title ── */}
       <SectionCard>
         <div className="flex items-center justify-between">
           <div>
@@ -207,11 +199,9 @@ export default function StudentSettings() {
         </div>
       </SectionCard>
 
-      {/* ── Profile Section ── */}
       <SectionCard>
         <SectionTitle icon={User} label={isRtl ? 'الملف الشخصي' : 'Profile'} />
 
-        {/* Avatar */}
         <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
           <div className="relative shrink-0">
             <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shadow-md">
@@ -229,7 +219,6 @@ export default function StudentSettings() {
           </div>
         </div>
 
-        {/* Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <FieldInput
             label={isRtl ? 'الاسم الكامل' : 'Full Name'}
@@ -261,7 +250,6 @@ export default function StudentSettings() {
           />
         </div>
 
-        {/* Linked accounts */}
         <div className="pt-5 border-t border-slate-100 dark:border-slate-700 space-y-3">
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3">
             {isRtl ? 'ربط الحسابات' : 'Linked Accounts'}
@@ -301,7 +289,6 @@ export default function StudentSettings() {
         />
       </SectionCard>
 
-      {/* ── Security ── */}
       <SectionCard>
         <SectionTitle icon={Lock} label={isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'} />
 
@@ -334,11 +321,9 @@ export default function StudentSettings() {
         <SaveButton label={isRtl ? 'تحديث كلمة المرور' : 'Update Password'} onClick={() => { }} />
       </SectionCard>
 
-      {/* ── Language & Appearance ── */}
       <SectionCard>
         <SectionTitle icon={Globe} label={isRtl ? 'اللغة والمظهر' : 'Language & Appearance'} />
 
-        {/* Language */}
         <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide">
           {isRtl ? 'اللغة المفضلة' : 'Preferred Language'}
         </h3>
@@ -351,8 +336,8 @@ export default function StudentSettings() {
               key={code}
               onClick={() => handleLanguageChange(code)}
               className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${i18n.language === code
-                  ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
+                ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
+                : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
                 }`}
             >
               <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">{isRtl ? labelAr : labelEn}</span>
@@ -361,7 +346,6 @@ export default function StudentSettings() {
           ))}
         </div>
 
-        {/* Theme */}
         <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide">
           {isRtl ? 'المظهر' : 'Appearance'}
         </h3>
@@ -375,8 +359,8 @@ export default function StudentSettings() {
               key={key}
               onClick={() => setTheme(key)}
               className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${theme === key
-                  ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
+                ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
+                : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
                 }`}
             >
               <Icon className={`w-5 h-5 ${iconClass}`} />
@@ -386,7 +370,6 @@ export default function StudentSettings() {
         </div>
       </SectionCard>
 
-      {/* ── Student Preferences ── */}
       <SectionCard>
         <SectionTitle icon={BookOpen} label={isRtl ? 'تفضيلات الطالب' : 'Student Preferences'} />
 

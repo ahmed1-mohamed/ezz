@@ -18,7 +18,6 @@ export function ProfileAccountSection({ isRtl }) {
   ];
   return (
     <>
-      {/* Account Info */}
       <motion.div
         variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
         className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700"
@@ -41,7 +40,6 @@ export function ProfileAccountSection({ isRtl }) {
               </div>
             </div>
           ))}
-          {/* Status */}
           <div className="flex items-center justify-between py-2">
             <span className="flex items-center gap-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full">
               <CheckCircle size={12} />
@@ -57,7 +55,6 @@ export function ProfileAccountSection({ isRtl }) {
         </div>
       </motion.div>
 
-      {/* Recent Achievements */}
       <motion.div
         variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
         className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700"
@@ -82,13 +79,11 @@ export function ProfileAccountSection({ isRtl }) {
         </div>
       </motion.div>
 
-      {/* Subscription */}
       <motion.div
         variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
         className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-800 rounded-2xl p-5 shadow-sm border border-emerald-100 dark:border-slate-700 overflow-hidden relative"
         dir={isRtl ? 'rtl' : 'ltr'}
       >
-        {/* Active badge */}
         <div className="absolute top-4 start-4">
           <span className="flex items-center gap-1.5 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />

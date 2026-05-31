@@ -457,38 +457,26 @@
     ]
   },
   "teachers": {
-    "badge": "Our Educational Team",
-    "title": "Elite of Our Teachers",
-    "description": "We take pride in our qualified and distinguished educational staff",
-    "heroBadge": "Distinguished Teachers",
-    "heroTitleLine1": "Islamic Education",
-    "heroTitleLine2": "With Highest",
-    "heroTitleLine3": "Professional Standards",
-    "heroDescription": "We present to you a selection of qualified and certified teachers in the Ten Qira'at and Tajweed, ensuring distinguished Islamic education for your children",
-    "heroCtaSecondary": "Learn More",
-    "heroCtaPrimary": "Start Learning",
-    "items": [
-      {
+    "title": "Our Elite Teachers",
+    "desc": "We are proud of our qualified and distinguished educational staff, with extensive experience in their fields.",
+    "list": {
+      "1": {
         "name": "Dr. Ahmed Al-Mansouri",
-        "title": "Certified in the Ten Qira'at",
-        "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop"
+        "title": "Certified in the Ten Qira'at"
       },
-      {
-        "name": "Dr. Khaled Al-Shamsi",
-        "title": "Certified in the Ten Qira'at",
-        "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1200&auto=format&fit=crop"
+      "2": {
+        "name": "Dr. Mohamed Ibrahim",
+        "title": "Certified in the Ten Qira'at"
       },
-      {
-        "name": "Dr. Youssef Al-Harbi",
-        "title": "Certified in the Ten Qira'at",
-        "image": "https://images.unsplash.com/photo-1504257432389-52343af06ae3?q=80&w=1200&auto=format&fit=crop"
+      "3": {
+        "name": "Dr. Ali Hassan",
+        "title": "Certified in the Ten Qira'at"
       },
-      {
-        "name": "Dr. Mohammed Al-Qahtani",
-        "title": "Certified in the Ten Qira'at",
-        "image": "https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1200&auto=format&fit=crop"
+      "4": {
+        "name": "Dr. Mahmoud Salem",
+        "title": "Certified in the Ten Qira'at"
       }
-    ]
+    }
   },
   "courses": {
     "items": [
@@ -739,11 +727,9 @@
     }
   },
   "cta": {
-    "default": {
-      "title": "Start your educational journey now",
-      "desc": "Join thousands of students who have started their journey towards excellence and creativity, we are here to support you step by step.",
-      "btn": "Register Now"
-    }
+    "title": "Are you ready to start your journey towards the light?",
+    "desc": "Join thousands of students today and get a 20% discount on the first month for all educational programs.",
+    "btn": "Join Now and Start"
   },
   "parentDashboard": {
     "nav": {
@@ -1362,7 +1348,8 @@
         "today": "Today",
         "teacher": "Teacher",
         "teacherName": "Sheikh Ahmed",
-        "joinButton": "Join Session Now"
+        "joinButton": "Join Session Now",
+        "timeValue": "4:00 PM"
       },
       "quickAccess": {
         "schedule": "Class Schedule",
@@ -1549,6 +1536,57 @@
       "started": "Started:",
       "ends": "Ends:",
       "you": "You"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage your account info and personal preferences",
+      "saved": "✓ Saved",
+      "profile": {
+        "title": "Profile",
+        "changePhoto": "Change Photo",
+        "photoLimit": "Max 5MB. JPG or PNG",
+        "fullName": "Full Name",
+        "emailAddress": "Email Address",
+        "phoneNumber": "Phone Number",
+        "studyLevel": "Study Level",
+        "linkedAccounts": "Linked Accounts",
+        "unlinkEmail": "Unlink Email",
+        "continueEmail": "Continue with Email",
+        "unlinkGoogle": "Unlink Google",
+        "continueGoogle": "Continue with Google"
+      },
+      "security": {
+        "title": "Security & Password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "updatePassword": "Update Password"
+      },
+      "appearance": {
+        "title": "Language & Appearance",
+        "preferredLanguage": "Preferred Language",
+        "appearanceTitle": "Appearance",
+        "arabic": "Arabic",
+        "english": "English",
+        "defaultLang": "Default Language",
+        "secondaryLang": "Secondary Language",
+        "light": "Light",
+        "dark": "Dark",
+        "auto": "Auto"
+      },
+      "preferences": {
+        "title": "Student Preferences",
+        "showAchievements": "Show Achievements & Badges",
+        "showAchievementsDesc": "Show your achievements on your profile",
+        "shareProgress": "Share Progress with Teacher",
+        "shareProgressDesc": "Allow teacher to view your full learning progress",
+        "reminders": "Session Reminders",
+        "remindersDesc": "Receive notifications before each session",
+        "saveLog": "Save Activity Log",
+        "saveLogDesc": "Keep a full log of your activity on the platform",
+        "savePreferences": "Save Preferences"
+      },
+      "saveChanges": "Save Changes"
     }
   }
 }

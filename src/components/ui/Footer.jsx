@@ -20,41 +20,18 @@ export default function Footer() {
             <div className="container mx-auto px-6 py-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-start">
                     <div className="space-y-4">
-                        <h2 className="text-2xl font-bold text-accent-teal">{t('public.footer.brand')}</h2>
+                        <h2 className="text-2xl font-bold text-[#00695C]">{t('public.footer.brand')}</h2>
                         <p className="text-gray-600 text-sm leading-relaxed">
                             {t('public.footer.description')}
                         </p>
-                        <div className="flex gap-3 justify-start">
-                            <a
-                                href="#"
-                                aria-label="Facebook"
-                                className="w-10 h-10 rounded-full border border-accent-teal flex items-center justify-center text-accent-teal hover:bg-accent-teal hover:text-white transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
-                            </a>
-                            <a
-                                href="#"
-                                aria-label="Twitter"
-                                className="w-10 h-10 rounded-full border border-accent-teal flex items-center justify-center text-accent-teal hover:bg-accent-teal hover:text-white transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" /></svg>
-                            </a>
-                            <a
-                                href="#"
-                                aria-label="Instagram"
-                                className="w-10 h-10 rounded-full border border-accent-teal flex items-center justify-center text-accent-teal hover:bg-accent-teal hover:text-white transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37a4 4 0 1 1-4.05-4 4 4 0 0 1 4.05 4z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
-                            </a>
-                        </div>
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-accent-teal">{t('public.footer.policies')}</h3>
+                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.footer.policies')}</h3>
                         <ul className="space-y-3">
                             {policyLinks.map((item) => (
                                 <li key={item.label}>
-                                    <a href={item.href} className="text-gray-600 hover:text-accent-teal transition-colors">
+                                    <a href={item.href} className="text-gray-600 hover:text-[#00695C] transition-colors">
                                         {item.label}
                                     </a>
                                 </li>
@@ -63,32 +40,39 @@ export default function Footer() {
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-accent-teal">{t('public.footer.quickLinks')}</h3>
+                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.footer.quickLinks')}</h3>
                         <ul className="space-y-3">
-                            {quickLinks.map((item) => (
-                                <li key={item.label}>
-                                    <a href={item.href} className="text-gray-600 hover:text-accent-teal transition-colors">
-                                        {item.label}
-                                    </a>
-                                </li>
-                            ))}
+                            <li>
+                                <a href="/curriculums" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.curriculums', 'المناهج')}</a>
+                            </li>
+                            <li>
+                                <a href="/pricing" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.pricing', 'الأسعار')}</a>
+                            </li>
+                            <li>
+                                <a href="/about" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.aboutUs', 'من نحن')}</a>
+                            </li>
+                            <li>
+                                <a href="/contact" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.contactUs', 'تواصل معنا')}</a>
+                            </li>
                         </ul>
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-accent-teal">{t('public.contact.title')}</h3>
+                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.contact.title')}</h3>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2">
-                                <MapPin className="w-5 h-5 text-gold-dark" />
-                                <span>{t('public.contact.address')}</span>
+                                <Mail className="w-5 h-5 text-[#735C00]" />
+                                <span dir="ltr">info@manaratezz.edu.sa</span>
                             </li>
                             <li className="flex items-center gap-2">
-                                <Phone className="w-5 h-5 text-gold-dark" />
-                                <span dir="ltr">{t('public.contact.phone')}</span>
+                                <Phone className="w-5 h-5 text-[#735C00]" />
+                                <span dir="ltr">+0201012345678</span>
                             </li>
                             <li className="flex items-center gap-2">
-                                <Mail className="w-5 h-5 text-gold-dark" />
-                                <span>{t('public.contact.email')}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#735C00]">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                                <span dir="ltr">+0201012345678</span>
                             </li>
                         </ul>
                     </div>

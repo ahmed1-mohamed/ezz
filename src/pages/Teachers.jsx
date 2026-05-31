@@ -186,7 +186,7 @@ export default function Teachers() {
                     </div>
                 </section>
 
-                <section className="sticky top-20 sm:top-20 z-50 bg-white/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 w-full mx-auto transition-all duration-300">
+                <section className="bg-white/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 w-full mx-auto transition-all duration-300">
                     <div className="flex flex-col md:flex-row items-end gap-5">
                         <div className="flex-1 w-full space-y-2 text-start">
                             <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.searchLabel', 'ابحث عن معلم')}</label>

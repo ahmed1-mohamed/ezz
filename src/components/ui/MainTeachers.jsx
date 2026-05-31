@@ -1,33 +1,38 @@
 import { motion } from "framer-motion"
 import { useTranslation } from "react-i18next"
 
-const teachers = [
+import teacher1 from "../../images/النخبة/1.jpg"
+import teacher2 from "../../images/النخبة/2.jpg"
+import teacher3 from "../../images/النخبة/3.jpg"
+import teacher4 from "../../images/النخبة/4.jpg"
+
+const teachersData = [
     {
         id: 1,
-        name: "د. أحمد المنصوري",
-        title: "مجاز بالقراءات العشر",
-        image: "../../images/النخبة/1.jpg",
+        nameKey: "teachers.list.1.name",
+        titleKey: "teachers.list.1.title",
+        image: teacher1,
         rating: 5,
     },
     {
         id: 2,
-        name: "د. محمد إبراهيم",
-        title: "مجاز بالقراءات العشر",
-        image: "../../images/النخبة/2.jpg",
+        nameKey: "teachers.list.2.name",
+        titleKey: "teachers.list.2.title",
+        image: teacher2,
         rating: 5,
     },
     {
         id: 3,
-        name: "د. علي حسن",
-        title: "مجاز بالقراءات العشر",
-        image: "../../images/النخبة/3.jpg",
+        nameKey: "teachers.list.3.name",
+        titleKey: "teachers.list.3.title",
+        image: teacher3,
         rating: 5,
     },
     {
         id: 4,
-        name: "د. محمود سالم",
-        title: "مجاز بالقراءات العشر",
-        image: "../../images/النخبة/4.jpg",
+        nameKey: "teachers.list.4.name",
+        titleKey: "teachers.list.4.title",
+        image: teacher4,
         rating: 5,
     },
 ]
@@ -51,45 +56,50 @@ function StarRating({ rating }) {
 }
 
 export default function TeachersSection() {
+    const { t } = useTranslation()
 
     return (
-        <section className="bg-accent-lightMint py-20 px-4">
-            <div className="max-w-6xl mx-auto">
+        <section className="bg-gradient-to-b from-slate-50 to-white py-24 px-4 relative overflow-hidden">
+            <div className="absolute top-0 start-0 w-[500px] h-[500px] bg-[#0F7A6C]/5 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 end-0 w-[400px] h-[400px] bg-[#D4AF37]/5 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3" />
+
+            <div className="max-w-7xl mx-auto relative z-10">
 
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-14"
+                    transition={{ duration: 0.7 }}
+                    className="text-center mb-16"
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold text-accent-darkGray mb-3">
-                        نخبة من معلمينا
+                    <h2 className="text-4xl md:text-5xl font-black text-[#1B1B1B] mb-5">
+                        {t("teachers.title", "نخبة من معلمينا")}
                     </h2>
-                    <p className="text-accent-mediumGray text-lg">
-                        نفخر بكوادرنا التعليمية المؤهلة والمتميزة
+                    <div className="mx-auto mt-4 mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
+                    <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+                        {t("teachers.desc", "نفخر بكوادرنا التعليمية المؤهلة والمتميزة، من ذوي الخبرة الواسعة في مجالاتهم")}
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-                    {teachers.map((teacher, index) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {teachersData.map((teacher, index) => (
                         <motion.div
                             key={teacher.id}
                             initial={{ opacity: 0, y: 30, scale: 0.95 }}
                             whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{
-                                duration: 0.5,
-                                delay: index * 0.1,
+                                duration: 0.6,
+                                delay: index * 0.15,
                                 ease: "easeOut",
                             }}
-                            whileHover={{ scale: 1.05 }}
-                            className="flex flex-col items-center text-center"
+                            whileHover={{ y: -10, scale: 1.02 }}
+                            className="flex flex-col items-center text-center bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_20px_40px_rgba(15,122,108,0.1)] hover:border-[#0F7A6C]/20 transition-all duration-300"
                         >
 
-                            <div className="relative w-32 h-32 md:w-40 md:h-40 mb-4">
+                            <div className="relative w-32 h-32 md:w-40 md:h-40 mb-6">
                                 <motion.div
-                                    className="absolute inset-0 rounded-full border-4 border-accent-lightTeal"
+                                    className="absolute inset-0 rounded-full bg-gradient-to-br from-[#0F7A6C]/20 to-[#17B89C]/20 blur-md"
                                     animate={{ rotate: 360 }}
                                     transition={{
                                         duration: 20,
@@ -100,19 +110,21 @@ export default function TeachersSection() {
 
                                 <img
                                     src={teacher.image}
-                                    alt={teacher.name}
-                                    className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover p-1 shadow-md"
+                                    alt={t(teacher.nameKey)}
+                                    className="w-full h-full rounded-full object-cover border-4 border-white shadow-[0_10px_25px_rgba(15,122,108,0.2)] relative z-10"
                                 />
                             </div>
 
-                            <h3 className="text-lg font-semibold text-accent-darkGray mb-1">
-                                {teacher.name}
+                            <h3 className="text-xl font-extrabold text-slate-800 mb-2">
+                                {t(teacher.nameKey)}
                             </h3>
-                            <p className="text-sm text-accent-mediumGray mb-2">
-                                {teacher.title}
+                            <p className="text-sm font-medium text-[#0F7A6C] mb-4">
+                                {t(teacher.titleKey)}
                             </p>
 
-                            <StarRating rating={teacher.rating} />
+                            <div className="bg-slate-50 px-4 py-2 rounded-full border border-slate-100 mt-auto">
+                                <StarRating rating={teacher.rating} />
+                            </div>
                         </motion.div>
                     ))}
                 </div>

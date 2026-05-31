@@ -92,8 +92,8 @@ export default React.memo(function Curriculums() {
                         </div>
                     </div>
 
-                    <div className="absolute -bottom-16 sm:-bottom-24 left-0 sm:-left-4 opacity-30 pointer-events-none">
-                        <GraduationCap className="w-48 h-48 sm:w-[300px] sm:h-[300px] text-[#735C00] -rotate-2" strokeWidth={2.5} />
+                    <div className="absolute -bottom-16 sm:-bottom-24 end-0 sm:-end-4 opacity-30 pointer-events-none">
+                        <GraduationCap className={`w-48 h-48 sm:w-[300px] sm:h-[300px] text-[#735C00] ${isRtl ? 'rotate-2' : '-rotate-2'}`} strokeWidth={2.5} />
                     </div>
                 </section>
 

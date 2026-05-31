@@ -43,13 +43,13 @@ const academicProgressData = [
 function StatCard({ labelKey, value, icon: Icon, color }) {
   const { t } = useTranslation();
   return (
-    <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-slate-100 dark:border-slate-700">
+    <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm border border-slate-100 dark:border-slate-700">
       <div className="text-start flex-1">
         <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{value}</p>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t(`studentDashboard.home.stats.${labelKey}`)}</p>
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-          <Icon size={22} />
-        </div>
+      </div>
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon size={22} />
       </div>
     </motion.div>
   );
@@ -75,7 +75,7 @@ function NextSessionCard() {
             <Clock size={16} className="text-amber-500" />
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">{t('studentDashboard.home.nextSession.time')}</p>
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">4:00 م</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{t('studentDashboard.home.nextSession.timeValue')}</p>
         </div>
         <div className="text-center">
           <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto mb-1.5">
@@ -130,7 +130,7 @@ function AcademicProgressSection() {
   const { t } = useTranslation();
   return (
     <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-      <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4 text-end">
+      <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4 text-start">
         {t('studentDashboard.home.progress.title')}
       </h2>
       <div className="space-y-5">
@@ -144,7 +144,7 @@ function AcademicProgressSection() {
                 {item.progress}%
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 text-end">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 text-start">
               {t(`studentDashboard.home.progress.subjects.${item.subSubjectKey}`)}
             </p>
             <div className="h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">

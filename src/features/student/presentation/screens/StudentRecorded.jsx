@@ -109,7 +109,6 @@ function daysRemaining(recordedAt) {
   return remaining;
 }
 
-// ── Video Player Modal ────────────────────────────────────
 
 function VideoModal({ recording, onClose, isRtl }) {
   return (

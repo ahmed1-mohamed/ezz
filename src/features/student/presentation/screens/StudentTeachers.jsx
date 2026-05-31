@@ -22,7 +22,6 @@ function TeacherCard({ teacher, onView, isRtl }) {
       whileHover={{ y: -3 }}
       className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col"
     >
-      {/* Avatar area */}
       <div className="relative h-48 bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
         <div className="w-24 h-24 bg-[#0f7a6c] rounded-full flex items-center justify-center shadow-xl">
           <span className="text-white text-4xl font-bold">{initials}</span>
@@ -33,7 +32,6 @@ function TeacherCard({ teacher, onView, isRtl }) {
         </div>
       </div>
 
-      {/* Info */}
       <div className="p-4 flex flex-col flex-1" dir={isRtl ? 'rtl' : 'ltr'}>
         <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 text-end mb-0.5">
           {isRtl ? teacher.nameAr : teacher.nameEn}
@@ -42,7 +40,6 @@ function TeacherCard({ teacher, onView, isRtl }) {
           {isRtl ? teacher.bioAr : teacher.bioEn}
         </p>
 
-        {/* Tags */}
         <div className="flex flex-wrap gap-1.5 justify-end mb-3">
           {teacher.subjects.map((s) => (
             <span key={s} className="bg-emerald-50 dark:bg-emerald-900/20 text-[#0f7a6c] dark:text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
@@ -74,7 +71,6 @@ export default function StudentTeachers() {
     <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6 max-w-7xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className=" space-y-5">
 
-        {/* Header */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center shrink-0">
@@ -87,7 +83,6 @@ export default function StudentTeachers() {
           </div>
         </div>
 
-        {/* Grid */}
         <motion.div
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } }}
           initial="hidden"

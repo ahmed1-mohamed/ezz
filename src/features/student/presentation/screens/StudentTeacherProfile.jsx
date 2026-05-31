@@ -40,7 +40,6 @@ export default function StudentTeacherProfile() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-7xl mx-auto space-y-5"
       >
-        {/* Back */}
         <button
           onClick={() => navigate('/dashboard/student/teachers')}
           className="flex items-center gap-2 text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm hover:gap-3 transition-all"
@@ -49,7 +48,6 @@ export default function StudentTeacherProfile() {
           {t('studentDashboard.teachers.backToTeachers')}
         </button>
 
-        {/* Profile hero */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
           <div className="h-32 bg-gradient-to-br from-slate-700 to-slate-900 relative">
             <div className="absolute -bottom-10 start-6">
@@ -76,7 +74,6 @@ export default function StudentTeacherProfile() {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { icon: Clock, transKey: 'years', value: teacher.experience },
@@ -93,13 +90,11 @@ export default function StudentTeacherProfile() {
           ))}
         </div>
 
-        {/* About */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
           <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">{t('studentDashboard.teachers.about')}</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{isRtl ? teacher.aboutAr : teacher.aboutEn}</p>
         </div>
 
-        {/* Upcoming sessions */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
           <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
             <Calendar size={15} className="text-[#0f7a6c]" />

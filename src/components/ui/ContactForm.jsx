@@ -1,9 +1,21 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Send, Mail, MessageCircle, Phone } from 'lucide-react'
+import { Send, Mail, MessageCircle, Phone, ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ContactForm() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const [countryCode, setCountryCode] = useState('+20')
+
+    const countries = [
+        { code: '+20', nameAr: 'مصر', nameEn: 'Egypt' },
+        { code: '+966', nameAr: 'السعودية', nameEn: 'KSA' },
+        { code: '+971', nameAr: 'الإمارات', nameEn: 'UAE' },
+        { code: '+965', nameAr: 'الكويت', nameEn: 'Kuwait' },
+        { code: '+974', nameAr: 'قطر', nameEn: 'Qatar' },
+        { code: '+973', nameAr: 'البحرين', nameEn: 'Bahrain' },
+        { code: '+968', nameAr: 'عمان', nameEn: 'Oman' },
+    ]
 
     return (
         <section className="max-w-5xl mx-auto mb-24 px-4 sm:px-6 lg:px-8">
@@ -49,6 +61,7 @@ export default function ContactForm() {
                             </label>
                             <input 
                                 type="email" 
+                                dir="ltr"
                                 placeholder={t('contact.form.emailPlaceholder', 'example@mail.com')} 
                                 className="w-full bg-[#F5F5F2] border-none text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-shadow text-start"
                             />
@@ -69,11 +82,30 @@ export default function ContactForm() {
                             <label className="block text-sm font-bold text-slate-700 px-1">
                                 {t('contact.form.phone', 'رقم الهاتف')}
                             </label>
-                            <input 
-                                type="tel" 
-                                placeholder={t('contact.form.phonePlaceholder', '+0201012345678')} 
-                                className="w-full bg-[#F5F5F2] border-none text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-shadow text-start"
-                            />
+                            <div className="flex gap-3">
+                                <div className="relative w-1/3 sm:w-1/4">
+                                    <select 
+                                        value={countryCode}
+                                        onChange={(e) => setCountryCode(e.target.value)}
+                                        className="w-full h-full bg-[#F5F5F2] border-none text-slate-600 text-sm sm:text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] p-4 appearance-none ltr:pr-10 rtl:pl-10 ltr:pl-4 rtl:pr-4 cursor-pointer transition-shadow"
+                                    >
+                                        {countries.map((country) => (
+                                            <option key={country.code} value={country.code}>
+                                                {i18n.language === 'en' ? country.nameEn : country.nameAr}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute inset-y-0 ltr:right-4 rtl:left-4 flex items-center pointer-events-none">
+                                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                                    </div>
+                                </div>
+                                <input 
+                                    type="tel" 
+                                    dir="ltr"
+                                    placeholder={t('contact.form.phonePlaceholder', '+0201012345678')} 
+                                    className="flex-1 w-full bg-[#F5F5F2] border-none text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-shadow text-start"
+                                />
+                            </div>
                         </div>
                     </div>
 

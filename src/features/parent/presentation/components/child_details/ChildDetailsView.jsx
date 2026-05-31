@@ -13,28 +13,49 @@ import SubscriptionRenewal from '../SubscriptionRenewal';
 
 export default function ChildDetailsView({ childId, onBack }) {
   const { t, i18n } = useTranslation();
-  
+
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const showEvaluation = location.state?.view === 'evaluation';
   const setShowEvaluation = (show) => {
     if (show) {
-      navigate('.', { state: { ...location.state, view: 'evaluation' }, replace: true });
+      navigate({ pathname: location.pathname, search: location.search }, { state: { ...location.state, view: 'evaluation' }, replace: true });
     } else {
       const newState = { ...location.state };
       delete newState.view;
-      navigate('.', { state: newState, replace: true });
+      navigate({ pathname: location.pathname, search: location.search }, { state: newState, replace: true });
     }
   };
 
-  // In a real app, fetch child details based on childId
-  const childInfo = {
-    name: i18n.language.startsWith('ar') ? 'محمد أحمد' : 'Mohamed Ahmed',
-    subject: t('parent.mockData.subjects.holyQuran'),
-    joinDate: '15-01-2025',
-    avatarChar: i18n.language.startsWith('ar') ? 'م' : 'M'
+  const getChildInfo = (id) => {
+    switch (id) {
+      case 'c2':
+        return {
+          name: i18n.language.startsWith('ar') ? 'عائشة أحمد' : 'Aisha Ahmed',
+          subject: t('parentDashboard.home.children.subject2', 'اللغة العربية'),
+          joinDate: '10-02-2025',
+          avatarChar: i18n.language.startsWith('ar') ? 'ع' : 'A'
+        };
+      case 'c3':
+        return {
+          name: i18n.language.startsWith('ar') ? 'يوسف منصور' : 'Youssef Mansour',
+          subject: t('parentDashboard.home.children.subject3', 'العربية و القرآن'),
+          joinDate: '10-04-2025',
+          avatarChar: i18n.language.startsWith('ar') ? 'ي' : 'Y'
+        };
+      case 'c1':
+      default:
+        return {
+          name: i18n.language.startsWith('ar') ? 'محمد أحمد' : 'Mohamed Ahmed',
+          subject: t('parentDashboard.home.children.subject1', 'القرآن واللغة العربية'),
+          joinDate: '15-01-2025',
+          avatarChar: i18n.language.startsWith('ar') ? 'م' : 'M'
+        };
+    }
   };
+
+  const childInfo = getChildInfo(childId);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -61,7 +82,7 @@ export default function ChildDetailsView({ childId, onBack }) {
       className="space-y-6"
     >
       <div className="flex items-center gap-4 mb-4">
-        <button 
+        <button
           onClick={onBack}
           className="flex items-center gap-2 text-[#0f7a6c] hover:text-[#0c6156] transition-colors font-bold text-sm bg-[#0f7a6c]/10 px-4 py-2 rounded-xl"
         >
@@ -71,11 +92,11 @@ export default function ChildDetailsView({ childId, onBack }) {
       </div>
 
       <motion.div variants={itemVariants}>
-        <ChildHeader 
-          name={childInfo.name} 
-          subject={childInfo.subject} 
-          joinDate={childInfo.joinDate} 
-          avatarChar={childInfo.avatarChar} 
+        <ChildHeader
+          name={childInfo.name}
+          subject={childInfo.subject}
+          joinDate={childInfo.joinDate}
+          avatarChar={childInfo.avatarChar}
           onEvaluateClick={() => setShowEvaluation(true)}
         />
       </motion.div>

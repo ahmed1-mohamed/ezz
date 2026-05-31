@@ -16,7 +16,7 @@ export default React.memo(function ContactTopHero() {
                     initial={{ opacity: 0, x: isRtl ? -50 : 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
-                    className={`w-full lg:w-1/2 flex flex-col ${isRtl ? 'lg:items-start text-end' : 'lg:items-start text-start'} items-center  space-y-6 order-2 lg:order-1`}
+                     className={`w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-start space-y-6 order-2 lg:order-1`}
                 >
                     <div
                         className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm">
@@ -46,8 +46,8 @@ export default React.memo(function ContactTopHero() {
                             className="w-full h-full object-cover object-center scale-105 transition-transform duration-700 hover:scale-100"
                         />
                     </div>
-                     <div className={`absolute -bottom-6 ${isRtl ? '-end-' : '-start-'} w-32 h-32 bg-[#FECD31]/30 rounded-full blur-2xl -z-10`}></div>
-                    <div className={`absolute -top-6 ${isRtl ? '-start-' : '-end-'} w-40 h-40 bg-[#00695C]/10 rounded-full blur-3xl -z-10`}></div>
+                     <div className={`absolute -bottom-6 ${isRtl ? '-end-6' : '-start-6'} w-32 h-32 bg-[#FECD31]/30 rounded-full blur-2xl -z-10`}></div>
+                    <div className={`absolute -top-6 ${isRtl ? '-start-6' : '-end-6'} w-40 h-40 bg-[#00695C]/10 rounded-full blur-3xl -z-10`}></div>
                 </motion.div>
 
             </div>

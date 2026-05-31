@@ -9,6 +9,8 @@ import JourneySteps from '../components/ui/JourneySteps.jsx'
 import TestimonialsSection from '../components/ui/TestimonialsSection.jsx'
 import Button from '../components/ui/Button.jsx'
 import imageSrc from '../images/برامجنا/5.jpg'
+import TeachersSection from '../components/ui/MainTeachers.jsx'
+import CTASection from '../components/ui/CTASection.jsx'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -120,8 +122,10 @@ export default React.memo(function Home() {
             <StatisticsBanner />
             <PremiumParentsSection />
             <EducationalPrograms />
+            <TeachersSection />
             <JourneySteps />
             <TestimonialsSection />
+            <CTASection />
         </div>
     )
 })
