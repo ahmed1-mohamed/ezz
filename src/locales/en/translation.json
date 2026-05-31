@@ -695,6 +695,50 @@
       "title1": "Where the light of knowledge",
       "title2": "meets the purity of the soul",
       "subtitle": "Manarat Al-Ezz is not just an academy, it is a journey into the depths of knowledge, designed to be a digital haven combining the authenticity of heritage and the modernity of technology."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "desc": "Providing excellent Quranic and Arabic education accessible to everyone, everywhere. We believe that knowledge is a shared right and the beauty of our language and religion must reach every heart clearly and easily."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "desc": "Empowering Muslims around the world to learn their language and religion through modern educational technologies and specialized teachers, while preserving the Islamic role model and character."
+    },
+    "features": {
+      "title": "Why Do Parents Choose Us?",
+      "f1": {
+        "title": "Empowering Learners",
+        "desc": "Our goal is not merely rote memorization, but empowering every learner with the tools that help them understand the meanings of the Quran and appreciate its beauty. We aim to enable them to express this great language and spread its message worldwide, and we strive to instill a love of learning and contemplation so that the Quran becomes a guiding light in their daily lives."
+      },
+      "f2": {
+        "title": "Modern Technology",
+        "desc": "We utilize the latest remote education technologies to make lessons interactive and enjoyable, suiting today's technology-thirsty generation."
+      },
+      "f3": {
+        "title": "Safe Environment",
+        "desc": "We provide a safe digital haven for your children, where teachers are selected after rigorous tests ensuring their scientific competence and educational integrity."
+      },
+      "f4": {
+        "title": "Academic Excellence",
+        "desc": "Our academy relies on curricula carefully chosen by senior scholars and educators, ensuring a delicate balance between memorization and understanding, and between rules and practical application, creating a comprehensive educational environment."
+      }
+    },
+    "values": {
+      "title": "Our Values",
+      "mainTitle": "Manarat Al-Ezz Core Values",
+      "mainDesc": "Manarat Al-Ezz Academy derives its principles from the teachings of our true religion, to be a solid foundation upon which we rely in all the educational and upbringing services we offer.",
+      "v1": {
+        "title": "Scientific Integrity",
+        "desc": "Transmitting knowledge with a continuous chain of transmission and a solid methodology that preserves authenticity."
+      },
+      "v2": {
+        "title": "Gentleness and Kindness",
+        "desc": "Teaching with love and encouragement according to the honorable Prophetic approach."
+      },
+      "v3": {
+        "title": "Inclusiveness",
+        "desc": "Providing content that meets all the needs of the individual in their religion and worldly life."
+      }
     }
   },
   "contact": {

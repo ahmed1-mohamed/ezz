@@ -8,7 +8,7 @@ import EducationalPrograms from '@/shared/components/EducationalPrograms.jsx'
 import JourneySteps from '@/shared/components/JourneySteps.jsx'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.jsx'
 import Button from '@/shared/components/Button.jsx'
-import imageSrc from '../images/programs/5.jpg'
+import imageSrc from '../../images/programs/5.jpg'
 import TeachersSection from '@/shared/components/MainTeachers.jsx'
 import CTASection from '@/shared/components/CTASection.jsx'
 

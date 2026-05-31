@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, Star, CheckCircle, Award, Mail, Phone, Calendar, Hash, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ProfileAccountSection } from '../widgets/ProfileAccountSection.jsx';
+import { ProfileAccountSection } from '../components/widgets/ProfileAccountSection.jsx';
 
 const profileData = {
   nameAr: 'محمد أحمد علي',

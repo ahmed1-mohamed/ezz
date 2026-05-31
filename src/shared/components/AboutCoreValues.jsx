@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Check, Heart, Globe } from 'lucide-react'
-import quranImage from '../../images/about/2.png'
+import quranImage from '@/images/about/2.png'
 
 export default React.memo(function AboutCoreValues() {
     const { t, i18n } = useTranslation()
@@ -32,7 +32,7 @@ export default React.memo(function AboutCoreValues() {
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-20">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
@@ -40,9 +40,9 @@ export default React.memo(function AboutCoreValues() {
                     className="w-full lg:w-1/2 order-2 lg:order-1"
                 >
                     <div className="relative rounded-[2rem] overflow-hidden shadow-lg">
-                        <img 
-                            src={quranImage} 
-                            alt="Core Values" 
+                        <img
+                            src={quranImage}
+                            alt="Core Values"
                             className="w-full h-auto aspect-square object-cover"
                             loading="lazy"
                             decoding="async"
@@ -50,7 +50,7 @@ export default React.memo(function AboutCoreValues() {
                     </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
@@ -63,7 +63,7 @@ export default React.memo(function AboutCoreValues() {
 
                     <div className="space-y-8">
                         {values.map((item, index) => (
-                            <motion.div 
+                            <motion.div
                                 key={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}

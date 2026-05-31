@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { GraduationCap } from 'lucide-react'
-import imageSrc from '../images/programs/7.png'
+import imageSrc from '../../images/programs/7.png';
 import CurriculumUnits from '@/shared/components/CurriculumUnits.jsx'
 
 const containerVariants = {

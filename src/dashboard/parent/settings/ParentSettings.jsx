@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, ChevronDown, Sun, Moon, Settings as SettingsIcon, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { setLanguage } from '../../../../i18n.js';
+import { setLanguage } from '../../../i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 
 export default function ParentSettings() {
