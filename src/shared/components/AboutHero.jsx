@@ -9,7 +9,7 @@ export default React.memo(function AboutHero() {
     const isRtl = i18n.language === 'ar'
 
     return (
-        <section className="relative h-screen min-h-[700px] flex items-center mb-20 w-[100vw] ml-[calc(-50vw+50%)] mr-[calc(-50vw+50%)] -mt-6 sm:-mt-8 lg:-mt-10 overflow-hidden bg-slate-50">
+        <section className="relative h-[600px] sm:h-[700px] flex items-center mb-20 w-full overflow-hidden bg-slate-50 rounded-2xl sm:rounded-[40px] border border-slate-100 shadow-sm mt-4 lg:mt-6">
             {/* Background Image & Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
