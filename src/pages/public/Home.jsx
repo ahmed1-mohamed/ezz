@@ -11,6 +11,7 @@ import Button from '@/shared/components/Button.jsx'
 import imageSrc from '../../images/programs/5.jpg'
 import TeachersSection from '@/shared/components/MainTeachers.jsx'
 import CTASection from '@/shared/components/CTASection.jsx'
+import StarsSection from '@/shared/components/StarsSection.jsx'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -42,39 +43,39 @@ export default React.memo(function Home() {
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
-                            className={`space-y-6 sm:space-y-8 w-full lg:w-1/2 flex flex-col ${isRtl ? 'lg:items-start text-right' : 'lg:items-start text-left'} items-center text-center lg:text-start`}
+                            className="space-y-6 sm:space-y-8 w-full lg:w-1/2 flex flex-col lg:items-start items-center text-center lg:text-start"
                         >
 
                             <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm">
-                                {t('home.badge')}
+                                {t('home.badge', 'أكاديمية تعليمية متكاملة')}
                             </motion.div>
 
                             <motion.div variants={itemVariants} className="space-y-2 sm:space-y-4">
                                 <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
-                                    {t('home.titleLine1')}
+                                    {t('home.titleLine1', 'حيث يلتقي')}
                                 </h1>
                                 <h1 className="bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
-                                    {t('home.titleLine2')}
+                                    {t('home.titleLine2', 'نور العلم بصفاء الروح')}
                                 </h1>
                                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
-                                    {t('home.titleLine3')}
+                                    {t('home.titleLine3', 'وتتحقق طموحاتك')}
                                 </h1>
                             </motion.div>
 
                             <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600">
-                                {t('home.description')}
+                                {t('home.description', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة.')}
                             </motion.p>
 
                             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center lg:justify-start w-full">
                                 <Link to="/about" className="w-full sm:w-auto">
                                     <Button variant="secondary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform">
-                                        {t('home.ctaSecondary')}
+                                        {t('home.ctaSecondary', 'تعرف علينا')}
                                     </Button>
                                 </Link>
 
                                 <Link to="/login" className="w-full sm:w-auto">
                                     <Button variant="primary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform">
-                                        {t('home.ctaPrimary')}
+                                        {t('home.ctaPrimary', 'انضم الآن')}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -122,8 +123,9 @@ export default React.memo(function Home() {
             <StatisticsBanner />
             <PremiumParentsSection />
             <EducationalPrograms />
-            <TeachersSection />
+            <StarsSection />
             <JourneySteps />
+            <TeachersSection />
             <TestimonialsSection />
             <CTASection />
         </div>

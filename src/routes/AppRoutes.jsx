@@ -17,6 +17,8 @@ const Teachers = lazy(() => import('../pages/public/Teachers.jsx'))
 const Contact = lazy(() => import('../pages/public/Contact.jsx'))
 const SchedulePage = lazy(() => import('../pages/public/SchedulePage.jsx'))
 const Login = lazy(() => import('../pages/auth/Login.jsx'))
+const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword.jsx'))
+const ResetPassword = lazy(() => import('../pages/auth/ResetPassword.jsx'))
 const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
 
 const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
@@ -138,6 +140,38 @@ export default function AppRoutes() {
                                 ) : (
                                     <AnimatedPage>
                                         <Login />
+                                    </AnimatedPage>
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/forgot-password"
+                            element={
+                                user ? (
+                                    <Navigate
+                                        to={getRedirectPath(user.role)}
+                                        replace
+                                    />
+                                ) : (
+                                    <AnimatedPage>
+                                        <ForgotPassword />
+                                    </AnimatedPage>
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/reset-password"
+                            element={
+                                user ? (
+                                    <Navigate
+                                        to={getRedirectPath(user.role)}
+                                        replace
+                                    />
+                                ) : (
+                                    <AnimatedPage>
+                                        <ResetPassword />
                                     </AnimatedPage>
                                 )
                             }

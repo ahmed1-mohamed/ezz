@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight } from 'lucide-react'
 import imageSrc from '../../images/programs/6.jpg'
@@ -35,7 +36,9 @@ const portraitImages = [
     "1527980965255-d3b416303d12"
 ];
 
-const TeacherCard = React.memo(({ teacher, t, index }) => (
+const TeacherCard = React.memo(({ teacher, t, index }) => {
+    const navigate = useNavigate();
+    return (
     <motion.article
         layout="position"
         initial={{ opacity: 0, y: 20 }}
@@ -86,12 +89,16 @@ const TeacherCard = React.memo(({ teacher, t, index }) => (
                 ))}
             </div>
 
-            <button className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1">
+            <button 
+                onClick={() => navigate(`/teachers/${teacher.id}`)}
+                className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1"
+            >
                 {t('teacher.viewProfile', 'عرض الملف الشخصي')}
             </button>
         </div>
     </motion.article>
-));
+    )
+});
 
 export default function Teachers() {
     const { t, i18n } = useTranslation()
@@ -148,7 +155,7 @@ export default function Teachers() {
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
-                            className={`order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col ${isRtl ? 'lg:items-start text-right' : 'lg:items-start text-left'} items-center text-center lg:text-start`}
+                            className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col items-center text-center lg:items-start lg:text-start"
                         >
                             <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
                                 {t('teacher.badge', 'معلمونا')}

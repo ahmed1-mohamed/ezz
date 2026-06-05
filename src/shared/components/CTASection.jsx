@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 export default function CTASection({
     titleKey = 'cta.title',
@@ -11,6 +12,7 @@ export default function CTASection({
     className = ''
 }) {
     const { t } = useTranslation()
+    const navigate = useNavigate()
 
     return (
         <motion.div
@@ -31,7 +33,10 @@ export default function CTASection({
                     {t(descKey, defaultDesc)}
                 </p>
                 <div className="pt-4">
-                    <button className="bg-black hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg w-full sm:w-auto cursor-pointer hover:-translate-y-1">
+                    <button 
+                        onClick={() => navigate('/contact')}
+                        className="bg-black hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg w-full sm:w-auto cursor-pointer hover:-translate-y-1"
+                    >
                         {t(btnKey, defaultBtn)}
                     </button>
                 </div>

@@ -1,13 +1,14 @@
 import { useTranslation } from "react-i18next"
 import { Mail, Phone, MapPin } from "lucide-react"
+import { Link } from "react-router-dom"
 
 export default function Footer() {
     const { t } = useTranslation()
     const policyLinks = [
-        { label: t('public.footer.privacy'), href: '#' },
-        { label: t('public.footer.terms'), href: '#' },
-        { label: t('public.footer.refund'), href: '#' },
-        { label: t('public.footer.support'), href: '#' },
+        { label: t('public.footer.privacy', 'سياسة الخصوصية'), href: '/privacy' },
+        { label: t('public.footer.terms', 'الشروط والأحكام'), href: '/terms' },
+        { label: t('public.footer.refund', 'سياسة الاسترجاع'), href: '/refund' },
+        { label: t('public.footer.support', 'الدعم الفني'), href: '/support' },
     ]
     const quickLinks = [
         { label: t('public.nav.aboutUs'), href: '/about' },
@@ -20,45 +21,45 @@ export default function Footer() {
             <div className="container mx-auto px-6 py-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-start">
                     <div className="space-y-4">
-                        <h2 className="text-2xl font-bold text-[#00695C]">{t('public.footer.brand')}</h2>
+                        <h2 className="text-2xl font-bold text-[#00695C]">{t('public.footer.brand', 'أكاديمية منارة العز')}</h2>
                         <p className="text-gray-600 text-sm leading-relaxed">
-                            {t('public.footer.description')}
+                            {t('public.footer.description', 'نقدم محتوى تعليمي متخصص لغرس القيم وبناء جيل متسلح بالعلم والإيمان.')}
                         </p>
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.footer.policies')}</h3>
+                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.footer.policies', 'السياسات')}</h3>
                         <ul className="space-y-3">
                             {policyLinks.map((item) => (
                                 <li key={item.label}>
-                                    <a href={item.href} className="text-gray-600 hover:text-[#00695C] transition-colors">
+                                    <Link to={item.href} className="text-gray-600 hover:text-[#00695C] transition-colors">
                                         {item.label}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.footer.quickLinks')}</h3>
+                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.footer.quickLinks', 'روابط سريعة')}</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="/curriculums" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.curriculums', 'المناهج')}</a>
+                                <Link to="/curriculums" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.curriculums', 'المناهج')}</Link>
                             </li>
                             <li>
-                                <a href="/pricing" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.pricing', 'الأسعار')}</a>
+                                <Link to="/pricing" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.pricing', 'الأسعار')}</Link>
                             </li>
                             <li>
-                                <a href="/about" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.aboutUs', 'من نحن')}</a>
+                                <Link to="/about" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.aboutUs', 'من نحن')}</Link>
                             </li>
                             <li>
-                                <a href="/contact" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.contactUs', 'تواصل معنا')}</a>
+                                <Link to="/contact" className="text-gray-600 hover:text-[#00695C] transition-colors">{t('public.nav.contactUs', 'تواصل معنا')}</Link>
                             </li>
                         </ul>
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.contact.title')}</h3>
+                        <h3 className="text-lg font-semibold text-[#00695C]">{t('public.contact.title', 'تواصل معنا')}</h3>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2">
                                 <Mail className="w-5 h-5 text-[#735C00]" />
@@ -81,7 +82,7 @@ export default function Footer() {
 
             <div className="border-t border-slate-200 py-4">
                 <p className="text-center text-gray-500 text-sm">
-                    {t('public.footer.copyright')}
+                    {t('public.footer.copyright', 'جميع الحقوق محفوظة © 2026 أكاديمية منارة العز')}
                 </p>
             </div>
         </footer>

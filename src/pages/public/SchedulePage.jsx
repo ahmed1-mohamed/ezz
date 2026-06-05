@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, User, PlayCircle, CalendarClock, MonitorPlay, CheckCircle2 } from 'lucide-react'
+import CTASection from '@/shared/components/CTASection.jsx'
 
 export default function SchedulePage() {
     const { t, i18n } = useTranslation()
@@ -125,31 +126,7 @@ export default function SchedulePage() {
                     </motion.div>
                 </AnimatePresence>
 
-                 <motion.div 
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#0F7A6C] to-[#0B5C51] p-10 sm:p-14 lg:p-16 text-center text-white mt-16 shadow-[0_20px_40px_rgba(15,122,108,0.2)] border border-[#17B89C]/20 w-full mx-auto"
-                >
-                    <div className="absolute top-0 start-0 w-[300px] h-[300px] bg-white/10 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
-                    <div className="absolute bottom-0 end-0 w-[200px] h-[200px] bg-[#D4AF37]/20 rounded-full blur-[60px] translate-x-1/3 translate-y-1/3" />
-                    <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 mix-blend-overlay pointer-events-none" />
-                    
-                    <div className="relative z-10 space-y-6 max-w-3xl mx-auto flex flex-col items-center">
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-white">
-                            {t('schedule.cta.title', 'هل أنت مستعد لبدء رحلتك نحو النور؟')}
-                        </h2>
-                        <p className="text-lg sm:text-xl text-white/90 font-medium max-w-2xl">
-                            {t('schedule.cta.desc', 'انضم إلى آلاف الطلاب اليوم واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية.')}
-                        </p>
-                        <div className="pt-6 w-full flex justify-center">
-                            <button className="bg-[#D4AF37] hover:bg-[#b89528] text-white px-10 py-4 sm:py-5 rounded-full font-bold text-lg transition-all active:scale-95 shadow-lg shadow-[#D4AF37]/30 w-full sm:w-auto hover:-translate-y-1">
-                                {t('schedule.cta.btn', 'انضم الآن و أبدأ')}
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
+                <CTASection />
 
             </div>
         </div>

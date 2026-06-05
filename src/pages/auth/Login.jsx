@@ -117,9 +117,9 @@ export default function Login() {
                             {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                         </div>
                         <div className="flex justify-end pt-1">
-                            <a href="#" className="text-sm font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
+                            <Link to="/forgot-password" className="text-sm font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
                                 {t('login.forgotPassword', 'نسيت كلمة المرور؟')}
-                            </a>
+                            </Link>
                         </div>
 
                         {serverError && <p className="text-sm text-center text-red-500 mt-2">{serverError}</p>}

@@ -29,9 +29,9 @@ export default React.memo(function StatisticsBanner() {
     const locale = i18n.language === 'ar' ? 'ar-EG' : 'en-US'
 
     const statistics = [
-        { number: 1250, label: t('statistics.students') },
-        { number: 85, label: t('statistics.teachers') },
-        { number: 320, label: t('statistics.classes') },
+        { number: 1250, label: t('statistics.students', 'طالب مسجل') },
+        { number: 85, label: t('statistics.teachers', 'معلم معتمد') },
+        { number: 320, label: t('statistics.classes', 'حصة تعليمية') },
     ]
 
     return (
@@ -48,7 +48,7 @@ export default React.memo(function StatisticsBanner() {
                 <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 mix-blend-overlay pointer-events-none" />
 
                 <div className="relative z-10 h-full flex items-center justify-center px-6 sm:px-10 lg:px-12 py-8 sm:py-10">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-8xl w-full mx-auto divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-white/10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-8xl w-full mx-auto divide-y sm:divide-y-0 sm:divide-x rtl:divide-x-reverse divide-white/10">
                         {statistics.map((stat, index) => (
                             <motion.div
                                 key={index}

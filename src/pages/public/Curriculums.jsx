@@ -1,9 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { GraduationCap } from 'lucide-react'
 import imageSrc from '../../images/programs/7.png';
 import CurriculumUnits from '@/shared/components/CurriculumUnits.jsx'
+import CurriculumsCTA from '@/shared/components/CurriculumsCTA.jsx'
+import TeacherLevels from './components/TeacherProfile/TeacherLevels.jsx'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -25,6 +26,36 @@ export default React.memo(function Curriculums() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
 
+    const levelsData = [
+        {
+            id: 1,
+            title: t('levels.level1.title', "المستوى الأول التجويد"),
+            unitsCount: 8,
+            modules: [
+                { title: t('levels.level1.mod1', "مقدمة في التجويد") },
+                { title: t('levels.level1.mod2', "مخارج الحروف") }
+            ]
+        },
+        {
+            id: 2,
+            title: t('levels.level2.title', "المستوى الثاني القرآن"),
+            unitsCount: 8,
+            modules: [
+                { title: t('levels.level2.mod1', "القاعدة النورانية") },
+                { title: t('levels.level2.mod2', "أحكام التجويد الأساسية") }
+            ]
+        },
+        {
+            id: 3,
+            title: t('levels.level3.title', "المستوى الثالث التلاوة"),
+            unitsCount: 8,
+            modules: [
+                { title: t('levels.level3.mod1', "تلاوة سورة البقرة") },
+                { title: t('levels.level3.mod2', "تلاوة سورة آل عمران") }
+            ]
+        }
+    ];
+
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20">
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
@@ -35,7 +66,7 @@ export default React.memo(function Curriculums() {
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
-                            className={`order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col ${isRtl ? 'lg:items-start text-right' : 'lg:items-start text-left'} items-center text-center lg:text-start`}
+                            className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col items-center text-center lg:items-start lg:text-start"
                         >
                             <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
                                 {t('curriculum.badge', 'رحلة المعرفة')}
@@ -77,25 +108,9 @@ export default React.memo(function Curriculums() {
 
                 <CurriculumUnits />
 
-                <section className="relative overflow-hidden rounded-[32px] bg-[#FECD31] p-8 sm:p-12 lg:p-16 shadow-md flex  justify-between mt-8">
-                    <div className="relative z-10 space-y-6 max-w-2xl">
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-[#735C00]">
-                            {t('curriculum.cta.title', 'هل أنت مستعد لبدء رحلتك؟')}
-                        </h2>
-                        <p className="text-lg sm:text-xl text-[#997A00] font-medium">
-                            {t('curriculum.cta.desc', 'انضم إلى أكثر من ٥٠٠٠ طالب يستمتعون بتجربة تعليمية فريدة.')}
-                        </p>
-                        <div className="pt-4">
-                            <button className="bg-[#00695C] hover:bg-[#005247] text-white font-bold py-4 px-10 rounded-2xl transition-all duration-300 shadow-md hover:shadow-lg text-lg w-full sm:w-auto text-center">
-                                {t('curriculum.cta.button', 'سجل الآن مجاناً')}
-                            </button>
-                        </div>
-                    </div>
+                <TeacherLevels levels={levelsData} t={t} />
 
-                    <div className="absolute -bottom-16 sm:-bottom-24 end-0 sm:-end-4 opacity-30 pointer-events-none">
-                        <GraduationCap className={`w-48 h-48 sm:w-[300px] sm:h-[300px] text-[#735C00] ${isRtl ? 'rotate-2' : '-rotate-2'}`} strokeWidth={2.5} />
-                    </div>
-                </section>
+                <CurriculumsCTA />
 
             </div>
         </div>

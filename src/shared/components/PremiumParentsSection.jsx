@@ -9,18 +9,18 @@ export default React.memo(function PremiumParentsSection() {
 
     const cards = [
         {
-            title: t('premiumParents.cards.tracking.title'),
-            description: t('premiumParents.cards.tracking.description'),
+            title: t('premiumParents.cards.tracking.title', 'متابعة الأداء'),
+            description: t('premiumParents.cards.tracking.description', 'تقارير دورية لمتابعة أداء الطالب'),
             Icon: ShieldCheck,
         },
         {
-            title: t('premiumParents.cards.certified.title'),
-            description: t('premiumParents.cards.certified.description'),
+            title: t('premiumParents.cards.certified.title', 'معلمون معتمدون'),
+            description: t('premiumParents.cards.certified.description', 'نخبة من المعلمين المعتمدين والمؤهلين'),
             Icon: BookOpen,
         },
         {
-            title: t('premiumParents.cards.live.title'),
-            description: t('premiumParents.cards.live.description'),
+            title: t('premiumParents.cards.live.title', 'بث مباشر'),
+            description: t('premiumParents.cards.live.description', 'فصول تفاعلية مباشرة مع المعلمين'),
             Icon: Video,
         },
     ];
@@ -39,13 +39,13 @@ export default React.memo(function PremiumParentsSection() {
                     className="text-center max-w-3xl mx-auto"
                 >
                     <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C]">
-                        {t('premiumParents.title')}
+                        {t('premiumParents.title', 'لماذا يثق بنا الآباء؟')}
                     </h2>
 
                     <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
 
                     <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-600 leading-7">
-                        {t('premiumParents.description')}
+                        {t('premiumParents.description', 'نوفر بيئة آمنة وتقارير دورية لنضمن لك راحة البال التامة تجاه تقدم أبنائك.')}
                     </p>
                 </motion.div>
 

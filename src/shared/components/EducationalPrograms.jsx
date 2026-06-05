@@ -44,13 +44,13 @@ export default React.memo(function EducationalPrograms() {
                 >
 
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F7A6C]">
-                        {t('programs.title')}
+                        {t('programs.title', 'برامجنا التعليمية')}
                     </h2>
 
                     <div className="mx-auto mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
 
                     <p className="mx-auto mt-5 sm:mt-6 max-w-2xl text-sm sm:text-base lg:text-lg text-slate-600 leading-7 sm:leading-8">
-                        {t('programs.description')}
+                        {t('programs.description', 'نقدم مجموعة متنوعة من البرامج التعليمية المتميزة لتلبية احتياجات جميع أبنائنا.')}
                     </p>
                 </motion.div>
 
@@ -95,7 +95,7 @@ export default React.memo(function EducationalPrograms() {
                                     </p>
 
                                     <div className="mt-4 sm:mt-6 flex flex-wrap gap-2">
-                                        {t(`${base}.tags`, { returnObjects: true }).map((tag, i) => (
+                                        {(Array.isArray(t(`${base}.tags`, { returnObjects: true })) ? t(`${base}.tags`, { returnObjects: true }) : []).map((tag, i) => (
                                             <span
                                                 key={i}
                                                 className="rounded-full bg-slate-50 border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:border-[#0F7A6C] hover:text-[#0F7A6C] transition"
@@ -106,7 +106,7 @@ export default React.memo(function EducationalPrograms() {
                                     </div>
 
                                     <div className="mt-5 sm:mt-6 space-y-2 sm:space-y-3">
-                                        {t(`${base}.features`, { returnObjects: true }).map((feature, i) => (
+                                        {(Array.isArray(t(`${base}.features`, { returnObjects: true })) ? t(`${base}.features`, { returnObjects: true }) : []).map((feature, i) => (
                                             <div key={i} className="flex items-center gap-3">
                                                 <div className="h-5 w-5 rounded-full bg-[#0F7A6C] flex items-center justify-center shadow-sm">
                                                     <Check className="h-3 w-3 text-white" />
@@ -119,7 +119,7 @@ export default React.memo(function EducationalPrograms() {
                                     </div>
 
                                     <button className="mt-6 sm:mt-8 relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-2.5 sm:py-3.5 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98]">
-                                        {t('programs.cta')}
+                                        {t('programs.cta', 'استكشف البرنامج')}
                                     </button>
 
                                 </div>

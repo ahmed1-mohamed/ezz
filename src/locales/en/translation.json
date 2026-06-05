@@ -1632,5 +1632,120 @@
       },
       "saveChanges": "Save Changes"
     }
+  },
+  "stars": {
+    "title": "Stars of Academic Excellence",
+    "description": "We celebrate our outstanding students who achieved exceptional results and were an example of diligence.",
+    "student": {
+      "1": {
+        "name": "Maryam Al-Jubouri"
+      },
+      "2": {
+        "name": "Sarah Al-Abdullah"
+      },
+      "3": {
+        "name": "Yousef Al-Qadi"
+      },
+      "4": {
+        "name": "Ali Al-Hashimi"
+      }
+    }
+  },
+  "forgotPassword": {
+    "backToLogin": "Back to Login",
+    "emailRequired": "Email is required.",
+    "error": "Something went wrong. Please try again.",
+    "title": "Forgot Password?",
+    "subtitle": "Enter your email below and we will send you a link to reset your password.",
+    "sending": "Sending...",
+    "submitBtn": "Send Reset Link",
+    "successTitle": "Sent Successfully",
+    "successMessage": "We have sent a password reset link to your email. Please check your inbox."
+  },
+  "resetPassword": {
+    "passwordRequired": "Password is required.",
+    "passwordShort": "Password must be at least 6 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "error": "Something went wrong. Please try again.",
+    "title": "Reset Password",
+    "subtitle": "Please enter and confirm your new password.",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "saving": "Saving...",
+    "submitBtn": "Save Password",
+    "successTitle": "Password Changed",
+    "successMessage": "Your password has been successfully reset. You can now log in with your new password."
+  },
+  "levels": {
+    "level1": {
+      "title": "Level 1: Tajweed",
+      "mod1": "Introduction to Tajweed",
+      "mod2": "Articulation Points of Letters"
+    },
+    "level2": {
+      "title": "Level 2: Quran",
+      "mod1": "Al-Qaida Al-Nooraniya",
+      "mod2": "Basic Tajweed Rules"
+    },
+    "level3": {
+      "title": "Level 3: Recitation",
+      "mod1": "Recitation of Surah Al-Baqarah",
+      "mod2": "Recitation of Surah Al Imran"
+    }
+  },
+  "teacherProfile": {
+    "subjectsTitle": "Subjects I Teach",
+    "statsTitle": "Numbers & Statistics",
+    "statsStudents": "Students",
+    "statsSessions": "Total Sessions",
+    "statsExp": "Years of Experience",
+    "scheduleTitle": "Daily Schedule",
+    "mock": {
+      "name": "Sheikh Ahmed Mansour",
+      "title": "Certified in the Ten Qira'at",
+      "experience": "15 Years Experience",
+      "location": "Egypt",
+      "tags": {
+        "tajweed": "Tajweed",
+        "quran": "Holy Quran",
+        "exp": "15 Years Experience"
+      },
+      "about": "Professor of Qira'at and Quranic sciences with over 15 years of experience in academic and private teaching. I hold an Ijaza in the Ten Mutawatir Qira'at, and I strive to simplify Islamic sciences for the younger generation.",
+      "philosophy": "Teaching is not just transferring information, but instilling values and building a balanced Quranic personality. I believe every student has a unique journey with the Quran, and my role is to light this path.",
+      "credentials": {
+        "phd": "PhD in Islamic Studies",
+        "ijaza": "Ijaza with connected chain to the Prophet"
+      },
+      "subjects": {
+        "sub1": {
+          "name": "Quran Memorization",
+          "desc": "Facilitated memorization taking into account basic Tajweed rules."
+        },
+        "sub2": {
+          "name": "Tajweed Sciences",
+          "desc": "Detailed explanation of articulation points, their attributes, and elongations."
+        },
+        "sub3": {
+          "name": "Quran Exegesis (Tafsir)",
+          "desc": "Connecting verses to contemporary reality and understanding their purposes."
+        }
+      },
+      "schedule": {
+        "finished": "Finished",
+        "started": "Started",
+        "title1": "Memorization and Tajweed of Surah Al-Baqarah",
+        "group1": "Hope Group (Children)",
+        "duration1": "45 Minutes",
+        "period": {
+          "am": "AM",
+          "pm": "PM"
+        }
+      }
+    },
+    "levelsCount": "Study Levels",
+    "levelsTitle": "Study Levels",
+    "units": "Units",
+    "showMore": "Show More",
+    "showLess": "Show Less"
   }
 }

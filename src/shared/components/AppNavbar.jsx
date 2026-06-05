@@ -61,7 +61,7 @@ export default function AppNavbar() {
                         to="/"
                         className="flex-shrink-0 text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-200"
                     >
-                        {t('appName')}
+                        {t('appName', 'منارة العز')}
                     </Link>
 
                     <div className="hidden lg:flex items-center gap-6 xl:gap-8">
@@ -69,13 +69,13 @@ export default function AppNavbar() {
                             onClick={handleLanguageToggle}
                             ref={globeRef}
                             className="inline-flex items-center justify-center h-9 w-9 xl:h-10 xl:w-10 rounded-full hover:bg-brand-500/10 text-brand-500 transition-all duration-200 hover:scale-105"
-                            title={t('language.english')}
+                            title={t('language.toggle', 'تغيير اللغة')}
                             aria-label="Toggle language"
                         >
                             <Globe size={20} strokeWidth={1.5} />
                         </button>
 
-                        <nav className="flex items-center space-x-1">
+                        <nav className="flex items-center gap-1">
                             {navItems.map((item) => (
                                 <NavLink
                                     key={item.to}
@@ -99,7 +99,7 @@ export default function AppNavbar() {
                                 variant="ghost"
                                 className="text-slate-700 hover:text-brand-500 hover:bg-brand-500/5 transition-all duration-200"
                             >
-                                {t('public.login')}
+                                {t('public.login', 'تسجيل الدخول')}
                             </Button>
                         </Link>
                         <Link to="/contact">
@@ -108,7 +108,7 @@ export default function AppNavbar() {
                                 whileTap={{ scale: 0.95 }}
                                 className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 xl:px-6 py-2.5 xl:py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
                             >
-                                {t('public.joinUs')}
+                                {t('public.joinUs', 'انضم إلينا')}
                             </motion.button>
                         </Link>
                     </div>
@@ -164,7 +164,7 @@ export default function AppNavbar() {
                                             variant="ghost"
                                             className="w-full text-slate-700 hover:text-brand-500 hover:bg-brand-500/5"
                                         >
-                                            {t('public.login')}
+                                            {t('public.login', 'تسجيل الدخول')}
                                         </Button>
                                     </Link>
                                     <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
@@ -173,7 +173,7 @@ export default function AppNavbar() {
                                             whileTap={{ scale: 0.98 }}
                                             className="w-full rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
                                         >
-                                            {t('public.joinUs')}
+                                            {t('public.joinUs', 'انضم إلينا')}
                                         </motion.button>
                                     </Link>
                                 </div>

@@ -5,7 +5,12 @@ import { useTranslation } from "react-i18next";
 export default React.memo(function TestimonialsSection() {
     const { t } = useTranslation();
 
-    const testimonials = t('testimonials.items', { returnObjects: true });
+    const rawTestimonials = t('testimonials.items', { returnObjects: true });
+    const testimonials = Array.isArray(rawTestimonials) ? rawTestimonials : [
+        { text: 'تجربة تعليمية ممتازة', name: 'أحمد محمود', image: '' },
+        { text: 'محتوى رائع جداً', name: 'سارة العبدالله', image: '' },
+        { text: 'أفضل قرار اتخذناه لأطفالنا', name: 'خالد يوسف', image: '' }
+    ];
 
     return (
         <section className="relative overflow-hidden bg-[#EEF5F3] py-24">
@@ -18,11 +23,11 @@ export default React.memo(function TestimonialsSection() {
                     className="text-center mb-20"
                 >
                     <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B]">
-                        {t('testimonials.title')}
+                        {t('testimonials.title', 'ماذا يقول أولياء الأمور؟')}
                     </h2>
 
                     <p className="mt-5 text-[#6B7280] text-lg">
-                        {t('testimonials.subtitle')}
+                        {t('testimonials.subtitle', 'آراء حقيقية من عائلات انضمت إلى رحلتنا التعليمية')}
                     </p>
                 </motion.div>
 

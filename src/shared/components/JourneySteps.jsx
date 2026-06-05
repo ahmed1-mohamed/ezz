@@ -9,22 +9,22 @@ export default React.memo(function JourneySteps() {
     const steps = [
         {
             id: "1",
-            title: t('journey.steps.register.title'),
-            description: t('journey.steps.register.description'),
+            title: t('journey.steps.register.title', 'إنشاء حساب'),
+            description: t('journey.steps.register.description', 'سجل بياناتك للبدء'),
             icon: UserPlus,
             position: "right",
         },
         {
             id: "2",
-            title: t('journey.steps.choose.title'),
-            description: t('journey.steps.choose.description'),
+            title: t('journey.steps.choose.title', 'اختر البرنامج'),
+            description: t('journey.steps.choose.description', 'تصفح البرامج المتاحة واختبر ما يناسبك'),
             icon: GraduationCap,
             position: "center",
         },
         {
             id: "3",
-            title: t('journey.steps.start.title'),
-            description: t('journey.steps.start.description'),
+            title: t('journey.steps.start.title', 'ابدأ التعلم'),
+            description: t('journey.steps.start.description', 'احضر الدروس وتفاعل مع المعلمين'),
             icon: MonitorPlay,
             position: "left",
         },
@@ -41,15 +41,15 @@ export default React.memo(function JourneySteps() {
                     className="text-center mb-24"
                 >
                     <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 text-[#0F7A6C] text-sm font-bold mb-5">
-                        {t('journey.badge')}
+                        {t('journey.badge', 'كيف نبدأ؟')}
                     </span>
 
                     <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] leading-tight">
-                        {t('journey.title')}
+                        {t('journey.title', 'خطوات بسيطة لبدء رحلتك التعليمية')}
                     </h2>
 
                     <p className="mt-5 text-[#6B7280] text-lg max-w-2xl mx-auto">
-                        {t('journey.description')}
+                        {t('journey.description', 'نرافقك خطوة بخطوة في رحلتك التعليمية معنا.')}
                     </p>
                 </motion.div>
 

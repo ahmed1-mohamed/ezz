@@ -116,10 +116,10 @@ export default function TeachersSection() {
                             </div>
 
                             <h3 className="text-xl font-extrabold text-slate-800 mb-2">
-                                {t(teacher.nameKey)}
+                                {t(teacher.nameKey, 'اسم المعلم')}
                             </h3>
                             <p className="text-sm font-medium text-[#0F7A6C] mb-4">
-                                {t(teacher.titleKey)}
+                                {t(teacher.titleKey, 'التخصص')}
                             </p>
 
                             <div className="bg-slate-50 px-4 py-2 rounded-full border border-slate-100 mt-auto">
