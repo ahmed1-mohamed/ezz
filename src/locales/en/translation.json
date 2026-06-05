@@ -92,34 +92,13 @@
     "report3Description": "Track expenses and budget."
   },
   "teacher": {
-    "welcomeCardTitle": "Welcome to Teacher Dashboard",
-    "welcomeCardDescription": "Manage your classes and access educational resources.",
-    "classroomCardTitle": "Classroom Management",
-    "classroomCardDescription": "Track student attendance and performance.",
-    "classesTitle": "Class Management",
-    "classesDescription": "View and manage your teaching classes.",
-    "coursesTitle": "Teaching Courses",
-    "coursesDescription": "Courses filtered by {status}.",
-    "teacherDashboard": "Teacher Dashboard",
-    "badge": "Academy teachers",
-    "titleLine1": "Elite Teachers",
-    "titleLine2": "For a bright future and outstanding education",
-    "titleLine3": "Discover a selection of certified teachers specializing in teaching the Holy Quran and Arabic language using modern and enjoyable teaching methods",
-    "searchPlaceholder": "Search by teacher name...",
-    "allSubjects": "All Subjects",
-    "allLevels": "All Levels",
-    "filter": "Filter",
     "viewProfile": "View Profile",
-    "subject": "Subject",
-    "level": "Level",
-    "next": "Next",
-    "previous": "Previous",
     "names": {
       "1": "Dr. Ahmed Al-Mansouri",
-      "2": "Dr. Khaled Al-Shamsi",
+      "2": "Dr. Khalid Al-Shamsi",
       "3": "Dr. Youssef Al-Harbi"
     },
-    "jobTitle": "Certified in Ten Qira'at",
+    "jobTitle": "Certified in the Ten Qira'at",
     "subject1": "Holy Quran",
     "subject2": "Arabic Language",
     "level1": "Beginner",
@@ -130,11 +109,32 @@
     "tag2": "Memorization",
     "tag3": "Grammar",
     "tag4": "Online",
+    "badge": "Our Teachers",
+    "titleLine1": "An elite group of",
+    "titleLine2": "The Best Certified Teachers",
+    "titleLine3": "Learn from elite certified teachers with long experience in memorizing the Holy Quran and teaching its sciences and the Arabic language.",
     "searchLabel": "Search for a teacher",
+    "searchPlaceholder": "Name...",
     "subjectLabel": "Subject",
+    "allSubjects": "All Subjects",
     "levelLabel": "Level",
-    "clearFilter": "Apply Filter",
-    "noResults": "No teachers match your search."
+    "allLevels": "All Levels",
+    "clearFilter": "Clear Filters",
+    "noResults": "No teachers match your search.",
+    "previous": "Previous",
+    "next": "Next",
+    "welcomeCardTitle": "Welcome to Teacher Dashboard",
+    "welcomeCardDescription": "Manage your classes and access educational resources.",
+    "classroomCardTitle": "Classroom Management",
+    "classroomCardDescription": "Track student attendance and performance.",
+    "classesTitle": "Class Management",
+    "classesDescription": "View and manage your teaching classes.",
+    "coursesTitle": "Teaching Courses",
+    "coursesDescription": "Courses filtered by {status}.",
+    "teacherDashboard": "Teacher Dashboard",
+    "filter": "Filter",
+    "subject": "Subject",
+    "level": "Level"
   },
   "student": {
     "progressCardTitle": "Your Academic Progress",
@@ -1694,13 +1694,18 @@
     }
   },
   "teacherProfile": {
-    "subjectsTitle": "Subjects I Teach",
-    "statsTitle": "Numbers & Statistics",
-    "statsStudents": "Students",
-    "statsSessions": "Total Sessions",
-    "statsExp": "Years of Experience",
-    "scheduleTitle": "Daily Schedule",
     "mock": {
+      "schedule": {
+        "finished": "Finished",
+        "started": "Started",
+        "title1": "Memorization and Tajweed of Surat Al-Baqarah",
+        "group1": "Hope Group (Children)",
+        "duration1": "45 minutes",
+        "period": {
+          "am": "AM",
+          "pm": "PM"
+        }
+      },
       "name": "Sheikh Ahmed Mansour",
       "title": "Certified in the Ten Qira'at",
       "experience": "15 Years Experience",
@@ -1729,23 +1734,26 @@
           "name": "Quran Exegesis (Tafsir)",
           "desc": "Connecting verses to contemporary reality and understanding their purposes."
         }
-      },
-      "schedule": {
-        "finished": "Finished",
-        "started": "Started",
-        "title1": "Memorization and Tajweed of Surah Al-Baqarah",
-        "group1": "Hope Group (Children)",
-        "duration1": "45 Minutes",
-        "period": {
-          "am": "AM",
-          "pm": "PM"
-        }
       }
     },
-    "levelsCount": "Study Levels",
+    "error": "An error occurred while loading the teacher's profile",
+    "back": "Back to Teachers",
+    "aboutTitle": "About the Teacher",
+    "philosophyTitle": "Teaching Philosophy",
+    "session": "Session",
+    "rating": "Rating",
+    "bookTrial": "Book Trial Session",
+    "subscribeNow": "Subscribe Now",
     "levelsTitle": "Study Levels",
+    "levelsCount": "Levels",
     "units": "Units",
+    "showLess": "Show Less",
     "showMore": "Show More",
-    "showLess": "Show Less"
+    "subjectsTitle": "Subjects I Teach",
+    "statsTitle": "Numbers & Statistics",
+    "statsStudents": "Students",
+    "statsSessions": "Total Sessions",
+    "statsExp": "Years of Experience",
+    "scheduleTitle": "Daily Schedule"
   }
 }

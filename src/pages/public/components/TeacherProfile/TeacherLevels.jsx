@@ -23,7 +23,6 @@ export default function TeacherLevels({ levels, t }) {
             animate={{ opacity: 1, y: 0 }}
             className="w-full bg-[#EEF4F2] rounded-3xl p-6 sm:p-8 shadow-sm mt-6"
         >
-            {/* Header */}
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                     {t('teacherProfile.levelsTitle', 'المستويات الدراسية')}
@@ -33,13 +32,12 @@ export default function TeacherLevels({ levels, t }) {
                 </div>
             </div>
 
-            {/* Accordion List */}
             <div className="space-y-4">
                 <AnimatePresence initial={false}>
                     {visibleLevels.map((level) => {
                         const isOpen = openLevel === level.id;
                         return (
-                            <motion.div 
+                            <motion.div
                                 key={level.id}
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -119,8 +117,8 @@ export default function TeacherLevels({ levels, t }) {
                         className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold py-2 px-6 rounded-full border border-[#00695C]/20 hover:bg-[#00695C]/5 transition-colors"
                     >
                         <span>
-                            {showAll 
-                                ? t('teacherProfile.showLess', 'عرض أقل') 
+                            {showAll
+                                ? t('teacherProfile.showLess', 'عرض أقل')
                                 : t('teacherProfile.showMore', 'عرض المزيد')}
                         </span>
                         <motion.div

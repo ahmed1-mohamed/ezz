@@ -7,8 +7,6 @@ import TeacherAbout from './components/TeacherProfile/TeacherAbout.jsx'
 import TeacherSubjects from './components/TeacherProfile/TeacherSubjects.jsx'
 import TeacherStats from './components/TeacherProfile/TeacherStats.jsx'
 import TeacherSchedule from './components/TeacherProfile/TeacherSchedule.jsx'
-import TeacherLevels from './components/TeacherProfile/TeacherLevels.jsx'
-import CTASection from '@/shared/components/CTASection.jsx'
 
 export default function TeacherProfile() {
     const { id } = useParams()
@@ -39,8 +37,8 @@ export default function TeacherProfile() {
                     location: t('teacherProfile.mock.location', "مصر"),
                     sessionsCount: "+1,250",
                     tags: [
-                        t('teacherProfile.mock.tags.tajweed', "التجويد"), 
-                        t('teacherProfile.mock.tags.quran', "القرآن الكريم"), 
+                        t('teacherProfile.mock.tags.tajweed', "التجويد"),
+                        t('teacherProfile.mock.tags.quran', "القرآن الكريم"),
                         t('teacherProfile.mock.tags.exp', "15 سنة خبرة")
                     ],
                     about: t('teacherProfile.mock.about', "أستاذ القراءات وعلوم القرآن بخبرة تزيد عن 15 عاماً في التدريس الأكاديمي والخاص. حصلت على إجازة في القراءات العشر المتواترة من طريق الشاطبية والدرة، وأسعى دائماً لتبسيط العلوم الشرعية لجيل الشباب بأسلوب معاصر يجمع بين الأصالة والحداثة."),
@@ -133,22 +131,23 @@ export default function TeacherProfile() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    {/* Info Column (Start in DOM: Right in RTL, Left in LTR) */}
                     <div className="lg:col-span-7 order-2 lg:order-1 space-y-6">
                         <TeacherAbout teacher={teacher} t={t} />
                         <TeacherSubjects subjects={teacher.subjects} t={t} />
-                        <TeacherLevels levels={teacher.levels} t={t} />
                     </div>
 
-                    {/* Card Column - End in DOM (Left in RTL, Right in LTR) */}
                     <div className="lg:col-span-5 order-1 lg:order-2">
                         <TeacherCard teacher={teacher} t={t} isRtl={isRtl} />
                     </div>
                 </div>
+
+                {/* Full Width Sections matching 7xl */}
+                <div className="mt-8 space-y-6">
+                    <TeacherStats stats={teacher.stats} t={t} />
+                    <TeacherSchedule schedule={teacher.schedule} t={t} />
+                </div>
             </div>
 
-            <CTASection />
-            <TeacherSchedule schedule={teacher.schedule} t={t} />
         </div>
     )
 }

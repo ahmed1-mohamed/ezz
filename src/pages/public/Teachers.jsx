@@ -245,7 +245,7 @@ export default function Teachers() {
                             }}
                             className="w-full bg-[#735C00] md:w-56 hover:bg-[#5c4a00] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 ease-out flex items-center justify-center gap-2 shadow-md hover:shadow-lg h-[58px] text-lg active:scale-95 hover:-translate-y-1"
                         >
-                            {t('teacher.clearFilter', 'تطبيق التصفية')}
+                            {t('teacher.clearFilter', 'مسح التصفية')}
                             <Filter className="h-5 w-5" />
 
                         </button>
