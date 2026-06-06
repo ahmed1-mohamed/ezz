@@ -1,5 +1,4 @@
-import React from 'react'
-
+import React from 'react';
 export default React.memo(function Button({ children, type = 'button', variant = 'primary', className = '', ...props }) {
     const styles = {
         primary: 'bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-md hover:shadow-lg hover:from-brand-700 hover:to-brand-800 focus:ring-brand-500/50',

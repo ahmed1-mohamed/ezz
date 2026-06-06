@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react'
+import React from 'react';
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Check, Heart, Globe } from 'lucide-react'

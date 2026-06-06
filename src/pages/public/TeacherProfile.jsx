@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight, ChevronLeft } from 'lucide-react'
@@ -141,7 +141,6 @@ export default function TeacherProfile() {
                     </div>
                 </div>
 
-                {/* Full Width Sections matching 7xl */}
                 <div className="mt-8 space-y-6">
                     <TeacherStats stats={teacher.stats} t={t} />
                     <TeacherSchedule schedule={teacher.schedule} t={t} />

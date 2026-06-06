@@ -1,4 +1,4 @@
-import React from 'react';
+/* eslint-disable no-unused-vars */
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 

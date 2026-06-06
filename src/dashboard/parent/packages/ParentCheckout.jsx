@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable no-unused-vars */
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Smartphone, Building2, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

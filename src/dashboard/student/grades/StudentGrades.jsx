@@ -103,7 +103,7 @@ function SkillBar({ label, value }) {
   );
 }
 
-function GradeCard({ grade, isRtl }) {
+function GradeCard({ grade, isRtl, t }) {
   const strengths = isRtl ? grade.strengthsAr : grade.strengthsEn;
   const improvements = isRtl ? grade.improvementsAr : grade.improvementsEn;
 
@@ -240,7 +240,7 @@ export default function StudentGrades() {
         </motion.div>
 
         {grades.map((g) => (
-          <GradeCard key={g.id} grade={g} isRtl={isRtl} />
+          <GradeCard key={g.id} grade={g} isRtl={isRtl} t={t} />
         ))}
       </motion.div>
     </div>

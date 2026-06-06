@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+/* eslint-disable no-unused-vars */
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import StatCard from '../components/StatCard';
@@ -30,16 +31,7 @@ export default function ParentDashboard() {
     });
   };
 
-  if (selectedChildId) {
-    return (
-      <div className="p-4 md:p-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-        <ChildDetailsView
-          childId={selectedChildId}
-          onBack={() => setSelectedChildId(null)}
-        />
-      </div>
-    );
-  }
+
 
   const stats = useMemo(() => [
     {
@@ -140,6 +132,17 @@ export default function ParentDashboard() {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
+
+  if (selectedChildId) {
+    return (
+      <div className="p-4 md:p-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+        <ChildDetailsView
+          childId={selectedChildId}
+          onBack={() => setSelectedChildId(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <motion.div

@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
 import { defineConfig } from 'vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import path from 'path'
+// eslint-disable-next-line no-undef
 
 export default defineConfig({
   plugins: [

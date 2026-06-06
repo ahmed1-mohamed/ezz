@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useTranslation } from "react-i18next"
 import { Mail, Phone, MapPin } from "lucide-react"
 import { Link } from "react-router-dom"

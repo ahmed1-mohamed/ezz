@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+/* eslint-disable no-unused-vars */
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, ChevronDown, Sun, Moon, Settings as SettingsIcon, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../../../i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
+
+const ToggleSwitch = ({ checked, onChange, isRtl }) => (
+    <button
+        onClick={onChange}
+        className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${checked ? 'bg-[#0f7a6c]' : 'bg-slate-300 dark:bg-slate-600'}`}
+    >
+        <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${checked ? (isRtl ? '-translate-x-6' : 'translate-x-6') : 'translate-x-0'}`} />
+    </button>
+);
 
 export default function ParentSettings() {
     const { t, i18n } = useTranslation();
@@ -39,14 +49,7 @@ export default function ParentSettings() {
         setLanguage(lang);
     };
 
-    const ToggleSwitch = ({ checked, onChange }) => (
-        <button
-            onClick={onChange}
-            className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${checked ? 'bg-[#0f7a6c]' : 'bg-slate-300 dark:bg-slate-600'}`}
-        >
-            <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${checked ? (i18n.language === 'ar' ? '-translate-x-6' : 'translate-x-6') : 'translate-x-0'}`} />
-        </button>
-    );
+
 
     const handleProfileChange = (e) => {
         setProfileData({ ...profileData, [e.target.name]: e.target.value });
@@ -303,14 +306,14 @@ export default function ParentSettings() {
                             <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parent.settings.shareProgress')}</span>
                             <span className="text-[10px] text-slate-500">{t('parent.settings.shareProgressDesc')}</span>
                         </div>
-                        <ToggleSwitch checked={preferences.shareProgress} onChange={() => togglePreference('shareProgress')} />
+                        <ToggleSwitch checked={preferences.shareProgress} onChange={() => togglePreference('shareProgress')} isRtl={i18n.language === 'ar'} />
                     </div>
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div className="text-start">
                             <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parent.settings.saveActivityLog')}</span>
                             <span className="text-[10px] text-slate-500">{t('parent.settings.saveActivityLogDesc')}</span>
                         </div>
-                        <ToggleSwitch checked={preferences.saveActivityLog} onChange={() => togglePreference('saveActivityLog')} />
+                        <ToggleSwitch checked={preferences.saveActivityLog} onChange={() => togglePreference('saveActivityLog')} isRtl={i18n.language === 'ar'} />
                     </div>
                 </div>
 

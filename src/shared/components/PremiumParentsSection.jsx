@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { useTranslation } from "react-i18next";
 import { ShieldCheck, BookOpen, Video } from "lucide-react";
 import { motion } from "framer-motion";

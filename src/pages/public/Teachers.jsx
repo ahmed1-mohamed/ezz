@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React from 'react';
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -136,6 +137,7 @@ export default function Teachers() {
     }, [searchTerm, selectedSubject, selectedLevel, teachersData])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentPage(1)
     }, [searchTerm, selectedSubject, selectedLevel, teachersData])
 

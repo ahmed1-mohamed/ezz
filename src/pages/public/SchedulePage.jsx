@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react'
+import React from 'react';
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, User, PlayCircle, CalendarClock, MonitorPlay, CheckCircle2 } from 'lucide-react'

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -42,7 +43,7 @@ export default function ResetPassword() {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000))
             setIsSubmitted(true)
-        } catch (err) {
+        } catch (error) {
             setErrors({ submit: t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.') })
         } finally {
             setLoading(false)

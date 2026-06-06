@@ -12,7 +12,7 @@ const teachersData = {
 export default function StudentTeacherProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageSquare, Star, CheckCircle2, ChevronDown, Send } from 'lucide-react';
 import { motion } from 'framer-motion';

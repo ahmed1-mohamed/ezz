@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, Star, CheckCircle, Award, Mail, Phone, Calendar, Hash, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

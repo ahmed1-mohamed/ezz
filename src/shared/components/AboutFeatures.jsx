@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { MonitorPlay, BookOpen } from 'lucide-react'

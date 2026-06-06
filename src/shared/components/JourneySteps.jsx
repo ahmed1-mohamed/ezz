@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { motion } from "framer-motion";
 import { UserPlus, GraduationCap, MonitorPlay } from "lucide-react";
 import { useTranslation } from "react-i18next";
