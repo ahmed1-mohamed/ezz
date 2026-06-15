@@ -1,6 +1,9 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { useDispatch, useSelector } from 'react-redux'
 import { BookOpen, Award, Gem, CheckCircle2, XCircle } from 'lucide-react'
+import { fetchPackagesAndFaqs } from '@/store/landingSlice'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -8,7 +11,13 @@ const fadeUp = {
 };
 
 export default function Pricing() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const dispatch = useDispatch()
+    const { packagesData } = useSelector((state) => state.landing)
+
+    useEffect(() => {
+        dispatch(fetchPackagesAndFaqs(i18n.language))
+    }, [dispatch, i18n.language])
 
     const plans = [
         {
@@ -67,6 +76,51 @@ export default function Pricing() {
         }
     ]
 
+    const renderIcon = (icon, index) => {
+        if (!icon) {
+            const fallbacks = [BookOpen, Award, Gem];
+            const FallbackIcon = fallbacks[index % 3];
+            return <FallbackIcon className="w-10 h-10 text-[#00695C]" />;
+        }
+        if (typeof icon === 'string' && (icon.startsWith('http') || icon.startsWith('/') || icon.startsWith('data:'))) {
+            const getImageUrl = (imagePath) => {
+                if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+                    return imagePath;
+                }
+                const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+                return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+            }
+            return <img src={getImageUrl(icon)} className="w-10 h-10 object-contain rounded-full shadow-sm" alt="" />;
+        }
+        if (typeof icon === 'function' || typeof icon === 'object') {
+            const IconComp = icon;
+            return <IconComp className="w-10 h-10 text-[#00695C]" />;
+        }
+        const fallbacks = [BookOpen, Award, Gem];
+        const FallbackIcon = fallbacks[index % 3];
+        return <FallbackIcon className="w-10 h-10 text-[#00695C]" />;
+    }
+
+    const apiPackages = packagesData?.packages?.data;
+    const displayPlans = apiPackages && apiPackages.length > 0
+        ? apiPackages.map((pkg, index) => ({
+            id: pkg.id,
+            name: pkg.name,
+            price: pkg.price,
+            icon: pkg.icon,
+            popular: index === 1,
+            features: pkg.features ? pkg.features.map(f => ({ text: f, active: true })) : []
+        }))
+        : plans;
+
+    const apiFaqs = packagesData?.faqs?.data;
+    const displayFaqs = apiFaqs && apiFaqs.length > 0
+        ? apiFaqs.map(faq => ({
+            q: faq.question,
+            a: faq.answer
+        }))
+        : faqs;
+
     return (
         <div className="min-h-screen bg-[#EEF4F2]/50 py-16 sm:py-24 overflow-hidden font-sans">
             
@@ -87,7 +141,7 @@ export default function Pricing() {
 
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                    {plans.map((plan, index) => (
+                    {displayPlans.map((plan, index) => (
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -107,7 +161,7 @@ export default function Pricing() {
                             )}
                             
                             <div className="bg-[#E6F0ED] w-20 h-20 rounded-full flex items-center justify-center mb-6">
-                                <plan.icon className="w-10 h-10 text-[#00695C]" />
+                                {renderIcon(plan.icon, index)}
                             </div>
 
                             <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">{plan.name}</h3>
@@ -155,7 +209,7 @@ export default function Pricing() {
                 </motion.h2>
 
                 <div className="space-y-4">
-                    {faqs.map((faq, idx) => (
+                    {displayFaqs.map((faq, idx) => (
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}

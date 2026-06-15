@@ -69,9 +69,9 @@ export default function SchedulePage() {
 
     return (
         <div className="min-h-screen bg-[#EEF2F0]/80 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-            <div className="max-w-5xl mx-auto space-y-12">
-                
-                 <motion.div 
+            <div className="max-w-7xl mx-auto space-y-12">
+
+                <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "0px 0px -50px 0px" }}
@@ -86,7 +86,7 @@ export default function SchedulePage() {
                     </p>
                 </motion.div>
 
-                 <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, margin: "0px 0px -50px 0px" }}
@@ -97,11 +97,10 @@ export default function SchedulePage() {
                         <button
                             key={d.id}
                             onClick={() => setActiveDay(d.id)}
-                            className={`flex flex-col items-center justify-center w-20 h-24 rounded-3xl transition-all duration-300 font-bold focus:outline-none focus:ring-4 focus:ring-[#00695C]/20 ${
-                                activeDay === d.id 
-                                ? 'bg-[#00695C] text-white shadow-lg shadow-[#00695C]/30 scale-105' 
+                            className={`flex flex-col items-center justify-center w-20 h-24 rounded-3xl transition-all duration-300 font-bold focus:outline-none focus:ring-4 focus:ring-[#00695C]/20 ${activeDay === d.id
+                                ? 'bg-[#00695C] text-white shadow-lg shadow-[#00695C]/30 scale-105'
                                 : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100 hover:-translate-y-1'
-                            }`}
+                                }`}
                         >
                             <span className="text-sm mb-1">{d.day}</span>
                             <span className="text-2xl">{d.date}</span>
@@ -112,8 +111,8 @@ export default function SchedulePage() {
                     ))}
                 </motion.div>
 
-                 <AnimatePresence mode="wait">
-                    <motion.div 
+                <AnimatePresence mode="wait">
+                    <motion.div
                         key={activeDay}
                         variants={containerVariants}
                         initial="hidden"
@@ -187,32 +186,32 @@ const ActionButton = React.memo(({ status, t }) => {
 const ClassCard = React.memo(({ cls, t, variants }) => (
     <motion.div
         variants={variants}
-        style={{ willChange: 'transform, opacity' }} 
+        style={{ willChange: 'transform, opacity' }}
         className="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-start md:items-center gap-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
     >
-         <div className="relative shrink-0 mx-auto md:mx-0">
-            <img 
-                src={cls.image} 
-                alt={cls.teacher} 
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-sm transition-transform duration-500 group-hover:scale-105" 
+        <div className="relative shrink-0 mx-auto md:mx-0">
+            <img
+                src={cls.image}
+                alt={cls.teacher}
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
                 decoding="async"
             />
             {cls.isVerified && (
-                <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm">
+                <div className="absolute -bottom-2 ltr:-right-2 rtl:-left-2 bg-white rounded-full p-1 shadow-sm">
                     <CheckCircle2 className="w-5 h-5 text-white fill-[#00695C]" />
                 </div>
             )}
         </div>
 
-         <div className="flex-1 space-y-4 w-full">
+        <div className="flex-1 space-y-4 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 transition-colors group-hover:text-[#00695C]">
                     {cls.title}
                 </h3>
                 <StatusBadge status={cls.status} t={t} />
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-4 text-sm sm:text-base text-slate-600 font-medium">
                 <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full">
                     <User className="w-4 h-4 text-slate-400" />
@@ -233,7 +232,7 @@ const ClassCard = React.memo(({ cls, t, variants }) => (
             </div>
         </div>
 
-         <div className="shrink-0 w-full md:w-auto flex justify-end mt-4 md:mt-0">
+        <div className="shrink-0 w-full md:w-auto flex justify-end mt-4 md:mt-0">
             <ActionButton status={cls.status} t={t} />
         </div>
     </motion.div>

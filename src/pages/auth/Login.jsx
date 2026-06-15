@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Mail, Lock, BookOpen, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const initialState = { email: '', password: '' }
 
@@ -16,8 +17,22 @@ export default function Login() {
     const [formValues, setFormValues] = useState(initialState)
     const [errors, setErrors] = useState({})
     const [serverError, setServerError] = useState('')
-    const { login, loading } = useAuth()
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
+    const [showGoogleModal, setShowGoogleModal] = useState(false)
+    const [googleUsername, setGoogleUsername] = useState('')
+    const [googlePassword, setGooglePassword] = useState('')
+    const [googleErrors, setGoogleErrors] = useState({})
+    const { login, loginWithGoogle, loading } = useAuth()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (toast.show) {
+            const timer = setTimeout(() => {
+                setToast(prev => ({ ...prev, show: false }))
+            }, 4000)
+            return () => clearTimeout(timer)
+        }
+    }, [toast.show])
 
     const validate = () => {
         const nextErrors = {}
@@ -33,9 +48,65 @@ export default function Login() {
         if (!validate()) return
         try {
             const user = await login(formValues.email, formValues.password, true)
-            navigate(getRedirectPath(user.role))
+            setToast({
+                show: true,
+                message: t('login.successMessage', 'تم تسجيل الدخول بنجاح!'),
+                type: 'success'
+            })
+            setTimeout(() => {
+                navigate(getRedirectPath(user.role))
+            }, 1000)
         } catch (error) {
             setServerError(error.message)
+            setToast({
+                show: true,
+                message: error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور'),
+                type: 'error'
+            })
+        }
+    }
+
+    const handleGoogleClick = () => {
+        console.log('Google login clicked, opening credentials modal.')
+        setServerError('')
+        setGoogleUsername('')
+        setGooglePassword('')
+        setGoogleErrors({})
+        setShowGoogleModal(true)
+    }
+
+    const handleGoogleModalSubmit = async (event) => {
+        event.preventDefault()
+        setServerError('')
+        const nextErrors = {}
+        if (!googleUsername.trim()) {
+            nextErrors.username = t('login.usernameRequired', 'اسم المستخدم مطلوب.')
+        }
+        if (!googlePassword) {
+            nextErrors.password = t('login.passwordRequired', 'كلمة المرور مطلوبة.')
+        }
+        if (Object.keys(nextErrors).length > 0) {
+            setGoogleErrors(nextErrors)
+            return
+        }
+        try {
+            const user = await loginWithGoogle(googleUsername, googlePassword)
+            setShowGoogleModal(false)
+            setToast({
+                show: true,
+                message: t('login.successMessage', 'تم تسجيل الدخول بنجاح!'),
+                type: 'success'
+            })
+            setTimeout(() => {
+                navigate(getRedirectPath(user.role))
+            }, 1000)
+        } catch (error) {
+            setServerError(error.message)
+            setToast({
+                show: true,
+                message: error.message || t('login.googleError', 'فشل تسجيل الدخول بجوجل'),
+                type: 'error'
+            })
         }
     }
 
@@ -74,9 +145,7 @@ export default function Login() {
 
                         <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 p-3 rounded-xl text-sm text-center shadow-sm">
                             <p className="font-semibold mb-1">{isRtl ? 'بيانات دخول لوحة ولي الأمر (للتجربة):' : 'Parent Dashboard Demo Credentials:'}</p>
-                            <p dir="ltr" className="font-mono bg-white inline-block px-2 py-1 rounded text-xs border border-emerald-100">
-                                parent@eduplatform.com / Parent@123
-                            </p>
+
                         </div>
 
                         <div className="space-y-2">
@@ -142,6 +211,7 @@ export default function Login() {
 
                         <button
                             type="button"
+                            onClick={handleGoogleClick}
                             className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl py-3.5 flex items-center justify-center gap-3 transition-all"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -168,6 +238,106 @@ export default function Login() {
 
 
             </div>
+
+            {/* Custom Toast Notification */}
+            <AnimatePresence>
+                {toast.show && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -50, x: 50, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -20, x: 50, scale: 0.9 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-white font-bold border ${toast.type === 'success'
+                                ? 'bg-[#00695C] border-[#004D40] text-white'
+                                : 'bg-red-600 border-red-700 text-white'
+                            }`}
+                    >
+                        {toast.type === 'success' ? (
+                            <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </span>
+                        ) : (
+                            <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </span>
+                        )}
+                        <span className="text-sm sm:text-base font-semibold">{toast.message}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Google Login Credentials Modal */}
+            <AnimatePresence>
+                {showGoogleModal && (
+                    <motion.div
+                        key="google-login-modal"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.95, y: 20 }}
+                            transition={{ type: 'spring', duration: 0.5 }}
+                            className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl border border-slate-100 p-8 relative"
+                        >
+                            <h3 className="text-2xl font-bold text-[#00695C] mb-6 text-center sm:text-start">
+                                {t('login.googleModalTitle', 'تسجيل الدخول بحساب جوجل')}
+                            </h3>
+                            <form onSubmit={handleGoogleModalSubmit} className="space-y-5" noValidate>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-600 px-1">
+                                        {t('login.usernameLabel', 'البريد الإلكتروني أو رقم الهاتف')}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={googleUsername}
+                                        onChange={(e) => setGoogleUsername(e.target.value)}
+                                        placeholder="example@mail.com"
+                                        className={`w-full bg-[#F5F8F7] border ${googleErrors.username ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 px-4 outline-none transition-all placeholder-slate-400`}
+                                    />
+                                    {googleErrors.username && <p className="text-xs text-red-500 px-1">{googleErrors.username}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-600 px-1">
+                                        {t('login.passwordLabel', 'كلمة المرور')}
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={googlePassword}
+                                        onChange={(e) => setGooglePassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        className={`w-full bg-[#F5F8F7] border ${googleErrors.password ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 px-4 outline-none transition-all placeholder-slate-400`}
+                                    />
+                                    {googleErrors.password && <p className="text-xs text-red-500 px-1">{googleErrors.password}</p>}
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="flex-1 bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-3.5 transition-all shadow-md active:scale-[0.98]"
+                                    >
+                                        {loading ? t('login.signingIn', 'جاري الدخول...') : t('login.submitBtn', 'دخول')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowGoogleModal(false)}
+                                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl py-3.5 transition-all active:scale-[0.98]"
+                                    >
+                                        {t('login.cancelBtn', 'إلغاء')}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

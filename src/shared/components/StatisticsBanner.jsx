@@ -25,14 +25,14 @@ const Counter = ({ target, locale }) => {
     return <h2 ref={nodeRef} className="stat-number text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-[#D3A900] leading-none">0</h2>
 }
 
-export default React.memo(function StatisticsBanner() {
+export default React.memo(function StatisticsBanner({ data }) {
     const { t, i18n } = useTranslation()
     const locale = i18n.language === 'ar' ? 'ar-EG' : 'en-US'
 
     const statistics = [
-        { number: 1250, label: t('statistics.students', 'طالب مسجل') },
-        { number: 85, label: t('statistics.teachers', 'معلم معتمد') },
-        { number: 320, label: t('statistics.classes', 'حصة تعليمية') },
+        { number: data?.students ?? 1250, label: t('statistics.students', 'طالب مسجل') },
+        { number: data?.teachers ?? 85, label: t('statistics.teachers', 'معلم معتمد') },
+        { number: data?.classes ?? 320, label: t('statistics.classes', 'حصة تعليمية') },
     ]
 
     return (

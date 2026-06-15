@@ -25,8 +25,18 @@ const students = [
     }
 ]
 
-export default function StarsSection() {
+const getImageUrl = (imagePath) => {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+        return imagePath;
+    }
+    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+}
+
+export default function StarsSection({ featuredStudents }) {
     const { t } = useTranslation()
+    const displayStudents = featuredStudents && featuredStudents.length > 0 ? featuredStudents : students
 
     return (
         <section className="py-20 bg-white">
@@ -41,7 +51,7 @@ export default function StarsSection() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-8">
-                    {students.map((student, index) => (
+                    {displayStudents.map((student, index) => (
                         <motion.div
                             key={student.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -58,7 +68,7 @@ export default function StarsSection() {
                                     {/* Image Container */}
                                     <div className="bg-white rounded-full w-full h-full p-1">
                                         <img
-                                            src={student.image}
+                                            src={getImageUrl(student.image)}
                                             alt={student.name}
                                             className="w-full h-full rounded-full object-cover"
                                         />
@@ -69,7 +79,9 @@ export default function StarsSection() {
                             </div>
 
                             <h3 className="text-xl font-bold text-slate-900 mb-2">
-                                {t(`stars.student.${student.id}.name`, student.name)}
+                                {student.id && typeof student.id === 'number' && student.id <= 4 
+                                    ? t(`stars.student.${student.id}.name`, student.name) 
+                                    : student.name}
                             </h3>
 
                             <div className="flex items-center gap-1">

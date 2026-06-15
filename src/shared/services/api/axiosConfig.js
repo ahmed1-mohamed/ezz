@@ -1,18 +1,37 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://manaret-ezz.dramcode.top',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // 1. Inject language as a query param (unified method, prevents CORS preflight errors compared to x-lang header)
+    const lang = localStorage.getItem('appLanguage') || 'ar';
+    config.params = {
+      ...config.params,
+      lang,
+    };
+
+    // 2. Inject Authorization token
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // 3. Custom headers (only if values exist)
+    const apiKey = localStorage.getItem('x_api_key');
+    if (apiKey) {
+      config.headers['X-API-KEY'] = apiKey;
+    }
+    const secret = localStorage.getItem('secret');
+    if (secret) {
+      config.headers['Secret'] = secret;
+    }
+
     return config;
   },
   (error) => {
@@ -31,13 +50,35 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
-            token: refreshToken,
-          });
+          const lang = localStorage.getItem('appLanguage') || 'ar';
+          const headers = {
+            'Authorization': `Bearer ${refreshToken}`,
+          };
 
-          if (res.data.accessToken) {
-            localStorage.setItem('access_token', res.data.accessToken);
-            api.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
+          const apiKey = localStorage.getItem('x_api_key');
+          if (apiKey) headers['X-API-KEY'] = apiKey;
+          const secret = localStorage.getItem('secret');
+          if (secret) headers['Secret'] = secret;
+
+          const res = await axios.post(
+            `${api.defaults.baseURL}/api/v1/auth/refresh-token`,
+            {},
+            {
+              params: { lang },
+              headers
+            }
+          );
+
+          const newAccess = res.data?.token || res.data?.accessToken || res.data?.access_token || res.data?.data?.token;
+          const newRefresh = res.data?.refresh_token || res.data?.refreshToken || res.data?.data?.refresh_token;
+
+          if (newAccess) {
+            localStorage.setItem('access_token', newAccess);
+            if (newRefresh) {
+              localStorage.setItem('refresh_token', newRefresh);
+            }
+            api.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
+            originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
             return api(originalRequest);
           }
         }
@@ -54,3 +95,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+

@@ -7,6 +7,9 @@ import RoleBasedRoute from './RoleBasedRoute.jsx'
 import Spinner from '@/shared/components/Spinner.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
+import Login from '../pages/auth/Login.jsx'
+import ForgotPassword from '../pages/auth/ForgotPassword.jsx'
+import ResetPassword from '../pages/auth/ResetPassword.jsx'
 
 const Home = lazy(() => import('../pages/public/Home.jsx'))
 const About = lazy(() => import('../pages/public/About.jsx'))
@@ -16,9 +19,6 @@ const Pricing = lazy(() => import('../pages/public/Pricing.jsx'))
 const Teachers = lazy(() => import('../pages/public/Teachers.jsx'))
 const Contact = lazy(() => import('../pages/public/Contact.jsx'))
 const SchedulePage = lazy(() => import('../pages/public/SchedulePage.jsx'))
-const Login = lazy(() => import('../pages/auth/Login.jsx'))
-const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword.jsx'))
-const ResetPassword = lazy(() => import('../pages/auth/ResetPassword.jsx'))
 const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
 
 const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
@@ -132,7 +132,7 @@ export default function AppRoutes() {
                         <Route
                             path="/login"
                             element={
-                                user ? (
+                                (user && localStorage.getItem('access_token')) ? (
                                     <Navigate
                                         to={getRedirectPath(user.role)}
                                         replace
@@ -148,7 +148,7 @@ export default function AppRoutes() {
                         <Route
                             path="/forgot-password"
                             element={
-                                user ? (
+                                (user && localStorage.getItem('access_token')) ? (
                                     <Navigate
                                         to={getRedirectPath(user.role)}
                                         replace
@@ -164,7 +164,7 @@ export default function AppRoutes() {
                         <Route
                             path="/reset-password"
                             element={
-                                user ? (
+                                (user && localStorage.getItem('access_token')) ? (
                                     <Navigate
                                         to={getRedirectPath(user.role)}
                                         replace

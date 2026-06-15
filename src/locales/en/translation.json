@@ -26,7 +26,13 @@
     "passwordRequired": "Password is required.",
     "validEmail": "Provide a valid email address.",
     "passwordLength": "Password must be at least 6 characters.",
-    "invalid": "Invalid login details."
+    "invalid": "Invalid login details.",
+    "successMessage": "Logged in successfully!",
+    "errorMessage": "Invalid email or password.",
+    "googleModalTitle": "Google Account Login",
+    "usernameLabel": "Email or Phone Number",
+    "usernameRequired": "Username is required.",
+    "cancelBtn": "Cancel"
   },
   "dashboard": {
     "overview": "Overview",
@@ -768,6 +774,23 @@
       "emailTitle": "Email Address",
       "whatsappTitle": "WhatsApp",
       "phoneTitle": "Call Us"
+    },
+    "validation": {
+      "nameRequired": "Full name is required",
+      "nameMin": "Name must be at least 3 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "titleRequired": "Message subject is required",
+      "titleMin": "Subject must be at least 5 characters",
+      "phoneRequired": "Phone number is required",
+      "phoneInvalid": "Invalid phone number",
+      "messageRequired": "Message content is required",
+      "messageMin": "Message must be at least 10 characters",
+      "formError": "Error in Contact Form: Please correct the highlighted fields"
+    },
+    "toast": {
+      "success": "Your message has been sent successfully! We will contact you soon.",
+      "error": "Sorry, an error occurred while sending the message."
     }
   },
   "cta": {
@@ -1663,6 +1686,9 @@
     "successMessage": "We have sent a password reset link to your email. Please check your inbox."
   },
   "resetPassword": {
+    "verificationCode": "Verification Code",
+    "codePlaceholder": "Enter verification code",
+    "codeRequired": "Verification code is required.",
     "passwordRequired": "Password is required.",
     "passwordShort": "Password must be at least 6 characters.",
     "passwordMismatch": "Passwords do not match.",

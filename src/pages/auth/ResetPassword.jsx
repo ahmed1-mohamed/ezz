@@ -1,15 +1,16 @@
-/* eslint-disable no-unused-vars */
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
+import api from '@/shared/services/api/axiosConfig'
 
 export default function ResetPassword() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
 
+    const [resetCode, setResetCode] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [errors, setErrors] = useState({})
@@ -18,16 +19,19 @@ export default function ResetPassword() {
 
     const validate = () => {
         const nextErrors = {}
+        if (!resetCode.trim()) {
+            nextErrors.resetCode = t('resetPassword.codeRequired', 'رمز التحقق مطلوب.')
+        }
         if (!password) {
             nextErrors.password = t('resetPassword.passwordRequired', 'كلمة المرور مطلوبة.')
         } else if (password.length < 6) {
             nextErrors.password = t('resetPassword.passwordShort', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.')
         }
-        
+
         if (password !== confirmPassword) {
             nextErrors.confirmPassword = t('resetPassword.passwordMismatch', 'كلمتا المرور غير متطابقتين.')
         }
-        
+
         setErrors(nextErrors)
         return Object.keys(nextErrors).length === 0
     }
@@ -35,16 +39,38 @@ export default function ResetPassword() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setErrors({})
-        
+
         if (!validate()) return
 
         try {
             setLoading(true)
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000))
+
+            // Step 1: Verify code
+            const verifyRes = await api.post('/api/v1/auth/verify-code', { resetCode: resetCode.trim() })
+            const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token
+
+            if (tempToken) {
+                localStorage.setItem('access_token', tempToken)
+            }
+
+            // Step 2: Patch reset password
+            await api.patch('/api/v1/auth/reset-password', {
+                password: password,
+                confirmPassword: confirmPassword
+            })
+
+            if (tempToken) {
+                localStorage.removeItem('access_token')
+            }
+
             setIsSubmitted(true)
-        } catch (error) {
-            setErrors({ submit: t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.') })
+        } catch (err) {
+            if (localStorage.getItem('access_token')) {
+                localStorage.removeItem('access_token')
+            }
+            const data = err.response?.data
+            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
+            setErrors({ submit: msg })
         } finally {
             setLoading(false)
         }
@@ -84,6 +110,26 @@ export default function ResetPassword() {
                             </p>
 
                             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-600 px-1">
+                                        {t('resetPassword.verificationCode', 'رمز التحقق')}
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
+                                            <span className="text-slate-400 font-bold">#</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="resetCode"
+                                            value={resetCode}
+                                            onChange={(e) => setResetCode(e.target.value)}
+                                            placeholder={t('resetPassword.codePlaceholder', 'أدخل رمز التحقق')}
+                                            className={`w-full bg-[#F5F8F7] border ${errors.resetCode ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400`}
+                                        />
+                                    </div>
+                                    {errors.resetCode && <p className="text-xs text-red-500 px-1">{errors.resetCode}</p>}
+                                </div>
+
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 px-1">
                                         {t('resetPassword.newPassword', 'كلمة المرور الجديدة')}

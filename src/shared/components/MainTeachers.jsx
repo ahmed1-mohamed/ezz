@@ -37,6 +37,15 @@ const teachersData = [
     },
 ]
 
+const getImageUrl = (imagePath) => {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+        return imagePath;
+    }
+    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+}
+
 function StarRating({ rating }) {
     return (
         <div className="flex gap-0.5 justify-center" dir="ltr">
@@ -55,8 +64,9 @@ function StarRating({ rating }) {
     )
 }
 
-export default function TeachersSection() {
+export default function TeachersSection({ eliteTeachers }) {
     const { t } = useTranslation()
+    const displayTeachers = eliteTeachers && eliteTeachers.length > 0 ? eliteTeachers : teachersData;
 
     return (
         <section className="bg-gradient-to-b from-slate-50 to-white py-24 px-4 relative overflow-hidden">
@@ -82,7 +92,7 @@ export default function TeachersSection() {
                 </motion.div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {teachersData.map((teacher, index) => (
+                    {displayTeachers.map((teacher, index) => (
                         <motion.div
                             key={teacher.id}
                             initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -109,21 +119,21 @@ export default function TeachersSection() {
                                 />
 
                                 <img
-                                    src={teacher.image}
-                                    alt={t(teacher.nameKey)}
+                                    src={getImageUrl(teacher.image)}
+                                    alt={teacher.nameKey ? t(teacher.nameKey) : teacher.name}
                                     className="w-full h-full rounded-full object-cover border-4 border-white shadow-[0_10px_25px_rgba(15,122,108,0.2)] relative z-10"
                                 />
                             </div>
 
                             <h3 className="text-xl font-extrabold text-slate-800 mb-2">
-                                {t(teacher.nameKey, 'اسم المعلم')}
+                                {teacher.nameKey ? t(teacher.nameKey, 'اسم المعلم') : teacher.name}
                             </h3>
                             <p className="text-sm font-medium text-[#0F7A6C] mb-4">
-                                {t(teacher.titleKey, 'التخصص')}
+                                {teacher.titleKey ? t(teacher.titleKey, 'التخصص') : (teacher.title || t('teachers.defaultTitle', 'معلم متميز'))}
                             </p>
 
                             <div className="bg-slate-50 px-4 py-2 rounded-full border border-slate-100 mt-auto">
-                                <StarRating rating={teacher.rating} />
+                                <StarRating rating={teacher.rating || 5} />
                             </div>
                         </motion.div>
                     ))}

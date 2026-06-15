@@ -33,7 +33,7 @@ export default function CTASection({
                     {t(descKey, defaultDesc)}
                 </p>
                 <div className="pt-4">
-                    <button 
+                    <button
                         onClick={() => navigate('/contact')}
                         className="bg-black hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg w-full sm:w-auto cursor-pointer hover:-translate-y-1"
                     >

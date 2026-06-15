@@ -1,11 +1,21 @@
+import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 
 export default function ProtectedRoute() {
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
     const location = useLocation()
+    const token = localStorage.getItem('access_token')
 
-    if (!user) {
+    const hasUserButNoToken = !!(user && !token)
+
+    useEffect(() => {
+        if (hasUserButNoToken) {
+            logout()
+        }
+    }, [hasUserButNoToken, logout])
+
+    if (!user || !token) {
         return <Navigate to="/login" state={{ from: location }} replace />
     }
 

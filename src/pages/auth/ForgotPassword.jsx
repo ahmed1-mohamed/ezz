@@ -1,9 +1,9 @@
-/* eslint-disable no-unused-vars */
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Mail, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
+import api from '@/shared/services/api/axiosConfig'
 
 export default function ForgotPassword() {
     const { t, i18n } = useTranslation()
@@ -18,7 +18,7 @@ export default function ForgotPassword() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setError('')
-        
+
         if (!email) {
             setError(t('forgotPassword.emailRequired', 'البريد الإلكتروني مطلوب.'))
             return
@@ -26,11 +26,12 @@ export default function ForgotPassword() {
 
         try {
             setLoading(true)
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            await api.post('/api/v1/auth/forget-password', { email })
             setIsSubmitted(true)
-        } catch (error) {
-            setError(t('forgotPassword.error', 'حدث خطأ ما. حاول مرة أخرى.'))
+        } catch (err) {
+            const data = err.response?.data
+            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('forgotPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
+            setError(msg)
         } finally {
             setLoading(false)
         }
@@ -110,8 +111,14 @@ export default function ForgotPassword() {
                                 {t('forgotPassword.successMessage', 'لقد أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد الخاص بك.')}
                             </p>
                             <Link
+                                to="/reset-password"
+                                className="block w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] text-center"
+                            >
+                                {t('resetPassword.title', 'إعادة تعيين كلمة المرور')}
+                            </Link>
+                            <Link
                                 to="/login"
-                                className="block w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98]"
+                                className="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl py-4 transition-all text-center"
                             >
                                 {t('forgotPassword.backToLogin', 'العودة لتسجيل الدخول')}
                             </Link>

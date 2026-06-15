@@ -10,7 +10,6 @@ import { publicNavigation } from '@/shared/constants/publicNavigation.js'
 
 export default function AppNavbar() {
     const { t, i18n } = useTranslation()
-    const globeRef = useRef(null)
     const navRef = useRef(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -25,14 +24,17 @@ export default function AppNavbar() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    const handleLanguageToggle = () => {
+    const handleLanguageToggle = (e) => {
         const newLang = i18n.language === 'ar' ? 'en' : 'ar'
         setLanguage(newLang)
 
-        if (globeRef.current) {
-            globeRef.current.style.transform = 'rotate(360deg)'
+        const btn = e.currentTarget
+        if (btn) {
+            btn.style.transition = 'transform 0.6s ease'
+            btn.style.transform = 'rotate(360deg)'
             setTimeout(() => {
-                globeRef.current.style.transform = 'rotate(0deg)'
+                btn.style.transition = 'none'
+                btn.style.transform = 'rotate(0deg)'
             }, 600)
         }
     }
@@ -54,9 +56,7 @@ export default function AppNavbar() {
                 }`}
         >
             <Container>
-                <div
-                    className="flex items-center justify-between h-14 sm:h-16"
-                >
+                <div className="flex items-center justify-between h-14 sm:h-16 relative">
                     <Link
                         to="/"
                         className="flex-shrink-0 text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-200"
@@ -67,7 +67,6 @@ export default function AppNavbar() {
                     <div className="hidden lg:flex items-center gap-6 xl:gap-8">
                         <button
                             onClick={handleLanguageToggle}
-                            ref={globeRef}
                             className="inline-flex items-center justify-center h-9 w-9 xl:h-10 xl:w-10 rounded-full hover:bg-brand-500/10 text-brand-500 transition-all duration-200 hover:scale-105"
                             title={t('language.toggle', 'تغيير اللغة')}
                             aria-label="Toggle language"
@@ -113,70 +112,70 @@ export default function AppNavbar() {
                         </Link>
                     </div>
 
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="lg:hidden inline-flex items-center justify-center h-9 w-9 xl:h-10 xl:w-10 rounded-lg text-slate-700 hover:bg-brand-500/10 hover:text-brand-500 transition-all duration-200"
-                        aria-label="Toggle mobile menu"
-                    >
-                        {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-                    </button>
+                    <div className="flex lg:hidden items-center gap-2">
+                        <button
+                            onClick={handleLanguageToggle}
+                            className="inline-flex items-center justify-center h-9 w-9 rounded-full hover:bg-brand-500/10 text-brand-500 transition-all duration-200 hover:scale-105"
+                            title={t('language.toggle', 'تغيير اللغة')}
+                            aria-label="Toggle language"
+                        >
+                            <Globe size={18} strokeWidth={1.5} />
+                        </button>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="inline-flex items-center justify-center h-9 w-9 rounded-lg text-slate-700 hover:bg-brand-500/10 hover:text-brand-500 transition-all duration-200"
+                            aria-label="Toggle mobile menu"
+                        >
+                            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                        </button>
+                    </div>
                 </div>
 
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3, ease: 'easeInOut' }}
-                            className="lg:hidden mt-4 pb-4 border-t border-slate-200 pt-4"
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="absolute left-4 right-4 top-16 z-[999] bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 p-6 flex flex-col space-y-4 lg:hidden"
                         >
-                            <div className="flex flex-col space-y-4">
-                                <button
-                                    onClick={handleLanguageToggle}
-                                    ref={globeRef}
-                                    className="inline-flex items-center justify-center h-10 w-10 rounded-full hover:bg-brand-500/10 text-brand-500 transition-all duration-200 self-center"
-                                >
-                                    <Globe size={20} strokeWidth={1.5} />
-                                </button>
+                            <nav className="flex flex-col space-y-2">
+                                {navItems.map((item) => (
+                                    <NavLink
+                                        key={item.to}
+                                        to={item.to}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={({ isActive }) =>
+                                            `px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
+                                                ? 'text-white bg-gradient-to-r from-brand-500 to-brand-700 shadow-md'
+                                                : 'text-slate-700 hover:text-brand-500 hover:bg-brand-500/5'
+                                            }`
+                                        }
+                                    >
+                                        {t(item.label)}
+                                    </NavLink>
+                                ))}
+                            </nav>
 
-                                <nav className="flex flex-col space-y-2">
-                                    {navItems.map((item) => (
-                                        <NavLink
-                                            key={item.to}
-                                            to={item.to}
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                            className={({ isActive }) =>
-                                                `px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
-                                                    ? 'text-white bg-gradient-to-r from-brand-500 to-brand-700 shadow-md'
-                                                    : 'text-slate-700 hover:text-brand-500 hover:bg-brand-500/5'
-                                                }`
-                                            }
-                                        >
-                                            {t(item.label)}
-                                        </NavLink>
-                                    ))}
-                                </nav>
-
-                                <div className="flex flex-col gap-2 pt-4 border-t border-slate-200">
-                                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Button
-                                            variant="ghost"
-                                            className="w-full text-slate-700 hover:text-brand-500 hover:bg-brand-500/5"
-                                        >
-                                            {t('public.login', 'تسجيل الدخول')}
-                                        </Button>
-                                    </Link>
-                                    <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <motion.button
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            className="w-full rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                                        >
-                                            {t('public.joinUs', 'انضم إلينا')}
-                                        </motion.button>
-                                    </Link>
-                                </div>
+                            <div className="flex flex-col gap-2 pt-4 border-t border-slate-200/60">
+                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full text-slate-700 hover:text-brand-500 hover:bg-brand-500/5"
+                                    >
+                                        {t('public.login', 'تسجيل الدخول')}
+                                    </Button>
+                                </Link>
+                                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 text-center animate-none"
+                                    >
+                                        {t('public.joinUs', 'انضم إلينا')}
+                                    </motion.button>
+                                </Link>
                             </div>
                         </motion.div>
                     )}

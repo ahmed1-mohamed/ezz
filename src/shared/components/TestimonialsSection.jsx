@@ -2,15 +2,33 @@ import React from 'react';
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-export default React.memo(function TestimonialsSection() {
+const getImageUrl = (imagePath) => {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+        return imagePath;
+    }
+    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+}
+
+export default React.memo(function TestimonialsSection({ testimonials: customTestimonials }) {
     const { t } = useTranslation();
 
     const rawTestimonials = t('testimonials.items', { returnObjects: true });
-    const testimonials = Array.isArray(rawTestimonials) ? rawTestimonials : [
+    const fallbackTestimonials = Array.isArray(rawTestimonials) ? rawTestimonials : [
         { text: 'تجربة تعليمية ممتازة', name: 'أحمد محمود', image: '' },
         { text: 'محتوى رائع جداً', name: 'سارة العبدالله', image: '' },
         { text: 'أفضل قرار اتخذناه لأطفالنا', name: 'خالد يوسف', image: '' }
     ];
+
+    const displayTestimonials = customTestimonials && customTestimonials.length > 0
+        ? customTestimonials.map(item => ({
+            id: item.id,
+            text: item.review,
+            name: item.parentName,
+            image: item.image
+          }))
+        : fallbackTestimonials;
 
     return (
         <section className="relative overflow-hidden bg-[#EEF5F3] py-24">
@@ -32,8 +50,8 @@ export default React.memo(function TestimonialsSection() {
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {testimonials.map((item, index) => (
-                        <TestimonialCard key={index} item={item} index={index} />
+                    {displayTestimonials.map((item, index) => (
+                        <TestimonialCard key={item.id || index} item={item} index={index} />
                     ))}
                 </div>
             </div>
@@ -42,7 +60,9 @@ export default React.memo(function TestimonialsSection() {
 })
 
 const TestimonialCard = React.memo(({ item, index }) => {
-    const avatarImage = item.image || `https://i.pravatar.cc/150?img=${(index * 5) + 11}`;
+    const avatarImage = item.image 
+        ? getImageUrl(item.image) 
+        : `https://i.pravatar.cc/150?img=${(index * 5) + 11}`;
 
     return (
         <motion.div

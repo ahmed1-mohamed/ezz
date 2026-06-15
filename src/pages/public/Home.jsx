@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { useDispatch, useSelector } from 'react-redux'
 import StatisticsBanner from '@/shared/components/StatisticsBanner.jsx'
 import PremiumParentsSection from '@/shared/components/PremiumParentsSection.jsx'
 import EducationalPrograms from '@/shared/components/EducationalPrograms.jsx'
@@ -12,6 +13,7 @@ import imageSrc from '../../images/programs/5.jpg'
 import TeachersSection from '@/shared/components/MainTeachers.jsx'
 import CTASection from '@/shared/components/CTASection.jsx'
 import StarsSection from '@/shared/components/StarsSection.jsx'
+import { fetchLandingPage } from '@/store/landingSlice'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -32,6 +34,13 @@ const itemVariants = {
 export default React.memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
+    
+    const dispatch = useDispatch()
+    const { landingData } = useSelector((state) => state.landing)
+
+    useEffect(() => {
+        dispatch(fetchLandingPage(i18n.language))
+    }, [dispatch, i18n.language])
 
     return (
         <div>
@@ -120,13 +129,13 @@ export default React.memo(function Home() {
                 </section>
             </div>
 
-            <StatisticsBanner />
+            <StatisticsBanner data={landingData?.statistics} />
             <PremiumParentsSection />
             <EducationalPrograms />
-            <StarsSection />
+            <StarsSection featuredStudents={landingData?.featuredStudents} />
             <JourneySteps />
-            <TeachersSection />
-            <TestimonialsSection />
+            <TeachersSection eliteTeachers={landingData?.eliteTeachers} />
+            <TestimonialsSection testimonials={landingData?.testimonials} />
             <CTASection />
         </div>
     )
