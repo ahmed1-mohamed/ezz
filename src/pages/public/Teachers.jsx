@@ -39,6 +39,10 @@ const portraitImages = [
 
 const TeacherCard = React.memo(({ teacher, t, index }) => {
     const navigate = useNavigate();
+    const handleProfileNavigation = () => {
+        navigate(`/teachers/${teacher.id}`);
+    };
+
     return (
     <motion.article
         layout="position"
@@ -49,7 +53,10 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
         style={{ willChange: 'transform, opacity' }}
         className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
     >
-        <div className="relative overflow-hidden rounded-[28px] p-3 pb-0">
+        <div 
+            onClick={handleProfileNavigation}
+            className="relative overflow-hidden rounded-[28px] p-3 pb-0 cursor-pointer"
+        >
             <img
                 src={teacher.image}
                 alt={teacher.name}
@@ -62,7 +69,10 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
         <div className="space-y-5 p-6 text-start">
             <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-col">
-                    <h3 className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1">
+                    <h3 
+                        onClick={handleProfileNavigation}
+                        className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1 cursor-pointer hover:underline"
+                    >
                         {teacher.name}
                     </h3>
                     <p className="mt-2 text-base font-semibold text-[#8B6B15] line-clamp-1">
@@ -91,7 +101,7 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
             </div>
 
             <button 
-                onClick={() => navigate(`/teachers/${teacher.id}`)}
+                onClick={handleProfileNavigation}
                 className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1"
             >
                 {t('teacher.viewProfile', 'عرض الملف الشخصي')}

@@ -148,17 +148,12 @@ export default function Pricing() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.4, delay: index * 0.1 }}
                             key={plan.id}
-                            className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 group ${
+                            className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
                                 plan.popular 
-                                ? 'border-2 border-[#735C00] shadow-lg lg:scale-105 z-10' 
-                                : 'shadow-sm border border-slate-100 hover:shadow-md'
+                                ? 'shadow-lg lg:scale-105 z-10' 
+                                : 'shadow-sm'
                             }`}
                         >
-                            {plan.popular && (
-                                <div className="absolute -top-4 bg-[#735C00] text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-md">
-                                    {t('pricing.popular', 'الأكثر طلباً')}
-                                </div>
-                            )}
                             
                             <div className="bg-[#E6F0ED] w-20 h-20 rounded-full flex items-center justify-center mb-6">
                                 {renderIcon(plan.icon, index)}
@@ -186,11 +181,7 @@ export default function Pricing() {
                                 ))}
                             </ul>
 
-                            <button className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 ${
-                                plan.popular 
-                                ? 'bg-[#00695C] text-white hover:bg-[#005247]' 
-                                : 'bg-[#F1F5F9] text-slate-700 hover:bg-[#E2E8F0]'
-                            }`}>
+                            <button className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] text-white hover:bg-[#005247]">
                                 {t('pricing.btn', 'ابدأ الآن')}
                             </button>
                         </motion.div>
