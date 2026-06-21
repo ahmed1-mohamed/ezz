@@ -19,26 +19,6 @@ function readStoredUser() {
     }
 }
 
-function normalizeRole(userDetails) {
-    let userRole = 'Parent'
-    const rawRole = userDetails?.role || (Array.isArray(userDetails?.roles) && userDetails.roles[0])
-    let roleStr = ''
-    if (rawRole) {
-        if (typeof rawRole === 'string') {
-            roleStr = rawRole
-        } else if (typeof rawRole === 'object') {
-            roleStr = rawRole.name || rawRole.roleName || rawRole.title || ''
-        }
-    }
-    if (roleStr && typeof roleStr === 'string') {
-        const trimmedRole = roleStr.trim()
-        if (trimmedRole) {
-            userRole = trimmedRole.charAt(0).toUpperCase() + trimmedRole.slice(1).toLowerCase()
-        }
-    }
-    return userRole
-}
-
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => readStoredUser())
     const [loading, setLoading] = useState(false)
@@ -63,8 +43,8 @@ export function AuthProvider({ children }) {
             })
 
             const data = res.data?.data || res.data
-            const accessToken = data.token || data.accessToken || data.access_token
-            const refreshToken = data.refresh_token || data.refreshToken
+            const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
+            const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
 
             if (accessToken) {
                 localStorage.setItem('access_token', accessToken)
@@ -74,7 +54,15 @@ export function AuthProvider({ children }) {
             }
 
             const userDetails = data.user || data
-            const userRole = normalizeRole(userDetails)
+            let userRole = 'Parent'
+            if (userDetails.role && typeof userDetails.role === 'string') {
+                const r = userDetails.role.toLowerCase()
+                if (r === 'super_admin' || r === 'superadmin') {
+                    userRole = 'super_admin'
+                } else {
+                    userRole = userDetails.role.charAt(0).toUpperCase() + userDetails.role.slice(1).toLowerCase()
+                }
+            }
             const authUser = {
                 id: userDetails.id || 1,
                 name: userDetails.name || 'User',
@@ -109,8 +97,8 @@ export function AuthProvider({ children }) {
                 password: password
             })
             const data = res.data?.data || res.data
-            const accessToken = data.token || data.accessToken || data.access_token
-            const refreshToken = data.refresh_token || data.refreshToken
+            const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
+            const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
             if (accessToken) {
                 localStorage.setItem('access_token', accessToken)
             }
@@ -118,7 +106,15 @@ export function AuthProvider({ children }) {
                 localStorage.setItem('refresh_token', refreshToken)
             }
             const userDetails = data.user || data
-            const userRole = normalizeRole(userDetails)
+            let userRole = 'Parent'
+            if (userDetails.role && typeof userDetails.role === 'string') {
+                const r = userDetails.role.toLowerCase()
+                if (r === 'super_admin' || r === 'superadmin') {
+                    userRole = 'super_admin'
+                } else {
+                    userRole = userDetails.role.charAt(0).toUpperCase() + userDetails.role.slice(1).toLowerCase()
+                }
+            }
             const authUser = {
                 id: userDetails.id || 1,
                 name: userDetails.name || 'User',

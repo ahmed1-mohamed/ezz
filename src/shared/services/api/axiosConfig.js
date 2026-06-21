@@ -9,20 +9,17 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    // 1. Inject language as a query param (unified method, prevents CORS preflight errors compared to x-lang header)
     const lang = localStorage.getItem('appLanguage') || 'ar';
     config.params = {
       ...config.params,
       lang,
     };
 
-    // 2. Inject Authorization token
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // 3. Custom headers (only if values exist)
     const apiKey = localStorage.getItem('x_api_key');
     if (apiKey) {
       config.headers['X-API-KEY'] = apiKey;

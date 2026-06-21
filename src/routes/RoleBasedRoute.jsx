@@ -5,7 +5,11 @@ export default function RoleBasedRoute({ allowedRoles }) {
     const { user } = useAuth()
     const location = useLocation()
 
-    if (!user || !allowedRoles.includes(user.role)) {
+    const hasAccess = user && allowedRoles.some(
+        (role) => role.toLowerCase() === user.role.toLowerCase()
+    )
+
+    if (!user || !hasAccess) {
         return <Navigate to="/unauthorized" state={{ from: location }} replace />
     }
 

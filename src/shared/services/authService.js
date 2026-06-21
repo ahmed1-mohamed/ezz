@@ -37,16 +37,19 @@ export const users = [
 ];
 
 export function getRedirectPath(role) {
-  switch (role) {
-    case "Admin":
+  if (!role) return "/login";
+  switch (role.toLowerCase()) {
+    case "admin":
+    case "super_admin":
+    case "superadmin":
       return "/dashboard/admin";
-    case "Manager":
+    case "manager":
       return "/dashboard/manager";
-    case "Teacher":
+    case "teacher":
       return "/dashboard/teacher";
-    case "Student":
+    case "student":
       return "/dashboard/student";
-    case "Parent":
+    case "parent":
       return "/dashboard/parent";
     default:
       return "/login";

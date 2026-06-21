@@ -72,7 +72,30 @@
     "report2Title": "Usage Report",
     "report2Description": "Platform usage statistics.",
     "report3Title": "Financial Report",
-    "report3Description": "Overview of revenues and expenses."
+    "report3Description": "Overview of revenues and expenses.",
+    "totalStudents": "Total Students",
+    "newStudentsThisMonth": "12 new students this month",
+    "totalTeachers": "Total Teachers",
+    "pendingReview": "1 pending review",
+    "parents": "Parents",
+    "activeRegistered": "Active registered",
+    "activeSessionsToday": "Active Sessions Today",
+    "liveNow": "2 live now",
+    "totalGroups": "Total Groups",
+    "groupsSubtext": "12 groups + 2 private",
+    "platformRating": "Average Platform Rating",
+    "fromParents": "From parents",
+    "latestSessions": "Latest Sessions",
+    "viewAll": "View All",
+    "group": "Group",
+    "teacher": "Teacher",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "statusLive": "Live Now",
+    "statusUpcoming": "Upcoming",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled"
   },
   "manager": {
     "stats": {
@@ -1781,5 +1804,56 @@
     "statsSessions": "Total Sessions",
     "statsExp": "Years of Experience",
     "scheduleTitle": "Daily Schedule"
+  },
+  "sessions": {
+    "groupQuranA": "Quran Group A",
+    "groupArabicB": "Arabic Group B",
+    "groupQuranC": "Quran Group C",
+    "privateSessionMajed": "Private Session - Majed",
+    "groupArabicA": "Arabic Group A",
+    "teacherFatima": "T. Fatima Al-Zahraa",
+    "teacherMohamed": "T. Mohamed Al-Saeed",
+    "teacherAisha": "T. Aisha Mahmoud",
+    "teacherMaryam": "T. Maryam Al-Ali"
+  },
+  "adminDashboard": {
+    "header": {
+      "title": "Manarat Al-Ezz",
+      "subtitle": "Admin Panel"
+    },
+    "nav": {
+      "home": "Overview",
+      "managers": "Managers",
+      "teachers": "Teachers",
+      "students": "Students",
+      "studentLevels": "Student Levels",
+      "parents": "Parents",
+      "groups": "Groups",
+      "website": "Website",
+      "sessions": "Sessions",
+      "studySchedule": "Study Schedule",
+      "packages": "Packages & Pricing",
+      "payments": "Payments",
+      "earnings": "Earnings & Profits",
+      "rewards": "Rewards System",
+      "assignments": "Assignments",
+      "curriculums": "Study Curriculums",
+      "discountCodes": "Discount Codes",
+      "reports": "Analytics & Reports",
+      "settings": "Settings"
+    },
+    "searchPlaceholder": "Search the platform...",
+    "panelTitle": "Main Dashboard",
+    "panelSubtitle": "Manarat Al-Ezz Academy - Admin Panel",
+    "adminName": "Admin Ahmed",
+    "adminRole": "General Supervisor",
+    "liveNowSection": "Live Now",
+    "quranGroupA": "Quran Group A",
+    "fourStudents": "4 students",
+    "elapsed23Min": "23 minutes ago",
+    "privateSessionYazid": "Private Session - Yazid",
+    "oneStudent": "1 student",
+    "elapsed8Min": "8 minutes ago",
+    "upcomingSessionsToday": "5 upcoming sessions today"
   }
 }

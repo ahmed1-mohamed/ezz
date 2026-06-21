@@ -1,0 +1,237 @@
+import { useState } from 'react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Home,
+  Users,
+  GraduationCap,
+  Book,
+  Award,
+  Heart,
+  Layers,
+  Globe,
+  Calendar,
+  Clock,
+  Tag,
+  CreditCard,
+  TrendingUp,
+  Gift,
+  Edit3,
+  BookMarked,
+  Percent,
+  BarChart2,
+  Bell,
+  Search,
+  Menu,
+  X,
+  LogOut,
+  Settings,
+} from 'lucide-react'
+import { useAuth } from '@/shared/context/useAuth'
+
+const navItems = [
+  { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
+  { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers' },
+  { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers' },
+  { path: '/dashboard/admin/students', icon: Book, transKey: 'students' },
+  { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels' },
+  { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents' },
+  { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups' },
+  { path: '/', icon: Globe, transKey: 'website' },
+  { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions' },
+  { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule' },
+  { path: '/dashboard/admin/packages', icon: Tag, transKey: 'packages' },
+  { path: '/dashboard/admin/payments', icon: CreditCard, transKey: 'payments' },
+  { path: '/dashboard/admin/earnings', icon: TrendingUp, transKey: 'earnings' },
+  { path: '/dashboard/admin/rewards', icon: Gift, transKey: 'rewards' },
+  { path: '/dashboard/admin/assignments', icon: Edit3, transKey: 'assignments' },
+  { path: '/dashboard/admin/curriculums', icon: BookMarked, transKey: 'curriculums' },
+  { path: '/dashboard/admin/discount-codes', icon: Percent, transKey: 'discountCodes' },
+  { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },
+  { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
+]
+
+export default function AdminLayout() {
+  const { user, logout } = useAuth()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language.startsWith('ar')
+
+
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+  const userInitial = user?.name ? user.name.trim().charAt(0) : 'أ'
+  const displayRole = user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول')
+
+  return (
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+
+      {/* Mobile Top Header */}
+      <header className="lg:hidden w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 h-16 px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white">
+            <BookMarked size={20} />
+          </div>
+          <div className="text-start">
+            <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">
+              {t('adminDashboard.header.title', 'منارة العز')}
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-[10px]">
+              {t('adminDashboard.header.subtitle', 'لوحة الإدارة')}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-slate-700 dark:text-slate-300 transition-colors"
+        >
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Desktop & Mobile Sidebar */}
+      <aside className={`
+        fixed lg:sticky top-0 h-screen z-40
+        w-64 bg-white dark:bg-slate-950 border-e border-slate-200 dark:border-slate-800
+        transition-transform duration-300 ease-in-out
+        flex flex-col shrink-0
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
+      `}>
+        {/* Brand Logo Section */}
+        <div className="p-5 flex items-center gap-3 border-b border-slate-100 dark:border-slate-900 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0">
+            <BookMarked size={22} />
+          </div>
+          <div className="text-start">
+            <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-base leading-tight">
+              {t('adminDashboard.header.title', 'منارة العز')}
+            </h2>
+            <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
+              {t('adminDashboard.header.subtitle', 'لوحة الإدارة')}
+            </p>
+          </div>
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.end}
+              className={({ isActive }) => `
+                flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
+                ${isActive
+                  ? 'bg-[#0f7a6c] text-white font-semibold shadow-md shadow-[#0f7a6c]/10'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-[#0f7a6c] dark:hover:text-emerald-400 hover:ps-5'}
+              `}
+            >
+              <item.icon size={18} className="me-3 transition-transform group-hover:scale-110" />
+              <span className="text-sm">{t(`adminDashboard.nav.${item.transKey}`)}</span>
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Logout Section */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-900 shrink-0">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-xl transition-all font-medium group"
+          >
+            <LogOut size={18} className="me-2 transition-transform group-hover:-translate-x-1" />
+            <span className="text-sm">{t('dashboard.logout', 'تسجيل الخروج')}</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Panel Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Universal Top Header */}
+        <header className="hidden lg:flex h-20 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-900 items-center justify-between px-8 sticky top-0 z-20 shrink-0">
+
+          {/* Right Header Section (Title) */}
+          <div className="text-start">
+            <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
+              {t('adminDashboard.panelTitle', 'لوحة التحكم الرئيسية')}
+            </h1>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+              {t('adminDashboard.panelSubtitle', 'منارة العز أكاديمي - لوحة الإدارة')}
+            </p>
+          </div>
+
+          {/* Center Header Section (Search Bar) */}
+          <div className="w-96 relative mx-4">
+            <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
+              <Search className="w-4 h-4 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('adminDashboard.searchPlaceholder', 'بحث في المنصة...')}
+              className="w-full bg-[#f3f7f6] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c]/40 focus:bg-white text-slate-800 dark:text-slate-200 rounded-full py-2 ps-10 pe-4 outline-none transition-all placeholder-slate-400 text-sm"
+            />
+          </div>
+
+          {/* Left Header Section (Notifications and Profile) */}
+          <div className="flex items-center gap-6">
+
+            {/* Notification Bell */}
+            <button className="relative p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-[#f3f7f6] dark:bg-slate-900 rounded-full hover:scale-105 active:scale-95">
+              <Bell size={20} />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border border-white dark:border-slate-950 rounded-full" />
+            </button>
+
+            {/* Vertical Separator */}
+            <div className="w-[1px] h-8 bg-slate-200 dark:bg-slate-800" />
+
+            {/* Profile Info */}
+            <div className="flex items-center gap-3">
+              <div className="text-end hidden xl:block">
+                <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {user?.name || t('adminDashboard.adminName', 'أحمد الإداري')}
+                </h4>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                  {displayRole}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                {userInitial}
+              </div>
+            </div>
+
+          </div>
+
+        </header>
+
+        {/* Nested Content Panel */}
+        <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
+          <Outlet />
+        </main>
+
+      </div>
+
+    </div>
+  )
+}

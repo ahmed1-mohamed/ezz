@@ -10,6 +10,7 @@ import PublicLayout from '../layouts/PublicLayout.jsx'
 import Login from '../pages/auth/Login.jsx'
 import ForgotPassword from '../pages/auth/ForgotPassword.jsx'
 import ResetPassword from '../pages/auth/ResetPassword.jsx'
+import AdminLayout from '../layouts/AdminLayout.jsx'
 
 const Home = lazy(() => import('../pages/public/Home.jsx'))
 const About = lazy(() => import('../pages/public/About.jsx'))
@@ -25,6 +26,7 @@ const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashb
 const AdminStudents = lazy(() => import('../dashboard/admin/students/AdminStudents.jsx'))
 const AdminTeachers = lazy(() => import('../dashboard/admin/teachers/AdminTeachers.jsx'))
 const AdminReports = lazy(() => import('../dashboard/admin/reports/AdminReports.jsx'))
+const AdminSettings = lazy(() => import('../dashboard/admin/settings/AdminSettings.jsx'))
 
 const ManagerDashboard = lazy(() => import('../dashboard/manager/overview/ManagerDashboard.jsx'))
 const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCourses.jsx'))
@@ -192,23 +194,29 @@ export default function AppRoutes() {
                                 }
                             />
 
-                            <Route element={<RoleBasedRoute allowedRoles={['Admin']} />}>
-                                <Route
-                                    path="/dashboard/admin"
-                                    element={<AnimatedPage><AdminDashboard /></AnimatedPage>}
-                                />
-                                <Route
-                                    path="/dashboard/admin/students"
-                                    element={<AnimatedPage><AdminStudents /></AnimatedPage>}
-                                />
-                                <Route
-                                    path="/dashboard/admin/teachers"
-                                    element={<AnimatedPage><AdminTeachers /></AnimatedPage>}
-                                />
-                                <Route
-                                    path="/dashboard/admin/reports"
-                                    element={<AnimatedPage><AdminReports /></AnimatedPage>}
-                                />
+                            <Route element={<RoleBasedRoute allowedRoles={['Admin', 'super_admin']} />}>
+                                <Route element={<AdminLayout />}>
+                                    <Route
+                                        path="/dashboard/admin"
+                                        element={<AnimatedPage><AdminDashboard /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/students"
+                                        element={<AnimatedPage><AdminStudents /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/teachers"
+                                        element={<AnimatedPage><AdminTeachers /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/reports"
+                                        element={<AnimatedPage><AdminReports /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/settings"
+                                        element={<AnimatedPage><AdminSettings /></AnimatedPage>}
+                                    />
+                                </Route>
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Manager']} />}>

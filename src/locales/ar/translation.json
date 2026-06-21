@@ -72,7 +72,30 @@
     "report2Title": "تقرير الاستخدام",
     "report2Description": "إحصائيات استخدام المنصة.",
     "report3Title": "تقرير المالي",
-    "report3Description": "نظرة على الإيرادات والمصروفات."
+    "report3Description": "نظرة على الإيرادات والمصروفات.",
+    "totalStudents": "إجمالي الطلاب",
+    "newStudentsThisMonth": "12 طالب جديد هذا الشهر",
+    "totalTeachers": "إجمالي المعلمين",
+    "pendingReview": "1 قيد المراجعة",
+    "parents": "أولياء الأمور",
+    "activeRegistered": "مسجلون نشطون",
+    "activeSessionsToday": "الحصص النشطة اليوم",
+    "liveNow": "2 مباشر الآن",
+    "totalGroups": "إجمالي المجموعات",
+    "groupsSubtext": "12 مجموعة + 2 خاصة",
+    "platformRating": "متوسط تقييم المنصة",
+    "fromParents": "من أولياء الأمور",
+    "latestSessions": "آخر الحصص",
+    "viewAll": "عرض الكل",
+    "group": "المجموعة",
+    "teacher": "المعلم",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "status": "الحالة",
+    "statusLive": "مباشرة الآن",
+    "statusUpcoming": "قادمة",
+    "statusCompleted": "مكتملة",
+    "statusCancelled": "ملغاة"
   },
   "manager": {
     "stats": {
@@ -1592,5 +1615,56 @@
     "statsSessions": "إجمالي الحصص",
     "statsExp": "سنوات الخبرة",
     "scheduleTitle": "الجدول اليومي"
+  },
+  "sessions": {
+    "groupQuranA": "مجموعة القرآن أ",
+    "groupArabicB": "مجموعة العربية ب",
+    "groupQuranC": "مجموعة القرآن ج",
+    "privateSessionMajed": "حصة خاصة - ماجد",
+    "groupArabicA": "مجموعة العربية أ",
+    "teacherFatima": "أ. فاطمة الزهراء",
+    "teacherMohamed": "أ. محمد السعيد",
+    "teacherAisha": "أ. عائشة محمود",
+    "teacherMaryam": "أ. مريم العلي"
+  },
+  "adminDashboard": {
+    "header": {
+      "title": "منارة العز",
+      "subtitle": "لوحة الإدارة"
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "managers": "المديرين",
+      "teachers": "المعلمون",
+      "students": "الطلاب",
+      "studentLevels": "مستويات الطلاب",
+      "parents": "أولياء الأمور",
+      "groups": "المجموعات",
+      "website": "الموقع الإلكتروني",
+      "sessions": "الحصص",
+      "studySchedule": "الجدول الدراسي",
+      "packages": "الباقات والأسعار",
+      "payments": "المدفوعات",
+      "earnings": "الأرباح والمكاسب",
+      "rewards": "نظام المكافآت",
+      "assignments": "الواجبات",
+      "curriculums": "المناهج الدراسية",
+      "discountCodes": "أكواد الخصم",
+      "reports": "التحليلات والتقارير",
+      "settings": "الإعدادات"
+    },
+    "searchPlaceholder": "بحث في المنصة...",
+    "panelTitle": "لوحة التحكم الرئيسية",
+    "panelSubtitle": "منارة العز أكاديمي - لوحة الإدارة",
+    "adminName": "أحمد الإداري",
+    "adminRole": "مشرف عام",
+    "liveNowSection": "مباشر الآن",
+    "quranGroupA": "مجموعة القرآن أ",
+    "fourStudents": "4 طلاب",
+    "elapsed23Min": "منذ 23 دقيقة",
+    "privateSessionYazid": "حصة خاصة - يزيد",
+    "oneStudent": "1 طلاب",
+    "elapsed8Min": "منذ 8 دقائق",
+    "upcomingSessionsToday": "5 حصص قادمة اليوم"
   }
 }

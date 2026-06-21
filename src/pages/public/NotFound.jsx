@@ -2,9 +2,13 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Button from '@/shared/components/Button.jsx'
 import { Home } from 'lucide-react'
+import { useAuth } from '@/shared/context/useAuth.jsx'
+import { getRedirectPath } from '@/shared/services/authService.js'
 
 export default function NotFound() {
     const { t } = useTranslation()
+    const { user } = useAuth()
+    const redirectPath = user ? getRedirectPath(user.role) : '/'
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#EEF4F2] px-6 py-16 text-slate-900 font-sans">
@@ -19,7 +23,7 @@ export default function NotFound() {
                         {t('errors.notFoundDesc', 'قد تكون الصفحة التي تبحث عنها قد أزيلت، أو تم تغيير اسمها، أو غير متاحة مؤقتاً.')}
                     </p>
                     <div className="flex justify-center">
-                        <Link to="/">
+                        <Link to={redirectPath}>
                             <Button variant="primary" className="flex items-center gap-2 px-8 py-4 text-lg">
                                 <Home className="w-5 h-5" />
                                 <span>{t('errors.goHome', 'العودة للرئيسية')}</span>
