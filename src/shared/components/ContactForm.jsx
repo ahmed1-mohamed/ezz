@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
-import { Send, Mail, MessageCircle, Phone, ChevronDown } from 'lucide-react'
+import { Send } from 'lucide-react'
 import { fetchContactInfo, sendMessage, resetMessageSubmitStatus } from '@/store/landingSlice'
+import ContactBanner from './ContactBanner.jsx'
+import ContactInfoCards from './ContactInfoCards.jsx'
+import CountryPhoneInput from './CountryPhoneInput.jsx'
 
 const getSafeErrorMessage = (err) => {
     if (!err) return '';
@@ -22,11 +25,10 @@ const getSafeErrorMessage = (err) => {
 }
 
 export default function ContactForm() {
-    const { t, i18n } = useTranslation()
+    const { t } = useTranslation()
     const dispatch = useDispatch()
     const { contactInfo, messageSubmitStatus, error: submitError } = useSelector((state) => state.landing)
 
-    const [countryCode, setCountryCode] = useState('+20')
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -55,7 +57,6 @@ export default function ContactForm() {
                 phone: '+20 ',
                 message: ''
             })
-            setCountryCode('+20')
             dispatch(resetMessageSubmitStatus())
         } else if (messageSubmitStatus === 'failed') {
             const errorMsg = getSafeErrorMessage(submitError) || t('contact.toast.error', 'عذراً، حدث خطأ ما أثناء إرسال الرسالة.');
@@ -77,43 +78,16 @@ export default function ContactForm() {
         }
     }, [toast.show])
 
-    const countries = [
-        { code: '+20', nameAr: 'مصر', nameEn: 'Egypt' },
-        { code: '+966', nameAr: 'السعودية', nameEn: 'KSA' },
-        { code: '+971', nameAr: 'الإمارات', nameEn: 'UAE' },
-        { code: '+965', nameAr: 'الكويت', nameEn: 'Kuwait' },
-        { code: '+974', nameAr: 'قطر', nameEn: 'Qatar' },
-        { code: '+973', nameAr: 'البحرين', nameEn: 'Bahrain' },
-        { code: '+968', nameAr: 'عمان', nameEn: 'Oman' },
-    ]
-
     const handleInputChange = (e) => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
-        
-        if (name === 'phone') {
-            const matchedCountry = countries.find(c => value.trim().startsWith(c.code))
-            if (matchedCountry) {
-                setCountryCode(matchedCountry.code)
-            }
-        }
-
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }))
         }
     }
 
-    const handleCountryChange = (code) => {
-        setCountryCode(code)
-        setFormData(prev => {
-            let currentPhone = prev.phone.trim()
-            const existingCountry = countries.find(c => currentPhone.startsWith(c.code))
-            if (existingCountry) {
-                currentPhone = currentPhone.substring(existingCountry.code.length).trim()
-            }
-            const newPhone = `${code} ${currentPhone}`
-            return { ...prev, phone: newPhone }
-        })
+    const handlePhoneChange = (newPhone) => {
+        setFormData(prev => ({ ...prev, phone: newPhone }))
         if (errors.phone) {
             setErrors(prev => ({ ...prev, phone: '' }))
         }
@@ -139,11 +113,24 @@ export default function ContactForm() {
             newErrors.title = t('contact.validation.titleMin', 'موضوع الرسالة يجب أن يكون 5 أحرف على الأقل')
         }
 
-        const cleanPhone = formData.phone.trim().replace(/\D/g, '')
-        if (!formData.phone.trim()) {
+        const phoneVal = formData.phone.trim()
+        if (!phoneVal) {
             newErrors.phone = t('contact.validation.phoneRequired', 'رقم الهاتف مطلوب')
-        } else if (cleanPhone.length < 7 || cleanPhone.length > 15) {
-            newErrors.phone = t('contact.validation.phoneInvalid', 'رقم الهاتف غير صحيح')
+        } else if (!phoneVal.startsWith('+')) {
+            newErrors.phone = t('contact.validation.phoneInvalidCountry', 'يجب أن يبدأ رقم الهاتف برمز دولة صحيح (مثال: +20)')
+        } else {
+            const digits = phoneVal.substring(1).replace(/\D/g, '')
+            if (digits.length < 8 || digits.length > 15) {
+                newErrors.phone = t('contact.validation.phoneInvalidLength', 'رقم الهاتف غير صحيح')
+            } else {
+                const spaceIndex = phoneVal.indexOf(' ')
+                if (spaceIndex !== -1) {
+                    const rest = phoneVal.substring(spaceIndex + 1).replace(/\D/g, '')
+                    if (rest.startsWith('0')) {
+                        newErrors.phone = t('contact.validation.phoneNoZero', 'لا يجب كتابة الصفر بعد رمز الدولة')
+                    }
+                }
+            }
         }
 
         if (!formData.message.trim()) {
@@ -178,13 +165,10 @@ export default function ContactForm() {
     const handleSubmit = (e) => {
         e.preventDefault()
         if (validateForm()) {
-            const phoneToSubmit = formData.phone.trim().startsWith('+')
-                ? formData.phone.trim()
-                : `${countryCode} ${formData.phone.trim()}`
             const payload = {
                 name: formData.name.trim(),
                 email: formData.email.trim(),
-                phone: phoneToSubmit,
+                phone: formData.phone.trim(),
                 title: formData.title.trim(),
                 message: formData.message.trim()
             }
@@ -194,20 +178,7 @@ export default function ContactForm() {
 
     return (
         <section className="max-w-5xl mx-auto mb-24 px-4 sm:px-6 lg:px-8">
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-[2rem] p-8 sm:p-10 mb-8 shadow-sm border border-slate-100 text-center space-y-3"
-            >
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                    {t('contact.banner.title', 'تواصل معنا للتسجيل والاشتراك')}
-                </h2>
-                <p className="text-slate-500 font-medium text-base sm:text-lg">
-                    {t('contact.banner.desc', 'امنح أطفالك فرصة للتعلم والتطور من خلال دوراتنا التعليمية المصممة لتنمية المهارات وبناء الثقة بطريقة ممتعة وآمنة.')}
-                </p>
-            </motion.div>
+            <ContactBanner />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -217,7 +188,6 @@ export default function ContactForm() {
                 className="bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-lg border border-slate-100/50"
             >
                 <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 px-1">
@@ -229,8 +199,7 @@ export default function ContactForm() {
                                 value={formData.name}
                                 onChange={handleInputChange}
                                 placeholder={t('contact.form.namePlaceholder', 'أدخل اسمك هنا')}
-                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-transparent'
-                                    }`}
+                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
                             />
                             {errors.name && <span className="text-xs text-red-500 font-bold px-1 block">{errors.name}</span>}
                         </div>
@@ -246,8 +215,7 @@ export default function ContactForm() {
                                 onChange={handleInputChange}
                                 dir="ltr"
                                 placeholder={t('contact.form.emailPlaceholder', 'example@mail.com')}
-                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all text-start ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-transparent'
-                                    }`}
+                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all text-start ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
                             />
                             {errors.email && <span className="text-xs text-red-500 font-bold px-1 block">{errors.email}</span>}
                         </div>
@@ -262,46 +230,16 @@ export default function ContactForm() {
                                 value={formData.title}
                                 onChange={handleInputChange}
                                 placeholder={t('contact.form.subjectPlaceholder', 'أدخل الموضوع')}
-                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all ${errors.title ? 'border-red-500 focus:ring-red-500' : 'border-transparent'
-                                    }`}
+                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all ${errors.title ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
                             />
                             {errors.title && <span className="text-xs text-red-500 font-bold px-1 block">{errors.title}</span>}
                         </div>
 
-                        <div className="space-y-2 text-start">
-                            <label className="block text-sm font-bold text-slate-700 px-1">
-                                {t('contact.form.phone', 'رقم الهاتف')}
-                            </label>
-                            <div className="flex gap-3">
-                                <div className="relative w-1/3 sm:w-1/4">
-                                    <select
-                                        value={countryCode}
-                                        onChange={(e) => handleCountryChange(e.target.value)}
-                                        className="w-full h-full bg-[#F5F5F2] border-none text-slate-600 text-sm sm:text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] p-4 appearance-none ltr:pr-10 rtl:pl-10 ltr:pl-4 rtl:pr-4 cursor-pointer transition-shadow"
-                                    >
-                                        {countries.map((country) => (
-                                            <option key={country.code} value={country.code}>
-                                                {i18n.language === 'en' ? country.nameEn : country.nameAr}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute inset-y-0 ltr:right-4 rtl:left-4 flex items-center pointer-events-none">
-                                        <ChevronDown className="w-4 h-4 text-slate-400" />
-                                    </div>
-                                </div>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    dir="ltr"
-                                    placeholder={t('contact.form.phonePlaceholder', '01012345678')}
-                                    className={`flex-1 w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all text-start ${errors.phone ? 'border-red-500 focus:ring-red-500' : 'border-transparent'
-                                        }`}
-                                />
-                            </div>
-                            {errors.phone && <span className="text-xs text-red-500 font-bold px-1 block">{errors.phone}</span>}
-                        </div>
+                        <CountryPhoneInput
+                            value={formData.phone}
+                            onChange={handlePhoneChange}
+                            error={errors.phone}
+                        />
                     </div>
 
                     <div className="space-y-2 text-start">
@@ -314,8 +252,7 @@ export default function ContactForm() {
                             value={formData.message}
                             onChange={handleInputChange}
                             placeholder={t('contact.form.messagePlaceholder', 'كيف يمكننا مساعدتك اليوم؟')}
-                            className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-5 transition-all resize-none ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-transparent'
-                                }`}
+                            className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-5 transition-all resize-none ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
                         ></textarea>
                         {errors.message && <span className="text-xs text-red-500 font-bold px-1 block">{errors.message}</span>}
                     </div>
@@ -332,38 +269,7 @@ export default function ContactForm() {
                     </div>
                 </form>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 pt-12 border-t border-slate-100">
-                    <a href={`mailto:${contactInfo?.email || 'info@manaratezz.edu.sa'}`} className="flex items-center justify-center gap-4 group cursor-pointer transition-transform hover:-translate-y-1">
-                        <div className="bg-[#FECD31]/20 w-12 h-12 rounded-xl flex items-center justify-center transition-colors group-hover:bg-[#FECD31]/30">
-                            <Mail className="w-5 h-5 text-[#735C00]" />
-                        </div>
-                        <div className="text-start">
-                            <h4 className="font-bold text-slate-900">{t('contact.info.emailTitle', 'البريد الإلكتروني')}</h4>
-                            <p className="text-sm text-slate-500 font-medium">{contactInfo?.email || 'info@manaratezz.edu.sa'}</p>
-                        </div>
-                    </a>
-
-                    <a href={`https://wa.me/${(contactInfo?.whatsapp || '+0201012345678').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-4 group cursor-pointer transition-transform hover:-translate-y-1 border-y md:border-y-0 md:border-x border-slate-100 py-6 md:py-0">
-                        <div className="bg-[#E6F0ED] w-12 h-12 rounded-xl flex items-center justify-center transition-colors group-hover:bg-[#E6F0ED]/80">
-                            <MessageCircle className="w-5 h-5 text-[#00695C]" />
-                        </div>
-                        <div className="text-start">
-                            <h4 className="font-bold text-slate-900">{t('contact.info.whatsappTitle', 'واتساب')}</h4>
-                            <p className="text-sm text-slate-500 font-medium">{contactInfo?.whatsapp || '+0201012345678'}</p>
-                        </div>
-                    </a>
-
-                    <a href={`tel:${contactInfo?.phone || '+0201012345678'}`} className="flex items-center justify-center gap-4 group cursor-pointer transition-transform hover:-translate-y-1">
-                        <div className="bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center transition-colors group-hover:bg-slate-200">
-                            <Phone className="w-5 h-5 text-slate-600" />
-                        </div>
-                        <div className="text-start">
-                            <h4 className="font-bold text-slate-900">{t('contact.info.phoneTitle', 'اتصل بنا')}</h4>
-                            <p className="text-sm text-slate-500 font-medium">{contactInfo?.phone || '+0201012345678'}</p>
-                        </div>
-                    </a>
-                </div>
-
+                <ContactInfoCards contactInfo={contactInfo} />
             </motion.div>
 
             {/* Custom Toast Notification */}
@@ -374,11 +280,10 @@ export default function ContactForm() {
                         animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, x: 50, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-white font-bold border ${
-                            toast.type === 'success' 
-                            ? 'bg-[#00695C] border-[#004D40] text-white' 
+                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-white font-bold border ${toast.type === 'success'
+                            ? 'bg-[#00695C] border-[#004D40] text-white'
                             : 'bg-red-600 border-red-700 text-white'
-                        }`}
+                            }`}
                     >
                         {toast.type === 'success' ? (
                             <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">

@@ -43,5 +43,15 @@ export const landingApi = {
       console.error('Error sending message:', error);
       throw error;
     }
+  },
+
+  fetchCountries: async (params) => {
+    try {
+      const response = await api.get('/api/v1/countries', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+      throw error;
+    }
   }
 };

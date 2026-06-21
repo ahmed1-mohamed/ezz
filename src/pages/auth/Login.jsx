@@ -55,7 +55,7 @@ export default function Login() {
             })
             setTimeout(() => {
                 navigate(getRedirectPath(user.role))
-            }, 1000)
+            }, 50)
         } catch (error) {
             setServerError(error.message)
             setToast({
@@ -99,7 +99,7 @@ export default function Login() {
             })
             setTimeout(() => {
                 navigate(getRedirectPath(user.role))
-            }, 1000)
+            }, 50)
         } catch (error) {
             setServerError(error.message)
             setToast({
@@ -142,12 +142,6 @@ export default function Login() {
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-
-                        <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 p-3 rounded-xl text-sm text-center shadow-sm">
-                            <p className="font-semibold mb-1">{isRtl ? 'بيانات دخول لوحة ولي الأمر (للتجربة):' : 'Parent Dashboard Demo Credentials:'}</p>
-
-                        </div>
-
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 px-1">
                                 {t('login.emailLabel', 'البريد الإلكتروني')}
@@ -248,8 +242,8 @@ export default function Login() {
                         exit={{ opacity: 0, y: -20, x: 50, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-white font-bold border ${toast.type === 'success'
-                                ? 'bg-[#00695C] border-[#004D40] text-white'
-                                : 'bg-red-600 border-red-700 text-white'
+                            ? 'bg-[#00695C] border-[#004D40] text-white'
+                            : 'bg-red-600 border-red-700 text-white'
                             }`}
                     >
                         {toast.type === 'success' ? (

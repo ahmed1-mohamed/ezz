@@ -74,13 +74,12 @@ export default function StarsSection({ featuredStudents }) {
                                         />
                                     </div>
                                 </div>
-                                {/* Aspect Ratio Wrapper for uniform sizing */}
                                 <div className="w-40 h-40 sm:w-48 sm:h-48 invisible"></div>
                             </div>
 
                             <h3 className="text-xl font-bold text-slate-900 mb-2">
-                                {student.id && typeof student.id === 'number' && student.id <= 4 
-                                    ? t(`stars.student.${student.id}.name`, student.name) 
+                                {student.id && typeof student.id === 'number' && student.id <= 4
+                                    ? t(`stars.student.${student.id}.name`, student.name)
                                     : student.name}
                             </h3>
 
