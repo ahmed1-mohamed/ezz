@@ -18,6 +18,8 @@ const ToggleSwitch = ({ checked, onChange, isRtl }) => (
 export default function ParentSettings() {
     const { t, i18n } = useTranslation();
     const { theme, setTheme } = useAuth();
+    const isRtl = i18n.language === 'ar';
+
     const [profileData, setProfileData] = useState({
         country: 'مصر',
         email: 'ahmed@example.com',
@@ -78,15 +80,15 @@ export default function ParentSettings() {
             initial="hidden"
             animate="show"
             className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans bg-transparent min-h-screen"
-            dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
+            dir={isRtl ? 'rtl' : 'ltr'}
         >
             <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-start gap-2">
-                <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{t('parent.settings.title')}</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('parent.settings.subtitle')}</p>
+                <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{t('parentSettings.title')}</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('parentSettings.subtitle')}</p>
             </motion.div>
 
             <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-8 text-start">{t('parent.settings.profile')}</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-8 text-start">{t('parentSettings.profile')}</h2>
 
                 <div className="flex flex-col md:flex-row items-center justify-start gap-6 mb-8">
                     <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shrink-0 relative overflow-hidden">
@@ -94,15 +96,15 @@ export default function ParentSettings() {
                     </div>
                     <div className="flex flex-col items-center md:items-start text-center md:text-start mt-4 md:mt-0">
                         <button className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors mb-2">
-                            {t('parent.settings.changePhoto')}
+                            {t('parentSettings.changePhoto')}
                         </button>
-                        <span className="text-[10px] text-slate-400">{t('parent.settings.photoLimits')}</span>
+                        <span className="text-[10px] text-slate-400">{t('parentSettings.photoLimit')}</span>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="flex flex-col items-start w-full">
-                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.fullName')}</label>
+                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.fullName')}</label>
                         <input
                             type="text"
                             name="fullName"
@@ -112,7 +114,7 @@ export default function ParentSettings() {
                         />
                     </div>
                     <div className="flex flex-col items-start w-full">
-                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.email')}</label>
+                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.email')}</label>
                         <input
                             type="email"
                             name="email"
@@ -123,7 +125,7 @@ export default function ParentSettings() {
                         />
                     </div>
                     <div className="flex flex-col items-start w-full">
-                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.country')}</label>
+                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.country')}</label>
                         <input
                             type="text"
                             name="country"
@@ -133,7 +135,7 @@ export default function ParentSettings() {
                         />
                     </div>
                     <div className="flex flex-col items-start w-full">
-                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.phone')}</label>
+                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.phone')}</label>
                         <input
                             type="tel"
                             name="phone"
@@ -151,7 +153,7 @@ export default function ParentSettings() {
                         className="w-full flex items-center justify-center gap-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-200 dark:border-slate-600"
                     >
                         <Mail className="w-5 h-5" />
-                        <span className="font-semibold text-sm">{isEmailLinked ? t('parent.settings.unlinkEmail') : t('parent.settings.linkEmail')}</span>
+                        <span className="font-semibold text-sm">{isEmailLinked ? t('parentSettings.unlinkEmail') : t('parentSettings.linkEmail')}</span>
                     </button>
 
                     <div className="relative flex items-center py-1">
@@ -167,24 +169,24 @@ export default function ParentSettings() {
                             <path d="M5.84 14.14C5.62 13.48 5.49 12.76 5.49 12C5.49 11.24 5.62 10.52 5.84 9.86V7.01H2.16C1.4 8.53 0.96 10.22 0.96 12C0.96 13.78 1.4 15.47 2.16 16.99L5.84 14.14Z" fill="#FBBC05" />
                             <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
                         </svg>
-                        <span className="font-semibold text-sm">{isGoogleLinked ? t('parent.settings.unlinkGoogle') : t('parent.settings.linkGoogle')}</span>
+                        <span className="font-semibold text-sm">{isGoogleLinked ? t('parentSettings.unlinkGoogle') : t('parentSettings.linkGoogle')}</span>
                     </button>
                 </div>
 
                 <div className="flex justify-start mt-8">
                     <button className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto">
-                        {t('parent.settings.savePassword')}
+                        {t('parentSettings.saveChanges')}
                     </button>
                 </div>
             </motion.div>
             <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parent.settings.security')}</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.security')}</h2>
 
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parent.settings.security')}</h3>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.security')}</h3>
 
                 <div className="space-y-4 mb-6">
                     <div className="flex flex-col items-start w-full">
-                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.currentPassword')}</label>
+                        <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.currentPassword')}</label>
                         <input
                             type="password"
                             name="current"
@@ -197,7 +199,7 @@ export default function ParentSettings() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col items-start w-full order-1 md:order-2">
-                            <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.confirmPassword')}</label>
+                            <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.confirmPassword')}</label>
                             <input
                                 type="password"
                                 name="confirm"
@@ -208,7 +210,7 @@ export default function ParentSettings() {
                             />
                         </div>
                         <div className="flex flex-col items-start w-full order-2 md:order-1">
-                            <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parent.settings.newPassword')}</label>
+                            <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.newPassword')}</label>
                             <input
                                 type="password"
                                 name="new"
@@ -223,21 +225,21 @@ export default function ParentSettings() {
 
                 <div className="flex justify-start">
                     <button className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto">
-                        {t('parent.settings.savePassword')}
+                        {t('parentSettings.updatePassword')}
                     </button>
                 </div>
             </motion.div>
             <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parent.settings.language')}</h2>
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parent.settings.language')}</h3>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.languageDisplay')}</h2>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.languageDisplay')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     <button
                         onClick={() => handleLanguageChange('ar')}
                         className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${i18n.language === 'ar' ? 'border-[#0f7a6c] bg-[#0f7a6c]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
                             }`}
                     >
-                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parent.settings.arabic')}</span>
-                        <span className="text-[10px] text-slate-500">{t('parent.settings.defaultLang')}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.arabic')}</span>
+                        <span className="text-[10px] text-slate-500">{t('parentSettings.defaultLang')}</span>
                     </button>
 
                     <button
@@ -245,11 +247,11 @@ export default function ParentSettings() {
                         className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${i18n.language === 'en' ? 'border-[#0f7a6c] bg-[#0f7a6c]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
                             }`}
                     >
-                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parent.settings.english')}</span>
-                        <span className="text-[10px] text-slate-500">{t('parent.settings.secondaryLang')}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.english')}</span>
+                        <span className="text-[10px] text-slate-500">{t('parentSettings.secondaryLang')}</span>
                     </button>
                 </div>
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parent.settings.appearance')}</h3>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.appearance')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <button
                         onClick={() => setTheme('light')}
@@ -257,7 +259,7 @@ export default function ParentSettings() {
                             }`}
                     >
                         <Sun className="w-6 h-6 text-amber-500" />
-                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parent.settings.light')}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.light')}</span>
                     </button>
 
                     <button
@@ -266,7 +268,7 @@ export default function ParentSettings() {
                             }`}
                     >
                         <Moon className="w-6 h-6 text-indigo-400" />
-                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parent.settings.dark')}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.dark')}</span>
                     </button>
 
                     <button
@@ -275,51 +277,51 @@ export default function ParentSettings() {
                             }`}
                     >
                         <SettingsIcon className="w-6 h-6 text-slate-500" />
-                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parent.settings.auto')}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.auto')}</span>
                     </button>
                 </div>
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parent.settings.displayPreferences')}</h3>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.displayPreferences')}</h3>
                 <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div className="text-start">
-                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parent.settings.showChildrenPhotos')}</span>
-                            <span className="text-[10px] text-slate-500">{t('parent.settings.showChildrenPhotosDesc')}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parentSettings.showChildrenPhotos')}</span>
+                            <span className="text-[10px] text-slate-500">{t('parentSettings.showChildrenPhotosDesc')}</span>
                         </div>
-                        <ToggleSwitch checked={preferences.showPhotos} onChange={() => togglePreference('showPhotos')} />
+                        <ToggleSwitch checked={preferences.showPhotos} onChange={() => togglePreference('showPhotos')} isRtl={isRtl} />
                     </div>
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div className="text-start">
-                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parent.settings.showAllChildren')}</span>
-                            <span className="text-[10px] text-slate-500">{t('parent.settings.showAllChildrenDesc')}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parentSettings.showAllChildren')}</span>
+                            <span className="text-[10px] text-slate-500">{t('parentSettings.showAllChildrenDesc')}</span>
                         </div>
-                        <ToggleSwitch checked={preferences.showAllChildren} onChange={() => togglePreference('showAllChildren')} />
+                        <ToggleSwitch checked={preferences.showAllChildren} onChange={() => togglePreference('showAllChildren')} isRtl={isRtl} />
                     </div>
                 </div>
             </motion.div>
 
             <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 mb-8">
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parent.settings.privacy')}</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.privacy')}</h2>
 
                 <div className="space-y-4 mb-8">
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div className="text-start">
-                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parent.settings.shareProgress')}</span>
-                            <span className="text-[10px] text-slate-500">{t('parent.settings.shareProgressDesc')}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parentSettings.shareProgress')}</span>
+                            <span className="text-[10px] text-slate-500">{t('parentSettings.shareProgressDesc')}</span>
                         </div>
-                        <ToggleSwitch checked={preferences.shareProgress} onChange={() => togglePreference('shareProgress')} isRtl={i18n.language === 'ar'} />
+                        <ToggleSwitch checked={preferences.shareProgress} onChange={() => togglePreference('shareProgress')} isRtl={isRtl} />
                     </div>
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div className="text-start">
-                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parent.settings.saveActivityLog')}</span>
-                            <span className="text-[10px] text-slate-500">{t('parent.settings.saveActivityLogDesc')}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parentSettings.saveActivityLog')}</span>
+                            <span className="text-[10px] text-slate-500">{t('parentSettings.saveActivityLogDesc')}</span>
                         </div>
-                        <ToggleSwitch checked={preferences.saveActivityLog} onChange={() => togglePreference('saveActivityLog')} isRtl={i18n.language === 'ar'} />
+                        <ToggleSwitch checked={preferences.saveActivityLog} onChange={() => togglePreference('saveActivityLog')} isRtl={isRtl} />
                     </div>
                 </div>
 
                 <div className="flex justify-start">
                     <button className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto">
-                        {t('parent.settings.savePassword')}
+                        {t('parentSettings.saveChanges')}
                     </button>
                 </div>
             </motion.div>

@@ -23,7 +23,9 @@ const SchedulePage = lazy(() => import('../pages/public/SchedulePage.jsx'))
 const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
 
 const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
+const AdminManagers = lazy(() => import('../dashboard/admin/managers/AdminManagers.jsx'))
 const AdminStudents = lazy(() => import('../dashboard/admin/students/AdminStudents.jsx'))
+const AdminStudentLevels = lazy(() => import('../dashboard/admin/levels/AdminStudentLevels.jsx'))
 const AdminTeachers = lazy(() => import('../dashboard/admin/teachers/AdminTeachers.jsx'))
 const AdminReports = lazy(() => import('../dashboard/admin/reports/AdminReports.jsx'))
 const AdminSettings = lazy(() => import('../dashboard/admin/settings/AdminSettings.jsx'))
@@ -201,8 +203,16 @@ export default function AppRoutes() {
                                         element={<AnimatedPage><AdminDashboard /></AnimatedPage>}
                                     />
                                     <Route
+                                        path="/dashboard/admin/managers"
+                                        element={<AnimatedPage><AdminManagers /></AnimatedPage>}
+                                    />
+                                    <Route
                                         path="/dashboard/admin/students"
                                         element={<AnimatedPage><AdminStudents /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/student-levels"
+                                        element={<AnimatedPage><AdminStudentLevels /></AnimatedPage>}
                                     />
                                     <Route
                                         path="/dashboard/admin/teachers"

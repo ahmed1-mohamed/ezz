@@ -217,7 +217,6 @@ export default function AdminDashboard() {
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        {/* Live Session 1 */}
                         <div className="bg-red-50/40 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
