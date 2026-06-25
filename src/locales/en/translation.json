@@ -2018,6 +2018,25 @@
         "submit": "Save",
         "cancel": "Cancel"
       }
+    },
+    "parents": {
+      "title": "Parents Management",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
+      "total": "Total Parents",
+      "active": "Active Parent",
+      "expiring": "Expiring Soon",
+      "add": "Add Parent",
+      "search": "Search...",
+      "parentName": "Parent",
+      "children": "Children",
+      "status": "Status",
+      "actions": "Actions",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "message": "Message",
+      "send": "Send",
+      "sendMessage": "Send Message"
     }
   }
 }

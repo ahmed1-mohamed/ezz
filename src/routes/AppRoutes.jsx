@@ -29,6 +29,10 @@ const AdminStudentLevels = lazy(() => import('../dashboard/admin/levels/AdminStu
 const AdminTeachers = lazy(() => import('../dashboard/admin/teachers/AdminTeachers.jsx'))
 const AdminReports = lazy(() => import('../dashboard/admin/reports/AdminReports.jsx'))
 const AdminSettings = lazy(() => import('../dashboard/admin/settings/AdminSettings.jsx'))
+const AdminParents = lazy(() => import('../dashboard/admin/parents/AdminParents.jsx'))
+const AdminGroups = lazy(() => import('../dashboard/admin/groups/AdminGroups.jsx'))
+const AdminSessions = lazy(() => import('../dashboard/admin/sessions/AdminSessions.jsx'))
+const AdminSchedule = lazy(() => import('../dashboard/admin/schedule/AdminSchedule.jsx'))
 
 const ManagerDashboard = lazy(() => import('../dashboard/manager/overview/ManagerDashboard.jsx'))
 const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCourses.jsx'))
@@ -225,6 +229,22 @@ export default function AppRoutes() {
                                     <Route
                                         path="/dashboard/admin/settings"
                                         element={<AnimatedPage><AdminSettings /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/parents"
+                                        element={<AnimatedPage><AdminParents /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/groups"
+                                        element={<AnimatedPage><AdminGroups /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/sessions"
+                                        element={<AnimatedPage><AdminSessions /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/schedule"
+                                        element={<AnimatedPage><AdminSchedule /></AnimatedPage>}
                                     />
                                 </Route>
                             </Route>

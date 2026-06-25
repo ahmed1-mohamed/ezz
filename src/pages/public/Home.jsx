@@ -9,7 +9,7 @@ import EducationalPrograms from '@/shared/components/EducationalPrograms.jsx'
 import JourneySteps from '@/shared/components/JourneySteps.jsx'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.jsx'
 import Button from '@/shared/components/Button.jsx'
-import imageSrc from '../../images/programs/5.jpg'
+import imageSrc from '../../images/programs/NewLogo.png'
 import TeachersSection from '@/shared/components/MainTeachers.jsx'
 import CTASection from '@/shared/components/CTASection.jsx'
 import StarsSection from '@/shared/components/StarsSection.jsx'
@@ -34,7 +34,7 @@ const itemVariants = {
 export default React.memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
-    
+
     const dispatch = useDispatch()
     const { landingData } = useSelector((state) => state.landing)
 
