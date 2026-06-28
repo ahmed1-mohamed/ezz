@@ -61,13 +61,13 @@ export default React.memo(function Home() {
 
                             <motion.div variants={itemVariants} className="space-y-2 sm:space-y-4">
                                 <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
-                                    {t('home.titleLine1', 'حيث يلتقي')}
-                                </h1>
-                                <h1 className="bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
-                                    {t('home.titleLine2', 'نور العلم بصفاء الروح')}
-                                </h1>
-                                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
-                                    {t('home.titleLine3', 'وتتحقق طموحاتك')}
+                                    <span className="block">{t('home.titleLine1', 'حيث يلتقي')}</span>
+                                    <span className="block bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
+                                        {t('home.titleLine2', 'نور العلم بصفاء الروح')}
+                                    </span>
+                                    <span className="block text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 mt-2">
+                                        {t('home.titleLine3', 'وتتحقق طموحاتك')}
+                                    </span>
                                 </h1>
                             </motion.div>
 

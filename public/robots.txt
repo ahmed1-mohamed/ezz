@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://manarat-al-ezz.com/sitemap.xml

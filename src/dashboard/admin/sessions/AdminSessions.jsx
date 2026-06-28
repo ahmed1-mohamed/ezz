@@ -1,17 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  Search,
-  Calendar,
-  Clock,
-  Users,
-  RefreshCw,
-  UserX,
-  ChevronDown,
-  X,
-} from 'lucide-react'
+import { Search, Calendar, Clock, Users, RefreshCw, UserX, X } from 'lucide-react'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import Spinner from '@/shared/components/Spinner'
+import StatusBadge from './components/StatusBadge'
+import StatCard from './components/StatCard'
+import ReschedulePanel from './components/ReschedulePanel'
+import ChangeTeacherPanel from './components/ChangeTeacherPanel'
 
 const STATUS_TABS = [
   { key: 'all', label: 'الكل' },
@@ -27,164 +22,6 @@ const MOCK_TEACHERS = [
   { id: 3, name: 'فاطمة الزهراء' },
   { id: 4, name: 'محمد أحمد علي' },
 ]
-
-function StatusBadge({ status }) {
-  const config = {
-    live: { label: 'مباشر الآن', cls: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800' },
-    upcoming: { label: 'قادمة', cls: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' },
-    completed: { label: 'مكتملة', cls: 'bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border-brand-200 dark:border-brand-800' },
-    cancelled: { label: 'ملغاة', cls: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700' },
-  }
-  const { label, cls } = config[status] || config.cancelled
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cls}`}>
-      {status === 'live' && (
-        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-      )}
-      {label}
-    </span>
-  )
-}
-
-function StatCard({ label, value, color }) {
-  const colorMap = {
-    red: 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/30 text-red-600 dark:text-red-400',
-    blue: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30 text-blue-600 dark:text-blue-400',
-    green: 'bg-brand-50 dark:bg-brand-900/10 border-brand-100 dark:border-brand-800/30 text-brand-600 dark:text-brand-400',
-    amber: 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30 text-amber-600 dark:text-amber-400',
-  }
-  return (
-    <div className={`flex flex-col items-center justify-center gap-1 p-5 rounded-3xl border ${colorMap[color]}`}>
-      <span className="text-3xl font-extrabold">{value}</span>
-      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 text-center">{label}</span>
-    </div>
-  )
-}
-
-function TeacherDropdown({ value, onChange, teachers }) {
-  const [open, setOpen] = useState(false)
-  const selected = teachers.find((t) => t.id === value)
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 rounded-2xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900"
-      >
-        <ChevronDown size={16} className="text-slate-400 shrink-0" />
-        <span className={selected ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'}>
-          {selected ? selected.name : 'أختر المدرس البديل'}
-        </span>
-      </button>
-      {open && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden max-h-48 overflow-y-auto">
-          {teachers.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => { onChange(t.id); setOpen(false) }}
-              className={`w-full px-4 py-2.5 flex items-center justify-end hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${value === t.id
-                ? 'text-brand-600 font-semibold bg-brand-50 dark:bg-brand-950/20'
-                : 'text-slate-700 dark:text-slate-300'
-                }`}
-            >
-              {t.name}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function ReschedulePanel({ session, onConfirm, onCancel }) {
-  const today = new Date().toISOString().split('T')[0]
-  const [newDate, setNewDate] = useState(today)
-  const [newTime, setNewTime] = useState(session.time || '10:00')
-
-  return (
-    <div className="bg-[#f3f7f6] dark:bg-slate-900/60 rounded-2xl p-4 space-y-3 border border-brand-100 dark:border-brand-900/30 mt-2 mx-2">
-      <p className="text-sm font-bold text-slate-700 dark:text-slate-200 text-end">
-        إعادة جدولة {session.groupName}
-      </p>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 text-end">أختر التاريخ الجديد</label>
-          <div className="relative">
-            <input
-              type="date"
-              value={newDate}
-              onChange={(e) => setNewDate(e.target.value)}
-              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-brand-400 transition-colors"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 text-end">أختر الساعة</label>
-          <input
-            type="time"
-            value={newTime}
-            onChange={(e) => setNewTime(e.target.value)}
-            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-brand-400 transition-colors"
-          />
-        </div>
-      </div>
-      <div className="flex items-center gap-3 justify-start pt-1">
-        <button
-          onClick={() => onConfirm(newDate, newTime)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-sm"
-        >
-          تأكيد الجدولة
-        </button>
-        <button
-          onClick={onCancel}
-          className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-        >
-          إلغاء
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function ChangeTeacherPanel({ session, onConfirm, onCancel }) {
-  const [selectedTeacherId, setSelectedTeacherId] = useState(session.teacherId || null)
-
-  return (
-    <div className="bg-[#f3f7f6] dark:bg-slate-900/60 rounded-2xl p-4 space-y-3 border border-amber-100 dark:border-amber-900/30 mt-2 mx-2">
-      <p className="text-sm font-bold text-slate-700 dark:text-slate-200 text-end">
-        تغيير المدرس لمدرس جديد
-      </p>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 text-end">أختر المدرس البديل</label>
-        <TeacherDropdown
-          value={selectedTeacherId}
-          onChange={setSelectedTeacherId}
-          teachers={MOCK_TEACHERS}
-        />
-      </div>
-      <div className="flex items-center gap-3 justify-start pt-1">
-        <button
-          onClick={() => {
-            const teacher = MOCK_TEACHERS.find((t) => t.id === selectedTeacherId)
-            if (teacher) onConfirm(teacher.id, teacher.name)
-          }}
-          disabled={!selectedTeacherId}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-sm"
-        >
-          تأكيد المدرس
-        </button>
-        <button
-          onClick={onCancel}
-          className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-        >
-          إلغاء
-        </button>
-      </div>
-    </div>
-  )
-}
 
 export default function AdminSessions() {
   const { i18n } = useTranslation()
@@ -228,9 +65,9 @@ export default function AdminSessions() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
       result = result.filter(
-        (s) =>
-          s.groupName.toLowerCase().includes(q) ||
-          s.teacher.toLowerCase().includes(q)
+          (s) =>
+            s.groupName.toLowerCase().includes(q) ||
+            s.teacher.toLowerCase().includes(q)
       )
     }
     return result
@@ -297,7 +134,7 @@ export default function AdminSessions() {
     <div className="space-y-6 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Page header */}
       <div className="text-start">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">إدارة الحصص</h1>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-bold">إدارة الحصص</h1>
         <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
           منارة العز أكاديمي · لوحة الإدارة
         </p>
@@ -313,7 +150,6 @@ export default function AdminSessions() {
 
       {/* Main card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft overflow-hidden">
-
         {/* Search bar */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
           <div className="relative max-w-sm mx-auto">
@@ -323,7 +159,7 @@ export default function AdminSessions() {
               placeholder="بحث..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-2xl py-2.5 pr-9 pl-4 text-sm text-slate-700 dark:text-slate-200 outline-none border border-transparent focus:border-brand-400 transition-colors placeholder-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-2xl py-2.5 pr-9 pl-4 text-sm text-slate-700 dark:text-slate-202 outline-none border border-transparent focus:border-brand-400 transition-colors placeholder-slate-400 text-end"
             />
           </div>
         </div>
@@ -334,7 +170,7 @@ export default function AdminSessions() {
             <button
               key={tab.key}
               onClick={() => { setActiveTab(tab.key); setCurrentPage(1) }}
-              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.key
+              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === tab.key
                 ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
                 : 'bg-[#f3f7f6] dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
@@ -374,9 +210,10 @@ export default function AdminSessions() {
                       {session.status !== 'cancelled' && session.status !== 'completed' && (
                         <>
                           <button
+                            type="button"
                             onClick={() => handleTogglePanel(session.id, 'reschedule')}
                             title="إعادة الجدولة"
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isExpanded && expandedPanel === 'reschedule'
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${isExpanded && expandedPanel === 'reschedule'
                               ? 'bg-brand-500 text-white border-brand-500'
                               : 'bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border-brand-200 dark:border-brand-800 hover:bg-brand-100'
                               }`}
@@ -385,9 +222,10 @@ export default function AdminSessions() {
                             <span>إعادة جدولة</span>
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleTogglePanel(session.id, 'teacher')}
                             title="تغيير المدرس"
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isExpanded && expandedPanel === 'teacher'
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${isExpanded && expandedPanel === 'teacher'
                               ? 'bg-amber-500 text-white border-amber-500'
                               : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 hover:bg-amber-100'
                               }`}
@@ -396,9 +234,10 @@ export default function AdminSessions() {
                             <span>تغيير المدرس</span>
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleCancelSession(session.id)}
                             title="إلغاء الحصة"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 transition-all"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 transition-all cursor-pointer"
                           >
                             <X size={12} />
                             <span>إلغاء المجموعة</span>
@@ -413,13 +252,13 @@ export default function AdminSessions() {
                     </div>
 
                     {/* Students count */}
-                    <div className="flex items-center justify-end gap-1.5 text-sm text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center justify-end gap-1.5 text-sm text-slate-600 dark:text-slate-350">
                       <span>{session.studentsCount}</span>
                       <Users size={14} className="text-slate-400" />
                     </div>
 
                     {/* Time */}
-                    <div className="flex items-center justify-end gap-1.5 text-sm text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center justify-end gap-1.5 text-sm text-slate-600 dark:text-slate-350">
                       <span>{session.duration} دقيقة</span>
                       <Clock size={14} className="text-slate-400" />
                     </div>
@@ -430,7 +269,7 @@ export default function AdminSessions() {
                     </div>
 
                     {/* Teacher */}
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-200 text-end">
+                    <div className="text-sm font-medium text-slate-705 dark:text-slate-205 text-end">
                       {session.teacher}
                     </div>
 
@@ -457,22 +296,25 @@ export default function AdminSessions() {
                     {session.status !== 'cancelled' && session.status !== 'completed' && (
                       <div className="flex items-center gap-2 flex-wrap pt-1">
                         <button
+                          type="button"
                           onClick={() => handleTogglePanel(session.id, 'reschedule')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-600 border border-brand-200 hover:bg-brand-100 transition-all"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-600 border border-brand-200 hover:bg-brand-100 transition-all cursor-pointer"
                         >
                           <RefreshCw size={12} />
                           إعادة جدولة
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleTogglePanel(session.id, 'teacher')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 transition-all"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 transition-all cursor-pointer"
                         >
                           <UserX size={12} />
                           تغيير المدرس
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleCancelSession(session.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-all"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-all cursor-pointer"
                         >
                           <X size={12} />
                           إلغاء
@@ -494,6 +336,7 @@ export default function AdminSessions() {
                       session={session}
                       onConfirm={(tid, tname) => handleChangeTeacher(session.id, tid, tname)}
                       onCancel={() => { setExpandedRow(null); setExpandedPanel(null) }}
+                      teachers={MOCK_TEACHERS}
                     />
                   )}
                 </div>
@@ -513,9 +356,9 @@ export default function AdminSessions() {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-8 h-8 rounded-xl text-sm font-bold transition-all ${currentPage === page
+                  className={`w-8 h-8 rounded-xl text-sm font-bold transition-all cursor-pointer ${currentPage === page
                     ? 'bg-brand-500 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-655 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                 >
                   {page}

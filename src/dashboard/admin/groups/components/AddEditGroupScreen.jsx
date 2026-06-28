@@ -1,12 +1,7 @@
 import { useState, useRef } from 'react'
-import {
-  ArrowRight,
-  ArrowLeft,
-  Upload,
-  ChevronDown,
-  Trash2,
-  Calendar,
-} from 'lucide-react'
+import { ArrowRight, ArrowLeft, Upload, Trash2, Calendar } from 'lucide-react'
+import SelectField from './fields/SelectField'
+import DaySelect from './fields/DaySelect'
 
 const SUBJECTS = ['القرآن الكريم', 'اللغة العربية', 'التجويد', 'التفسير', 'العقيدة']
 const LEVELS = ['مبتدئ', 'متوسطة', 'متقدم']
@@ -27,41 +22,6 @@ const TIME_OPTIONS = [
   '12 م', '1 م', '2 م', '3 م', '4 م', '5 م',
   '6 م', '7 م', '8 م', '9 م', '10 م', '11 م',
 ]
-
-function SelectField({ label, value, onChange, options, placeholder }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className="relative">
-      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
-        {label}
-      </label>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900"
-      >
-        <ChevronDown size={16} className="text-slate-400 shrink-0" />
-        <span className={value ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'}>
-          {value || placeholder}
-        </span>
-      </button>
-      {open && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden max-h-48 overflow-y-auto">
-          {options.map((opt) => (
-            <button
-              key={typeof opt === 'object' ? opt.id : opt}
-              type="button"
-              onClick={() => { onChange(opt); setOpen(false) }}
-              className="w-full px-4 py-2.5 flex items-center justify-end hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors"
-            >
-              {typeof opt === 'object' ? opt.name : opt}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
@@ -139,22 +99,21 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
 
   return (
     <div className="space-y-6 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all hover:scale-105"
+            className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all hover:scale-105 cursor-pointer"
           >
             <BackArrow size={20} />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <span>المجموعات</span>
-              <span className="text-slate-300 dark:text-slate-600 text-lg">/</span>
-              <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg">
+              <span className="text-slate-350 dark:text-slate-600 text-lg">/</span>
+              <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg font-bold">
                 {group ? 'تعديل بيانات المجموعة' : 'إنشاء مجموعة جديدة'}
               </span>
             </h1>
@@ -163,9 +122,9 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
         <button
           type="button"
           onClick={onCancel}
-          className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-sm font-semibold transition-all dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800"
+          className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-sm font-semibold transition-all dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 cursor-pointer"
         >
-          إلغاء
+          {isRtl ? 'إلغاء' : 'Cancel'}
         </button>
       </div>
 
@@ -198,7 +157,6 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
       )}
 
       <form onSubmit={handleSave} className="space-y-6 max-w-4xl mx-auto">
-
         {/* Image + Group Name */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
           <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-end">
@@ -219,7 +177,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl transition-all cursor-pointer"
             >
               <Upload size={14} />
               <span>تغيير صورة المجموعة</span>
@@ -302,7 +260,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
               value={formData.language}
               onChange={(val) => handleChange('language', val)}
               options={LANGUAGES}
-              placeholder="العرب"
+              placeholder="العربية"
             />
             <SelectField
               label="نوع المجموعة"
@@ -392,7 +350,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
             <button
               type="button"
               onClick={handleAddSchedule}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/15 active:scale-[0.98]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/15 active:scale-[0.98] cursor-pointer"
             >
               <Calendar size={16} />
               <span>إضافة موعد</span>
@@ -423,7 +381,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
                         <button
                           type="button"
                           onClick={() => handleRemoveSchedule(slot.day)}
-                          className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                          className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-50 dark:hover:bg-rose-955/20 cursor-pointer"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -446,54 +404,20 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
-              className="flex-1 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm transition-all shadow-md shadow-brand-500/20 active:scale-[0.98]"
+              className="flex-1 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm transition-all shadow-md shadow-brand-500/20 active:scale-[0.98] cursor-pointer"
             >
               {group ? 'تعديل' : 'إنشاء المجموعة'}
             </button>
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700"
+              className="px-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
             >
               إلغاء
             </button>
           </div>
         </div>
-
       </form>
-    </div>
-  )
-}
-
-function DaySelect({ value, onChange, options }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900"
-      >
-        <ChevronDown size={16} className="text-slate-400 shrink-0" />
-        <span>{value}</span>
-      </button>
-      {open && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden max-h-44 overflow-y-auto">
-          {options.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => { onChange(opt); setOpen(false) }}
-              className={`w-full px-4 py-2.5 flex items-center justify-end hover:bg-slate-50 dark:hover:bg-slate-800 text-sm transition-colors ${value === opt
-                ? 'text-brand-600 font-semibold bg-brand-50 dark:bg-brand-950/20'
-                : 'text-slate-700 dark:text-slate-300'
-                }`}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

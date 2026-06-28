@@ -174,10 +174,10 @@ export default function Teachers() {
                             </motion.div>
                             <motion.div variants={itemVariants} className="space-y-4">
                                 <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] text-transparent pb-2">
-                                    {t('teacher.titleLine1', 'نخبة من')}
-                                </h1>
-                                <h1 className="text-[#735C00] text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pb-2">
-                                    {t('teacher.titleLine2', 'أفضل المعلمين المجازين')}
+                                    <span className="block">{t('teacher.titleLine1', 'نخبة من')}</span>
+                                    <span className="block text-[#735C00] text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pt-2">
+                                        {t('teacher.titleLine2', 'أفضل المعلمين المجازين')}
+                                    </span>
                                 </h1>
                                 <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
                                     {t('teacher.titleLine3', 'تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.')}

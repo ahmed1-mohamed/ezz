@@ -74,10 +74,8 @@ export default React.memo(function Curriculums() {
 
                             <motion.div variants={itemVariants} className="space-y-4">
                                 <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.4] py-2 text-transparent overflow-visible">
-                                    {t('curriculum.titleLine1', 'مناهج تعليمية')}
-                                </h1>
-                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.4] py-2 text-transparent overflow-visible">
-                                    {t('curriculum.titleLine2', 'تنير البصيرة وتسمو بالروح')}
+                                    <span className="block">{t('curriculum.titleLine1', 'مناهج تعليمية')}</span>
+                                    <span className="block pt-2">{t('curriculum.titleLine2', 'تنير البصيرة وتسمو بالروح')}</span>
                                 </h1>
                             </motion.div>
 
