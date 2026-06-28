@@ -11,8 +11,7 @@ const countryCodes = [
 export default function TeacherPersonalInfoCard({
   formData,
   onChange,
-  isRtl,
-  t
+  isRtl
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   

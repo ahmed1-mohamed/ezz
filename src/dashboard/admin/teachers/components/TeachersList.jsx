@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Plus, Search, Eye, Pencil, Star } from 'lucide-react'
+import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function TeachersList({
   teachers,
@@ -11,26 +12,22 @@ export default function TeachersList({
   onOpenEditScreen,
   onViewDetails
 }) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchVal, setSearchVal] = useState('')
+  const debouncedQuery = useDebounce(searchVal, 300)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 4
 
-  // Reset page on search
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
-
   // Filter list based on search
   const filteredTeachers = useMemo(() => {
-    if (!searchQuery.trim()) return teachers
-    const query = searchQuery.toLowerCase()
+    if (!debouncedQuery.trim()) return teachers
+    const query = debouncedQuery.toLowerCase()
     return teachers.filter(
       (teacher) =>
         teacher.name.toLowerCase().includes(query) ||
         teacher.subject.toLowerCase().includes(query) ||
         (teacher.email && teacher.email.toLowerCase().includes(query))
     )
-  }, [teachers, searchQuery])
+  }, [teachers, debouncedQuery])
 
   // Pagination slicing
   const indexOfLastItem = currentPage * itemsPerPage
@@ -72,8 +69,8 @@ export default function TeachersList({
           <input
             type="text"
             placeholder={t('adminDashboard.teachers.searchPlaceholder', 'بحث...')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchVal}
+            onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(1) }}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
           />
         </div>

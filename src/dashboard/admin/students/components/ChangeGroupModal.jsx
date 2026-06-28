@@ -51,7 +51,6 @@ export default function ChangeGroupModal({
   onClose,
   student,
   isRtl,
-  t,
   onChangeGroup
 }) {
   const [searchQuery, setSearchQuery] = useState('')

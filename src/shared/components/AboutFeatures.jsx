@@ -2,14 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { MonitorPlay, BookOpen } from 'lucide-react'
-import imagesrc from '../../images/students/1.jpg'
+import imagesrc from '../../images/students/1.webp'
 
 export default React.memo(function AboutFeatures() {
     const { t } = useTranslation()
 
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            
+
             <div className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] inline-block relative">
                     {t('about.features.title', 'لماذا يختارنا الأهالي ؟')}
@@ -18,8 +18,8 @@ export default React.memo(function AboutFeatures() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-                
-                <motion.div 
+
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -35,9 +35,9 @@ export default React.memo(function AboutFeatures() {
                         </p>
                     </div>
                     <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0">
-                        <img 
-                            src={imagesrc} 
-                            alt="Students" 
+                        <img
+                            src={imagesrc}
+                            alt="Students"
                             className="w-full h-full object-cover"
                             loading="lazy"
                             decoding="async"
@@ -45,7 +45,7 @@ export default React.memo(function AboutFeatures() {
                     </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -65,9 +65,9 @@ export default React.memo(function AboutFeatures() {
                     </div>
                 </motion.div>
 
-               
 
-                <motion.div 
+
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -91,7 +91,7 @@ export default React.memo(function AboutFeatures() {
                             {t('about.features.f4.desc', 'تعتمد أكاديميتنا على مناهج تم اختيارها بعناية من كبار العلماء والتربويين، لضمان توازن دقيق بين الحفظ والفهم، وبين القواعد والتطبيق العملي، مما يخلق بيئة تعليمية متكاملة.')}
                         </p>
                     </div>
-                   
+
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -116,4 +116,3 @@ export default React.memo(function AboutFeatures() {
         </section>
     )
 })
-

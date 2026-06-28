@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Plus, Gift } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminRewardsApi } from '@/shared/services/api/adminRewardsApi'
@@ -20,11 +20,7 @@ export default function AdminRewards() {
   const [showForm, setShowForm] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
     const [statsRes, suggestionsRes, achievementsRes] = await Promise.all([
       adminRewardsApi.fetchStats(),
@@ -35,7 +31,12 @@ export default function AdminRewards() {
     if (suggestionsRes?.data) setSuggestions(suggestionsRes.data)
     if (achievementsRes?.data) setAchievements(achievementsRes.data)
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+  }, [loadData])
 
   const handleSaveReward = async (rewardData) => {
     if (editingReward) {

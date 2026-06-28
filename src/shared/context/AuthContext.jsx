@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
             setLoading(false)
             const data = error.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Login failed'
-            throw new Error(msg)
+            throw new Error(msg, { cause: error })
         }
     }
 
@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
             setLoading(false)
             const data = error.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Google login failed'
-            throw new Error(msg)
+            throw new Error(msg, { cause: error })
         }
     }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -19,8 +19,12 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
   const [form, setForm] = useState(EMPTY_PACKAGE)
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
+  const [prevEditingPackage, setPrevEditingPackage] = useState(editingPackage)
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
-  useEffect(() => {
+  if (editingPackage !== prevEditingPackage || isOpen !== prevIsOpen) {
+    setPrevEditingPackage(editingPackage)
+    setPrevIsOpen(isOpen)
     if (editingPackage) {
       setForm({
         ...EMPTY_PACKAGE,
@@ -32,7 +36,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
       setForm(EMPTY_PACKAGE)
       setImagePreview(null)
     }
-  }, [editingPackage, isOpen])
+  }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]

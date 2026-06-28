@@ -4,8 +4,7 @@ import { Shield } from 'lucide-react'
 export default function EditGrantedPermissionsCard({
   selectedRole,
   rolesPermissions,
-  isRtl,
-  t
+  isRtl
 }) {
   
   const categories = useMemo(() => {

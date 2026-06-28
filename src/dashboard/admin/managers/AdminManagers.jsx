@@ -194,17 +194,6 @@ export default function AdminManagers() {
 
   // Action: Open Edit Screen
   const handleOpenEditScreen = (supervisor) => {
-    // Extract base number and prefix if any
-    let phoneNum = supervisor.phone || ''
-    let prefix = '+20'
-    
-    if (phoneNum.startsWith('+')) {
-      const parts = phoneNum.split(' ')
-      if (parts.length > 1) {
-        prefix = parts[0]
-        phoneNum = parts.slice(1).join(' ')
-      }
-    }
 
     setSelectedSupervisor(supervisor)
     setSelectedRole(supervisor.role || 'مشرف عام')

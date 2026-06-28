@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Search,
   Plus,
@@ -9,6 +9,7 @@ import {
   Pencil,
   Eye,
 } from 'lucide-react'
+import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function ParentsList({
   parents,
@@ -19,11 +20,10 @@ export default function ParentsList({
   onOpenDetails,
   onDelete,
 }) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchVal, setSearchVal] = useState('')
+  const debouncedQuery = useDebounce(searchVal, 300)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
-
-  useEffect(() => { setCurrentPage(1) }, [searchQuery])
 
   const metrics = useMemo(() => {
     const total = parents.length
@@ -33,15 +33,15 @@ export default function ParentsList({
   }, [parents])
 
   const filtered = useMemo(() => {
-    if (!searchQuery.trim()) return parents
-    const q = searchQuery.toLowerCase()
+    if (!debouncedQuery.trim()) return parents
+    const q = debouncedQuery.toLowerCase()
     return parents.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.email.toLowerCase().includes(q) ||
         (p.phone || '').includes(q)
     )
-  }, [parents, searchQuery])
+  }, [parents, debouncedQuery])
 
   const indexOfLast = currentPage * itemsPerPage
   const indexOfFirst = indexOfLast - itemsPerPage
@@ -98,8 +98,8 @@ export default function ParentsList({
           <input
             type="text"
             placeholder={t('adminDashboard.parents.search', 'بحث...')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchVal}
+            onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(1) }}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
           />
         </div>

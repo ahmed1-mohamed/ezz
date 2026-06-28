@@ -80,7 +80,7 @@ export default function EditSupervisorScreen({
     handleFieldChange('phonePrefix', country.code)
   }
 
-  const handleUpdatePassword = (newPassword) => {
+  const handleUpdatePassword = () => {
     // Persist new password through mock API delay
     alert(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!')
   }

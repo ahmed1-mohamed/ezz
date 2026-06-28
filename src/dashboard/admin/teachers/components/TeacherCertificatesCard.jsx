@@ -4,8 +4,7 @@ import { Trash2, FileText, Eye, Edit3, Plus, Upload } from 'lucide-react'
 export default function TeacherCertificatesCard({
   formData,
   onChange,
-  isRtl,
-  t
+  isRtl
 }) {
   const [newCertificate, setNewCertificate] = useState('')
   const [showAddDocModal, setShowAddDocModal] = useState(false)

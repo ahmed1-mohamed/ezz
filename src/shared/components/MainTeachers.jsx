@@ -1,10 +1,10 @@
 import { motion } from "framer-motion"
 import { useTranslation } from "react-i18next"
 
-import teacher1 from "../../images/elite/1.jpg"
-import teacher2 from "../../images/elite/2.jpg"
-import teacher3 from "../../images/elite/3.jpg"
-import teacher4 from "../../images/elite/4.jpg"
+import teacher1 from "../../images/elite/1.webp"
+import teacher2 from "../../images/elite/2.webp"
+import teacher3 from "../../images/elite/3.webp"
+import teacher4 from "../../images/elite/4.webp"
 
 const teachersData = [
     {

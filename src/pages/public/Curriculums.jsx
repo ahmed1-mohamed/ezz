@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import imageSrc from '../../images/programs/7.png';
+import imageSrc from '../../images/programs/7.webp';
 import CurriculumUnits from '@/shared/components/CurriculumUnits.jsx'
 import CurriculumsCTA from '@/shared/components/CurriculumsCTA.jsx'
 import TeacherLevels from './components/TeacherProfile/TeacherLevels.jsx'

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
@@ -76,6 +75,7 @@ export default function ParentChildrenList() {
         };
 
         fetchChildren();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const containerVariants = {

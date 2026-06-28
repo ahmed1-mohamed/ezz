@@ -2,10 +2,8 @@ import { useState } from 'react'
 import { Upload, FileText, Trash2 } from 'lucide-react'
 
 export default function TeacherDocumentsUploadCard({
-  formData,
   onChange,
-  isRtl,
-  t
+  isRtl
 }) {
   const [cvFile, setCvFile] = useState(null)
   const [certFile, setCertFile] = useState(null)

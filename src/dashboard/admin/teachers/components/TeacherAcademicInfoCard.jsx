@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
 const subjects = [
   'القرآن الكريم',
@@ -21,7 +21,6 @@ export default function TeacherAcademicInfoCard({
   formData,
   onChange,
   isRtl,
-  t,
   showAboutAndLicenses = false
 }) {
   const [newLicense, setNewLicense] = useState('')

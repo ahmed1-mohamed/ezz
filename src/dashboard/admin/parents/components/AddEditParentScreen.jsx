@@ -92,7 +92,7 @@ const mockAvailableStudents = [
   },
 ]
 
-export default function AddEditParentScreen({ parent = null, isRtl, t, onSave, onCancel }) {
+export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
 

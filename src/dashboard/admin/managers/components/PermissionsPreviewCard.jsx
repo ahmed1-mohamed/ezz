@@ -3,8 +3,7 @@ import { useMemo } from 'react'
 export default function PermissionsPreviewCard({
   selectedRole,
   rolesPermissions,
-  isRtl,
-  t
+  isRtl
 }) {
   
   // Calculate dynamic stats for the "معاينة نطاق الأذونات" (Preview Scope) box

@@ -1,8 +1,7 @@
 export default function TeacherAboutCard({
   formData,
   onChange,
-  isRtl,
-  t
+  isRtl
 }) {
   return (
     <div className="space-y-6">

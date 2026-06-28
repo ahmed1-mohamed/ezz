@@ -1,16 +1,16 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Search,
   Plus,
   Shield,
   CheckCircle2,
   Ban,
-  X,
   Trash2,
   BookOpen,
   Pencil,
   Lock,
 } from 'lucide-react'
+import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function ManagersList({
   supervisors,
@@ -22,14 +22,10 @@ export default function ManagersList({
   onOpenEditScreen,
   onOpenRolePermissions
 }) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchVal, setSearchVal] = useState('')
+  const debouncedQuery = useDebounce(searchVal, 300)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
-
-  // Reset page to 1 when search changes
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
 
   // Dynamic calculations for Metric Cards (based on whole list)
   const metrics = useMemo(() => {
@@ -39,17 +35,16 @@ export default function ManagersList({
     return { total, active, suspended }
   }, [supervisors])
 
-  // Filtered supervisors list based on search query
   const filteredSupervisors = useMemo(() => {
-    if (!searchQuery.trim()) return supervisors
-    const query = searchQuery.toLowerCase()
+    if (!debouncedQuery.trim()) return supervisors
+    const query = debouncedQuery.toLowerCase()
     return supervisors.filter(
       (s) =>
         s.name.toLowerCase().includes(query) ||
         s.email.toLowerCase().includes(query) ||
         s.role.toLowerCase().includes(query)
     )
-  }, [supervisors, searchQuery])
+  }, [supervisors, debouncedQuery])
 
   // Sliced items for Pagination
   const indexOfLastItem = currentPage * itemsPerPage
@@ -162,8 +157,8 @@ export default function ManagersList({
           <input
             type="text"
             placeholder={t('adminDashboard.managers.searchPlaceholder', 'بحث...')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchVal}
+            onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(1) }}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
           />
         </div>

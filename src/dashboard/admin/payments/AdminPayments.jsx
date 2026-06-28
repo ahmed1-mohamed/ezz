@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminPaymentsApi } from '@/shared/services/api/adminPaymentsApi'
@@ -18,20 +18,12 @@ export default function AdminPayments() {
   const [activeStatus, setActiveStatus] = useState('all')
   const [searchValue, setSearchValue] = useState('')
 
-  useEffect(() => {
-    loadStats()
-  }, [activePeriod])
-
-  useEffect(() => {
-    loadPayments()
-  }, [activePeriod, activeStatus, searchValue])
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     const res = await adminPaymentsApi.fetchPaymentsStats(activePeriod)
     if (res?.data) setStats(res.data)
-  }
+  }, [activePeriod])
 
-  const loadPayments = async () => {
+  const loadPayments = useCallback(async () => {
     setLoading(true)
     const res = await adminPaymentsApi.fetchPayments({
       period: activePeriod,
@@ -40,7 +32,17 @@ export default function AdminPayments() {
     })
     if (res?.data) setPayments(res.data)
     setLoading(false)
-  }
+  }, [activePeriod, activeStatus, searchValue])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadStats()
+  }, [loadStats])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadPayments()
+  }, [loadPayments])
 
   const handleApprove = async (id) => {
     const res = await adminPaymentsApi.approvePayment(id)

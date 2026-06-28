@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminAssignmentsApi } from '@/shared/services/api/adminAssignmentsApi'
@@ -17,11 +17,7 @@ export default function AdminAssignments() {
   const [activeTab, setActiveTab] = useState('assignments')
   const [searchValue, setSearchValue] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [searchValue])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
     const [statsRes, assignmentsRes] = await Promise.all([
       adminAssignmentsApi.fetchStats(),
@@ -30,7 +26,12 @@ export default function AdminAssignments() {
     if (statsRes?.data) setStats(statsRes.data)
     if (assignmentsRes?.data) setAssignments(assignmentsRes.data)
     setLoading(false)
-  }
+  }, [searchValue])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+  }, [loadData])
 
   const handleDelete = async (id) => {
     const res = await adminAssignmentsApi.deleteAssignment(id)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, ArrowLeft, Upload, FileText, Trash2, Search, Check, Users } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Upload, FileText, Trash2, Search, Check } from 'lucide-react'
 
 const levels = [
   { value: 'مبتدئ', label: 'مبتدئ (Beginner)' },
@@ -33,7 +33,6 @@ const parentsMock = [
 export default function AddEditStudentScreen({
   student = null,
   isRtl,
-  t,
   onSave,
   onCancel
 }) {
@@ -51,6 +50,11 @@ export default function AddEditStudentScreen({
   )
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [phoneVal, setPhoneVal] = useState(phoneNumberOnly)
+
+  const selectCountryCode = (country) => {
+    setSelectedCountryCode(country)
+    setIsDropdownOpen(false)
+  }
 
   // Parents list states
   const [parentSearch, setParentSearch] = useState('')

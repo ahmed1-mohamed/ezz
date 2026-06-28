@@ -13,7 +13,6 @@ export default function IdentityInfoCard({
   formData,
   onChange,
   onPhotoChange,
-  isRtl,
   t
 }) {
   const fileInputRef = useRef(null)

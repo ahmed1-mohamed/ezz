@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight } from 'lucide-react'
-import imageSrc from '../../images/programs/6.jpg'
+import imageSrc from '../../images/programs/6.webp'
 
 const containerVariants = {
     hidden: { opacity: 0 },

@@ -1,30 +1,26 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { ArrowRight, ArrowLeft, BookOpen, Clock, Award, TrendingUp, CheckCircle, Ban, Pencil, Star, Trophy, Calendar, Lock, Phone, Mail, UserCheck, CreditCard, FileText } from 'lucide-react'
-import ChangeGroupModal from './ChangeGroupModal'
+const ChangeGroupModal = lazy(() => import('./ChangeGroupModal'))
 
-const countryCodes = [
-  { code: '+20', flag: '🇪🇬', name: 'Egypt' },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
-  { code: '+974', flag: '🇶🇦', name: 'Qatar' }
-]
 
 export default function StudentDetailsScreen({
   student,
   isRtl,
-  t,
   onCancel,
   onEdit,
   onToggleStatus,
   onChangeGroup
 }) {
+  const [isChangeGroupOpen, setIsChangeGroupOpen] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
   if (!student) return null
 
   const isSuspended = student.subscriptionStatus === 'Expired'
-  const [isChangeGroupOpen, setIsChangeGroupOpen] = useState(false)
 
   const parentsMock = [
     { name: 'خالد المنصور', email: 'khalid@email.com', phone: '+966501234567', initial: 'خ' },
@@ -39,19 +35,6 @@ export default function StudentDetailsScreen({
     phone: '+966501234567',
     initial: student.parentName ? student.parentName.trim().charAt(0) : 'خ'
   }
-
-  // Password reset fields state
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-
-  // Extract phone components
-  const phonePrefix = student.phone?.startsWith('+') ? student.phone.split(' ')[0] : '+20'
-  const phoneNumberOnly = student.phone?.includes(' ') ? student.phone.split(' ').slice(1).join(' ') : student.phone || ''
-  
-  const [selectedCountry] = useState(
-    countryCodes.find((c) => c.code === phonePrefix) || countryCodes[0]
-  )
 
   const handlePasswordUpdate = (e) => {
     e.preventDefault()
@@ -69,7 +52,6 @@ export default function StudentDetailsScreen({
     setConfirmPassword('')
   }
 
-  // Stats matching screenshot exactly
   const stats = [
     {
       label: isRtl ? 'إجمالي الحصص' : 'Total Sessions',
@@ -91,7 +73,6 @@ export default function StudentDetailsScreen({
     }
   ]
 
-  // Details items below profile header
   const detailsItems = [
     {
       label: isRtl ? 'المجموعة' : 'Group',
@@ -123,7 +104,6 @@ export default function StudentDetailsScreen({
     }
   ]
 
-  // Achievements
   const achievements = [
     {
       title: isRtl ? 'متميز في الحفظ' : 'Excellent Memorizer',
@@ -147,11 +127,9 @@ export default function StudentDetailsScreen({
 
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      {/* 1. Header with back and controls */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        
-        {/* Back and Title */}
+
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -175,9 +153,8 @@ export default function StudentDetailsScreen({
           </div>
         </div>
 
-        {/* Edit and Status toggles */}
         <div className="flex items-center gap-3">
-          
+
           <button
             type="button"
             onClick={() => onEdit(student)}
@@ -190,11 +167,10 @@ export default function StudentDetailsScreen({
           <button
             type="button"
             onClick={() => onToggleStatus(student.id)}
-            className={`px-5 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${
-              isSuspended
+            className={`px-5 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${isSuspended
                 ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                 : 'bg-rose-50 text-rose-700 hover:bg-rose-105'
-            }`}
+              }`}
           >
             {isSuspended ? (
               <>
@@ -213,7 +189,6 @@ export default function StudentDetailsScreen({
 
       </div>
 
-      {/* 2. Top Metric Cards (Total Sessions, Attendance, Average Rating) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
@@ -238,12 +213,10 @@ export default function StudentDetailsScreen({
         })}
       </div>
 
-      {/* 3. Main Profile Summary Card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-        
-        {/* Profile Card Header */}
+
         <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
-          
+
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-705 dark:bg-emerald-955/15 dark:text-emerald-400">
               {isRtl ? 'فعال' : 'Active'}
@@ -268,7 +241,7 @@ export default function StudentDetailsScreen({
                 {isRtl ? `العمر: ${student.age} سنوات` : `Age: ${student.age} years`}
               </p>
             </div>
-            
+
             <div className="w-16 h-16 rounded-2xl bg-[#005953]/15 text-[#005953] flex items-center justify-center text-2xl font-black shrink-0">
               {student.name ? student.name.trim().charAt(0) : 'أ'}
             </div>
@@ -276,7 +249,6 @@ export default function StudentDetailsScreen({
 
         </div>
 
-        {/* Details 4-Card Grid below summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {detailsItems.map((item, index) => {
             const Icon = item.icon
@@ -303,12 +275,11 @@ export default function StudentDetailsScreen({
 
       </div>
 
-      {/* 4. Badges & Achievements Section (الشارات والإنجازات) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <h3 className="text-base font-bold text-slate-855 dark:text-white">
           {isRtl ? 'الشارات والإنجازات' : 'Badges & Achievements'}
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {achievements.map((badge, index) => {
             const Icon = badge.icon
@@ -330,15 +301,11 @@ export default function StudentDetailsScreen({
 
       </div>
 
-      {/* 5. Split-Grid Content Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Right/Left Column (Group & Security) */}
+
         <div className="space-y-6">
-          
-          {/* Educational Group Card */}
+
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
-            {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
               <div className="flex items-center gap-2 text-slate-800 dark:text-white">
                 <BookOpen className="text-[#005953]" size={20} />
@@ -355,9 +322,8 @@ export default function StudentDetailsScreen({
               </button>
             </div>
 
-            {/* Group Detail Card Frame */}
             <div className="p-5 bg-slate-50/50 dark:bg-slate-950/20 rounded-3xl border border-slate-100 dark:border-slate-850/60 space-y-4">
-              
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <h4 className="text-base font-bold text-slate-800 dark:text-white">
@@ -369,14 +335,13 @@ export default function StudentDetailsScreen({
                     {isRtl ? `المستوى: ${student.level || 'متوسط'}` : `Level: ${student.level || 'Intermediate'}`}
                   </p>
                 </div>
-                
+
                 <span className="inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5 animate-pulse" />
                   {isRtl ? 'نشط' : 'Active'}
                 </span>
               </div>
 
-              {/* Column metadata block inside card */}
               <div className="grid grid-cols-3 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-start">
                 <div>
                   <span className="block text-xs font-bold text-slate-400 dark:text-slate-500">
@@ -404,7 +369,6 @@ export default function StudentDetailsScreen({
                 </div>
               </div>
 
-              {/* Schedule box footer */}
               <div className="flex items-center gap-2 p-3 bg-slate-100/50 dark:bg-slate-900 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400">
                 <Calendar size={14} className="text-brand-500" />
                 <span>{isRtl ? 'السبت، الاثنين، الأربعاء - 10:00' : 'Saturday, Monday, Wednesday - 10:00'}</span>
@@ -413,9 +377,7 @@ export default function StudentDetailsScreen({
             </div>
           </div>
 
-          {/* Security Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
-            {/* Header */}
             <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
               <Lock className="text-[#005953]" size={18} />
               <h3 className="text-base font-bold">
@@ -428,7 +390,6 @@ export default function StudentDetailsScreen({
                 {isRtl ? 'تغيير كلمة المرور' : 'Change Password'}
               </span>
 
-              {/* Current Password */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   {isRtl ? 'كلمة المرور الحالية' : 'Current Password'}
@@ -442,7 +403,6 @@ export default function StudentDetailsScreen({
                 />
               </div>
 
-              {/* New & Confirm Passwords */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -470,7 +430,6 @@ export default function StudentDetailsScreen({
                 </div>
               </div>
 
-              {/* Action button */}
               <div className="flex justify-end pt-2">
                 <button
                   type="button"
@@ -485,10 +444,8 @@ export default function StudentDetailsScreen({
 
         </div>
 
-        {/* Left/Right Column (Subscription Info, Parent Info, Summary) */}
         <div className="space-y-6">
-          
-          {/* Subscription Info Card */}
+
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
             <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
               <CreditCard className="text-[#005953]" size={20} />
@@ -496,19 +453,18 @@ export default function StudentDetailsScreen({
                 {isRtl ? 'معلومات الاشتراك' : 'Subscription Details'}
               </h3>
             </div>
-            
+
             <div className="space-y-3.5">
               <div className="flex justify-between items-center p-3.5 bg-[#f3f7f6] dark:bg-slate-950/20 rounded-2xl">
                 <span className="text-xs font-bold text-slate-450 dark:text-slate-500">
                   {isRtl ? 'حالة الاشتراك' : 'Subscription Status'}
                 </span>
-                <span className={`text-sm font-extrabold px-3 py-1 rounded-xl ${
-                  student.subscriptionStatus === 'Active'
+                <span className={`text-sm font-extrabold px-3 py-1 rounded-xl ${student.subscriptionStatus === 'Active'
                     ? 'bg-emerald-50 text-emerald-705 dark:bg-emerald-955/20 dark:text-emerald-400'
                     : 'bg-rose-50 text-rose-705 dark:bg-rose-955/20 dark:text-rose-400'
-                }`}>
-                  {student.subscriptionStatus === 'Active' 
-                    ? (isRtl ? 'فعال' : 'Active') 
+                  }`}>
+                  {student.subscriptionStatus === 'Active'
+                    ? (isRtl ? 'فعال' : 'Active')
                     : (isRtl ? 'منتهي/معلق' : 'Expired/Suspended')}
                 </span>
               </div>
@@ -533,7 +489,6 @@ export default function StudentDetailsScreen({
             </div>
           </div>
 
-          {/* Parent Info Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
             <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
               <UserCheck className="text-[#005953]" size={20} />
@@ -543,7 +498,6 @@ export default function StudentDetailsScreen({
             </div>
 
             <div className="space-y-4">
-              {/* Profile Details Row */}
               <div className="flex items-center justify-between p-4 bg-[#f3f7f6] dark:bg-slate-950/20 rounded-2xl">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-black">
@@ -553,7 +507,7 @@ export default function StudentDetailsScreen({
                     {parentInfo.name}
                   </span>
                 </div>
-                
+
                 <button
                   type="button"
                   onClick={() => alert(isRtl ? `عرض تفاصيل ولي الأمر: ${parentInfo.name}` : `View details for parent: ${parentInfo.name}`)}
@@ -563,7 +517,6 @@ export default function StudentDetailsScreen({
                 </button>
               </div>
 
-              {/* Phone number row */}
               <div className={`flex items-center gap-3 p-3.5 bg-[#f3f7f6] dark:bg-slate-950/20 border border-transparent rounded-2xl ${isRtl ? 'justify-end' : 'justify-start'}`}>
                 {isRtl ? (
                   <>
@@ -582,7 +535,6 @@ export default function StudentDetailsScreen({
                 )}
               </div>
 
-              {/* Email address row */}
               <div className={`flex items-center gap-3 p-3.5 bg-[#f3f7f6] dark:bg-slate-950/20 border border-transparent rounded-2xl ${isRtl ? 'justify-end' : 'justify-start'}`}>
                 {isRtl ? (
                   <>
@@ -603,7 +555,6 @@ export default function StudentDetailsScreen({
             </div>
           </div>
 
-          {/* Subscription Summary Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
             <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
               <FileText className="text-[#005953]" size={20} />
@@ -657,15 +608,17 @@ export default function StudentDetailsScreen({
 
       </div>
 
-      {/* Change Group Modal overlay popup */}
-      <ChangeGroupModal
-        isOpen={isChangeGroupOpen}
-        onClose={() => setIsChangeGroupOpen(false)}
-        student={student}
-        isRtl={isRtl}
-        t={t}
-        onChangeGroup={onChangeGroup}
-      />
+      <Suspense fallback={null}>
+        {isChangeGroupOpen && (
+          <ChangeGroupModal
+            isOpen={isChangeGroupOpen}
+            onClose={() => setIsChangeGroupOpen(false)}
+            student={student}
+            isRtl={isRtl}
+            onChangeGroup={onChangeGroup}
+          />
+        )}
+      </Suspense>
     </div>
   )
 }

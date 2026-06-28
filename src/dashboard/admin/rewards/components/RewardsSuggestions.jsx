@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, X, Trash2, Pencil, Award } from 'lucide-react'
+import { Trash2, Pencil, Award } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function RewardsSuggestions({

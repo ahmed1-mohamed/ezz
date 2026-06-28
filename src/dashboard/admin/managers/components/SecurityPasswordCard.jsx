@@ -1,9 +1,6 @@
-import { Lock } from 'lucide-react'
-
 export default function SecurityPasswordCard({
   formData,
   onChange,
-  isRtl,
   t
 }) {
   return (

@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 
-import program1 from "../../images/programs/2.jpg";
-import program2 from "../../images/programs/1.jpg";
-import program3 from "../../images/programs/3.jpg";
+import program1 from "../../images/programs/2.webp";
+import program2 from "../../images/programs/1.webp";
+import program3 from "../../images/programs/3.webp";
 
 const programs = [
     {

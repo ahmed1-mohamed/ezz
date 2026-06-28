@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const COLOR_OPTIONS = [
@@ -20,8 +20,10 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
   const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0])
   const [description, setDescription] = useState('')
   const [descriptionEn, setDescriptionEn] = useState('')
+  const [prevEditingReward, setPrevEditingReward] = useState(editingReward)
 
-  useEffect(() => {
+  if (editingReward !== prevEditingReward) {
+    setPrevEditingReward(editingReward)
     if (editingReward) {
       setName(editingReward.name || '')
       setNameEn(editingReward.nameEn || '')
@@ -38,7 +40,7 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
       setDescription('')
       setDescriptionEn('')
     }
-  }, [editingReward])
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()

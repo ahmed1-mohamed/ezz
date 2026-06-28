@@ -45,27 +45,31 @@ export default function ContactForm() {
 
     useEffect(() => {
         if (messageSubmitStatus === 'success') {
-            setToast({
-                show: true,
-                message: t('contact.toast.success', 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'),
-                type: 'success'
-            })
-            setFormData({
-                name: '',
-                email: '',
-                title: '',
-                phone: '+20 ',
-                message: ''
-            })
-            dispatch(resetMessageSubmitStatus())
+            setTimeout(() => {
+                setToast({
+                    show: true,
+                    message: t('contact.toast.success', 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'),
+                    type: 'success'
+                })
+                setFormData({
+                    name: '',
+                    email: '',
+                    title: '',
+                    phone: '+20 ',
+                    message: ''
+                })
+                dispatch(resetMessageSubmitStatus())
+            }, 0)
         } else if (messageSubmitStatus === 'failed') {
-            const errorMsg = getSafeErrorMessage(submitError) || t('contact.toast.error', 'عذراً، حدث خطأ ما أثناء إرسال الرسالة.');
-            setToast({
-                show: true,
-                message: errorMsg,
-                type: 'error'
-            })
-            dispatch(resetMessageSubmitStatus())
+            setTimeout(() => {
+                const errorMsg = getSafeErrorMessage(submitError) || t('contact.toast.error', 'عذراً، حدث خطأ ما أثناء إرسال الرسالة.');
+                setToast({
+                    show: true,
+                    message: errorMsg,
+                    type: 'error'
+                })
+                dispatch(resetMessageSubmitStatus())
+            }, 0)
         }
     }, [messageSubmitStatus, submitError, dispatch, t])
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Search, X, UserPlus, Check, Phone, Mail, User, BookOpen } from 'lucide-react'
 
 const mockAllStudents = [
@@ -62,11 +62,13 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
   const [searchTab, setSearchTab] = useState('name')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedIds, setSelectedIds] = useState([])
+  const [prevGroupId, setPrevGroupId] = useState(group?.id)
 
-  useEffect(() => {
+  if (group?.id !== prevGroupId) {
+    setPrevGroupId(group?.id)
     setSearchQuery('')
     setSelectedIds([])
-  }, [group])
+  }
 
   const existingStudentIds = useMemo(
     () => new Set((group?.students || []).map((s) => s.id)),

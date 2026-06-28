@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GraduationCap, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Check, X, Eye, EyeOff } from 'lucide-react'
+import { GraduationCap, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Check, X } from 'lucide-react'
 
 export default function AdminStudentLevels() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
   // Mock initial levels data with grades (steps/modules)

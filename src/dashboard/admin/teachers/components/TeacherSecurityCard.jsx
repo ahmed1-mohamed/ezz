@@ -4,7 +4,6 @@ export default function TeacherSecurityCard({
   formData,
   onChange,
   isRtl,
-  t,
   isEdit = true
 }) {
   // Local states are only used in Edit mode

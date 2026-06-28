@@ -1,28 +1,24 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Plus, Search, Pencil, Trash2, BookOpen, GraduationCap, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
+import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function StudentsList({
   students,
   isRtl,
-  t,
   onOpenAddScreen,
   onOpenEditScreen,
   onOpenSessions,
   onDelete
 }) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchVal, setSearchVal] = useState('')
+  const debouncedQuery = useDebounce(searchVal, 300)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 4
 
-  // Reset page on search
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
-
   // Filter list based on search
   const filteredStudents = useMemo(() => {
-    if (!searchQuery.trim()) return students
-    const query = searchQuery.toLowerCase()
+    if (!debouncedQuery.trim()) return students
+    const query = debouncedQuery.toLowerCase()
     return students.filter(
       (student) =>
         student.name.toLowerCase().includes(query) ||
@@ -30,7 +26,7 @@ export default function StudentsList({
         (student.parentName && student.parentName.toLowerCase().includes(query)) ||
         (student.groupName && student.groupName.toLowerCase().includes(query))
     )
-  }, [students, searchQuery])
+  }, [students, debouncedQuery])
 
   // Pagination slicing
   const indexOfLastItem = currentPage * itemsPerPage
@@ -146,8 +142,8 @@ export default function StudentsList({
           <input
             type="text"
             placeholder={isRtl ? 'بحث...' : 'Search...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchVal}
+            onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(1) }}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
           />
         </div>
@@ -181,7 +177,7 @@ export default function StudentsList({
                   const initial = student.name.trim().charAt(0)
                   
                   // Level Badge Colors
-                  let levelBadgeClass = ''
+                  let levelBadgeClass
                   if (student.level === 'مبتدئ' || student.level === 'Beginner') {
                     levelBadgeClass = 'bg-amber-50 text-amber-700 dark:bg-amber-955/20 dark:text-amber-400'
                   } else if (student.level === 'متوسط' || student.level === 'Intermediate') {
@@ -191,9 +187,9 @@ export default function StudentsList({
                   }
 
                   // Subscription Badge Colors
-                  let statusBadgeClass = ''
-                  let statusDotClass = ''
-                  let statusText = ''
+                  let statusBadgeClass
+                  let statusDotClass
+                  let statusText
                   if (student.subscriptionStatus === 'Active') {
                     statusBadgeClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-955/15 dark:text-emerald-400'
                     statusDotClass = 'bg-emerald-600'

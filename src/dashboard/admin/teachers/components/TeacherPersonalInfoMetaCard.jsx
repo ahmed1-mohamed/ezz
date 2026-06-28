@@ -2,8 +2,7 @@ import { Calendar, Phone, Mail, Users } from 'lucide-react'
 
 export default function TeacherPersonalInfoMetaCard({
   formData,
-  isRtl,
-  t
+  isRtl
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">

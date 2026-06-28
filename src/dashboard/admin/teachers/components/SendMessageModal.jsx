@@ -1,26 +1,24 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 
 export default function SendMessageModal({
   isOpen,
   onClose,
   teacher,
-  isRtl,
-  t
+  isRtl
 }) {
-  const [teacherName, setTeacherName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [teacherName, setTeacherName] = useState(teacher?.name || '')
+  const [email, setEmail] = useState(teacher?.email || '')
+  const [phone, setPhone] = useState(teacher?.phone || '')
   const [message, setMessage] = useState('')
+  const [prevTeacher, setPrevTeacher] = useState(teacher)
 
-  // Sync state with selected teacher details when modal opens
-  useEffect(() => {
-    if (teacher) {
-      setTeacherName(teacher.name || '')
-      setEmail(teacher.email || '')
-      setPhone(teacher.phone || '')
-    }
-  }, [teacher, isOpen])
+  if (teacher !== prevTeacher) {
+    setPrevTeacher(teacher)
+    setTeacherName(teacher?.name || '')
+    setEmail(teacher?.email || '')
+    setPhone(teacher?.phone || '')
+  }
 
   if (!isOpen) return null
 
@@ -37,13 +35,13 @@ export default function SendMessageModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      
+
       {/* Backdrop click to close */}
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
       {/* Modal Container */}
       <div className="relative w-full max-w-2xl bg-[#3a3a3a] dark:bg-slate-950 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-4 text-start">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between text-white pb-2">
           <h3 className="text-lg font-bold">
@@ -60,7 +58,7 @@ export default function SendMessageModal({
 
         {/* Form Container (white card background) */}
         <form onSubmit={handleSend} className="bg-white dark:bg-slate-900 rounded-2xl p-6 space-y-6">
-          
+
           {/* Teacher Name */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -77,7 +75,7 @@ export default function SendMessageModal({
 
           {/* Email and Phone Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            
+
             {/* Email Address */}
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">

@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-export default function FaqTable({ faqs, onEdit, onDelete }) {
+export default function FaqTable({ faqs, onDelete }) {
   const { t } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
 

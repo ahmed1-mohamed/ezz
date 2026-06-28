@@ -14,7 +14,7 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
 
   const pendingCount = requests.filter((r) => r.status === 'pending').length
 
-  const handleFileChange = (e, id) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
     const reader = new FileReader()
@@ -193,7 +193,7 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
                             type="file"
                             accept="image/*"
                             className="hidden"
-                            onChange={(e) => handleFileChange(e, req.id)}
+                            onChange={handleFileChange}
                           />
                         </label>
 

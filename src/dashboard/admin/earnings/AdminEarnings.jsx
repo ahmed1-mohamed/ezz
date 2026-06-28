@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
@@ -17,11 +17,7 @@ export default function AdminEarnings() {
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadData()
-  }, [currentDate])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
     const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
     const [statsRes, teachersRes, requestsRes] = await Promise.all([
@@ -34,7 +30,12 @@ export default function AdminEarnings() {
     if (teachersRes?.data) setTeachers(teachersRes.data)
     if (requestsRes?.data) setRequests(requestsRes.data)
     setLoading(false)
-  }
+  }, [currentDate])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+  }, [loadData])
 
   const handlePrevMonth = () => {
     setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))

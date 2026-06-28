@@ -8,6 +8,10 @@ export default function TeacherProfileCard({
   onEdit,
   onToggleStatus
 }) {
+  const avatarLetter = useMemo(() => {
+    return teacher?.name ? teacher.name.trim().charAt(0) : 'ف'
+  }, [teacher])
+
   if (!teacher) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-10 text-center text-slate-400 dark:text-slate-500 font-bold shadow-soft">
@@ -15,10 +19,6 @@ export default function TeacherProfileCard({
       </div>
     )
   }
-
-  const avatarLetter = useMemo(() => {
-    return teacher.name ? teacher.name.trim().charAt(0) : 'ف'
-  }, [teacher.name])
 
   const isSuspended = teacher.status !== 'Active'
 

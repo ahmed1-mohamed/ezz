@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { ArrowRight, ArrowLeft, Calendar, MessageSquare, Ban, CheckCircle2, User, BookOpen, Clock, Users, Percent, CheckSquare, Award } from 'lucide-react'
-import SendMessageModal from './SendMessageModal'
+import { useState, lazy, Suspense } from 'react'
+import { ArrowRight, ArrowLeft, Calendar, MessageSquare, Ban, CheckCircle2, BookOpen, Clock, Users, Percent, CheckSquare, Award } from 'lucide-react'
+const SendMessageModal = lazy(() => import('./SendMessageModal'))
 
 export default function TeacherDetailsScreen({
   teacher,
@@ -14,7 +14,6 @@ export default function TeacherDetailsScreen({
   const isSuspended = teacher?.status !== 'Active'
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false)
 
-  // Performance metrics (using real or fallback data matching screenshot)
   const metrics = [
     {
       label: isRtl ? 'معدل الحضور' : 'Attendance Rate',
@@ -42,7 +41,6 @@ export default function TeacherDetailsScreen({
     }
   ]
 
-  // Associated groups list (matching the mockup)
   const groups = [
     {
       id: 1,
@@ -55,31 +53,28 @@ export default function TeacherDetailsScreen({
     }
   ]
 
-  // Recent sessions (matching the mockup)
   const sessions = [
     {
       id: 1,
       name: isRtl ? 'مجموعة القرآن أ' : 'Quran Group A',
       dateTime: '2024-04-23 - 10:00 (60 دقيقة)',
-      status: 'Live', // مباشرة الآن
+      status: 'Live',
       students: isRtl ? '4 طلاب' : '4 students'
     },
     {
       id: 2,
       name: isRtl ? 'مجموعة القرآن أ' : 'Quran Group A',
       dateTime: '2024-04-24 - 10:00 (60 دقيقة)',
-      status: 'Upcoming', // قادمة
+      status: 'Upcoming',
       students: isRtl ? '4 طلاب' : '4 students'
     }
   ]
 
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      {/* 1. Header with back and edit buttons */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        
-        {/* Back and Title */}
+
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -100,7 +95,6 @@ export default function TeacherDetailsScreen({
           </div>
         </div>
 
-        {/* Edit Button */}
         <button
           type="button"
           onClick={() => onEdit(teacher)}
@@ -111,7 +105,6 @@ export default function TeacherDetailsScreen({
 
       </div>
 
-      {/* 2. Top Profile summary banner */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft flex flex-col md:flex-row items-center md:items-start gap-6">
         <div className="w-20 h-20 rounded-2xl bg-[#005953]/10 text-[#005953] dark:bg-[#005953]/20 dark:text-brand-300 flex items-center justify-center text-3xl font-black shrink-0">
           {teacher?.name?.trim().charAt(0) || 'ف'}
@@ -121,11 +114,10 @@ export default function TeacherDetailsScreen({
             <h2 className="text-xl font-bold text-slate-850 dark:text-white">
               {teacher?.name}
             </h2>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold self-center md:self-start ${
-              isSuspended
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold self-center md:self-start ${isSuspended
                 ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
                 : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
-            }`}>
+              }`}>
               <span className={`w-1.5 h-1.5 rounded-full me-1.5 ${isSuspended ? 'bg-rose-600' : 'bg-emerald-600'}`} />
               {isSuspended ? (isRtl ? 'موقوف' : 'Suspended') : (isRtl ? 'نشط' : 'Active')}
             </span>
@@ -143,7 +135,6 @@ export default function TeacherDetailsScreen({
         </div>
       </div>
 
-      {/* 3. Performance Statistics Card (إحصائيات الأداء) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <h3 className="text-base font-bold text-slate-850 dark:text-white border-b border-slate-105 dark:border-slate-800/60 pb-3 flex items-center gap-2">
           <Award className="text-amber-500" size={18} />
@@ -174,7 +165,6 @@ export default function TeacherDetailsScreen({
         </div>
       </div>
 
-      {/* 4. Associated Groups (المجموعات التابعة) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <h3 className="text-base font-bold text-slate-855 dark:text-white border-b border-slate-105 dark:border-slate-800/60 pb-3 flex items-center gap-2">
           <Users className="text-[#005953]" size={18} />
@@ -202,7 +192,6 @@ export default function TeacherDetailsScreen({
                 </span>
               </div>
 
-              {/* Group Metadata Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-start">
                 <div>
                   <span className="block text-xs font-bold text-slate-400 dark:text-slate-500">
@@ -234,7 +223,6 @@ export default function TeacherDetailsScreen({
         </div>
       </div>
 
-      {/* 5. Recent Sessions (آخر الحصص) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <h3 className="text-base font-bold text-slate-855 dark:text-white border-b border-slate-105 dark:border-slate-800/60 pb-3 flex items-center gap-2">
           <BookOpen className="text-blue-500" size={18} />
@@ -265,11 +253,10 @@ export default function TeacherDetailsScreen({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                    isLive
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${isLive
                       ? 'bg-rose-50 text-rose-700 dark:bg-rose-955/20 dark:text-rose-400 animate-pulse'
                       : 'bg-blue-50 text-blue-705 dark:bg-blue-955/20 dark:text-blue-400'
-                  }`}>
+                    }`}>
                     <span className={`w-1.5 h-1.5 rounded-full me-1.5 ${isLive ? 'bg-rose-600' : 'bg-blue-600'}`} />
                     {isLive
                       ? (isRtl ? 'مباشرة الآن' : 'Live Now')
@@ -285,10 +272,8 @@ export default function TeacherDetailsScreen({
         </div>
       </div>
 
-      {/* 6. Bottom action buttons */}
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-105 dark:border-slate-800">
-        
-        {/* Send Message */}
+
         <button
           type="button"
           onClick={() => setIsMessageModalOpen(true)}
@@ -298,15 +283,13 @@ export default function TeacherDetailsScreen({
           <span>{isRtl ? 'إرسال رسالة' : 'Send Message'}</span>
         </button>
 
-        {/* Suspend / Activate Account */}
         <button
           type="button"
           onClick={() => onToggleStatus(teacher.id)}
-          className={`flex-1 py-4 font-bold rounded-2xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 ${
-            isSuspended
+          className={`flex-1 py-4 font-bold rounded-2xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 ${isSuspended
               ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-200 dark:border-transparent'
               : 'bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-955/20 dark:text-rose-455 border border-rose-200 dark:border-transparent'
-          }`}
+            }`}
         >
           {isSuspended ? (
             <>
@@ -323,13 +306,17 @@ export default function TeacherDetailsScreen({
 
       </div>
 
-      <SendMessageModal
-        isOpen={isMessageModalOpen}
-        onClose={() => setIsMessageModalOpen(false)}
-        teacher={teacher}
-        isRtl={isRtl}
-        t={t}
-      />
+      <Suspense fallback={null}>
+        {isMessageModalOpen && (
+          <SendMessageModal
+            isOpen={isMessageModalOpen}
+            onClose={() => setIsMessageModalOpen(false)}
+            teacher={teacher}
+            isRtl={isRtl}
+            t={t}
+          />
+        )}
+      </Suspense>
 
     </div>
   )

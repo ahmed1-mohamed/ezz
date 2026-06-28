@@ -14,7 +14,6 @@ import {
   Eye,
   EyeOff,
   Upload,
-  X,
 } from 'lucide-react'
 import SendMessageModal from './SendMessageModal'
 

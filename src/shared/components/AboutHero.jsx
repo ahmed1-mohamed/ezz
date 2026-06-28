@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import bgImage from '../../images/about/1.png'
-import mainImage from '../../images/about/2.png'
+import bgImage from '../../images/about/1.webp'
+import mainImage from '../../images/about/2.webp'
 
 export default React.memo(function AboutHero() {
     const { t, i18n } = useTranslation()

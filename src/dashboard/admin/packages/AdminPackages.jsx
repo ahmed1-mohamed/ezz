@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Plus, Package } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -23,9 +23,7 @@ export default function AdminPackages() {
     const [editingFaq, setEditingFaq] = useState(null)
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, id: null })
 
-    useEffect(() => { loadAll() }, [])
-
-    const loadAll = async () => {
+    const loadAll = useCallback(async () => {
         setLoading(true)
         const [pkgRes, faqRes] = await Promise.all([
             adminPackagesApi.fetchPackages(),
@@ -34,7 +32,12 @@ export default function AdminPackages() {
         if (pkgRes?.data) setPackages(pkgRes.data)
         if (faqRes?.data) setFaqs(faqRes.data)
         setLoading(false)
-    }
+    }, [])
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        loadAll()
+    }, [loadAll])
 
     const handleSavePkg = async (data) => {
         if (editingPkg) {
@@ -139,7 +142,6 @@ export default function AdminPackages() {
 
                 <FaqTable
                     faqs={faqs}
-                    onEdit={(faq) => setEditingFaq(faq)}
                     onDelete={(id) => setDeleteConfirm({ open: true, type: 'faq', id })}
                 />
             </section>

@@ -2,7 +2,6 @@ import { Link } from 'lucide-react'
 
 export default function EditGoogleLinkCard({
   isRtl,
-  t,
   onLinkGoogle
 }) {
   return (

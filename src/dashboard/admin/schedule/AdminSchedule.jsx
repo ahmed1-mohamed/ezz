@@ -190,11 +190,6 @@ export default function AdminSchedule() {
 
   const goToToday = () => setRefDate(today)
 
-  const weekLabel = useMemo(() => {
-    const start = weekDates[0]
-    const end = weekDates[6]
-    return `${start.getDate()}/${start.getMonth() + 1} – ${end.getDate()}/${end.getMonth() + 1}/${end.getFullYear()}`
-  }, [weekDates])
 
   const handleEdit = (session) => {
     alert(`تعديل الجلسة: ${session.groupName}`)

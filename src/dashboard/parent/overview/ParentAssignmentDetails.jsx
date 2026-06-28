@@ -40,6 +40,7 @@ export default function ParentAssignmentDetails() {
         };
 
         fetchDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, i18n.language]);
 
 

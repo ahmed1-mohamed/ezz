@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star, BookOpen, ChevronDown, Calendar, User, GraduationCap } from 'lucide-react';
@@ -79,6 +78,7 @@ export default function ParentRatings() {
         };
 
         fetchRatings();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedStudent, i18n.language]);
 
     const containerVariants = {
