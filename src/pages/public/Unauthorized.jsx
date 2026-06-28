@@ -15,7 +15,7 @@ export default function Unauthorized() {
             <div className="w-full max-w-2xl rounded-[2.5rem] border border-slate-100 bg-white p-12 text-center shadow-sm">
                 <div className="space-y-6">
                     <p className="text-sm font-bold tracking-widest text-red-600 uppercase">{t('errors.unauthorizedTitle', 'غير مصرح')}</p>
-                    <h1 className="text-7xl sm:text-8xl font-black text-slate-200">401</h1>
+                    <h1 className="text-7xl sm:text-8xl font-black text-slate-200">403</h1>
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800">
                         {t('errors.unauthorizedMsg', 'عذراً، ليس لديك صلاحية للوصول إلى هذه الصفحة')}
                     </h2>
