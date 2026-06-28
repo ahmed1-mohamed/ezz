@@ -33,6 +33,11 @@ const AdminParents = lazy(() => import('../dashboard/admin/parents/AdminParents.
 const AdminGroups = lazy(() => import('../dashboard/admin/groups/AdminGroups.jsx'))
 const AdminSessions = lazy(() => import('../dashboard/admin/sessions/AdminSessions.jsx'))
 const AdminSchedule = lazy(() => import('../dashboard/admin/schedule/AdminSchedule.jsx'))
+const AdminPackages = lazy(() => import('../dashboard/admin/packages/AdminPackages.jsx'))
+const AdminEarnings = lazy(() => import('../dashboard/admin/earnings/AdminEarnings.jsx'))
+const AdminPayments = lazy(() => import('../dashboard/admin/payments/AdminPayments.jsx'))
+const AdminRewards = lazy(() => import('../dashboard/admin/rewards/AdminRewards.jsx'))
+const AdminAssignments = lazy(() => import('../dashboard/admin/assignments/AdminAssignments.jsx'))
 
 const ManagerDashboard = lazy(() => import('../dashboard/manager/overview/ManagerDashboard.jsx'))
 const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCourses.jsx'))
@@ -245,6 +250,26 @@ export default function AppRoutes() {
                                     <Route
                                         path="/dashboard/admin/schedule"
                                         element={<AnimatedPage><AdminSchedule /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/packages"
+                                        element={<AnimatedPage><AdminPackages /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/earnings"
+                                        element={<AnimatedPage><AdminEarnings /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/payments"
+                                        element={<AnimatedPage><AdminPayments /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/rewards"
+                                        element={<AnimatedPage><AdminRewards /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/assignments"
+                                        element={<AnimatedPage><AdminAssignments /></AnimatedPage>}
                                     />
                                 </Route>
                             </Route>

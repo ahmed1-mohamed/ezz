@@ -24,15 +24,7 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(false)
     const [theme, setTheme] = useLocalStorage('theme', 'light')
 
-    useEffect(() => {
-        const handleStorageChange = (event) => {
-            if (event.key === 'access_token' && !event.newValue) {
-                logout()
-            }
-        }
-        window.addEventListener('storage', handleStorageChange)
-        return () => window.removeEventListener('storage', handleStorageChange)
-    }, [])
+
 
     const login = async (email, password, remember) => {
         setLoading(true)
@@ -140,6 +132,16 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
     }
+
+    useEffect(() => {
+        const handleStorageChange = (event) => {
+            if (event.key === 'access_token' && !event.newValue) {
+                logout()
+            }
+        }
+        window.addEventListener('storage', handleStorageChange)
+        return () => window.removeEventListener('storage', handleStorageChange)
+    }, [])
 
     const toggleTheme = useCallback(() => {
         setTheme((current) => (current === 'dark' ? 'light' : 'dark'))

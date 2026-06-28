@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Search, Check, Loader2 } from 'lucide-react'
@@ -7,7 +7,7 @@ import { landingApi } from '@/shared/services/api/landingApi'
 export default function CountryPhoneInput({ value = '', onChange, error }) {
     const { t, i18n } = useTranslation()
 
-    const DEFAULT_COUNTRIES = [
+    const DEFAULT_COUNTRIES = useMemo(() => [
         { phoneCode: '+20', name: i18n.language === 'en' ? 'Egypt' : 'مصر', flag: '🇪🇬' },
         { phoneCode: '+966', name: i18n.language === 'en' ? 'Saudi Arabia' : 'السعودية', flag: '🇸🇦' },
         { phoneCode: '+971', name: i18n.language === 'en' ? 'UAE' : 'الإمارات', flag: '🇦🇪' },
@@ -15,7 +15,7 @@ export default function CountryPhoneInput({ value = '', onChange, error }) {
         { phoneCode: '+974', name: i18n.language === 'en' ? 'Qatar' : 'قطر', flag: '🇶🇦' },
         { phoneCode: '+973', name: i18n.language === 'en' ? 'Bahrain' : 'البحرين', flag: '🇧🇭' },
         { phoneCode: '+968', name: i18n.language === 'en' ? 'Oman' : 'عمان', flag: '🇴🇲' },
-    ]
+    ], [i18n.language])
 
     const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
     const [countryCode, setCountryCode] = useState('+20')
@@ -28,9 +28,10 @@ export default function CountryPhoneInput({ value = '', onChange, error }) {
         const sortedCountries = [...allCountries].sort((a, b) => b.phoneCode.length - a.phoneCode.length)
         const matchedCountry = sortedCountries.find(c => value.trim().startsWith(c.phoneCode))
         if (matchedCountry && matchedCountry.phoneCode !== countryCode) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setCountryCode(matchedCountry.phoneCode)
         }
-    }, [value, countriesList])
+    }, [value, countriesList, DEFAULT_COUNTRIES, countryCode])
 
     useEffect(() => {
         let isMounted = true
@@ -59,7 +60,7 @@ export default function CountryPhoneInput({ value = '', onChange, error }) {
             isMounted = false
             clearTimeout(delayDebounceFn)
         }
-    }, [searchTerm, i18n.language])
+    }, [searchTerm, i18n.language, DEFAULT_COUNTRIES])
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -88,9 +89,7 @@ export default function CountryPhoneInput({ value = '', onChange, error }) {
             const prefix = matchedCountry.phoneCode
             let rest = inputVal.substring(prefix.length)
 
-            let trimmedRest = rest.trim()
-            if (trimmedRest.startsWith('0')) {
-                trimmedRest = trimmedRest.substring(1)
+            if (rest.trim().startsWith('0')) {
                 rest = rest.replace('0', '')
             }
 
