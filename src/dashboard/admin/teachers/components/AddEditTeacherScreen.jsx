@@ -39,11 +39,8 @@ export default function AddEditTeacherScreen({
     aboutAr: teacher?.aboutAr || '',
     aboutEn: teacher?.aboutEn || '',
     certificates: teacher?.certificates || [],
-    studentsCount: teacher?.studentsCount || 45,
-    documents: teacher?.documents || [
-      { id: 1, nameAr: 'شهادة التخرج', nameEn: 'Graduation Certificate', size: '2.4 MB' },
-      { id: 2, nameAr: 'شهادة تقدير', nameEn: 'Appreciation Certificate', size: '2.4 MB' }
-    ]
+    studentsCount: teacher?.studentsCount || 0,
+    documents: teacher?.documents || []
   })
 
   const handleFieldChange = (key, value) => {
@@ -72,10 +69,8 @@ export default function AddEditTeacherScreen({
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-10 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
 
-      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-        {/* Back and Title */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -108,7 +103,6 @@ export default function AddEditTeacherScreen({
 
       </div>
 
-      {/* Profile Overview Header - only for editing */}
       {teacher && (
         <TeacherProfileHeaderCard
           teacher={teacher}
@@ -118,10 +112,8 @@ export default function AddEditTeacherScreen({
         />
       )}
 
-      {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-        {/* Column 1 (Right in RTL / Left in LTR): Personal Details, Biography, and Password / Security */}
         <div className="space-y-8">
           <TeacherPersonalInfoCard
             formData={formData}
@@ -148,7 +140,6 @@ export default function AddEditTeacherScreen({
           />
         </div>
 
-        {/* Column 2 (Left in RTL / Right in LTR): Academic, Certificates, and Website Display Details */}
         <div className="space-y-8">
           <TeacherAcademicInfoCard
             formData={formData}
@@ -197,7 +188,6 @@ export default function AddEditTeacherScreen({
 
       </div>
 
-      {/* Bottom Metadata Summary Panel - only show in Edit mode */}
       {teacher && (
         <TeacherPersonalInfoMetaCard
           formData={formData}
@@ -206,7 +196,6 @@ export default function AddEditTeacherScreen({
         />
       )}
 
-      {/* Save changes footer */}
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="submit"

@@ -4,13 +4,13 @@ import { Trash2, FileText, Eye, Edit3, Plus, Upload } from 'lucide-react'
 export default function TeacherCertificatesCard({
   formData,
   onChange,
-  isRtl
+  isRtl,
+  t
 }) {
   const [newCertificate, setNewCertificate] = useState('')
   const [showAddDocModal, setShowAddDocModal] = useState(false)
   const [newDocName, setNewDocName] = useState('')
 
-  // Certificates (Licenses) logic
   const certificates = formData.certificates || []
 
   const handleAddCertificate = () => {
@@ -25,11 +25,7 @@ export default function TeacherCertificatesCard({
     onChange('certificates', updated)
   }
 
-  // Documents (Uploaded papers) logic
-  const documents = formData.documents || [
-    { id: 1, nameAr: 'شهادة التخرج', nameEn: 'Graduation Certificate', size: '2.4 MB' },
-    { id: 2, nameAr: 'شهادة تقدير', nameEn: 'Appreciation Certificate', size: '2.4 MB' }
-  ]
+  const documents = formData.documents || []
 
   const handleAddDocument = () => {
     if (!newDocName.trim()) return
@@ -52,22 +48,19 @@ export default function TeacherCertificatesCard({
 
   return (
     <div className="space-y-8">
-      
-      {/* 1. Licenses & Certificates (الإجازات والشهادات) */}
+
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 overflow-hidden shadow-soft text-start">
-        
-        {/* Deep Teal Header */}
+
         <div className="bg-[#005953] px-6 py-4 flex items-center justify-between">
           <h3 className="text-sm font-bold text-white">
-            {isRtl ? 'الإجازات والشهادات' : 'Licenses & Certificates'}
+            {t('adminDashboard.teachers.licenses', 'الإجازات والشهادات')}
           </h3>
         </div>
 
-        {/* Certificates List */}
         <div className="p-6 space-y-4">
           {certificates.length === 0 ? (
             <p className="text-xs text-slate-400 dark:text-slate-500 py-2">
-              {isRtl ? 'لا توجد إجازات أو شهادات مضافة بعد.' : 'No licenses or certificates added yet.'}
+              {t('adminDashboard.teachers.noLicensesYet', 'لا توجد إجازات أو شهادات مضافة بعد.')}
             </p>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -83,7 +76,7 @@ export default function TeacherCertificatesCard({
                     type="button"
                     onClick={() => handleRemoveCertificate(index)}
                     className="p-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-500 rounded-lg transition-colors cursor-pointer"
-                    title={isRtl ? 'حذف الإجازة' : 'Delete certificate'}
+                    title={t('adminDashboard.teachers.deleteCertificate', 'حذف الإجازة')}
                   >
                     <Trash2 size={16} />
                   </button>
@@ -92,14 +85,13 @@ export default function TeacherCertificatesCard({
             </div>
           )}
 
-          {/* Add Certificate Input Form */}
           <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/60">
             <input
               type="text"
               value={newCertificate}
               onChange={(e) => setNewCertificate(e.target.value)}
               className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-2.5 px-4 outline-none transition-all text-sm"
-              placeholder={isRtl ? 'أدخل اسم الإجازة أو الشهادة...' : 'Enter certificate name...'}
+              placeholder={t('adminDashboard.teachers.enterCertificateName', 'أدخل اسم الإجازة أو الشهادة...')}
             />
             <button
               type="button"
@@ -113,12 +105,11 @@ export default function TeacherCertificatesCard({
 
       </div>
 
-      {/* 2. Certificates & Papers (الشهادات والأوراق) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft text-start space-y-6">
-        
+
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
           <h3 className="text-base font-bold text-slate-800 dark:text-white">
-            {isRtl ? 'الشهادات والاوراق' : 'Certificates & Documents'}
+            {t('adminDashboard.teachers.documents', 'الشهادات والاوراق')}
           </h3>
           <button
             type="button"
@@ -126,67 +117,69 @@ export default function TeacherCertificatesCard({
             className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-600 rounded-xl text-xs font-bold transition-all dark:bg-brand-950/20 dark:text-brand-400 cursor-pointer"
           >
             <Upload size={14} />
-            <span>{isRtl ? 'إضافة مستند' : 'Add Document'}</span>
+            <span>{t('adminDashboard.teachers.addDocument', 'إضافة مستند')}</span>
           </button>
         </div>
 
-        {/* Documents list */}
         <div className="space-y-4">
-          {documents.map((doc) => (
-            <div
-              key={doc.id}
-              className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-100/60 dark:border-slate-850/40"
-            >
-              {/* Document details (right side in RTL, left in LTR) */}
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-2xl text-red-500 shrink-0">
-                  <FileText size={20} />
+          {documents.length === 0 ? (
+            <p className="text-xs text-slate-400 dark:text-slate-500 py-2">
+              {t('adminDashboard.teachers.noDocuments', 'لا توجد مستندات مضافة.')}
+            </p>
+          ) : (
+            documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-100/60 dark:border-slate-850/40"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-2xl text-red-500 shrink-0">
+                    <FileText size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-850 dark:text-slate-100">
+                      {isRtl ? doc.nameAr : doc.nameEn}
+                    </h4>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                      {t('adminDashboard.teachers.size', 'الحجم')}: {doc.size}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-850 dark:text-slate-100">
-                    {isRtl ? doc.nameAr : doc.nameEn}
-                  </h4>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                    {isRtl ? `الحجم: ${doc.size}` : `Size: ${doc.size}`}
-                  </p>
-                </div>
-              </div>
 
-              {/* Action buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 rounded-xl transition-all cursor-pointer"
-                  title={isRtl ? 'تعديل' : 'Edit'}
-                >
-                  <Edit3 size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => alert(isRtl ? 'عرض المستند متاح في النسخة الحية.' : 'Viewing document is available in live version.')}
-                  className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-xl transition-all cursor-pointer"
-                  title={isRtl ? 'عرض' : 'View'}
-                >
-                  <Eye size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveDocument(doc.id)}
-                  className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-500 dark:bg-rose-950/20 dark:text-rose-400 rounded-xl transition-all cursor-pointer"
-                  title={isRtl ? 'حذف' : 'Delete'}
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 rounded-xl transition-all cursor-pointer"
+                    title={t('common.edit', 'تعديل')}
+                  >
+                    <Edit3 size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => alert(t('adminDashboard.teachers.viewAvailableLive', 'عرض المستند متاح في النسخة الحية.'))}
+                    className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-xl transition-all cursor-pointer"
+                    title={t('common.view', 'عرض')}
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveDocument(doc.id)}
+                    className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-500 dark:bg-rose-950/20 dark:text-rose-400 rounded-xl transition-all cursor-pointer"
+                    title={t('common.delete', 'حذف')}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
-        {/* Simulated Add Document mini modal/form inline */}
         {showAddDocModal && (
           <div className="p-4 bg-brand-50/50 dark:bg-slate-950/60 rounded-2xl border border-brand-100/60 dark:border-brand-900/20 space-y-3">
             <h4 className="text-xs font-bold text-brand-700 dark:text-brand-400">
-              {isRtl ? 'اسم المستند الجديد' : 'New Document Name'}
+              {t('adminDashboard.teachers.newDocumentName', 'اسم المستند الجديد')}
             </h4>
             <div className="flex gap-2">
               <input
@@ -194,7 +187,7 @@ export default function TeacherCertificatesCard({
                 value={newDocName}
                 onChange={(e) => setNewDocName(e.target.value)}
                 className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-brand-500/20 text-slate-850 dark:text-slate-100 rounded-xl py-2 px-3 outline-none text-xs"
-                placeholder={isRtl ? 'مثال: شهادة التخرج' : 'e.g. Graduation Certificate'}
+                placeholder={t('adminDashboard.teachers.newDocumentPlaceholder', 'مثال: شهادة التخرج')}
                 autoFocus
               />
               <button
@@ -202,7 +195,7 @@ export default function TeacherCertificatesCard({
                 onClick={handleAddDocument}
                 className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition-all"
               >
-                {isRtl ? 'إضافة' : 'Add'}
+                {t('common.add', 'إضافة')}
               </button>
               <button
                 type="button"
@@ -212,7 +205,7 @@ export default function TeacherCertificatesCard({
                 }}
                 className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-xl text-xs font-semibold transition-all"
               >
-                {isRtl ? 'إلغاء' : 'Cancel'}
+                {t('common.cancel', 'إلغاء')}
               </button>
             </div>
           </div>

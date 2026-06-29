@@ -131,7 +131,7 @@ export default function TeacherPersonalInfoCard({
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn">
+                <div className={`absolute ${isRtl ? 'right-0' : 'left-0'} mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn`}>
                   {countryCodes.map((country) => (
                     <button
                       key={country.code}
