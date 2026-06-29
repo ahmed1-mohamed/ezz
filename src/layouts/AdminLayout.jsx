@@ -21,6 +21,7 @@ import {
   BookMarked,
   Percent,
   BarChart2,
+  Activity,
   Bell,
   Search,
   Menu,
@@ -49,6 +50,7 @@ const navItems = [
   { path: '/dashboard/admin/curriculums', icon: BookMarked, transKey: 'curriculums' },
   { path: '/dashboard/admin/discount-codes', icon: Percent, transKey: 'discountCodes' },
   { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },
+  { path: '/dashboard/admin/logs', icon: Activity, transKey: 'activities' },
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
 

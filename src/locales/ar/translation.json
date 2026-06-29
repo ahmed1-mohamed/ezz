@@ -1650,6 +1650,19 @@
       "title": "منارة العز",
       "subtitle": "لوحة الإدارة"
     },
+    "logs": {
+      "title": "الأحداث",
+      "titleWithCount": "الأحداث ({{count}})",
+      "desc": "متابعة سجل نشاط المستخدمين وأهم الأحداث في المنصة.",
+      "errorLoading": "حدث خطأ أثناء تحميل الأحداث",
+      "loading": "جاري تحميل الأحداث...",
+      "noEvents": "لا توجد أحداث",
+      "noEventsDesc": "لم يتم تسجيل أي أحداث حتى الآن.",
+      "totalEvents": "إجمالي الأحداث",
+      "today": "اليوم",
+      "thisWeek": "هذا الأسبوع",
+      "usersThisMonth": "المستخدمين الشهر"
+    },
     "nav": {
       "home": "الرئيسية",
       "managers": "المديرين",
@@ -1668,7 +1681,8 @@
       "assignments": "الواجبات",
       "curriculums": "المناهج الدراسية",
       "discountCodes": "أكواد الخصم",
-      "reports": "التحليلات والتقارير",
+      "reports": "التقارير",
+      "activities": "الأحداث",
       "settings": "الإعدادات"
     },
     "searchPlaceholder": "بحث في المنصة...",

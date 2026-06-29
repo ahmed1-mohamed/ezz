@@ -1839,6 +1839,19 @@
       "title": "Manarat Al-Ezz",
       "subtitle": "Admin Panel"
     },
+    "logs": {
+      "title": "Activity Logs",
+      "titleWithCount": "Activity Logs ({{count}})",
+      "desc": "Monitor user activity log and key events on the platform.",
+      "errorLoading": "Error loading events",
+      "loading": "Loading events...",
+      "noEvents": "No Events Found",
+      "noEventsDesc": "No activity logs have been recorded yet.",
+      "totalEvents": "Total Events",
+      "today": "Today",
+      "thisWeek": "This Week",
+      "usersThisMonth": "Users this Month"
+    },
     "nav": {
       "home": "Overview",
       "managers": "Managers",
@@ -1857,7 +1870,8 @@
       "assignments": "Assignments",
       "curriculums": "Study Curriculums",
       "discountCodes": "Discount Codes",
-      "reports": "Analytics & Reports",
+      "reports": "Reports",
+      "activities": "Activity Logs",
       "settings": "Settings"
     },
     "searchPlaceholder": "Search the platform...",
