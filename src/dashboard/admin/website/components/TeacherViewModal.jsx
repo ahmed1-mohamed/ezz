@@ -51,7 +51,7 @@ export default function TeacherViewModal({
                 />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-450 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-3xl shadow-md mx-auto">
-                  {teacher.name ? teacher.name.trim().charAt(0) : 'ف'}
+                  {teacher.name ? teacher?.name?.trim().charAt(0) : 'ف'}
                 </div>
               )}
 

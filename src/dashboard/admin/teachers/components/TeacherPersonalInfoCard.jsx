@@ -14,8 +14,7 @@ export default function TeacherPersonalInfoCard({
   isRtl
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  
-  // Extract phone number prefix
+
   const phonePrefix = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : '+20'
   const phoneNumberOnly = formData.phone?.includes(' ') ? formData.phone.split(' ').slice(1).join(' ') : formData.phone
 
@@ -35,13 +34,11 @@ export default function TeacherPersonalInfoCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      
-      {/* Section Header */}
+
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
         {isRtl ? 'البيانات الشخصية' : 'Personal Information'}
       </h3>
 
-      {/* Profile Image Upload Container */}
       <div className="flex flex-col items-center justify-center space-y-2 py-2">
         <label className="relative cursor-pointer group flex flex-col items-center justify-center w-40 h-40 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 bg-[#f3f7f6] dark:bg-slate-950/20 transition-all overflow-hidden">
           {formData.profileImage ? (
@@ -83,17 +80,14 @@ export default function TeacherPersonalInfoCard({
         </span>
       </div>
 
-      {/* Row 1: Name En and Ar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
-        {/* Name English */}
+
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             Full Name
           </label>
           <input
             type="text"
-            required
             value={formData.nameEn || ''}
             onChange={(e) => onChange('nameEn', e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
@@ -102,7 +96,6 @@ export default function TeacherPersonalInfoCard({
           />
         </div>
 
-        {/* Name Arabic */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الإسم بالعربية' : 'Name in Arabic'}
@@ -119,16 +112,14 @@ export default function TeacherPersonalInfoCard({
 
       </div>
 
-      {/* Row 2: Phone with dropdown and Email */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
-        {/* Phone Input */}
+
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'رقم الهاتف' : 'Phone Number'}
           </label>
           <div className="flex gap-3" dir="ltr">
-            
+
             <div className="relative shrink-0">
               <button
                 type="button"
@@ -169,7 +160,6 @@ export default function TeacherPersonalInfoCard({
           </div>
         </div>
 
-        {/* Email Address */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'البريد الإلكتروني' : 'Email Address'}

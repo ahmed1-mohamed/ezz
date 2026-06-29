@@ -9,7 +9,7 @@ export default function TeacherProfileCard({
   onToggleStatus
 }) {
   const avatarLetter = useMemo(() => {
-    return teacher?.name ? teacher.name.trim().charAt(0) : 'ف'
+    return teacher?.name ? teacher?.name?.trim().charAt(0) : 'ف'
   }, [teacher])
 
   if (!teacher) {
@@ -24,13 +24,11 @@ export default function TeacherProfileCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft flex flex-col items-center text-center space-y-6">
-      
-      {/* Avatar Box */}
+
       <div className="w-20 h-20 rounded-2xl bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 flex items-center justify-center text-3xl font-black">
         {avatarLetter}
       </div>
 
-      {/* Name and Subject info */}
       <div className="space-y-1">
         <h3 className="text-lg font-bold text-slate-800 dark:text-white">
           {teacher.name}
@@ -40,17 +38,14 @@ export default function TeacherProfileCard({
         </p>
       </div>
 
-      {/* Stars rating */}
       <div className="flex items-center gap-0.5 text-amber-400">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star key={i} size={16} fill="currentColor" />
         ))}
       </div>
 
-      {/* Profile Details List */}
       <div className="w-full divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-        
-        {/* Join Date */}
+
         <div className="flex justify-between py-3">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.joinDate', 'تاريخ الانضمام')}
@@ -94,7 +89,7 @@ export default function TeacherProfileCard({
 
       {/* Action Buttons */}
       <div className="w-full space-y-3 pt-2">
-        
+
         {/* Edit Button */}
         <button
           onClick={() => onEdit(teacher)}
@@ -107,11 +102,10 @@ export default function TeacherProfileCard({
         {/* Suspend Status Button */}
         <button
           onClick={() => onToggleStatus(teacher.id)}
-          className={`w-full py-3 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer ${
-            isSuspended
-              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400'
-              : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400'
-          }`}
+          className={`w-full py-3 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer ${isSuspended
+            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400'
+            : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400'
+            }`}
         >
           {isSuspended ? (
             <>

@@ -42,10 +42,10 @@ export default function TeachersList({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Control bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
-        
+
         {/* Actions & Text */}
         <div className="flex flex-wrap items-center gap-4">
           <button
@@ -77,7 +77,6 @@ export default function TeachersList({
 
       </div>
 
-      {/* Teachers vertical list */}
       <div className="space-y-4">
         {currentItems.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-10 text-center text-slate-400 dark:text-slate-500 font-bold">
@@ -85,7 +84,7 @@ export default function TeachersList({
           </div>
         ) : (
           currentItems.map((teacher) => {
-            const initial = teacher.name.trim().charAt(0)
+            const initial = teacher?.name?.trim().charAt(0)
             const isSelected = selectedTeacherId === teacher.id
             const isSuspended = teacher.status !== 'Active'
 
@@ -93,35 +92,32 @@ export default function TeachersList({
               <div
                 key={teacher.id}
                 onClick={() => onSelectTeacher(teacher.id)}
-                className={`bg-white dark:bg-slate-900 rounded-3xl border p-5 shadow-soft hover:shadow-md transition-all cursor-pointer ${
-                  isSelected
-                    ? 'border-brand-500/40 ring-1 ring-brand-500/20'
-                    : 'border-slate-100 dark:border-slate-800/80'
-                }`}
+                className={`bg-white dark:bg-slate-900 rounded-3xl border p-5 shadow-soft hover:shadow-md transition-all cursor-pointer ${isSelected
+                  ? 'border-brand-500/40 ring-1 ring-brand-500/20'
+                  : 'border-slate-100 dark:border-slate-800/80'
+                  }`}
               >
                 <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
-                  
-                  {/* Left part: Avatar, Name, and Status */}
+
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 flex items-center justify-center text-xl font-bold">
                       {initial}
                     </div>
-                    
+
                     <div className="space-y-1 text-start">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-800 dark:text-white">
                           {teacher.name}
                         </span>
-                        
+
                         {/* Status Badge */}
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          isSuspended
-                            ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
-                            : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
-                        }`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${isSuspended
+                          ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
+                          : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
+                          }`}>
                           <span className={`w-1 h-1 rounded-full me-1.5 ${isSuspended ? 'bg-rose-600' : 'bg-emerald-600'}`} />
-                          {isSuspended 
-                            ? t('adminDashboard.teachers.suspended', 'موقوف') 
+                          {isSuspended
+                            ? t('adminDashboard.teachers.suspended', 'موقوف')
                             : t('adminDashboard.teachers.active', 'نشط')}
                         </span>
                       </div>
@@ -170,7 +166,7 @@ export default function TeachersList({
 
                   {/* Right part: Actions */}
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                    
+
                     {/* View details click */}
                     <button
                       type="button"
@@ -242,11 +238,10 @@ export default function TeachersList({
               <button
                 key={p}
                 onClick={() => setCurrentPage(p)}
-                className={`h-8 w-8 flex items-center justify-center rounded-xl text-xs font-black transition-all ${
-                  currentPage === p
-                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
-                    : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}
+                className={`h-8 w-8 flex items-center justify-center rounded-xl text-xs font-black transition-all ${currentPage === p
+                  ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
+                  : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
               >
                 {p}
               </button>

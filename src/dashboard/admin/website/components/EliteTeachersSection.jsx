@@ -33,7 +33,7 @@ export default function EliteTeachersSection({
           </div>
         ) : (
           teachers.map((teacher) => {
-            const userLetter = teacher.name ? teacher.name.trim().charAt(0) : 'ف';
+            const userLetter = teacher.name ? teacher?.name?.trim().charAt(0) : 'ف';
             const imageUrl = teacher.image && (teacher.image.startsWith('http') || teacher.image.startsWith('data:'))
               ? teacher.image
               : teacher.image

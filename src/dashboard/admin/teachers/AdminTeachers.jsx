@@ -11,25 +11,32 @@ export default function AdminTeachers() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
-  // View state: 'list' | 'add-teacher' | 'edit-teacher'
   const [viewMode, setViewMode] = useState('list')
   const [teachers, setTeachers] = useState([])
   const [selectedTeacherId, setSelectedTeacherId] = useState(null)
   const [selectedTeacherRecord, setSelectedTeacherRecord] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load teachers from API on mount
+  const [activeTeachers, setActiveTeachers] = useState([])
+  const [suspendedTeachers, setSuspendedTeachers] = useState([])
+
   useEffect(() => {
     async function loadTeachers() {
       setIsLoading(true)
       try {
-        const res = await teachersApi.fetchTeachers()
-        if (res.success) {
-          setTeachers(res.data)
-          if (res.data.length > 0) {
-            setSelectedTeacherId(res.data[0].id)
+        const [allRes, activeRes, stoppedRes] = await Promise.all([
+          teachersApi.fetchTeachers(),
+          teachersApi.fetchActiveTeachers(),
+          teachersApi.fetchStoppedTeachers()
+        ])
+        if (allRes.success) {
+          setTeachers(allRes.data)
+          if (allRes.data.length > 0) {
+            setSelectedTeacherId(allRes.data[0].id)
           }
         }
+        if (activeRes.success) setActiveTeachers(activeRes.data)
+        if (stoppedRes.success) setSuspendedTeachers(stoppedRes.data)
       } catch (err) {
         console.error('Failed to fetch teachers:', err)
       } finally {
@@ -39,20 +46,17 @@ export default function AdminTeachers() {
     loadTeachers()
   }, [])
 
-  // Dynamic calculations for Metric Cards
   const metrics = useMemo(() => {
     const total = teachers.length
-    const active = teachers.filter((t) => t.status === 'Active').length
-    const suspended = teachers.filter((t) => t.status === 'Suspended').length
+    const active = activeTeachers.length
+    const suspended = suspendedTeachers.length
     return { total, active, suspended }
-  }, [teachers])
+  }, [teachers, activeTeachers, suspendedTeachers])
 
-  // Currently selected teacher details
   const selectedTeacher = useMemo(() => {
     return teachers.find((t) => t.id === selectedTeacherId) || teachers[0] || null
   }, [teachers, selectedTeacherId])
 
-  // Action: Toggle Active status
   const handleToggleStatus = async (id) => {
     const teacher = teachers.find((t) => t.id === id)
     if (!teacher) return
@@ -63,7 +67,6 @@ export default function AdminTeachers() {
         setTeachers((prev) =>
           prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
         )
-        // Also update selectedTeacherRecord if it's currently displayed
         setSelectedTeacherRecord((prev) =>
           prev && prev.id === id ? { ...prev, status: newStatus } : prev
         )
@@ -73,10 +76,8 @@ export default function AdminTeachers() {
     }
   }
 
-  // Action: Add or Edit teacher details save handler
   const handleSaveTeacher = async (formData) => {
     if (viewMode === 'edit-teacher' && selectedTeacherRecord) {
-      // Edit mode
       try {
         const res = await teachersApi.updateTeacher(selectedTeacherRecord.id, {
           ...selectedTeacherRecord,
@@ -93,7 +94,6 @@ export default function AdminTeachers() {
         console.error('Failed to update teacher details:', err)
       }
     } else {
-      // Add mode
       try {
         const res = await teachersApi.createTeacher({
           ...formData,
@@ -128,7 +128,6 @@ export default function AdminTeachers() {
     <div className="space-y-8 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       {viewMode === 'list' && (
         <>
-          {/* Page Headers */}
           <div className="text-start">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {t('adminDashboard.teachers.title', 'إدارة المعلمين')}
@@ -138,9 +137,7 @@ export default function AdminTeachers() {
             </p>
           </div>
 
-          {/* Metric Cards Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Total Teachers */}
             <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
               <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                 {t('adminDashboard.teachers.total', 'إجمالي المعلمين')}
@@ -150,7 +147,6 @@ export default function AdminTeachers() {
               </span>
             </div>
 
-            {/* Active */}
             <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
               <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                 {t('adminDashboard.teachers.active', 'نشطون')}
@@ -160,7 +156,6 @@ export default function AdminTeachers() {
               </span>
             </div>
 
-            {/* Suspended */}
             <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
               <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                 {t('adminDashboard.teachers.suspended', 'موقوفون')}
@@ -171,10 +166,8 @@ export default function AdminTeachers() {
             </div>
           </div>
 
-          {/* Core Content Grid (2 Columns) */}
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-            
-            {/* Column 1: Details Card (Takes 1/3 layout) */}
+
             <div className="w-full lg:w-80 shrink-0">
               <TeacherProfileCard
                 teacher={selectedTeacher}
@@ -185,7 +178,6 @@ export default function AdminTeachers() {
               />
             </div>
 
-            {/* Column 2: Lists Stack (Takes 2/3 layout) */}
             <div className="flex-1 w-full">
               <TeachersList
                 teachers={teachers}
