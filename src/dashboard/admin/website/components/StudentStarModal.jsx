@@ -10,8 +10,7 @@ export default function StudentStarModal({
   setCurrentStar,
   onSubmit
 }) {
-  const { i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
+  const { t } = useTranslation();
 
   if (!isOpen || !currentStar) return null;
 
@@ -20,26 +19,26 @@ export default function StudentStarModal({
   return createPortal(
     <AnimatePresence>
       <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0 }}>
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden"
+          className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
         >
-          <div className="h-1.5 w-full bg-gradient-to-r from-[#0f7a6c] via-[#14b8a6] to-[#0f7a6c]" />
+          <div className="h-1.5 w-full shrink-0 bg-gradient-to-r from-[#0f7a6c] via-[#14b8a6] to-[#0f7a6c]" />
 
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-8">
+          <div className="p-5 sm:p-8 overflow-y-auto">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
               <div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                   {isAdd
-                    ? (isRtl ? 'إضافة طالب متميز' : 'Add Excellence Student')
-                    : (isRtl ? 'تعديل طالب متميز' : 'Edit Excellence Student')}
+                    ? t('adminDashboard.website.addStar', 'إضافة طالب متميز')
+                    : t('adminDashboard.website.editStar', 'تعديل طالب متميز')}
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                  {isRtl ? 'أدخل بيانات الطالب يدوياً' : 'Enter student data manually'}
+                  {t('adminDashboard.website.enterStudentDataManually', 'أدخل بيانات الطالب يدوياً')}
                 </p>
               </div>
               <button
@@ -58,7 +57,7 @@ export default function StudentStarModal({
                     <img
                       src={currentStar.image}
                       alt="preview"
-                      className="w-20 h-20 rounded-full object-cover border-4 border-[#0f7a6c]/20 shadow-lg"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-[#0f7a6c]/20 shadow-lg"
                       onError={(e) => { e.target.style.display = 'none'; }}
                     />
                     <div className="absolute -bottom-1 -end-1 w-6 h-6 bg-[#0f7a6c] rounded-full flex items-center justify-center">
@@ -71,7 +70,7 @@ export default function StudentStarModal({
               <div className="space-y-1.5">
                 <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   <Image size={12} />
-                  {isRtl ? 'رابط الصورة' : 'Image URL'}
+                  {t('adminDashboard.website.imageUrl', 'رابط الصورة')}
                 </label>
                 <input
                   type="text"
@@ -79,20 +78,20 @@ export default function StudentStarModal({
                   value={currentStar.image || ''}
                   onChange={(e) => setCurrentStar({ ...currentStar, image: e.target.value })}
                   placeholder="https://example.com/student-photo.jpg"
-                  className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                  className="w-full px-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                 />
               </div>
 
               <div className="space-y-3">
                 <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   <User size={12} />
-                  {isRtl ? 'اسم الطالب' : 'Student Name'}
+                  {t('adminDashboard.website.studentName', 'اسم الطالب')}
                 </label>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 block">
-                      {isRtl ? 'عربي' : 'Arabic'}
+                      {t('common.arabic', 'عربي')}
                     </span>
                     <input
                       type="text"
@@ -107,7 +106,7 @@ export default function StudentStarModal({
 
                   <div className="space-y-1">
                     <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 block">
-                      {isRtl ? 'إنجليزي' : 'English'}
+                      {t('common.english', 'إنجليزي')}
                     </span>
                     <input
                       type="text"
@@ -122,22 +121,21 @@ export default function StudentStarModal({
                 </div>
               </div>
 
-              <div className="flex justify-start gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex flex-col sm:flex-row justify-start gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 mt-4">
                 <button
                   type="submit"
                   disabled={!currentStar.image?.trim() || !currentStar.name?.trim() || !currentStar.nameEn?.trim()}
-                  className="px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors shadow-sm"
+                  className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors shadow-sm order-1 sm:order-2"
                 >
-                  {isAdd ? (isRtl ? 'إضافة' : 'Add') : (isRtl ? 'حفظ التعديلات' : 'Save Changes')}
+                  {isAdd ? t('common.add', 'إضافة') : t('common.saveChanges', 'حفظ التعديلات')}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors"
+                  className="w-full sm:w-auto px-5 py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors order-2 sm:order-1"
                 >
-                  {isRtl ? 'إلغاء' : 'Cancel'}
+                  {t('common.cancel', 'إلغاء')}
                 </button>
-
               </div>
             </form>
           </div>

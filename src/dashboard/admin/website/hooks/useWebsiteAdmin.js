@@ -55,7 +55,7 @@ const serializeStudentReview = (star) => {
 };
 
 export default function useWebsiteAdmin() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
   const [stats, setStats] = useState({
@@ -230,15 +230,11 @@ export default function useWebsiteAdmin() {
       };
       await landingApi.updatePrivateStatistics(payload);
       localStorage.setItem('website_stats', JSON.stringify(stats));
-      showNotification(
-        isRtl ? 'تم حفظ الأرقام الإحصائية بنجاح!' : 'Statistics saved successfully!'
-      );
+      showNotification(t('adminDashboard.website.statsSaved', 'تم حفظ الأرقام الإحصائية بنجاح!'));
     } catch (err) {
       console.warn('Failed to update statistics via API, saving to localStorage:', err);
       localStorage.setItem('website_stats', JSON.stringify(stats));
-      showNotification(
-        isRtl ? 'تم حفظ الأرقام الإحصائية محلياً!' : 'Statistics saved locally!'
-      );
+      showNotification(t('adminDashboard.website.statsSavedLocally', 'تم حفظ الأرقام الإحصائية محلياً!'));
     }
   };
 
@@ -261,25 +257,17 @@ export default function useWebsiteAdmin() {
         setStats({ classes: 320, teachers: 85, students: 1250 });
       }
     }
-    showNotification(
-      isRtl ? 'تم إلغاء التغييرات الإحصائية' : 'Statistics changes reverted',
-      'info'
-    );
+    showNotification(t('adminDashboard.website.statsReverted', 'تم إلغاء التغييرات الإحصائية'), 'info');
   };
 
   const handleSaveContactInfo = async (updatedInfo) => {
     try {
       await landingApi.updateContactUs(updatedInfo);
       setContactInfo(updatedInfo);
-      showNotification(
-        isRtl ? 'تم تحديث أرقام التواصل بنجاح!' : 'Contact numbers updated successfully!'
-      );
+      showNotification(t('adminDashboard.website.contactSaved', 'تم تحديث أرقام التواصل بنجاح!'));
     } catch (err) {
       console.error(err);
-      showNotification(
-        isRtl ? 'فشل تحديث أرقام التواصل' : 'Failed to update contact numbers',
-        'error'
-      );
+      showNotification(t('adminDashboard.website.contactSaveError', 'فشل تحديث أرقام التواصل'), 'error');
     }
   };
 
@@ -297,10 +285,7 @@ export default function useWebsiteAdmin() {
     } catch (err) {
       console.error(err);
     }
-    showNotification(
-      isRtl ? 'تم إلغاء تعديلات أرقام التواصل' : 'Contact numbers changes reverted',
-      'info'
-    );
+    showNotification(t('adminDashboard.website.contactReverted', 'تم إلغاء تعديلات أرقام التواصل'), 'info');
   };
 
   const handleOpenAddModal = () => {
@@ -343,14 +328,14 @@ export default function useWebsiteAdmin() {
   };
 
   const handleDeleteStar = async (id) => {
-    if (window.confirm(isRtl ? 'هل أنت متأكد من حذف هذا الطالب المتميز؟' : 'Are you sure you want to delete this featured student?')) {
+    if (window.confirm(t('adminDashboard.website.confirmDeleteStudent', 'هل أنت متأكد من حذف هذا الطالب المتميز؟'))) {
       try {
         await landingApi.deleteFeaturedStudent(id);
         setStars((prev) => prev.filter((s) => s.id !== id));
-        showNotification(isRtl ? 'تم حذف الطالب بنجاح!' : 'Student deleted successfully!');
+        showNotification(t('adminDashboard.website.studentDeleted', 'تم حذف الطالب بنجاح!'));
       } catch (err) {
         console.error(err);
-        showNotification(isRtl ? 'فشل حذف الطالب' : 'Failed to delete student', 'error');
+        showNotification(t('adminDashboard.website.studentDeleteError', 'فشل حذف الطالب'), 'error');
       }
     }
   };
@@ -358,7 +343,7 @@ export default function useWebsiteAdmin() {
   const handleSaveModal = async (e) => {
     e.preventDefault();
     if (!currentStar.image?.trim() || !currentStar.name?.trim() || !currentStar.nameEn?.trim()) {
-      showNotification(isRtl ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields', 'error');
+      showNotification(t('adminDashboard.website.fillRequiredFields', 'يرجى ملء جميع الحقول المطلوبة'), 'error');
       return;
     }
 
@@ -387,7 +372,7 @@ export default function useWebsiteAdmin() {
         };
         const parsed = parseStudentReview(newStar);
         setStars((prev) => [...prev, parsed]);
-        showNotification(isRtl ? 'تمت إضافة الطالب بنجاح!' : 'Student added successfully!');
+        showNotification(t('adminDashboard.website.studentAdded', 'تمت إضافة الطالب بنجاح!'));
       } else {
         if (currentStar.studentId) {
           await studentsApi.updateStudent(currentStar.studentId, studentPayload);
@@ -403,20 +388,18 @@ export default function useWebsiteAdmin() {
         setStars((prev) =>
           prev.map((s) => (s.id === currentStar.id ? parsed : s))
         );
-        showNotification(isRtl ? 'تم تحديث بيانات الطالب بنجاح!' : 'Student updated successfully!');
+        showNotification(t('adminDashboard.website.studentUpdated', 'تم تحديث بيانات الطالب بنجاح!'));
       }
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      showNotification(isRtl ? 'فشل حفظ البيانات' : 'Failed to save data', 'error');
+      showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'), 'error');
     }
   };
 
   const handleSaveStarsList = () => {
     localStorage.setItem('website_stars', JSON.stringify(stars));
-    showNotification(
-      isRtl ? 'تمت مزامنة وحفظ قائمة نجوم التميز بنجاح!' : 'Stars list synchronized and saved successfully!'
-    );
+    showNotification(t('adminDashboard.website.starsListSaved', 'تمت مزامنة وحفظ قائمة نجوم التميز بنجاح!'));
   };
 
   const handleCancelStarsList = async () => {
@@ -435,10 +418,7 @@ export default function useWebsiteAdmin() {
         setStars([]);
       }
     }
-    showNotification(
-      isRtl ? 'تم إلغاء التغييرات وإعادة تحميل البيانات من الخادم' : 'Changes reverted and reloaded from server',
-      'info'
-    );
+    showNotification(t('adminDashboard.website.changesReverted', 'تم إلغاء التغييرات وإعادة تحميل البيانات من الخادم'), 'info');
   };
 
   const handleOpenAddTeacher = () => {
@@ -490,10 +470,7 @@ export default function useWebsiteAdmin() {
       setSelectedTeacher(data);
     } catch (err) {
       console.error('Failed to fetch teacher notes:', err);
-      showNotification(
-        isRtl ? 'فشل تحميل ملاحظات المعلم' : 'Failed to load teacher notes',
-        'error'
-      );
+      showNotification(t('adminDashboard.website.teacherNotesError', 'فشل تحميل ملاحظات المعلم'), 'error');
       setIsTeacherModalOpen(false);
     } finally {
       setIsTeacherLoading(false);
@@ -501,14 +478,14 @@ export default function useWebsiteAdmin() {
   };
 
   const handleDeleteTeacher = async (id) => {
-    if (window.confirm(isRtl ? 'هل أنت متأكد من حذف هذا المعلم المتميز؟' : 'Are you sure you want to delete this elite teacher?')) {
+    if (window.confirm(t('adminDashboard.website.confirmDeleteTeacher', 'هل أنت متأكد من حذف هذا المعلم المتميز؟'))) {
       try {
         await landingApi.deleteEliteTeacher(id);
         setEliteTeachers((prev) => prev.filter((t) => t.id !== id));
-        showNotification(isRtl ? 'تم حذف المعلم بنجاح!' : 'Teacher deleted successfully!');
+        showNotification(t('adminDashboard.website.teacherDeleted', 'تم حذف المعلم بنجاح!'));
       } catch (err) {
         console.error(err);
-        showNotification(isRtl ? 'فشل حذف المعلم' : 'Failed to delete teacher', 'error');
+        showNotification(t('adminDashboard.website.teacherDeleteError', 'فشل حذف المعلم'), 'error');
       }
     }
   };
@@ -516,7 +493,7 @@ export default function useWebsiteAdmin() {
   const handleSaveTeacherSubmit = async (e) => {
     e.preventDefault();
     if (!currentTeacher.teacherId) {
-      showNotification(isRtl ? 'يرجى اختيار معلم من القائمة' : 'Please select a teacher from the list', 'error');
+      showNotification(t('adminDashboard.website.selectTeacherError', 'يرجى اختيار معلم من القائمة'), 'error');
       return;
     }
 
@@ -528,7 +505,6 @@ export default function useWebsiteAdmin() {
     const elitePayload = {
       teacher: currentTeacher.teacherId
     };
-    console.log('[Elite Teacher] Payloads being sent:', { teacherPayload, elitePayload });
 
     try {
       await teachersApi.patchTeacher(currentTeacher.teacherId, teacherPayload);
@@ -542,7 +518,7 @@ export default function useWebsiteAdmin() {
           name: isRtl ? currentTeacher.name.trim() : currentTeacher.nameEn.trim()
         };
         setEliteTeachers((prev) => [...prev, newTeacher]);
-        showNotification(isRtl ? 'تمت إضافة المعلم بنجاح!' : 'Teacher added successfully!');
+        showNotification(t('adminDashboard.website.teacherAdded', 'تمت إضافة المعلم بنجاح!'));
       } else {
         await landingApi.updateEliteTeacher(currentTeacher.id, elitePayload);
         const updatedTeacher = {
@@ -552,12 +528,12 @@ export default function useWebsiteAdmin() {
         setEliteTeachers((prev) =>
           prev.map((t) => (t.id === currentTeacher.id ? updatedTeacher : t))
         );
-        showNotification(isRtl ? 'تم تحديث بيانات المعلم بنجاح!' : 'Teacher updated successfully!');
+        showNotification(t('adminDashboard.website.teacherUpdated', 'تم تحديث بيانات المعلم بنجاح!'));
       }
       setIsTeacherFormOpen(false);
     } catch (err) {
       console.error(err);
-      showNotification(isRtl ? 'فشل حفظ البيانات' : 'Failed to save data', 'error');
+      showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'), 'error');
     }
   };
 

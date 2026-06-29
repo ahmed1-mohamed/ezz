@@ -24,8 +24,8 @@ export default function ExcellenceStarsSection({
   const isRtl = i18n.language.startsWith('ar');
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           {t('adminDashboard.website.starsTitle', 'نجوم التميّز الأكاديمي')}
         </h2>
@@ -38,12 +38,12 @@ export default function ExcellenceStarsSection({
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full align-middle">
-          <div className="overflow-hidden space-y-4">
+      <div className="overflow-x-auto w-full pb-2">
+        <div className="min-w-[700px] lg:min-w-full">
+          <div className="space-y-4">
             {stars.length === 0 ? (
               <div className="py-12 text-center text-slate-400 dark:text-slate-500">
-                {isRtl ? 'لا يوجد نجوم تميز حالياً. اضغط "إضافة طالب" للبدء.' : 'No excellence stars found. Click "Add Student" to start.'}
+                {t('adminDashboard.website.noStars', 'لا يوجد نجوم تميز حالياً. اضغط "إضافة طالب" للبدء.')}
               </div>
             ) : (
               stars.map((star) => {
@@ -53,61 +53,61 @@ export default function ExcellenceStarsSection({
                 return (
                   <div
                     key={star.id}
-                    className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-5 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-950/40 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 gap-4 transition-all duration-200"
+                    className="flex flex-row items-center justify-between p-4 sm:p-5 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-900/40 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 gap-4 transition-all duration-200"
                   >
-                    <div className="flex items-center gap-4 text-start">
-                      <div className="w-12 h-12 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
                         {userLetter}
                       </div>
-                      <div>
-                        <h4 className="font-bold text-slate-800 dark:text-slate-200">
+                      <div className="text-start">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
                           {isRtl ? star.name : star.nameEn}
                         </h4>
-                        <p className="text-xs text-slate-440 dark:text-slate-500 mt-0.5">
-                          {isRtl ? `العمر: ${star.age} سنة` : `Age: ${star.age} years`}
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          {t('adminDashboard.website.age', { defaultValue: `العمر: {{age}} سنة`, age: star.age })}
                         </p>
                       </div>
                     </div>
 
-                    <div className="text-start min-w-[90px]">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${levelCfg.bg} ${levelCfg.bgDark}`}>
+                    <div className="text-start w-24">
+                      <span className={`inline-block px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border ${levelCfg.bg} ${levelCfg.bgDark}`}>
                         {isRtl ? star.level : star.levelEn}
                       </span>
                     </div>
 
-                    <div className="text-start min-w-[120px]">
-                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    <div className="text-start w-32 hidden sm:block">
+                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 truncate">
                         {isRtl ? star.groupName : star.groupNameEn}
                       </p>
                     </div>
 
-                    <div className="text-start min-w-[120px]">
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <div className="text-start w-32 hidden md:block">
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
                         {isRtl ? star.parentName : star.parentNameEn}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 self-end lg:self-auto">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleOpenEditModal(star)}
-                        className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={isRtl ? 'تعديل' : 'Edit'}
+                        className="p-1.5 sm:p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        title={t('common.edit', 'تعديل')}
                       >
                         <Pencil size={16} />
                       </button>
 
                       <button
                         onClick={() => handleOpenViewModal(star)}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={isRtl ? 'عرض الملاحظات' : 'View Details'}
+                        className="p-1.5 sm:p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        title={t('common.view', 'عرض الملاحظات')}
                       >
                         <BookOpen size={16} />
                       </button>
 
                       <button
                         onClick={() => handleDeleteStar(star.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={isRtl ? 'إزالة' : 'Remove'}
+                        className="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        title={t('common.delete', 'إزالة')}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -120,10 +120,10 @@ export default function ExcellenceStarsSection({
         </div>
       </div>
 
-      <div className="flex items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
+      <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
         <Button
           onClick={handleSaveStarsList}
-          className="px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
         >
           <Save size={16} />
           <span>{t('common.save', 'حفظ')}</span>
@@ -131,7 +131,7 @@ export default function ExcellenceStarsSection({
         <Button
           variant="secondary"
           onClick={handleCancelStarsList}
-          className="px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
         >
           {t('common.cancel', 'إلغاء')}
         </Button>

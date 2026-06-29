@@ -9,7 +9,7 @@ export default function StarViewModal({
   onClose,
   currentStar
 }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
   if (!isOpen || !currentStar) return null;
@@ -27,7 +27,7 @@ export default function StarViewModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-5 right-5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="absolute top-5 end-5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >
             <X size={18} />
           </button>
@@ -40,21 +40,21 @@ export default function StarViewModal({
             {isRtl ? currentStar.name : currentStar.nameEn}
           </h3>
           <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 mb-6">
-            {isRtl ? `العمر: ${currentStar.age} سنة` : `Age: ${currentStar.age} years`}
+            {t('adminDashboard.website.age', { defaultValue: `العمر: {{age}} سنة`, age: currentStar.age })}
           </p>
 
           <div className="space-y-4 text-start bg-slate-50 dark:bg-slate-950/40 p-5 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 mb-6">
-            <div className="flex justify-between">
-              <span className="text-xs font-bold text-slate-400">{isRtl ? 'المستوى الدراسي:' : 'Academic Level:'}</span>
-              <span className="text-sm font-bold text-[#0f7a6c]">{isRtl ? currentStar.level : currentStar.levelEn}</span>
+            <div className="flex justify-between gap-4">
+              <span className="text-xs font-bold text-slate-400 shrink-0">{t('adminDashboard.website.academicLevel', 'المستوى الدراسي:')}</span>
+              <span className="text-sm font-bold text-[#0f7a6c] text-end">{isRtl ? currentStar.level : currentStar.levelEn}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-xs font-bold text-slate-400">{isRtl ? 'المجموعة التعليمية:' : 'Learning Group:'}</span>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">{isRtl ? currentStar.groupName : currentStar.groupNameEn}</span>
+            <div className="flex justify-between gap-4">
+              <span className="text-xs font-bold text-slate-400 shrink-0">{t('adminDashboard.website.learningGroup', 'المجموعة التعليمية:')}</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-350 text-end">{isRtl ? currentStar.groupName : currentStar.groupNameEn}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-xs font-bold text-slate-400">{isRtl ? 'ولي الأمر:' : 'Parent/Guardian:'}</span>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">{isRtl ? currentStar.parentName : currentStar.parentNameEn}</span>
+            <div className="flex justify-between gap-4">
+              <span className="text-xs font-bold text-slate-400 shrink-0">{t('adminDashboard.website.parentGuardian', 'ولي الأمر:')}</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-350 text-end">{isRtl ? currentStar.parentName : currentStar.parentNameEn}</span>
             </div>
           </div>
 
@@ -62,7 +62,7 @@ export default function StarViewModal({
             onClick={onClose}
             className="w-full py-3 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold shadow-sm"
           >
-            {isRtl ? 'إغلاق النافذة' : 'Close Details'}
+            {t('common.close', 'إغلاق النافذة')}
           </Button>
         </motion.div>
       </div>

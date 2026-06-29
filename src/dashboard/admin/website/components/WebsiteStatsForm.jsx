@@ -11,14 +11,14 @@ export default function WebsiteStatsForm({
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
+    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">
         {t('adminDashboard.website.statsTitle', 'إضافة الأرقام الاحصائيه للموقع الإلكتروني')}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-6">
         <div className="space-y-2 text-start">
-          <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block">
+          <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.classesLabel', 'عدد الحلقات')}
           </label>
           <input
@@ -32,7 +32,7 @@ export default function WebsiteStatsForm({
 
         {/* Teachers Count */}
         <div className="space-y-2 text-start">
-          <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block">
+          <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.teachersLabel', 'عدد المعلمين')}
           </label>
           <input
@@ -46,7 +46,7 @@ export default function WebsiteStatsForm({
 
         {/* Students Count */}
         <div className="space-y-2 text-start">
-          <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block">
+          <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.studentsLabel', 'عدد الطلاب')}
           </label>
           <input
@@ -59,10 +59,10 @@ export default function WebsiteStatsForm({
         </div>
       </div>
 
-      <div className="flex items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6">
+      <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
         <Button
           onClick={handleSaveStats}
-          className="px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
         >
           <Save size={16} />
           <span>{t('common.save', 'حفظ')}</span>
@@ -70,7 +70,7 @@ export default function WebsiteStatsForm({
         <Button
           variant="secondary"
           onClick={handleCancelStats}
-          className="px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
         >
           {t('common.cancel', 'إلغاء')}
         </Button>

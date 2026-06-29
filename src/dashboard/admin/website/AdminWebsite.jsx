@@ -55,15 +55,13 @@ export default function AdminWebsite() {
   } = useWebsiteAdmin();
 
   return (
-    <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-6 lg:space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <WebsiteStatsForm
         stats={stats}
         handleStatChange={handleStatChange}
         handleSaveStats={handleSaveStats}
         handleCancelStats={handleCancelStats}
       />
-
-
 
       <ExcellenceStarsSection
         stars={stars}

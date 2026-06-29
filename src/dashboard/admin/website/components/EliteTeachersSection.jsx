@@ -9,8 +9,7 @@ export default function EliteTeachersSection({
   handleDeleteTeacher,
   handleShowTeacherNotes
 }) {
-  const { t, i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
+  const { t } = useTranslation();
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
@@ -27,10 +26,10 @@ export default function EliteTeachersSection({
         </Button>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {teachers.length === 0 ? (
           <div className="py-12 text-center text-slate-400 dark:text-slate-500">
-            {isRtl ? 'لا يوجد معلمون متميزون حالياً.' : 'No elite teachers found.'}
+            {t('adminDashboard.website.noEliteTeachers', 'لا يوجد معلمون متميزون حالياً.')}
           </div>
         ) : (
           teachers.map((teacher) => {
@@ -44,13 +43,11 @@ export default function EliteTeachersSection({
             return (
               <div
                 key={teacher.id}
-                className="relative bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300"
+                className="relative bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300"
               >
-
-                <div className="flex items-center justify-between gap-1">
-
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                    <div className="lg:col-span-5 flex items-center gap-4 text-start">
+                <div className="flex flex-col xl:flex-row items-center justify-between gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center w-full">
+                    <div className="lg:col-span-6 xl:col-span-7 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start">
                       {imageUrl ? (
                         <img
                           src={imageUrl}
@@ -62,7 +59,7 @@ export default function EliteTeachersSection({
                           {userLetter}
                         </div>
                       )}
-                      <div>
+                      <div className="mt-1 sm:mt-0">
                         <h4 className="font-extrabold text-lg text-slate-800 dark:text-slate-200">
                           {teacher.name}
                         </h4>
@@ -72,50 +69,48 @@ export default function EliteTeachersSection({
                       </div>
                     </div>
 
-
-
-                    <div className="lg:col-span-5 grid grid-cols-3 gap-4 text-center border-t lg:border-t-0 border-slate-50 lg:pt-0 pt-4">
+                    <div className="lg:col-span-6 xl:col-span-5 grid grid-cols-2 gap-4 text-center border-t lg:border-t-0 border-slate-100 dark:border-slate-800 pt-4 lg:pt-0">
                       <div className="space-y-1">
-                        <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                        <p className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
                           {teacher.groupsCount || 4}
                         </p>
                         <p className="text-xs font-semibold text-slate-450 dark:text-slate-500">
-                          {isRtl ? 'المجموعات' : 'Groups'}
+                          {t('adminDashboard.website.groups', 'المجموعات')}
                         </p>
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                        <p className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
                           {teacher.sessionsCount || 120}
                         </p>
                         <p className="text-xs font-semibold text-slate-450 dark:text-slate-500">
-                          {isRtl ? 'الحصص' : 'Sessions'}
+                          {t('adminDashboard.website.sessions', 'الحصص')}
                         </p>
                       </div>
-
                     </div>
                   </div>
-                  <div className=" flex items-center gap-1">
+
+                  <div className="flex items-center gap-2 mt-4 xl:mt-0 w-full xl:w-auto justify-center sm:justify-end border-t xl:border-t-0 border-slate-100 dark:border-slate-800 pt-4 xl:pt-0">
                     <button
                       onClick={() => handleOpenEditTeacher(teacher)}
                       className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={isRtl ? 'تعديل' : 'Edit'}
+                      title={t('common.edit', 'تعديل')}
                     >
-                      <Pencil size={15} />
+                      <Pencil size={18} />
                     </button>
                     <button
                       onClick={() => handleShowTeacherNotes(teacher.id)}
                       className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={isRtl ? 'عرض الملاحظات' : 'View Notes'}
+                      title={t('common.viewNotes', 'عرض الملاحظات')}
                     >
-                      <BookOpen size={15} />
+                      <BookOpen size={18} />
                     </button>
                     <button
                       onClick={() => handleDeleteTeacher(teacher.id)}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={isRtl ? 'حذف' : 'Delete'}
+                      title={t('common.delete', 'حذف')}
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
@@ -125,17 +120,17 @@ export default function EliteTeachersSection({
         )}
       </div>
 
-      <div className="flex items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-8">
+      <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-8">
         <Button
           onClick={handleOpenAddTeacher}
-          className="px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
         >
           <Save size={16} />
           <span>{t('common.save', 'حفظ')}</span>
         </Button>
         <Button
           variant="secondary"
-          className="px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
         >
           {t('common.cancel', 'إلغاء')}
         </Button>

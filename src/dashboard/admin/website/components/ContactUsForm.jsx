@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail, Phone, MessageCircle, Save } from 'lucide-react';
+
 import Button from '@/shared/components/Button.jsx';
 import CountryPhoneInput from '@/shared/components/CountryPhoneInput.jsx';
 
@@ -9,8 +9,7 @@ export default function ContactUsForm({
   onSave,
   onCancel
 }) {
-  const { t, i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
+  const { t } = useTranslation();
 
   const [localContact, setLocalContact] = useState({
     phone: '',
@@ -20,6 +19,7 @@ export default function ContactUsForm({
 
   useEffect(() => {
     if (contactInfo) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalContact({
         phone: contactInfo.phone || '',
         whatsapp: contactInfo.whatsapp || '',
@@ -47,17 +47,16 @@ export default function ContactUsForm({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
+    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">
-        {isRtl ? 'ارقام التواصل معنا' : 'Contact Us Numbers'}
+        {t('adminDashboard.website.contactUsNumbers', 'ارقام التواصل معنا')}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-          {/* Email */}
           <div className="space-y-2 text-start">
             <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
-              {isRtl ? 'البريد الإلكتروني' : 'Email'}
+              {t('common.email', 'البريد الإلكتروني')}
             </label>
             <div className="relative">
               <input
@@ -71,39 +70,37 @@ export default function ContactUsForm({
             </div>
           </div>
 
-          {/* Phone */}
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.phone}
               onChange={(val) => setLocalContact({ ...localContact, phone: val })}
-              label={isRtl ? 'رقم الهاتف' : 'Phone Number'}
+              label={t('common.phoneNumber', 'رقم الهاتف')}
             />
           </div>
 
-          {/* WhatsApp */}
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.whatsapp}
               onChange={(val) => setLocalContact({ ...localContact, whatsapp: val })}
-              label={isRtl ? 'رقم الواتس' : 'WhatsApp Number'}
+              label={t('common.whatsapp', 'رقم الواتس')}
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6">
+        <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
           <Button
             type="submit"
-            className="px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold shadow-sm flex items-center gap-1.5"
+            className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-1.5"
           >
-            <span>{isRtl ? 'تعديل' : 'Modify'}</span>
+            <span>{t('common.modify', 'تعديل')}</span>
           </Button>
           <Button
             type="button"
             variant="secondary"
             onClick={handleCancelClick}
-            className="px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold"
           >
-            {isRtl ? 'إلغاء' : 'Cancel'}
+            {t('common.cancel', 'إلغاء')}
           </Button>
         </div>
       </form>
