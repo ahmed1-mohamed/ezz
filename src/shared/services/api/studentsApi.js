@@ -4,7 +4,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const mockStudents = [
   {
-    id: 1,
+    id: '603d7b88981f1b25ec3a21a1',
     name: 'أحمد خالد المنصور',
     nameEn: 'Ahmed Khaled Al-Mansour',
     age: 10,
@@ -20,7 +20,7 @@ const mockStudents = [
     notes: 'طالب ممتاز ومواظب على الحضور'
   },
   {
-    id: 2,
+    id: '603d7b88981f1b25ec3a21a2',
     name: 'أحمد خالد المنصور',
     nameEn: 'Ahmed Khaled Al-Mansour',
     age: 10,
@@ -36,7 +36,7 @@ const mockStudents = [
     notes: ''
   },
   {
-    id: 3,
+    id: '603d7b88981f1b25ec3a21a3',
     name: 'أحمد خالد المنصور',
     nameEn: 'Ahmed Khaled Al-Mansour',
     age: 10,
@@ -52,7 +52,7 @@ const mockStudents = [
     notes: ''
   },
   {
-    id: 4,
+    id: '603d7b88981f1b25ec3a21a4',
     name: 'أحمد خالد المنصور',
     nameEn: 'Ahmed Khaled Al-Mansour',
     age: 10,
@@ -68,7 +68,7 @@ const mockStudents = [
     notes: ''
   },
   {
-    id: 5,
+    id: '603d7b88981f1b25ec3a21a5',
     name: 'سليمان خالد المنصور',
     nameEn: 'Soliman Khaled Al-Mansour',
     age: 9,
@@ -84,7 +84,7 @@ const mockStudents = [
     notes: 'قارئ سريع ويحتاج إلى مراجعة مخارج الحروف'
   },
   {
-    id: 6,
+    id: '603d7b88981f1b25ec3a21a6',
     name: 'يوسف محمد السعيد',
     nameEn: 'Youssef Mohamed Al-Saeed',
     age: 11,
@@ -104,7 +104,7 @@ const mockStudents = [
 export const studentsApi = {
   fetchStudents: async () => {
     try {
-      const response = await api.get('/api/v1/admin/students');
+      const response = await api.get('/api/v1/students');
       return response.data;
     } catch (error) {
       console.warn('API fetchStudents failed, using mock data:', error);
@@ -115,7 +115,7 @@ export const studentsApi = {
 
   createStudent: async (studentData) => {
     try {
-      const response = await api.post('/api/v1/admin/students', studentData);
+      const response = await api.post('/api/v1/students', studentData);
       return response.data;
     } catch (error) {
       console.warn('API createStudent failed, using mock integration:', error);
@@ -126,7 +126,7 @@ export const studentsApi = {
 
   updateStudent: async (id, studentData) => {
     try {
-      const response = await api.put(`/api/v1/admin/students/${id}`, studentData);
+      const response = await api.patch(`/api/v1/students/${id}`, studentData);
       return response.data;
     } catch (error) {
       console.warn('API updateStudent failed, using mock integration:', error);

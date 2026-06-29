@@ -53,5 +53,155 @@ export const landingApi = {
       console.error('Error fetching countries:', error);
       throw error;
     }
+  },
+
+  fetchPrivateStatistics: async () => {
+    try {
+      const response = await api.get('/api/v1/statistics/private');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching private statistics:', error);
+      throw error;
+    }
+  },
+
+  updatePrivateStatistics: async (statsData) => {
+    try {
+      const response = await api.patch('/api/v1/statistics/private', statsData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating private statistics:', error);
+      throw error;
+    }
+  },
+
+  fetchEliteTeachers: async (params) => {
+    try {
+      const response = await api.get('/api/v1/elite-teachers/private', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching elite teachers:', error);
+      throw error;
+    }
+  },
+
+  fetchSystemTeachers: async () => {
+    try {
+      const response = await api.get('/api/v1/teachers/localized/all');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching system teachers:', error);
+      throw error;
+    }
+  },
+
+  fetchEliteTeacherById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/elite-teachers/private/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching elite teacher with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  addEliteTeacher: async (teacherData) => {
+    try {
+      const response = await api.post('/api/v1/elite-teachers/private', teacherData);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding elite teacher:', error);
+      throw error;
+    }
+  },
+
+  updateEliteTeacher: async (id, teacherData) => {
+    try {
+      const response = await api.patch(`/api/v1/elite-teachers/private/${id}`, teacherData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating elite teacher with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteEliteTeacher: async (id) => {
+    try {
+      const response = await api.delete(`/api/v1/elite-teachers/private/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting elite teacher with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  fetchFeaturedStudents: async (params) => {
+    try {
+      const response = await api.get('/api/v1/featured-students/private', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching featured students:', error);
+      throw error;
+    }
+  },
+
+  fetchFeaturedStudentById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/featured-students/private/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching featured student with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  addFeaturedStudent: async (studentData) => {
+    try {
+      const response = await api.post('/api/v1/featured-students/private', studentData);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding featured student:', error);
+      throw error;
+    }
+  },
+
+  updateFeaturedStudent: async (id, studentData) => {
+    try {
+      const response = await api.patch(`/api/v1/featured-students/private/${id}`, studentData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating featured student with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteFeaturedStudent: async (id) => {
+    try {
+      const response = await api.delete(`/api/v1/featured-students/private/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting featured student with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  fetchContactUs: async () => {
+    try {
+      const response = await api.get('/api/v1/contact-us/private');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching contact-us info:', error);
+      throw error;
+    }
+  },
+
+  updateContactUs: async (contactData) => {
+    try {
+      const response = await api.patch('/api/v1/contact-us/private', contactData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating contact-us info:', error);
+      throw error;
+    }
   }
 };

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Search, Check, Loader2 } from 'lucide-react'
 import { landingApi } from '@/shared/services/api/landingApi'
 
-export default function CountryPhoneInput({ value = '', onChange, error }) {
+export default function CountryPhoneInput({ value = '', onChange, error, label }) {
     const { t, i18n } = useTranslation()
 
     const DEFAULT_COUNTRIES = useMemo(() => [
@@ -125,8 +125,8 @@ export default function CountryPhoneInput({ value = '', onChange, error }) {
 
     return (
         <div className="space-y-2 text-start">
-            <label className="block text-sm font-bold text-slate-700 px-1">
-                {t('contact.form.phone', 'رقم الهاتف')}
+            <label className="block text-sm font-semibold text-slate-650 dark:text-slate-400 px-1">
+                {label || t('contact.form.phone', 'رقم الهاتف')}
             </label>
             <div className="flex gap-3">
                 <div className="relative w-16 sm:w-20 country-dropdown-container shrink-0">

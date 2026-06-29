@@ -261,7 +261,13 @@
   "errors": {
     "notFound": "Page not found",
     "unauthorized": "Unauthorized access",
-    "goHome": "Return home"
+    "unauthorizedTitle": "Unauthorized Access",
+    "unauthorizedMsg": "Sorry, you don't have permission to access this page",
+    "unauthorizedDesc": "Please log in with an account that has the appropriate permissions to view this content.",
+    "unauthenticatedTitle": "Login Required",
+    "unauthenticatedMsg": "Sorry, please login first to access this page",
+    "unauthenticatedDesc": "Authentication token was not found or has expired. Please log in to identify yourself.",
+    "goHome": "Return Home"
   },
   "language": {
     "arabic": "Arabic",

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -17,9 +16,6 @@ import {
   Menu,
   X,
   LogOut,
-  FileText,
-  Bell,
-  User
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth';
 

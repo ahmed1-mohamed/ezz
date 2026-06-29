@@ -20,11 +20,17 @@ export default function AdminSettings() {
     const { user, theme, setTheme } = useAuth();
     const isRtl = i18n.language === 'ar';
     
+    const displayUserName = user?.name
+        ? (typeof user.name === 'string'
+            ? user.name
+            : (user.name.ar || user.name.en || Object.values(user.name)[0] || ''))
+        : '';
+
     const [profileData, setProfileData] = useState({
         country: 'مصر',
         email: user?.email || 'admin@example.com',
         phone: user?.phone || '+0201012345678',
-        fullName: user?.name || 'أحمد الإداري'
+        fullName: displayUserName || 'أحمد الإداري'
     });
 
     const [passwordData, setPasswordData] = useState({

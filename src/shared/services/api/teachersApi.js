@@ -127,6 +127,16 @@ export const teachersApi = {
     }
   },
 
+  patchTeacher: async (id, teacherData) => {
+    try {
+      const response = await api.patch(`/api/v1/teachers/${id}`, teacherData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error patching teacher with id ${id}:`, error);
+      throw error;
+    }
+  },
+
   deleteTeacher: async (id) => {
     try {
       const response = await api.delete(`/api/v1/admin/teachers/${id}`);

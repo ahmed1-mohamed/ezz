@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -38,8 +38,37 @@ export default React.memo(function Home() {
     const dispatch = useDispatch()
     const { landingData } = useSelector((state) => state.landing)
 
+    const [localStats, setLocalStats] = useState(null)
+    const [localStars, setLocalStars] = useState(null)
+    const [localTestimonials, setLocalTestimonials] = useState(null)
+
     useEffect(() => {
         dispatch(fetchLandingPage(i18n.language))
+        
+        const stats = localStorage.getItem('website_stats')
+        if (stats) {
+            try {
+                setLocalStats(JSON.parse(stats))
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        const stars = localStorage.getItem('website_stars')
+        if (stars) {
+            try {
+                setLocalStars(JSON.parse(stars))
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        const testimonials = localStorage.getItem('website_testimonials')
+        if (testimonials) {
+            try {
+                setLocalTestimonials(JSON.parse(testimonials))
+            } catch (e) {
+                console.error(e)
+            }
+        }
     }, [dispatch, i18n.language])
 
     return (
@@ -129,13 +158,13 @@ export default React.memo(function Home() {
                 </section>
             </div>
 
-            <StatisticsBanner data={landingData?.statistics} />
+            <StatisticsBanner data={localStats || landingData?.statistics} />
             <PremiumParentsSection />
             <EducationalPrograms />
-            <StarsSection featuredStudents={landingData?.featuredStudents} />
+            <StarsSection featuredStudents={localStars || landingData?.featuredStudents} />
             <JourneySteps />
             <TeachersSection eliteTeachers={landingData?.eliteTeachers} />
-            <TestimonialsSection testimonials={landingData?.testimonials} />
+            <TestimonialsSection testimonials={localTestimonials || landingData?.testimonials} />
             <CTASection />
         </div>
     )

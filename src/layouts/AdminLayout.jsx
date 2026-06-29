@@ -38,7 +38,7 @@ const navItems = [
   { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels' },
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents' },
   { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups' },
-  { path: '/', icon: Globe, transKey: 'website' },
+  { path: '/dashboard/admin/website', icon: Globe, transKey: 'website' },
   { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions' },
   { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule' },
   { path: '/dashboard/admin/packages', icon: Tag, transKey: 'packages' },
@@ -67,7 +67,17 @@ export default function AdminLayout() {
     navigate('/login')
   }
 
-  const userInitial = user?.name ? user.name.trim().charAt(0) : 'أ'
+  const getDisplayName = (nameVal) => {
+    if (!nameVal) return '';
+    if (typeof nameVal === 'string') return nameVal;
+    if (typeof nameVal === 'object') {
+      return nameVal.ar || nameVal.en || Object.values(nameVal)[0] || '';
+    }
+    return String(nameVal);
+  }
+
+  const resolvedName = getDisplayName(user?.name);
+  const userInitial = resolvedName ? resolvedName.trim().charAt(0) : 'أ'
   const displayRole = user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول')
 
   return (
@@ -209,7 +219,7 @@ export default function AdminLayout() {
             <div className="flex items-center gap-3">
               <div className="text-end hidden xl:block">
                 <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  {user?.name || t('adminDashboard.adminName', 'أحمد الإداري')}
+                  {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
                 </h4>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                   {displayRole}

@@ -9,7 +9,11 @@ export default function RoleBasedRoute({ allowedRoles }) {
         (role) => role.toLowerCase() === user.role.toLowerCase()
     )
 
-    if (!user || !hasAccess) {
+    if (!user) {
+        return <Navigate to="login" state={{ from: location }} replace />
+    }
+
+    if (!hasAccess) {
         return <Navigate to="/unauthorized" state={{ from: location }} replace />
     }
 
