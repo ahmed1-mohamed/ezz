@@ -40,6 +40,7 @@ const AdminRewards = lazy(() => import('../dashboard/admin/rewards/AdminRewards.
 const AdminAssignments = lazy(() => import('../dashboard/admin/assignments/AdminAssignments.jsx'))
 const AdminWebsite = lazy(() => import('../dashboard/admin/website/AdminWebsite.jsx'))
 const AdminLogs = lazy(() => import('../dashboard/admin/logs/AdminLogs.jsx'))
+const AdminMessages = lazy(() => import('../dashboard/admin/messages/AdminMessages.jsx'))
 
 const ManagerDashboard = lazy(() => import('../dashboard/manager/overview/ManagerDashboard.jsx'))
 const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCourses.jsx'))
@@ -248,6 +249,10 @@ export default function AppRoutes() {
                                     <Route
                                         path="/dashboard/admin/sessions"
                                         element={<AnimatedPage><AdminSessions /></AnimatedPage>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/messages"
+                                        element={<AnimatedPage><AdminMessages /></AnimatedPage>}
                                     />
                                     <Route
                                         path="/dashboard/admin/schedule"

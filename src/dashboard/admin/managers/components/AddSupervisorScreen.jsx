@@ -12,11 +12,11 @@ export default function AddSupervisorScreen({
   t,
   onSave,
   onCancel,
-  initialData = null
+  initialData = null,
+  countries = []
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
-  // Setup form state with sensible defaults
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     nameEn: initialData?.nameEn || '',
@@ -35,7 +35,6 @@ export default function AddSupervisorScreen({
   const handleFieldChange = (key, value) => {
     setFormData((prev) => {
       const updated = { ...prev, [key]: value }
-      // If role changes, keep selectedRole in sync
       if (key === 'role') {
         updated.role = value
       }
@@ -49,14 +48,12 @@ export default function AddSupervisorScreen({
   }
 
   const handleSkipPermissions = () => {
-    // Skips or resets the role selector to a default
     handleFieldChange('role', 'مشرف عام')
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Passwords validation for new supervisor or modified password
     if (!initialData || formData.password) {
       if (formData.password !== formData.confirmPassword) {
         alert(isRtl ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!')
@@ -68,19 +65,24 @@ export default function AddSupervisorScreen({
       }
     }
 
-    // Call save callback with clean object
+    const selectedCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
+    const countryId = selectedCountry ? selectedCountry.id : null;
+
     onSave({
-      ...formData,
-      // Combine phone prefix with number
-      phone: `${formData.phonePrefix} ${formData.phone}`,
-      photoFile
+      'name[ar]': formData.name,
+      'name[en]': formData.nameEn,
+      email: formData.email,
+      phone: formData.phone,
+      country: countryId,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+      image: photoFile
     })
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      {/* Top Header Navigation */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -93,7 +95,7 @@ export default function AddSupervisorScreen({
           </button>
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-              {initialData 
+              {initialData
                 ? (isRtl ? 'تعديل بيانات المشرف' : 'Edit Supervisor')
                 : t('adminDashboard.managers.addSupervisorScreen.title', 'إضافة مشرف جديد')}
             </h1>
@@ -102,7 +104,7 @@ export default function AddSupervisorScreen({
             </p>
           </div>
         </div>
-        
+
         <button
           type="button"
           onClick={onCancel}
@@ -112,10 +114,8 @@ export default function AddSupervisorScreen({
         </button>
       </div>
 
-      {/* Main Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        
-        {/* Column 1: Identity & Password security */}
+
         <div className="space-y-8 w-full">
           <IdentityInfoCard
             formData={formData}
@@ -123,8 +123,9 @@ export default function AddSupervisorScreen({
             onPhotoChange={handlePhotoChange}
             isRtl={isRtl}
             t={t}
+            countries={countries}
           />
-          
+
           <SecurityPasswordCard
             formData={formData}
             onChange={handleFieldChange}
@@ -133,7 +134,6 @@ export default function AddSupervisorScreen({
           />
         </div>
 
-        {/* Column 2: Permissions select & preview */}
         <div className="space-y-8 w-full">
           <PermissionsCard
             roles={roles}
@@ -147,6 +147,7 @@ export default function AddSupervisorScreen({
           <PermissionsPreviewCard
             selectedRole={formData.role}
             rolesPermissions={rolesPermissions}
+            realPermissionsList={realPermissionsList}
             isRtl={isRtl}
             t={t}
           />
@@ -154,7 +155,6 @@ export default function AddSupervisorScreen({
 
       </div>
 
-      {/* Bottom Save & Cancel Bar */}
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="submit"

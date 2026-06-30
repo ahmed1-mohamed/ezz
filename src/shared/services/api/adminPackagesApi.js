@@ -1,180 +1,193 @@
 import api from './axiosConfig';
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const mapLanguageToCode = (lang) => {
+  if (lang === 'عربي') return 'ar';
+  if (lang === 'إنجليزي') return 'en';
+  if (lang === 'عربي / إنجليزي') return 'both';
+  return lang || 'ar';
+};
 
-let mockPackages = [
-  {
-    id: 1,
-    name: 'الباقة الأساسية',
-    name_en: 'Basic Package',
-    description: 'مناسبة للمبتدئين',
-    description_en: 'Suitable for beginners',
-    price: 450,
-    currency: 'SAR',
-    sessions_per_month: 12,
-    sessions_language: 'عربي',
-    color: '#6b7280',
-    features: ['12 حصة شهرياً', 'مواد تعليمية', 'تقارير أسبوعية'],
-    features_en: ['12 sessions/month', 'Educational materials', 'Weekly reports'],
-    is_active: true,
-  },
-  {
-    id: 2,
-    name: 'الباقة الأساسية',
-    name_en: 'Basic Package',
-    description: 'مناسبة للمبتدئين',
-    description_en: 'Suitable for beginners',
-    price: 850,
-    currency: 'SAR',
-    sessions_per_month: 12,
-    sessions_language: 'عربي',
-    color: '#d97706',
-    features: ['12 حصة شهرياً', 'مواد تعليمية', 'تقارير أسبوعية'],
-    features_en: ['12 sessions/month', 'Educational materials', 'Weekly reports'],
-    is_active: true,
-  },
-  {
-    id: 3,
-    name: 'الباقة المتقدمة',
-    name_en: 'Advanced Package',
-    description: 'مناسبة للمستويات المتقدمة',
-    description_en: 'Suitable for advanced levels',
-    price: 1200,
-    currency: 'SAR',
-    sessions_per_month: 20,
-    sessions_language: 'عربي / إنجليزي',
-    color: '#0f7a6c',
-    features: ['20 حصة شهرياً', 'مواد تعليمية متقدمة', 'تقارير أسبوعية', 'جلسات مراجعة'],
-    features_en: ['20 sessions/month', 'Advanced materials', 'Weekly reports', 'Review sessions'],
-    is_active: true,
-  },
-];
-
-let mockFaqs = [
-  {
-    id: 1,
-    question: 'هل يمكن التجديد قبل الانتهاء؟',
-    question_en: 'Can I renew before the end?',
-    answer: 'نعم و سيتم إضافة الحصص الجديدة إلى حصصك الحالية',
-    answer_en: 'Yes, new sessions will be added to your current sessions',
-  },
-  {
-    id: 2,
-    question: 'ما هي طرق الدفع المتاحة؟',
-    question_en: 'What payment methods are available?',
-    answer: 'نقبل الدفع عبر بطاقات الائتمان، والتحويل البنكي، وخدمة PayPal.',
-    answer_en: 'We accept payment via credit cards, bank transfer, and PayPal.',
-  },
-  {
-    id: 3,
-    question: 'هل يمكن تغيير الباقة بعد الاشتراك؟',
-    question_en: 'Can I change my package after subscribing?',
-    answer: 'نعم، يمكنك الترقية أو التخفيض في أي وقت، وسيتم احتساب الفارق.',
-    answer_en: 'Yes, you can upgrade or downgrade anytime, and the difference will be calculated.',
-  },
-  {
-    id: 4,
-    question: 'هل هناك فترة تجريبية مجانية؟',
-    question_en: 'Is there a free trial period?',
-    answer: 'نعم، نوفر حصة تجريبية مجانية واحدة لكل طالب جديد.',
-    answer_en: 'Yes, we provide one free trial session for each new student.',
-  },
-];
+const mapCodeToLanguage = (code) => {
+  if (code === 'ar') return 'عربي';
+  if (code === 'en') return 'إنجليزي';
+  if (code === 'both') return 'عربي / إنجليزي';
+  return code || 'عربي';
+};
 
 export const adminPackagesApi = {
-  fetchPackages: async () => {
-    try {
-      const response = await api.get('/api/v1/admin/packages');
-      return response.data;
-    } catch (error) {
-      console.warn('API fetchPackages failed, using mock data:', error);
-      await delay(400);
-      return { success: true, data: [...mockPackages] };
+  fetchPackagesAndFaqs: async () => {
+    const response = await api.get('/api/v1/packages-faqs/private/localized/all');
+
+    let fetchedPackages = [];
+    if (response.data?.data?.packages?.data) {
+      fetchedPackages = response.data.data.packages.data.map((item) => ({
+        id: item.id,
+        name: typeof item.name === 'object' ? (item.name.ar || item.name.en) : item.name,
+        name_en: typeof item.name === 'object' ? (item.name.en || item.name.ar) : item.name,
+        description: '',
+        price: item.price,
+        currency: 'SAR',
+        sessions_per_month: item.sessionsCount,
+        sessions_language: mapCodeToLanguage(item.language),
+        color: item.icon === 'star' ? '#d97706' : '#0f7a6c',
+        features: Array.isArray(item.features) ? item.features : (item.features?.ar || []),
+        features_en: Array.isArray(item.features) ? item.features : (item.features?.en || []),
+        is_active: true
+      }));
     }
+
+    let fetchedFaqs = [];
+    if (response.data?.data?.faqs?.data) {
+      fetchedFaqs = response.data.data.faqs.data.map((item) => ({
+        id: item.id,
+        question: typeof item.question === 'object' ? (item.question.ar || item.question.en) : item.question,
+        question_en: typeof item.question === 'object' ? (item.question.en || item.question.ar) : item.question,
+        answer: typeof item.answer === 'object' ? (item.answer.ar || item.answer.en) : item.answer,
+        answer_en: typeof item.answer === 'object' ? (item.answer.en || item.answer.ar) : item.answer,
+      }));
+    }
+
+    return { success: true, packages: fetchedPackages, faqs: fetchedFaqs };
+  },
+
+  fetchPackages: async () => {
+    const res = await adminPackagesApi.fetchPackagesAndFaqs();
+    return { success: true, data: res.packages };
   },
 
   createPackage: async (packageData) => {
     try {
-      const response = await api.post('/api/v1/admin/packages', packageData);
-      return response.data;
+      const payload = {
+        name: {
+          ar: packageData.name || '',
+          en: packageData.name_en || packageData.name || ''
+        },
+        icon: 'star',
+        price: Number(packageData.price),
+        sessionsCount: Number(packageData.sessions_per_month),
+        language: mapLanguageToCode(packageData.sessions_language),
+        features: {
+          ar: packageData.features || [],
+          en: packageData.features_en || []
+        }
+      };
+      
+      const response = await api.post('/api/v1/packages/private', payload);
+      return { success: true, data: response.data?.data || response.data };
     } catch (error) {
-      console.warn('API createPackage failed, using mock:', error);
-      await delay(400);
-      const newPackage = { id: Date.now(), ...packageData };
-      mockPackages = [...mockPackages, newPackage];
-      return { success: true, data: newPackage };
+      console.error(error);
+      return { success: false };
     }
   },
 
   updatePackage: async (id, packageData) => {
     try {
-      const response = await api.put(`/api/v1/admin/packages/${id}`, packageData);
-      return response.data;
+      const payload = {
+        name: {
+          ar: packageData.name || '',
+          en: packageData.name_en || packageData.name || ''
+        },
+        icon: 'star',
+        price: Number(packageData.price),
+        sessionsCount: Number(packageData.sessions_per_month),
+        language: mapLanguageToCode(packageData.sessions_language),
+        features: {
+          ar: packageData.features || [],
+          en: packageData.features_en || []
+        }
+      };
+
+      const response = await api.patch(`/api/v1/packages/private/${id}`, payload);
+      return { success: true, data: response.data?.data || response.data };
     } catch (error) {
-      console.warn('API updatePackage failed, using mock:', error);
-      await delay(400);
-      mockPackages = mockPackages.map((p) => (p.id === id ? { ...p, ...packageData } : p));
-      return { success: true, data: { id, ...packageData } };
+      console.error(error);
+      return { success: false };
     }
   },
 
   deletePackage: async (id) => {
     try {
-      const response = await api.delete(`/api/v1/admin/packages/${id}`);
-      return response.data;
+      await api.delete(`/api/v1/packages/private/${id}`);
+      return { success: true };
     } catch (error) {
-      console.warn('API deletePackage failed, using mock:', error);
-      await delay(400);
-      mockPackages = mockPackages.filter((p) => p.id !== id);
-      return { success: true, message: 'Package deleted' };
+      console.error(error);
+      return { success: false };
     }
   },
 
   fetchFaqs: async () => {
     try {
-      const response = await api.get('/api/v1/admin/faqs');
-      return response.data;
+      const res = await adminPackagesApi.fetchPackagesAndFaqs();
+      return { success: true, data: res.faqs };
     } catch (error) {
-      console.warn('API fetchFaqs failed, using mock data:', error);
-      await delay(400);
-      return { success: true, data: [...mockFaqs] };
+      console.error(error);
+      return { success: false, data: [] };
     }
   },
 
   createFaq: async (faqData) => {
     try {
-      const response = await api.post('/api/v1/admin/faqs', faqData);
-      return response.data;
+      const payload = {
+        question: {
+          ar: faqData.question || '',
+          en: faqData.question_en || faqData.question || ''
+        },
+        answer: {
+          ar: faqData.answer || '',
+          en: faqData.answer_en || faqData.answer || ''
+        }
+      };
+      const response = await api.post('/api/v1/faqs/private', payload);
+      const item = response.data?.data || response.data;
+      const mapped = {
+        id: item.id,
+        question: typeof item.question === 'object' ? (item.question.ar || item.question.en) : item.question,
+        question_en: typeof item.question === 'object' ? (item.question.en || item.question.ar) : item.question,
+        answer: typeof item.answer === 'object' ? (item.answer.ar || item.answer.en) : item.answer,
+        answer_en: typeof item.answer === 'object' ? (item.answer.en || item.answer.ar) : item.answer,
+      };
+      return { success: true, data: mapped };
     } catch (error) {
-      console.warn('API createFaq failed, using mock:', error);
-      await delay(400);
-      const newFaq = { id: Date.now(), ...faqData };
-      mockFaqs = [...mockFaqs, newFaq];
-      return { success: true, data: newFaq };
+      console.error(error);
+      return { success: false };
     }
   },
 
   updateFaq: async (id, faqData) => {
     try {
-      const response = await api.put(`/api/v1/admin/faqs/${id}`, faqData);
-      return response.data;
+      const payload = {
+        question: {
+          ar: faqData.question || '',
+          en: faqData.question_en || faqData.question || ''
+        },
+        answer: {
+          ar: faqData.answer || '',
+          en: faqData.answer_en || faqData.answer || ''
+        }
+      };
+      const response = await api.patch(`/api/v1/faqs/private/${id}`, payload);
+      const item = response.data?.data || response.data;
+      const mapped = {
+        id: item.id,
+        question: typeof item.question === 'object' ? (item.question.ar || item.question.en) : item.question,
+        question_en: typeof item.question === 'object' ? (item.question.en || item.question.ar) : item.question,
+        answer: typeof item.answer === 'object' ? (item.answer.ar || item.answer.en) : item.answer,
+        answer_en: typeof item.answer === 'object' ? (item.answer.en || item.answer.ar) : item.answer,
+      };
+      return { success: true, data: mapped };
     } catch (error) {
-      console.warn('API updateFaq failed, using mock:', error);
-      await delay(400);
-      mockFaqs = mockFaqs.map((f) => (f.id === id ? { ...f, ...faqData } : f));
-      return { success: true, data: { id, ...faqData } };
+      console.error(error);
+      return { success: false };
     }
   },
 
   deleteFaq: async (id) => {
     try {
-      const response = await api.delete(`/api/v1/admin/faqs/${id}`);
+      const response = await api.delete(`/api/v1/faqs/private/${id}`);
       return response.data;
     } catch (error) {
-      console.warn('API deleteFaq failed, using mock:', error);
-      await delay(400);
-      mockFaqs = mockFaqs.filter((f) => f.id !== id);
-      return { success: true, message: 'FAQ deleted' };
+      console.error(error);
+      return { success: false };
     }
-  },
+  }
 };

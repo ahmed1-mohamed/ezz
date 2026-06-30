@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://manaret-ezz.dramcode.top',
@@ -101,6 +102,53 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       window.location.href = '/unauthorized?status=403';
       return Promise.reject(error);
+    }
+
+    if (error.response?.status === 400) {
+      const msgs = error.response.data?.message;
+
+      const focusInputByError = (msg) => {
+        if (typeof msg !== 'string') return;
+        const lowerMsg = msg.toLowerCase();
+        
+        const mapping = {
+          'language': 'sessions_language',
+          'اللغة': 'sessions_language',
+          'features': 'features',
+          'ميزة': 'features',
+          'name': 'name',
+          'الاسم': 'name',
+          'price': 'price',
+          'السعر': 'price',
+          'sessions': 'sessions_per_month',
+          'جلسات': 'sessions_per_month',
+          'question': 'question',
+          'سؤال': 'question',
+          'answer': 'answer',
+          'إجابة': 'answer'
+        };
+
+        for (const [key, inputId] of Object.entries(mapping)) {
+          if (lowerMsg.includes(key)) {
+            const el = document.getElementById(inputId) || document.querySelector(`[name="${inputId}"]`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.focus({ preventScroll: true });
+              return;
+            }
+          }
+        }
+      };
+
+      if (Array.isArray(msgs)) {
+        msgs.forEach(msg => toast.error(msg, { duration: 5000 }));
+        if (msgs.length > 0) focusInputByError(msgs[0]);
+      } else if (typeof msgs === 'string') {
+        toast.error(msgs, { duration: 5000 });
+        focusInputByError(msgs);
+      } else {
+        toast.error('حدث خطأ في البيانات المدخلة', { duration: 5000 });
+      }
     }
 
     return Promise.reject(error);

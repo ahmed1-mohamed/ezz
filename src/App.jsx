@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useLayoutEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { useAuth } from '@/shared/context/useAuth'
 import AppRoutes from './routes/AppRoutes.jsx'
 
@@ -37,6 +38,18 @@ function App() {
   return (
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
       <AppRoutes />
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false}
+        toastOptions={{
+          className: 'dark:bg-slate-800 dark:text-white',
+          style: {
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+          },
+        }} 
+      />
     </div>
   )
 }

@@ -1663,6 +1663,27 @@
       "thisWeek": "هذا الأسبوع",
       "usersThisMonth": "المستخدمين الشهر"
     },
+    "messages": {
+      "title": "طلبات التسجيل",
+      "totalRequests": "إجمالي الطلبات",
+      "newRequests": "طلبات جديدة",
+      "replied": "تم الرد عليها",
+      "underReview": "قيد المراجعة",
+      "new": "جديد",
+      "messageSubject": "موضوع الرسالة",
+      "showSenderDetails": "عرض تفاصيل المرسل",
+      "hideSenderDetails": "إخفاء تفاصيل المرسل",
+      "processing": "قيد المعالجة",
+      "whatsapp": "واتساب",
+      "email": "بريد",
+      "fullName": "الاسم الكامل",
+      "phoneNumber": "رقم الهاتف",
+      "yourMessage": "رسالتك",
+      "searchPlaceholder": "بحث...",
+      "loading": "جاري تحميل الرسائل...",
+      "errorLoading": "حدث خطأ أثناء تحميل الرسائل",
+      "noMessages": "لا توجد طلبات تسجيل"
+    },
     "nav": {
       "home": "الرئيسية",
       "managers": "المديرين",
@@ -1683,6 +1704,7 @@
       "discountCodes": "أكواد الخصم",
       "reports": "التقارير",
       "activities": "الأحداث",
+      "messages": "طلبات التسجيل",
       "settings": "الإعدادات"
     },
     "searchPlaceholder": "بحث في المنصة...",

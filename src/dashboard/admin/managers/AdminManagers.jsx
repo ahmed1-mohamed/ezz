@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
+import { landingApi } from '@/shared/services/api/landingApi'
 import ManagersList from './components/ManagersList'
 import RolesPermissionsScreen from './components/RolesPermissionsScreen'
 import AddSupervisorScreen from './components/AddSupervisorScreen'
@@ -10,43 +12,86 @@ import Spinner from '@/shared/components/Spinner'
 export default function AdminManagers() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const queryClient = useQueryClient()
 
   // View state: 'list' | 'permissions' | 'add-supervisor' | 'edit-supervisor'
   const [viewMode, setViewMode] = useState('list')
-  const [supervisors, setSupervisors] = useState([])
-  const [roles, setRoles] = useState([])
-  const [rolesPermissions, setRolesPermissions] = useState({})
-  
   const [selectedRole, setSelectedRole] = useState('مشرف عام')
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
 
-  // Load all initial data from API service
-  useEffect(() => {
-    async function loadInitialData() {
-      setIsLoading(true)
-      try {
-        const supervisorsRes = await managersApi.fetchSupervisors()
-        const rolesRes = await managersApi.fetchRoles()
-        const permissionsRes = await managersApi.fetchRolesPermissions()
+  // Fetch Admins
+  const { data: supervisorsData, isLoading: isLoadingSupervisors } = useQuery({
+    queryKey: ['admins', 'all'],
+    queryFn: () => managersApi.fetchSupervisors(),
+    staleTime: 5 * 60 * 1000,
+  })
 
-        if (supervisorsRes.success) {
-          setSupervisors(supervisorsRes.data)
-        }
-        if (rolesRes.success) {
-          setRoles(rolesRes.data)
-        }
-        if (permissionsRes.success) {
-          setRolesPermissions(permissionsRes.data)
-        }
-      } catch (err) {
-        console.error('Failed to load initial managers data:', err)
-      } finally {
-        setIsLoading(false)
-      }
+  const supervisors = supervisorsData?.data || []
+
+  // Fetch real permissions from backend
+  const { data: realPermissionsData, isLoading: isLoadingPermissions } = useQuery({
+    queryKey: ['permissions'],
+    queryFn: () => managersApi.fetchPermissions(),
+    staleTime: 5 * 60 * 1000,
+  })
+  const realPermissionsList = realPermissionsData?.data || []
+
+  // Fetch countries
+  const { data: countriesData } = useQuery({
+    queryKey: ['countries'],
+    queryFn: () => landingApi.fetchCountries(),
+    staleTime: 5 * 60 * 1000,
+  })
+  const countries = countriesData?.data || []
+
+  // Mock roles and role permissions for UI (until Roles API is fully clarified)
+  const { data: rolesRes, isLoading: isLoadingRoles } = useQuery({
+    queryKey: ['admin-roles'],
+    queryFn: () => managersApi.fetchRoles(),
+    staleTime: 5 * 60 * 1000,
+  })
+  const roles = rolesRes?.data || []
+
+  const { data: permissionsRes } = useQuery({
+    queryKey: ['admin-role-permissions'],
+    queryFn: () => managersApi.fetchRolesPermissions(),
+    staleTime: 5 * 60 * 1000,
+  })
+  const rolesPermissions = permissionsRes?.data || {}
+
+  // Delete Mutation
+  const deleteMutation = useMutation({
+    mutationFn: managersApi.deleteSupervisor,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admins'])
     }
-    loadInitialData()
-  }, [])
+  })
+
+  // Toggle Status Mutation
+  const toggleStatusMutation = useMutation({
+    mutationFn: ({ id, payload }) => managersApi.updateSupervisor(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admins'])
+    }
+  })
+
+  // Add Mutation
+  const addMutation = useMutation({
+    mutationFn: managersApi.createSupervisor,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admins'])
+      setViewMode('list')
+    }
+  })
+
+  // Edit Mutation
+  const editMutation = useMutation({
+    mutationFn: ({ id, payload }) => managersApi.updateSupervisor(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admins'])
+      setViewMode('list')
+    }
+  })
 
   // Action: Toggle Status
   const handleToggleStatus = async (id) => {
@@ -55,15 +100,10 @@ export default function AdminManagers() {
 
     const updatedStatus = supervisor.status === 'Active' ? 'Suspended' : 'Active'
     try {
-      const res = await managersApi.updateSupervisor(id, {
-        ...supervisor,
-        status: updatedStatus,
+      await toggleStatusMutation.mutateAsync({
+        id,
+        payload: { status: updatedStatus }
       })
-      if (res.success) {
-        setSupervisors((prev) =>
-          prev.map((s) => (s.id === id ? { ...s, status: updatedStatus } : s))
-        )
-      }
     } catch (err) {
       console.error('Failed to toggle supervisor status:', err)
     }
@@ -77,131 +117,22 @@ export default function AdminManagers() {
     
     if (window.confirm(confirmationMsg)) {
       try {
-        const res = await managersApi.deleteSupervisor(id)
-        if (res.success) {
-          setSupervisors((prev) => prev.filter((s) => s.id !== id))
-        }
+        await deleteMutation.mutateAsync(id)
       } catch (err) {
         console.error('Failed to delete supervisor:', err)
       }
     }
   }
 
-  // Action: Save role permissions modifications
-  const handleSavePermissions = async (roleName) => {
-    const permissionsForRole = rolesPermissions[roleName]
-    try {
-      const res = await managersApi.updateRolePermissions(roleName, permissionsForRole)
-      if (res.success) {
-        alert(isRtl ? 'تم حفظ الأذونات بنجاح!' : 'Permissions saved successfully!')
-        setViewMode('list')
-      }
-    } catch (err) {
-      console.error('Failed to save permissions:', err)
-    }
-  }
-
-  // Action: Add new role (from Permissions Sidebar)
-  const handleAddNewRole = async (roleName) => {
-    try {
-      const res = await managersApi.createRole(roleName)
-      if (res.success) {
-        setRoles((prev) => [...prev, res.data])
-        setRolesPermissions((prev) => ({
-          ...prev,
-          [roleName]: {
-            userManagement: { viewUsers: true, createUsers: false, editUsers: false, deleteUsers: false },
-            groupManagement: { viewGroups: true, createGroups: false, editGroups: false, deleteGroups: false },
-            courseManagement: { viewCourses: true, createCourses: false, editCourses: false, deleteCourses: false },
-            reportsManagement: { viewReports: true, createReports: false, editReports: false, deleteReports: false },
-            fundsManagement: { viewFinancials: true, createFinancials: false, editFinancials: false, deleteFinancials: false },
-            systemSettings: { viewSettings: true, editSettings: false, manageIntegrations: false, configureSystem: false },
-            scheduleSettings: { viewSchedule: true, editSchedule: false, manageSchedules: false, configureSchedule: false },
-          },
-        }))
-        setSelectedRole(roleName)
-      }
-    } catch (err) {
-      console.error('Failed to create role:', err)
-    }
-  }
-
-  // Action: Toggle individual permission checkboxes
-  const handleTogglePermission = (sectionKey, optionKey) => {
-    setRolesPermissions((prev) => {
-      const rolePerms = prev[selectedRole] || {}
-      const sectionPerms = rolePerms[sectionKey] || {}
-      return {
-        ...prev,
-        [selectedRole]: {
-          ...rolePerms,
-          [sectionKey]: {
-            ...sectionPerms,
-            [optionKey]: !sectionPerms[optionKey],
-          },
-        },
-      }
-    })
-  }
-
-  // Action: Save or Update supervisor details
-  const handleSaveSupervisor = async (formData) => {
-    if (viewMode === 'edit-supervisor' && selectedSupervisor) {
-      // Edit mode
-      try {
-        const res = await managersApi.updateSupervisor(selectedSupervisor.id, {
-          ...selectedSupervisor,
-          ...formData,
-        })
-        if (res.success) {
-          setSupervisors((prev) =>
-            prev.map((s) => (s.id === selectedSupervisor.id ? { ...s, ...res.data } : s))
-          )
-          setSelectedSupervisor(null)
-          setViewMode('list')
-        }
-      } catch (err) {
-        console.error('Failed to update supervisor details:', err)
-      }
-    } else {
-      // Add mode
-      try {
-        const res = await managersApi.createSupervisor({
-          name: formData.name,
-          nameEn: formData.nameEn,
-          email: formData.email,
-          phone: formData.phone,
-          role: formData.role,
-          status: formData.status,
-          photoUrl: formData.photoUrl,
-          permissions: {
-            manageTeachers: false,
-            manageStudents: false,
-            viewReports: false,
-            managePayments: false,
-            manageSettings: false,
-          },
-        })
-        if (res.success) {
-          setSupervisors((prev) => [res.data, ...prev])
-          setViewMode('list')
-        }
-      } catch (err) {
-        console.error('Failed to create supervisor:', err)
-      }
-    }
-  }
-
   // Action: Open Edit Screen
   const handleOpenEditScreen = (supervisor) => {
-
     setSelectedSupervisor(supervisor)
     setSelectedRole(supervisor.role || 'مشرف عام')
     setViewMode('edit-supervisor')
   }
 
-  // Loading indicator for async fetch calls
-  if (isLoading) {
+  // Loading indicator
+  if (isLoadingSupervisors || isLoadingRoles || isLoadingPermissions) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
@@ -232,37 +163,52 @@ export default function AdminManagers() {
           roles={roles}
           selectedRole={selectedRole}
           rolesPermissions={rolesPermissions}
+          realPermissionsList={realPermissionsList}
           isRtl={isRtl}
           t={t}
           onSelectRole={setSelectedRole}
-          onTogglePermission={handleTogglePermission}
-          onSavePermissions={handleSavePermissions}
+          onTogglePermission={() => {}} // Disabled real implementation for now
+          onSavePermissions={() => setViewMode('list')} // Disabled real implementation for now
           onCancel={() => setViewMode('list')}
-          onAddNewRole={handleAddNewRole}
+          onAddNewRole={() => {}} // Disabled real implementation for now
         />
       )}
+
       {viewMode === 'add-supervisor' && (
         <AddSupervisorScreen
           roles={roles}
           rolesPermissions={rolesPermissions}
+          realPermissionsList={realPermissionsList}
+          countries={countries}
           isRtl={isRtl}
           t={t}
-          onSave={handleSaveSupervisor}
-          onCancel={() => {
-            setViewMode('list')
+          onSave={async (data) => {
+            try {
+              await addMutation.mutateAsync(data)
+            } catch (err) {
+              console.error('Failed to add supervisor:', err)
+            }
           }}
+          onCancel={() => setViewMode('list')}
         />
       )}
 
       {viewMode === 'edit-supervisor' && selectedSupervisor && (
         <EditSupervisorScreen
+          supervisor={selectedSupervisor}
           roles={roles}
           rolesPermissions={rolesPermissions}
-          supervisor={selectedSupervisor}
+          realPermissionsList={realPermissionsList}
+          countries={countries}
           isRtl={isRtl}
           t={t}
-          onSave={handleSaveSupervisor}
-          onToggleStatus={handleToggleStatus}
+          onSave={async (data) => {
+            try {
+              await editMutation.mutateAsync({ id: selectedSupervisor.id, payload: data })
+            } catch (err) {
+              console.error('Failed to update supervisor:', err)
+            }
+          }}
           onCancel={() => {
             setSelectedSupervisor(null)
             setViewMode('list')

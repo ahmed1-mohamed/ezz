@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Plus, Package } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
@@ -21,16 +21,14 @@ export default function AdminPackages() {
     const [pkgPanelOpen, setPkgPanelOpen] = useState(false)
     const [editingPkg, setEditingPkg] = useState(null)
     const [editingFaq, setEditingFaq] = useState(null)
+    const [isFaqFormOpen, setIsFaqFormOpen] = useState(false)
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, id: null })
 
     const loadAll = useCallback(async () => {
         setLoading(true)
-        const [pkgRes, faqRes] = await Promise.all([
-            adminPackagesApi.fetchPackages(),
-            adminPackagesApi.fetchFaqs(),
-        ])
-        if (pkgRes?.data) setPackages(pkgRes.data)
-        if (faqRes?.data) setFaqs(faqRes.data)
+        const res = await adminPackagesApi.fetchPackagesAndFaqs()
+        if (res?.packages) setPackages(res.packages)
+        if (res?.faqs) setFaqs(res.faqs)
         setLoading(false)
     }, [])
 
@@ -70,6 +68,7 @@ export default function AdminPackages() {
             if (res?.success) setFaqs((prev) => [...prev, res.data])
         }
         setEditingFaq(null)
+        setIsFaqFormOpen(false)
     }
 
     if (loading) {
@@ -124,24 +123,34 @@ export default function AdminPackages() {
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-slate-800 dark:text-white font-bold text-base">{p('faqTitle')}</h2>
                     <button
-                        onClick={() => setEditingFaq(null)}
+                        onClick={() => { setEditingFaq(null); setIsFaqFormOpen((prev) => !prev) }}
                         className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
                     >
-                        <Plus size={16} />
-                        {p('createFaq')}
+                        <Plus size={16} className={`transition-transform duration-300 ${isFaqFormOpen ? 'rotate-45' : ''}`} />
+                        {isFaqFormOpen ? p('cancel') : p('createFaq')}
                     </button>
                 </div>
 
-                <div className="mb-5">
-                    <FaqInlineForm
-                        onSave={handleSaveFaq}
-                        editingFaq={editingFaq}
-                        onCancelEdit={() => setEditingFaq(null)}
-                    />
-                </div>
+                <AnimatePresence initial={false}>
+                    {(isFaqFormOpen || editingFaq) && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="mb-5 overflow-hidden"
+                        >
+                            <FaqInlineForm
+                                onSave={handleSaveFaq}
+                                editingFaq={editingFaq}
+                                onCancelEdit={() => { setEditingFaq(null); setIsFaqFormOpen(false) }}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 <FaqTable
                     faqs={faqs}
+                    onEdit={(faq) => { setEditingFaq(faq); setIsFaqFormOpen(true); }}
                     onDelete={(id) => setDeleteConfirm({ open: true, type: 'faq', id })}
                 />
             </section>

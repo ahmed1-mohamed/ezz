@@ -12,18 +12,11 @@ import EditSecurityPasswordCard from './EditSecurityPasswordCard'
 import EditGrantedPermissionsCard from './EditGrantedPermissionsCard'
 import EditGoogleLinkCard from './EditGoogleLinkCard'
 
-const countryCodes = [
-  { code: '+20', flag: '🇪🇬', name: 'Egypt' },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
-  { code: '+974', flag: '🇶🇦', name: 'Qatar' }
-]
-
 export default function EditSupervisorScreen({
   roles,
   rolesPermissions,
   supervisor,
+  countries = [],
   isRtl,
   t,
   onSave,
@@ -32,7 +25,6 @@ export default function EditSupervisorScreen({
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
-  // Phone prefix/number extraction
   const initialPrefix = useMemo(() => {
     if (supervisor.phone) {
       const parts = supervisor.phone.split(' ')
@@ -67,7 +59,7 @@ export default function EditSupervisorScreen({
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState(
-    countryCodes.find((c) => c.code === formData.phonePrefix) || countryCodes[0]
+    countries.find((c) => c.code === formData.phonePrefix) || countries[0]
   )
 
   const handleFieldChange = (key, value) => {
@@ -81,7 +73,6 @@ export default function EditSupervisorScreen({
   }
 
   const handleUpdatePassword = () => {
-    // Persist new password through mock API delay
     alert(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!')
   }
 
@@ -91,13 +82,19 @@ export default function EditSupervisorScreen({
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    const selectedCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
+    const countryId = selectedCountry ? selectedCountry.id : null;
+
     onSave({
-      ...formData,
-      phone: `${formData.phonePrefix} ${formData.phone}`
+      'name[ar]': formData.name,
+      'name[en]': formData.nameEn,
+      email: formData.email,
+      phone: formData.phone,
+      country: countryId
     })
   }
 
-  // Mock details/statistics
   const mockJoinDate = supervisor.joinDate || '20/10/2025'
   const mockLastLogin = supervisor.lastLogin || (isRtl ? 'اليوم - 10:30 ص' : 'Today - 10:30 AM')
   const mockTotalActions = supervisor.totalActions || '1,234'
@@ -108,11 +105,9 @@ export default function EditSupervisorScreen({
 
   return (
     <div className="space-y-8 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      {/* Top Navigation & Status Buttons */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        
-        {/* Back and Title */}
+
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -133,17 +128,15 @@ export default function EditSupervisorScreen({
           </div>
         </div>
 
-        {/* Buttons: Edit Status / Suspend */}
         <div className="flex items-center gap-3">
-          
+
           <button
             type="button"
             onClick={() => onToggleStatus(supervisor.id)}
-            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${
-              isSuspended
-                ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 border border-transparent'
-                : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400 border border-transparent'
-            }`}
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${isSuspended
+              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 border border-transparent'
+              : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400 border border-transparent'
+              }`}
           >
             {isSuspended ? (
               <>
@@ -167,7 +160,6 @@ export default function EditSupervisorScreen({
 
       </div>
 
-      {/* Main Info Header Card */}
       <EditProfileCard
         formData={formData}
         mockJoinDate={mockJoinDate}
@@ -175,16 +167,15 @@ export default function EditSupervisorScreen({
         t={t}
       />
 
-      {/* Activity Statistics Card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-5">
-        
+
         <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
           <Activity size={18} className="text-brand-500" />
           <span>{isRtl ? 'إحصائيات النشاط' : 'Activity Statistics'}</span>
         </h3>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-          
+
           <div className="text-center p-4 bg-slate-50/30 dark:bg-slate-950/20 rounded-2xl border border-slate-100/50 dark:border-slate-850/60">
             <p className="text-xs text-slate-400 dark:text-slate-500 font-bold mb-1.5">
               {isRtl ? 'آخر تسجيل دخول' : 'Last Login'}
@@ -225,21 +216,17 @@ export default function EditSupervisorScreen({
 
       </div>
 
-      {/* Main Grid: Form Details + Security/Permissions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        
-        {/* Column 1: Details Form & Google link */}
+
         <div className="space-y-8 w-full">
-          
-          {/* Identity Form Details Card */}
+
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
             <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
               {isRtl ? 'تعديل البيانات الأساسية' : 'Edit Basic Details'}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              
-              {/* Full Name English */}
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   {t('adminDashboard.managers.addSupervisorScreen.fullNameEn', 'Full Name')}
@@ -255,7 +242,6 @@ export default function EditSupervisorScreen({
                 />
               </div>
 
-              {/* Full Name Arabic */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   {isRtl ? 'الإسم بالعربية' : 'Name in Arabic'}
@@ -273,14 +259,13 @@ export default function EditSupervisorScreen({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              
-              {/* Phone Input with prefix code */}
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
                 </label>
                 <div className="flex gap-3" dir="ltr">
-                  
+
                   <div className="relative shrink-0">
                     <button
                       type="button"
@@ -293,7 +278,7 @@ export default function EditSupervisorScreen({
 
                     {isDropdownOpen && (
                       <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn">
-                        {countryCodes.map((country) => (
+                        {countries.map((country) => (
                           <button
                             key={country.code}
                             type="button"
@@ -321,7 +306,6 @@ export default function EditSupervisorScreen({
                 </div>
               </div>
 
-              {/* Email Address */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
@@ -339,7 +323,6 @@ export default function EditSupervisorScreen({
 
             </div>
 
-            {/* Job Role select */}
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                 {isRtl ? 'الدور الوظيفي' : 'Job Role'}
@@ -359,7 +342,6 @@ export default function EditSupervisorScreen({
 
           </div>
 
-          {/* Google Link Card */}
           <EditGoogleLinkCard
             isRtl={isRtl}
             t={t}
@@ -368,9 +350,8 @@ export default function EditSupervisorScreen({
 
         </div>
 
-        {/* Column 2: Security & Granted Permissions */}
         <div className="space-y-8 w-full">
-          
+
           <EditSecurityPasswordCard
             isRtl={isRtl}
             t={t}
@@ -380,6 +361,7 @@ export default function EditSupervisorScreen({
           <EditGrantedPermissionsCard
             selectedRole={formData.role}
             rolesPermissions={rolesPermissions}
+            realPermissionsList={realPermissionsList}
             isRtl={isRtl}
             t={t}
           />
@@ -388,7 +370,6 @@ export default function EditSupervisorScreen({
 
       </div>
 
-      {/* Save & Cancel Footer Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="button"

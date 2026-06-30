@@ -39,10 +39,12 @@ export default function ManagersList({
     if (!debouncedQuery.trim()) return supervisors
     const query = debouncedQuery.toLowerCase()
     return supervisors.filter(
-      (s) =>
-        s.name.toLowerCase().includes(query) ||
-        s.email.toLowerCase().includes(query) ||
-        s.role.toLowerCase().includes(query)
+      (s) => {
+        const sName = typeof s.name === 'object' ? (s.name.ar || s.name.en || '') : (s.name || '');
+        return sName.toLowerCase().includes(query) ||
+        (s.email && s.email.toLowerCase().includes(query)) ||
+        (s.role && s.role.toLowerCase().includes(query))
+      }
     )
   }, [supervisors, debouncedQuery])
 
@@ -186,7 +188,8 @@ export default function ManagersList({
                 </tr>
               ) : (
                 currentItems.map((supervisor) => {
-                  const initial = supervisor.name.trim().charAt(0)
+                  const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
+                  const initial = sName.trim().charAt(0) || 'م'
                   return (
                     <tr
                       key={supervisor.id}
@@ -199,7 +202,7 @@ export default function ManagersList({
                             {initial}
                           </div>
                           <span className="font-semibold text-slate-800 dark:text-slate-200">
-                            {supervisor.name}
+                            {sName}
                           </span>
                         </div>
                       </td>

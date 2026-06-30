@@ -1,26 +1,19 @@
 import { useState, useRef } from 'react'
 import { Camera, Image as ImageIcon } from 'lucide-react'
 
-const countryCodes = [
-  { code: '+20', flag: '🇪🇬', name: 'Egypt' },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
-  { code: '+974', flag: '🇶🇦', name: 'Qatar' }
-]
+
 
 export default function IdentityInfoCard({
   formData,
   onChange,
   onPhotoChange,
-  t
+  t,
+  countries = []
 }) {
   const fileInputRef = useRef(null)
   const [photoPreview, setPhotoPreview] = useState(formData.photoUrl || null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [selectedCountry, setSelectedCountry] = useState(
-    countryCodes.find(c => formData.phonePrefix?.startsWith(c.code)) || countryCodes[0]
-  )
+  const selectedCountry = countries.find(c => formData.phonePrefix?.startsWith(c.phoneCode)) || countries[0] || {}
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click()
@@ -36,14 +29,13 @@ export default function IdentityInfoCard({
   }
 
   const selectCountryCode = (country) => {
-    setSelectedCountry(country)
     setIsDropdownOpen(false)
-    onChange('phonePrefix', country.code)
+    onChange('phonePrefix', country.phoneCode)
   }
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      
+
       {/* Title */}
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.identityTitle', '1- معلومات الهوية')}</span>
@@ -58,7 +50,7 @@ export default function IdentityInfoCard({
           accept="image/*"
           className="hidden"
         />
-        
+
         <div
           onClick={handlePhotoClick}
           className="relative group cursor-pointer flex flex-col items-center justify-center w-36 h-36 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-[#f9fbfb] dark:bg-slate-950/40 hover:border-brand-500 hover:bg-brand-50/10 transition-all overflow-hidden"
@@ -90,7 +82,7 @@ export default function IdentityInfoCard({
 
       {/* Inputs Form Row: Full Name Ar & Full Name En */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
+
         {/* Full Name English */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -146,7 +138,7 @@ export default function IdentityInfoCard({
           {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
         </label>
         <div className="flex gap-3" dir="ltr">
-          
+
           {/* Prefix Picker Code */}
           <div className="relative shrink-0">
             <button
@@ -154,22 +146,24 @@ export default function IdentityInfoCard({
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
-              <span>{selectedCountry.flag}</span>
-              <span>({selectedCountry.code})</span>
+              <span>{selectedCountry?.flag}</span>
+              <span>({selectedCountry?.phoneCode})</span>
             </button>
 
             {isDropdownOpen && (
               <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn">
-                {countryCodes.map((country) => (
+                {countries.map((country) => (
                   <button
-                    key={country.code}
+                    key={country.id}
                     type="button"
                     onClick={() => selectCountryCode(country)}
-                    className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm transition-colors text-left"
+                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold"
                   >
-                    <span>{country.flag}</span>
-                    <span className="font-semibold">{country.code}</span>
-                    <span className="text-xs text-slate-400">{country.name}</span>
+                    <span>{country.name}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.phoneCode}</span>
+                      <span className="text-lg">{country.flag}</span>
+                    </span>
                   </button>
                 ))}
               </div>

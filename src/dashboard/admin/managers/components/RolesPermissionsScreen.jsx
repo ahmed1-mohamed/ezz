@@ -14,6 +14,7 @@ export default function RolesPermissionsScreen({
   roles,
   selectedRole,
   rolesPermissions,
+  realPermissionsList = [],
   isRtl,
   t,
   onSelectRole,
@@ -28,24 +29,31 @@ export default function RolesPermissionsScreen({
   const [isAddRoleModalOpen, setIsAddRoleModalOpen] = useState(false)
   const [newRoleName, setNewRoleName] = useState('')
 
-  // Selected role's active permissions with fallback to all-false for safety
+  // Selected role's active permissions dynamically mapped
   const activePermissions = useMemo(() => {
     const rolePerms = rolesPermissions[selectedRole] || {}
-    return {
-      userManagement: rolePerms.userManagement || { viewUsers: false, createUsers: false, editUsers: false, deleteUsers: false },
-      groupManagement: rolePerms.groupManagement || { viewGroups: false, createGroups: false, editGroups: false, deleteGroups: false },
-      courseManagement: rolePerms.courseManagement || { viewCourses: false, createCourses: false, editCourses: false, deleteCourses: false },
-      reportsManagement: rolePerms.reportsManagement || { viewReports: false, createReports: false, editReports: false, deleteReports: false },
-      fundsManagement: rolePerms.fundsManagement || { viewFinancials: false, createFinancials: false, editFinancials: false, deleteFinancials: false },
-      systemSettings: rolePerms.systemSettings || { viewSettings: false, editSettings: false, manageIntegrations: false, configureSystem: false },
-      scheduleSettings: rolePerms.scheduleSettings || { viewSchedule: false, editSchedule: false, manageSchedules: false, configureSchedule: false },
-    }
-  }, [rolesPermissions, selectedRole])
+    
+    const dynamicPerms = {}
+    realPermissionsList.forEach(module => {
+      dynamicPerms[module.id] = rolePerms[module.id] || {}
+      module.actions.forEach(action => {
+        if (dynamicPerms[module.id][action.key] === undefined) {
+          // If the backend has an older structure or doesn't have this key, default to false
+          dynamicPerms[module.id][action.key] = false
+        }
+      })
+    })
+    return dynamicPerms
+  }, [rolesPermissions, selectedRole, realPermissionsList])
 
   // Calculate dynamic stats for the "معاينة نطاق الأذونات" (Preview Scope) box
   const previewStats = useMemo(() => {
     let granted = 0
-    const totalOptions = 28 // 7 sections * 4 options each
+    let totalOptions = 0
+    
+    realPermissionsList.forEach(m => {
+       totalOptions += m.actions.length
+    })
     
     // Count all active 'true' entries
     Object.keys(activePermissions).forEach(sectionKey => {
@@ -57,10 +65,10 @@ export default function RolesPermissionsScreen({
     })
 
     const denied = totalOptions - granted
-    const accessLevel = Math.round((granted / totalOptions) * 100)
+    const accessLevel = totalOptions > 0 ? Math.round((granted / totalOptions) * 100) : 0
 
     return { granted, denied, accessLevel }
-  }, [activePermissions])
+  }, [activePermissions, realPermissionsList])
 
   const handleAddNewRoleSubmit = (e) => {
     e.preventDefault()
@@ -85,79 +93,17 @@ export default function RolesPermissionsScreen({
     }
   }
 
-  // Configuration for render categories matching mockup screenshots
-  const categories = [
-    {
-      key: 'userManagement',
-      title: t('adminDashboard.managers.permissionsScreen.sections.userManagement', 'إدارة المستخدمين'),
-      options: [
-        { key: 'viewUsers', label: t('adminDashboard.managers.permissionsScreen.options.viewUsers', 'عرض المستخدمين') },
-        { key: 'createUsers', label: t('adminDashboard.managers.permissionsScreen.options.createUsers', 'إنشاء مستخدمين') },
-        { key: 'editUsers', label: t('adminDashboard.managers.permissionsScreen.options.editUsers', 'تعديل المستخدمين') },
-        { key: 'deleteUsers', label: t('adminDashboard.managers.permissionsScreen.options.deleteUsers', 'حذف المستخدمين') },
-      ]
-    },
-    {
-      key: 'groupManagement',
-      title: t('adminDashboard.managers.permissionsScreen.sections.groupManagement', 'إدارة المجموعات'),
-      options: [
-        { key: 'viewGroups', label: t('adminDashboard.managers.permissionsScreen.options.viewGroups', 'عرض مجموعه') },
-        { key: 'createGroups', label: t('adminDashboard.managers.permissionsScreen.options.createGroups', 'إنشاء مجموعة') },
-        { key: 'editGroups', label: t('adminDashboard.managers.permissionsScreen.options.editGroups', 'تعديل مجموعة') },
-        { key: 'deleteGroups', label: t('adminDashboard.managers.permissionsScreen.options.deleteGroups', 'حذف مجموعة') },
-      ]
-    },
-    {
-      key: 'courseManagement',
-      title: t('adminDashboard.managers.permissionsScreen.sections.courseManagement', 'إدارة الكورسات'),
-      options: [
-        { key: 'viewCourses', label: t('adminDashboard.managers.permissionsScreen.options.viewCourses', 'عرض الكورس') },
-        { key: 'createCourses', label: t('adminDashboard.managers.permissionsScreen.options.createCourses', 'إنشاء كورس') },
-        { key: 'editCourses', label: t('adminDashboard.managers.permissionsScreen.options.editCourses', 'تعديل الكورس') },
-        { key: 'deleteCourses', label: t('adminDashboard.managers.permissionsScreen.options.deleteCourses', 'حذف الكورس') },
-      ]
-    },
-    {
-      key: 'reportsManagement',
-      title: t('adminDashboard.managers.permissionsScreen.sections.reportsManagement', 'إدارة التقارير والتحليلات'),
-      options: [
-        { key: 'viewReports', label: t('adminDashboard.managers.permissionsScreen.options.viewReports', 'عرض التقارير') },
-        { key: 'createReports', label: t('adminDashboard.managers.permissionsScreen.options.createReports', 'إنشاء تقارير') },
-        { key: 'editReports', label: t('adminDashboard.managers.permissionsScreen.options.editReports', 'تعديل التقارير') },
-        { key: 'deleteReports', label: t('adminDashboard.managers.permissionsScreen.options.deleteReports', 'حذف التقارير') },
-      ]
-    },
-    {
-      key: 'fundsManagement',
-      title: t('adminDashboard.managers.permissionsScreen.sections.fundsManagement', 'إدارة الأموال'),
-      options: [
-        { key: 'viewFinancials', label: t('adminDashboard.managers.permissionsScreen.options.viewFinancials', 'عرض التقارير الأموال') },
-        { key: 'createFinancials', label: t('adminDashboard.managers.permissionsScreen.options.createFinancials', 'إنشاء تقارير الأموال') },
-        { key: 'editFinancials', label: t('adminDashboard.managers.permissionsScreen.options.editFinancials', 'تعديل التقارير للأموال') },
-        { key: 'deleteFinancials', label: t('adminDashboard.managers.permissionsScreen.options.deleteFinancials', 'حذف التقارير الموال') },
-      ]
-    },
-    {
-      key: 'systemSettings',
-      title: t('adminDashboard.managers.permissionsScreen.sections.systemSettings', 'إعدادات النظام'),
-      options: [
-        { key: 'viewSettings', label: t('adminDashboard.managers.permissionsScreen.options.viewSettings', 'عرض الإعدادات') },
-        { key: 'editSettings', label: t('adminDashboard.managers.permissionsScreen.options.editSettings', 'تعديل الإعدادات') },
-        { key: 'manageIntegrations', label: t('adminDashboard.managers.permissionsScreen.options.manageIntegrations', 'إدارة التكاملات') },
-        { key: 'configureSystem', label: t('adminDashboard.managers.permissionsScreen.options.configureSystem', 'تكوين النظام') },
-      ]
-    },
-    {
-      key: 'scheduleSettings',
-      title: t('adminDashboard.managers.permissionsScreen.sections.scheduleSettings', 'إعدادات الجدول الدراسي'),
-      options: [
-        { key: 'viewSchedule', label: t('adminDashboard.managers.permissionsScreen.options.viewSchedule', 'عرض الجدول الدراسي') },
-        { key: 'editSchedule', label: t('adminDashboard.managers.permissionsScreen.options.editSchedule', 'تعديل الجدول الدراسي') },
-        { key: 'manageSchedules', label: t('adminDashboard.managers.permissionsScreen.options.manageSchedules', 'إدارة الجداول الدراسية') },
-        { key: 'configureSchedule', label: t('adminDashboard.managers.permissionsScreen.options.configureSchedule', 'تكوين الجدول الدراسي') },
-      ]
-    }
-  ]
+  // Dynamic categories from API
+  const categories = useMemo(() => {
+    return realPermissionsList.map(module => ({
+      key: module.id,
+      title: module.name,
+      options: module.actions.map(action => ({
+        key: action.key,
+        label: action.label
+      }))
+    }))
+  }, [realPermissionsList])
 
   return (
     <div className="space-y-8">

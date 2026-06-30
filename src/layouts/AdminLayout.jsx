@@ -22,6 +22,7 @@ import {
   Percent,
   BarChart2,
   Activity,
+  MessageSquare,
   Bell,
   Search,
   Menu,
@@ -51,6 +52,7 @@ const navItems = [
   { path: '/dashboard/admin/discount-codes', icon: Percent, transKey: 'discountCodes' },
   { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },
   { path: '/dashboard/admin/logs', icon: Activity, transKey: 'activities' },
+  { path: '/dashboard/admin/messages', icon: MessageSquare, transKey: 'messages' },
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
 

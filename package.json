@@ -18,10 +18,10 @@
     "lucide-react": "^1.14.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-hot-toast": "^2.6.0",
     "react-i18next": "^13.0.1",
     "react-redux": "^9.3.0",
     "react-router-dom": "^6.16.0",
-    "react-window": "^2.2.7",
     "tailwindcss-rtl": "^0.9.0"
   },
   "devDependencies": {

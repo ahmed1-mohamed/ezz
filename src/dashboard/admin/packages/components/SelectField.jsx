@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 
-export default function SelectField({ label, value, onChange, options, placeholder }) {
+export default function SelectField({ id, label, value, onChange, options, placeholder }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="relative">
+    <div id={id} className="relative" tabIndex={-1}>
       {label && (
         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5 text-end">
           {label}

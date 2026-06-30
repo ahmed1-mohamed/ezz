@@ -19,6 +19,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
   const [form, setForm] = useState(EMPTY_PACKAGE)
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
+  const [imageFile, setImageFile] = useState(null)
   const [prevEditingPackage, setPrevEditingPackage] = useState(editingPackage)
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
@@ -32,15 +33,19 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
         features: editingPackage.features?.length ? [...editingPackage.features] : [''],
         features_en: editingPackage.features_en?.length ? [...editingPackage.features_en] : [''],
       })
+      setImagePreview(null)
+      setImageFile(null)
     } else {
       setForm(EMPTY_PACKAGE)
       setImagePreview(null)
+      setImageFile(null)
     }
   }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
+    setImageFile(file)
     const reader = new FileReader()
     reader.onload = (ev) => setImagePreview(ev.target.result)
     reader.readAsDataURL(file)
@@ -79,6 +84,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
       sessions_per_month: Number(form.sessions_per_month),
       features: form.features.filter(Boolean),
       features_en: form.features_en.filter(Boolean),
+      imageFile
     }
     await onSave(cleaned)
     setSaving(false)
@@ -102,7 +108,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="relative z-10 w-full max-w-2xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800/60 overflow-hidden"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100/60 dark:border-slate-800/60 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
               <h2 className="font-bold text-slate-800 dark:text-white text-base">
                 {editingPackage ? p('editPackage') : p('createPackage')}
@@ -116,9 +121,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
               </button>
             </div>
 
-            {/* Body */}
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-              {/* Image Upload Component */}
               <PackageImageUpload
                 imagePreview={imagePreview}
                 onImageChange={handleImageChange}
@@ -126,11 +129,12 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 hint={p('imageHint')}
               />
 
-              {/* Name Fields */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5">{p('packageNameEn')}</label>
+                  <label htmlFor="name_en" className="block text-xs font-medium text-slate-500 mb-1.5">{p('packageNameEn')}</label>
                   <input
+                    id="name_en"
+                    name="name_en"
                     value={form.name_en}
                     onChange={(e) => setField('name_en', e.target.value)}
                     placeholder={p('packageNameEnPlaceholder')}
@@ -138,8 +142,10 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5 text-end">{p('packageNameAr')}</label>
+                  <label htmlFor="name" className="block text-xs font-medium text-slate-500 mb-1.5 text-end">{p('packageNameAr')}</label>
                   <input
+                    id="name"
+                    name="name"
                     value={form.name}
                     onChange={(e) => setField('name', e.target.value)}
                     placeholder={p('packageNameArPlaceholder')}
@@ -149,11 +155,12 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 </div>
               </div>
 
-              {/* Price + Currency Fields */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
+                  <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
                   <input
+                    id="price"
+                    name="price"
                     type="number"
                     value={form.price}
                     onChange={(e) => setField('price', e.target.value)}
@@ -171,9 +178,9 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 />
               </div>
 
-              {/* Sessions + Language Fields */}
               <div className="grid grid-cols-2 gap-3">
                 <SelectField
+                  id="sessions_language"
                   label={p('language')}
                   value={form.sessions_language}
                   onChange={(v) => setField('sessions_language', v)}
@@ -181,6 +188,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   placeholder={p('language')}
                 />
                 <SelectField
+                  id="sessions_per_month"
                   label={p('sessionsCount')}
                   value={form.sessions_per_month ? String(form.sessions_per_month) : ''}
                   onChange={(v) => setField('sessions_per_month', v)}
@@ -189,7 +197,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 />
               </div>
 
-              {/* Color Picker */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
                   {p('color')}
@@ -212,7 +219,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 </div>
               </div>
 
-              {/* Description AR */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
                   {p('descriptionAr')}
@@ -226,7 +232,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 />
               </div>
 
-              {/* Description EN */}
               <div>
                 <label className="block text-sm font-medium text-slate-500 mb-1.5">
                   {p('descriptionEn')}
@@ -240,18 +245,18 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 />
               </div>
 
-              {/* Features List Component */}
-              <PackageFeaturesField
-                features={form.features}
-                featuresEn={form.features_en}
-                onAddFeature={addFeature}
-                onRemoveFeature={removeFeature}
-                onFeatureChange={setFeature}
-                onFeatureEnChange={setFeatureEn}
-              />
+              <div id="features" tabIndex={-1} className="outline-none">
+                <PackageFeaturesField
+                  features={form.features}
+                  featuresEn={form.features_en}
+                  onAddFeature={addFeature}
+                  onRemoveFeature={removeFeature}
+                  onFeatureChange={setFeature}
+                  onFeatureEnChange={setFeatureEn}
+                />
+              </div>
             </form>
 
-            {/* Footer */}
             <div className="px-6 py-4 border-t border-slate-100/60 dark:border-slate-800/60 flex gap-3 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
               <button
                 type="button"

@@ -1852,6 +1852,27 @@
       "thisWeek": "This Week",
       "usersThisMonth": "Users this Month"
     },
+    "messages": {
+      "title": "Registration Requests",
+      "totalRequests": "Total Requests",
+      "newRequests": "New Requests",
+      "replied": "Replied",
+      "underReview": "Under Review",
+      "new": "New",
+      "messageSubject": "Message Subject",
+      "showSenderDetails": "View Sender Details",
+      "hideSenderDetails": "Hide Sender Details",
+      "processing": "Processing",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number",
+      "yourMessage": "Your Message",
+      "searchPlaceholder": "Search...",
+      "loading": "Loading messages...",
+      "errorLoading": "Error loading messages",
+      "noMessages": "No registration requests found"
+    },
     "nav": {
       "home": "Overview",
       "managers": "Managers",
@@ -1872,6 +1893,7 @@
       "discountCodes": "Discount Codes",
       "reports": "Reports",
       "activities": "Activity Logs",
+      "messages": "Registration Requests",
       "settings": "Settings"
     },
     "searchPlaceholder": "Search the platform...",
