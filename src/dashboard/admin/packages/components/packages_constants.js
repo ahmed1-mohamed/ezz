@@ -10,7 +10,7 @@ export const EMPTY_PACKAGE = {
   name: '', name_en: '',
   description: '', description_en: '',
   price: '', currency: 'ريال سعودي',
-  sessions_per_month: '', sessions_language: 'عربي',
+  sessions_per_month: '', sessions_language: '',
   color: '#0f7a6c',
   features: [''],
   features_en: [''],

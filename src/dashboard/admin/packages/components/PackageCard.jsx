@@ -2,8 +2,8 @@ import { motion } from 'framer-motion'
 import { Pencil, Trash2, Package, Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-export default function PackageCard({ pkg, onEdit, onDelete }) {
-  const { t } = useTranslation()
+export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguages = [] }) {
+  const { t, i18n } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
 
   const accentColor = pkg.color || '#6b7280'
@@ -12,6 +12,12 @@ export default function PackageCard({ pkg, onEdit, onDelete }) {
     : accentColor === '#0f7a6c'
       ? 'bg-teal-50/60 dark:bg-teal-950/20'
       : 'bg-slate-50/80 dark:bg-slate-900/50'
+
+  const isRtl = i18n.language.startsWith('ar')
+  const langObj = explanationLanguages.find(l => l.id === pkg.sessions_language)
+  const languageLabel = langObj 
+    ? (isRtl ? (langObj.name?.ar || langObj.name?.en) : (langObj.name?.en || langObj.name?.ar))
+    : pkg.sessions_language
 
   return (
     <motion.div
@@ -46,7 +52,7 @@ export default function PackageCard({ pkg, onEdit, onDelete }) {
             {pkg.currency || 'ريال سعودي'} {p('perMonth')}
           </p>
           <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
-            {pkg.sessions_per_month} {p('sessions')} · {pkg.sessions_language}
+            {pkg.sessions_per_month} {p('sessions')} · {languageLabel}
           </p>
         </div>
 

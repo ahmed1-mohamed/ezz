@@ -1,18 +1,19 @@
 import api from './axiosConfig';
 
-const mapLanguageToCode = (lang) => {
-  if (lang === 'عربي') return 'ar';
-  if (lang === 'إنجليزي') return 'en';
-  if (lang === 'عربي / إنجليزي') return 'both';
-  return lang || 'ar';
-};
-
-const mapCodeToLanguage = (code) => {
-  if (code === 'ar') return 'عربي';
-  if (code === 'en') return 'إنجليزي';
-  if (code === 'both') return 'عربي / إنجليزي';
-  return code || 'عربي';
-};
+const mapPackageData = (item) => ({
+  id: item.id,
+  name: typeof item.name === 'object' ? (item.name.ar || item.name.en) : item.name,
+  name_en: typeof item.name === 'object' ? (item.name.en || item.name.ar) : item.name,
+  description: '',
+  price: item.price,
+  currency: 'SAR',
+  sessions_per_month: item.sessionsCount,
+  sessions_language: typeof item.language === 'object' ? item.language?.id || item.language?._id : item.language,
+  color: item.icon === 'star' ? '#d97706' : '#0f7a6c',
+  features: Array.isArray(item.features) ? item.features : (item.features?.ar || []),
+  features_en: Array.isArray(item.features) ? item.features : (item.features?.en || []),
+  is_active: true
+});
 
 export const adminPackagesApi = {
   fetchPackagesAndFaqs: async () => {
@@ -20,20 +21,7 @@ export const adminPackagesApi = {
 
     let fetchedPackages = [];
     if (response.data?.data?.packages?.data) {
-      fetchedPackages = response.data.data.packages.data.map((item) => ({
-        id: item.id,
-        name: typeof item.name === 'object' ? (item.name.ar || item.name.en) : item.name,
-        name_en: typeof item.name === 'object' ? (item.name.en || item.name.ar) : item.name,
-        description: '',
-        price: item.price,
-        currency: 'SAR',
-        sessions_per_month: item.sessionsCount,
-        sessions_language: mapCodeToLanguage(item.language),
-        color: item.icon === 'star' ? '#d97706' : '#0f7a6c',
-        features: Array.isArray(item.features) ? item.features : (item.features?.ar || []),
-        features_en: Array.isArray(item.features) ? item.features : (item.features?.en || []),
-        is_active: true
-      }));
+      fetchedPackages = response.data.data.packages.data.map(mapPackageData);
     }
 
     let fetchedFaqs = [];
@@ -55,6 +43,16 @@ export const adminPackagesApi = {
     return { success: true, data: res.packages };
   },
 
+  fetchExplanationLanguages: async () => {
+    try {
+      const response = await api.get('/api/v1/explanation-languages/private');
+      return { success: true, data: response.data?.data || [] };
+    } catch (error) {
+      console.error(error);
+      return { success: false, data: [] };
+    }
+  },
+
   createPackage: async (packageData) => {
     try {
       const payload = {
@@ -65,7 +63,7 @@ export const adminPackagesApi = {
         icon: 'star',
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
-        language: mapLanguageToCode(packageData.sessions_language),
+        language: packageData.sessions_language,
         features: {
           ar: packageData.features || [],
           en: packageData.features_en || []
@@ -73,7 +71,8 @@ export const adminPackagesApi = {
       };
       
       const response = await api.post('/api/v1/packages/private', payload);
-      return { success: true, data: response.data?.data || response.data };
+      const item = response.data?.data || response.data;
+      return { success: true, data: mapPackageData(item) };
     } catch (error) {
       console.error(error);
       return { success: false };
@@ -90,7 +89,7 @@ export const adminPackagesApi = {
         icon: 'star',
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
-        language: mapLanguageToCode(packageData.sessions_language),
+        language: packageData.sessions_language,
         features: {
           ar: packageData.features || [],
           en: packageData.features_en || []
@@ -98,7 +97,8 @@ export const adminPackagesApi = {
       };
 
       const response = await api.patch(`/api/v1/packages/private/${id}`, payload);
-      return { success: true, data: response.data?.data || response.data };
+      const item = response.data?.data || response.data;
+      return { success: true, data: mapPackageData(item) };
     } catch (error) {
       console.error(error);
       return { success: false };

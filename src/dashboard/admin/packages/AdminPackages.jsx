@@ -16,6 +16,7 @@ export default function AdminPackages() {
 
     const [packages, setPackages] = useState([])
     const [faqs, setFaqs] = useState([])
+    const [explanationLanguages, setExplanationLanguages] = useState([])
     const [loading, setLoading] = useState(true)
 
     const [pkgPanelOpen, setPkgPanelOpen] = useState(false)
@@ -26,9 +27,13 @@ export default function AdminPackages() {
 
     const loadAll = useCallback(async () => {
         setLoading(true)
-        const res = await adminPackagesApi.fetchPackagesAndFaqs()
+        const [res, langRes] = await Promise.all([
+            adminPackagesApi.fetchPackagesAndFaqs(),
+            adminPackagesApi.fetchExplanationLanguages()
+        ])
         if (res?.packages) setPackages(res.packages)
         if (res?.faqs) setFaqs(res.faqs)
+        if (langRes?.success) setExplanationLanguages(langRes.data)
         setLoading(false)
     }, [])
 
@@ -40,7 +45,7 @@ export default function AdminPackages() {
     const handleSavePkg = async (data) => {
         if (editingPkg) {
             const res = await adminPackagesApi.updatePackage(editingPkg.id, data)
-            if (res?.success) setPackages((prev) => prev.map((p) => (p.id === editingPkg.id ? { ...p, ...data } : p)))
+            if (res?.success) setPackages((prev) => prev.map((p) => (p.id === editingPkg.id ? res.data : p)))
         } else {
             const res = await adminPackagesApi.createPackage(data)
             if (res?.success) setPackages((prev) => [...prev, res.data])
@@ -110,6 +115,7 @@ export default function AdminPackages() {
                                 <PackageCard
                                     key={pkg.id}
                                     pkg={pkg}
+                                    explanationLanguages={explanationLanguages}
                                     onEdit={(p) => { setEditingPkg(p); setPkgPanelOpen(true) }}
                                     onDelete={(id) => setDeleteConfirm({ open: true, type: 'package', id })}
                                 />
@@ -160,6 +166,7 @@ export default function AdminPackages() {
                 onClose={() => setPkgPanelOpen(false)}
                 onSave={handleSavePkg}
                 editingPackage={editingPkg}
+                explanationLanguages={explanationLanguages}
             />
 
             <DeleteConfirmModal

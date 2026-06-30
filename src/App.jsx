@@ -39,7 +39,7 @@ function App() {
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
       <AppRoutes />
       <Toaster 
-        position="top-center" 
+        position={isArabic ? 'top-left' : 'top-right'}
         reverseOrder={false}
         toastOptions={{
           className: 'dark:bg-slate-800 dark:text-white',

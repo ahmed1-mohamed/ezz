@@ -11,7 +11,7 @@ import {
   LANGUAGE_OPTIONS, SESSION_OPTIONS, COLOR_PRESETS,
 } from './packages_constants'
 
-export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage }) {
+export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage, explanationLanguages = [] }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const p = (key) => t(`adminDashboard.packages.${key}`)
@@ -27,16 +27,24 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
     setPrevEditingPackage(editingPackage)
     setPrevIsOpen(isOpen)
     if (editingPackage) {
+      const validLanguage = explanationLanguages.some(l => l.id === editingPackage.sessions_language)
+        ? editingPackage.sessions_language
+        : (explanationLanguages?.[0]?.id || '');
+        
       setForm({
         ...EMPTY_PACKAGE,
         ...editingPackage,
+        sessions_language: validLanguage,
         features: editingPackage.features?.length ? [...editingPackage.features] : [''],
         features_en: editingPackage.features_en?.length ? [...editingPackage.features_en] : [''],
       })
       setImagePreview(null)
       setImageFile(null)
     } else {
-      setForm(EMPTY_PACKAGE)
+      setForm({
+        ...EMPTY_PACKAGE,
+        sessions_language: explanationLanguages?.[0]?.id || ''
+      })
       setImagePreview(null)
       setImageFile(null)
     }
@@ -184,7 +192,10 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   label={p('language')}
                   value={form.sessions_language}
                   onChange={(v) => setField('sessions_language', v)}
-                  options={LANGUAGE_OPTIONS}
+                  options={explanationLanguages.map(lang => ({
+                    value: lang.id,
+                    label: isRtl ? (lang.name?.ar || lang.name?.en) : (lang.name?.en || lang.name?.ar)
+                  }))}
                   placeholder={p('language')}
                 />
                 <SelectField
