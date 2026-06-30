@@ -30,7 +30,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm overflow-hidden">
-      {/* Header */}
       <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <h3 className="font-bold text-slate-800 dark:text-white text-sm">
           {editingFaq ? p('faqEditTitle') : p('faqFormTitle')}
@@ -47,7 +46,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
-        {/* Question AR */}
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
             {p('questionAr')}
@@ -61,7 +59,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
           />
         </div>
 
-        {/* Answer AR */}
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
             {p('answerAr')}
@@ -75,7 +72,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
           />
         </div>
 
-        {/* Question EN */}
         <div>
           <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
             {p('questionEn')}
@@ -88,7 +84,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
           />
         </div>
 
-        {/* Answer EN */}
         <div>
           <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
             {p('answerEn')}
