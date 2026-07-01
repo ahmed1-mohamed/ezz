@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 
 export default function EditSecurityPasswordCard({
   isRtl,
@@ -18,15 +19,15 @@ export default function EditSecurityPasswordCard({
   const handleUpdate = (e) => {
     e.preventDefault()
     if (!passwordState.currentPassword || !passwordState.newPassword || !passwordState.confirmPassword) {
-      alert(isRtl ? 'الرجاء ملء جميع الحقول!' : 'Please fill all fields!')
+      showErrorToast(isRtl ? 'الرجاء ملء جميع الحقول!' : 'Please fill all fields!', isRtl)
       return
     }
     if (passwordState.newPassword !== passwordState.confirmPassword) {
-      alert(isRtl ? 'كلمات المرور الجديدة غير متطابقة!' : 'New passwords do not match!')
+      showErrorToast(isRtl ? 'كلمات المرور الجديدة غير متطابقة!' : 'New passwords do not match!', isRtl)
       return
     }
     if (passwordState.newPassword.length < 6) {
-      alert(isRtl ? 'يجب أن تكون كلمة المرور الجديدة 6 أحرف على الأقل!' : 'New password must be at least 6 characters!')
+      showErrorToast(isRtl ? 'يجب أن تكون كلمة المرور الجديدة 6 أحرف على الأقل!' : 'New password must be at least 6 characters!', isRtl)
       return
     }
 

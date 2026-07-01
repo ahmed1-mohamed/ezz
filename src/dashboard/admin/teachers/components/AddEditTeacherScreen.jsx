@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
 import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
@@ -51,7 +52,7 @@ export default function AddEditTeacherScreen({
     e.preventDefault()
 
     if (!formData.name || !formData.email) {
-      alert(isRtl ? 'الرجاء إدخال الاسم والبريد الإلكتروني!' : 'Please enter Name and Email!')
+      showErrorToast(isRtl ? 'الرجاء إدخال الاسم والبريد الإلكتروني!' : 'Please enter Name and Email!', isRtl)
       return
     }
 

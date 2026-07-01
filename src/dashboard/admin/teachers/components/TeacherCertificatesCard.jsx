@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Trash2, FileText, Eye, Edit3, Plus, Upload } from 'lucide-react'
+import { showSuccessToast } from '@/shared/utils/sweetAlert'
 
 export default function TeacherCertificatesCard({
   formData,
@@ -156,7 +157,7 @@ export default function TeacherCertificatesCard({
                   </button>
                   <button
                     type="button"
-                    onClick={() => alert(t('adminDashboard.teachers.viewAvailableLive', 'عرض المستند متاح في النسخة الحية.'))}
+                    onClick={() => showSuccessToast(t('adminDashboard.teachers.viewAvailableLive', 'عرض المستند متاح في النسخة الحية.'), isRtl)}
                     className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-xl transition-all cursor-pointer"
                     title={t('common.view', 'عرض')}
                   >

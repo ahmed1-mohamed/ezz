@@ -1,5 +1,12 @@
 import { useState, useRef } from 'react'
-import { ArrowRight, ArrowLeft, Upload, Trash2, Calendar } from 'lucide-react'
+import {
+  ArrowRight,
+  ArrowLeft,
+  Upload,
+  Calendar,
+  Trash2,
+} from 'lucide-react'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 import SelectField from './fields/SelectField'
 import DaySelect from './fields/DaySelect'
 
@@ -70,15 +77,15 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
   const handleSave = (e) => {
     e.preventDefault()
     if (!formData.name.trim()) {
-      alert('الرجاء إدخال اسم المجموعة!')
+      showErrorToast(isRtl ? 'الرجاء إدخال اسم المجموعة!' : 'Please enter Group name!', isRtl)
       return
     }
     if (!formData.subject) {
-      alert('الرجاء اختيار المادة!')
+      showErrorToast(isRtl ? 'الرجاء اختيار المادة!' : 'Please select subject!', isRtl)
       return
     }
     if (!formData.teacher) {
-      alert('الرجاء اختيار المعلم!')
+      showErrorToast(isRtl ? 'الرجاء اختيار المعلم!' : 'Please select teacher!', isRtl)
       return
     }
     onSave({ ...formData, schedule })

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 import IdentityInfoCard from './IdentityInfoCard'
 import SecurityPasswordCard from './SecurityPasswordCard'
 import PermissionsCard from './PermissionsCard'
@@ -25,7 +26,7 @@ export default function AddSupervisorScreen({
     phonePrefix: initialData?.phonePrefix || '+20',
     password: '',
     confirmPassword: '',
-    role: initialData?.role || 'مشرف عام',
+    permissionId: initialData?.permissionId || null,
     status: initialData?.status || 'Active',
     photoUrl: initialData?.photoUrl || null
   })
@@ -33,13 +34,7 @@ export default function AddSupervisorScreen({
   const [photoFile, setPhotoFile] = useState(null)
 
   const handleFieldChange = (key, value) => {
-    setFormData((prev) => {
-      const updated = { ...prev, [key]: value }
-      if (key === 'role') {
-        updated.role = value
-      }
-      return updated
-    })
+    setFormData((prev) => ({ ...prev, [key]: value }))
   }
 
   const handlePhotoChange = (file, previewUrl) => {
@@ -48,7 +43,7 @@ export default function AddSupervisorScreen({
   }
 
   const handleSkipPermissions = () => {
-    handleFieldChange('role', 'مشرف عام')
+    handleFieldChange('permissionId', null)
   }
 
   const handleSubmit = (e) => {
@@ -56,11 +51,11 @@ export default function AddSupervisorScreen({
 
     if (!initialData || formData.password) {
       if (formData.password !== formData.confirmPassword) {
-        alert(isRtl ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!')
+        showErrorToast(isRtl ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!', isRtl)
         return
       }
       if (formData.password.length < 6) {
-        alert(isRtl ? 'يجب أن تكون كلمة المرور 6 أحرف على الأقل!' : 'Password must be at least 6 characters!')
+        showErrorToast(isRtl ? 'يجب أن تكون كلمة المرور 6 أحرف على الأقل!' : 'Password must be at least 6 characters!', isRtl)
         return
       }
     }
@@ -69,14 +64,17 @@ export default function AddSupervisorScreen({
     const countryId = selectedCountry ? selectedCountry.id : null;
 
     onSave({
-      'name[ar]': formData.name,
-      'name[en]': formData.nameEn,
-      email: formData.email,
-      phone: formData.phone,
-      country: countryId,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
-      image: photoFile
+      adminData: {
+        'name[ar]': formData.name,
+        'name[en]': formData.nameEn,
+        email: formData.email,
+        phone: formData.phone,
+        country: countryId,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        image: photoFile
+      },
+      permissionId: formData.permissionId
     })
   }
 
@@ -136,20 +134,18 @@ export default function AddSupervisorScreen({
 
         <div className="space-y-8 w-full">
           <PermissionsCard
-            roles={roles}
-            selectedRole={formData.role}
-            onSelectRole={(roleName) => handleFieldChange('role', roleName)}
+            permissionsList={roles} 
+            selectedPermissionId={formData.permissionId}
+            onSelectPermission={(id) => handleFieldChange('permissionId', id)}
             onSkipPermissions={handleSkipPermissions}
             isRtl={isRtl}
             t={t}
           />
 
           <PermissionsPreviewCard
-            selectedRole={formData.role}
-            rolesPermissions={rolesPermissions}
-            realPermissionsList={realPermissionsList}
+            selectedPermissionId={formData.permissionId}
+            permissionsList={roles}
             isRtl={isRtl}
-            t={t}
           />
         </div>
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { X, Search, BookOpen } from 'lucide-react'
+import { X, Search } from 'lucide-react'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 
 const availableGroups = [
   {
@@ -78,7 +79,7 @@ export default function ChangeGroupModal({
 
   const handleConfirmChange = () => {
     if (!selectedGroup) {
-      alert(isRtl ? 'الرجاء اختيار مجموعة جديدة!' : 'Please select a new group!')
+      showErrorToast(isRtl ? 'الرجاء اختيار مجموعة جديدة!' : 'Please select a new group!', isRtl)
       return
     }
     onChangeGroup(student.id, selectedGroup.name)
@@ -92,7 +93,7 @@ export default function ChangeGroupModal({
 
       {/* Modal Container */}
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
@@ -157,9 +158,8 @@ export default function ChangeGroupModal({
                 placeholder={isRtl ? 'بحث...' : 'Search...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${
-                  isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'
-                } outline-none transition-all text-sm`}
+                className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'
+                  } outline-none transition-all text-sm`}
               />
             </div>
           </form>
@@ -177,11 +177,10 @@ export default function ChangeGroupModal({
                   <div
                     key={group.id}
                     onClick={() => setSelectedGroup(group)}
-                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
-                      isSelected
+                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
                         ? 'border-[#005953] bg-[#f3f7f6] dark:bg-slate-950/40'
                         : 'border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-950/20 bg-white dark:bg-slate-900'
-                    }`}
+                      }`}
                   >
                     {/* Schedule and teacher info */}
                     <div className="text-start space-y-1">
@@ -213,9 +212,8 @@ export default function ChangeGroupModal({
                         {isRtl ? group.name : group.nameEn}
                       </span>
 
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        isSelected ? 'bg-[#005953] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-450'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-[#005953] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-450'
+                        }`}>
                         <BookOpen size={14} />
                       </div>
                     </div>

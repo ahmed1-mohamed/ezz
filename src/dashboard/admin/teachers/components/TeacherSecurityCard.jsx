@@ -1,12 +1,11 @@
 import { useState } from 'react'
-
+import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
 export default function TeacherSecurityCard({
   formData,
   onChange,
   isRtl,
   isEdit = true
 }) {
-  // Local states are only used in Edit mode
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -14,14 +13,14 @@ export default function TeacherSecurityCard({
   const handlePasswordUpdate = (e) => {
     e.preventDefault()
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert(isRtl ? 'الرجاء ملء جميع حقول كلمة المرور' : 'Please fill all password fields')
+      showErrorToast(isRtl ? 'الرجاء ملء جميع حقول كلمة المرور' : 'Please fill all password fields', isRtl)
       return
     }
     if (newPassword !== confirmPassword) {
-      alert(isRtl ? 'كلمة المرور الجديدة غير متطابقة!' : 'New passwords do not match!')
+      showErrorToast(isRtl ? 'كلمة المرور الجديدة غير متطابقة!' : 'New passwords do not match!', isRtl)
       return
     }
-    alert(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!')
+    showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
     setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
@@ -99,7 +98,7 @@ export default function TeacherSecurityCard({
   // Add Mode Layout (from mockup)
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
-      
+
       {/* Header */}
       <div>
         <h3 className="text-base font-bold text-slate-855 dark:text-white">
@@ -109,7 +108,7 @@ export default function TeacherSecurityCard({
 
       {/* Row: Password & Confirm Password */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
+
         {/* Password */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">

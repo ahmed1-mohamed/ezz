@@ -1,84 +1,57 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
-import Spinner from '@/shared/components/Spinner'
-import { adminAssignmentsApi } from '@/shared/services/api/adminAssignmentsApi'
-import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
-import AssignmentsStats from './components/AssignmentsStats'
-import AssignmentsFilters from './components/AssignmentsFilters'
-import AssignmentsTable from './components/AssignmentsTable'
+import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import Spinner from '@/shared/components/Spinner';
+import { useAssignments } from './hooks/useAssignments';
+import AssignmentsStats from './components/AssignmentsStats';
+import AssignmentsFilters from './components/AssignmentsFilters';
+import AssignmentsTable from './components/AssignmentsTable';
 
-export default function AdminAssignments() {
-  const { i18n } = useTranslation()
-  const isRtl = i18n.language.startsWith('ar')
+function AdminAssignments() {
+    const { i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
 
-  const [stats, setStats] = useState(null)
-  const [assignments, setAssignments] = useState([])
-  const [loading, setLoading] = useState(true)
+    const {
+        stats,
+        loading,
+        filteredAssignments,
+        activeTab,
+        setActiveTab,
+        searchValue,
+        setSearchValue,
+        handleDelete,
+    } = useAssignments();
 
-  const [activeTab, setActiveTab] = useState('assignments')
-  const [searchValue, setSearchValue] = useState('')
-
-  const loadData = useCallback(async () => {
-    setLoading(true)
-    const [statsRes, assignmentsRes] = await Promise.all([
-      adminAssignmentsApi.fetchStats(),
-      adminAssignmentsApi.fetchAssignments(searchValue),
-    ])
-    if (statsRes?.data) setStats(statsRes.data)
-    if (assignmentsRes?.data) setAssignments(assignmentsRes.data)
-    setLoading(false)
-  }, [searchValue])
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadData()
-  }, [loadData])
-
-  const handleDelete = async (assignment) => {
-    const isConfirmed = await showDeleteConfirm(isRtl, assignment.title);
-    if (!isConfirmed) return;
-
-    const res = await adminAssignmentsApi.deleteAssignment(assignment.id)
-    if (res?.success) {
-      setAssignments((prev) => prev.filter((item) => item.id !== assignment.id))
-      // reload stats
-      const statsRes = await adminAssignmentsApi.fetchStats()
-      if (statsRes?.data) setStats(statsRes.data)
+    if (loading && !stats) {
+        return (
+            <div className="flex items-center justify-center h-60">
+                <Spinner />
+            </div>
+        );
     }
-  }
 
-  if (loading && !stats) {
     return (
-      <div className="flex items-center justify-center h-60">
-        <Spinner />
-      </div>
-    )
-  }
+        <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
+            {stats && <AssignmentsStats stats={stats} />}
 
-  return (
-    <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Top stats cards */}
-      {stats && <AssignmentsStats stats={stats} />}
+            <AssignmentsFilters
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+            />
 
-      {/* Filters bar */}
-      <AssignmentsFilters
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-      />
-
-      {/* Table list */}
-      {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <Spinner />
+            {loading ? (
+                <div className="flex items-center justify-center h-40">
+                    <Spinner />
+                </div>
+            ) : (
+                <AssignmentsTable
+                    assignments={filteredAssignments}
+                    onDelete={handleDelete}
+                />
+            )}
         </div>
-      ) : (
-        <AssignmentsTable
-          assignments={assignments}
-          onDelete={handleDelete}
-        />
-      )}
-    </div>
-  )
+    );
 }
+
+export default memo(AdminAssignments);

@@ -1,76 +1,60 @@
-import { Crown, Shield, Users, BookOpen } from 'lucide-react'
+import { Shield } from 'lucide-react'
 
 export default function PermissionsCard({
-  roles,
-  selectedRole,
-  onSelectRole,
+  permissionsList = [],
+  selectedPermissionId,
+  onSelectPermission,
   onSkipPermissions,
   isRtl,
   t
 }) {
-  
-  const renderRoleIcon = (iconName, size = 18) => {
-    switch (iconName) {
-      case 'crown':
-        return <Crown size={size} />
-      case 'shield':
-        return <Shield size={size} />
-      case 'users':
-        return <Users size={size} />
-      case 'book':
-        return <BookOpen size={size} />
-      default:
-        return <Shield size={size} />
-    }
-  };
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      
-      {/* Title */}
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
-        <span>{t('adminDashboard.managers.addSupervisorScreen.permissionsTitle', 'الأذونات')}</span>
+        <span>{t('adminDashboard.managers.addSupervisorScreen.permissionsTitle', 'الأدوار (الأذونات)')}</span>
       </h3>
 
-      {/* Roles Select list aligned properly */}
       <div className="space-y-3">
-        {roles.map((role) => {
-          const isActive = selectedRole === role.name
+        {permissionsList.map((perm) => {
+          const isActive = selectedPermissionId === perm.id
           return (
             <button
-              key={role.id}
+              key={perm.id}
               type="button"
-              onClick={() => onSelectRole(role.name)}
+              onClick={() => onSelectPermission(perm.id)}
               className={`flex items-center justify-between p-4 rounded-2xl w-full text-start transition-all cursor-pointer border ${
                 isActive
-                  ? 'bg-brand-50/50 border-brand-500/25 text-brand-700 dark:bg-brand-950/20 dark:text-brand-300 dark:border-brand-500/10 font-bold'
+                  ? 'bg-[#e9f6f3]/50 border-[#0f7a6c]/30 text-[#0f7a6c] dark:bg-[#0f7a6c]/10 dark:text-[#14a693] dark:border-[#0f7a6c]/20 font-bold'
                   : 'bg-[#fcfdfd] border-slate-100 dark:bg-slate-950/20 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950/40 hover:border-slate-200 dark:hover:border-slate-700'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={isActive ? 'text-brand-600 dark:text-brand-400' : 'text-slate-450'}>
-                  {renderRoleIcon(role.icon, 20)}
+                <div className={isActive ? 'text-[#0f7a6c] dark:text-[#14a693]' : 'text-slate-400'}>
+                  <Shield size={20} />
                 </div>
                 <span className="text-sm font-semibold">
-                  {isRtl ? role.name : (role.nameEn || role.name)}
+                  {perm.name}
                 </span>
               </div>
             </button>
           )
         })}
+        {permissionsList.length === 0 && (
+          <p className="text-sm text-slate-400 text-center py-2">
+            {isRtl ? 'لا توجد أدوار متوفرة' : 'No roles available'}
+          </p>
+        )}
       </div>
 
-      {/* Skip Button Option */}
       <div className="pt-2 text-center">
         <button
           type="button"
           onClick={onSkipPermissions}
-          className="text-sm font-bold text-blue-600 hover:text-blue-700 dark:text-blue-450 dark:hover:text-blue-400 transition-colors inline-block active:scale-95"
+          className="text-sm font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors inline-block active:scale-95 cursor-pointer"
         >
           {t('adminDashboard.managers.addSupervisorScreen.skipForNow', 'التخطي و تحديد لاحقا')}
         </button>
       </div>
-
     </div>
   )
 }

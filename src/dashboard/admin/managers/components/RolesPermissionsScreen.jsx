@@ -1,114 +1,119 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ArrowRight,
   ArrowLeft,
   Plus,
   X,
-  Crown,
   Shield,
-  Users,
-  BookOpen
+  CheckCircle2
 } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { managersApi } from '@/shared/services/api/managersApi'
+import { SYSTEM_PERMISSIONS } from '../constants'
+import Spinner from '@/shared/components/Spinner'
+import { showSuccessToast } from '@/shared/utils/sweetAlert'
 
 export default function RolesPermissionsScreen({
-  roles,
-  selectedRole,
-  rolesPermissions,
-  realPermissionsList = [],
+  permissionsList = [],
   isRtl,
   t,
-  onSelectRole,
-  onTogglePermission,
-  onSavePermissions,
   onCancel,
-  onAddNewRole
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
+  const queryClient = useQueryClient()
 
-  // Modal state for adding a role
+  const [selectedPermissionId, setSelectedPermissionId] = useState(permissionsList[0]?.id || null)
+
+  const [activeKeys, setActiveKeys] = useState([])
+
   const [isAddRoleModalOpen, setIsAddRoleModalOpen] = useState(false)
-  const [newRoleName, setNewRoleName] = useState('')
+  const [newRoleNameAr, setNewRoleNameAr] = useState('')
+  const [newRoleNameEn, setNewRoleNameEn] = useState('')
 
-  // Selected role's active permissions dynamically mapped
-  const activePermissions = useMemo(() => {
-    const rolePerms = rolesPermissions[selectedRole] || {}
-    
-    const dynamicPerms = {}
-    realPermissionsList.forEach(module => {
-      dynamicPerms[module.id] = rolePerms[module.id] || {}
-      module.actions.forEach(action => {
-        if (dynamicPerms[module.id][action.key] === undefined) {
-          // If the backend has an older structure or doesn't have this key, default to false
-          dynamicPerms[module.id][action.key] = false
-        }
-      })
+  const createMutation = useMutation({
+    mutationFn: managersApi.createPermission,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['permissions'])
+      setIsAddRoleModalOpen(false)
+      setNewRoleNameAr('')
+      setNewRoleNameEn('')
+      if (data?.data?._id || data?.data?.id) {
+        setSelectedPermissionId(data.data._id || data.data.id)
+      }
+    }
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }) => managersApi.updatePermission(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['permissions'])
+      showSuccessToast(isRtl ? 'تم الحفظ بنجاح!' : 'Saved successfully!', isRtl)
+    }
+  })
+
+  useEffect(() => {
+    if (selectedPermissionId) {
+      const selected = permissionsList.find(p => p.id === selectedPermissionId)
+      if (selected && selected.actions) {
+        setActiveKeys(selected.actions.map(a => a.key))
+      } else {
+        setActiveKeys([])
+      }
+    }
+  }, [selectedPermissionId, permissionsList])
+
+  const selectedPermission = useMemo(() =>
+    permissionsList.find(p => p.id === selectedPermissionId)
+    , [selectedPermissionId, permissionsList])
+
+  const handleToggleKey = (key) => {
+    setActiveKeys(prev =>
+      prev.includes(key)
+        ? prev.filter(k => k !== key)
+        : [...prev, key]
+    )
+  }
+
+  const handleSave = () => {
+    if (!selectedPermissionId) return
+    updateMutation.mutate({
+      id: selectedPermissionId,
+      payload: {
+        keys: activeKeys
+      }
     })
-    return dynamicPerms
-  }, [rolesPermissions, selectedRole, realPermissionsList])
+  }
 
-  // Calculate dynamic stats for the "معاينة نطاق الأذونات" (Preview Scope) box
+  const handleCreateRole = (e) => {
+    e.preventDefault()
+    if (!newRoleNameAr.trim() || !newRoleNameEn.trim()) return
+
+    createMutation.mutate({
+      name: {
+        ar: newRoleNameAr.trim(),
+        en: newRoleNameEn.trim()
+      },
+      keys: []
+    })
+  }
+
   const previewStats = useMemo(() => {
-    let granted = 0
+    let granted = activeKeys.length
     let totalOptions = 0
-    
-    realPermissionsList.forEach(m => {
-       totalOptions += m.actions.length
-    })
-    
-    // Count all active 'true' entries
-    Object.keys(activePermissions).forEach(sectionKey => {
-      Object.keys(activePermissions[sectionKey]).forEach(optionKey => {
-        if (activePermissions[sectionKey][optionKey]) {
-          granted++
-        }
-      })
+
+    SYSTEM_PERMISSIONS.forEach(m => {
+      totalOptions += m.actions.length
     })
 
     const denied = totalOptions - granted
     const accessLevel = totalOptions > 0 ? Math.round((granted / totalOptions) * 100) : 0
 
     return { granted, denied, accessLevel }
-  }, [activePermissions, realPermissionsList])
-
-  const handleAddNewRoleSubmit = (e) => {
-    e.preventDefault()
-    if (!newRoleName.trim()) return
-    onAddNewRole(newRoleName.trim())
-    setIsAddRoleModalOpen(false)
-    setNewRoleName('')
-  }
-
-  const renderRoleIcon = (iconName, size = 18) => {
-    switch (iconName) {
-      case 'crown':
-        return <Crown size={size} />
-      case 'shield':
-        return <Shield size={size} />
-      case 'users':
-        return <Users size={size} />
-      case 'book':
-        return <BookOpen size={size} />
-      default:
-        return <Shield size={size} />
-    }
-  }
-
-  // Dynamic categories from API
-  const categories = useMemo(() => {
-    return realPermissionsList.map(module => ({
-      key: module.id,
-      title: module.name,
-      options: module.actions.map(action => ({
-        key: action.key,
-        label: action.label
-      }))
-    }))
-  }, [realPermissionsList])
+  }, [activeKeys])
 
   return (
     <div className="space-y-8">
-      
-      {/* Header Block */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -121,103 +126,98 @@ export default function RolesPermissionsScreen({
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <span>
-                {t('adminDashboard.managers.permissionsScreen.title', { roleName: selectedRole }, `أذونات ${selectedRole}`)}
+                {selectedPermission
+                  ? t('adminDashboard.managers.permissionsScreen.title', { roleName: selectedPermission.name }, `أذونات ${selectedPermission.name}`)
+                  : t('adminDashboard.managers.permissionsScreen.rolesTitle', 'الأدوار')}
               </span>
             </h1>
             <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
-              {t('adminDashboard.managers.permissionsScreen.subtitle', { roleName: selectedRole }, `تكوين ما يمكن لمستخدمي ${selectedRole} الوصول إليه وفعله.`)}
+              {t('adminDashboard.managers.permissionsScreen.subtitle', 'تكوين ما يمكن للمشرفين الوصول إليه وفعله.')}
             </p>
           </div>
         </div>
-        
+
         <button
           onClick={onCancel}
-          className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-sm font-semibold transition-all dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800"
+          className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-sm font-semibold transition-all dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 cursor-pointer"
         >
           {t('adminDashboard.managers.permissionsScreen.backToList', 'العودة لقائمة المشرفين')}
         </button>
       </div>
 
-      {/* Two-Column Grid Layout */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
-        
-        {/* Roles Sidebar (Takes 1/4 layout width on desktop) */}
+
         <div className="w-full lg:w-80 shrink-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
           <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4">
             {t('adminDashboard.managers.permissionsScreen.rolesTitle', 'الأدوار')}
           </h3>
-          
-          {/* List of default/loaded roles */}
+
           <div className="space-y-1.5 mb-6">
-            {roles.map((role) => {
-              const isActive = selectedRole === role.name
+            {permissionsList.map((perm) => {
+              const isActive = selectedPermissionId === perm.id
               return (
                 <button
-                  key={role.id}
-                  onClick={() => onSelectRole(role.name)}
-                  className={`flex items-center justify-between p-3.5 rounded-2xl w-full text-start transition-all ${
-                    isActive
-                      ? 'bg-[#e9f6f3] text-brand-700 dark:bg-brand-950/30 dark:text-brand-300 font-semibold border-e-4 border-brand-500 shadow-sm'
+                  key={perm.id}
+                  onClick={() => setSelectedPermissionId(perm.id)}
+                  className={`flex items-center justify-between p-3.5 rounded-2xl w-full text-start transition-all cursor-pointer ${isActive
+                      ? 'bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] font-semibold border-s-4 border-[#0f7a6c] shadow-sm'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950/40'
-                  }`}
+                    }`}
+                  dir={isRtl ? 'rtl' : 'ltr'}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={isActive ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400'}>
-                      {renderRoleIcon(role.icon, 18)}
+                    <div className={isActive ? 'text-[#0f7a6c] dark:text-[#14a693]' : 'text-slate-400'}>
+                      <Shield size={18} />
                     </div>
-                    <span className="text-sm font-medium">{isRtl ? role.name : (role.nameEn || role.name)}</span>
+                    <span className="text-sm font-medium">{perm.name}</span>
                   </div>
                 </button>
               )
             })}
+
+            {permissionsList.length === 0 && (
+              <p className="text-sm text-slate-400 text-center py-4">
+                {isRtl ? 'لا توجد أدوار' : 'No roles found'}
+              </p>
+            )}
           </div>
 
-          {/* Add Role Button */}
           <button
             onClick={() => setIsAddRoleModalOpen(true)}
-            className="w-full py-3 rounded-2xl bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/20 text-brand-700 dark:text-brand-400 text-sm font-bold transition-all text-center flex items-center justify-center gap-2 border border-transparent hover:border-brand-500/20 active:scale-[0.98]"
+            className="w-full py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 text-[#0f7a6c] dark:text-[#14a693] text-sm font-bold transition-all text-center flex items-center justify-center gap-2 border border-transparent hover:border-[#0f7a6c]/20 cursor-pointer"
           >
             <Plus size={16} />
             <span>{t('adminDashboard.managers.permissionsScreen.addNewRole', '+ إضافة دور جديد')}</span>
           </button>
         </div>
 
-        {/* Permissions Lists & Preview scopes (Takes 3/4 layout width on desktop) */}
         <div className="flex-1 w-full space-y-6">
-          
-          {/* Render category sections cards */}
-          {categories.map((cat) => (
-            <div key={cat.key} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
+
+          {SYSTEM_PERMISSIONS.map((module) => (
+            <div key={module.module} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
               <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
-                {cat.title}
+                {isRtl ? module.titleAr : module.titleEn}
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-                {cat.options.map((opt) => {
-                  const isActive = !!activePermissions[cat.key]?.[opt.key]
+                {module.actions.map((action) => {
+                  const isActive = activeKeys.includes(action.key)
                   return (
                     <div
-                      key={opt.key}
-                      onClick={() => onTogglePermission(cat.key, opt.key)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer select-none transition-all duration-200 ${
-                        isActive
-                          ? 'bg-[#eef4f2] border-brand-500/20 text-brand-700 dark:bg-brand-950/20 dark:text-brand-300 dark:border-brand-500/10 font-bold shadow-sm'
+                      key={action.key}
+                      onClick={() => handleToggleKey(action.key)}
+                      className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer select-none transition-all duration-200 ${isActive
+                          ? 'bg-[#eef4f2] border-[#0f7a6c]/20 text-[#0f7a6c] dark:bg-[#0f7a6c]/10 dark:text-[#14a693] dark:border-[#0f7a6c]/10 font-bold shadow-sm'
                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-200 dark:hover:border-slate-700'
-                      }`}
+                        }`}
                     >
-                      <span className="text-sm font-semibold">{opt.label}</span>
-                      
-                      {/* Checkbox selector */}
-                      <div className={`h-5 w-5 rounded flex items-center justify-center transition-all ${
-                        isActive
-                          ? 'bg-brand-500 text-white'
+                      <span className="text-sm font-semibold">{isRtl ? action.labelAr : action.labelEn}</span>
+
+                      <div className={`h-5 w-5 rounded flex items-center justify-center transition-all ${isActive
+                          ? 'bg-[#0f7a6c] text-white'
                           : 'border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900'
-                      }`}>
-                        {isActive && (
-                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                          </svg>
-                        )}
+                        }`}>
+                        {isActive && <CheckCircle2 size={14} className="text-white" />}
                       </div>
                     </div>
                   )
@@ -226,16 +226,12 @@ export default function RolesPermissionsScreen({
             </div>
           ))}
 
-          {/* Card: Permissions Scope Preview (معاينة نطاق الأذونات) */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
             <h3 className="text-base font-bold text-slate-800 dark:text-white mb-5">
               {isRtl ? 'معاينة نطاق الأذونات' : 'Preview of Permissions Scope'}
             </h3>
-            
-            {/* Dynamic metrics */}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              
-              {/* Access Level Card (Blue) */}
               <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 text-center">
                 <p className="text-3xl font-extrabold text-blue-700 dark:text-blue-400 mb-1">{previewStats.accessLevel}%</p>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -243,7 +239,6 @@ export default function RolesPermissionsScreen({
                 </p>
               </div>
 
-              {/* Denied Permissions Card (Pink) */}
               <div className="p-5 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/30 text-center">
                 <p className="text-3xl font-extrabold text-rose-600 dark:text-rose-400 mb-1">{previewStats.denied}</p>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -251,17 +246,14 @@ export default function RolesPermissionsScreen({
                 </p>
               </div>
 
-              {/* Granted Permissions Card (Green) */}
-              <div className="p-5 rounded-2xl bg-emerald-50/50 dark:bg-[#e9f6f3]/30 border border-emerald-100/50 dark:border-[#d3eee7]/30 text-center">
-                <p className="text-3xl font-extrabold text-brand-600 dark:text-brand-400 mb-1">{previewStats.granted}</p>
+              <div className="p-5 rounded-2xl bg-[#e9f6f3]/50 border border-[#d3eee7]/50 dark:bg-[#0f7a6c]/10 dark:border-[#0f7a6c]/20 text-center">
+                <p className="text-3xl font-extrabold text-[#0f7a6c] dark:text-[#14a693] mb-1">{previewStats.granted}</p>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   {isRtl ? 'الأذونات الممنوحة' : 'Granted Permissions'}
                 </p>
               </div>
-
             </div>
 
-            {/* Warning Alert Banner */}
             <div className="p-4 rounded-2xl bg-[#fffbeb] dark:bg-amber-950/20 border border-[#fef3c7] dark:border-amber-900/30 flex items-start gap-3">
               <span className="text-amber-600 text-lg sm:text-xl font-bold shrink-0">⚠️</span>
               <div className="text-start">
@@ -275,80 +267,91 @@ export default function RolesPermissionsScreen({
                 </p>
               </div>
             </div>
-
           </div>
 
-          {/* Action buttons (Save changes / Cancel) */}
           <div className="flex gap-4 pt-4">
             <button
-              onClick={() => onSavePermissions(selectedRole)}
-              className="flex-1 py-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98]"
+              onClick={handleSave}
+              disabled={updateMutation.isPending || !selectedPermissionId}
+              className="flex-1 py-4 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white font-bold rounded-2xl transition-all shadow-md shadow-[#0f7a6c]/20 disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer"
             >
+              {updateMutation.isPending && <Spinner />}
               {isRtl ? 'حفظ التغييرات' : 'Save Changes'}
             </button>
             <button
               onClick={onCancel}
-              className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 active:scale-[0.98]"
+              className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 cursor-pointer"
             >
               {isRtl ? 'إلغاء' : 'Cancel'}
             </button>
           </div>
-
         </div>
 
       </div>
 
-      {/* MODAL: ADD NEW ROLE */}
       {isAddRoleModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-fadeIn">
           <div className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 animate-slideUp">
-            
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 p-6">
               <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                 {t('adminDashboard.managers.permissionsScreen.addNewRoleModalTitle', 'إضافة دور جديد')}
               </h3>
               <button
                 onClick={() => setIsAddRoleModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-slate-50 dark:bg-slate-800 rounded-full"
+                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-slate-50 dark:bg-slate-800 rounded-full cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleAddNewRoleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleCreateRole} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t('adminDashboard.managers.permissionsScreen.roleNameLabel', 'اسم الدور الجديد')}
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
+                  {isRtl ? 'الاسم (بالعربية)' : 'Name (Arabic)'}
                 </label>
                 <input
                   type="text"
                   required
-                  value={newRoleName}
-                  onChange={(e) => setNewRoleName(e.target.value)}
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
-                  placeholder={isRtl ? 'اسم الدور (مثال: مشرف معلمين)' : "Role Name (e.g. Teachers Supervisor)"}
+                  value={newRoleNameAr}
+                  onChange={(e) => setNewRoleNameAr(e.target.value)}
+                  className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
+                  placeholder="مثال: مشرف معلمين"
+                  dir="rtl"
                 />
               </div>
 
-              {/* Actions */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
+                  {isRtl ? 'الاسم (بالإنجليزية)' : 'Name (English)'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newRoleNameEn}
+                  onChange={(e) => setNewRoleNameEn(e.target.value)}
+                  className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
+                  placeholder="e.g. Teachers Supervisor"
+                  dir="ltr"
+                />
+              </div>
+
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsAddRoleModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-all font-semibold text-sm"
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-all font-semibold text-sm cursor-pointer"
                 >
                   {t('adminDashboard.managers.permissionsScreen.cancel', 'إلغاء')}
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-brand-500 text-white hover:bg-brand-600 transition-all font-semibold text-sm shadow-md shadow-brand-500/10"
+                  disabled={createMutation.isPending}
+                  className="px-6 py-2.5 rounded-xl bg-[#0f7a6c] text-white hover:bg-[#0d6b5e] transition-all font-semibold text-sm shadow-md shadow-[#0f7a6c]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
                 >
+                  {createMutation.isPending && <Spinner />}
                   {t('adminDashboard.managers.permissionsScreen.addRoleSubmit', 'إضافة دور')}
                 </button>
               </div>
-
             </form>
           </div>
         </div>

@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Trash2, Check, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export default function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
+const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-CA');
+};
+
+const isCouponActive = (coupon) =>
+    coupon.status === 'active' || new Date(coupon.expirationDate) >= new Date();
+
+const resolveStudentName = (name) =>
+    typeof name === 'object' ? name?.ar || name?.en || '' : name || '';
+
+function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
     const { t, i18n } = useTranslation();
-    const isRtl = i18n.language.startsWith('ar') || true;
-    const tWithFallback = (key, fallback) => {
-        const trans = t(`adminDashboard.coupons.${key}`);
-        return trans === `adminDashboard.coupons.${key}` ? fallback : trans;
-    };
+    const isRtl = i18n.language.startsWith('ar');
 
     const [copied, setCopied] = useState(false);
 
@@ -22,23 +29,20 @@ export default function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }
 
     if (!coupon) return null;
 
-    const isActive = coupon.status === 'active' || new Date(coupon.expirationDate) >= new Date();
-    // Use mocked progress for now since it's not in schema
-    const currentUses = 15;
-    const maxUses = 50;
-    const progressPercent = Math.min(100, (currentUses / maxUses) * 100);
-
-    const students = coupon.student ? (Array.isArray(coupon.student) ? coupon.student : [coupon.student]) : [];
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('en-CA');
-    };
+    const isActive = isCouponActive(coupon);
+    const students = coupon.student
+        ? Array.isArray(coupon.student)
+            ? coupon.student
+            : [coupon.student]
+        : [];
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    dir={isRtl ? 'rtl' : 'ltr'}
+                >
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -58,14 +62,20 @@ export default function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }
                                 <button
                                     onClick={() => onDelete(coupon.id, coupon.code)}
                                     className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 transition-colors flex items-center justify-center"
+                                    title={t('adminDashboard.coupons.delete')}
                                 >
                                     <Trash2 size={18} />
                                 </button>
                                 <button
                                     onClick={handleCopy}
                                     className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 transition-colors flex items-center justify-center"
+                                    title={t('adminDashboard.coupons.copy')}
                                 >
-                                    {copied ? <Check size={18} className="text-[#0f7a6c]" /> : <Copy size={18} />}
+                                    {copied ? (
+                                        <Check size={18} className="text-[#0f7a6c]" />
+                                    ) : (
+                                        <Copy size={18} />
+                                    )}
                                 </button>
                             </div>
 
@@ -74,62 +84,68 @@ export default function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }
                                     {coupon.code}
                                     <Tag size={20} className="ms-1" />
                                 </div>
-                                <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold
-                                    ${isActive
-                                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                                        : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
+                                <span
+                                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold ${
+                                        isActive
+                                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+                                            : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
                                     }`}
                                 >
-                                    <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
-                                    {isActive ? tWithFallback('active', 'نشط') : tWithFallback('expired', 'منتهي')}
+                                    <span
+                                        className={`w-2 h-2 rounded-full ${
+                                            isActive ? 'bg-emerald-500' : 'bg-red-500'
+                                        }`}
+                                    />
+                                    {isActive
+                                        ? t('adminDashboard.coupons.active')
+                                        : t('adminDashboard.coupons.expired')}
                                 </span>
                             </div>
                         </div>
 
                         <div className="flex-1 overflow-y-auto px-8 py-4 space-y-8">
-
-                            {/* Discount Card */}
                             <div className="bg-[#fcfaf5] dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-8 flex flex-col items-center justify-center">
-                                <span className="text-slate-500 dark:text-slate-400 font-bold mb-2">{tWithFallback('discountLabel', 'خصم')}</span>
-                                <span className="text-5xl font-black text-amber-500">{coupon.discountPercentage}%</span>
+                                <span className="text-slate-500 dark:text-slate-400 font-bold mb-2">
+                                    {t('adminDashboard.coupons.discountLabel')}
+                                </span>
+                                <span className="text-5xl font-black text-amber-500">
+                                    {coupon.discountPercentage}%
+                                </span>
                             </div>
 
-                            {/* Usage Progress */}
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
-                                    <span>{currentUses}/{maxUses}</span>
-                                    <span>{tWithFallback('usageLabel', 'الاستخدام')}</span>
-                                </div>
-                                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden" dir="ltr">
-                                    <div
-                                        className="h-full bg-[#0f7a6c] rounded-full transition-all duration-1000 ease-out"
-                                        style={{ width: `${progressPercent}%` }}
-                                    ></div>
-                                </div>
-                                <div className="text-center text-sm font-medium text-slate-400 mt-2">
-                                    {tWithFallback('expiresAt', 'ينتهي')} {formatDate(coupon.expirationDate)}
-                                </div>
+                            <div className="text-center text-sm font-medium text-slate-400">
+                                {t('adminDashboard.coupons.expiresAt')}{' '}
+                                {formatDate(coupon.expirationDate)}
                             </div>
 
-                            {/* Assigned Students */}
                             {students.length > 0 && (
                                 <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                                     <table className="w-full text-sm text-center">
                                         <thead className="bg-[#0f7a6c] text-white">
                                             <tr>
-                                                <th className="px-4 py-3 font-semibold w-12"></th>
-                                                <th className="px-4 py-3 font-semibold">{tWithFallback('emailLabel', 'البريد')}</th>
-                                                <th className="px-4 py-3 font-semibold text-start">{tWithFallback('studentNameLabel', 'اسم الطالب')}</th>
+                                                <th className="px-4 py-3 font-semibold">
+                                                    {t('adminDashboard.coupons.emailLabel')}
+                                                </th>
+                                                <th className="px-4 py-3 font-semibold text-start">
+                                                    {t('adminDashboard.coupons.studentNameLabel')}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                             {students.map((student, idx) => (
-                                                <tr key={student.student_id || student.id || idx} className="bg-slate-50 dark:bg-slate-800/30">
-                                                    <td className="px-4 py-3">
-                                                        <Trash2 size={16} className="text-slate-300" /> {/* Disabled in view mode */}
+                                                <tr
+                                                    key={student.student_id || student.id || idx}
+                                                    className="bg-slate-50 dark:bg-slate-800/30"
+                                                >
+                                                    <td
+                                                        className="px-4 py-3 text-slate-600 dark:text-slate-300 font-medium"
+                                                        dir="ltr"
+                                                    >
+                                                        {student.email}
                                                     </td>
-                                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 font-medium" dir="ltr">{student.email}</td>
-                                                    <td className="px-4 py-3 text-slate-800 dark:text-slate-200 font-bold text-start">{student.name}</td>
+                                                    <td className="px-4 py-3 text-slate-800 dark:text-slate-200 font-bold text-start">
+                                                        {resolveStudentName(student.name)}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -142,9 +158,9 @@ export default function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-10 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-colors"
+                                className="px-10 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                             >
-                                {tWithFallback('closeBtn', 'اغلاق')}
+                                {t('adminDashboard.coupons.closeBtn')}
                             </button>
                         </div>
                     </motion.div>
@@ -153,3 +169,5 @@ export default function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }
         </AnimatePresence>
     );
 }
+
+export default memo(CouponDetailsModal);

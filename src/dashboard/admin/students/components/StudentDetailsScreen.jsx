@@ -1,5 +1,20 @@
 import { useState, lazy, Suspense } from 'react'
-import { ArrowRight, ArrowLeft, BookOpen, Clock, Award, TrendingUp, CheckCircle, Ban, Pencil, Star, Trophy, Calendar, FileText } from 'lucide-react'
+import {
+  ArrowRight,
+  ArrowLeft,
+  Pencil,
+  Ban,
+  Calendar,
+  BookOpen,
+  Award,
+  Clock,
+  FileText,
+  CheckCircle,
+  TrendingUp,
+  Star,
+  Trophy
+} from 'lucide-react'
+import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
 import StudentProfileCard from './details/StudentProfileCard'
 import StudentSecurityCard from './details/StudentSecurityCard'
 import StudentParentCard from './details/StudentParentCard'
@@ -43,14 +58,14 @@ export default function StudentDetailsScreen({
   const handlePasswordUpdate = (e) => {
     e.preventDefault()
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert(isRtl ? 'الرجاء ملء جميع حقول كلمة المرور' : 'Please fill all password fields')
+      showErrorToast(isRtl ? 'الرجاء ملء جميع حقول كلمة المرور' : 'Please fill all password fields', isRtl)
       return
     }
     if (newPassword !== confirmPassword) {
-      alert(isRtl ? 'كلمة المرور الجديدة غير متطابقة!' : 'New passwords do not match!')
+      showErrorToast(isRtl ? 'كلمة المرور الجديدة غير متطابقة!' : 'New passwords do not match!', isRtl)
       return
     }
-    alert(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!')
+    showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
     setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
@@ -170,8 +185,8 @@ export default function StudentDetailsScreen({
             type="button"
             onClick={() => onToggleStatus(student.id)}
             className={`px-5 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${isSuspended
-                ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                : 'bg-rose-50 text-rose-700 hover:bg-rose-105'
+              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              : 'bg-rose-50 text-rose-700 hover:bg-rose-105'
               }`}
           >
             {isSuspended ? (
@@ -348,8 +363,8 @@ export default function StudentDetailsScreen({
                   {isRtl ? 'حالة الاشتراك' : 'Subscription Status'}
                 </span>
                 <span className={`text-sm font-extrabold px-3 py-1 rounded-xl ${student.subscriptionStatus === 'Active'
-                    ? 'bg-emerald-50 text-emerald-705 dark:bg-emerald-955/20 dark:text-emerald-400'
-                    : 'bg-rose-50 text-rose-705 dark:bg-rose-955/20 dark:text-rose-400'
+                  ? 'bg-emerald-50 text-emerald-705 dark:bg-emerald-955/20 dark:text-emerald-400'
+                  : 'bg-rose-50 text-rose-705 dark:bg-rose-955/20 dark:text-rose-400'
                   }`}>
                   {student.subscriptionStatus === 'Active'
                     ? (isRtl ? 'فعال' : 'Active')
@@ -397,7 +412,7 @@ export default function StudentDetailsScreen({
                 <>
                   <button
                     type="button"
-                    onClick={() => alert(isRtl ? 'تجديد الاشتراك التلقائي...' : 'Renew subscription...')}
+                    onClick={() => showSuccessToast(isRtl ? 'تجديد الاشتراك التلقائي...' : 'Renew subscription...', isRtl)}
                     className="px-5 py-2.5 bg-[#bfa340] hover:bg-[#a98e35] text-white text-xs font-bold rounded-xl transition-all hover:scale-105 active:scale-95 shadow-sm cursor-pointer shrink-0 animate-pulse"
                   >
                     تجديد الاشتراك
@@ -423,7 +438,7 @@ export default function StudentDetailsScreen({
                   </div>
                   <button
                     type="button"
-                    onClick={() => alert(isRtl ? 'تجديد الاشتراك التلقائي...' : 'Renew subscription...')}
+                    onClick={() => showSuccessToast(isRtl ? 'تجديد الاشتراك التلقائي...' : 'Renew subscription...', isRtl)}
                     className="px-5 py-2.5 bg-[#bfa340] hover:bg-[#a98e35] text-white text-xs font-bold rounded-xl transition-all hover:scale-105 active:scale-95 shadow-sm cursor-pointer shrink-0 animate-pulse"
                   >
                     Renew Subscription

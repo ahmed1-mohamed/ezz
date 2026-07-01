@@ -67,7 +67,7 @@ export const managersApi = {
       const formData = new FormData();
       Object.keys(supervisorData).forEach(key => {
         if (supervisorData[key] !== undefined && supervisorData[key] !== null && supervisorData[key] !== '') {
-           formData.append(key, supervisorData[key]);
+          formData.append(key, supervisorData[key]);
         }
       });
       const response = await api.patch(`/api/v1/admins/${id}`, formData, {
@@ -102,7 +102,6 @@ export const managersApi = {
     };
   },
 
-  // Permissions endpoints
   fetchPermissions: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/permissions/localized/all', { params });
@@ -123,9 +122,19 @@ export const managersApi = {
     }
   },
 
+  createPermission: async (permissionData) => {
+    try {
+      const response = await api.post(`/api/v1/permissions`, permissionData);
+      return response.data;
+    } catch (error) {
+      console.error('API createPermission failed:', error);
+      throw error;
+    }
+  },
+
   updatePermission: async (id, permissionData) => {
     try {
-      const response = await api.patch(`/api/v1/permissions/localized/${id}`, permissionData);
+      const response = await api.patch(`/api/v1/permissions/${id}`, permissionData);
       return response.data;
     } catch (error) {
       console.error('API updatePermission failed:', error);
@@ -133,17 +142,31 @@ export const managersApi = {
     }
   },
 
+  assignAdminPermission: async (adminId, permissionId) => {
+    try {
+      const response = await api.post(`/api/v1/permissions/admin/${adminId}`, { permissionId });
+      return response.data;
+    } catch (error) {
+      console.error('API assignAdminPermission failed:', error);
+      throw error;
+    }
+  },
+
+  updateAdminPermission: async (adminId, permissionId) => {
+    try {
+      const response = await api.patch(`/api/v1/permissions/admin/${adminId}`, { permissionId });
+      return response.data;
+    } catch (error) {
+      console.error('API updateAdminPermission failed:', error);
+      throw error;
+    }
+  },
+
   fetchRolesPermissions: async () => {
+    // Legacy mock function - you can remove this if no longer needed
     return {
       success: true,
-      data: {
-        'مشرف عام': {
-          userManagement: { viewUsers: true, createUsers: true, editUsers: true, deleteUsers: true },
-        },
-        'مدير': {
-          userManagement: { viewUsers: true, createUsers: true, editUsers: true, deleteUsers: false },
-        }
-      }
+      data: {}
     };
   }
 };

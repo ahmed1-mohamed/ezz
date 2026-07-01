@@ -1,4 +1,5 @@
-import { UserCheck, Phone, Mail } from 'lucide-react'
+import { UserCheck, Phone, Mail, Link } from 'lucide-react'
+import { showSuccessToast } from '@/shared/utils/sweetAlert'
 
 export default function StudentParentCard({
   isRtl,
@@ -26,7 +27,7 @@ export default function StudentParentCard({
 
           <button
             type="button"
-            onClick={() => alert(isRtl ? `عرض تفاصيل ولي الأمر: ${parentInfo.name}` : `View details for parent: ${parentInfo.name}`)}
+            onClick={() => showSuccessToast(isRtl ? `عرض تفاصيل ولي الأمر: ${parentInfo.name}` : `View details for parent: ${parentInfo.name}`, isRtl)}
             className="text-xs font-bold text-brand-600 hover:text-brand-700 transition-colors cursor-pointer"
           >
             {isRtl ? 'عرض الملف' : 'View Profile'}

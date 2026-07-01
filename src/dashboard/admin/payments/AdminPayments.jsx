@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminPaymentsApi } from '@/shared/services/api/adminPaymentsApi'
+import { showSuccessToast } from '@/shared/utils/sweetAlert'
 import PaymentsStats from './components/PaymentsStats'
 import PaymentsFilters from './components/PaymentsFilters'
 import PaymentsTable from './components/PaymentsTable'
@@ -66,7 +67,7 @@ export default function AdminPayments() {
 
   const handleExport = async () => {
     await adminPaymentsApi.exportCsv()
-    alert(isRtl ? 'تم تصدير ملف CSV بنجاح!' : 'CSV exported successfully!')
+    showSuccessToast(isRtl ? 'تم تصدير ملف CSV بنجاح!' : 'CSV exported successfully!', isRtl)
   }
 
   const handleReviewAll = () => {

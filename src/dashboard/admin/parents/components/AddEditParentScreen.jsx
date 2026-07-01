@@ -5,6 +5,7 @@ import ParentSecurity from './steps/ParentSecurity'
 import ParentStudentLinkage from './steps/ParentStudentLinkage'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { studentsApi } from '@/shared/services/api/studentsApi'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 
 
 export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCancel }) {
@@ -143,15 +144,15 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
   const handleSave = (e) => {
     e.preventDefault()
     if (!formData.name) {
-      alert(isRtl ? 'الرجاء إدخال الاسم!' : 'Please enter Name!')
+      showErrorToast(isRtl ? 'الرجاء إدخال الاسم!' : 'Please enter Name!', isRtl)
       return
     }
     if (!parent && !formData.profileImageFile) {
-      alert(isRtl ? 'الرجاء اختيار صورة!' : 'Please select an image!')
+      showErrorToast(isRtl ? 'الرجاء اختيار صورة!' : 'Please select an image!', isRtl)
       return
     }
     if (formData.password && formData.password !== formData.confirmPassword) {
-      alert(isRtl ? 'كلمة المرور وتأكيدها غير متطابقتين!' : 'Passwords do not match!')
+      showErrorToast(isRtl ? 'كلمة المرور وتأكيدها غير متطابقتين!' : 'Passwords do not match!', isRtl)
       return
     }
     onSave({

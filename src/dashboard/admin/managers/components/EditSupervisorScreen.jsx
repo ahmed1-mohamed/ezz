@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Activity
 } from 'lucide-react'
+import { showSuccessToast } from '@/shared/utils/sweetAlert'
 import EditProfileCard from './EditProfileCard'
 import EditSecurityPasswordCard from './EditSecurityPasswordCard'
 import EditGrantedPermissionsCard from './EditGrantedPermissionsCard'
@@ -52,7 +53,7 @@ export default function EditSupervisorScreen({
     email: supervisor.email || '',
     phone: initialPhone,
     phonePrefix: initialPrefix,
-    role: supervisor.role || 'مشرف معلمين',
+    permissionId: supervisor.permissionId || null,
     status: supervisor.status || 'Active',
     photoUrl: supervisor.photoUrl || null
   })
@@ -73,11 +74,11 @@ export default function EditSupervisorScreen({
   }
 
   const handleUpdatePassword = () => {
-    alert(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!')
+    showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
   }
 
   const handleLinkGoogle = () => {
-    alert(isRtl ? 'جاري توجيهك لربط حساب جوجل...' : 'Redirecting to link Google account...')
+    showSuccessToast(isRtl ? 'جاري توجيهك لربط حساب جوجل...' : 'Redirecting to link Google account...', isRtl)
   }
 
   const handleSubmit = (e) => {
@@ -87,11 +88,14 @@ export default function EditSupervisorScreen({
     const countryId = selectedCountry ? selectedCountry.id : null;
 
     onSave({
-      'name[ar]': formData.name,
-      'name[en]': formData.nameEn,
-      email: formData.email,
-      phone: formData.phone,
-      country: countryId
+      adminData: {
+        'name[ar]': formData.name,
+        'name[en]': formData.nameEn,
+        email: formData.email,
+        phone: formData.phone,
+        country: countryId
+      },
+      permissionId: formData.permissionId
     })
   }
 
@@ -328,13 +332,14 @@ export default function EditSupervisorScreen({
                 {isRtl ? 'الدور الوظيفي' : 'Job Role'}
               </label>
               <select
-                value={formData.role}
-                onChange={(e) => handleFieldChange('role', e.target.value)}
+                value={formData.permissionId || ''}
+                onChange={(e) => handleFieldChange('permissionId', e.target.value)}
                 className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer"
               >
-                {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
-                    {isRtl ? role.name : (role.nameEn || role.name)}
+                <option value="" disabled>{isRtl ? 'اختر الدور' : 'Select Role'}</option>
+                {roles?.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
                   </option>
                 ))}
               </select>
@@ -359,9 +364,8 @@ export default function EditSupervisorScreen({
           />
 
           <EditGrantedPermissionsCard
-            selectedRole={formData.role}
-            rolesPermissions={rolesPermissions}
-            realPermissionsList={realPermissionsList}
+            selectedPermissionId={formData.permissionId}
+            permissionsList={roles}
             isRtl={isRtl}
             t={t}
           />

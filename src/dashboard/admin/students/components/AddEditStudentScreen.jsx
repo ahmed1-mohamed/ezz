@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { showErrorToast } from '@/shared/utils/sweetAlert'
 import api from '@/shared/services/api/axiosConfig'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentStep1 from './steps/StudentStep1'
@@ -145,13 +146,13 @@ export default function AddEditStudentScreen({
   const handleNextStep = () => {
     if (step === 1) {
       if (!formData.name) {
-        alert(isRtl ? 'الرجاء إدخال الاسم!' : 'Please enter Name!')
+        showErrorToast(isRtl ? 'الرجاء إدخال الاسم!' : 'Please enter Name!', isRtl)
         return
       }
       setStep(2)
     } else if (step === 2) {
       if (formData.password && formData.password !== formData.confirmPassword) {
-        alert(isRtl ? 'كلمة المرور وتأكيد كلمة المرور غير متطابقتين!' : 'Passwords do not match!')
+        showErrorToast(isRtl ? 'كلمة المرور وتأكيد كلمة المرور غير متطابقتين!' : 'Passwords do not match!', isRtl)
         return
       }
       handleSave({ preventDefault: () => { } })

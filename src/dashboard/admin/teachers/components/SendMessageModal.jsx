@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Send, Mail, Phone, MessageSquare, Info } from 'lucide-react'
+import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
 
 export default function SendMessageModal({
   isOpen,
@@ -25,10 +26,10 @@ export default function SendMessageModal({
   const handleSend = (e) => {
     e.preventDefault()
     if (!message.trim()) {
-      alert(isRtl ? 'الرجاء كتابة رسالة أولاً' : 'Please enter a message first')
+      showErrorToast(isRtl ? 'الرجاء كتابة رسالة أولاً' : 'Please enter a message first', isRtl)
       return
     }
-    alert(isRtl ? 'تم إرسال الرسالة بنجاح!' : 'Message sent successfully!')
+    showSuccessToast(isRtl ? 'تم إرسال الرسالة بنجاح!' : 'Message sent successfully!', isRtl)
     setMessage('')
     onClose()
   }

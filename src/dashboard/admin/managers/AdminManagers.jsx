@@ -15,12 +15,10 @@ export default function AdminManagers() {
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
 
-  // View state: 'list' | 'permissions' | 'add-supervisor' | 'edit-supervisor'
   const [viewMode, setViewMode] = useState('list')
   const [selectedRole, setSelectedRole] = useState('مشرف عام')
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
 
-  // Fetch Admins
   const { data: supervisorsData, isLoading: isLoadingSupervisors } = useQuery({
     queryKey: ['admins', 'all'],
     queryFn: () => managersApi.fetchSupervisors(),
@@ -29,7 +27,6 @@ export default function AdminManagers() {
 
   const supervisors = supervisorsData?.data || []
 
-  // Fetch real permissions from backend
   const { data: realPermissionsData, isLoading: isLoadingPermissions } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => managersApi.fetchPermissions(),
@@ -37,7 +34,6 @@ export default function AdminManagers() {
   })
   const realPermissionsList = realPermissionsData?.data || []
 
-  // Fetch countries
   const { data: countriesData } = useQuery({
     queryKey: ['countries'],
     queryFn: () => landingApi.fetchCountries(),
@@ -45,7 +41,6 @@ export default function AdminManagers() {
   })
   const countries = countriesData?.data || []
 
-  // Mock roles and role permissions for UI (until Roles API is fully clarified)
   const { data: rolesRes, isLoading: isLoadingRoles } = useQuery({
     queryKey: ['admin-roles'],
     queryFn: () => managersApi.fetchRoles(),
@@ -60,7 +55,6 @@ export default function AdminManagers() {
   })
   const rolesPermissions = permissionsRes?.data || {}
 
-  // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: managersApi.deleteSupervisor,
     onSuccess: () => {
@@ -68,7 +62,6 @@ export default function AdminManagers() {
     }
   })
 
-  // Toggle Status Mutation
   const toggleStatusMutation = useMutation({
     mutationFn: ({ id, payload }) => managersApi.updateSupervisor(id, payload),
     onSuccess: () => {
@@ -76,7 +69,6 @@ export default function AdminManagers() {
     }
   })
 
-  // Add Mutation
   const addMutation = useMutation({
     mutationFn: managersApi.createSupervisor,
     onSuccess: () => {
@@ -85,7 +77,6 @@ export default function AdminManagers() {
     }
   })
 
-  // Edit Mutation
   const editMutation = useMutation({
     mutationFn: ({ id, payload }) => managersApi.updateSupervisor(id, payload),
     onSuccess: () => {
@@ -94,7 +85,6 @@ export default function AdminManagers() {
     }
   })
 
-  // Action: Toggle Status
   const handleToggleStatus = async (id) => {
     const supervisor = supervisors.find((s) => s.id === id)
     if (!supervisor) return
@@ -110,11 +100,10 @@ export default function AdminManagers() {
     }
   }
 
-  // Action: Delete Supervisor
   const handleDeleteSupervisor = async (supervisor) => {
     const isConfirmed = await showDeleteConfirm(isRtl, supervisor.name);
     if (!isConfirmed) return;
-    
+
     try {
       await deleteMutation.mutateAsync(supervisor.id)
     } catch (err) {
@@ -122,14 +111,12 @@ export default function AdminManagers() {
     }
   }
 
-  // Action: Open Edit Screen
   const handleOpenEditScreen = (supervisor) => {
     setSelectedSupervisor(supervisor)
     setSelectedRole(supervisor.role || 'مشرف عام')
     setViewMode('edit-supervisor')
   }
 
-  // Loading indicator
   if (isLoadingSupervisors || isLoadingRoles || isLoadingPermissions) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -158,28 +145,19 @@ export default function AdminManagers() {
 
       {viewMode === 'permissions' && (
         <RolesPermissionsScreen
-          roles={roles}
-          selectedRole={selectedRole}
-          rolesPermissions={rolesPermissions}
-          realPermissionsList={realPermissionsList}
+          permissionsList={realPermissionsList}
           isRtl={isRtl}
           t={t}
-          onSelectRole={setSelectedRole}
-          onTogglePermission={() => {}} // Disabled real implementation for now
-          onSavePermissions={() => setViewMode('list')} // Disabled real implementation for now
           onCancel={() => setViewMode('list')}
-          onAddNewRole={() => {}} // Disabled real implementation for now
         />
       )}
 
       {viewMode === 'add-supervisor' && (
         <AddSupervisorScreen
-          roles={roles}
-          rolesPermissions={rolesPermissions}
-          realPermissionsList={realPermissionsList}
-          countries={countries}
+          roles={realPermissionsList}
           isRtl={isRtl}
           t={t}
+          countries={countries}
           onSave={async (data) => {
             try {
               await addMutation.mutateAsync(data)
@@ -194,9 +172,7 @@ export default function AdminManagers() {
       {viewMode === 'edit-supervisor' && selectedSupervisor && (
         <EditSupervisorScreen
           supervisor={selectedSupervisor}
-          roles={roles}
-          rolesPermissions={rolesPermissions}
-          realPermissionsList={realPermissionsList}
+          roles={realPermissionsList}
           countries={countries}
           isRtl={isRtl}
           t={t}

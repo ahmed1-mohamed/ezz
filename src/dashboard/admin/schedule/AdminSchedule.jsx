@@ -202,13 +202,13 @@ export default function AdminSchedule() {
 
 
   const handleEdit = (session) => {
-    alert(`تعديل الجلسة: ${session.groupName}`)
+    showSuccessToast(`تعديل الجلسة: ${session.groupName}`, isRtl)
   }
 
   const handleDelete = async (session) => {
     const isConfirmed = await showDeleteConfirm(isRtl, session.groupName);
     if (!isConfirmed) return;
-    alert(`تم حذف الجلسة رقم: ${session.id}`) // Keep the alert or just toast later since it's mock
+    showSuccessToast(`تم حذف الجلسة رقم: ${session.id}`, isRtl)
   }
 
   return (
