@@ -25,13 +25,22 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
   if (editingReward !== prevEditingReward) {
     setPrevEditingReward(editingReward)
     if (editingReward) {
-      setName(editingReward.name || '')
-      setNameEn(editingReward.nameEn || '')
-      setEmoji(editingReward.emoji || '⭐')
-      const matched = COLOR_OPTIONS.find((c) => c.bgColor === editingReward.bgColor)
+      const arName = typeof editingReward.name === 'object' ? (editingReward.name?.ar || '') : (editingReward.name || '')
+      const enName = typeof editingReward.name === 'object' ? (editingReward.name?.en || '') : (editingReward.name || '')
+      setName(arName)
+      setNameEn(enName)
+
+      setEmoji(editingReward.icon || editingReward.emoji || '⭐')
+
+      const bgColor = editingReward.backgroundColor || editingReward.bgColor
+      const matched = COLOR_OPTIONS.find((c) => c.bgColor === bgColor)
       if (matched) setSelectedColor(matched)
-      setDescription(editingReward.description || '')
-      setDescriptionEn(editingReward.descriptionEn || '')
+      else setSelectedColor(COLOR_OPTIONS[0])
+
+      const arDesc = typeof editingReward.description === 'object' ? (editingReward.description?.ar || '') : (editingReward.description || '')
+      const enDesc = typeof editingReward.description === 'object' ? (editingReward.description?.en || '') : (editingReward.description || '')
+      setDescription(arDesc)
+      setDescriptionEn(enDesc)
     } else {
       setName('')
       setNameEn('')
@@ -72,6 +81,9 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
               placeholder="Name Reward"
+              required
+              minLength={2}
+              maxLength={100}
               className="w-full bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl px-4 py-3 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
             />
           </div>
@@ -83,6 +95,8 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
               onChange={(e) => setName(e.target.value)}
               placeholder="مثال: نجم القرآن"
               required
+              minLength={2}
+              maxLength={100}
               className="w-full bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl px-4 py-3 text-sm outline-none placeholder-slate-400 text-end text-slate-800 dark:text-slate-100"
             />
           </div>
@@ -95,6 +109,7 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
             type="text"
             value={emoji}
             onChange={(e) => setEmoji(e.target.value)}
+            required
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl px-4 py-3 text-sm outline-none text-center text-slate-800 dark:text-slate-100"
           />
         </div>
@@ -125,6 +140,9 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
+            required
+            minLength={2}
+            maxLength={500}
             placeholder="اشرح متى ولمن تُمنح هذه المكافأة..."
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl px-4 py-3 text-sm outline-none resize-none placeholder-slate-400 text-end text-slate-800 dark:text-slate-100"
           />
@@ -137,6 +155,9 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
             value={descriptionEn}
             onChange={(e) => setDescriptionEn(e.target.value)}
             rows={4}
+            required
+            minLength={2}
+            maxLength={500}
             placeholder="Describe"
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl px-4 py-3 text-sm outline-none resize-none placeholder-slate-400 text-slate-800 dark:text-slate-100"
           />

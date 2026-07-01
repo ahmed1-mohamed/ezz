@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash2, Pencil, Award } from 'lucide-react'
+import { Trash2, Pencil, Award, Eye } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function RewardsSuggestions({
@@ -9,6 +9,7 @@ export default function RewardsSuggestions({
   onReject,
   onEdit,
   onDelete,
+  onView,
 }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
@@ -23,10 +24,10 @@ export default function RewardsSuggestions({
   const pendingCount = suggestions.filter((s) => s.status === 'pending').length
 
   const statsItems = [
-    { label: p('statTotalSuggestions'), value: stats.totalSuggestions, color: 'text-slate-700 dark:text-slate-300' },
-    { label: p('statApproved'), value: stats.approvedCount, color: 'text-emerald-600 dark:text-emerald-400' },
-    { label: p('statPendingReview'), value: stats.pendingCount, color: 'text-blue-600 dark:text-blue-400' },
-    { label: p('statRejected'), value: stats.rejectedCount, color: 'text-red-600 dark:text-red-400' },
+    { label: p('statTotalSuggestions'), value: stats?.total || stats?.totalSuggestions || 0, color: 'text-slate-700 dark:text-slate-300' },
+    { label: p('statApproved'), value: stats?.accepted || stats?.approvedCount || 0, color: 'text-emerald-600 dark:text-emerald-400' },
+    { label: p('statPendingReview'), value: stats?.pending || stats?.pendingCount || 0, color: 'text-blue-600 dark:text-blue-400' },
+    { label: p('statRejected'), value: stats?.rejected || stats?.rejectedCount || 0, color: 'text-red-600 dark:text-red-400' },
   ]
 
   return (
@@ -100,63 +101,81 @@ export default function RewardsSuggestions({
               key={sug.id}
               className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-5 shadow-sm flex flex-col relative transition-all hover:shadow-md"
             >
-              {/* Header icons on top left */}
-              <div className="absolute top-4 start-4 flex items-center gap-2">
-                <button
-                  onClick={() => onDelete(sug)}
-                  className="p-1 text-slate-400 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={15} />
-                </button>
-                <button
-                  onClick={() => onEdit(sug)}
-                  className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <Pencil size={15} />
-                </button>
-              </div>
+              {/* Header icons on top left - REMOVED, MOVED TO BOTTOM */}
 
               {/* Emoji badge and title */}
               <div className="flex flex-col items-center text-center mt-3 flex-1">
                 <div className="w-14 h-14 rounded-2xl bg-sky-50 dark:bg-sky-950/20 text-sky-600 dark:text-sky-400 flex items-center justify-center text-3xl shadow-sm mb-3">
-                  {sug.emoji}
+                  {sug.icon || sug.emoji}
                 </div>
                 <h4 className="font-bold text-slate-800 dark:text-white text-base leading-tight">
-                  {isRtl ? sug.name : sug.nameEn}
+                  {typeof sug.name === 'object' ? (isRtl ? sug.name.ar : sug.name.en) : (isRtl ? sug.name : sug.nameEn)}
                 </h4>
                 <p className="text-slate-400 dark:text-slate-500 text-xs mt-2.5 max-w-sm px-4">
-                  {isRtl ? sug.description : sug.descriptionEn}
+                  {typeof sug.description === 'object' ? (isRtl ? sug.description.ar : sug.description.en) : (isRtl ? sug.description : sug.descriptionEn)}
                 </p>
               </div>
 
               {/* Granted badge indicator & audience target */}
-              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 mt-5 pt-4 text-xs">
-                <span className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-500 dark:text-slate-400 font-semibold">
-                  {isRtl ? sug.studentTarget : sug.studentTargetEn}
-                </span>
-                <span className="flex items-center gap-1.5 text-amber-500 font-bold">
-                  <Award size={14} />
-                  {sug.grantedCount} {p('grantedBadgesSuffix')}
-                </span>
+              <div className="flex items-center justify-between mt-5 text-xs">
+                {sug.studentTarget && (
+                  <span className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-500 dark:text-slate-400 font-semibold">
+                    {isRtl ? sug.studentTarget : sug.studentTargetEn}
+                  </span>
+                )}
+                {sug.grantedCount !== undefined && (
+                  <span className="flex items-center gap-1.5 text-amber-500 font-bold">
+                    <Award size={14} />
+                    {sug.grantedCount} {p('grantedBadgesSuffix')}
+                  </span>
+                )}
               </div>
 
               {/* Action Buttons */}
-              {sug.status === 'pending' && (
-                <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4 mt-4">
+                <div className="flex items-center gap-2">
+                  {onView && (
+                    <button
+                      onClick={() => onView(sug)}
+                      className="p-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 transition-colors"
+                      title={isRtl ? 'عرض' : 'View'}
+                    >
+                      <Eye size={15} />
+                    </button>
+                  )}
                   <button
-                    onClick={() => onReject(sug.id)}
-                    className="py-2.5 rounded-xl bg-red-50 hover:bg-red-100/60 text-red-500 text-xs font-bold transition-colors text-center"
+                    onClick={() => onEdit(sug)}
+                    className="p-1.5 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 transition-colors"
+                    title={isRtl ? 'تعديل' : 'Edit'}
                   >
-                    {p('rejectBtn')}
+                    <Pencil size={15} />
                   </button>
                   <button
-                    onClick={() => onApprove(sug.id)}
-                    className="py-2.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors text-center"
+                    onClick={() => onDelete(sug)}
+                    className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 transition-colors"
+                    title={isRtl ? 'حذف' : 'Delete'}
                   >
-                    {p('approveBtn')}
+                    <Trash2 size={15} />
                   </button>
                 </div>
-              )}
+
+                {sug.status === 'pending' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onReject(sug.id || sug._id)}
+                      className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100/60 text-red-500 text-xs font-bold transition-colors"
+                    >
+                      {p('rejectBtn')}
+                    </button>
+                    <button
+                      onClick={() => onApprove(sug.id || sug._id)}
+                      className="px-3 py-1.5 rounded-lg bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors"
+                    >
+                      {p('approveBtn')}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

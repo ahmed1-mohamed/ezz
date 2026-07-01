@@ -2,99 +2,9 @@ import api from './axiosConfig';
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-let mockRewards = [
-  {
-    id: 1,
-    name: 'نجم القرآن',
-    nameEn: 'Quran Star',
-    emoji: '⭐',
-    bgColor: '#fef3c7',
-    textColor: '#d97706',
-    description: 'يُمنح للطلاب المتميزين في التلاوة والتجويد.',
-    descriptionEn: 'Given to students distinguished in recitation and Tajweed.',
-  },
-  {
-    id: 2,
-    name: 'المواظب المثالي',
-    nameEn: 'Perfect Attendance',
-    emoji: '📅',
-    bgColor: '#d1fae5',
-    textColor: '#059669',
-    description: 'يُمنح للحضور الكامل دون أي غياب طوال الشهر.',
-    descriptionEn: 'Given for full attendance without any absence throughout the month.',
-  },
-  {
-    id: 3,
-    name: 'البطل السريع',
-    nameEn: 'Speed Champion',
-    emoji: '⚡',
-    bgColor: '#e0e7ff',
-    textColor: '#4f46e5',
-    description: 'يُمنح للسرعة الفائقة في الحفظ والمراجعة.',
-    descriptionEn: 'Given for outstanding speed in memorization and review.',
-  },
-  {
-    id: 4,
-    name: 'القارئ الذهبي',
-    nameEn: 'Golden Reciter',
-    emoji: '👑',
-    bgColor: '#fee2e2',
-    textColor: '#dc2626',
-    description: 'يُمنح لأفضل أداء صوتي وتجويدي مجود.',
-    descriptionEn: 'Given for best vocal performance and perfect Tajweed.',
-  },
-];
 
-let mockSuggestions = [
-  {
-    id: 101,
-    name: 'نجم القرآن',
-    nameEn: 'Quran Star',
-    emoji: '⭐',
-    description: 'تُمنح عند إتمام حفظ جزء كامل',
-    descriptionEn: 'Given upon completing memorization of a full Juz\'',
-    status: 'pending',
-    grantedCount: 45,
-    studentTarget: 'لكل الطلاب',
-    studentTargetEn: 'For all students',
-  },
-  {
-    id: 102,
-    name: 'متفوق الأسبوع',
-    nameEn: 'Weekly Star',
-    emoji: '⭐',
-    description: 'أفضل طالب في الأسبوع',
-    descriptionEn: 'Best student of the week',
-    status: 'pending',
-    grantedCount: 45,
-    studentTarget: 'لكل الطلاب',
-    studentTargetEn: 'For all students',
-  },
-  {
-    id: 103,
-    name: 'القارئ المتميز',
-    nameEn: 'Distinguished Reciter',
-    emoji: '📖',
-    description: 'تحسين مخارج الحروف وقواعد التجويد',
-    descriptionEn: 'Improving articulation and Tajweed rules',
-    status: 'approved',
-    grantedCount: 12,
-    studentTarget: 'لكل الطلاب',
-    studentTargetEn: 'For all students',
-  },
-  {
-    id: 104,
-    name: 'المتفوق الأكاديمي',
-    nameEn: 'Academic Achiever',
-    emoji: '🎓',
-    description: 'الحصول على الدرجات النهائية في جميع الاختبارات',
-    descriptionEn: 'Obtaining full grades in all exams',
-    status: 'rejected',
-    grantedCount: 0,
-    studentTarget: 'طلاب محددين',
-    studentTargetEn: 'Specific students',
-  },
-];
+
+
 
 let mockAchievements = [
   { id: 1, title: 'متقن التجويد', titleEn: 'Tajweed Master', description: 'إتِمام 20 حصة تجويد بتقييم ممتاز', descriptionEn: 'Completed 20 Tajweed sessions with excellent rating', studentName: 'عمر السعيد', date: '18 أبريل 2024', emoji: '🏆', bgColor: 'bg-amber-400 dark:bg-amber-600' },
@@ -145,113 +55,107 @@ export const adminRewardsApi = {
 
   createReward: async (data) => {
     try {
-      const response = await api.post('/api/v1/admin/rewards', data);
-      return response.data;
-    } catch (error) {
-      console.warn('API createReward failed, using mock:', error);
-      await delay(200);
-      const newReward = {
-        id: Date.now(),
-        ...data,
+      const payload = {
+        name: { ar: data.name, en: data.nameEn || data.name },
+        description: { ar: data.description, en: data.descriptionEn || data.description },
+        icon: data.emoji,
+        backgroundColor: data.bgColor
       };
-      mockRewards.push(newReward);
-      mockStats.totalRewards += 1;
-      return { success: true, data: newReward };
+      const response = await api.post('/api/v1/rewards/private', payload);
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('API createReward failed:', error);
+      return { success: false };
     }
   },
 
   updateReward: async (id, data) => {
     try {
-      const response = await api.put(`/api/v1/admin/rewards/${id}`, data);
-      return response.data;
+      const payload = {
+        name: { ar: data.name, en: data.nameEn || data.name },
+        description: { ar: data.description, en: data.descriptionEn || data.description },
+        icon: data.emoji,
+        backgroundColor: data.bgColor
+      };
+      const response = await api.patch(`/api/v1/rewards/private/${id}`, payload);
+      return { success: true, data: response.data };
     } catch (error) {
-      console.warn('API updateReward failed, using mock:', error);
-      await delay(200);
-      mockRewards = mockRewards.map((r) => (r.id === id ? { ...r, ...data } : r));
-      return { success: true, data: { id, ...data } };
+      console.error('API updateReward failed:', error);
+      return { success: false };
     }
   },
 
   deleteReward: async (id) => {
     try {
-      const response = await api.delete(`/api/v1/admin/rewards/${id}`);
-      return response.data;
-    } catch (error) {
-      console.warn('API deleteReward failed, using mock:', error);
-      await delay(200);
-      mockRewards = mockRewards.filter((r) => r.id !== id);
-      mockStats.totalRewards = Math.max(0, mockStats.totalRewards - 1);
+      const response = await api.delete(`/api/v1/rewards/private/${id}`);
       return { success: true };
+    } catch (error) {
+      console.error('API deleteReward failed:', error);
+      return { success: false };
+    }
+  },
+
+  fetchRewardById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/rewards/private/${id}`);
+      let rewardData = response.data.data || response.data;
+      if (Array.isArray(rewardData)) {
+        rewardData = rewardData[0];
+      }
+      return { success: true, data: rewardData };
+    } catch (error) {
+      console.error('API fetchRewardById failed:', error);
+      return { success: false, data: null };
+    }
+  },
+
+  fetchRewards: async () => {
+    try {
+      const response = await api.get('/api/v1/rewards/private/localized/all');
+      return { success: true, data: response.data.data, length: response.data.length };
+    } catch (error) {
+      console.error('API fetchRewards failed:', error);
+      return { success: false, data: [] };
     }
   },
 
   fetchSuggestions: async () => {
     try {
-      const response = await api.get('/api/v1/admin/rewards/suggestions');
-      return response.data;
+      const response = await api.get('/api/v1/suggested-rewards/private');
+      return { success: true, data: response.data.data, stats: response.data.stats };
     } catch (error) {
-      console.warn('API fetchSuggestions failed, using mock:', error);
-      await delay(200);
-      return { success: true, data: [...mockSuggestions] };
+      console.error('API fetchSuggestions failed:', error);
+      return { success: false, data: [] };
     }
   },
 
   approveSuggestion: async (id) => {
     try {
-      const response = await api.post(`/api/v1/admin/rewards/suggestions/${id}/approve`);
-      return response.data;
+      const response = await api.patch(`/api/v1/suggested-rewards/private/accept/${id}`);
+      return { success: true, data: response.data };
     } catch (error) {
-      console.warn('API approveSuggestion failed, using mock:', error);
-      await delay(200);
-      const sug = mockSuggestions.find((s) => s.id === id);
-      if (sug) {
-        sug.status = 'approved';
-        mockStats.approvedCount += 1;
-        mockStats.pendingCount = Math.max(0, mockStats.pendingCount - 1);
-        // Add to mock rewards list too
-        mockRewards.push({
-          id: Date.now(),
-          name: sug.name,
-          nameEn: sug.nameEn,
-          emoji: sug.emoji,
-          bgColor: '#d1fae5',
-          textColor: '#059669',
-          description: sug.description,
-          descriptionEn: sug.descriptionEn,
-        });
-        mockStats.totalRewards += 1;
-      }
-      return { success: true, data: sug };
+      console.error('API approveSuggestion failed:', error);
+      return { success: false };
     }
   },
 
   rejectSuggestion: async (id) => {
     try {
-      const response = await api.post(`/api/v1/admin/rewards/suggestions/${id}/reject`);
-      return response.data;
+      const response = await api.patch(`/api/v1/suggested-rewards/private/reject/${id}`);
+      return { success: true, data: response.data };
     } catch (error) {
-      console.warn('API rejectSuggestion failed, using mock:', error);
-      await delay(200);
-      const sug = mockSuggestions.find((s) => s.id === id);
-      if (sug) {
-        sug.status = 'rejected';
-        mockStats.rejectedCount += 1;
-        mockStats.pendingCount = Math.max(0, mockStats.pendingCount - 1);
-      }
-      return { success: true, data: sug };
+      console.error('API rejectSuggestion failed:', error);
+      return { success: false };
     }
   },
 
   deleteSuggestion: async (id) => {
     try {
-      const response = await api.delete(`/api/v1/admin/rewards/suggestions/${id}`);
-      return response.data;
-    } catch (error) {
-      console.warn('API deleteSuggestion failed, using mock:', error);
-      await delay(200);
-      mockSuggestions = mockSuggestions.filter((s) => s.id !== id);
-      mockStats.totalSuggestions = Math.max(0, mockStats.totalSuggestions - 1);
+      const response = await api.delete(`/api/v1/suggested-rewards/private/${id}`);
       return { success: true };
+    } catch (error) {
+      console.error('API deleteSuggestion failed:', error);
+      return { success: false };
     }
   },
 
