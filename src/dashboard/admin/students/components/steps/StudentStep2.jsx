@@ -44,18 +44,14 @@ export default function StudentStep2({
         </div>
       </div>
 
-      {/* 2. Add Parent Card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
           <h3 className="text-base font-bold text-slate-855 dark:text-white">
             {isRtl ? 'أضف ولي الأمر' : 'Link Parent'}
           </h3>
-          <span className="text-xs font-bold text-rose-500 block">
-            * {isRtl ? 'ولي الأمر مطلوب' : 'Parent is required'}
-          </span>
+
         </div>
 
-        {/* Search parents bar */}
         <div className="relative w-full">
           <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-450`}>
             <Search size={16} />
@@ -69,7 +65,6 @@ export default function StudentStep2({
           />
         </div>
 
-        {/* Parents List */}
         <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
           {filteredParents.map((parent) => {
             const isSelected = selectedParentName === parent.name
@@ -78,8 +73,8 @@ export default function StudentStep2({
                 key={parent.name}
                 onClick={() => handleParentSelect(parent.name)}
                 className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
-                    ? 'border-[#005953] bg-emerald-50/10 dark:bg-slate-955/20'
-                    : 'border-slate-100 dark:border-slate-855 hover:bg-slate-50'
+                  ? 'border-[#005953] bg-emerald-50/10 dark:bg-slate-955/20'
+                  : 'border-slate-100 dark:border-slate-855 hover:bg-slate-50'
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -106,7 +101,6 @@ export default function StudentStep2({
           })}
         </div>
 
-        {/* Skip button bottom left */}
         <div className="flex justify-start">
           <button
             type="button"

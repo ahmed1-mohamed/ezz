@@ -203,5 +203,49 @@ export const landingApi = {
       console.error('Error updating contact-us info:', error);
       throw error;
     }
+  },
+
+  fetchPrivateTestimonials: async (params) => {
+    try {
+      const response = await api.get('/api/v1/testimonials/private', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching private testimonials:', error);
+      throw error;
+    }
+  },
+
+  addPrivateTestimonial: async (testimonialData) => {
+    try {
+      const isFormData = testimonialData instanceof FormData;
+      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+      const response = await api.post('/api/v1/testimonials/private', testimonialData, { headers });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding private testimonial:', error);
+      throw error;
+    }
+  },
+
+  updatePrivateTestimonial: async (id, testimonialData) => {
+    try {
+      const isFormData = testimonialData instanceof FormData;
+      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+      const response = await api.patch(`/api/v1/testimonials/private/${id}`, testimonialData, { headers });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating private testimonial with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deletePrivateTestimonial: async (id) => {
+    try {
+      const response = await api.delete(`/api/v1/testimonials/private/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting private testimonial with id ${id}:`, error);
+      throw error;
+    }
   }
 };

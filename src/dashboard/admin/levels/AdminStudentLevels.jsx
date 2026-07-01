@@ -9,7 +9,7 @@ import Spinner from '@/shared/components/Spinner'
 
 import StudentLevelForm from './components/StudentLevelForm'
 import StudentLevelCard from './components/StudentLevelCard'
-import DeleteLevelModal from './components/DeleteLevelModal'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 
 export default function AdminStudentLevels() {
   const { i18n } = useTranslation()
@@ -48,7 +48,6 @@ export default function AdminStudentLevels() {
   const [editingLevelId, setEditingLevelId] = useState(null)
   const [levelName, setLevelName] = useState('')
   const [levelDescription, setLevelDescription] = useState('')
-  const [levelToDelete, setLevelToDelete] = useState(null)
 
   // Expanded card accordions state (storing level IDs)
   const [expandedLevels, setExpandedLevels] = useState({ 2: true }) // Level 2 expanded by default as in screenshot
@@ -94,10 +93,9 @@ export default function AdminStudentLevels() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: adminLevelsApi.deleteLevel,
+    mutationFn: (id) => adminLevelsApi.deleteLevel(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['student-levels'] })
-      setLevelToDelete(null)
+      queryClient.invalidateQueries(['student-levels'])
       toast.success(isRtl ? 'تم حذف المستوى بنجاح!' : 'Level deleted successfully!')
     },
     onError: (err) => {
@@ -147,16 +145,6 @@ export default function AdminStudentLevels() {
     setShowForm(true)
   }
 
-  const handleDeleteLevelClick = (levelId) => {
-    setLevelToDelete(levelId)
-  }
-
-  const confirmDeleteLevel = async () => {
-    if (levelToDelete) {
-      await deleteMutation.mutateAsync(levelToDelete)
-    }
-  }
-
   // --- Step Management Handlers ---
 
   const handleAddStepSubmit = (levelId) => {
@@ -198,20 +186,27 @@ export default function AdminStudentLevels() {
     setEditingStepTitle('')
   }
 
-  const handleDeleteStep = (levelId, stepId) => {
-    if (confirm(isRtl ? 'هل أنت متأكد من حذف هذه الدرجة/المرحلة؟' : 'Are you sure you want to delete this step?')) {
-      setLevels((prev) =>
-        prev.map((lvl) => {
-          if (lvl.id === levelId) {
-            return {
-              ...lvl,
-              steps: lvl.steps.filter((st) => st.id !== stepId)
-            }
+  const handleDeleteStep = async (levelId, stepId) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, isRtl ? 'هذه المرحلة' : 'this step');
+    if (!isConfirmed) return;
+
+    setLevels((prev) =>
+      prev.map((lvl) => {
+        if (lvl.id === levelId) {
+          return {
+            ...lvl,
+            steps: lvl.steps.filter((st) => st.id !== stepId)
           }
-          return lvl
-        })
-      )
-    }
+        }
+        return lvl
+      })
+    )
+  }
+
+  const handleDeleteLevel = async (level) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, level.name);
+    if (!isConfirmed) return;
+    await deleteMutation.mutateAsync(level.id);
   }
 
   if (isLoadingLevels) {
@@ -225,13 +220,6 @@ export default function AdminStudentLevels() {
   return (
     <div className="space-y-8 p-1 md:p-6 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       
-      <DeleteLevelModal 
-        isOpen={!!levelToDelete}
-        onClose={() => setLevelToDelete(null)}
-        onConfirm={confirmDeleteLevel}
-        isDeleting={deleteMutation.isPending}
-      />
-
       {/* 1. Header with title & add button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -289,9 +277,9 @@ export default function AdminStudentLevels() {
             lvl={lvl}
             isExpanded={!!expandedLevels[lvl.id]}
             onToggleExpand={toggleAccordion}
-            onToggleVisibility={handleToggleVisibility}
+            onToggleVisibility={() => handleToggleVisibility(lvl.id)}
             onEdit={handleEditLevelClick}
-            onDelete={handleDeleteLevelClick}
+            onDelete={() => handleDeleteLevel(lvl)}
             addingStepLevelId={addingStepLevelId}
             setAddingStepLevelId={setAddingStepLevelId}
             newStepTitle={newStepTitle}

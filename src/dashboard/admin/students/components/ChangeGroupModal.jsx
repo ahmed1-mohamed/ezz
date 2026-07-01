@@ -56,6 +56,7 @@ export default function ChangeGroupModal({
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredGroups, setFilteredGroups] = useState(availableGroups)
   const [selectedGroup, setSelectedGroup] = useState(null)
+  const studentDisplayName = typeof student.name === 'string' ? student.name : (student.name?.ar || student.name?.en || '-');
 
   if (!isOpen || !student) return null
 
@@ -115,7 +116,7 @@ export default function ChangeGroupModal({
             <input
               type="text"
               readOnly
-              value={student.name}
+              value={studentDisplayName}
               className="w-full bg-[#f3f7f6] dark:bg-slate-950/60 border border-slate-100/40 dark:border-slate-800/40 text-slate-550 dark:text-slate-400 rounded-2xl py-3 px-4 outline-none font-semibold text-sm cursor-not-allowed"
             />
           </div>

@@ -1,4 +1,5 @@
 import { Upload, ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ParentPersonalInfo({
   formData,
@@ -13,14 +14,27 @@ export default function ParentPersonalInfo({
   setPhoneVal,
   isCountryDropdownOpen,
   setIsCountryDropdownOpen,
-  countryCodes,
+  dynamicCountryCodes,
   countries,
   setSelectedCountryCode,
   initial
 }) {
+  const [phoneSearch, setPhoneSearch] = useState('')
+  const [countrySearch, setCountrySearch] = useState('')
+
+  const filteredPhoneCodes = (dynamicCountryCodes || []).filter(c =>
+    c.name?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
+    c.code?.includes(phoneSearch)
+  )
+
+  const filteredCountries = (countries || []).filter(c =>
+    c.name?.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    c.nameEn?.toLowerCase().includes(countrySearch.toLowerCase())
+  )
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-end">
+      <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
         {isRtl ? 'البيانات الشخصية' : 'Personal Details'}
       </h3>
 
@@ -51,7 +65,7 @@ export default function ParentPersonalInfo({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            Full Name
+            {isRtl ? 'الاسم بالإنجليزية' : 'Name in English'}
           </label>
           <input
             type="text"
@@ -63,7 +77,7 @@ export default function ParentPersonalInfo({
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {isRtl ? 'الاسم بالعربية' : 'Name in Arabic'}
           </label>
           <input
@@ -72,15 +86,15 @@ export default function ParentPersonalInfo({
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder={isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 text-end"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 text-start"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
-            {isRtl ? 'رقم الهاتف' : 'Phone Number'}
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
+            {isRtl ? 'ملاحظات' : 'Notes'}
           </label>
           <div className="flex gap-2" dir="ltr">
             <div className="relative shrink-0">
@@ -94,10 +108,20 @@ export default function ParentPersonalInfo({
                 <ChevronDown size={12} className="text-slate-400" />
               </button>
               {isPhoneDropdownOpen && (
-                <div className="absolute left-0 top-full mt-1 z-20 w-44 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden">
-                  {countryCodes.map((c) => (
+                <div className="absolute left-0 top-full mt-1 z-20 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 max-h-60 overflow-y-auto">
+                  <div className="px-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={phoneSearch}
+                      onChange={(e) => setPhoneSearch(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs outline-none text-slate-800 dark:text-slate-200"
+                    />
+                  </div>
+                  {filteredPhoneCodes.map((c) => (
                     <button
-                      key={c.code}
+                      key={c.name}
                       type="button"
                       onClick={() => { setSelectedCountryCode(c); setIsPhoneDropdownOpen(false) }}
                       className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-left"
@@ -119,8 +143,8 @@ export default function ParentPersonalInfo({
           </div>
         </div>
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
-            {isRtl ? 'البريد الإلكتروني' : 'Email'}
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
+            {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
           </label>
           <input
             type="email"
@@ -134,7 +158,7 @@ export default function ParentPersonalInfo({
       </div>
 
       <div className="relative">
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
+        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
           {isRtl ? 'البلد' : 'Country'}
         </label>
         <button
@@ -143,18 +167,35 @@ export default function ParentPersonalInfo({
           className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-105 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
         >
           <ChevronDown size={16} className="text-slate-400" />
-          <span>{formData.country || (isRtl ? 'اختر الدولة' : 'Select Country')}</span>
+          <span>
+            {formData.country 
+              ? (countries.find(c => c._id === formData.country || c.id === formData.country || c.name === formData.country || formData.country.includes(c.name))?.name || formData.country)
+              : (isRtl ? 'اختر الدولة' : 'Select Country')}
+          </span>
         </button>
         {isCountryDropdownOpen && (
-          <div className="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden">
-            {countries.map((c) => (
+          <div className="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 max-h-60 overflow-y-auto">
+            <div className="px-2 mb-2">
+              <input
+                type="text"
+                placeholder="البحث عن دولة / Search country..."
+                value={countrySearch}
+                onChange={(e) => setCountrySearch(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                dir={isRtl ? "rtl" : "ltr"}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm outline-none text-slate-800 dark:text-slate-200"
+              />
+            </div>
+            {filteredCountries.map((c) => (
               <button
-                key={c.name}
+                key={c._id || c.id || c.name}
                 type="button"
-                onClick={() => { handleChange('country', c.name); setIsCountryDropdownOpen(false) }}
+                onClick={() => { handleChange('country', c._id || c.id || c.name); setIsCountryDropdownOpen(false) }}
                 className="w-full px-4 py-2.5 flex items-center justify-end hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors"
               >
-                {c.name}
+                <span className="flex items-center gap-2">
+                  <span>{c.name}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -164,7 +205,7 @@ export default function ParentPersonalInfo({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            Notes
+            {isRtl ? 'ملاحظات بالإنجليزية' : 'Notes in English'}
           </label>
           <textarea
             rows={3}
@@ -176,16 +217,16 @@ export default function ParentPersonalInfo({
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
-            {isRtl ? 'ملاحظات إضافية' : 'Additional Notes'}
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
+            {isRtl ? 'ملاحظات إضافية بالعربية' : 'Notes in Arabic'}
           </label>
           <textarea
             rows={3}
             value={formData.notes}
             onChange={(e) => handleChange('notes', e.target.value)}
             placeholder={isRtl ? 'أي ملاحظات خاصة بالطالب...' : 'Any special notes...'}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 resize-none text-end"
-          />
+            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 resize-none text-start"
+          ></textarea>
         </div>
       </div>
     </div>

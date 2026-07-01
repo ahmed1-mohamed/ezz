@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminAssignmentsApi } from '@/shared/services/api/adminAssignmentsApi'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import AssignmentsStats from './components/AssignmentsStats'
 import AssignmentsFilters from './components/AssignmentsFilters'
 import AssignmentsTable from './components/AssignmentsTable'
@@ -33,10 +34,13 @@ export default function AdminAssignments() {
     loadData()
   }, [loadData])
 
-  const handleDelete = async (id) => {
-    const res = await adminAssignmentsApi.deleteAssignment(id)
+  const handleDelete = async (assignment) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, assignment.title);
+    if (!isConfirmed) return;
+
+    const res = await adminAssignmentsApi.deleteAssignment(assignment.id)
     if (res?.success) {
-      setAssignments((prev) => prev.filter((item) => item.id !== id))
+      setAssignments((prev) => prev.filter((item) => item.id !== assignment.id))
       // reload stats
       const statsRes = await adminAssignmentsApi.fetchStats()
       if (statsRes?.data) setStats(statsRes.data)

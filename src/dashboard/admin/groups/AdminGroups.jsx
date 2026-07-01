@@ -9,6 +9,7 @@ import {
   Layers,
 } from 'lucide-react'
 import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import AddEditGroupScreen from './components/AddEditGroupScreen'
 import AddStudentsModal from './components/AddStudentsModal'
 import Spinner from '@/shared/components/Spinner'
@@ -116,7 +117,7 @@ function GroupDetailsModal({ group, onClose, onRemoveStudent }) {
                 className="flex items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl"
               >
                 <button
-                  onClick={() => onRemoveStudent(group.id, student.id)}
+                  onClick={() => onRemoveStudent(group.id, student.id, student.name)}
                   className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 transition-all border border-red-200 dark:border-red-800"
                 >
                   <Trash2 size={12} />
@@ -211,15 +212,19 @@ export default function AdminGroups() {
     }
   }
 
-  const handleDeleteGroup = async (id) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذه المجموعة؟')) return
-    const res = await adminGroupsApi.deleteGroup(id)
+  const handleDeleteGroup = async (group) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, group.name);
+    if (!isConfirmed) return;
+    const res = await adminGroupsApi.deleteGroup(group.id)
     if (res.success) {
-      setGroups((prev) => prev.filter((g) => g.id !== id))
+      setGroups((prev) => prev.filter((g) => g.id !== group.id))
     }
   }
 
-  const handleRemoveStudent = async (groupId, studentId) => {
+  const handleRemoveStudent = async (groupId, studentId, studentName) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, studentName);
+    if (!isConfirmed) return;
+
     const res = await adminGroupsApi.removeStudentFromGroup(groupId, studentId)
     if (res.success) {
       setGroups((prev) =>

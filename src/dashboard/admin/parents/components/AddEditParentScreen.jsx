@@ -1,104 +1,86 @@
-import { useState, useRef } from 'react'
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { ArrowRight, ArrowLeft, Save } from 'lucide-react'
 import ParentPersonalInfo from './steps/ParentPersonalInfo'
 import ParentSecurity from './steps/ParentSecurity'
 import ParentStudentLinkage from './steps/ParentStudentLinkage'
+import { landingApi } from '@/shared/services/api/landingApi'
+import { studentsApi } from '@/shared/services/api/studentsApi'
 
-const countryCodes = [
-  { code: '+20', flag: '🇪🇬', name: 'Egypt' },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
-  { code: '+974', flag: '🇶🇦', name: 'Qatar' },
-]
-
-const countries = [
-  { name: 'مصر', nameEn: 'Egypt' },
-  { name: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia' },
-  { name: 'الإمارات العربية المتحدة', nameEn: 'UAE' },
-  { name: 'الكويت', nameEn: 'Kuwait' },
-  { name: 'قطر', nameEn: 'Qatar' },
-]
-
-const mockAvailableStudents = [
-  {
-    id: 1,
-    name: 'أحمد خالد المنصور',
-    email: 'student1@email.com',
-    age: 10,
-    level: 'متوسط',
-    groupName: 'مجموعة القرآن أ',
-    phone: '+96650100000',
-    initial: 'أ',
-  },
-  {
-    id: 2,
-    name: 'أحمد خالد المنصور',
-    email: 'student1@email.com',
-    age: 10,
-    level: 'متوسط',
-    groupName: 'مجموعة القرآن أ',
-    phone: '+96650100000',
-    initial: 'أ',
-  },
-  {
-    id: 3,
-    name: 'سليمان خالد المنصور',
-    email: 'soliman@email.com',
-    age: 9,
-    level: 'مبتدئ',
-    groupName: 'مجموعة التجويد ب',
-    phone: '+96650200000',
-    initial: 'س',
-  },
-  {
-    id: 4,
-    name: 'يوسف محمد السعيد',
-    email: 'youssef@email.com',
-    age: 11,
-    level: 'متقدم',
-    groupName: 'مجموعة القراءات ج',
-    phone: '+97150300000',
-    initial: 'ي',
-  },
-  {
-    id: 5,
-    name: 'لينا عمر الحسن',
-    email: 'lina@email.com',
-    age: 8,
-    level: 'مبتدئ',
-    groupName: 'مجموعة القرآن أ',
-    phone: '+96650400000',
-    initial: 'ل',
-  },
-  {
-    id: 6,
-    name: 'ريم سالم المطيري',
-    email: 'reem@email.com',
-    age: 12,
-    level: 'متقدم',
-    groupName: 'مجموعة التجويد ب',
-    phone: '+96650500000',
-    initial: 'ر',
-  },
-]
 
 export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
 
-  const initialPrefix = parent?.phonePrefix || '+966'
-  const initialPhone = parent?.phone
-    ? parent.phone.replace(initialPrefix, '').trim()
-    : ''
-
-  const [selectedCountryCode, setSelectedCountryCode] = useState(
-    countryCodes.find((c) => c.code === initialPrefix) || countryCodes[0]
-  )
+  const [apiCountries, setApiCountries] = useState([])
+  const [selectedCountryCode, setSelectedCountryCode] = useState({ code: '', flag: '🌐', name: 'Loading...' })
+  const [phoneVal, setPhoneVal] = useState('')
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
-  const [phoneVal, setPhoneVal] = useState(initialPhone)
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
 
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await landingApi.fetchCountries();
+        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        if (fetchedCountries.length > 0) {
+          setApiCountries(fetchedCountries);
+
+          let prefix = parent?.phonePrefix;
+          let phonePart = parent?.phone || '';
+
+          if (parent?.phone && !parent?.phonePrefix) {
+            const matchedCode = fetchedCountries.find(c => parent.phone.startsWith(c.phoneCode));
+            if (matchedCode) {
+              prefix = matchedCode.phoneCode;
+              phonePart = parent.phone.substring(prefix.length);
+            } else {
+              prefix = fetchedCountries[0]?.phoneCode || '+966';
+            }
+          } else {
+            prefix = prefix || fetchedCountries[0]?.phoneCode || '+966';
+            if (phonePart) phonePart = phonePart.replace(prefix, '');
+          }
+
+          setPhoneVal(phonePart);
+
+          const matchedCountry = fetchedCountries.find(c => c.phoneCode === prefix) || fetchedCountries[0];
+          if (matchedCountry) {
+            setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name });
+          }
+
+          if (!parent) {
+            const saudi = fetchedCountries.find(c => c.name === 'المملكة العربية السعودية' || c.nameEn === 'Saudi Arabia' || c.phoneCode === '+966');
+            if (saudi) setFormData(prev => ({ ...prev, country: saudi.id || saudi._id }));
+          } else if (parent.country) {
+            const matchedCountry = fetchedCountries.find(c => c._id === parent.country || c.id === parent.country || c.name === parent.country || parent.country.includes(c.name));
+            if (matchedCountry) {
+              setFormData(prev => ({ ...prev, country: matchedCountry._id || matchedCountry.id }));
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load countries', err);
+      }
+    };
+
+    const loadStudents = async () => {
+      try {
+        const res = await studentsApi.fetchAllLocalizedStudents();
+        if (res && Array.isArray(res)) {
+          setApiStudents(res);
+        } else if (res?.data && Array.isArray(res.data)) {
+          setApiStudents(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load students:', err);
+      }
+    };
+
+    loadCountries();
+    loadStudents();
+  }, []);
+
+  const [apiStudents, setApiStudents] = useState([])
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -106,19 +88,24 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
   const [studentSearch, setStudentSearch] = useState('')
   const [selectedStudents, setSelectedStudents] = useState([])
   const [showStudentSearch, setShowStudentSearch] = useState(false)
+  const initialNameObj = typeof parent?.name === 'object' ? parent.name : null;
+  const initialName = initialNameObj ? (initialNameObj.ar || '') : (parent?.name || '');
+  const initialNameEn = initialNameObj ? (initialNameObj.en || '') : (parent?.nameEn || '');
+
   const [formData, setFormData] = useState({
-    name: parent?.name || '',
-    nameEn: parent?.nameEn || '',
+    name: initialName,
+    nameEn: initialNameEn,
     email: parent?.email || '',
     country: parent?.country || 'المملكة العربية السعودية',
     birthDate: parent?.birthDate || '',
-    status: parent?.status || 'Active',
+    status: parent?.active ? 'Active' : (parent?.status || 'Active'),
     gender: parent?.gender || 'male',
-    password: '',
-    confirmPassword: '',
+    password: parent ? '********' : '',
+    confirmPassword: parent ? '********' : '',
     notes: '',
     notesEn: '',
-    profileImage: parent?.profileImage || null,
+    profileImage: parent?.image || parent?.profileImage || null,
+    profileImageFile: null,
   })
 
   const handleChange = (key, value) =>
@@ -128,15 +115,18 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
     const file = e.target.files[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onloadend = () => handleChange('profileImage', reader.result)
+    reader.onloadend = () => {
+      setFormData((prev) => ({ ...prev, profileImage: reader.result, profileImageFile: file }))
+    }
     reader.readAsDataURL(file)
   }
 
-  const filteredStudents = mockAvailableStudents.filter((s) => {
+  const filteredStudents = apiStudents.filter((s) => {
     const query = studentSearch.toLowerCase()
-    if (studentSearchTab === 'name') return s.name.toLowerCase().includes(query)
-    if (studentSearchTab === 'email') return s.email.toLowerCase().includes(query)
-    if (studentSearchTab === 'phone') return s.phone.includes(query)
+    const nameStr = typeof s.name === 'object' ? (s.name?.ar || s.name?.en || '') : (s.name || '')
+    if (studentSearchTab === 'name') return nameStr.toLowerCase().includes(query)
+    if (studentSearchTab === 'email') return (s.email || '').toLowerCase().includes(query)
+    if (studentSearchTab === 'phone') return (s.phone || '').includes(query)
     return true
   })
 
@@ -156,14 +146,18 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
       alert(isRtl ? 'الرجاء إدخال الاسم!' : 'Please enter Name!')
       return
     }
+    if (!parent && !formData.profileImageFile) {
+      alert(isRtl ? 'الرجاء اختيار صورة!' : 'Please select an image!')
+      return
+    }
     if (formData.password && formData.password !== formData.confirmPassword) {
       alert(isRtl ? 'كلمة المرور وتأكيدها غير متطابقتين!' : 'Passwords do not match!')
       return
     }
     onSave({
       ...formData,
-      phone: `${selectedCountryCode.code} ${phoneVal.trim()}`,
-      phonePrefix: selectedCountryCode.code,
+      phone: `${selectedCountryCode?.code || ''}${phoneVal.trim()}`,
+      phonePrefix: selectedCountryCode?.code || '',
       children: selectedStudents.map((s) => s.id),
       childrenCount: selectedStudents.length,
     })
@@ -217,9 +211,10 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
           setPhoneVal={setPhoneVal}
           isCountryDropdownOpen={isCountryDropdownOpen}
           setIsCountryDropdownOpen={setIsCountryDropdownOpen}
-          countryCodes={countryCodes}
-          countries={countries}
+          countryCodes={apiCountries.map(c => ({ code: c.phoneCode, flag: c.flag, name: c.name }))}
+          countries={apiCountries}
           setSelectedCountryCode={setSelectedCountryCode}
+          dynamicCountryCodes={apiCountries.map(c => ({ code: c.phoneCode, flag: c.flag, name: c.name }))}
           initial={initial}
         />
 
@@ -250,9 +245,10 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
         <div className="flex justify-end pt-4">
           <button
             type="submit"
-            className="px-8 py-3.5 bg-brand-650 hover:bg-brand-700 text-white font-bold rounded-2xl text-sm transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 active:scale-95 cursor-pointer"
           >
-            {isRtl ? 'حفظ التغييرات' : 'Save Changes'}
+            <Save size={18} />
+            <span>{isRtl ? 'حفظ التغييرات' : 'Save Changes'}</span>
           </button>
         </div>
       </form>

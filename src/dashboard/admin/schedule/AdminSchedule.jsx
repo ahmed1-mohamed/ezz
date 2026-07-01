@@ -12,7 +12,17 @@ import {
   TrendingUp,
   Pencil,
   Trash2,
+  Users,
+  CheckCircle,
+  AlertCircle,
+  Search,
+  MoreVertical,
+  Calendar,
+  FileText,
+  ArrowUpRight,
+  Filter,
 } from 'lucide-react'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 
 
 const WEEK_DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
@@ -135,7 +145,7 @@ function SessionCard({ session, onEdit, onDelete }) {
           <Pencil size={12} />
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); onDelete(session.id) }}
+          onClick={(e) => { e.stopPropagation(); onDelete(session) }}
           className="p-1.5 rounded-lg bg-white/90 text-red-600 hover:bg-white transition"
         >
           <Trash2 size={12} />
@@ -195,8 +205,10 @@ export default function AdminSchedule() {
     alert(`تعديل الجلسة: ${session.groupName}`)
   }
 
-  const handleDelete = (id) => {
-    alert(`حذف الجلسة رقم: ${id}`)
+  const handleDelete = async (session) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, session.groupName);
+    if (!isConfirmed) return;
+    alert(`تم حذف الجلسة رقم: ${session.id}`) // Keep the alert or just toast later since it's mock
   }
 
   return (

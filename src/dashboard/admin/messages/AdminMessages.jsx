@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { MessageSquare, Search } from 'lucide-react'
 import { messagesApi } from '@/shared/services/api/messagesApi'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import MessagesStats from './components/MessagesStats'
 import MessageCard from './components/MessageCard'
 import useDebounce from '@/shared/hooks/useDebounce'
@@ -41,10 +42,10 @@ export default function AdminMessages() {
     }
   })
 
-  const handleDelete = (id) => {
-    if (window.confirm(isRtl ? 'هل أنت متأكد من حذف هذه الرسالة؟' : 'Are you sure you want to delete this message?')) {
-      deleteMutation.mutate(id)
-    }
+  const handleDelete = async (message) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, message.subject || message.name);
+    if (!isConfirmed) return;
+    deleteMutation.mutate(message.id)
   }
 
   const handleUpdateStatus = (id, payload) => {

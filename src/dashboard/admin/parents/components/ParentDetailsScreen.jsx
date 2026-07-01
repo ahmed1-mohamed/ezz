@@ -180,7 +180,7 @@ export default function ParentDetailsScreen({
           </span>
           <div className="flex items-center gap-3">
             <div>
-              <p className="font-bold text-lg text-slate-800 dark:text-white text-end">{parent.name}</p>
+              <p className="font-bold text-lg text-slate-800 dark:text-white text-start">{parent.name}</p>
             </div>
             <div className="h-12 w-12 rounded-full bg-brand-600 flex items-center justify-center text-white text-xl font-bold">
               {initial}
@@ -189,7 +189,7 @@ export default function ParentDetailsScreen({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="flex items-center justify-end gap-2 bg-slate-50 dark:bg-slate-950/30 rounded-2xl p-3">
-            <div className="text-end">
+            <div className="text-start">
               <p className="text-xs text-slate-400">{isRtl ? 'عدد الأبناء' : 'Children'}</p>
               <p className="font-semibold text-sm text-slate-700 dark:text-slate-300">
                 {parent.childrenCount || children.length} {isRtl ? 'طالب' : 'student(s)'}
@@ -200,7 +200,7 @@ export default function ParentDetailsScreen({
             </div>
           </div>
           <div className="flex items-center justify-end gap-2 bg-slate-50 dark:bg-slate-950/30 rounded-2xl p-3">
-            <div className="text-end">
+            <div className="text-start">
               <p className="text-xs text-slate-400">{isRtl ? 'رقم الجوال' : 'Phone'}</p>
               <p className="font-semibold text-sm text-slate-700 dark:text-slate-300" dir="ltr">{parent.phone}</p>
             </div>
@@ -209,7 +209,7 @@ export default function ParentDetailsScreen({
             </div>
           </div>
           <div className="flex items-center justify-end gap-2 bg-slate-50 dark:bg-slate-950/30 rounded-2xl p-3">
-            <div className="text-end">
+            <div className="text-start">
               <p className="text-xs text-slate-400">{isRtl ? 'البريد الإلكتروني' : 'Email'}</p>
               <p className="font-semibold text-sm text-slate-700 dark:text-slate-300 truncate max-w-[140px]" dir="ltr">{parent.email}</p>
             </div>
@@ -226,7 +226,7 @@ export default function ParentDetailsScreen({
 
           {/* Personal Data Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-5">
-            <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-end">
+            <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
               {isRtl ? 'البيانات الشخصية' : 'Personal Details'}
             </h3>
 
@@ -260,17 +260,17 @@ export default function ParentDetailsScreen({
                   className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1.5 text-end">{isRtl ? 'الاسم بالعربية' : 'Arabic Name'}</label>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 text-start">{isRtl ? 'الاسم بالعربية' : 'Arabic Name'}</label>
                 <input type="text" required value={formData.name} onChange={(e) => handleChange('name', e.target.value)}
                   placeholder={isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'}
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400 text-end" />
+                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400 text-start" />
               </div>
             </div>
 
             {/* Phone + Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1.5 text-end">{isRtl ? 'رقم الهاتف' : 'Phone'}</label>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 text-start">{isRtl ? 'رقم الهاتف' : 'Phone'}</label>
                 <div className="flex gap-2" dir="ltr">
                   <div className="relative shrink-0">
                     <button type="button" onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
@@ -295,7 +295,7 @@ export default function ParentDetailsScreen({
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1.5 text-end">{isRtl ? 'البريد الإلكتروني' : 'Email'}</label>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 text-start">{isRtl ? 'البريد الإلكتروني' : 'Email'}</label>
                 <input type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)}
                   placeholder="khalid@email.com" dir="ltr"
                   className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400" />
@@ -304,7 +304,7 @@ export default function ParentDetailsScreen({
 
             {/* Country */}
             <div className="relative">
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 text-end">{isRtl ? 'البلد' : 'Country'}</label>
+              <label className="block text-xs font-bold text-slate-500 mb-1.5 text-start">{isRtl ? 'البلد' : 'Country'}</label>
               <button type="button" onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
                 className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 cursor-pointer">
                 <ChevronDown size={16} className="text-slate-400" />
@@ -314,7 +314,7 @@ export default function ParentDetailsScreen({
                 <div className="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2">
                   {countries.map((c) => (
                     <button key={c.name} type="button" onClick={() => { handleChange('country', c.name); setIsCountryDropdownOpen(false) }}
-                      className="w-full px-4 py-2.5 text-end hover:bg-slate-50 dark:hover:bg-slate-800 text-sm text-slate-700 dark:text-slate-300">
+                      className="w-full px-4 py-2.5 text-start hover:bg-slate-50 dark:hover:bg-slate-800 text-sm text-slate-700 dark:text-slate-300">
                       {c.name}
                     </button>
                   ))}
@@ -325,7 +325,7 @@ export default function ParentDetailsScreen({
 
           {/* Security Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-5">
-            <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-end">
+            <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
               {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -334,7 +334,7 @@ export default function ParentDetailsScreen({
                 { key: 'password', label: isRtl ? 'كلمة المرور' : 'Password', show: showPassword, toggle: () => setShowPassword(!showPassword) },
               ].map(({ key, label, show, toggle }) => (
                 <div key={key}>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5 text-end">{label}</label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5 text-start">{label}</label>
                   <div className="relative" dir="ltr">
                     <input type={show ? 'text' : 'password'} value={formData[key]} onChange={(e) => handleChange(key, e.target.value)}
                       placeholder="••••••••••••••••••••"
@@ -381,8 +381,8 @@ export default function ParentDetailsScreen({
               </div>
 
               <div className="p-5 border-b border-slate-100 dark:border-slate-800">
-                <h4 className="text-sm font-bold text-slate-800 dark:text-white text-end mb-0.5">{isRtl ? 'متابعة الأبناء' : 'Children Follow-up'}</h4>
-                <p className="text-xs text-slate-400 text-end">{isRtl ? 'جميع معلومات أبنائك المسجلين' : 'All enrolled children info'}</p>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-white text-start mb-0.5">{isRtl ? 'متابعة الأبناء' : 'Children Follow-up'}</h4>
+                <p className="text-xs text-slate-400 text-start">{isRtl ? 'جميع معلومات أبنائك المسجلين' : 'All enrolled children info'}</p>
               </div>
 
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -401,13 +401,13 @@ export default function ParentDetailsScreen({
                         <button className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-all">
                           {isRtl ? 'التفاصيل' : 'Details'}
                         </button>
-                        <div className="text-end">
+                        <div className="text-start">
                           <p className="font-bold text-sm text-slate-800 dark:text-slate-200">{child.name}</p>
                           <p className="text-xs text-slate-400 mt-0.5">
                             {isRtl ? 'تاريخ الانضمام:' : 'Joined:'} {child.joinDate}
                           </p>
                           <div className="flex items-center justify-end gap-3 mt-2">
-                            <div className="text-end">
+                            <div className="text-start">
                               <p className="text-xs text-slate-400">{isRtl ? 'الحصص' : 'Sessions'}</p>
                               <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                                 {child.usedSessions} {isRtl ? 'مستخدمة' : 'used'} •{' '}
@@ -417,7 +417,7 @@ export default function ParentDetailsScreen({
                                 <div className={`h-full rounded-full ${barColor} transition-all`} style={{ width: `${Math.min(usedPct, 100)}%` }} />
                               </div>
                             </div>
-                            <div className="text-end">
+                            <div className="text-start">
                               <p className="text-xs text-slate-400">{isRtl ? 'المادة' : 'Subject'}</p>
                               <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{child.subject}</p>
                             </div>

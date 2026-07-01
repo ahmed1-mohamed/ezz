@@ -24,6 +24,7 @@ export default function StudentDetailsScreen({
   if (!student) return null
 
   const isSuspended = student.subscriptionStatus === 'Expired'
+  const studentDisplayName = typeof student.name === 'string' ? student.name : (student.name?.ar || student.name?.en || '-');
 
   const parentsMock = [
     { name: 'خالد المنصور', email: 'khalid@email.com', phone: '+966501234567', initial: 'خ' },
@@ -146,11 +147,11 @@ export default function StudentDetailsScreen({
               <span>{isRtl ? 'تفاصيل الطالب' : 'Student Details'}</span>
               <span className="text-slate-350 dark:text-slate-600 text-lg">/</span>
               <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg font-bold">
-                {student.name}
+                {studentDisplayName}
               </span>
             </h1>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-bold">
-              {isRtl ? `ملف شامل لـ ${student.name}` : `Comprehensive file for ${student.name}`}
+              {isRtl ? `ملف شامل لـ ${studentDisplayName}` : `Comprehensive file for ${studentDisplayName}`}
             </p>
           </div>
         </div>

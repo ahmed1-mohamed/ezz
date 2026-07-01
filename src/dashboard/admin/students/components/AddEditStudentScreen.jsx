@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import api from '@/shared/services/api/axiosConfig'
+import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentStep1 from './steps/StudentStep1'
 import StudentStep2 from './steps/StudentStep2'
-import StudentStep3 from './steps/StudentStep3'
 
 const levels = [
   { value: 'مبتدئ', label: 'مبتدئ (Beginner)' },
@@ -10,28 +11,7 @@ const levels = [
   { value: 'متقدم', label: 'متقدم (Advanced)' }
 ]
 
-const countries = [
-  { name: 'مصر', nameEn: 'Egypt' },
-  { name: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia' },
-  { name: 'الإمارات العربية المتحدة', nameEn: 'UAE' },
-  { name: 'الكويت', nameEn: 'Kuwait' },
-  { name: 'قطر', nameEn: 'Qatar' }
-]
 
-const countryCodes = [
-  { code: '+20', flag: '🇪🇬', name: 'Egypt' },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
-  { code: '+974', flag: '🇶🇦', name: 'Qatar' }
-]
-
-const parentsMock = [
-  { name: 'خالد المنصور', email: 'khalid@email.com', phone: '+966501234567', initial: 'خ' },
-  { name: 'علي الهاشمي', email: 'ali@email.com', phone: '+966501234569', initial: 'ع' },
-  { name: 'منى الكعبي', email: 'mona@email.com', phone: '+966501234570', initial: 'م' },
-  { name: 'سارة العلي', email: 'sara@email.com', phone: '+966501234568', initial: 'س' }
-]
 
 export default function AddEditStudentScreen({
   student = null,
@@ -42,25 +22,26 @@ export default function AddEditStudentScreen({
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const [step, setStep] = useState(1)
 
-  const phonePrefix = student?.phone?.startsWith('+') ? student.phone.split(' ')[0] : '+20'
+  const [countriesList, setCountriesList] = useState([{ name: '🇪🇬 مصر', nameEn: 'Egypt' }])
+  const [countryCodesList, setCountryCodesList] = useState([{ code: '+20', flag: '🇪🇬', name: 'Egypt' }])
+  const [parentsList, setParentsList] = useState([])
+
   const phoneNumberOnly = student?.phone?.includes(' ') ? student.phone.split(' ').slice(1).join(' ') : student?.phone || ''
 
   const [selectedCountryCode, setSelectedCountryCode] = useState(
-    countryCodes.find((c) => c.code === phonePrefix) || countryCodes[0]
+    countryCodesList[0]
   )
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [phoneVal, setPhoneVal] = useState(phoneNumberOnly)
   const [parentSearch, setParentSearch] = useState('')
   const [selectedParentName, setSelectedParentName] = useState(student?.parentName || '')
-  const [cvFileName, setCvFileName] = useState(null)
-  const [certFileName, setCertFileName] = useState(null)
 
   const [formData, setFormData] = useState({
-    name: student?.name || '',
-    nameEn: student?.nameEn || '',
+    name: typeof student?.name === 'string' ? student.name : (student?.name?.ar || student?.name?.en || student?.name_ar || student?.arabicName || ''),
+    nameEn: (typeof student?.name === 'object' && student?.name?.en) ? student.name.en : (student?.nameEn || student?.name_en || student?.englishName || ''),
     age: student?.age || '',
     email: student?.email || '',
-    country: student?.country || 'مصر',
+    country: student?.country || '',
     level: student?.level || 'متوسط',
     groupName: student?.groupName || 'مجموعة القرآن أ',
     parentName: student?.parentName || '',
@@ -68,12 +49,94 @@ export default function AddEditStudentScreen({
     totalSessions: student?.totalSessions ?? 12,
     subscriptionStatus: student?.subscriptionStatus || 'Active',
     notes: student?.notes || '',
-    profileImage: student?.profileImage || null,
+    profileImageFile: null,
+    profileImage: student?.image || student?.profileImage || student?.avatar || student?.photo || student?.picture || student?.profilePicture || null,
     password: '',
     confirmPassword: '',
     studentsCount: 45,
     experienceYears: 8
   })
+
+  // Fetch complete student details if we are in Edit mode
+  useEffect(() => {
+    if (student) {
+      const studentId = student._id || student.id || student.studentId || student.userId;
+      if (studentId) {
+        studentsApi.fetchStudentById(studentId)
+          .then(res => {
+            const fullData = res?.data || res;
+            if (fullData) {
+              setFormData(prev => ({
+                ...prev,
+                name: typeof fullData.name === 'string' ? fullData.name : (fullData.name?.ar || fullData.name?.en || fullData.name_ar || fullData.arabicName || prev.name),
+                nameEn: (typeof fullData.name === 'object' && fullData.name?.en) ? fullData.name.en : (fullData.nameEn || fullData.name_en || fullData.englishName || prev.nameEn),
+                profileImage: fullData.image || fullData.profileImage || fullData.avatar || fullData.photo || fullData.picture || fullData.profilePicture || prev.profileImage,
+                phone: fullData.phone || prev.phone,
+                country: fullData.country || prev.country
+              }));
+              
+              if (fullData.phone) {
+                const prefix = fullData.phone.startsWith('+') ? fullData.phone.split(' ')[0] : '+20';
+                setPhoneVal(fullData.phone.includes(' ') ? fullData.phone.split(' ').slice(1).join(' ') : fullData.phone);
+                // Country code update will happen in the countries fetch effect or here if countryCodesList is ready
+              }
+            }
+          })
+          .catch(err => console.error("Failed to fetch full student details:", err));
+      }
+    }
+  }, [student]);
+
+  useEffect(() => {
+    // Fetch countries
+    api.get('/api/v1/countries').then(res => {
+      const data = res.data?.data || res.data || [];
+      if (Array.isArray(data) && data.length > 0) {
+        const fetchedCountries = data.map(c => ({
+          id: c.id,
+          name: c.name || '',
+          nameEn: c.name || ''
+        }));
+        const fetchedCodes = data.map(c => ({
+          code: c.phoneCode || '',
+          flag: c.flag || '',
+          name: c.name || ''
+        }));
+
+        setCountriesList(fetchedCountries.length ? fetchedCountries : [{ id: '', name: '🇪🇬 مصر', nameEn: 'Egypt' }]);
+        setCountryCodesList(fetchedCodes.length ? fetchedCodes : [{ code: '+20', flag: '🇪🇬', name: 'Egypt' }]);
+
+        if (!student?.country && fetchedCountries.length > 0) {
+          handleChange('country', fetchedCountries[0].id);
+        } else if (student?.country) {
+          const match = fetchedCountries.find(c => 
+            c.name === student.country || 
+            c.id === student.country ||
+            (student.country && c.name && student.country.includes(c.name))
+          );
+          if (match) handleChange('country', match.id);
+        }
+
+        const prefix = student?.phone?.startsWith('+') ? student.phone.split(' ')[0] : '+20';
+        const matchCode = fetchedCodes.find((c) => c.code === prefix) || fetchedCodes[0];
+        if (matchCode) setSelectedCountryCode(matchCode);
+      }
+    }).catch(err => console.error('Error fetching countries:', err));
+
+    api.get('/api/v1/parents/localized/all').then(res => {
+      const data = res.data?.data || res.data || [];
+      if (Array.isArray(data)) {
+        const fetchedParents = data.map(p => ({
+          id: p.id || p._id,
+          name: p.name || p.nameEn || '',
+          email: p.email || '',
+          phone: p.phone || '',
+          initial: (p.name || p.nameEn || '?').charAt(0)
+        }));
+        setParentsList(fetchedParents);
+      }
+    }).catch(err => console.error('Error fetching parents:', err));
+  }, [student?.phone]);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -91,7 +154,7 @@ export default function AddEditStudentScreen({
         alert(isRtl ? 'كلمة المرور وتأكيد كلمة المرور غير متطابقتين!' : 'Passwords do not match!')
         return
       }
-      setStep(3)
+      handleSave({ preventDefault: () => { } })
     }
   }
 
@@ -122,16 +185,15 @@ export default function AddEditStudentScreen({
     setIsDropdownOpen(false)
   }
 
-  const filteredParents = parentsMock.filter(
+  const filteredParents = parentsList.filter(
     (p) =>
-      p.name.includes(parentSearch) ||
-      p.email.includes(parentSearch) ||
-      p.phone.includes(parentSearch)
+      (p.name && p.name.includes(parentSearch)) ||
+      (p.email && p.email.includes(parentSearch)) ||
+      (p.phone && p.phone.includes(parentSearch))
   )
 
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* 1. Header with back and Cancel */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -147,8 +209,8 @@ export default function AddEditStudentScreen({
               <span>{isRtl ? 'إدارة الطلاب' : 'Student Management'}</span>
               <span className="text-slate-300 dark:text-slate-600 text-lg">/</span>
               <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg">
-                {student 
-                  ? (isRtl ? 'تعديل بيانات الطالب' : 'Edit Student Details') 
+                {student
+                  ? (isRtl ? 'تعديل بيانات الطالب' : 'Edit Student Details')
                   : (isRtl ? 'إضافة طالب جديد' : 'Add New Student')}
               </span>
             </h1>
@@ -164,25 +226,20 @@ export default function AddEditStudentScreen({
         </button>
       </div>
 
-      {/* 2. Wizard Steps Progress Tracker */}
-      <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-850/40">
-        <div className="flex items-center gap-2">
-          <span className={`w-8 h-8 flex items-center justify-center rounded-xl font-bold text-xs ${step >= 1 ? 'bg-[#005953] text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>1</span>
-          <span className="text-xs font-bold text-slate-755 dark:text-slate-200">{isRtl ? 'البيانات الشخصية' : 'Personal Info'}</span>
+      {!student && (
+        <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-850/40">
+          <div className="flex items-center gap-2">
+            <span className={`w-8 h-8 flex items-center justify-center rounded-xl font-bold text-xs ${step >= 1 ? 'bg-[#005953] text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>1</span>
+            <span className="text-xs font-bold text-slate-755 dark:text-slate-200">{isRtl ? 'البيانات الشخصية' : 'Personal Info'}</span>
+          </div>
+          <div className="h-0.5 w-10 bg-slate-200 dark:bg-slate-850" />
+          <div className="flex items-center gap-2">
+            <span className={`w-8 h-8 flex items-center justify-center rounded-xl font-bold text-xs ${step >= 2 ? 'bg-[#005953] text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>2</span>
+            <span className="text-xs font-bold text-slate-755 dark:text-slate-200">{isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}</span>
+          </div>
         </div>
-        <div className="h-0.5 w-10 bg-slate-200 dark:bg-slate-850" />
-        <div className="flex items-center gap-2">
-          <span className={`w-8 h-8 flex items-center justify-center rounded-xl font-bold text-xs ${step >= 2 ? 'bg-[#005953] text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>2</span>
-          <span className="text-xs font-bold text-slate-755 dark:text-slate-200">{isRtl ? 'الأمان وولي الأمر' : 'Security & Parent'}</span>
-        </div>
-        <div className="h-0.5 w-10 bg-slate-200 dark:bg-slate-850" />
-        <div className="flex items-center gap-2">
-          <span className={`w-8 h-8 flex items-center justify-center rounded-xl font-bold text-xs ${step >= 3 ? 'bg-[#005953] text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>3</span>
-          <span className="text-xs font-bold text-slate-755 dark:text-slate-200">{isRtl ? 'بيانات العرض والمستندات' : 'Display & Docs'}</span>
-        </div>
-      </div>
+      )}
 
-      {/* 3. Wizard Content Pages */}
       <div className="space-y-8">
         {step === 1 && (
           <StudentStep1
@@ -194,10 +251,11 @@ export default function AddEditStudentScreen({
             setIsDropdownOpen={setIsDropdownOpen}
             phoneVal={phoneVal}
             setPhoneVal={setPhoneVal}
-            countryCodes={countryCodes}
-            countries={countries}
+            countryCodes={countryCodesList}
+            countries={countriesList}
             levels={levels}
             selectCountryCode={selectCountryCode}
+            isEdit={!!student}
           />
         )}
 
@@ -213,23 +271,10 @@ export default function AddEditStudentScreen({
             filteredParents={filteredParents}
           />
         )}
-
-        {step === 3 && (
-          <StudentStep3
-            formData={formData}
-            handleChange={handleChange}
-            isRtl={isRtl}
-            cvFileName={cvFileName}
-            setCvFileName={setCvFileName}
-            certFileName={certFileName}
-            setCertFileName={setCertFileName}
-          />
-        )}
       </div>
 
-      {/* 4. Navigation Footer Buttons */}
       <div className="flex items-center justify-between gap-4 pt-6 border-t border-slate-100 dark:border-slate-800 max-w-4xl mx-auto">
-        {step < 3 ? (
+        {step < 2 && !student ? (
           <button
             type="button"
             onClick={handleNextStep}

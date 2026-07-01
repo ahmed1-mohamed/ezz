@@ -32,9 +32,7 @@ export default function TeacherFormModal({
 
   return createPortal(
     <AnimatePresence>
-      {/* Full-screen backdrop */}
       <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      {/* Centered content */}
       <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -43,11 +41,9 @@ export default function TeacherFormModal({
           transition={{ duration: 0.2 }}
           className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
         >
-          {/* Decorative top bar */}
           <div className="h-1.5 w-full shrink-0 bg-gradient-to-r from-[#0f7a6c] via-[#14b8a6] to-[#0f7a6c]" />
 
           <div className="p-5 sm:p-8 overflow-y-auto">
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">

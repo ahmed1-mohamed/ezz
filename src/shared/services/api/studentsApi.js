@@ -1,148 +1,37 @@
 import api from './axiosConfig';
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const mockStudents = [
-  {
-    id: '603d7b88981f1b25ec3a21a1',
-    name: 'أحمد خالد المنصور',
-    nameEn: 'Ahmed Khaled Al-Mansour',
-    age: 10,
-    email: 'ahmed.khaled@yahoo.com',
-    phone: '+20 1012345678',
-    country: 'مصر',
-    level: 'متوسط',
-    groupName: 'مجموعة القرآن أ',
-    parentName: 'خالد المنصور',
-    remainingSessions: 8,
-    totalSessions: 12,
-    subscriptionStatus: 'Active', // فعال
-    notes: 'طالب ممتاز ومواظب على الحضور'
-  },
-  {
-    id: '603d7b88981f1b25ec3a21a2',
-    name: 'أحمد خالد المنصور',
-    nameEn: 'Ahmed Khaled Al-Mansour',
-    age: 10,
-    email: 'ahmed2@yahoo.com',
-    phone: '+20 1012345678',
-    country: 'مصر',
-    level: 'مبتدئ',
-    groupName: 'مجموعة القرآن أ',
-    parentName: 'خالد المنصور',
-    remainingSessions: 8,
-    totalSessions: 12,
-    subscriptionStatus: 'Active', // فعال
-    notes: ''
-  },
-  {
-    id: '603d7b88981f1b25ec3a21a3',
-    name: 'أحمد خالد المنصور',
-    nameEn: 'Ahmed Khaled Al-Mansour',
-    age: 10,
-    email: 'ahmed3@yahoo.com',
-    phone: '+20 1012345678',
-    country: 'مصر',
-    level: 'متقدم',
-    groupName: 'مجموعة القرآن أ',
-    parentName: 'خالد المنصور',
-    remainingSessions: 8,
-    totalSessions: 12,
-    subscriptionStatus: 'Active', // فعال
-    notes: ''
-  },
-  {
-    id: '603d7b88981f1b25ec3a21a4',
-    name: 'أحمد خالد المنصور',
-    nameEn: 'Ahmed Khaled Al-Mansour',
-    age: 10,
-    email: 'ahmed4@yahoo.com',
-    phone: '+20 1012345678',
-    country: 'مصر',
-    level: 'متوسط',
-    groupName: 'مجموعة القرآن أ',
-    parentName: 'خالد المنصور',
-    remainingSessions: 8,
-    totalSessions: 12,
-    subscriptionStatus: 'Active', // فعال
-    notes: ''
-  },
-  {
-    id: '603d7b88981f1b25ec3a21a5',
-    name: 'سليمان خالد المنصور',
-    nameEn: 'Soliman Khaled Al-Mansour',
-    age: 9,
-    email: 'soliman@yahoo.com',
-    phone: '+966 501234567',
-    country: 'المملكة العربية السعودية',
-    level: 'مبتدئ',
-    groupName: 'مجموعة التجويد ب',
-    parentName: 'خالد المنصور',
-    remainingSessions: 2,
-    totalSessions: 12,
-    subscriptionStatus: 'Expiring', // ينتهي قريباً
-    notes: 'قارئ سريع ويحتاج إلى مراجعة مخارج الحروف'
-  },
-  {
-    id: '603d7b88981f1b25ec3a21a6',
-    name: 'يوسف محمد السعيد',
-    nameEn: 'Youssef Mohamed Al-Saeed',
-    age: 11,
-    email: 'youssef.mohamed@gmail.com',
-    phone: '+971 521234567',
-    country: 'الإمارات العربية المتحدة',
-    level: 'متقدم',
-    groupName: 'مجموعة القراءات ج',
-    parentName: 'محمد السعيد',
-    remainingSessions: 0,
-    totalSessions: 12,
-    subscriptionStatus: 'Expired', // منتهي
-    notes: 'انتهت باقته الحالية ويحتاج للتجديد'
-  }
-];
-
 export const studentsApi = {
-  fetchStudents: async () => {
-    try {
-      const response = await api.get('/api/v1/students');
-      return response.data;
-    } catch (error) {
-      console.warn('API fetchStudents failed, using mock data:', error);
-      await delay(400);
-      return { success: true, data: mockStudents };
-    }
+  fetchStudents: async (params) => {
+    const response = await api.get('/api/v1/students', { params });
+    return response.data;
+  },
+
+  fetchAllLocalizedStudents: async () => {
+    const response = await api.get('/api/v1/students/localized/all');
+    return response.data;
+  },
+
+  fetchStudentById: async (id) => {
+    const response = await api.get(`/api/v1/students/localized/${id}`);
+    return response.data;
   },
 
   createStudent: async (studentData) => {
-    try {
-      const response = await api.post('/api/v1/students', studentData);
-      return response.data;
-    } catch (error) {
-      console.warn('API createStudent failed, using mock integration:', error);
-      await delay(400);
-      return { success: true, data: { ...studentData, id: Date.now() } };
-    }
+    const isFormData = studentData instanceof FormData;
+    const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+    const response = await api.post('/api/v1/students', studentData, { headers });
+    return response.data;
   },
 
   updateStudent: async (id, studentData) => {
-    try {
-      const response = await api.patch(`/api/v1/students/${id}`, studentData);
-      return response.data;
-    } catch (error) {
-      console.warn('API updateStudent failed, using mock integration:', error);
-      await delay(400);
-      return { success: true, data: { id, ...studentData } };
-    }
+    const isFormData = studentData instanceof FormData;
+    const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+    const response = await api.patch(`/api/v1/students/${id}`, studentData, { headers });
+    return response.data;
   },
 
   deleteStudent: async (id) => {
-    try {
-      const response = await api.delete(`/api/v1/admin/students/${id}`);
-      return response.data;
-    } catch (error) {
-      console.warn('API deleteStudent failed, using mock integration:', error);
-      await delay(400);
-      return { success: true, message: 'Deleted successfully' };
-    }
+    const response = await api.delete(`/api/v1/admin/students/${id}`);
+    return response.data;
   }
 };

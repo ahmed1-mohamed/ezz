@@ -100,7 +100,7 @@ export default function AssignmentsTable({ assignments, onDelete }) {
                 {/* Actions */}
                 <div className="flex items-center justify-end gap-2 w-20">
                   <button
-                    onClick={() => onDelete(item.id)}
+                    onClick={() => onDelete(item)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                     title={p('delete', 'حذف')}
                   >

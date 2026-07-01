@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminRewardsApi } from '@/shared/services/api/adminRewardsApi'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import RewardForm from './components/RewardForm'
 import RewardsSuggestions from './components/RewardsSuggestions'
 import GrantedBadgesGrid from './components/GrantedBadgesGrid'
@@ -69,8 +70,11 @@ export default function AdminRewards() {
     }
   }
 
-  const handleDeleteSuggestion = async (id) => {
-    const res = await adminRewardsApi.deleteSuggestion(id)
+  const handleDeleteSuggestion = async (suggestion) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, isRtl ? suggestion.name : suggestion.nameEn);
+    if (!isConfirmed) return;
+
+    const res = await adminRewardsApi.deleteSuggestion(suggestion.id)
     if (res?.success) {
       loadData()
     }

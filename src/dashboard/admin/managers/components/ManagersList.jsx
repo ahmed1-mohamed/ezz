@@ -241,7 +241,7 @@ export default function ManagersList({
 
                           {/* Trash Icon */}
                           <button
-                            onClick={() => onDelete(supervisor.id)}
+                            onClick={() => onDelete(supervisor)}
                             title={isRtl ? 'حذف المشرف' : 'Delete Supervisor'}
                             className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
                           >

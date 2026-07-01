@@ -2,9 +2,7 @@ import { useState, useMemo } from 'react'
 import {
   Search,
   Plus,
-  Users,
-  CheckCircle2,
-  Clock,
+
   Trash2,
   Pencil,
   Eye,
@@ -13,6 +11,7 @@ import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function ParentsList({
   parents,
+  pagination,
   isRtl,
   t,
   onOpenAddScreen,
@@ -23,14 +22,9 @@ export default function ParentsList({
   const [searchVal, setSearchVal] = useState('')
   const debouncedQuery = useDebounce(searchVal, 300)
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 6
+  const itemsPerPage = pagination?.limit || 10
 
-  const metrics = useMemo(() => {
-    const total = parents.length
-    const active = parents.filter((p) => p.status === 'Active').length
-    const expiring = parents.filter((p) => p.status === 'Expiring').length
-    return { total, active, expiring }
-  }, [parents])
+
 
   const filtered = useMemo(() => {
     if (!debouncedQuery.trim()) return parents
@@ -48,32 +42,12 @@ export default function ParentsList({
   const currentItems = useMemo(() => filtered.slice(indexOfFirst, indexOfLast), [filtered, indexOfFirst, indexOfLast])
   const totalPages = useMemo(() => Math.ceil(filtered.length / itemsPerPage), [filtered])
 
-  const statusConfig = {
-    Active: { label: isRtl ? 'فعال' : 'Active', dotClass: 'bg-emerald-500', badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400' },
-    Expiring: { label: isRtl ? 'ينتهي قريباً' : 'Expiring', dotClass: 'bg-amber-500', badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400' },
-    Expired: { label: isRtl ? 'منتهي' : 'Expired', dotClass: 'bg-slate-400', badgeClass: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' },
-  }
+
 
   return (
     <div className="space-y-8">
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          { icon: <Users size={24} />, label: t('adminDashboard.parents.total', 'إجمالي الأولياء'), value: metrics.total, colorClass: 'bg-brand-50 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400' },
-          { icon: <CheckCircle2 size={24} />, label: t('adminDashboard.parents.active', 'ولي نشط'), value: metrics.active, colorClass: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' },
-          { icon: <Clock size={24} />, label: t('adminDashboard.parents.expiring', 'ينتهي قريباً'), value: metrics.expiring, colorClass: 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400' },
-        ].map((card, i) => (
-          <div key={i} className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800/60 transition-transform duration-300 hover:-translate-y-1">
-            <div className="flex items-center gap-4">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.colorClass}`}>
-                {card.icon}
-              </div>
-              <p className="text-sm font-medium text-slate-400 dark:text-slate-500">{card.label}</p>
-            </div>
-            <span className="text-3xl font-bold text-slate-800 dark:text-white">{card.value}</span>
-          </div>
-        ))}
-      </div>
+
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex flex-wrap items-center gap-3">
@@ -111,41 +85,55 @@ export default function ParentsList({
             <thead className="bg-slate-50/75 text-slate-500 dark:bg-slate-950/40 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
               <tr>
                 <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.parents.parentName', 'ولي الأمر')}</th>
-                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.parents.children', 'الأبناء')}</th>
+                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.parents.contact', 'معلومات التواصل')}</th>
                 <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.parents.status', 'الحالة')}</th>
+                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.parents.joined', 'تاريخ الانضمام')}</th>
                 <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.parents.actions', 'الإجراءات')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-10 text-center text-slate-400 dark:text-slate-500 font-medium">
+                  <td colSpan="5" className="px-6 py-10 text-center text-slate-400 dark:text-slate-500 font-medium">
                     {isRtl ? 'لا يوجد أولياء أمور يطابقون بحثك' : 'No parents found matching your search'}
                   </td>
                 </tr>
               ) : (
                 currentItems.map((parent) => {
-                  const initial = parent.name.trim().charAt(0)
-                  const statusCfg = statusConfig[parent.status] || statusConfig.Expired
+                  const nameStr = typeof parent.name === 'object' ? (parent.name?.ar || parent.name?.en || '') : (parent.name || '');
+                  const initial = nameStr.trim().charAt(0) || 'أ';
+                  const statusCfg = parent.active
+                    ? { label: isRtl ? 'نشط' : 'Active', badgeClass: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400', dotClass: 'bg-emerald-500' }
+                    : { label: isRtl ? 'غير نشط' : 'Inactive', badgeClass: 'bg-slate-50 text-slate-600 dark:bg-slate-500/10 dark:text-slate-400', dotClass: 'bg-slate-400' };
+
                   return (
-                    <tr key={parent.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors">
+                    <tr key={parent.parent_id || parent._id || parent.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors">
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3 justify-start">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
-                            {initial}
-                          </div>
+                          {parent.image ? (
+                            <img src={parent.image} alt={nameStr} className="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-800" />
+                          ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
+                              {initial}
+                            </div>
+                          )}
                           <div className="text-start">
-                            <p className="font-semibold text-slate-800 dark:text-slate-200">{parent.name}</p>
+                            <p className="font-semibold text-slate-800 dark:text-slate-200">{nameStr}</p>
                             <p className="text-xs text-slate-400 dark:text-slate-500">{parent.email}</p>
                           </div>
                         </div>
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-start">
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                          {parent.childrenCount || parent.children?.length || 0} {isRtl ? 'طالب' : 'student(s)'}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300" dir="ltr">
+                            {parent.phone}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {parent.country}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-start">
@@ -156,9 +144,15 @@ export default function ParentsList({
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-start">
+                        <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                          {parent.createdAt ? new Date(parent.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-start">
                         <div className="flex flex-row-reverse items-center justify-end gap-4">
                           <button
-                            onClick={() => onDelete(parent.id)}
+                            onClick={() => onDelete(parent)}
                             title={isRtl ? 'حذف' : 'Delete'}
                             className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
                           >

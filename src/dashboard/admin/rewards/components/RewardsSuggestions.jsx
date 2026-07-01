@@ -103,7 +103,7 @@ export default function RewardsSuggestions({
               {/* Header icons on top left */}
               <div className="absolute top-4 start-4 flex items-center gap-2">
                 <button
-                  onClick={() => onDelete(sug.id)}
+                  onClick={() => onDelete(sug)}
                   className="p-1 text-slate-400 hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={15} />

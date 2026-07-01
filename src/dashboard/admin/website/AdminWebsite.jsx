@@ -1,4 +1,10 @@
-import useWebsiteAdmin from './hooks/useWebsiteAdmin';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import useWebsiteStats from './hooks/useWebsiteStats';
+import useFeaturedStudents from './hooks/useFeaturedStudents';
+import useEliteTeachers from './hooks/useEliteTeachers';
+import useTestimonials from './hooks/useTestimonials';
+import useContactInfo from './hooks/useContactInfo';
 
 import WebsiteStatsForm from './components/WebsiteStatsForm.jsx';
 import ContactUsForm from './components/ContactUsForm.jsx';
@@ -8,51 +14,53 @@ import StudentStarModal from './components/StudentStarModal.jsx';
 import TeacherFormModal from './components/TeacherFormModal.jsx';
 import StarViewModal from './components/StarViewModal.jsx';
 import TeacherViewModal from './components/TeacherViewModal.jsx';
+import ParentTestimonialsSection from './components/ParentTestimonialsSection.jsx';
+import TestimonialFormModal from './components/TestimonialFormModal.jsx';
 
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function AdminWebsite() {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language.startsWith('ar');
+
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const showNotification = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+  };
+
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => {
+        setToast((prev) => ({ ...prev, show: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.show]);
+
+  const { stats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification);
+  
   const {
-    isRtl,
-    stats,
-    contactInfo,
-    stars,
-    eliteTeachers,
-    isTeacherModalOpen,
-    selectedTeacher,
-    isTeacherLoading,
-    isTeacherFormOpen,
-    currentTeacher,
-    isModalOpen,
-    isViewModalOpen,
-    currentStar,
-    systemTeachers,
-    toast,
-    setCurrentTeacher,
-    setCurrentStar,
-    handleStatChange,
-    handleSaveStats,
-    handleCancelStats,
-    handleSaveContactInfo,
-    handleCancelContactInfo,
-    handleOpenAddModal,
-    handleOpenEditModal,
-    handleOpenViewModal,
-    handleDeleteStar,
-    handleCancelStarsList,
-    handleSaveStarsList,
-    handleOpenAddTeacher,
-    handleOpenEditTeacher,
-    handleShowTeacherNotes,
-    handleDeleteTeacher,
-    handleSaveModal,
-    handleSaveTeacherSubmit,
-    setIsModalOpen,
-    setIsTeacherFormOpen,
-    setIsViewModalOpen,
-    setIsTeacherModalOpen
-  } = useWebsiteAdmin();
+    stars, isModalOpen, setIsModalOpen, isViewModalOpen, setIsViewModalOpen,
+    currentStar, setCurrentStar, systemStudents,
+    handleOpenAddModal, handleOpenEditModal, handleOpenViewModal,
+    handleDeleteStar, handleSaveModal, handleSaveStarsList, handleCancelStarsList
+  } = useFeaturedStudents(showNotification);
+
+  const {
+    eliteTeachers, isTeacherModalOpen, setIsTeacherModalOpen, selectedTeacher,
+    isTeacherLoading, isTeacherFormOpen, setIsTeacherFormOpen, currentTeacher,
+    setCurrentTeacher, systemTeachers, handleOpenAddTeacher, handleOpenEditTeacher,
+    handleShowTeacherNotes, handleDeleteTeacher, handleSaveTeacherSubmit
+  } = useEliteTeachers(showNotification);
+
+  const {
+    testimonials, isTestimonialModalOpen, setIsTestimonialModalOpen, currentTestimonial,
+    setCurrentTestimonial, handleOpenAddTestimonial, handleOpenEditTestimonial,
+    handleDeleteTestimonial, handleSaveTestimonialSubmit
+  } = useTestimonials(showNotification);
+
+  const { contactInfo, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification);
 
   return (
     <div className="space-y-6 lg:space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -79,6 +87,13 @@ export default function AdminWebsite() {
         handleOpenEditTeacher={handleOpenEditTeacher}
         handleDeleteTeacher={handleDeleteTeacher}
         handleShowTeacherNotes={handleShowTeacherNotes}
+      />
+
+      <ParentTestimonialsSection
+        testimonials={testimonials}
+        handleOpenAddTestimonial={handleOpenAddTestimonial}
+        handleOpenEditTestimonial={handleOpenEditTestimonial}
+        handleDeleteTestimonial={handleDeleteTestimonial}
       />
 
       <StudentStarModal
@@ -109,6 +124,14 @@ export default function AdminWebsite() {
         onClose={() => setIsTeacherModalOpen(false)}
         teacher={selectedTeacher}
         isLoading={isTeacherLoading}
+      />
+
+      <TestimonialFormModal
+        isOpen={isTestimonialModalOpen}
+        onClose={() => setIsTestimonialModalOpen(false)}
+        currentTestimonial={currentTestimonial}
+        setCurrentTestimonial={setCurrentTestimonial}
+        onSubmit={handleSaveTestimonialSubmit}
       />
       <ContactUsForm
         contactInfo={contactInfo}

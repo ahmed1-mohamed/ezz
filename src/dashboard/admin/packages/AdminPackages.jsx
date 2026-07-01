@@ -6,9 +6,9 @@ import Spinner from '@/shared/components/Spinner'
 import { adminPackagesApi } from '@/shared/services/api/adminPackagesApi'
 import PackageCard from './components/PackageCard'
 import PackageFormPanel from './components/PackageFormPanel'
-import DeleteConfirmModal from './components/DeleteConfirmModal'
 import FaqInlineForm from './components/FaqInlineForm'
 import FaqTable from './components/FaqTable'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 
 export default function AdminPackages() {
     const { t } = useTranslation()
@@ -23,7 +23,6 @@ export default function AdminPackages() {
     const [editingPkg, setEditingPkg] = useState(null)
     const [editingFaq, setEditingFaq] = useState(null)
     const [isFaqFormOpen, setIsFaqFormOpen] = useState(false)
-    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, id: null })
 
     const loadAll = useCallback(async () => {
         setLoading(true)
@@ -53,15 +52,18 @@ export default function AdminPackages() {
         setPkgPanelOpen(false)
     }
 
-    const executeDelete = async () => {
-        if (deleteConfirm.type === 'package') {
-            await adminPackagesApi.deletePackage(deleteConfirm.id)
-            setPackages((prev) => prev.filter((p) => p.id !== deleteConfirm.id))
+    const executeDelete = async (type, id, name) => {
+        const isRtl = true; // Assuming RTL default for now, or you can use i18n.language === 'ar' if available
+        const isConfirmed = await showDeleteConfirm(isRtl, name);
+        if (!isConfirmed) return;
+
+        if (type === 'package') {
+            await adminPackagesApi.deletePackage(id)
+            setPackages((prev) => prev.filter((p) => p.id !== id))
         } else {
-            await adminPackagesApi.deleteFaq(deleteConfirm.id)
-            setFaqs((prev) => prev.filter((f) => f.id !== deleteConfirm.id))
+            await adminPackagesApi.deleteFaq(id)
+            setFaqs((prev) => prev.filter((f) => f.id !== id))
         }
-        setDeleteConfirm({ open: false, type: null, id: null })
     }
 
     const handleSaveFaq = async (data) => {
@@ -115,9 +117,8 @@ export default function AdminPackages() {
                                 <PackageCard
                                     key={pkg.id}
                                     pkg={pkg}
-                                    explanationLanguages={explanationLanguages}
-                                    onEdit={(p) => { setEditingPkg(p); setPkgPanelOpen(true) }}
-                                    onDelete={(id) => setDeleteConfirm({ open: true, type: 'package', id })}
+                                    onEdit={(p) => { setEditingPkg(p); setPkgPanelOpen(true); }}
+                                    onDelete={(id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '')}
                                 />
                             ))}
                         </AnimatePresence>
@@ -157,7 +158,10 @@ export default function AdminPackages() {
                 <FaqTable
                     faqs={faqs}
                     onEdit={(faq) => { setEditingFaq(faq); setIsFaqFormOpen(true); }}
-                    onDelete={(id) => setDeleteConfirm({ open: true, type: 'faq', id })}
+                    onDelete={(id) => {
+                        const faq = faqs.find(f => f.id === id);
+                        executeDelete('faq', id, faq?.question || '');
+                    }}
                 />
             </section>
 
@@ -169,11 +173,12 @@ export default function AdminPackages() {
                 explanationLanguages={explanationLanguages}
             />
 
-            <DeleteConfirmModal
-                isOpen={deleteConfirm.open}
-                onClose={() => setDeleteConfirm({ open: false, type: null, id: null })}
-                onConfirm={executeDelete}
-                label={deleteConfirm.type === 'package' ? p('deletePackageLabel') : p('deleteFaqLabel')}
+            <PackageFormPanel
+                isOpen={pkgPanelOpen}
+                onClose={() => setPkgPanelOpen(false)}
+                onSave={handleSavePkg}
+                editingPackage={editingPkg}
+                explanationLanguages={explanationLanguages}
             />
         </div>
     )

@@ -65,44 +65,44 @@ export default function SendMessageModal({ parent, isRtl, t, onClose, onSend }) 
         <div className="p-6 space-y-4">
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-end">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-start">
               {t('adminDashboard.parents.name', 'الاسم')}
             </label>
             <input
               type="text"
               readOnly
               value={parent?.name || ''}
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 text-end outline-none cursor-default"
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 text-start outline-none cursor-default"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-end">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-start">
                 {t('adminDashboard.parents.phone', 'رقم الهاتف')}
               </label>
               <input
                 type="text"
                 readOnly
                 value={parent?.phone || ''}
-                className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 text-end outline-none cursor-default"
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 text-start outline-none cursor-default"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-end">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-start">
                 {t('adminDashboard.parents.email', 'البريد الإلكتروني')}
               </label>
               <input
                 type="text"
                 readOnly
                 value={parent?.email || ''}
-                className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-500 dark:text-slate-400 text-end outline-none cursor-default"
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-500 dark:text-slate-400 text-start outline-none cursor-default"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-end">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-start">
               {t('adminDashboard.parents.message', 'الرسالة')}
             </label>
             <textarea
@@ -110,7 +110,7 @@ export default function SendMessageModal({ parent, isRtl, t, onClose, onSend }) 
               onChange={(e) => setMessage(e.target.value)}
               placeholder={isRtl ? 'اكتب الرسالة ............' : 'Write your message...'}
               rows={5}
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-4 py-3 text-sm text-slate-800 dark:text-slate-200 text-end placeholder-slate-400 outline-none resize-none focus:border-brand-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-4 py-3 text-sm text-slate-800 dark:text-slate-200 text-start placeholder-slate-400 outline-none resize-none focus:border-brand-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
             />
           </div>
         </div>

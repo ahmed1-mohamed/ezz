@@ -11,12 +11,12 @@ export default function ParentSecurity({
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-5">
-      <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-end">
+      <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
         {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {isRtl ? 'تأكيد كلمة المرور' : 'Confirm Password'}
           </label>
           <div className="relative" dir="ltr">
@@ -37,7 +37,7 @@ export default function ParentSecurity({
           </div>
         </div>
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-end">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {isRtl ? 'كلمة المرور' : 'Password'}
           </label>
           <div className="relative" dir="ltr">

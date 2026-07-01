@@ -105,8 +105,8 @@ export default function ExcellenceStarsSection({
                       </button>
 
                       <button
-                        onClick={() => handleDeleteStar(star.id)}
-                        className="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        onClick={() => handleDeleteStar(star)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                         title={t('common.delete', 'إزالة')}
                       >
                         <Trash2 size={16} />

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
 import { landingApi } from '@/shared/services/api/landingApi'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import ManagersList from './components/ManagersList'
 import RolesPermissionsScreen from './components/RolesPermissionsScreen'
 import AddSupervisorScreen from './components/AddSupervisorScreen'
@@ -110,17 +111,14 @@ export default function AdminManagers() {
   }
 
   // Action: Delete Supervisor
-  const handleDeleteSupervisor = async (id) => {
-    const confirmationMsg = isRtl
-      ? 'هل أنت متأكد من حذف هذا المشرف؟'
-      : 'Are you sure you want to delete this supervisor?'
+  const handleDeleteSupervisor = async (supervisor) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, supervisor.name);
+    if (!isConfirmed) return;
     
-    if (window.confirm(confirmationMsg)) {
-      try {
-        await deleteMutation.mutateAsync(id)
-      } catch (err) {
-        console.error('Failed to delete supervisor:', err)
-      }
+    try {
+      await deleteMutation.mutateAsync(supervisor.id)
+    } catch (err) {
+      console.error('Failed to delete supervisor:', err)
     }
   }
 

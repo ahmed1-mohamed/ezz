@@ -24,8 +24,8 @@ export default function ParentStudentLinkage({
           <Plus size={16} />
           <span>{isRtl ? 'إضافة' : 'Add'}</span>
         </button>
-        <h3 className="text-base font-bold text-slate-800 dark:text-white text-end">
-          {isRtl ? 'أضف الطالب' : 'Add Student'}
+        <h3 className="text-base font-bold text-slate-800 dark:text-white text-start">
+          {isRtl ? 'الأبناء' : 'Children'}
         </h3>
       </div>
 
@@ -85,7 +85,7 @@ export default function ParentStudentLinkage({
                 }
                 value={studentSearch}
                 onChange={(e) => setStudentSearch(e.target.value)}
-                className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-2.5 ${isRtl ? 'pr-10 pl-4 text-end' : 'pl-10 pr-4 text-start'} outline-none transition-all text-xs placeholder-slate-400`}
+                className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-2.5 ${isRtl ? 'pr-10 pl-4 text-start' : 'pl-10 pr-4 text-start'} outline-none transition-all text-xs placeholder-slate-400`}
               />
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function ParentStudentLinkage({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="text-end">
+                      <div className="text-start">
                         <h4 className="text-xs font-bold text-slate-800 dark:text-white">
                           {s.name}
                         </h4>

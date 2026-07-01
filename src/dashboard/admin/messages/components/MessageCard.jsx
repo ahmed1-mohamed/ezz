@@ -147,7 +147,7 @@ export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatu
               </button>
 
               <button
-                onClick={() => onDelete(message.id)}
+                onClick={() => onDelete(message)}
                 className="flex items-center justify-center p-2 sm:p-2.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
                 title="Delete"
               >

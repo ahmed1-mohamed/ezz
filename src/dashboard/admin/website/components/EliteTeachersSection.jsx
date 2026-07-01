@@ -106,7 +106,7 @@ export default function EliteTeachersSection({
                       <BookOpen size={18} />
                     </button>
                     <button
-                      onClick={() => handleDeleteTeacher(teacher.id)}
+                      onClick={() => handleDeleteTeacher(teacher)}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title={t('common.delete', 'حذف')}
                     >

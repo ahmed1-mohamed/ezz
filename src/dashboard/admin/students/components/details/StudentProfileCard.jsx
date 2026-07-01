@@ -4,6 +4,8 @@ export default function StudentProfileCard({
   isRtl,
   detailsItems
 }) {
+  const studentDisplayName = typeof student.name === 'string' ? student.name : (student.name?.ar || student.name?.en || '-');
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
       <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
@@ -16,7 +18,7 @@ export default function StudentProfileCard({
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start">
           <div className="space-y-1 sm:text-end">
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-              {student.name}
+              {studentDisplayName}
             </h2>
             <p className="text-xs text-slate-400 dark:text-slate-500">
               {student.email}
@@ -27,7 +29,7 @@ export default function StudentProfileCard({
           </div>
 
           <div className="w-16 h-16 rounded-2xl bg-[#005953]/15 text-[#005953] flex items-center justify-center text-2xl font-black shrink-0">
-            {student.name ? student.name.trim().charAt(0) : 'أ'}
+            {studentDisplayName ? studentDisplayName.trim().charAt(0) : 'أ'}
           </div>
         </div>
       </div>
