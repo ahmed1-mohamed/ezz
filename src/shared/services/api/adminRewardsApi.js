@@ -42,16 +42,7 @@ export const adminRewardsApi = {
     }
   },
 
-  fetchRewards: async () => {
-    try {
-      const response = await api.get('/api/v1/admin/rewards');
-      return response.data;
-    } catch (error) {
-      console.warn('API fetchRewards failed, using mock:', error);
-      await delay(200);
-      return { success: true, data: [...mockRewards] };
-    }
-  },
+
 
   createReward: async (data) => {
     try {
@@ -87,7 +78,7 @@ export const adminRewardsApi = {
 
   deleteReward: async (id) => {
     try {
-      const response = await api.delete(`/api/v1/rewards/private/${id}`);
+      await api.delete(`/api/v1/rewards/private/${id}`);
       return { success: true };
     } catch (error) {
       console.error('API deleteReward failed:', error);
@@ -151,7 +142,7 @@ export const adminRewardsApi = {
 
   deleteSuggestion: async (id) => {
     try {
-      const response = await api.delete(`/api/v1/suggested-rewards/private/${id}`);
+      await api.delete(`/api/v1/suggested-rewards/private/${id}`);
       return { success: true };
     } catch (error) {
       console.error('API deleteSuggestion failed:', error);

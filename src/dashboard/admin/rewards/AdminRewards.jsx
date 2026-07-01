@@ -6,7 +6,6 @@ import { adminRewardsApi } from '@/shared/services/api/adminRewardsApi'
 import { showDeleteConfirm, showSuccessToast, showErrorToast, showRewardDetails } from '@/shared/utils/sweetAlert'
 import RewardForm from './components/RewardForm'
 import RewardsSuggestions from './components/RewardsSuggestions'
-import GrantedBadgesGrid from './components/GrantedBadgesGrid'
 import RewardsGrid from './components/RewardsGrid'
 
 export default function AdminRewards() {
@@ -18,20 +17,18 @@ export default function AdminRewards() {
   const [rewards, setRewards] = useState([])
   const [suggestions, setSuggestions] = useState([])
   const [suggestionsStats, setSuggestionsStats] = useState(null)
-  const [achievements, setAchievements] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const [activeMainTab, setActiveMainTab] = useState('rewards') // 'rewards' or 'suggestions'
+  const [activeMainTab, setActiveMainTab] = useState('rewards')
   const [showForm, setShowForm] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const [statsRes, rewardsRes, suggestionsRes, achievementsRes] = await Promise.all([
+    const [statsRes, rewardsRes, suggestionsRes] = await Promise.all([
       adminRewardsApi.fetchStats(),
       adminRewardsApi.fetchRewards(),
       adminRewardsApi.fetchSuggestions(),
-      adminRewardsApi.fetchAchievements(),
     ])
     if (statsRes?.data) setStats(statsRes.data)
     if (rewardsRes?.success) setRewards(rewardsRes.data)
@@ -41,7 +38,6 @@ export default function AdminRewards() {
         setSuggestionsStats(suggestionsRes.stats)
       }
     }
-    if (achievementsRes?.data) setAchievements(achievementsRes.data)
     setLoading(false)
   }, [])
 
@@ -164,7 +160,6 @@ export default function AdminRewards() {
 
       {activeMainTab === 'rewards' ? (
         <div className="space-y-6">
-          {/* Header and create button */}
           <div className="flex items-center justify-between">
             <h2 className="text-slate-800 dark:text-white font-bold text-base">
               {p('availableRewardsTitle', 'المكافآت المتاحة')}
@@ -181,7 +176,6 @@ export default function AdminRewards() {
             </button>
           </div>
 
-          {/* (Form is rendered as a modal at the end of the file) */}
 
           <RewardsGrid
             rewards={rewards}
@@ -201,7 +195,6 @@ export default function AdminRewards() {
           onApprove={handleApproveSuggestion}
           onReject={handleRejectSuggestion}
           onEdit={(item) => {
-            // Note: If you want to edit a suggestion and turn it into a reward
             setEditingReward(item)
             setShowForm(true)
             setActiveMainTab('rewards')
@@ -210,26 +203,6 @@ export default function AdminRewards() {
         />
       )}
 
-      {/* Achievements Section */}
-      <div className="space-y-6">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-6 flex items-center justify-between">
-          <div className="flex flex-col items-center">
-            <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold">
-              {p('statTotalBadges', 'إجمالي الأوسمة')}
-            </span>
-            <span className="text-3xl font-extrabold text-slate-800 dark:text-white mt-1.5">
-              {stats?.totalAchievements || 0}
-            </span>
-          </div>
-          <h3 className="font-extrabold text-slate-800 dark:text-white text-base">
-            {p('footerTitle', 'الانجازات و الأوسمة الكلية')}
-          </h3>
-        </div>
-
-        <GrantedBadgesGrid achievements={achievements} />
-      </div>
-
-      {/* Modal for RewardForm */}
       {showForm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl my-8 relative flex flex-col max-h-[90vh]">
