@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -23,8 +23,6 @@ import {
   BarChart2,
   Activity,
   MessageSquare,
-  Bell,
-  Search,
   Menu,
   X,
   LogOut,
@@ -53,13 +51,13 @@ const navItems = [
   { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },
   { path: '/dashboard/admin/logs', icon: Activity, transKey: 'activities' },
   { path: '/dashboard/admin/messages', icon: MessageSquare, transKey: 'messages' },
+  { path: '/', icon: Globe, transKey: 'mainWebsite' },
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
 
 export default function AdminLayout() {
   const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
@@ -109,7 +107,6 @@ export default function AdminLayout() {
         </button>
       </header>
 
-      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -122,7 +119,6 @@ export default function AdminLayout() {
         )}
       </AnimatePresence>
 
-      {/* Desktop & Mobile Sidebar */}
       <aside className={`
         fixed lg:sticky top-0 h-screen z-40
         w-64 bg-white dark:bg-slate-950 border-e border-slate-200 dark:border-slate-800
@@ -130,7 +126,6 @@ export default function AdminLayout() {
         flex flex-col shrink-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
       `}>
-        {/* Brand Logo Section */}
         <div className="p-5 flex items-center gap-3 border-b border-slate-100 dark:border-slate-900 shrink-0">
           <div className="w-10 h-10 rounded-xl bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0">
             <BookMarked size={22} />
@@ -145,7 +140,6 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin">
           {navItems.map((item) => (
             <NavLink
@@ -153,19 +147,18 @@ export default function AdminLayout() {
               to={item.path}
               end={item.end}
               className={({ isActive }) => `
-                flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
+                flex  items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
                 ${isActive
                   ? 'bg-[#0f7a6c] text-white font-semibold shadow-md shadow-[#0f7a6c]/10'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-[#0f7a6c] dark:hover:text-emerald-400 hover:ps-5'}
               `}
             >
               <item.icon size={18} className="me-3 transition-transform group-hover:scale-110" />
-              <span className="text-sm">{t(`adminDashboard.nav.${item.transKey}`)}</span>
+              <span className="text-sm">{t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '')}</span>
             </NavLink>
           ))}
         </nav>
 
-        {/* Logout Section */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-900 shrink-0">
           <button
             onClick={handleLogout}
@@ -177,13 +170,10 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main Panel Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* Universal Top Header */}
         <header className="hidden lg:flex h-20 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-900 items-center justify-between px-8 sticky top-0 z-20 shrink-0">
 
-          {/* Right Header Section (Title) */}
           <div className="text-start">
             <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
               {t('adminDashboard.panelTitle', 'لوحة التحكم الرئيسية')}
@@ -193,33 +183,18 @@ export default function AdminLayout() {
             </p>
           </div>
 
-          {/* Center Header Section (Search Bar) */}
-          <div className="w-96 relative mx-4">
-            <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
-              <Search className="w-4 h-4 text-slate-400" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('adminDashboard.searchPlaceholder', 'بحث في المنصة...')}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c]/40 focus:bg-white text-slate-800 dark:text-slate-200 rounded-full py-2 ps-10 pe-4 outline-none transition-all placeholder-slate-400 text-sm"
-            />
-          </div>
 
-          {/* Left Header Section (Notifications and Profile) */}
           <div className="flex items-center gap-6">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#f3f7f6] dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 hover:bg-[#0f7a6c] hover:text-white dark:hover:bg-emerald-500 dark:hover:text-slate-950 transition-all hover:scale-105 active:scale-95 duration-200"
+            >
+              <span>{t('adminDashboard.nav.mainWebsite', 'الموقع الرئيسي')}</span>
+              <Globe size={16} />
+            </Link>
 
-            {/* Notification Bell */}
-            <button className="relative p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-[#f3f7f6] dark:bg-slate-900 rounded-full hover:scale-105 active:scale-95">
-              <Bell size={20} />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border border-white dark:border-slate-950 rounded-full" />
-            </button>
-
-            {/* Vertical Separator */}
             <div className="w-[1px] h-8 bg-slate-200 dark:bg-slate-800" />
 
-            {/* Profile Info */}
             <div className="flex items-center gap-3">
               <div className="text-end hidden xl:block">
                 <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -238,7 +213,6 @@ export default function AdminLayout() {
 
         </header>
 
-        {/* Nested Content Panel */}
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
           <Outlet />
         </main>

@@ -11,75 +11,35 @@ export default function AdminDashboard() {
         {
             title: t('admin.totalStudents'),
             value: '108',
-            change: (
-                <span className="flex items-center justify-between w-full whitespace-normal">
-                    <span className="text-slate-500 dark:text-slate-400">{t('admin.newStudentsThisMonth')}</span>
-                    <span className="text-[#00796B] dark:text-[#4DB6AC] font-bold flex items-center gap-0.5 shrink-0" dir="ltr">
-                        <span>+11%</span>
-                        <span>↗</span>
-                    </span>
-                </span>
-            ),
+
             icon: <BookOpen className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.totalTeachers'),
             value: '6',
-            change: (
-                <span className="flex items-center justify-between w-full whitespace-normal">
-                    <span className="text-slate-500 dark:text-slate-400">{t('admin.pendingReview')}</span>
-                    <span className="text-[#00796B] dark:text-[#4DB6AC] font-bold flex items-center gap-0.5 shrink-0" dir="ltr">
-                        <span>+0%</span>
-                        <span>↗</span>
-                    </span>
-                </span>
-            ),
+
             icon: <GraduationCap className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.parents'),
             value: '88',
-            change: (
-                <span className="flex items-center justify-between w-full whitespace-normal">
-                    <span className="text-slate-500 dark:text-slate-400">{t('admin.activeRegistered')}</span>
-                    <span className="text-[#00796B] dark:text-[#4DB6AC] font-bold flex items-center gap-0.5 shrink-0" dir="ltr">
-                        <span>+8%</span>
-                        <span>↗</span>
-                    </span>
-                </span>
-            ),
+
             icon: <Users className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.activeSessionsToday'),
             value: '7',
-            change: (
-                <span className="flex items-center justify-between w-full whitespace-normal">
-                    <span className="text-slate-500 dark:text-slate-400">{t('admin.liveNow')}</span>
-                    <span className="text-[#00796B] dark:text-[#4DB6AC] font-bold flex items-center gap-0.5 shrink-0" dir="ltr">
-                        <span>+5%</span>
-                        <span>↗</span>
-                    </span>
-                </span>
-            ),
+
             icon: <Calendar className="w-5 h-5" />,
             accent: 'bg-[#FFEBEE] text-[#D32F2F] dark:bg-[#C62828]/20 dark:text-[#EF5350]'
         },
         {
             title: t('admin.totalGroups'),
             value: '14',
-            change: (
-                <span className="flex items-center justify-between w-full whitespace-normal">
-                    <span className="text-slate-500 dark:text-slate-400">{t('admin.groupsSubtext')}</span>
-                    <span className="text-[#00796B] dark:text-[#4DB6AC] font-bold flex items-center gap-0.5 shrink-0" dir="ltr">
-                        <span>+3%</span>
-                        <span>↗</span>
-                    </span>
-                </span>
-            ),
+
             icon: <Layers className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
@@ -91,15 +51,7 @@ export default function AdminDashboard() {
                     <span className="text-amber-500 text-lg sm:text-xl">★</span>
                 </span>
             ),
-            change: (
-                <span className="flex items-center justify-between w-full whitespace-normal">
-                    <span className="text-slate-500 dark:text-slate-400">{t('admin.fromParents')}</span>
-                    <span className="text-[#00796B] dark:text-[#4DB6AC] font-bold flex items-center gap-0.5 shrink-0" dir="ltr">
-                        <span>+2%</span>
-                        <span>↗</span>
-                    </span>
-                </span>
-            ),
+
             icon: <Activity className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         }

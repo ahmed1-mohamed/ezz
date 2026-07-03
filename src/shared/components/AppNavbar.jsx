@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Globe, Menu, X } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
@@ -11,9 +11,26 @@ import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 export default function AppNavbar() {
     const { t, i18n } = useTranslation()
+    const navigate = useNavigate()
+    const location = useLocation()
     const navRef = useRef(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    const handleLogoClick = (e) => {
+        if (location.pathname === '/') {
+            e.preventDefault()
+            const hero = document.getElementById('hero-section')
+            if (hero) {
+                hero.scrollIntoView({ behavior: 'smooth' })
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
+        } else {
+            e.preventDefault()
+            navigate('/', { state: { scrollToHero: true } })
+        }
+    }
 
     const { user, logout } = useAuth()
     const hasToken = !!localStorage.getItem('access_token')
@@ -64,6 +81,7 @@ export default function AppNavbar() {
                 <div className="flex items-center justify-between h-14 sm:h-16 relative">
                     <Link
                         to="/"
+                        onClick={handleLogoClick}
                         className="flex-shrink-0 text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-200"
                     >
                         {t('appName', 'منارة العز')}
