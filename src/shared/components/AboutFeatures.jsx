@@ -38,6 +38,8 @@ export default React.memo(function AboutFeatures() {
                         <img
                             src={imagesrc}
                             alt="Students"
+                            width="240"
+                            height="180"
                             className="w-full h-full object-cover"
                             loading="lazy"
                             decoding="async"
@@ -52,14 +54,14 @@ export default React.memo(function AboutFeatures() {
                     transition={{ duration: 0.4, delay: 0.1 }}
                     className="lg:col-span-4 bg-[#FECD31] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-sm"
                 >
-                    <div className="w-14 h-14 border-2 border-[#735C00]/20 flex items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm text-[#735C00]">
+                    <div className="w-14 h-14 border-2 border-[#5c4700]/20 flex items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm text-[#5c4700]">
                         <MonitorPlay className="w-7 h-7" />
                     </div>
                     <div className="space-y-3 text-start">
-                        <h3 className="text-xl font-bold text-[#735C00]">
+                        <h3 className="text-xl font-bold text-[#5c4700]">
                             {t('about.features.f2.title', 'تقنية حديثة')}
                         </h3>
-                        <p className="text-[#735C00]/80 font-medium leading-relaxed text-sm">
+                        <p className="text-[#443600] font-medium leading-relaxed text-sm">
                             {t('about.features.f2.desc', 'استخدمنا أحدث تقنيات التعليم عن بعد لنجعل الدرس تفاعلياً وممتعاً، بما يناسب جيل اليوم المتعطش للتقنية.')}
                         </p>
                     </div>
@@ -78,6 +80,8 @@ export default React.memo(function AboutFeatures() {
                         <img
                             src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=400&auto=format&fit=crop"
                             alt="Books"
+                            width="240"
+                            height="180"
                             className="w-full h-full object-cover"
                             loading="lazy"
                             decoding="async"

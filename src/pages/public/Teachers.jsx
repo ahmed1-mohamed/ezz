@@ -60,6 +60,8 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
             <img
                 src={teacher.image}
                 alt={teacher.name}
+                width="320"
+                height="400"
                 className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
                 decoding="async"
@@ -197,7 +199,7 @@ export default function Teachers() {
                                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                                     className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl"
                                 >
-                                    <img src={imageSrc} alt="Teachers" className="w-full h-64 sm:h-72 lg:h-[320px] object-cover" />
+                                    <img src={imageSrc} alt="Teachers" width="512" height="320" className="w-full h-64 sm:h-72 lg:h-[320px] object-cover" />
                                 </motion.div>
                             </div>
                         </motion.div>
@@ -207,12 +209,13 @@ export default function Teachers() {
                 <section className="bg-white/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 w-full mx-auto transition-all duration-300">
                     <div className="flex flex-col md:flex-row items-end gap-5">
                         <div className="flex-1 w-full space-y-2 text-start">
-                            <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.searchLabel', 'ابحث عن معلم')}</label>
+                            <label htmlFor="teacher-search" className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.searchLabel', 'ابحث عن معلم')}</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
                                     <Search className="h-5 w-5 text-slate-400" />
                                 </div>
                                 <input
+                                    id="teacher-search"
                                     type="text"
                                     placeholder={t('teacher.searchPlaceholder', 'الاسم...')}
                                     value={searchTerm}
@@ -222,9 +225,10 @@ export default function Teachers() {
                             </div>
                         </div>
                         <div className="w-full md:w-64 space-y-2 text-start">
-                            <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.subjectLabel', 'المادة')}</label>
+                            <label htmlFor="subject-select" className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.subjectLabel', 'المادة')}</label>
                             <div className="relative">
                                 <select
+                                    id="subject-select"
                                     value={selectedSubject}
                                     onChange={(e) => setSelectedSubject(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 relative z-50 shadow-sm"
@@ -236,9 +240,10 @@ export default function Teachers() {
                             </div>
                         </div>
                         <div className="w-full md:w-64 space-y-2 text-start">
-                            <label className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.levelLabel', 'المستوى')}</label>
+                            <label htmlFor="level-select" className="block text-sm font-bold text-[#00695C] mx-1">{t('teacher.levelLabel', 'المستوى')}</label>
                             <div className="relative">
                                 <select
+                                    id="level-select"
                                     value={selectedLevel}
                                     onChange={(e) => setSelectedLevel(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 relative z-50 shadow-sm"

@@ -44,6 +44,8 @@ export default React.memo(function AboutCoreValues() {
                         <img
                             src={quranImage}
                             alt="Core Values"
+                            width="512"
+                            height="512"
                             className="w-full h-auto aspect-square object-cover"
                             loading="lazy"
                             decoding="async"

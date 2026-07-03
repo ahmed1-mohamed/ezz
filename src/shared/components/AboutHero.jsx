@@ -14,6 +14,8 @@ export default React.memo(function AboutHero() {
                 <img
                     src={bgImage}
                     alt="Background Pattern"
+                    width="1280"
+                    height="700"
                     className="w-full h-full object-cover object-center opacity-30"
                     loading="lazy"
                 />
@@ -74,6 +76,8 @@ export default React.memo(function AboutHero() {
                                     transition={{ duration: 0.5, ease: "easeOut" }}
                                     src={mainImage}
                                     alt="Academy"
+                                    width="512"
+                                    height="600"
                                     className="w-full h-auto aspect-[4/5] lg:aspect-[6/7] object-cover relative z-10"
                                     loading="lazy"
                                     decoding="async"

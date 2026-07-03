@@ -72,6 +72,8 @@ export default React.memo(function EducationalPrograms() {
                                     <img
                                         src={program.image}
                                         alt={t(`${base}.title`)}
+                                        width="360"
+                                        height="224"
                                         className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                                         loading="lazy"
                                         decoding="async"
@@ -118,7 +120,10 @@ export default React.memo(function EducationalPrograms() {
                                         ))}
                                     </div>
 
-                                    <button className="mt-6 sm:mt-8 relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-2.5 sm:py-3.5 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98]">
+                                    <button 
+                                        aria-label={`${t('programs.cta', 'استكشف البرنامج')} - ${t(`${base}.title`)}`}
+                                        className="mt-6 sm:mt-8 relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-2.5 sm:py-3.5 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98]"
+                                    >
                                         {t('programs.cta', 'استكشف البرنامج')}
                                     </button>
 

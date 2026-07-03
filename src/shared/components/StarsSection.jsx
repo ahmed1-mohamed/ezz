@@ -45,7 +45,7 @@ export default function StarsSection({ featuredStudents }) {
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">
                         {t('stars.title', 'نجوم التميز الأكاديمي')}
                     </h2>
-                    <p className="text-slate-500 text-lg">
+                    <p className="text-slate-700 text-lg">
                         {t('stars.description', 'نحتفي بطلابنا المتميزين الذين حققوا نتائج استثنائية وكانوا مثالاً للجد والاجتهاد')}
                     </p>
                 </div>
@@ -70,6 +70,9 @@ export default function StarsSection({ featuredStudents }) {
                                         <img
                                             src={getImageUrl(student.image)}
                                             alt={student.name}
+                                            width="160"
+                                            height="160"
+                                            loading="lazy"
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>

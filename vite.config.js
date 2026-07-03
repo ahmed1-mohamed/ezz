@@ -20,14 +20,32 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom') || id.includes('react-redux') || id.includes('@reduxjs/toolkit')) {
-              return 'reactVendor'
+            if (id.includes('react-router-dom')) {
+              return 'router'
+            }
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'reactCore'
+            }
+            if (id.includes('react-redux') || id.includes('@reduxjs/toolkit')) {
+              return 'reduxStore'
             }
             if (id.includes('framer-motion') || id.includes('gsap')) {
               return 'animations'
             }
             if (id.includes('lucide-react')) {
               return 'icons'
+            }
+            if (id.includes('axios')) {
+              return 'httpAxios'
+            }
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'i18n'
+            }
+            if (id.includes('sweetalert2')) {
+              return 'sweetalert'
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'reactQuery'
             }
           }
         }

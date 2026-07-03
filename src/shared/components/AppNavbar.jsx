@@ -79,7 +79,7 @@ export default function AppNavbar() {
                             <Globe size={20} strokeWidth={1.5} />
                         </button>
 
-                        <nav className="flex items-center gap-1">
+                        <nav className="flex items-center gap-1" aria-label={t('public.nav.main', 'الملاحة الرئيسية')}>
                             {navItems.map((item) => (
                                 <NavLink
                                     key={item.to}
@@ -168,7 +168,7 @@ export default function AppNavbar() {
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="absolute left-4 right-4 top-16 z-[999] bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 p-6 flex flex-col space-y-4 lg:hidden"
                         >
-                            <nav className="flex flex-col space-y-2">
+                            <nav className="flex flex-col space-y-2" aria-label={t('public.nav.mobile', 'قائمة الجوال')}>
                                 {navItems.map((item) => (
                                     <NavLink
                                         key={item.to}

@@ -159,7 +159,7 @@ export default function Pricing() {
                                 {renderIcon(plan.icon, index)}
                             </div>
 
-                            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">{plan.name}</h3>
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">{plan.name}</h2>
                             
                             <div className="flex items-baseline justify-center gap-1.5 mb-10">
                                 <span className="text-5xl sm:text-6xl font-black text-[#00695C]">${plan.price}</span>
@@ -181,7 +181,10 @@ export default function Pricing() {
                                 ))}
                             </ul>
 
-                            <button className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] text-white hover:bg-[#005247]">
+                            <button 
+                                aria-label={`${t('pricing.btn', 'ابدأ الآن')} - ${plan.name}`}
+                                className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] text-white hover:bg-[#005247]"
+                            >
                                 {t('pricing.btn', 'ابدأ الآن')}
                             </button>
                         </motion.div>

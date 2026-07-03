@@ -35,6 +35,7 @@ export default function CTASection({
                 <div className="pt-4">
                     <button
                         onClick={() => navigate('/contact')}
+                        aria-label={t(btnKey, defaultBtn)}
                         className="bg-black hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg w-full sm:w-auto cursor-pointer hover:-translate-y-1"
                     >
                         {t(btnKey, defaultBtn)}

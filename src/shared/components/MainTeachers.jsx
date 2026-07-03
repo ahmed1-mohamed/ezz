@@ -121,6 +121,9 @@ export default function TeachersSection({ eliteTeachers }) {
                                 <img
                                     src={getImageUrl(teacher.image)}
                                     alt={teacher.nameKey ? t(teacher.nameKey) : teacher.name}
+                                    width="160"
+                                    height="160"
+                                    loading="lazy"
                                     className="w-full h-full rounded-full object-cover border-4 border-white shadow-[0_10px_25px_rgba(15,122,108,0.2)] relative z-10"
                                 />
                             </div>

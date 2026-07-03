@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
-import StatisticsBanner from '@/shared/components/StatisticsBanner.jsx'
-import PremiumParentsSection from '@/shared/components/PremiumParentsSection.jsx'
-import EducationalPrograms from '@/shared/components/EducationalPrograms.jsx'
-import JourneySteps from '@/shared/components/JourneySteps.jsx'
-import TestimonialsSection from '@/shared/components/TestimonialsSection.jsx'
 import Button from '@/shared/components/Button.jsx'
 import imageSrc from '../../images/programs/NewLogo.webp'
-import TeachersSection from '@/shared/components/MainTeachers.jsx'
-import CTASection from '@/shared/components/CTASection.jsx'
-import StarsSection from '@/shared/components/StarsSection.jsx'
 import { fetchLandingPage } from '@/store/landingSlice'
+
+const StatisticsBanner = lazy(() => import('@/shared/components/StatisticsBanner.jsx'))
+const PremiumParentsSection = lazy(() => import('@/shared/components/PremiumParentsSection.jsx'))
+const EducationalPrograms = lazy(() => import('@/shared/components/EducationalPrograms.jsx'))
+const JourneySteps = lazy(() => import('@/shared/components/JourneySteps.jsx'))
+const TestimonialsSection = lazy(() => import('@/shared/components/TestimonialsSection.jsx'))
+const TeachersSection = lazy(() => import('@/shared/components/MainTeachers.jsx'))
+const CTASection = lazy(() => import('@/shared/components/CTASection.jsx'))
+const StarsSection = lazy(() => import('@/shared/components/StarsSection.jsx'))
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -147,6 +148,8 @@ export default React.memo(function Home() {
                                         loading="eager"
                                         fetchPriority="high"
                                         decoding="async"
+                                        width="512"
+                                        height="512"
                                         className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain transition-transform duration-700 hover:scale-105 will-change-transform"
                                     />
                                 </motion.div>
@@ -158,14 +161,30 @@ export default React.memo(function Home() {
                 </section>
             </div>
 
-            <StatisticsBanner data={localStats || landingData?.statistics} />
-            <PremiumParentsSection />
-            <EducationalPrograms />
-            <StarsSection featuredStudents={localStars || landingData?.featuredStudents} />
-            <JourneySteps />
-            <TeachersSection eliteTeachers={landingData?.eliteTeachers} />
-            <TestimonialsSection testimonials={localTestimonials || landingData?.testimonials} />
-            <CTASection />
+            <Suspense fallback={<div className="h-40" />}>
+                <StatisticsBanner data={localStats || landingData?.statistics} />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <PremiumParentsSection />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <EducationalPrograms />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <StarsSection featuredStudents={localStars || landingData?.featuredStudents} />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <JourneySteps />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <TeachersSection eliteTeachers={landingData?.eliteTeachers} />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <TestimonialsSection testimonials={localTestimonials || landingData?.testimonials} />
+            </Suspense>
+            <Suspense fallback={<div className="h-40" />}>
+                <CTASection />
+            </Suspense>
         </div>
     )
 })
