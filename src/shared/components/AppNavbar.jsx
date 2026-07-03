@@ -7,12 +7,17 @@ import Button from './Button.jsx'
 import Container from './Container.jsx'
 import { setLanguage } from '../../i18n.js'
 import { publicNavigation } from '@/shared/constants/publicNavigation.js'
-
+import { useAuth } from '@/shared/context/useAuth.jsx'
+import { getRedirectPath } from '@/shared/services/authService.js'
 export default function AppNavbar() {
     const { t, i18n } = useTranslation()
     const navRef = useRef(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    const { user, logout } = useAuth()
+    const hasToken = !!localStorage.getItem('access_token')
+    const isAuthenticated = user && hasToken
 
     useEffect(() => {
         const handleScroll = () => {
@@ -93,23 +98,46 @@ export default function AppNavbar() {
                     </div>
 
                     <div className="hidden lg:flex items-center gap-3">
-                        <Link to="/login">
-                            <Button
-                                variant="ghost"
-                                className="text-slate-700 hover:text-brand-500 hover:bg-brand-500/5 transition-all duration-200"
-                            >
-                                {t('public.login', 'تسجيل الدخول')}
-                            </Button>
-                        </Link>
-                        <Link to="/contact">
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 xl:px-6 py-2.5 xl:py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                            >
-                                {t('public.joinUs', 'انضم إلينا')}
-                            </motion.button>
-                        </Link>
+                        {!isAuthenticated ? (
+                            <>
+                                <Link to="/login">
+                                    <Button
+                                        variant="ghost"
+                                        className="text-slate-700 hover:text-brand-500 hover:bg-brand-500/5 transition-all duration-200"
+                                    >
+                                        {t('public.login', 'تسجيل الدخول')}
+                                    </Button>
+                                </Link>
+                                <Link to="/contact">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 xl:px-6 py-2.5 xl:py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                    >
+                                        {t('public.joinUs', 'انضم إلينا')}
+                                    </motion.button>
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    onClick={logout}
+                                    className="text-red-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 font-semibold"
+                                >
+                                    {t('public.logout', 'تسجيل الخروج')}
+                                </Button>
+                                <Link to={getRedirectPath(user?.role)}>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 xl:px-6 py-2.5 xl:py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                    >
+                                        {t('public.dashboard', 'لوحة التحكم')}
+                                    </motion.button>
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     <div className="flex lg:hidden items-center gap-2">
@@ -159,23 +187,49 @@ export default function AppNavbar() {
                             </nav>
 
                             <div className="flex flex-col gap-2 pt-4 border-t border-slate-200/60">
-                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full text-slate-700 hover:text-brand-500 hover:bg-brand-500/5"
-                                    >
-                                        {t('public.login', 'تسجيل الدخول')}
-                                    </Button>
-                                </Link>
-                                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 text-center animate-none"
-                                    >
-                                        {t('public.joinUs', 'انضم إلينا')}
-                                    </motion.button>
-                                </Link>
+                                {!isAuthenticated ? (
+                                    <>
+                                        <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button
+                                                variant="ghost"
+                                                className="w-full text-slate-700 hover:text-brand-500 hover:bg-brand-500/5"
+                                            >
+                                                {t('public.login', 'تسجيل الدخول')}
+                                            </Button>
+                                        </Link>
+                                        <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 text-center animate-none"
+                                            >
+                                                {t('public.joinUs', 'انضم إلينا')}
+                                            </motion.button>
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => {
+                                                logout();
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 font-semibold"
+                                        >
+                                            {t('public.logout', 'تسجيل الخروج')}
+                                        </Button>
+                                        <Link to={getRedirectPath(user?.role)} onClick={() => setIsMobileMenuOpen(false)}>
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 text-center animate-none"
+                                            >
+                                                {t('public.dashboard', 'لوحة التحكم')}
+                                            </motion.button>
+                                        </Link>
+                                    </>
+                                )}
                             </div>
                         </motion.div>
                     )}

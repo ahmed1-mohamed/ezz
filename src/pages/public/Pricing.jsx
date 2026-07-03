@@ -140,7 +140,7 @@ export default function Pricing() {
             </motion.div>
 
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                     {displayPlans.map((plan, index) => (
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
@@ -148,9 +148,9 @@ export default function Pricing() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.4, delay: index * 0.1 }}
                             key={plan.id}
-                            className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
+                            className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full ${
                                 plan.popular 
-                                ? 'shadow-lg lg:scale-105 z-10' 
+                                ? 'shadow-lg z-10' 
                                 : 'shadow-sm'
                             }`}
                         >
