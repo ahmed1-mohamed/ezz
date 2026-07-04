@@ -1,37 +1,36 @@
 import { useMemo } from 'react'
 import { Shield } from 'lucide-react'
-import { SYSTEM_PERMISSIONS } from '../constants'
+import { PERMISSIONS_LIST } from '@/shared/permissions.constant'
 
 export default function EditGrantedPermissionsCard({
-  selectedPermissionId,
-  permissionsList = [],
+  supervisorPermissions = [],
   isRtl
 }) {
   
   const categories = useMemo(() => {
     const items = []
-    const selected = permissionsList.find(p => p.id === selectedPermissionId)
-    const activeKeys = selected?.actions?.map(a => a.key) || []
+    // supervisorPermissions is an array of permission keys, e.g. ['users.read', 'students.create']
+    const activeKeys = supervisorPermissions || []
 
-    SYSTEM_PERMISSIONS.forEach(module => {
+    Object.values(PERMISSIONS_LIST).forEach(module => {
       const activeTags = []
       
       module.actions.forEach(action => {
         if (activeKeys.includes(action.key)) {
-           activeTags.push(isRtl ? action.labelAr : action.labelEn)
+           activeTags.push(isRtl ? action.label.ar : action.label.en)
         }
       })
 
       if (activeTags.length > 0) {
          items.push({
-            title: isRtl ? module.titleAr : module.titleEn,
+            title: isRtl ? module.name.ar : module.name.en,
             tags: activeTags
          })
       }
     })
 
     return items
-  }, [selectedPermissionId, permissionsList, isRtl])
+  }, [supervisorPermissions, isRtl])
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">

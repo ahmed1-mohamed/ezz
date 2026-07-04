@@ -14,7 +14,21 @@ export const profileApi = {
 
   updateProfile: async (data) => {
     try {
-      const response = await api.patch('/api/v1/profile', data);
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        const val = data[key];
+        if (val !== undefined && val !== null && val !== '') {
+          if (['image', 'photo', 'photoUrl', 'profileImage'].includes(key) && typeof val === 'string') {
+            return;
+          }
+          formData.append(key, val);
+        }
+      });
+      const response = await api.patch('/api/v1/profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       const updatedProfile = response.data?.data || response.data;
       return { success: true, data: updatedProfile };
     } catch (error) {

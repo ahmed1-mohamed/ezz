@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import useDebounce from '@/shared/hooks/useDebounce'
+import { useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
-import { landingApi } from '@/shared/services/api/landingApi'
 import { showDeleteConfirm, showSuccessToast } from '@/shared/utils/sweetAlert'
 import ManagersList from './components/ManagersList'
 import RolesPermissionsScreen from './components/RolesPermissionsScreen'
 import AddSupervisorScreen from './components/AddSupervisorScreen'
 import EditSupervisorScreen from './components/EditSupervisorScreen'
 import Spinner from '@/shared/components/Spinner'
+import { useManagers } from './hooks/useManagers'
+import { useManagersMutations } from './hooks/useManagersMutations'
 
 export default function AdminManagers() {
   const { t, i18n } = useTranslation()
@@ -21,100 +21,27 @@ export default function AdminManagers() {
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
   const [isLoadingDetails, setIsLoadingDetails] = useState(false)
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const [searchVal, setSearchVal] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const {
+    currentPage,
+    setCurrentPage,
+    searchVal,
+    setSearchVal,
+    statusFilter,
+    setStatusFilter,
+    supervisorsData,
+    supervisors,
+    isLoadingSupervisors,
+    permissionsList,
+    isLoadingPermissions,
+    countries
+  } = useManagers()
 
-  const debouncedSearch = useDebounce(searchVal, 300)
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [statusFilter, debouncedSearch])
-
-  const { data: supervisorsData, isLoading: isLoadingSupervisors } = useQuery({
-    queryKey: ['admins', statusFilter, currentPage, debouncedSearch],
-    queryFn: () => {
-      const params = {
-        page: currentPage,
-        limit: 5,
-        search: debouncedSearch
-      }
-      if (statusFilter === 'active') {
-        return managersApi.fetchActiveSupervisors(params)
-      } else if (statusFilter === 'stopped') {
-        return managersApi.fetchStoppedSupervisors(params)
-      } else {
-        return managersApi.fetchSupervisors(params)
-      }
-    },
-    staleTime: 5 * 60 * 1000,
-  })
-
-  const supervisors = supervisorsData?.data || []
-
-  const { data: realPermissionsData, isLoading: isLoadingPermissions } = useQuery({
-    queryKey: ['permissions'],
-    queryFn: () => managersApi.fetchPermissions(),
-    staleTime: 5 * 60 * 1000,
-  })
-  const realPermissionsList = realPermissionsData?.data || []
-
-  const { data: countriesData } = useQuery({
-    queryKey: ['countries'],
-    queryFn: () => landingApi.fetchCountries(),
-    staleTime: 5 * 60 * 1000,
-  })
-  const countries = countriesData?.data || []
-
-  const { data: rolesRes, isLoading: isLoadingRoles } = useQuery({
-    queryKey: ['admin-roles'],
-    queryFn: () => managersApi.fetchRoles(),
-    staleTime: 5 * 60 * 1000,
-  })
-  const roles = rolesRes?.data || []
-
-  const { data: permissionsRes } = useQuery({
-    queryKey: ['admin-role-permissions'],
-    queryFn: () => managersApi.fetchRolesPermissions(),
-    staleTime: 5 * 60 * 1000,
-  })
-  const rolesPermissions = permissionsRes?.data || {}
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, adminData }) => managersApi.updateSupervisor(id, adminData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admins'] })
-      showSuccessToast(isRtl ? 'تم تحديث بيانات المشرف بنجاح!' : 'Supervisor updated successfully!', isRtl)
-      setViewMode('list')
-    }
-  })
-
-  const createMutation = useMutation({
-    mutationFn: (supervisorData) => managersApi.createSupervisor(supervisorData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admins'] })
-      showSuccessToast(isRtl ? 'تم إضافة المشرف بنجاح!' : 'Supervisor added successfully!', isRtl)
-      setViewMode('list')
-    }
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => managersApi.deleteSupervisor(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admins'] })
-      showSuccessToast(isRtl ? 'تم حذف المشرف بنجاح!' : 'Supervisor deleted successfully!', isRtl)
-      setViewMode('list')
-    }
-  })
-
-  const toggleStatusMutation = useMutation({
-    mutationFn: ({ userId }) => managersApi.toggleUserActive(userId),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ['admins'] })
-      const statusText = res?.data?.active ? (isRtl ? 'تفعيل' : 'activated') : (isRtl ? 'تعليق' : 'suspended')
-      showSuccessToast(isRtl ? `تم ${statusText} المشرف بنجاح!` : `Supervisor account ${statusText} successfully!`, isRtl)
-    }
-  })
+  const {
+    updateMutation,
+    createMutation,
+    deleteMutation,
+    toggleStatusMutation
+  } = useManagersMutations(isRtl)
 
   const handleToggleStatus = (supervisor) => {
     const targetUserId = supervisor.user_id || supervisor.user?.id || supervisor.user?._id
@@ -133,7 +60,8 @@ export default function AdminManagers() {
     if (!isConfirmed) return;
 
     try {
-      await deleteMutation.mutateAsync(supervisor.id)
+      const adminId = supervisor.admin_id || supervisor.id || supervisor._id;
+      await deleteMutation.mutateAsync(adminId)
     } catch (err) {
       console.error('Failed to delete supervisor:', err)
     }
@@ -167,7 +95,7 @@ export default function AdminManagers() {
     }
   }
 
-  if (isLoadingSupervisors || isLoadingRoles || isLoadingPermissions || isLoadingDetails) {
+  if (isLoadingSupervisors || isLoadingPermissions || isLoadingDetails) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
@@ -208,7 +136,7 @@ export default function AdminManagers() {
 
       {(viewMode === 'permissions' || (viewMode === 'assign-role' && selectedSupervisor)) && (
         <RolesPermissionsScreen
-          permissionsList={realPermissionsList}
+          permissionsList={permissionsList}
           isRtl={isRtl}
           t={t}
           isAdminAssignment={viewMode === 'assign-role'}
@@ -248,13 +176,14 @@ export default function AdminManagers() {
 
       {viewMode === 'add-supervisor' && (
         <AddSupervisorScreen
-          roles={realPermissionsList}
+          roles={permissionsList}
           isRtl={isRtl}
           t={t}
           countries={countries}
           onSave={async (data) => {
             try {
               await createMutation.mutateAsync(data)
+              setViewMode('list')
             } catch (err) {
               console.error('Failed to add supervisor:', err)
             }
@@ -266,15 +195,26 @@ export default function AdminManagers() {
       {viewMode === 'edit-supervisor' && selectedSupervisor && (
         <EditSupervisorScreen
           supervisor={selectedSupervisor}
-          roles={realPermissionsList}
+          roles={permissionsList}
           countries={countries}
           isRtl={isRtl}
           t={t}
+          onToggleStatus={handleToggleStatus}
           onSave={async (data) => {
             try {
-              await updateMutation.mutateAsync({ id: selectedSupervisor.id || selectedSupervisor._id, adminData: data.adminData })
+              await updateMutation.mutateAsync({ id: selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id, adminData: data.adminData })
+              setViewMode('list')
             } catch (err) {
               console.error('Failed to update supervisor:', err)
+            }
+          }}
+          onUpdatePassword={async (newPassword) => {
+            try {
+              const targetUserId = selectedSupervisor.user_id || selectedSupervisor.user?.id || selectedSupervisor.user?._id;
+              await managersApi.changeUserPassword(targetUserId, { password: newPassword });
+              showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl);
+            } catch (err) {
+              console.error('Failed to update password:', err);
             }
           }}
           onCancel={() => {

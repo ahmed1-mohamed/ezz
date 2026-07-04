@@ -17,6 +17,7 @@ export default function PermissionsCard({
       <div className="space-y-3">
         {permissionsList.map((perm) => {
           const isActive = selectedPermissionId === perm.id
+          const permName = typeof perm.name === 'object' ? (isRtl ? perm.name.ar || perm.name.en : perm.name.en || perm.name.ar) : perm.name;
           return (
             <button
               key={perm.id}
@@ -33,7 +34,7 @@ export default function PermissionsCard({
                   <Shield size={20} />
                 </div>
                 <span className="text-sm font-semibold">
-                  {perm.name}
+                  {permName}
                 </span>
               </div>
             </button>

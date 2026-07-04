@@ -210,7 +210,17 @@ export default function ManagersList({
                   const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
                   const initial = sName.trim().charAt(0) || 'م';
                   const avatarUrl = supervisor.image || supervisor.photoUrl;
-                  const displayRole = supervisor.role || supervisor.permissionName || (supervisor.permission && (typeof supervisor.permission === 'object' ? supervisor.permission.name : supervisor.permission)) || (isRtl ? 'لا يوجد' : 'None');
+                  
+                  let displayRole = isRtl ? 'لا يوجد' : 'None';
+                  if (supervisor.role) {
+                    displayRole = typeof supervisor.role === 'object' ? (isRtl ? supervisor.role.ar || supervisor.role.en : supervisor.role.en || supervisor.role.ar) : supervisor.role;
+                  } else if (supervisor.permissionName) {
+                    displayRole = typeof supervisor.permissionName === 'object' ? (isRtl ? supervisor.permissionName.ar || supervisor.permissionName.en : supervisor.permissionName.en || supervisor.permissionName.ar) : supervisor.permissionName;
+                  } else if (supervisor.permission) {
+                    const permName = typeof supervisor.permission === 'object' ? supervisor.permission.name : supervisor.permission;
+                    displayRole = typeof permName === 'object' ? (isRtl ? permName.ar || permName.en : permName.en || permName.ar) : permName;
+                  }
+
                   const isActive = supervisor.user?.active !== undefined ? !!supervisor.user.active : (supervisor.active !== undefined ? !!supervisor.active : supervisor.status === 'Active');
 
                   return (

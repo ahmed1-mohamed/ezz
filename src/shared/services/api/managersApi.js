@@ -55,8 +55,12 @@ export const managersApi = {
     try {
       const formData = new FormData();
       Object.keys(supervisorData).forEach(key => {
-        if (supervisorData[key] !== undefined && supervisorData[key] !== null && supervisorData[key] !== '') {
-          formData.append(key, supervisorData[key]);
+        const val = supervisorData[key];
+        if (val !== undefined && val !== null && val !== '') {
+          if (['image', 'photo', 'photoUrl', 'profileImage'].includes(key) && typeof val === 'string') {
+            return;
+          }
+          formData.append(key, val);
         }
       });
 
@@ -76,8 +80,12 @@ export const managersApi = {
     try {
       const formData = new FormData();
       Object.keys(supervisorData).forEach(key => {
-        if (supervisorData[key] !== undefined && supervisorData[key] !== null && supervisorData[key] !== '') {
-          formData.append(key, supervisorData[key]);
+        const val = supervisorData[key];
+        if (val !== undefined && val !== null && val !== '') {
+          if (['image', 'photo', 'photoUrl', 'profileImage'].includes(key) && typeof val === 'string') {
+            return;
+          }
+          formData.append(key, val);
         }
       });
       const response = await api.patch(`/api/v1/admins/${id}`, formData, {
@@ -186,6 +194,16 @@ export const managersApi = {
       return response.data;
     } catch (error) {
       console.error('API toggleActiveUser failed:', error);
+      throw error;
+    }
+  },
+
+  changeUserPassword: async (userId, data) => {
+    try {
+      const response = await api.patch(`/api/v1/users/${userId}/change-password`, data);
+      return response.data;
+    } catch (error) {
+      console.error('API changeUserPassword failed:', error);
       throw error;
     }
   },

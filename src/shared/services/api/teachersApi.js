@@ -65,16 +65,19 @@ export const teachersApi = {
 
   createTeacher: async (teacherData) => {
     try {
-      const payload = {
-        name: {
-          ar: teacherData.name || "",
-          en: teacherData.nameEn || teacherData.name || ""
-        },
-        phone: teacherData.phone,
-        image: teacherData.profileImage || teacherData.image || ""
-      };
+      const formData = new FormData();
+      formData.append('name[ar]', teacherData.name || "");
+      formData.append('name[en]', teacherData.nameEn || teacherData.name || "");
+      if (teacherData.phone) formData.append('phone', teacherData.phone);
+      if (teacherData.profileImageFile instanceof File || teacherData.profileImageFile instanceof Blob) {
+        formData.append('image', teacherData.profileImageFile);
+      } else if (teacherData.image && (teacherData.image instanceof File || teacherData.image instanceof Blob)) {
+        formData.append('image', teacherData.image);
+      }
 
-      const response = await api.post('/api/v1/teachers', payload);
+      const response = await api.post('/api/v1/teachers', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       const item = response.data?.data || response.data;
       return { success: true, data: mapTeacherData(item) };
     } catch (error) {
@@ -85,21 +88,22 @@ export const teachersApi = {
 
   updateTeacher: async (id, teacherData) => {
     try {
-      const payload = {
-        name: {
-          ar: teacherData.name || "",
-          en: teacherData.nameEn || teacherData.name || ""
-        },
-        phone: teacherData.phone,
-        image: teacherData.profileImage || teacherData.image || ""
-      };
-
-      if (teacherData.country) {
-        // If they explicitly picked a country, we might send it, but let's just omit it for now since the API says it's invalid.
-        // The backend might expect a specific ID. We'll omit it to avoid breaking the update.
+      const formData = new FormData();
+      if (teacherData.name) formData.append('name[ar]', teacherData.name);
+      if (teacherData.nameEn) formData.append('name[en]', teacherData.nameEn);
+      if (teacherData.phone) formData.append('phone', teacherData.phone);
+      if (teacherData.country) formData.append('country', teacherData.country);
+      
+      // Only append image if it's a File/Blob, not a string
+      if (teacherData.profileImageFile instanceof File || teacherData.profileImageFile instanceof Blob) {
+        formData.append('image', teacherData.profileImageFile);
+      } else if (teacherData.image && (teacherData.image instanceof File || teacherData.image instanceof Blob)) {
+        formData.append('image', teacherData.image);
       }
 
-      const response = await api.patch(`/api/v1/teachers/${id}`, payload);
+      const response = await api.patch(`/api/v1/teachers/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       const item = response.data?.data || response.data;
       return { success: true, data: mapTeacherData(item) };
     } catch (error) {

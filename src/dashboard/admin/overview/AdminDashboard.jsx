@@ -1,30 +1,53 @@
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { BookOpen, GraduationCap, Users, Calendar, Layers, Activity, Clock } from 'lucide-react'
 import StatsCard from '@/shared/components/StatsCard.jsx'
 import DataTable from '@/shared/components/DataTable.jsx'
+import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
+
 
 export default function AdminDashboard() {
     const { t } = useTranslation()
+    const [dashboardStats, setDashboardStats] = useState({
+        students: '...',
+        teachers: '...',
+        parents: '...',
+        classes: '...'
+    });
+    useEffect(() => {
+        const fetchStats = async () => {
+            const res = await dashboardApi.fetchStatistics();
+            if (res.success && res.data) {
+                setDashboardStats({
+                    students: res.data?.statistics?.students ?? '0',
+                    teachers: res.data?.statistics?.teachers ?? '0',
+                    parents: res.data?.statistics?.parents ?? '0',
+                    classes: res.data?.statistics?.classes ?? '0'
+                });
+            }
+        };
+        fetchStats();
+    }, []);
 
     const stats = [
         {
             title: t('admin.totalStudents'),
-            value: '108',
+            value: dashboardStats.students,
 
             icon: <BookOpen className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.totalTeachers'),
-            value: '6',
+            value: dashboardStats.teachers,
 
             icon: <GraduationCap className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.parents'),
-            value: '88',
+            value: dashboardStats.parents,
 
             icon: <Users className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
@@ -38,7 +61,7 @@ export default function AdminDashboard() {
         },
         {
             title: t('admin.totalGroups'),
-            value: '14',
+            value: dashboardStats.classes,
 
             icon: <Layers className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'

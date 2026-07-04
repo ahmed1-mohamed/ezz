@@ -12,8 +12,14 @@ export default function PermissionsPreviewCard({
     let totalOptions = 0
 
     const selected = permissionsList.find(p => p.id === selectedPermissionId)
-    const activeKeys = selected?.actions?.map(a => a.key) || []
-
+    let activeKeys = []
+    if (selected) {
+      if (Array.isArray(selected.keys)) {
+        activeKeys = selected.keys
+      } else if (Array.isArray(selected.actions)) {
+        activeKeys = selected.actions.map(a => typeof a === 'object' ? a.key || a.name || a : a)
+      }
+    }
     SYSTEM_PERMISSIONS.forEach(m => {
       totalOptions += m.actions.length
     })

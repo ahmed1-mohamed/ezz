@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { adminCouponsApi } from '@/shared/services/api/adminCouponsApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
@@ -14,10 +14,24 @@ export function useCoupons() {
     const [selectedCoupon, setSelectedCoupon] = useState(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+    const [activeCoupons, setActiveCoupons] = useState(0);
+    const [expiredCoupons, setExpiredCoupons] = useState(0);
+    const [usedCoupons, setUsedCoupons] = useState(0);
+
     const loadAll = useCallback(async (searchVal = '') => {
         setLoading(true);
-        const res = await adminCouponsApi.fetchCoupons({ search: searchVal });
+        const [res, activeRes, usedRes, expiredRes] = await Promise.all([
+            adminCouponsApi.fetchCoupons({ search: searchVal }),
+            adminCouponsApi.fetchActiveCoupons({ search: searchVal }),
+            adminCouponsApi.fetchUsedCoupons({ search: searchVal }),
+            adminCouponsApi.fetchExpiredCoupons({ search: searchVal })
+        ]);
+
         if (res?.success) setCoupons(res.data);
+        if (activeRes?.success) setActiveCoupons(activeRes.data.length || 0);
+        if (usedRes?.success) setUsedCoupons(usedRes.data.length || 0);
+        if (expiredRes?.success) setExpiredCoupons(expiredRes.data.length || 0);
+
         setLoading(false);
     }, []);
 
@@ -67,18 +81,6 @@ export function useCoupons() {
         setIsDetailsOpen(false);
         setSelectedCoupon(null);
     }, []);
-
-    const activeCoupons = useMemo(
-        () => coupons.filter((c) => c.status === 'active' || new Date(c.expirationDate) >= new Date()).length,
-        [coupons]
-    );
-
-    const expiredCoupons = useMemo(() => coupons.length - activeCoupons, [coupons.length, activeCoupons]);
-
-    const usedCoupons = useMemo(
-        () => coupons.filter((c) => c.savedAmount && Number(c.savedAmount) > 0).length,
-        [coupons]
-    );
 
     return {
         loading,

@@ -6,20 +6,19 @@ import {
   Ban,
   CheckCircle2
 } from 'lucide-react'
-import { showSuccessToast } from '@/shared/utils/sweetAlert'
 import EditProfileCard from './EditProfileCard'
 import EditSecurityPasswordCard from './EditSecurityPasswordCard'
 import EditGrantedPermissionsCard from './EditGrantedPermissionsCard'
 
 export default function EditSupervisorScreen({
   roles,
-  rolesPermissions,
   supervisor,
   countries = [],
   isRtl,
   t,
   onSave,
   onToggleStatus,
+  onUpdatePassword,
   onCancel
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
@@ -54,12 +53,11 @@ export default function EditSupervisorScreen({
     phone: initialPhone,
     phonePrefix: initialPrefix,
     permissionId: supervisor.permissionId || null,
-    countryId: supervisor.country?.id || supervisor.country || '',
+    countryId: supervisor.country?._id || supervisor.country?.id || supervisor.country || '',
     status: supervisor.status || 'Active',
     photoUrl: supervisor.photoUrl || null
   })
 
-  // Sort countries alphabetically
   const sortedCountries = useMemo(() => {
     return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
   }, [countries])
@@ -85,8 +83,8 @@ export default function EditSupervisorScreen({
     handleFieldChange('phonePrefix', country.phoneCode || country.code)
   }
 
-  const handleUpdatePassword = () => {
-    showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
+  const handleUpdatePassword = (newPassword) => {
+    if (onUpdatePassword) onUpdatePassword(newPassword);
   }
 
   const handleSubmit = (e) => {
@@ -281,7 +279,6 @@ export default function EditSupervisorScreen({
                   />
                 </div>
 
-                {/* Country Selection Dropdown */}
                 <div>
                   <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الدولة' : 'Country'}
@@ -303,39 +300,37 @@ export default function EditSupervisorScreen({
 
               </div>
 
-            </div>
-
-            <EditSecurityPasswordCard
-              isRtl={isRtl}
-              t={t}
-              onUpdatePassword={handleUpdatePassword}
-            />
-
-            <EditGrantedPermissionsCard
-              selectedPermissionId={formData.permissionId}
-              permissionsList={roles}
-              isRtl={isRtl}
-              t={t}
-            />
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800 max-w-8xl mx-auto">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="flex-1 py-4 bg-brand-500 hover:bg-brand-650 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
-              >
-                {t('adminDashboard.managers.addSupervisorScreen.saveChanges', 'حفظ التغييرات')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer"
-              >
-                {t('adminDashboard.managers.addSupervisorScreen.cancel', 'إلغاء')}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="flex-1 py-4 bg-brand-500 hover:bg-brand-650 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
+                >
+                  {t('adminDashboard.managers.addSupervisorScreen.saveChanges', 'حفظ التغييرات')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer"
+                >
+                  {t('adminDashboard.managers.addSupervisorScreen.cancel', 'إلغاء')}
+                </button>
+              </div>
             </div>
           </>
         )}
+
+        <EditSecurityPasswordCard
+          isRtl={isRtl}
+          t={t}
+          onUpdatePassword={handleUpdatePassword}
+        />
+
+        <EditGrantedPermissionsCard
+          supervisorPermissions={supervisor.permissions}
+          isRtl={isRtl}
+          t={t}
+        />
 
       </div>
 

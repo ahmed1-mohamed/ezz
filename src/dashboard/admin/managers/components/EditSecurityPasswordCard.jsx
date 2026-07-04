@@ -69,20 +69,6 @@ export default function EditSecurityPasswordCard({
         {/* New Password & Confirm Password Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          {/* Confirm New Password */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-              {isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
-            </label>
-            <input
-              type="password"
-              value={passwordState.confirmPassword}
-              onChange={(e) => handleChange('confirmPassword', e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
-              dir="ltr"
-            />
-          </div>
-
           {/* New Password */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -92,6 +78,20 @@ export default function EditSecurityPasswordCard({
               type="password"
               value={passwordState.newPassword}
               onChange={(e) => handleChange('newPassword', e.target.value)}
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+              dir="ltr"
+            />
+          </div>
+
+          {/* Confirm New Password */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+              {isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
+            </label>
+            <input
+              type="password"
+              value={passwordState.confirmPassword}
+              onChange={(e) => handleChange('confirmPassword', e.target.value)}
               className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
               dir="ltr"
             />

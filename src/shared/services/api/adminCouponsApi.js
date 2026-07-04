@@ -11,6 +11,36 @@ export const adminCouponsApi = {
     }
   },
 
+  fetchActiveCoupons: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/coupons/private/active', { params });
+      const coupons = response.data?.data?.data || response.data?.data || [];
+      return { success: true, data: coupons };
+    } catch {
+      return { success: false, data: [] };
+    }
+  },
+
+  fetchUsedCoupons: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/coupons/private/used', { params });
+      const coupons = response.data?.data?.data || response.data?.data || [];
+      return { success: true, data: coupons };
+    } catch {
+      return { success: false, data: [] };
+    }
+  },
+
+  fetchExpiredCoupons: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/coupons/private/expired', { params });
+      const coupons = response.data?.data?.data || response.data?.data || [];
+      return { success: true, data: coupons };
+    } catch {
+      return { success: false, data: [] };
+    }
+  },
+
   fetchCouponById: async (id) => {
     try {
       const response = await api.get(`/api/v1/coupons/private/${id}`);
