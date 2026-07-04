@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
@@ -19,7 +18,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         : '';
 
     const [profileData, setProfileData] = useState({
-        username: user?.username || '',
         email: user?.email || '',
         fullName: displayUserName || '',
         country: 'مصر'
@@ -33,8 +31,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [phoneVal, setPhoneVal] = useState('');
 
-    const [isGoogleLinked, setIsGoogleLinked] = useState(false);
-    const [isEmailLinked, setIsEmailLinked] = useState(false);
+
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -45,7 +42,12 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             ]);
 
             const fetchedCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes?.data || []);
-            setApiCountries(fetchedCountries);
+            const sortedCountries = [...fetchedCountries].sort((a, b) => {
+                const nameA = (a.name || a.nameEn || '').toLowerCase();
+                const nameB = (b.name || b.nameEn || '').toLowerCase();
+                return nameA.localeCompare(nameB, 'ar');
+            });
+            setApiCountries(sortedCountries);
 
             if (res?.success && res.data) {
                 const nameData = res.data.name;
@@ -67,7 +69,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 }
 
                 setProfileData({
-                    username: res.data.username || user?.username || '',
                     email: res.data.email || '',
                     fullName: parsedName,
                     country: mappedCountry
@@ -118,8 +119,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         const fullPhone = phoneVal ? `${selectedCountryCode.code} ${phoneVal.trim()}` : '';
         const res = await profileApi.updateProfile({
             name: profileData.fullName,
-            email: profileData.email,
-            username: profileData.username,
             country: profileData.country,
             phone: fullPhone
         });
@@ -166,19 +165,9 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         type="email"
                         name="email"
                         value={profileData.email}
-                        onChange={handleProfileChange}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
-                        dir="ltr"
-                    />
-                </div>
-                <div className="flex flex-col items-start w-full">
-                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">اسم المستخدم (Username)</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={profileData.username}
-                        onChange={handleProfileChange}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
+                        readOnly
+                        disabled
+                        className="w-full bg-slate-100 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500 rounded-xl py-3.5 px-4 outline-none text-sm font-medium text-start cursor-not-allowed"
                         dir="ltr"
                     />
                 </div>
@@ -193,7 +182,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         <option value="">اختر الدولة</option>
                         {apiCountries.map(c => (
                             <option key={c.id || c._id} value={c.id || c._id}>
-                                {c.name}
+                                {c.flag ? `${c.flag} ` : ''}{c.name}
                             </option>
                         ))}
                     </select>
@@ -240,31 +229,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 </div>
             </div>
 
-            <div className="pt-6 border-t border-slate-100 dark:border-slate-700 mt-6 space-y-4 mx-auto max-w-3xl">
-                <button
-                    onClick={() => setIsEmailLinked(!isEmailLinked)}
-                    className="w-full flex items-center justify-center gap-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-200 dark:border-slate-600"
-                >
-                    <Mail className="w-5 h-5" />
-                    <span className="font-semibold text-sm">{isEmailLinked ? t('parentSettings.unlinkEmail') : t('parentSettings.linkEmail')}</span>
-                </button>
 
-                <div className="relative flex items-center py-1">
-                    <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                </div>
-                <button
-                    onClick={() => setIsGoogleLinked(!isGoogleLinked)}
-                    className="w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-black dark:bg-[#1a1a1a] dark:hover:bg-black text-white rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-800 dark:border-slate-700"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.3C21.38 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
-                        <path d="M12 23C14.97 23 17.46 22.02 19.3 20.34L15.73 17.57C14.74 18.24 13.48 18.66 12 18.66C9.14 18.66 6.71 16.73 5.84 14.14H2.16V16.99C4.01 20.67 7.7 23 12 23Z" fill="#34A853" />
-                        <path d="M5.84 14.14C5.62 13.48 5.49 12.76 5.49 12C5.49 11.24 5.62 10.52 5.84 9.86V7.01H2.16C1.4 8.53 0.96 10.22 0.96 12C0.96 13.78 1.4 15.47 2.16 16.99L5.84 14.14Z" fill="#FBBC05" />
-                        <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
-                    </svg>
-                    <span className="font-semibold text-sm">{isGoogleLinked ? t('parentSettings.unlinkGoogle') : t('parentSettings.linkGoogle')}</span>
-                </button>
-            </div>
 
             <div className="flex justify-start mt-8">
                 <button

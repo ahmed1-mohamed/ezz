@@ -1,9 +1,9 @@
 import api from './axiosConfig';
 
 export const adminCouponsApi = {
-  fetchCoupons: async () => {
+  fetchCoupons: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/coupons/private');
+      const response = await api.get('/api/v1/coupons/private', { params });
       const coupons = response.data?.data?.data || response.data?.data || [];
       return { success: true, data: coupons };
     } catch {

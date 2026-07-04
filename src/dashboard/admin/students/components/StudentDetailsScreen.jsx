@@ -108,8 +108,8 @@ export default function StudentDetailsScreen({
       bgClass: 'bg-amber-50/30 dark:bg-amber-955/10'
     },
     {
-      label: isRtl ? 'الحصص المتبقية' : 'Remaining Sessions',
-      value: student.remainingSessions || 8,
+      label: isRtl ? 'البريد الإلكترونى' : 'Email',
+      value: student.email || '-',
       icon: Clock,
       iconColor: 'text-emerald-500',
       bgClass: 'bg-emerald-50/30 dark:bg-emerald-955/10'
@@ -392,7 +392,6 @@ export default function StudentDetailsScreen({
             </div>
           </div>
 
-          {/* Parent Information */}
           <StudentParentCard
             isRtl={isRtl}
             parentInfo={parentInfo}

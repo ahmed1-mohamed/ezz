@@ -45,8 +45,8 @@ export const adminPackagesApi = {
 
   fetchExplanationLanguages: async () => {
     try {
-      const response = await api.get('/api/v1/explanation-languages/private');
-      return { success: true, data: response.data?.data || [] };
+      const response = await api.get('/api/v1/explanation-languages/private/localized/all');
+      return { success: true, data: response.data?.data || response.data || [] };
     } catch (error) {
       console.error(error);
       return { success: false, data: [] };

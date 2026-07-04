@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function CouponStatsBar({ total, active, expired }) {
+function CouponStatsBar({ total, active, expired, used }) {
     const { t } = useTranslation();
 
     const stats = [
@@ -23,10 +23,16 @@ function CouponStatsBar({ total, active, expired }) {
             value: expired,
             valueClass: 'text-slate-400 dark:text-slate-500',
         },
+        {
+            key: 'used',
+            label: t('adminDashboard.coupons.usedCodes', 'الأكواد المستخدمة'),
+            value: used ?? 0,
+            valueClass: 'text-amber-500 dark:text-amber-400',
+        },
     ];
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {stats.map((stat) => (
                 <div
                     key={stat.key}

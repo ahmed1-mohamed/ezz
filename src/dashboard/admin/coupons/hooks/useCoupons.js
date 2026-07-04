@@ -14,15 +14,20 @@ export function useCoupons() {
     const [selectedCoupon, setSelectedCoupon] = useState(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-    const loadAll = useCallback(async () => {
+    const loadAll = useCallback(async (searchVal = '') => {
         setLoading(true);
-        const res = await adminCouponsApi.fetchCoupons();
+        const res = await adminCouponsApi.fetchCoupons({ search: searchVal });
         if (res?.success) setCoupons(res.data);
         setLoading(false);
     }, []);
 
     useEffect(() => {
         loadAll();
+    }, [loadAll]);
+
+    const handleSearch = useCallback((val) => {
+        setSearchQuery(val);
+        loadAll(val);
     }, [loadAll]);
 
     const handleSaveCoupon = useCallback(async (data) => {
@@ -70,19 +75,21 @@ export function useCoupons() {
 
     const expiredCoupons = useMemo(() => coupons.length - activeCoupons, [coupons.length, activeCoupons]);
 
-    const filteredCoupons = useMemo(
-        () => coupons.filter((c) => c.code?.toLowerCase().includes(searchQuery.toLowerCase())),
-        [coupons, searchQuery]
+    const usedCoupons = useMemo(
+        () => coupons.filter((c) => c.savedAmount && Number(c.savedAmount) > 0).length,
+        [coupons]
     );
 
     return {
         loading,
         coupons,
-        filteredCoupons,
+        filteredCoupons: coupons,
         activeCoupons,
         expiredCoupons,
+        usedCoupons,
         searchQuery,
         setSearchQuery,
+        handleSearch,
         isFormOpen,
         isDetailsOpen,
         selectedCoupon,

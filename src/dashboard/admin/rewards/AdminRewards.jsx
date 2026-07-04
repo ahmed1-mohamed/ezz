@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import Spinner from '@/shared/components/Spinner'
 import { adminRewardsApi } from '@/shared/services/api/adminRewardsApi'
 import { showDeleteConfirm, showSuccessToast, showErrorToast, showRewardDetails } from '@/shared/utils/sweetAlert'
@@ -45,6 +46,28 @@ export default function AdminRewards() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData()
   }, [loadData])
+
+  const handleEditRewardClick = async (reward, switchTab = false) => {
+    const loadingToast = toast.loading(isRtl ? 'جاري تحميل بيانات المكافأة...' : 'Loading reward details...')
+    try {
+      const res = await adminRewardsApi.fetchRewardById(reward.id || reward._id)
+      if (res?.success && res.data) {
+        setEditingReward(res.data)
+        setShowForm(true)
+      } else {
+        setEditingReward(reward)
+        setShowForm(true)
+      }
+      if (switchTab) setActiveMainTab('rewards')
+    } catch (error) {
+      console.error('Failed to fetch reward details for edit:', error)
+      setEditingReward(reward)
+      setShowForm(true)
+      if (switchTab) setActiveMainTab('rewards')
+    } finally {
+      toast.dismiss(loadingToast)
+    }
+  }
 
   const handleSaveReward = async (rewardData) => {
     if (editingReward) {
@@ -180,10 +203,7 @@ export default function AdminRewards() {
           <RewardsGrid
             rewards={rewards}
             onView={(item) => showRewardDetails(item, isRtl)}
-            onEdit={(item) => {
-              setEditingReward(item)
-              setShowForm(true)
-            }}
+            onEdit={handleEditRewardClick}
             onDelete={handleDeleteReward}
           />
         </div>
@@ -194,11 +214,7 @@ export default function AdminRewards() {
           onView={(item) => showRewardDetails(item, isRtl)}
           onApprove={handleApproveSuggestion}
           onReject={handleRejectSuggestion}
-          onEdit={(item) => {
-            setEditingReward(item)
-            setShowForm(true)
-            setActiveMainTab('rewards')
-          }}
+          onEdit={(item) => handleEditRewardClick(item, true)}
           onDelete={handleDeleteSuggestion}
         />
       )}

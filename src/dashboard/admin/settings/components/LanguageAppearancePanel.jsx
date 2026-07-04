@@ -3,9 +3,8 @@ import { Sun, Moon, Settings as SettingsIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../../../../i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
-import ToggleSwitch from './ToggleSwitch.jsx';
 
-export default function LanguageAppearancePanel({ itemVariants, preferences, togglePreference, isRtl }) {
+export default function LanguageAppearancePanel({ itemVariants }) {
     const { t, i18n } = useTranslation();
     const { theme, setTheme } = useAuth();
 
@@ -59,23 +58,6 @@ export default function LanguageAppearancePanel({ itemVariants, preferences, tog
                     <SettingsIcon className="w-6 h-6 text-slate-500" />
                     <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.auto')}</span>
                 </button>
-            </div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.displayPreferences')}</h3>
-            <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <div className="text-start">
-                        <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parentSettings.showChildrenPhotos')}</span>
-                        <span className="text-[10px] text-slate-500">{t('parentSettings.showChildrenPhotosDesc')}</span>
-                    </div>
-                    <ToggleSwitch checked={preferences.showPhotos} onChange={() => togglePreference('showPhotos')} isRtl={isRtl} />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <div className="text-start">
-                        <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block mb-1">{t('parentSettings.showAllChildren')}</span>
-                        <span className="text-[10px] text-slate-500">{t('parentSettings.showAllChildrenDesc')}</span>
-                    </div>
-                    <ToggleSwitch checked={preferences.showAllChildren} onChange={() => togglePreference('showAllChildren')} isRtl={isRtl} />
-                </div>
             </div>
         </motion.div>
     );

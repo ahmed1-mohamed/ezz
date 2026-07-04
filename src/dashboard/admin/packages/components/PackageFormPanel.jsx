@@ -7,8 +7,8 @@ import SelectField from './SelectField'
 import PackageImageUpload from './PackageImageUpload'
 import PackageFeaturesField from './PackageFeaturesField'
 import {
-  EMPTY_PACKAGE, CURRENCY_OPTIONS,
-  LANGUAGE_OPTIONS, SESSION_OPTIONS, COLOR_PRESETS,
+  EMPTY_PACKAGE,
+  SESSION_OPTIONS,
 } from './packages_constants'
 
 export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage, explanationLanguages = [] }) {
@@ -30,7 +30,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
       const validLanguage = explanationLanguages.some(l => l.id === editingPackage.sessions_language)
         ? editingPackage.sessions_language
         : (explanationLanguages?.[0]?.id || '');
-        
+
       setForm({
         ...EMPTY_PACKAGE,
         ...editingPackage,
@@ -163,26 +163,17 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
-                  <input
-                    id="price"
-                    name="price"
-                    type="number"
-                    value={form.price}
-                    onChange={(e) => setField('price', e.target.value)}
-                    placeholder={p('pricePlaceholder')}
-                    required
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
-                  />
-                </div>
-                <SelectField
-                  label={p('currency')}
-                  value={form.currency}
-                  onChange={(v) => setField('currency', v)}
-                  options={CURRENCY_OPTIONS}
-                  placeholder={p('currency')}
+              <div>
+                <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
+                <input
+                  id="price"
+                  name="price"
+                  type="number"
+                  value={form.price}
+                  onChange={(e) => setField('price', e.target.value)}
+                  placeholder={p('pricePlaceholder')}
+                  required
+                  className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
                 />
               </div>
 
@@ -193,8 +184,10 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   value={form.sessions_language}
                   onChange={(v) => setField('sessions_language', v)}
                   options={explanationLanguages.map(lang => ({
-                    value: lang.id,
-                    label: isRtl ? (lang.name?.ar || lang.name?.en) : (lang.name?.en || lang.name?.ar)
+                    value: lang.id || lang._id,
+                    label: typeof lang.name === 'object' && lang.name !== null
+                      ? (isRtl ? lang.name.ar || lang.name.en : lang.name.en || lang.name.ar)
+                      : lang.name
                   }))}
                   placeholder={p('language')}
                 />
@@ -208,53 +201,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
-                  {p('color')}
-                </label>
-                <div className="flex gap-2 flex-wrap justify-start">
-                  {COLOR_PRESETS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setField('color', c)}
-                      className="w-8 h-8 rounded-full border-2 transition-transform hover:scale-110"
-                      style={{
-                        backgroundColor: c,
-                        borderColor: form.color === c ? '#0f172a' : 'transparent',
-                        outline: form.color === c ? `2px solid ${c}` : 'none',
-                        outlineOffset: '2px',
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
-                  {p('descriptionAr')}
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => setField('description', e.target.value)}
-                  rows={3}
-                  placeholder={p('descriptionArPlaceholder')}
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-3 text-sm outline-none resize-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-500 mb-1.5">
-                  {p('descriptionEn')}
-                </label>
-                <textarea
-                  value={form.description_en}
-                  onChange={(e) => setField('description_en', e.target.value)}
-                  rows={3}
-                  placeholder={p('descriptionEnPlaceholder')}
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-3 text-sm outline-none resize-none placeholder-slate-400 text-slate-800 dark:text-slate-100"
-                />
-              </div>
 
               <div id="features" tabIndex={-1} className="outline-none">
                 <PackageFeaturesField

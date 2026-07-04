@@ -1,11 +1,9 @@
-import { useState, useEffect, useMemo, memo } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Mail, Phone, User, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Spinner from '@/shared/components/Spinner';
 import { studentsApi } from '@/shared/services/api/studentsApi';
-
-const SEARCH_FILTERS = ['name', 'email', 'phone'];
 
 const resolveStudentName = (name) =>
     typeof name === 'object' ? name?.ar || name?.en || '' : name || '';
@@ -21,7 +19,7 @@ const getInitials = (name) => {
 function StudentInfoRow({ icon: Icon, label, value, isLtr = false }) {
     return (
         <div
-            className={`flex items-center gap-2 bg-[#f8fafc] dark:bg-slate-900/60 p-2 rounded-lg text-slate-600 dark:text-slate-300 ${
+            className={`flex items-center gap-2 bg-[#f8fafc] dark:bg-slate-900/60 p-2 rounded-lg text-slate-655 dark:text-slate-300 ${
                 isLtr ? 'flex-row-reverse justify-end' : ''
             }`}
             dir={isLtr ? 'ltr' : undefined}
@@ -63,43 +61,35 @@ function StudentCard({ student, isSelected, onToggle, t }) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-start">
                 {student.age && (
                     <StudentInfoRow
                         icon={User}
-                        label={t('adminDashboard.coupons.ageLabel')}
+                        label={t('adminDashboard.coupons.ageLabel', 'العمر')}
                         value={student.age}
                     />
                 )}
                 {student.email && (
                     <StudentInfoRow
                         icon={Mail}
-                        label={t('adminDashboard.coupons.emailLabel')}
+                        label={t('adminDashboard.coupons.emailLabel', 'البريد')}
                         value={student.email}
                         isLtr
                     />
                 )}
                 {student.level?.name && (
                     <StudentInfoRow
-                        label={t('adminDashboard.coupons.levelLabel')}
+                        label={t('adminDashboard.coupons.levelLabel', 'المستوى')}
                         value={student.level.name}
                     />
                 )}
                 {student.phone && (
                     <StudentInfoRow
                         icon={Phone}
-                        label={t('adminDashboard.coupons.phoneLabel')}
+                        label={t('adminDashboard.coupons.phoneLabel', 'الهاتف')}
                         value={student.phone}
                         isLtr
                     />
-                )}
-                {student.group?.name && (
-                    <div className="sm:col-span-2">
-                        <StudentInfoRow
-                            label={t('adminDashboard.coupons.groupLabel')}
-                            value={student.group.name}
-                        />
-                    </div>
                 )}
             </div>
         </div>
@@ -113,20 +103,19 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchFilter, setSearchFilter] = useState('name');
     const [selectedStudents, setSelectedStudents] = useState([]);
 
     useEffect(() => {
         if (!isOpen) return;
         setSelectedStudents([]);
         setSearchQuery('');
-        fetchStudents();
+        fetchStudents('');
     }, [isOpen]);
 
-    const fetchStudents = async () => {
+    const fetchStudents = async (query = '') => {
         setLoading(true);
         try {
-            const res = await studentsApi.fetchStudents();
+            const res = await studentsApi.fetchStudents({ search: query });
             let studentList = [];
             if (Array.isArray(res)) studentList = res;
             else if (Array.isArray(res?.data)) studentList = res.data;
@@ -136,6 +125,8 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                 (s) => !alreadySelectedIds.includes(getStudentId(s))
             );
             setStudents(available);
+        } catch (error) {
+            console.error('Failed to fetch students:', error);
         } finally {
             setLoading(false);
         }
@@ -145,31 +136,15 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
         const studentId = getStudentId(student);
         setSelectedStudents((prev) =>
             prev.some((s) => getStudentId(s) === studentId)
-                ? prev.filter((s) => getStudentId(s) !== studentId)
-                : [...prev, student]
+                ? []
+                : [student]
         );
     };
 
-    const filteredStudents = useMemo(() => {
-        if (!searchQuery) return students;
-        const query = searchQuery.toLowerCase();
-        return students.filter((student) => {
-            let target = '';
-            if (searchFilter === 'name') target = resolveStudentName(student.name);
-            else if (searchFilter === 'email') target = student.email || '';
-            else if (searchFilter === 'phone') target = student.phone || '';
-            return target.toLowerCase().includes(query);
-        });
-    }, [students, searchQuery, searchFilter]);
-
-    const filterOptions = useMemo(
-        () =>
-            SEARCH_FILTERS.map((id) => ({
-                id,
-                label: t(`adminDashboard.coupons.searchBy${id.charAt(0).toUpperCase() + id.slice(1)}`),
-            })),
-        [t]
-    );
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        fetchStudents(searchQuery);
+    };
 
     return (
         <AnimatePresence>
@@ -193,23 +168,8 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                         className="relative z-10 w-full max-w-4xl max-h-[90vh] bg-[#f8fafc] dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800/60 overflow-hidden"
                     >
                         <div className="p-6 pb-2 shrink-0">
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50">
-                                <div className="flex flex-wrap gap-2 justify-end mb-4">
-                                    {filterOptions.map((opt) => (
-                                        <button
-                                            key={opt.id}
-                                            onClick={() => setSearchFilter(opt.id)}
-                                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                                                searchFilter === opt.id
-                                                    ? 'bg-[#0f7a6c] text-white'
-                                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                                            }`}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="relative">
+                            <form onSubmit={handleSearchSubmit} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex gap-2 items-center">
+                                <div className="relative flex-1">
                                     <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
                                         <Search size={18} className="text-slate-400" />
                                     </div>
@@ -217,31 +177,36 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder={t('adminDashboard.coupons.searchStudentPlaceholder')}
-                                        className="w-full bg-[#f8fafc] dark:bg-slate-900/60 rounded-xl ps-11 pe-4 py-3 text-sm outline-none text-slate-800 dark:text-slate-100 border border-transparent focus:border-[#0f7a6c] transition-all"
+                                        placeholder={t('adminDashboard.coupons.searchStudentPlaceholder', 'بحث عن طالب بالاسم، البريد أو الهاتف...')}
+                                        className="w-full bg-[#f8fafc] dark:bg-slate-900/60 rounded-xl ps-11 pe-4 py-3 text-sm outline-none text-slate-800 dark:text-slate-100 border border-transparent focus:border-[#0f7a6c] transition-all text-start"
                                     />
                                 </div>
-                            </div>
+                                <button
+                                    type="submit"
+                                    className="px-5 py-3 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap"
+                                >
+                                    {t('common.search', 'بحث')}
+                                </button>
+                            </form>
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 pt-2">
                             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6 min-h-[400px]">
-                                <h3 className="text-slate-800 dark:text-white font-bold mb-6">
-                                    {t('adminDashboard.coupons.availableStudents')} (
-                                    {filteredStudents.length})
+                                <h3 className="text-slate-855 dark:text-white font-bold mb-6 text-start">
+                                    {t('adminDashboard.coupons.availableStudents', 'الطلاب المتاحون')} ({students.length})
                                 </h3>
 
                                 {loading ? (
                                     <div className="flex justify-center items-center h-40">
                                         <Spinner />
                                     </div>
-                                ) : filteredStudents.length === 0 ? (
+                                ) : students.length === 0 ? (
                                     <div className="text-center py-10 text-slate-500">
-                                        {t('adminDashboard.coupons.noStudentsFound')}
+                                        {t('adminDashboard.coupons.noStudentsFound', 'لا يوجد طلاب')}
                                     </div>
                                 ) : (
-                                    <div className="space-y-4">
-                                        {filteredStudents.map((student) => {
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {students.map((student) => {
                                             const studentId = getStudentId(student);
                                             const isSelected = selectedStudents.some(
                                                 (s) => getStudentId(s) === studentId
@@ -266,18 +231,18 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                 type="button"
                                 onClick={() => onAdd(selectedStudents)}
                                 disabled={selectedStudents.length === 0}
-                                className="flex-1 py-3.5 rounded-xl font-bold transition-colors bg-[#0f7a6c] text-white hover:bg-[#0d6b5e] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 py-3.5 rounded-xl font-bold transition-colors bg-[#0f7a6c] text-white hover:bg-[#0d6b5e] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
-                                {t('adminDashboard.coupons.addNStudentsBtn', {
-                                    count: selectedStudents.length,
-                                })}
+                                {selectedStudents.length === 1 
+                                    ? (isRtl ? 'إضافة الطالب المحدد للكوبون' : 'Add Selected Student')
+                                    : (isRtl ? 'إضافة طالب' : 'Add Student')}
                             </button>
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-8 py-3.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                                className="px-8 py-3.5 rounded-xl bg-white dark:bg-slate-800 text-slate-655 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer border border-slate-100 dark:border-slate-800"
                             >
-                                {t('adminDashboard.coupons.cancelBtn')}
+                                {t('adminDashboard.coupons.cancelBtn', 'إلغاء')}
                             </button>
                         </div>
                     </motion.div>

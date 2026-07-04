@@ -16,9 +16,10 @@ function AdminCoupons() {
         filteredCoupons,
         activeCoupons,
         expiredCoupons,
+        usedCoupons,
         coupons,
         searchQuery,
-        setSearchQuery,
+        handleSearch,
         isFormOpen,
         isDetailsOpen,
         selectedCoupon,
@@ -44,6 +45,7 @@ function AdminCoupons() {
                 total={coupons.length}
                 active={activeCoupons}
                 expired={expiredCoupons}
+                used={usedCoupons}
             />
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -55,7 +57,7 @@ function AdminCoupons() {
                     {t('adminDashboard.coupons.createCoupon')}
                 </button>
 
-                <CouponSearchBar value={searchQuery} onChange={setSearchQuery} />
+                <CouponSearchBar value={searchQuery} onSearch={handleSearch} />
             </div>
 
             <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden">

@@ -13,7 +13,6 @@ import {
   Globe,
   Calendar,
   Clock,
-  Tag,
   Package,
   CreditCard,
   TrendingUp,

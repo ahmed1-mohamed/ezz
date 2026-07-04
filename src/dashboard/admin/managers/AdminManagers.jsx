@@ -23,11 +23,10 @@ export default function AdminManagers() {
 
   const [currentPage, setCurrentPage] = useState(1)
   const [searchVal, setSearchVal] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'stopped'
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const debouncedSearch = useDebounce(searchVal, 300)
 
-  // Reset page to 1 when filters or search change
   useEffect(() => {
     setCurrentPage(1)
   }, [statusFilter, debouncedSearch])
@@ -143,18 +142,19 @@ export default function AdminManagers() {
   const handleOpenEditScreen = async (supervisor) => {
     setIsLoadingDetails(true)
     try {
-      const rawAdminRes = await managersApi.fetchRawAdminById(supervisor.id || supervisor._id)
+      const adminId = supervisor.admin_id || supervisor.id || supervisor._id
+      const rawAdminRes = await managersApi.fetchRawAdminById(adminId)
       const rawAdmin = rawAdminRes?.data || rawAdminRes || supervisor
-      
+
       const arName = rawAdmin.name?.ar || rawAdmin.nameAr || rawAdmin.name_ar || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '');
       const enName = rawAdmin.name?.en || rawAdmin.nameEn || rawAdmin.name_en || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '');
-      
+
       const preparedAdmin = {
         ...rawAdmin,
         name: arName,
         nameEn: enName
       }
-      
+
       setSelectedSupervisor(preparedAdmin)
       setSelectedRole(rawAdmin.role || 'مشرف عام')
       setViewMode('edit-supervisor')

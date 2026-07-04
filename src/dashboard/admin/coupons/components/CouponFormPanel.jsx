@@ -35,25 +35,19 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
     const setField = (key, value) =>
         setForm((prev) => ({ ...prev, [key]: value }));
 
-    const handleRemoveStudent = (studentId) => {
-        setField(
-            'students',
-            form.students.filter(
-                (s) => s.student_id !== studentId && s.id !== studentId
-            )
-        );
+    const handleRemoveStudent = () => {
+        setField('students', []);
     };
 
     const handleAddStudents = (selectedStudents) => {
-        const currentIds = form.students.map((s) => s.student_id || s.id);
-        const newStudents = selectedStudents
-            .filter((s) => !currentIds.includes(s.student_id || s._id || s.id))
-            .map((s) => ({
-                student_id: s.student_id || s._id || s.id,
-                name: s.name,
-                email: s.email,
-            }));
-        setField('students', [...form.students, ...newStudents]);
+        if (selectedStudents.length === 0) return;
+        const s = selectedStudents[0];
+        const mappedStudent = {
+            student_id: s.student_id || s._id || s.id,
+            name: s.name,
+            email: s.email,
+        };
+        setField('students', [mappedStudent]);
         setIsStudentModalOpen(false);
     };
 
@@ -85,7 +79,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={onClose}
-                            className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm"
+                            className="absolute inset-0 bg-slate-955/40 dark:bg-black/60 backdrop-blur-sm"
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -96,7 +90,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                         >
                             <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100/60 dark:border-slate-800/60 shrink-0">
                                 <h2 className="font-bold text-slate-800 dark:text-white text-lg">
-                                    {t('adminDashboard.coupons.createCouponTitle')}
+                                    {t('adminDashboard.coupons.createCouponTitle', 'إنشاء كوبون جديد')}
                                 </h2>
                                 <button
                                     type="button"
@@ -110,14 +104,14 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                             <form
                                 id="coupon-form"
                                 onSubmit={handleSubmit}
-                                className="flex-1 overflow-y-auto px-8 py-6 space-y-6"
+                                className="flex-1 overflow-y-auto px-8 py-6 space-y-6 text-start"
                             >
                                 <div>
                                     <label
                                         htmlFor="coupon-code"
                                         className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                                     >
-                                        {t('adminDashboard.coupons.codeLabel')}
+                                        {t('adminDashboard.coupons.codeLabel', 'رمز الكوبون')}
                                     </label>
                                     <input
                                         id="coupon-code"
@@ -125,7 +119,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         value={form.code}
                                         onChange={(e) => setField('code', e.target.value)}
                                         placeholder="e.g. RAMADAN50"
-                                        className="w-full bg-[#f8fafc] dark:bg-slate-800/50 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 text-slate-800 dark:text-slate-100 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] transition-all"
+                                        className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-850 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                     />
                                 </div>
 
@@ -134,7 +128,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         htmlFor="coupon-discount"
                                         className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                                     >
-                                        {t('adminDashboard.coupons.discountPercentageLabel')}
+                                        {t('adminDashboard.coupons.discountPercentageLabel', 'نسبة الخصم')}
                                     </label>
                                     <div className="relative">
                                         <input
@@ -148,9 +142,9 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                 setField('discountPercentage', e.target.value)
                                             }
                                             placeholder="20"
-                                            className="w-full bg-[#f8fafc] dark:bg-slate-800/50 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 text-slate-800 dark:text-slate-100 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] transition-all"
+                                            className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-855 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                         />
-                                        <div className="absolute inset-y-0 end-0 flex items-center pe-4 pointer-events-none text-slate-400 font-medium">
+                                        <div className="absolute inset-y-0 end-0 flex items-center pe-4 pointer-events-none text-slate-450 font-medium">
                                             %
                                         </div>
                                     </div>
@@ -161,7 +155,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         htmlFor="coupon-expiry"
                                         className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                                     >
-                                        {t('adminDashboard.coupons.expirationDateLabel')}
+                                        {t('adminDashboard.coupons.expirationDateLabel', 'تاريخ انتهاء الصلاحية')}
                                     </label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
@@ -175,7 +169,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                             onChange={(e) =>
                                                 setField('expirationDate', e.target.value)
                                             }
-                                            className="w-full bg-[#f8fafc] dark:bg-slate-800/50 rounded-xl ps-11 pe-4 py-3 text-sm outline-none text-slate-800 dark:text-slate-100 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] transition-all"
+                                            className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-855 dark:text-slate-100 rounded-xl ps-11 pe-4 py-3 text-sm outline-none transition-all"
                                         />
                                     </div>
                                 </div>
@@ -184,9 +178,11 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                     <button
                                         type="button"
                                         onClick={() => setIsStudentModalOpen(true)}
-                                        className="w-full py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-bold hover:bg-[#0d6b5e] transition-colors"
+                                        className="w-full py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-bold hover:bg-[#0d6b5e] transition-colors cursor-pointer"
                                     >
-                                        {t('adminDashboard.coupons.addStudentsBtn')}
+                                        {form.students.length === 0
+                                            ? t('adminDashboard.coupons.addStudentBtn', 'إضافة طالب للكوبون')
+                                            : t('adminDashboard.coupons.changeStudentBtn', 'تغيير الطالب')}
                                     </button>
 
                                     {form.students.length > 0 && (
@@ -196,14 +192,14 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                     <tr>
                                                         <th className="px-4 py-3 font-semibold w-12" />
                                                         <th className="px-4 py-3 font-semibold">
-                                                            {t('adminDashboard.coupons.emailLabel')}
+                                                            {t('adminDashboard.coupons.emailLabel', 'البريد الإلكتروني')}
                                                         </th>
                                                         <th className="px-4 py-3 font-semibold text-start">
-                                                            {t('adminDashboard.coupons.studentNameLabel')}
+                                                            {t('adminDashboard.coupons.studentNameLabel', 'اسم الطالب')}
                                                         </th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                <tbody className="divide-y divide-slate-150 dark:divide-slate-800">
                                                     {form.students.map((student, idx) => (
                                                         <tr
                                                             key={student.student_id || student.id || idx}
@@ -212,23 +208,19 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                             <td className="px-4 py-3">
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() =>
-                                                                        handleRemoveStudent(
-                                                                            student.student_id || student.id
-                                                                        )
-                                                                    }
-                                                                    className="text-slate-400 hover:text-red-500 transition-colors"
+                                                                    onClick={handleRemoveStudent}
+                                                                    className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                                                                 >
                                                                     <Trash2 size={16} />
                                                                 </button>
                                                             </td>
                                                             <td
-                                                                className="px-4 py-3 text-slate-600 dark:text-slate-300 font-medium"
+                                                                className="px-4 py-3 text-slate-600 dark:text-slate-305 font-medium"
                                                                 dir="ltr"
                                                             >
                                                                 {student.email}
                                                             </td>
-                                                            <td className="px-4 py-3 text-slate-800 dark:text-slate-200 font-bold text-start">
+                                                            <td className="px-4 py-3 text-slate-800 dark:text-slate-205 font-bold text-start">
                                                                 {resolveStudentName(student.name)}
                                                             </td>
                                                         </tr>
@@ -244,18 +236,18 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    className="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-655 dark:text-slate-300 text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                                 >
-                                    {t('adminDashboard.coupons.cancelBtn')}
+                                    {t('adminDashboard.coupons.cancelBtn', 'إلغاء')}
                                 </button>
                                 <button
                                     form="coupon-form"
                                     type="submit"
                                     disabled={saving || form.students.length === 0}
-                                    className="px-6 py-2.5 rounded-xl bg-[#0f7a6c] text-white text-sm font-bold hover:bg-[#0d6b5e] transition-colors disabled:opacity-60 flex items-center gap-2"
+                                    className="px-6 py-2.5 rounded-xl bg-[#0f7a6c] text-white text-sm font-bold hover:bg-[#0d6b5e] transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
                                 >
                                     {saving && <Spinner />}
-                                    {t('adminDashboard.coupons.createCodeBtn')}
+                                    {t('adminDashboard.coupons.createCodeBtn', 'إنشاء الكود')}
                                 </button>
                             </div>
                         </motion.div>
