@@ -26,17 +26,13 @@ export default function AdminStudentLevels() {
     staleTime: 5 * 60 * 1000,
   })
 
-  // Sync fetched levels to local state so local editing/adding continues to work for now
+  // Sync fetched levels to local state
   useEffect(() => {
     if (levelsData?.data) {
       const fetchedLevels = levelsData.data.map((item) => ({
         id: item.id,
-        name: typeof item.name === 'object' ? (isRtl ? item.name.ar : item.name.en) : item.name,
-        nameEn: typeof item.name === 'object' ? item.name.en : item.name,
-        description: '', // Not provided by the list API currently
-        descriptionEn: '',
-        isVisible: true, // Default to true if not returned
-        steps: [], // Mocking steps until we have step APIs
+        name: typeof item.name === 'object' ? (item.name.ar || item.name.en || '') : item.name,
+        nameEn: typeof item.name === 'object' ? (item.name.en || item.name.ar || '') : (item.nameEn || item.name || ''),
         createdAt: item.createdAt,
       }))
       setLevels(fetchedLevels)
@@ -46,19 +42,8 @@ export default function AdminStudentLevels() {
   // Form states for Add/Edit Level
   const [showForm, setShowForm] = useState(false)
   const [editingLevelId, setEditingLevelId] = useState(null)
-  const [levelName, setLevelName] = useState('')
-  const [levelDescription, setLevelDescription] = useState('')
-
-  // Expanded card accordions state (storing level IDs)
-  const [expandedLevels, setExpandedLevels] = useState({ 2: true }) // Level 2 expanded by default as in screenshot
-
-  // State for adding a new step inline
-  const [addingStepLevelId, setAddingStepLevelId] = useState(null)
-  const [newStepTitle, setNewStepTitle] = useState('')
-
-  // State for editing a step inline
-  const [editingStepId, setEditingStepId] = useState(null)
-  const [editingStepTitle, setEditingStepTitle] = useState('')
+  const [levelNameAr, setLevelNameAr] = useState('')
+  const [levelNameEn, setLevelNameEn] = useState('')
 
   // --- Mutations ---
   const createMutation = useMutation({
@@ -66,8 +51,8 @@ export default function AdminStudentLevels() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-levels'] })
       setShowForm(false)
-      setLevelName('')
-      setLevelDescription('')
+      setLevelNameAr('')
+      setLevelNameEn('')
       toast.success(isRtl ? 'تم إضافة المستوى بنجاح!' : 'Level added successfully!')
     },
     onError: (err) => {
@@ -82,8 +67,8 @@ export default function AdminStudentLevels() {
       queryClient.invalidateQueries({ queryKey: ['student-levels'] })
       setEditingLevelId(null)
       setShowForm(false)
-      setLevelName('')
-      setLevelDescription('')
+      setLevelNameAr('')
+      setLevelNameEn('')
       toast.success(isRtl ? 'تم تحديث المستوى بنجاح!' : 'Level updated successfully!')
     },
     onError: (err) => {
@@ -104,30 +89,17 @@ export default function AdminStudentLevels() {
     }
   })
 
-  const toggleAccordion = (levelId) => {
-    setExpandedLevels((prev) => ({
-      ...prev,
-      [levelId]: !prev[levelId]
-    }))
-  }
-
-  const handleToggleVisibility = (levelId) => {
-    setLevels((prev) =>
-      prev.map((lvl) => (lvl.id === levelId ? { ...lvl, isVisible: !lvl.isVisible } : lvl))
-    )
-  }
-
   const handleSaveLevel = async (e) => {
     e.preventDefault()
-    if (!levelName.trim()) {
-      toast.error(isRtl ? 'الرجاء إدخال اسم المستوى الدراسي!' : 'Please enter the level name!')
+    if (!levelNameAr.trim() || !levelNameEn.trim()) {
+      toast.error(isRtl ? 'الرجاء إدخال الاسم باللغتين العربية والإنجليزية!' : 'Please enter the name in both Arabic and English!')
       return
     }
 
     const payload = {
       name: {
-        ar: levelName,
-        en: levelName
+        ar: levelNameAr.trim(),
+        en: levelNameEn.trim()
       }
     }
 
@@ -138,69 +110,19 @@ export default function AdminStudentLevels() {
     }
   }
 
-  const handleEditLevelClick = (lvl) => {
-    setEditingLevelId(lvl.id)
-    setLevelName(lvl.name)
-    setLevelDescription(lvl.description || '')
-    setShowForm(true)
-  }
-
-  // --- Step Management Handlers ---
-
-  const handleAddStepSubmit = (levelId) => {
-    if (!newStepTitle.trim()) return
-    setLevels((prev) =>
-      prev.map((lvl) => {
-        if (lvl.id === levelId) {
-          return {
-            ...lvl,
-            steps: [...lvl.steps, { id: Date.now(), title: newStepTitle }]
-          }
-        }
-        return lvl
-      })
-    )
-    setNewStepTitle('')
-    setAddingStepLevelId(null)
-  }
-
-  const handleStartEditStep = (step) => {
-    setEditingStepId(step.id)
-    setEditingStepTitle(step.title)
-  }
-
-  const handleSaveEditStepSubmit = (levelId, stepId) => {
-    if (!editingStepTitle.trim()) return
-    setLevels((prev) =>
-      prev.map((lvl) => {
-        if (lvl.id === levelId) {
-          return {
-            ...lvl,
-            steps: lvl.steps.map((st) => (st.id === stepId ? { ...st, title: editingStepTitle } : st))
-          }
-        }
-        return lvl
-      })
-    )
-    setEditingStepId(null)
-    setEditingStepTitle('')
-  }
-
-  const handleDeleteStep = async (levelId, stepId) => {
-    const isConfirmed = await showDeleteConfirm(isRtl, isRtl ? 'هذه المرحلة' : 'this step');
-    if (!isConfirmed) return;
-
-    setLevels((prev) =>
-      prev.map((lvl) => {
-        if (lvl.id === levelId) {
-          return {
-            ...lvl,
-            steps: lvl.steps.filter((st) => st.id !== stepId)
-          }
-        }
-        return lvl
-      })
-    )
+  const handleEditLevelClick = async (lvl) => {
+    try {
+      // In editing, use the get one endpoint that returns the full data (containing name in both languages)
+      const res = await adminLevelsApi.fetchLevelById(lvl.id);
+      const lvlData = res?.data || res;
+      setEditingLevelId(lvl.id);
+      setLevelNameAr(lvlData.name?.ar || lvlData.name || '');
+      setLevelNameEn(lvlData.name?.en || lvlData.nameEn || lvlData.name || '');
+      setShowForm(true);
+    } catch (error) {
+      console.error('Failed to fetch level details for edit:', error);
+      toast.error(isRtl ? 'حدث خطأ أثناء تحميل بيانات المستوى' : 'Failed to load level details');
+    }
   }
 
   const handleDeleteLevel = async (level) => {
@@ -236,8 +158,8 @@ export default function AdminStudentLevels() {
           onClick={() => {
             setShowForm(!showForm)
             setEditingLevelId(null)
-            setLevelName('')
-            setLevelDescription('')
+            setLevelNameAr('')
+            setLevelNameEn('')
           }}
           className="px-5 py-3 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer self-start sm:self-center hover:scale-102 active:scale-95"
         >
@@ -249,10 +171,10 @@ export default function AdminStudentLevels() {
       {/* 2. Add / Edit Level Form Card */}
       {showForm && (
         <StudentLevelForm 
-          levelName={levelName}
-          setLevelName={setLevelName}
-          levelDescription={levelDescription}
-          setLevelDescription={setLevelDescription}
+          levelNameAr={levelNameAr}
+          setLevelNameAr={setLevelNameAr}
+          levelNameEn={levelNameEn}
+          setLevelNameEn={setLevelNameEn}
           onCancel={() => {
             setShowForm(false)
             setEditingLevelId(null)
@@ -269,29 +191,14 @@ export default function AdminStudentLevels() {
         </h2>
       </div>
 
-      {/* 3. Levels Accordion Cards List */}
+      {/* 3. Levels Cards List */}
       <div className="space-y-5">
         {levels.map((lvl) => (
           <StudentLevelCard 
             key={lvl.id}
             lvl={lvl}
-            isExpanded={!!expandedLevels[lvl.id]}
-            onToggleExpand={toggleAccordion}
-            onToggleVisibility={() => handleToggleVisibility(lvl.id)}
             onEdit={handleEditLevelClick}
             onDelete={() => handleDeleteLevel(lvl)}
-            addingStepLevelId={addingStepLevelId}
-            setAddingStepLevelId={setAddingStepLevelId}
-            newStepTitle={newStepTitle}
-            setNewStepTitle={setNewStepTitle}
-            editingStepId={editingStepId}
-            setEditingStepId={setEditingStepId}
-            editingStepTitle={editingStepTitle}
-            setEditingStepTitle={setEditingStepTitle}
-            handleAddStepSubmit={handleAddStepSubmit}
-            handleStartEditStep={handleStartEditStep}
-            handleSaveEditStepSubmit={handleSaveEditStepSubmit}
-            handleDeleteStep={handleDeleteStep}
           />
         ))}
       </div>

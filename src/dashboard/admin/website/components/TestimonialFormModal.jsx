@@ -153,7 +153,7 @@ export default function TestimonialFormModal({
                   <div>
                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                       <ImageIcon size={16} />
-                      {t('adminDashboard.website.personalImageOptional', 'صورة شخصية (اختياري)')}
+                      {t('adminDashboard.website.personalImageRequired', 'صورة شخصية')} <span className="text-red-500">*</span>
                     </h4>
                     <div className="mt-2 flex items-center gap-3">
                       <label className="cursor-pointer bg-[#0f7a6c]/10 text-[#0f7a6c] hover:bg-[#0f7a6c]/20 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">

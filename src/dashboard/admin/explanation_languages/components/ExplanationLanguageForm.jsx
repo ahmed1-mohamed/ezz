@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 
-export default function StudentLevelForm({
-  levelNameAr,
-  setLevelNameAr,
-  levelNameEn,
-  setLevelNameEn,
+export default function ExplanationLanguageForm({
+  langNameAr,
+  setLangNameAr,
+  langNameEn,
+  setLangNameEn,
   onCancel,
   onSubmit,
   isEditing
@@ -19,35 +19,35 @@ export default function StudentLevelForm({
     >
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
         {isEditing
-          ? (isRtl ? 'تعديل المستوى الدراسي' : 'Edit Academic Level')
-          : (isRtl ? 'إضافة مستوى دراسي جديد' : 'Add New Academic Level')}
+          ? (isRtl ? 'تعديل لغة الشرح' : 'Edit Explanation Language')
+          : (isRtl ? 'إضافة لغة شرح جديدة' : 'Add New Explanation Language')}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-start">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'الاسم باللغة العربية' : 'Name in Arabic'} <span className="text-red-500">*</span>
+            {isRtl ? 'اسم اللغة باللغة العربية' : 'Language Name in Arabic'} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             required
-            value={levelNameAr}
-            onChange={(e) => setLevelNameAr(e.target.value)}
+            value={langNameAr}
+            onChange={(e) => setLangNameAr(e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-            placeholder={isRtl ? 'مثال: المستوى الأول' : 'e.g. Level One'}
+            placeholder={isRtl ? 'مثل: اللغة العربية' : 'e.g. Arabic'}
           />
         </div>
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'الاسم باللغة الإنجليزية' : 'Name in English'} <span className="text-red-500">*</span>
+            {isRtl ? 'اسم اللغة باللغة الإنجليزية' : 'Language Name in English'} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             required
-            value={levelNameEn}
-            onChange={(e) => setLevelNameEn(e.target.value)}
+            value={langNameEn}
+            onChange={(e) => setLangNameEn(e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-            placeholder={isRtl ? 'Level One :مثال' : 'e.g. Level One'}
+            placeholder={isRtl ? 'Arabic :مثل' : 'e.g. Arabic'}
           />
         </div>
       </div>

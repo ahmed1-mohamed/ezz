@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
-import { studentsApi } from '@/shared/services/api/studentsApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
 const parseStudentReview = (student) => {
@@ -56,7 +55,7 @@ const serializeStudentReview = (star) => {
 
 export default function useFeaturedStudents(showNotification) {
   const { t } = useTranslation();
-  
+
   const [stars, setStars] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -93,7 +92,7 @@ export default function useFeaturedStudents(showNotification) {
   const loadSystemStudentsLazily = async () => {
     if (systemStudents.length > 0) return;
     try {
-      const res = await studentsApi.fetchStudents();
+      const res = await landingApi.fetchSystemStudents();
       const data = res?.data || res;
       if (Array.isArray(data)) {
         setSystemStudents(data);
@@ -148,7 +147,7 @@ export default function useFeaturedStudents(showNotification) {
     const studentNameStr = typeof star.studentName === 'string'
       ? star.studentName
       : (star.studentName?.ar || star.studentName?.en || 'طالب متميز');
-    
+
     const isRtl = i18n.language.startsWith('ar');
     const isConfirmed = await showDeleteConfirm(isRtl, studentNameStr);
     if (!isConfirmed) return;
@@ -166,47 +165,72 @@ export default function useFeaturedStudents(showNotification) {
 
   const handleSaveModal = async (e) => {
     e.preventDefault();
-    if (!currentStar.image?.trim() || !currentStar.name?.trim() || !currentStar.nameEn?.trim()) {
-      showNotification(t('adminDashboard.website.fillRequiredFields', 'يرجى ملء جميع الحقول المطلوبة'), 'error');
+    if (!currentStar.studentId) {
+      showNotification(t('adminDashboard.website.selectStudentError', 'يرجى اختيار طالب من القائمة'), 'error');
       return;
     }
 
-    const studentPayload = {
-      name: { ar: currentStar.name.trim(), en: currentStar.nameEn.trim() },
-      image: currentStar.image.trim()
-    };
-
     const featuredPayload = {
-      ...(currentStar.studentId ? { student: currentStar.studentId } : {})
+      student: currentStar.studentId
     };
 
     try {
       if (currentStar.id === null) {
-        if (currentStar.studentId) {
-          await studentsApi.updateStudent(currentStar.studentId, studentPayload);
-        }
-
         const response = await landingApi.addFeaturedStudent(featuredPayload);
         const added = response?.data || response;
+
+        const systemS = systemStudents.find(s => String(s.id || s._id || s.student_id) === String(currentStar.studentId));
+        const sNameAr = systemS ? (typeof systemS.name === 'object' ? systemS.name.ar : systemS.name) : currentStar.name;
+        const sNameEn = systemS ? (typeof systemS.name === 'object' ? systemS.name.en : (systemS.nameEn || systemS.name)) : currentStar.nameEn;
+
         const newStar = {
-          ...currentStar,
-          id: added?.id || added?._id || `local-${Date.now()}`,
-          name: { ar: currentStar.name.trim(), en: currentStar.nameEn.trim() },
-          review: serializeStudentReview(currentStar)
+          ...added,
+          id: added?.id || added?._id,
+          student: systemS,
+          studentId: currentStar.studentId,
+          name: sNameAr,
+          nameEn: sNameEn,
+          age: systemS?.age || currentStar.age || 10,
+          level: systemS?.level || currentStar.level || 'متوسط',
+          groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
+          parentName: systemS?.parentName || currentStar.parentName || '',
+          image: systemS?.image || systemS?.user?.photoUrl || currentStar.image || '',
+          review: serializeStudentReview({
+            age: systemS?.age || currentStar.age || 10,
+            level: systemS?.level || currentStar.level || 'متوسط',
+            groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
+            parentName: systemS?.parentName || currentStar.parentName || ''
+          })
         };
         const parsed = parseStudentReview(newStar);
         setStars((prev) => [...prev, parsed]);
         showNotification(t('adminDashboard.website.studentAdded', 'تمت إضافة الطالب بنجاح!'));
       } else {
-        if (currentStar.studentId) {
-          await studentsApi.updateStudent(currentStar.studentId, studentPayload);
-        }
+        const response = await landingApi.updateFeaturedStudent(currentStar.id, featuredPayload);
+        const added = response?.data || response;
 
-        await landingApi.updateFeaturedStudent(currentStar.id, featuredPayload);
+        const systemS = systemStudents.find(s => String(s.id || s._id || s.student_id) === String(currentStar.studentId));
+        const sNameAr = systemS ? (typeof systemS.name === 'object' ? systemS.name.ar : systemS.name) : currentStar.name;
+        const sNameEn = systemS ? (typeof systemS.name === 'object' ? systemS.name.en : (systemS.nameEn || systemS.name)) : currentStar.nameEn;
+
         const updatedStar = {
-          ...currentStar,
-          name: { ar: currentStar.name.trim(), en: currentStar.nameEn.trim() },
-          review: serializeStudentReview(currentStar)
+          ...added,
+          id: currentStar.id,
+          student: systemS,
+          studentId: currentStar.studentId,
+          name: sNameAr,
+          nameEn: sNameEn,
+          age: systemS?.age || currentStar.age || 10,
+          level: systemS?.level || currentStar.level || 'متوسط',
+          groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
+          parentName: systemS?.parentName || currentStar.parentName || '',
+          image: systemS?.image || systemS?.user?.photoUrl || currentStar.image || '',
+          review: serializeStudentReview({
+            age: systemS?.age || currentStar.age || 10,
+            level: systemS?.level || currentStar.level || 'متوسط',
+            groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
+            parentName: systemS?.parentName || currentStar.parentName || ''
+          })
         };
         const parsed = parseStudentReview(updatedStar);
         setStars((prev) =>

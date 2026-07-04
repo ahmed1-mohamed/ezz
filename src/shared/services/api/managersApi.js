@@ -41,6 +41,16 @@ export const managersApi = {
     }
   },
 
+  fetchRawAdminById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/admins/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('API fetchRawAdminById failed:', error);
+      throw error;
+    }
+  },
+
   createSupervisor: async (supervisorData) => {
     try {
       const formData = new FormData();
@@ -168,5 +178,26 @@ export const managersApi = {
       success: true,
       data: {}
     };
+  },
+
+  toggleActiveUser: async (id) => {
+    try {
+      const response = await api.patch(`/api/v1/users/${id}/toggle-active`);
+      return response.data;
+    } catch (error) {
+      console.error('API toggleActiveUser failed:', error);
+      throw error;
+    }
+  },
+
+  deleteAdminPermission: async (adminId) => {
+    try {
+      const response = await api.delete(`/api/v1/permissions/admin/${adminId}`);
+      return response.data;
+    } catch (error) {
+      console.error('API deleteAdminPermission failed:', error);
+      throw error;
+    }
   }
 };
+

@@ -82,7 +82,7 @@ export default function ContactUsForm({
             <CountryPhoneInput
               value={localContact.whatsapp}
               onChange={(val) => setLocalContact({ ...localContact, whatsapp: val })}
-              label={t('common.whatsapp', 'رقم الواتس')}
+              label={t('common.whatsapp', 'رقم الواتساب')}
             />
           </div>
         </div>

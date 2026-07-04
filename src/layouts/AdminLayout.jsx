@@ -26,6 +26,7 @@ import {
   Menu,
   X,
   LogOut,
+  Languages,
   Settings,
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
@@ -37,6 +38,7 @@ const navItems = [
   { path: '/dashboard/admin/students', icon: Book, transKey: 'students' },
   { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels' },
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents' },
+  { path: '/dashboard/admin/explanation-languages', icon: Languages, transKey: 'explanationLanguages' },
   { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups' },
   { path: '/dashboard/admin/website', icon: Globe, transKey: 'website' },
   { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions' },

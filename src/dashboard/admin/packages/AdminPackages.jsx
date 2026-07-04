@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Plus, Package } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import Spinner from '@/shared/components/Spinner'
+import { toast } from 'react-hot-toast'
 import { adminPackagesApi } from '@/shared/services/api/adminPackagesApi'
 import PackageCard from './components/PackageCard'
 import PackageFormPanel from './components/PackageFormPanel'
@@ -11,7 +11,8 @@ import FaqTable from './components/FaqTable'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 
 export default function AdminPackages() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const isRtl = i18n.language.startsWith('ar')
     const p = (key) => t(`adminDashboard.packages.${key}`)
 
     const [packages, setPackages] = useState([])
@@ -53,7 +54,6 @@ export default function AdminPackages() {
     }
 
     const executeDelete = async (type, id, name) => {
-        const isRtl = true; // Assuming RTL default for now, or you can use i18n.language === 'ar' if available
         const isConfirmed = await showDeleteConfirm(isRtl, name);
         if (!isConfirmed) return;
 
@@ -78,12 +78,57 @@ export default function AdminPackages() {
         setIsFaqFormOpen(false)
     }
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-60">
-                <Spinner />
-            </div>
-        )
+    const handleEditPkgClick = async (pkg) => {
+        const loadingToast = toast.loading(isRtl ? 'جاري تحميل بيانات الباقة...' : 'Loading package details...')
+        try {
+            const res = await adminPackagesApi.fetchPackageById(pkg.id)
+            const pkgData = res?.data || res
+
+            const langId = typeof pkgData.language === 'object' ? pkgData.language?.id || pkgData.language?._id : pkgData.language;
+
+            const mappedPkg = {
+                id: pkgData.id || pkgData._id,
+                name: pkgData.name?.ar || '',
+                name_en: pkgData.name?.en || '',
+                price: pkgData.price,
+                sessions_per_month: pkgData.sessionsCount,
+                sessions_language: langId,
+                features: pkgData.features?.ar || [],
+                features_en: pkgData.features?.en || [],
+            }
+
+            setEditingPkg(mappedPkg)
+            setPkgPanelOpen(true)
+        } catch (error) {
+            console.error('Failed to fetch package details for edit:', error)
+            toast.error(isRtl ? 'حدث خطأ أثناء تحميل تفاصيل الباقة' : 'Failed to load package details')
+        } finally {
+            toast.dismiss(loadingToast)
+        }
+    }
+
+    const handleEditFaqClick = async (faq) => {
+        const loadingToast = toast.loading(isRtl ? 'جاري تحميل بيانات السؤال...' : 'Loading FAQ details...')
+        try {
+            const res = await adminPackagesApi.fetchFaqById(faq.id)
+            const faqData = res?.data || res
+
+            const mappedFaq = {
+                id: faqData.id || faqData._id,
+                question: faqData.question?.ar || '',
+                question_en: faqData.question?.en || '',
+                answer: faqData.answer?.ar || '',
+                answer_en: faqData.answer?.en || '',
+            }
+
+            setEditingFaq(mappedFaq)
+            setIsFaqFormOpen(true)
+        } catch (error) {
+            console.error('Failed to fetch FAQ details for edit:', error)
+            toast.error(isRtl ? 'حدث خطأ أثناء تحميل تفاصيل السؤال' : 'Failed to load FAQ details')
+        } finally {
+            toast.dismiss(loadingToast)
+        }
     }
 
     return (
@@ -117,7 +162,7 @@ export default function AdminPackages() {
                                 <PackageCard
                                     key={pkg.id}
                                     pkg={pkg}
-                                    onEdit={(p) => { setEditingPkg(p); setPkgPanelOpen(true); }}
+                                    onEdit={handleEditPkgClick}
                                     onDelete={(id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '')}
                                 />
                             ))}
@@ -157,21 +202,13 @@ export default function AdminPackages() {
 
                 <FaqTable
                     faqs={faqs}
-                    onEdit={(faq) => { setEditingFaq(faq); setIsFaqFormOpen(true); }}
+                    onEdit={handleEditFaqClick}
                     onDelete={(id) => {
                         const faq = faqs.find(f => f.id === id);
                         executeDelete('faq', id, faq?.question || '');
                     }}
                 />
             </section>
-
-            <PackageFormPanel
-                isOpen={pkgPanelOpen}
-                onClose={() => setPkgPanelOpen(false)}
-                onSave={handleSavePkg}
-                editingPackage={editingPkg}
-                explanationLanguages={explanationLanguages}
-            />
 
             <PackageFormPanel
                 isOpen={pkgPanelOpen}

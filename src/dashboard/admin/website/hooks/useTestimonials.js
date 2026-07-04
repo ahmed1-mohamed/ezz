@@ -87,6 +87,10 @@ export default function useTestimonials(showNotification) {
       showNotification(t('adminDashboard.website.fillRequiredFields', 'يرجى ملء جميع الحقول المطلوبة'), 'error');
       return;
     }
+    if (!currentTestimonial.image) {
+      showNotification(t('adminDashboard.website.imageRequired', 'الصورة الشخصية إجبارية'), 'error');
+      return;
+    }
 
     const formData = new FormData();
     if (currentTestimonial.parentNameEn?.trim()) formData.append('parentName[en]', currentTestimonial.parentNameEn.trim());

@@ -5,10 +5,17 @@ export default function EditProfileCard({
   formData,
   mockJoinDate,
   isRtl,
+  countryFlag,
+  roleName
 }) {
   const avatarLetter = useMemo(() => {
     return formData.name ? formData.name.trim().charAt(0) : 'ن'
   }, [formData.name])
+
+  const displayRole = useMemo(() => {
+    if (!roleName) return ''
+    return typeof roleName === 'object' ? (isRtl ? roleName.ar || roleName.en : roleName.en || roleName.ar) : roleName
+  }, [roleName, isRtl])
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
@@ -22,21 +29,21 @@ export default function EditProfileCard({
 
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                {formData.name}
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <span>{formData.name}</span>
+                {countryFlag && <span className="text-xl select-none">{countryFlag}</span>}
               </h2>
-              <span className="px-3 py-1 bg-brand-50 text-brand-700 dark:bg-brand-950/30 dark:text-brand-300 rounded-full text-xs font-bold">
-                {formData.role}
-              </span>
+              {displayRole && (
+                <span className="px-3 py-1 bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] rounded-full text-xs font-bold">
+                  {displayRole}
+                </span>
+              )}
             </div>
-            <p className="text-sm font-semibold text-slate-400 dark:text-slate-500">
-              {formData.nameEn || 'Noura Al-Mushrifa'}
-            </p>
           </div>
         </div>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto flex-1 max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto flex-1 max-w-4xl">
 
           {/* Join Date */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100/50 dark:border-slate-850 rounded-2xl flex items-center gap-3">
@@ -63,7 +70,7 @@ export default function EditProfileCard({
                 {isRtl ? 'رقم الجوال' : 'Mobile Number'}
               </p>
               <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5" dir="ltr">
-                {formData.phonePrefix} {formData.phone}
+                {formData.phone}
               </p>
             </div>
           </div>
@@ -73,11 +80,11 @@ export default function EditProfileCard({
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-blue-500 dark:text-blue-405 border border-slate-100 dark:border-slate-800">
               <Mail size={18} />
             </div>
-            <div className="text-start overflow-hidden">
+            <div className="text-start overflow-hidden flex-1">
               <p className="text-xs text-slate-400 dark:text-slate-500 font-bold">
                 {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
               </p>
-              <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5 truncate max-w-[150px] sm:max-w-none" title={formData.email}>
+              <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5 break-all" title={formData.email}>
                 {formData.email}
               </p>
             </div>

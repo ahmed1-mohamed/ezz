@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { X, Search, Image, User } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TeacherFormModal({
@@ -159,92 +159,46 @@ export default function TeacherFormModal({
               </div>
 
               {currentTeacher.teacherId && (
-                <div className="space-y-4 sm:space-y-5 pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                  {currentTeacher.image && (
-                    <div className="flex justify-center">
-                      <div className="relative">
-                        <img
-                          src={currentTeacher.image}
-                          alt="preview"
-                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-[#0f7a6c]/20 shadow-lg"
-                          onError={(e) => { e.target.style.display = 'none'; }}
-                        />
-                        <div className="absolute -bottom-1 -end-1 w-6 h-6 bg-[#0f7a6c] rounded-full flex items-center justify-center">
-                          <Image size={12} className="text-white" />
-                        </div>
+                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 text-start">
+                  <h4 className="text-xs font-bold text-[#0f7a6c] dark:text-emerald-455 uppercase tracking-wide">
+                    {isRtl ? 'المعلم المحدد:' : 'Selected Teacher:'}
+                  </h4>
+                  <div className="flex items-center gap-4 p-4 bg-[#e9f6f3]/40 dark:bg-[#0f7a6c]/5 border border-[#0f7a6c]/10 rounded-2xl">
+                    {currentTeacher.image ? (
+                      <img
+                        src={currentTeacher.image}
+                        alt="Selected Preview"
+                        className="w-14 h-14 rounded-full object-cover border border-[#0f7a6c]/20"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white text-xl font-bold">
+                        {currentTeacher.name?.trim().charAt(0) || 'م'}
                       </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
-                      <Image size={12} />
-                      {t('adminDashboard.website.imageUrl', 'رابط الصورة')}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={currentTeacher.image || ''}
-                      onChange={(e) => setCurrentTeacher({ ...currentTeacher, image: e.target.value })}
-                      placeholder="https://example.com/teacher-photo.jpg"
-                      className="w-full px-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
-                      <User size={12} />
-                      {t('adminDashboard.website.teacherName', 'اسم المعلم')}
-                    </label>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 block">
-                          {t('common.arabic', 'عربي')}
-                        </span>
-                        <input
-                          type="text"
-                          required
-                          dir="rtl"
-                          value={currentTeacher.name || ''}
-                          onChange={(e) => setCurrentTeacher({ ...currentTeacher, name: e.target.value })}
-                          placeholder="مثال: معلم ١"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 block">
-                          {t('common.english', 'إنجليزي')}
-                        </span>
-                        <input
-                          type="text"
-                          required
-                          dir="ltr"
-                          value={currentTeacher.nameEn || ''}
-                          onChange={(e) => setCurrentTeacher({ ...currentTeacher, nameEn: e.target.value })}
-                          placeholder="e.g. Teacher 1"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
-                        />
-                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">
+                        {isRtl ? currentTeacher.name : currentTeacher.nameEn}
+                      </h5>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        ID: {currentTeacher.teacherId}
+                      </p>
                     </div>
                   </div>
-
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row justify-start gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80">
                 <button
                   type="submit"
-                  disabled={!currentTeacher.teacherId || !currentTeacher.name?.trim() || !currentTeacher.nameEn?.trim() || !currentTeacher.image?.trim()}
-                  className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors shadow-sm order-1 sm:order-2"
+                  disabled={!currentTeacher.teacherId}
+                  className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors shadow-sm order-1 sm:order-2 cursor-pointer"
                 >
                   {isAdd ? t('common.add', 'إضافة') : t('common.saveChanges', 'حفظ التعديلات')}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full sm:w-auto px-5 py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors order-2 sm:order-1"
+                  className="w-full sm:w-auto px-5 py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors order-2 sm:order-1 cursor-pointer"
                 >
                   {t('common.cancel', 'إلغاء')}
                 </button>

@@ -87,10 +87,24 @@ export const landingApi = {
 
   fetchSystemTeachers: async () => {
     try {
-      const response = await api.get('/api/v1/teachers/localized/all');
+      const response = await api.get('/api/v1/teachers/localized/all', {
+        params: { limit: 1000 }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching system teachers:', error);
+      throw error;
+    }
+  },
+
+  fetchSystemStudents: async () => {
+    try {
+      const response = await api.get('/api/v1/students/localized/all', {
+        params: { limit: 1000 }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching system students:', error);
       throw error;
     }
   },

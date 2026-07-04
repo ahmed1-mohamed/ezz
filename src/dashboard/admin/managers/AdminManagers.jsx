@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import useDebounce from '@/shared/hooks/useDebounce'
 import { managersApi } from '@/shared/services/api/managersApi'
 import { landingApi } from '@/shared/services/api/landingApi'
-import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
+import { showDeleteConfirm, showSuccessToast } from '@/shared/utils/sweetAlert'
 import ManagersList from './components/ManagersList'
 import RolesPermissionsScreen from './components/RolesPermissionsScreen'
 import AddSupervisorScreen from './components/AddSupervisorScreen'
@@ -18,10 +19,35 @@ export default function AdminManagers() {
   const [viewMode, setViewMode] = useState('list')
   const [selectedRole, setSelectedRole] = useState('مشرف عام')
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchVal, setSearchVal] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'stopped'
+
+  const debouncedSearch = useDebounce(searchVal, 300)
+
+  // Reset page to 1 when filters or search change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [statusFilter, debouncedSearch])
 
   const { data: supervisorsData, isLoading: isLoadingSupervisors } = useQuery({
-    queryKey: ['admins', 'all'],
-    queryFn: () => managersApi.fetchSupervisors(),
+    queryKey: ['admins', statusFilter, currentPage, debouncedSearch],
+    queryFn: () => {
+      const params = {
+        page: currentPage,
+        limit: 5,
+        search: debouncedSearch
+      }
+      if (statusFilter === 'active') {
+        return managersApi.fetchActiveSupervisors(params)
+      } else if (statusFilter === 'stopped') {
+        return managersApi.fetchStoppedSupervisors(params)
+      } else {
+        return managersApi.fetchSupervisors(params)
+      }
+    },
     staleTime: 5 * 60 * 1000,
   })
 
@@ -55,53 +81,56 @@ export default function AdminManagers() {
   })
   const rolesPermissions = permissionsRes?.data || {}
 
-  const deleteMutation = useMutation({
-    mutationFn: managersApi.deleteSupervisor,
+  const updateMutation = useMutation({
+    mutationFn: ({ id, adminData }) => managersApi.updateSupervisor(id, adminData),
     onSuccess: () => {
-      queryClient.invalidateQueries(['admins'])
+      queryClient.invalidateQueries({ queryKey: ['admins'] })
+      showSuccessToast(isRtl ? 'تم تحديث بيانات المشرف بنجاح!' : 'Supervisor updated successfully!', isRtl)
+      setViewMode('list')
+    }
+  })
+
+  const createMutation = useMutation({
+    mutationFn: (supervisorData) => managersApi.createSupervisor(supervisorData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admins'] })
+      showSuccessToast(isRtl ? 'تم إضافة المشرف بنجاح!' : 'Supervisor added successfully!', isRtl)
+      setViewMode('list')
+    }
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => managersApi.deleteSupervisor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admins'] })
+      showSuccessToast(isRtl ? 'تم حذف المشرف بنجاح!' : 'Supervisor deleted successfully!', isRtl)
+      setViewMode('list')
     }
   })
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, payload }) => managersApi.updateSupervisor(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['admins'])
+    mutationFn: ({ userId }) => managersApi.toggleUserActive(userId),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admins'] })
+      const statusText = res?.data?.active ? (isRtl ? 'تفعيل' : 'activated') : (isRtl ? 'تعليق' : 'suspended')
+      showSuccessToast(isRtl ? `تم ${statusText} المشرف بنجاح!` : `Supervisor account ${statusText} successfully!`, isRtl)
     }
   })
 
-  const addMutation = useMutation({
-    mutationFn: managersApi.createSupervisor,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['admins'])
-      setViewMode('list')
+  const handleToggleStatus = (supervisor) => {
+    const targetUserId = supervisor.user_id || supervisor.user?.id || supervisor.user?._id
+    if (!targetUserId) {
+      console.error('UserId is missing for toggle status operation!')
+      return
     }
-  })
-
-  const editMutation = useMutation({
-    mutationFn: ({ id, payload }) => managersApi.updateSupervisor(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['admins'])
-      setViewMode('list')
-    }
-  })
-
-  const handleToggleStatus = async (id) => {
-    const supervisor = supervisors.find((s) => s.id === id)
-    if (!supervisor) return
-
-    const updatedStatus = supervisor.status === 'Active' ? 'Suspended' : 'Active'
-    try {
-      await toggleStatusMutation.mutateAsync({
-        id,
-        payload: { status: updatedStatus }
-      })
-    } catch (err) {
-      console.error('Failed to toggle supervisor status:', err)
-    }
+    toggleStatusMutation.mutate({ userId: targetUserId })
   }
 
-  const handleDeleteSupervisor = async (supervisor) => {
-    const isConfirmed = await showDeleteConfirm(isRtl, supervisor.name);
+  const handleDelete = async (supervisor) => {
+    const isConfirmed = await showDeleteConfirm(
+      isRtl ? 'هل أنت متأكد من حذف هذا المشرف؟' : 'Are you sure you want to delete this supervisor?',
+      isRtl
+    )
     if (!isConfirmed) return;
 
     try {
@@ -111,13 +140,34 @@ export default function AdminManagers() {
     }
   }
 
-  const handleOpenEditScreen = (supervisor) => {
-    setSelectedSupervisor(supervisor)
-    setSelectedRole(supervisor.role || 'مشرف عام')
-    setViewMode('edit-supervisor')
+  const handleOpenEditScreen = async (supervisor) => {
+    setIsLoadingDetails(true)
+    try {
+      const rawAdminRes = await managersApi.fetchRawAdminById(supervisor.id || supervisor._id)
+      const rawAdmin = rawAdminRes?.data || rawAdminRes || supervisor
+      
+      const arName = rawAdmin.name?.ar || rawAdmin.nameAr || rawAdmin.name_ar || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '');
+      const enName = rawAdmin.name?.en || rawAdmin.nameEn || rawAdmin.name_en || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '');
+      
+      const preparedAdmin = {
+        ...rawAdmin,
+        name: arName,
+        nameEn: enName
+      }
+      
+      setSelectedSupervisor(preparedAdmin)
+      setSelectedRole(rawAdmin.role || 'مشرف عام')
+      setViewMode('edit-supervisor')
+    } catch (err) {
+      console.error('Failed to fetch raw admin details:', err)
+      setSelectedSupervisor(supervisor)
+      setViewMode('edit-supervisor')
+    } finally {
+      setIsLoadingDetails(false)
+    }
   }
 
-  if (isLoadingSupervisors || isLoadingRoles || isLoadingPermissions) {
+  if (isLoadingSupervisors || isLoadingRoles || isLoadingPermissions || isLoadingDetails) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
@@ -130,25 +180,69 @@ export default function AdminManagers() {
       {viewMode === 'list' && (
         <ManagersList
           supervisors={supervisors}
+          statistics={supervisorsData?.statistics}
+          searchVal={searchVal}
+          onSearchChange={setSearchVal}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={supervisorsData?.pagination?.numberOfPages || supervisorsData?.pagination?.pages || supervisorsData?.pagination?.totalPages || 1}
           isRtl={isRtl}
           t={t}
           onToggleStatus={handleToggleStatus}
-          onDelete={handleDeleteSupervisor}
+          onDelete={handleDelete}
           onOpenAddScreen={() => setViewMode('add-supervisor')}
           onOpenEditScreen={handleOpenEditScreen}
-          onOpenRolePermissions={(roleName) => {
-            setSelectedRole(roleName)
-            setViewMode('permissions')
+          onOpenRolePermissions={(supervisorOrRoleName) => {
+            if (supervisorOrRoleName && typeof supervisorOrRoleName === 'object') {
+              setSelectedSupervisor(supervisorOrRoleName)
+              setViewMode('assign-role')
+            } else {
+              setSelectedRole(supervisorOrRoleName || 'مشرف عام')
+              setViewMode('permissions')
+            }
           }}
         />
       )}
 
-      {viewMode === 'permissions' && (
+      {(viewMode === 'permissions' || (viewMode === 'assign-role' && selectedSupervisor)) && (
         <RolesPermissionsScreen
           permissionsList={realPermissionsList}
           isRtl={isRtl}
           t={t}
-          onCancel={() => setViewMode('list')}
+          isAdminAssignment={viewMode === 'assign-role'}
+          adminSupervisor={selectedSupervisor}
+          onSaveAdminRole={async (adminId, permissionId, actionType) => {
+            try {
+              if (actionType === 'assign') {
+                await managersApi.assignAdminPermission(adminId, permissionId)
+              } else {
+                await managersApi.updateAdminPermission(adminId, permissionId)
+              }
+              queryClient.invalidateQueries({ queryKey: ['admins'] })
+              showSuccessToast(isRtl ? 'تم حفظ الدور بنجاح!' : 'Role saved successfully!', isRtl)
+              setViewMode('list')
+              setSelectedSupervisor(null)
+            } catch (err) {
+              console.error('Failed to save admin role:', err)
+            }
+          }}
+          onDeleteAdminRole={async (adminId) => {
+            try {
+              await managersApi.deleteAdminPermission(adminId)
+              queryClient.invalidateQueries({ queryKey: ['admins'] })
+              showSuccessToast(isRtl ? 'تم حذف الصلاحيات بنجاح!' : 'Permissions deleted successfully!', isRtl)
+              setViewMode('list')
+              setSelectedSupervisor(null)
+            } catch (err) {
+              console.error('Failed to delete admin role:', err)
+            }
+          }}
+          onCancel={() => {
+            setSelectedSupervisor(null)
+            setViewMode('list')
+          }}
         />
       )}
 
@@ -160,7 +254,7 @@ export default function AdminManagers() {
           countries={countries}
           onSave={async (data) => {
             try {
-              await addMutation.mutateAsync(data)
+              await createMutation.mutateAsync(data)
             } catch (err) {
               console.error('Failed to add supervisor:', err)
             }
@@ -178,7 +272,7 @@ export default function AdminManagers() {
           t={t}
           onSave={async (data) => {
             try {
-              await editMutation.mutateAsync({ id: selectedSupervisor.id, payload: data })
+              await updateMutation.mutateAsync({ id: selectedSupervisor.id || selectedSupervisor._id, adminData: data.adminData })
             } catch (err) {
               console.error('Failed to update supervisor:', err)
             }

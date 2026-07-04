@@ -1,10 +1,10 @@
-import { FileText, PlusCircle, CheckCircle, Clock } from 'lucide-react'
+import { FileText, PlusCircle, CheckCircle } from 'lucide-react'
 
 export default function MessagesStats({ messages = [], isLoading, t }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {[1, 2, 3, 4].map((i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        {[1, 2, 3].map((i) => (
           <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center justify-between animate-pulse">
             <div className="space-y-3 flex-1">
               <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
@@ -20,7 +20,6 @@ export default function MessagesStats({ messages = [], isLoading, t }) {
   const total = messages.length
   const newRequests = messages.filter(m => !m.isRead).length
   const replied = messages.filter(m => m.isRead).length
-  const underReview = messages.filter(m => !m.isRead).length
 
   const statCards = [
     {
@@ -43,18 +42,11 @@ export default function MessagesStats({ messages = [], isLoading, t }) {
       icon: CheckCircle,
       color: 'text-emerald-500',
       bg: 'bg-emerald-50 dark:bg-emerald-900/20'
-    },
-    {
-      title: t('adminDashboard.messages.underReview', 'قيد المراجعة'),
-      value: underReview,
-      icon: Clock,
-      color: 'text-amber-500',
-      bg: 'bg-amber-50 dark:bg-amber-900/20'
     }
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
       {statCards.map((stat, index) => {
         const Icon = stat.icon
         return (

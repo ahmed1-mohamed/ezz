@@ -189,5 +189,25 @@ export const adminPackagesApi = {
       console.error(error);
       return { success: false };
     }
+  },
+
+  fetchFaqById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/faqs/private/localized/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`API fetchFaqById failed for ${id}:`, error);
+      throw error;
+    }
+  },
+
+  fetchPackageById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/packages/private/localized/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`API fetchPackageById failed for ${id}:`, error);
+      throw error;
+    }
   }
 };

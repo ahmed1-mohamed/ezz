@@ -1,20 +1,15 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { MessageSquare, Search } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { messagesApi } from '@/shared/services/api/messagesApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import MessagesStats from './components/MessagesStats'
 import MessageCard from './components/MessageCard'
-import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function AdminMessages() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language === 'ar'
   const queryClient = useQueryClient()
-
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useDebounce(search, 500)
 
   const {
     data: messages = [],
@@ -22,8 +17,8 @@ export default function AdminMessages() {
     isError,
     error
   } = useQuery({
-    queryKey: ['adminMessages', debouncedSearch, i18n.language],
-    queryFn: () => messagesApi.fetchMessages({ search: debouncedSearch, lang: i18n.language }),
+    queryKey: ['adminMessages', i18n.language],
+    queryFn: () => messagesApi.fetchMessages({ lang: i18n.language }),
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000,
   })
@@ -35,21 +30,19 @@ export default function AdminMessages() {
     }
   })
 
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ id, payload }) => messagesApi.updateMessageStatus(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['adminMessages'])
-    }
-  })
-
   const handleDelete = async (message) => {
-    const isConfirmed = await showDeleteConfirm(isRtl, message.subject || message.name);
+    const isConfirmed = await showDeleteConfirm(isRtl, message.title || message.name);
     if (!isConfirmed) return;
     deleteMutation.mutate(message.id)
   }
 
-  const handleUpdateStatus = (id, payload) => {
-    updateStatusMutation.mutate({ id, payload })
+  const handleViewDetails = async (id) => {
+    try {
+      await messagesApi.fetchMessageById(id)
+      queryClient.invalidateQueries(['adminMessages'])
+    } catch (err) {
+      console.error('Failed to mark message as read:', err)
+    }
   }
 
   const errorMessage = isError ? (error?.response?.data?.message || error?.message || t('adminDashboard.messages.errorLoading', 'حدث خطأ أثناء تحميل الرسائل')) : null
@@ -65,20 +58,6 @@ export default function AdminMessages() {
             </div>
             {t('adminDashboard.messages.title', 'طلبات التسجيل')}
           </h1>
-        </div>
-
-        <div className="w-full md:w-96 relative">
-          <input
-            type="text"
-            placeholder={t('adminDashboard.messages.searchPlaceholder', 'بحث...')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-12 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#005953]/20 focus:border-[#005953] transition-all shadow-sm"
-          />
-          <Search
-            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${isRtl ? 'right-4' : 'left-4'}`}
-            size={20}
-          />
         </div>
       </div>
 
@@ -113,7 +92,7 @@ export default function AdminMessages() {
               isRtl={isRtl}
               t={t}
               onDelete={handleDelete}
-              onUpdateStatus={handleUpdateStatus}
+              onViewDetails={handleViewDetails}
             />
           ))
         )}

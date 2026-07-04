@@ -1,19 +1,24 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { Camera, Image as ImageIcon } from 'lucide-react'
-
-
 
 export default function IdentityInfoCard({
   formData,
   onChange,
   onPhotoChange,
   t,
-  countries = []
+  countries = [],
+  isRtl
 }) {
   const fileInputRef = useRef(null)
   const [photoPreview, setPhotoPreview] = useState(formData.photoUrl || null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const selectedCountry = countries.find(c => formData.phonePrefix?.startsWith(c.phoneCode)) || countries[0] || {}
+
+  // Sort countries alphabetically by name
+  const sortedCountries = useMemo(() => {
+    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  }, [countries])
+
+  const selectedCountry = sortedCountries.find(c => formData.phonePrefix?.startsWith(c.phoneCode)) || sortedCountries[0] || {}
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click()
@@ -70,7 +75,7 @@ export default function IdentityInfoCard({
             <div className="flex flex-col items-center justify-center text-slate-400 group-hover:text-brand-500 transition-colors p-4 text-center">
               <ImageIcon size={32} className="mb-2 text-slate-300 group-hover:text-brand-400" />
               <span className="text-xs font-semibold leading-relaxed">
-                {t('adminDashboard.managers.addSupervisorScreen.photoUploadText', 'اضغط لرفع صورة المكافأة')}
+                {isRtl ? 'اضغط لرفع صورة المشرف' : 'Click to upload supervisor image'}
               </span>
             </div>
           )}
@@ -86,15 +91,14 @@ export default function IdentityInfoCard({
         {/* Full Name English */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {t('adminDashboard.managers.addSupervisorScreen.fullNameEn', 'Full Name')}
+            {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
           </label>
           <input
             type="text"
             required
             value={formData.nameEn || ''}
             onChange={(e) => onChange('nameEn', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-            placeholder="Nora ahmed"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
             dir="ltr"
           />
         </div>
@@ -102,15 +106,14 @@ export default function IdentityInfoCard({
         {/* Full Name Arabic */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {t('adminDashboard.managers.addSupervisorScreen.fullNameAr', 'الإسم كامل')}
+            {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
           </label>
           <input
             type="text"
             required
             value={formData.name || ''}
             onChange={(e) => onChange('name', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-            placeholder="نورة أحمد"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
         </div>
 
@@ -126,8 +129,7 @@ export default function IdentityInfoCard({
           required
           value={formData.email || ''}
           onChange={(e) => onChange('email', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-          placeholder="alex.p@enterprise.com"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           dir="ltr"
         />
       </div>
@@ -151,8 +153,8 @@ export default function IdentityInfoCard({
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn">
-                {countries.map((country) => (
+              <div className="absolute left-0 mt-2 z-20 w-48 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+                {sortedCountries.map((country) => (
                   <button
                     key={country.id}
                     type="button"
@@ -176,11 +178,30 @@ export default function IdentityInfoCard({
             required
             value={formData.phone || ''}
             onChange={(e) => onChange('phone', e.target.value)}
-            className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-450"
-            placeholder="01012345678"
+            className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
 
         </div>
+      </div>
+
+      {/* Country Selection */}
+      <div>
+        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+          {isRtl ? 'الدولة' : 'Country'}
+        </label>
+        <select
+          required
+          value={formData.countryId || ''}
+          onChange={(e) => onChange('countryId', e.target.value)}
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+        >
+          <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
+          {sortedCountries.map((country) => (
+            <option key={country.id} value={country.id}>
+              {country.name} {country.flag}
+            </option>
+          ))}
+        </select>
       </div>
 
     </div>

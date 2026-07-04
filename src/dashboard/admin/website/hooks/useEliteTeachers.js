@@ -135,33 +135,40 @@ export default function useEliteTeachers(showNotification) {
       return;
     }
 
-    const teacherPayload = {
-      name: { ar: currentTeacher.name.trim(), en: currentTeacher.nameEn.trim() },
-      image: currentTeacher.image.trim()
-    };
-
     const elitePayload = {
       teacher: currentTeacher.teacherId
     };
 
     try {
-      await teachersApi.patchTeacher(currentTeacher.teacherId, teacherPayload);
-
       if (currentTeacher.id === null) {
         const response = await landingApi.addEliteTeacher(elitePayload);
         const added = response?.data || response;
+        const systemT = systemTeachers.find(t => String(t.id || t._id || t.teacher_id) === String(currentTeacher.teacherId));
+        const resolvedName = systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : currentTeacher.name;
+        
         const newTeacher = {
-          ...currentTeacher,
-          id: added?.id || added?._id || `local-${Date.now()}`,
-          name: isRtl ? currentTeacher.name.trim() : currentTeacher.nameEn.trim()
+          ...added,
+          id: added?.id || added?._id,
+          teacher: systemT,
+          name: resolvedName,
+          image: systemT?.image || systemT?.avatar || currentTeacher.image,
+          groupsCount: systemT?.groupsCount || 0,
+          sessionsCount: systemT?.sessionsCount || 0
         };
         setEliteTeachers((prev) => [...prev, newTeacher]);
         showNotification(t('adminDashboard.website.teacherAdded', 'تمت إضافة المعلم بنجاح!'));
       } else {
         await landingApi.updateEliteTeacher(currentTeacher.id, elitePayload);
+        const systemT = systemTeachers.find(t => String(t.id || t._id || t.teacher_id) === String(currentTeacher.teacherId));
+        const resolvedName = systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : currentTeacher.name;
+        
         const updatedTeacher = {
-          ...currentTeacher,
-          name: isRtl ? currentTeacher.name.trim() : currentTeacher.nameEn.trim()
+          id: currentTeacher.id,
+          teacher: systemT,
+          name: resolvedName,
+          image: systemT?.image || systemT?.avatar || currentTeacher.image,
+          groupsCount: systemT?.groupsCount || 0,
+          sessionsCount: systemT?.sessionsCount || 0
         };
         setEliteTeachers((prev) =>
           prev.map((t) => (t.id === currentTeacher.id ? updatedTeacher : t))

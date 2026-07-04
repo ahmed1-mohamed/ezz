@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Eye, EyeOff, Clock, CheckCircle2, Send, Mail, Calendar, Phone, AtSign, Trash2 } from 'lucide-react'
+import { Eye, EyeOff, Calendar, Phone, AtSign, Trash2 } from 'lucide-react'
 
-export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatus }) {
+export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const isNew = !message.isRead
@@ -27,20 +27,28 @@ export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatu
     return name.charAt(0)
   }
 
-  const handleWhatsApp = () => {
-    if (message.phone) {
-      window.open(`https://wa.me/${message.phone.replace(/[^0-9]/g, '')}`, '_blank')
-    }
+  const truncateSubject = (subject) => {
+    if (!subject) return t('adminDashboard.messages.noSubject', 'بدون موضوع')
+    if (subject.length <= 20) return subject
+    return subject.substring(0, 20) + '...'
   }
 
-  const handleEmail = () => {
-    if (message.email) {
-      window.open(`mailto:${message.email}`, '_blank')
+  const readByObj = message.readBy;
+  const rawName = readByObj && typeof readByObj === 'object' ? readByObj.name : readByObj;
+  const readByName = typeof rawName === 'object' && rawName !== null
+    ? (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar)
+    : rawName;
+
+  const handleToggleExpand = () => {
+    const nextState = !isExpanded
+    setIsExpanded(nextState)
+    if (nextState && onViewDetails) {
+      onViewDetails(message.id)
     }
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft overflow-hidden transition-all duration-300 hover:shadow-md">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft overflow-hidden transition-all duration-300 hover:shadow-md text-start">
 
       <div className="p-4 sm:p-6 lg:p-8">
 
@@ -58,9 +66,13 @@ export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatu
               <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
                 {message.name}
               </h3>
-              {isNew && (
+              {isNew ? (
                 <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-lg">
-                  {t('adminDashboard.messages.new', 'جديد')}
+                  {t('adminDashboard.messages.underReview', 'قيد المراجعة')}
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg">
+                  {t('adminDashboard.messages.read', 'مقروءة')}
                 </span>
               )}
             </div>
@@ -91,14 +103,14 @@ export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatu
                 {t('adminDashboard.messages.messageSubject', 'موضوع الرسالة')}:
               </span>
               <p className="text-slate-700 dark:text-slate-200 font-semibold">
-                {message.title || t('adminDashboard.messages.noSubject', 'بدون موضوع')}
+                {truncateSubject(message.title)}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2">
               <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className={`flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold border transition-colors ${isExpanded
+                onClick={handleToggleExpand}
+                className={`flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold border transition-colors cursor-pointer ${isExpanded
                   ? 'border-[#005953] text-[#005953] dark:text-brand-400 dark:border-brand-400/50 bg-[#005953]/5 dark:bg-[#005953]/20'
                   : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
@@ -110,45 +122,11 @@ export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatu
                 }
               </button>
 
-              <button
-                onClick={() => onUpdateStatus(message.id, { status: 'processing' })}
-                className="flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold bg-blue-500 hover:bg-blue-600 text-white transition-colors"
-              >
-                <Clock size={16} />
-                {t('adminDashboard.messages.processing', 'قيد المعالجة')}
-              </button>
-
-              <button
-                onClick={() => onUpdateStatus(message.id, { isRead: true })}
-                className="flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-              >
-                <CheckCircle2 size={16} />
-                {t('adminDashboard.messages.replied', 'تم الرد')}
-              </button>
-
               <div className="flex-1 min-w-[20px]" /> {/* Spacer */}
 
               <button
-                onClick={handleWhatsApp}
-                disabled={!message.phone}
-                className="flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Send size={16} />
-                {t('adminDashboard.messages.whatsapp', 'واتساب')}
-              </button>
-
-              <button
-                onClick={handleEmail}
-                disabled={!message.email}
-                className="flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Mail size={16} />
-                {t('adminDashboard.messages.email', 'بريد')}
-              </button>
-
-              <button
                 onClick={() => onDelete(message)}
-                className="flex items-center justify-center p-2 sm:p-2.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
+                className="flex items-center justify-center p-2 sm:p-2.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors cursor-pointer"
                 title="Delete"
               >
                 <Trash2 size={18} />
@@ -198,6 +176,24 @@ export default function MessageCard({ message, isRtl, t, onDelete, onUpdateStatu
                 {message.title || '-'}
               </div>
             </div>
+
+            {message.isRead && readByName && (
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                  {t('adminDashboard.messages.readByLabel', 'تم القراءة بواسطة')}
+                </label>
+                <div className="flex items-center gap-3 w-full bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-200 font-semibold">
+                  {readByObj?.image && (
+                    <img
+                      src={readByObj.image}
+                      alt={readByName}
+                      className="w-7 h-7 rounded-full object-cover border border-slate-200"
+                    />
+                  )}
+                  <span>{readByName}</span>
+                </div>
+              </div>
+            )}
 
             <div className="md:col-span-2 space-y-1.5">
               <label className="text-sm font-bold text-slate-500 dark:text-slate-400">

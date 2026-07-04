@@ -27,6 +27,7 @@ export default function AddSupervisorScreen({
     password: '',
     confirmPassword: '',
     permissionId: initialData?.permissionId || null,
+    countryId: initialData?.countryId || initialData?.country || '',
     status: initialData?.status || 'Active',
     photoUrl: initialData?.photoUrl || null
   })
@@ -60,15 +61,14 @@ export default function AddSupervisorScreen({
       }
     }
 
-    const selectedCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
-    const countryId = selectedCountry ? selectedCountry.id : null;
+    const countryId = formData.countryId || (countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0])?.id || null;
 
     onSave({
       adminData: {
         'name[ar]': formData.name,
         'name[en]': formData.nameEn,
         email: formData.email,
-        phone: formData.phone,
+        phone: formData.phonePrefix + ' ' + formData.phone,
         country: countryId,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
@@ -112,42 +112,38 @@ export default function AddSupervisorScreen({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="space-y-8 max-w-4xl mx-auto">
 
-        <div className="space-y-8 w-full">
-          <IdentityInfoCard
-            formData={formData}
-            onChange={handleFieldChange}
-            onPhotoChange={handlePhotoChange}
-            isRtl={isRtl}
-            t={t}
-            countries={countries}
-          />
+        <IdentityInfoCard
+          formData={formData}
+          onChange={handleFieldChange}
+          onPhotoChange={handlePhotoChange}
+          isRtl={isRtl}
+          t={t}
+          countries={countries}
+        />
 
-          <SecurityPasswordCard
-            formData={formData}
-            onChange={handleFieldChange}
-            isRtl={isRtl}
-            t={t}
-          />
-        </div>
+        <SecurityPasswordCard
+          formData={formData}
+          onChange={handleFieldChange}
+          isRtl={isRtl}
+          t={t}
+        />
 
-        <div className="space-y-8 w-full">
-          <PermissionsCard
-            permissionsList={roles} 
-            selectedPermissionId={formData.permissionId}
-            onSelectPermission={(id) => handleFieldChange('permissionId', id)}
-            onSkipPermissions={handleSkipPermissions}
-            isRtl={isRtl}
-            t={t}
-          />
+        <PermissionsCard
+          permissionsList={roles} 
+          selectedPermissionId={formData.permissionId}
+          onSelectPermission={(id) => handleFieldChange('permissionId', id)}
+          onSkipPermissions={handleSkipPermissions}
+          isRtl={isRtl}
+          t={t}
+        />
 
-          <PermissionsPreviewCard
-            selectedPermissionId={formData.permissionId}
-            permissionsList={roles}
-            isRtl={isRtl}
-          />
-        </div>
+        <PermissionsPreviewCard
+          selectedPermissionId={formData.permissionId}
+          permissionsList={roles}
+          isRtl={isRtl}
+        />
 
       </div>
 

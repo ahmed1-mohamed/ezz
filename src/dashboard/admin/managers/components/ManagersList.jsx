@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   Search,
   Plus,
@@ -10,10 +10,17 @@ import {
   Pencil,
   Lock,
 } from 'lucide-react'
-import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function ManagersList({
   supervisors,
+  statistics,
+  searchVal,
+  onSearchChange,
+  statusFilter,
+  onStatusFilterChange,
+  currentPage,
+  onPageChange,
+  totalPages,
   isRtl,
   t,
   onToggleStatus,
@@ -22,49 +29,49 @@ export default function ManagersList({
   onOpenEditScreen,
   onOpenRolePermissions
 }) {
-  const [searchVal, setSearchVal] = useState('')
-  const debouncedQuery = useDebounce(searchVal, 300)
-  const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
 
-  // Dynamic calculations for Metric Cards (based on whole list)
+  // Calculations for Metric Cards (based on statistics from API or supervisors list length)
   const metrics = useMemo(() => {
-    const total = supervisors.length
-    const active = supervisors.filter((s) => s.status === 'Active').length
-    const suspended = supervisors.filter((s) => s.status === 'Suspended').length
-    return { total, active, suspended }
-  }, [supervisors])
-
-  const filteredSupervisors = useMemo(() => {
-    if (!debouncedQuery.trim()) return supervisors
-    const query = debouncedQuery.toLowerCase()
-    return supervisors.filter(
-      (s) => {
-        const sName = typeof s.name === 'object' ? (s.name.ar || s.name.en || '') : (s.name || '');
-        return sName.toLowerCase().includes(query) ||
-        (s.email && s.email.toLowerCase().includes(query)) ||
-        (s.role && s.role.toLowerCase().includes(query))
+    if (statistics) {
+      return {
+        total: statistics.total ?? 0,
+        active: statistics.active ?? 0,
+        suspended: statistics.stopped ?? 0
       }
-    )
-  }, [supervisors, debouncedQuery])
+    }
+    const total = supervisors.length
+    const active = supervisors.filter((s) => s.status === 'Active' || s.active).length
+    const suspended = supervisors.filter((s) => s.status === 'Suspended' || !s.active).length
+    return { total, active, suspended }
+  }, [supervisors, statistics])
 
-  // Sliced items for Pagination
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = useMemo(() => {
-    return filteredSupervisors.slice(indexOfFirstItem, indexOfLastItem)
-  }, [filteredSupervisors, indexOfFirstItem, indexOfLastItem])
+  const currentItems = supervisors
 
-  const totalPages = useMemo(() => {
-    return Math.ceil(filteredSupervisors.length / itemsPerPage)
-  }, [filteredSupervisors])
+  const totalCount = useMemo(() => {
+    if (statistics) {
+      if (statusFilter === 'active') return statistics.active ?? 0
+      if (statusFilter === 'stopped') return statistics.stopped ?? 0
+      return statistics.total ?? 0
+    }
+    return supervisors.length
+  }, [supervisors.length, statistics, statusFilter])
+
+  const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
+  const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
 
   return (
     <div className="space-y-8">
       {/* Metric Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {/* Total Supervisors Card */}
-        <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800/60 transition-transform duration-300 hover:-translate-y-1">
+        <div
+          onClick={() => onStatusFilterChange('all')}
+          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'all'
+              ? 'border-brand-500 ring-2 ring-brand-500/10 -translate-y-1'
+              : 'border-slate-100 dark:border-slate-800/60'
+            }`}
+        >
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400">
               <Shield size={24} />
@@ -83,7 +90,13 @@ export default function ManagersList({
         </div>
 
         {/* Active Supervisors Card */}
-        <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800/60 transition-transform duration-300 hover:-translate-y-1">
+        <div
+          onClick={() => onStatusFilterChange('active')}
+          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'active'
+              ? 'border-emerald-500 ring-2 ring-emerald-500/10 -translate-y-1'
+              : 'border-slate-100 dark:border-slate-800/60'
+            }`}
+        >
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
               <CheckCircle2 size={24} />
@@ -102,7 +115,13 @@ export default function ManagersList({
         </div>
 
         {/* Suspended Supervisors Card */}
-        <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800/60 transition-transform duration-300 hover:-translate-y-1">
+        <div
+          onClick={() => onStatusFilterChange('stopped')}
+          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'stopped'
+              ? 'border-rose-500 ring-2 ring-rose-500/10 -translate-y-1'
+              : 'border-slate-100 dark:border-slate-800/60'
+            }`}
+        >
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
               <Ban size={24} />
@@ -147,7 +166,7 @@ export default function ManagersList({
           </button>
 
           <span className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-medium">
-            {t('adminDashboard.managers.totalInPlatform', { count: filteredSupervisors.length }, `إجمالي ${filteredSupervisors.length} مشرف في المنصة`)}
+            {t('adminDashboard.managers.totalInPlatform', { count: totalCount }, `إجمالي ${totalCount} مشرف في المنصة`)}
           </span>
         </div>
 
@@ -160,7 +179,7 @@ export default function ManagersList({
             type="text"
             placeholder={t('adminDashboard.managers.searchPlaceholder', 'بحث...')}
             value={searchVal}
-            onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(1) }}
+            onChange={(e) => onSearchChange(e.target.value)}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
           />
         </div>
@@ -172,9 +191,9 @@ export default function ManagersList({
           <table className="w-full border-collapse text-start text-sm">
             <thead className="bg-slate-50/75 text-slate-500 dark:bg-slate-950/40 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
               <tr>
-                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.name', 'اسم المشرف')}</th>
+                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.name', 'الاسم')}</th>
                 <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.role', 'الصلاحيات')}</th>
-                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.email', 'الحصص المتبقية')}</th>
+                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.email', 'البريد الإلكتروني')}</th>
                 <th className="px-6 py-4 font-semibold text-center">{t('adminDashboard.managers.status', 'الحالة')}</th>
                 <th className="px-6 py-4 font-semibold text-center">{t('adminDashboard.managers.actions', 'الإجراءات')}</th>
               </tr>
@@ -189,18 +208,30 @@ export default function ManagersList({
               ) : (
                 currentItems.map((supervisor) => {
                   const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
-                  const initial = sName.trim().charAt(0) || 'م'
+                  const initial = sName.trim().charAt(0) || 'م';
+                  const avatarUrl = supervisor.image || supervisor.photoUrl;
+                  const displayRole = supervisor.role || supervisor.permissionName || (supervisor.permission && (typeof supervisor.permission === 'object' ? supervisor.permission.name : supervisor.permission)) || (isRtl ? 'لا يوجد' : 'None');
+                  const isActive = supervisor.user?.active !== undefined ? !!supervisor.user.active : (supervisor.active !== undefined ? !!supervisor.active : supervisor.status === 'Active');
+
                   return (
                     <tr
-                      key={supervisor.id}
+                      key={supervisor.id || supervisor._id}
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors"
                     >
                       {/* Name with Avatar */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
-                            {initial}
-                          </div>
+                        <div className="flex items-center gap-3 justify-start">
+                          {avatarUrl ? (
+                            <img
+                              src={avatarUrl}
+                              alt={sName}
+                              className="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-800"
+                            />
+                          ) : (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
+                              {initial}
+                            </div>
+                          )}
                           <span className="font-semibold text-slate-800 dark:text-slate-200">
                             {sName}
                           </span>
@@ -210,26 +241,26 @@ export default function ManagersList({
                       {/* Role (الصلاحيات) - Styled Pill */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-4 py-1.5 rounded-full bg-brand-50/70 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400 text-xs font-semibold">
-                          {supervisor.role}
+                          {displayRole}
                         </span>
                       </td>
 
-                      {/* Email (labeled under 'الحصص المتبقية' header) */}
-                      <td className="px-6 py-4 whitespace-nowrap text-emerald-600 dark:text-emerald-400 font-medium">
+                      {/* Email (labeled under 'البريد الإلكتروني' header) */}
+                      <td className="px-6 py-4 whitespace-nowrap text-slate-700 dark:text-slate-300 text-start font-medium">
                         {supervisor.email}
                       </td>
 
                       {/* Status */}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <span
-                          onClick={() => onToggleStatus(supervisor.id)}
-                          className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-colors cursor-pointer select-none ${supervisor.status === 'Active'
+                          onClick={() => onToggleStatus(supervisor)}
+                          className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-colors cursor-pointer select-none ${isActive
                             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 hover:bg-emerald-100'
                             : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 hover:bg-slate-200'
                             }`}
                         >
-                          <span className={`me-1.5 h-1.5 w-1.5 rounded-full ${supervisor.status === 'Active' ? 'bg-emerald-600' : 'bg-slate-400'}`} />
-                          {supervisor.status === 'Active'
+                          <span className={`me-1.5 h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-600' : 'bg-slate-400'}`} />
+                          {isActive
                             ? t('adminDashboard.managers.statusActive', 'نشط')
                             : t('adminDashboard.managers.statusSuspended', 'غير نشط')}
                         </span>
@@ -250,7 +281,7 @@ export default function ManagersList({
 
                           {/* Open Book Icon (Details / Permissions screen trigger) */}
                           <button
-                            onClick={() => onOpenRolePermissions(supervisor.role)}
+                            onClick={() => onOpenRolePermissions(supervisor)}
                             title={t('adminDashboard.managers.editPermissions', 'تعديل الأذونات')}
                             className="p-1 text-slate-400 hover:text-brand-600 transition-colors"
                           >
@@ -280,12 +311,16 @@ export default function ManagersList({
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850 rounded-b-3xl">
             <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
-              {t('adminDashboard.managers.pagination.showing', 'عرض')} <span className="font-semibold text-slate-700 dark:text-slate-200">{indexOfFirstItem + 1}</span> {t('adminDashboard.managers.pagination.to', 'إلى')} <span className="font-semibold text-slate-700 dark:text-slate-200">{Math.min(indexOfLastItem, filteredSupervisors.length)}</span> {t('adminDashboard.managers.pagination.of', 'من أصل')} <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredSupervisors.length}</span> {t('adminDashboard.managers.pagination.supervisors', 'مشرف')}
+              {isRtl ? (
+                <>عرض <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> إلى <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> من أصل <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> مشرف</>
+              ) : (
+                <>Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> to <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> of <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> supervisors</>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
@@ -295,7 +330,7 @@ export default function ManagersList({
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
-                  onClick={() => setCurrentPage(p)}
+                  onClick={() => onPageChange(p)}
                   className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all ${currentPage === p
                     ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                     : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -306,7 +341,7 @@ export default function ManagersList({
               ))}
 
               <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
@@ -316,7 +351,6 @@ export default function ManagersList({
           </div>
         )}
       </div>
-
     </div>
   )
 }
