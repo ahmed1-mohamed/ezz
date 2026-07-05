@@ -11,6 +11,16 @@ export const explanationLanguagesApi = {
     }
   },
 
+  fetchPrivateLanguages: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/explanation-languages/private', { params })
+      return response.data
+    } catch (error) {
+      console.error('API fetchPrivateLanguages failed:', error)
+      throw error
+    }
+  },
+
   fetchLanguageById: async (id) => {
     try {
       const response = await api.get(`/api/v1/explanation-languages/private/${id}`)

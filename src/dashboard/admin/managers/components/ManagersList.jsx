@@ -206,7 +206,7 @@ export default function ManagersList({
                   </td>
                 </tr>
               ) : (
-                currentItems.map((supervisor) => {
+                currentItems.map((supervisor, index) => {
                   const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
                   const initial = sName.trim().charAt(0) || 'م';
                   const avatarUrl = supervisor.image || supervisor.photoUrl;
@@ -225,7 +225,7 @@ export default function ManagersList({
 
                   return (
                     <tr
-                      key={supervisor.id || supervisor._id}
+                      key={supervisor.admin_id || supervisor.id || supervisor._id || index}
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors"
                     >
                       {/* Name with Avatar */}

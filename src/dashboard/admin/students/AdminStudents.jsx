@@ -26,7 +26,6 @@ export default function AdminStudents() {
         const res = await studentsApi.fetchStudents({ page: currentPage, limit: 20 })
         const studentsData = res?.data || res || []
         const parsedStudents = Array.isArray(studentsData) ? studentsData : [];
-        console.log("Fetched students from API:", parsedStudents);
         setStudents(parsedStudents)
 
         if (res?.pagination) {
@@ -63,7 +62,6 @@ export default function AdminStudents() {
     const apiData = buildStudentFormData(formData, isUpdate);
 
     if (viewMode === 'edit-student' && selectedStudent) {
-      console.log("Attempting to edit student:", selectedStudent);
       const studentId = selectedStudent._id || selectedStudent.student_id || selectedStudent.id || selectedStudent.studentId || selectedStudent.userId;
 
       if (!studentId || studentId === 'undefined') {
@@ -75,7 +73,6 @@ export default function AdminStudents() {
         toast.error('تنبيه: الـ ID الخاص بالطالب يبدو غير صالح. الـ ID هو: ' + studentId);
       }
 
-      console.log("Resolved student ID to edit:", studentId);
       try {
         await studentsApi.updateStudent(studentId, apiData)
 
@@ -114,7 +111,7 @@ export default function AdminStudents() {
     if (!student) return;
     const id = student._id || student.student_id || student.id || student.studentId || student.userId;
     const studentName = typeof student.name === 'string' ? student.name : (student.name?.ar || student.name?.en || '');
-    
+
     const isConfirmed = await showDeleteConfirm(isRtl, studentName);
     if (!isConfirmed) return;
 

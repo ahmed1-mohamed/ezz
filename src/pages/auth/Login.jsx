@@ -67,7 +67,6 @@ export default function Login() {
     }
 
     const handleGoogleClick = () => {
-        console.log('Google login clicked, opening credentials modal.')
         setServerError('')
         setGoogleUsername('')
         setGooglePassword('')

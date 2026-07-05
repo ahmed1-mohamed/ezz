@@ -153,10 +153,10 @@ export default function IdentityInfoCard({
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute left-0 mt-2 z-20 w-48 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+              <div className="absolute left-0 mt-2 z-20 w-48 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
                 {sortedCountries.map((country) => (
                   <button
-                    key={country.id}
+                    key={country.id || country._id}
                     type="button"
                     onClick={() => selectCountryCode(country)}
                     className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold"
@@ -193,11 +193,11 @@ export default function IdentityInfoCard({
           required
           value={formData.countryId || ''}
           onChange={(e) => onChange('countryId', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
         >
           <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
           {sortedCountries.map((country) => (
-            <option key={country.id} value={country.id}>
+            <option key={country.id || country._id} value={country.id || country._id}>
               {country.name} {country.flag}
             </option>
           ))}

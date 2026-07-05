@@ -61,7 +61,8 @@ export default function AddSupervisorScreen({
       }
     }
 
-    const countryId = formData.countryId || (countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0])?.id || null;
+    const foundCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
+    const countryId = formData.countryId || foundCountry?.id || foundCountry?._id || null;
 
     onSave({
       adminData: {

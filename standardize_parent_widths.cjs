@@ -22,7 +22,6 @@ function processFile(filePath) {
 
     if (content !== original) {
         fs.writeFileSync(filePath, content, 'utf8');
-        console.log('Fixed width in:', filePath);
     }
 }
 

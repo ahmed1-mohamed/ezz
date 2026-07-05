@@ -74,8 +74,8 @@ export function useExplanationLanguagesMutations() {
 
     const handleSave = useCallback(async (e) => {
         e.preventDefault();
-        if (!langNameAr.trim() && !langNameEn.trim()) {
-            toast.error(isRtl ? 'الرجاء اختيار لغة!' : 'Please select a language!');
+        if (!langNameAr.trim() || !langNameEn.trim()) {
+            toast.error(isRtl ? 'الرجاء إدخال اسم اللغة بالعربية والإنجليزية!' : 'Please enter the language name in both Arabic and English!');
             return;
         }
         const payload = { name: { ar: langNameAr.trim(), en: langNameEn.trim() } };

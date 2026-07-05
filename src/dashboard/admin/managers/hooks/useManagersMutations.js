@@ -34,7 +34,7 @@ export function useManagersMutations(isRtl) {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
       const statusText = res?.data?.active ? (isRtl ? 'تفعيل' : 'activated') : (isRtl ? 'تعليق' : 'suspended');
-      showSuccessToast(isRtl ? \تم \ المشرف بنجاح!\ : \Supervisor account \ successfully!\, isRtl);
+      showSuccessToast(isRtl ? `تم ${statusText} حساب المشرف بنجاح!` : `Supervisor account ${statusText} successfully!`, isRtl);
     }
   });
 

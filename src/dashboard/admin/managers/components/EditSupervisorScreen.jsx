@@ -90,7 +90,8 @@ export default function EditSupervisorScreen({
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const countryId = formData.countryId || (countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0])?.id || null
+    const foundCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
+    const countryId = formData.countryId || foundCountry?.id || foundCountry?._id || null;
 
     onSave({
       adminData: {
@@ -238,7 +239,7 @@ export default function EditSupervisorScreen({
                         <div className="absolute left-0 mt-2 z-20 w-48 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
                           {sortedCountries.map((country) => (
                             <button
-                              key={country.id}
+                              key={country.id || country._id}
                               type="button"
                               onClick={() => selectCountryCode(country)}
                               className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm transition-colors"
@@ -291,7 +292,7 @@ export default function EditSupervisorScreen({
                   >
                     <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
                     {sortedCountries.map((country) => (
-                      <option key={country.id} value={country.id}>
+                      <option key={country.id || country._id} value={country.id || country._id}>
                         {country.name} {country.flag}
                       </option>
                     ))}
