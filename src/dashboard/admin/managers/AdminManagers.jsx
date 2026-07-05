@@ -53,10 +53,11 @@ export default function AdminManagers() {
   }
 
   const handleDelete = async (supervisor) => {
-    const isConfirmed = await showDeleteConfirm(
-      isRtl ? 'هل أنت متأكد من حذف هذا المشرف؟' : 'Are you sure you want to delete this supervisor?',
-      isRtl
-    )
+    const supervisorName = typeof supervisor.name === 'object' && supervisor.name !== null
+      ? (isRtl ? supervisor.name.ar || supervisor.name.en : supervisor.name.en || supervisor.name.ar)
+      : (supervisor.name || '');
+
+    const isConfirmed = await showDeleteConfirm(isRtl, supervisorName)
     if (!isConfirmed) return;
 
     try {

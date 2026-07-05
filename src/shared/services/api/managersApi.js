@@ -3,7 +3,7 @@ import api from './axiosConfig';
 export const managersApi = {
   fetchSupervisors: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/admins/localized/all', { params });
+      const response = await api.get('/api/v1/admins/localized/list', { params });
       return response.data;
     } catch (error) {
       console.error('API fetchSupervisors failed:', error);

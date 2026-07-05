@@ -8,7 +8,8 @@ import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
 
 export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     const { user } = useAuth();
 
     const displayUserName = user?.name
@@ -20,7 +21,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const [profileData, setProfileData] = useState({
         email: user?.email || '',
         fullName: displayUserName || '',
-        country: 'مصر'
+        country: ''
     });
 
     const [loadingProfile, setLoadingProfile] = useState(true);
@@ -57,14 +58,17 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
                 let mappedCountry = '';
                 if (res.data.country) {
-                    if (typeof res.data.country === 'object') {
-                        mappedCountry = res.data.country.id || res.data.country._id;
-                    } else if (typeof res.data.country === 'string') {
-                        mappedCountry = res.data.country;
-                        if (!mappedCountry.match(/^[0-9a-fA-F]{24}$/)) {
-                            const c = fetchedCountries.find(c => c.name === mappedCountry || c.nameEn === mappedCountry);
-                            if (c) mappedCountry = c.id || c._id;
-                        }
+                    const sCountryId = res.data.country?._id || res.data.country?.id || res.data.country;
+                    if (typeof sCountryId === 'string' && sCountryId.length !== 24) {
+                        const cleanStr = sCountryId.trim();
+                        const found = fetchedCountries.find(c => {
+                            const cName = (c.name || '').trim();
+                            const cFlag = (c.flag || '').trim();
+                            return (cName && cleanStr.includes(cName)) || (cFlag && cleanStr.includes(cFlag));
+                        });
+                        mappedCountry = found?._id || found?.id || '';
+                    } else {
+                        mappedCountry = sCountryId || '';
                     }
                 }
 
@@ -99,6 +103,11 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
                 if (matchedCountry) {
                     setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name });
+                } else if (mappedCountry) {
+                    const countryByMapping = fetchedCountries.find(c => (c.id || c._id) === mappedCountry);
+                    if (countryByMapping) {
+                        setSelectedCountryCode({ code: countryByMapping.phoneCode, flag: countryByMapping.flag, name: countryByMapping.name });
+                    }
                 }
 
                 if (onProfileLoaded) {
@@ -111,14 +120,22 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     }, []);
 
     const handleProfileChange = (e) => {
-        setProfileData({ ...profileData, [e.target.name]: e.target.value });
+        const val = e.target.value;
+        setProfileData({ ...profileData, [e.target.name]: val });
+        if (e.target.name === 'country') {
+            const matched = apiCountries.find(c => (c.id || c._id) === val);
+            if (matched) {
+                setSelectedCountryCode({ code: matched.phoneCode, flag: matched.flag, name: matched.name });
+            }
+        }
     };
 
     const handleSaveProfile = async () => {
         setSavingProfile(true);
         const fullPhone = phoneVal ? `${selectedCountryCode.code} ${phoneVal.trim()}` : '';
         const res = await profileApi.updateProfile({
-            name: profileData.fullName,
+            nameAr: profileData.fullName,
+            nameEn: profileData.fullName,
             country: profileData.country,
             phone: fullPhone
         });
@@ -131,6 +148,15 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     };
 
     const userInitial = profileData.fullName ? profileData.fullName.trim().charAt(0) : 'أ';
+
+    if (loadingProfile) {
+        return (
+            <div className="flex h-[40vh] items-center justify-center bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <Spinner />
+            </div>
+        );
+    }
+    console.log("profileData", profileData);
 
     return (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
@@ -175,11 +201,12 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.country')}</label>
                     <select
                         name="country"
-                        value={profileData.country}
+                        required
+                        value={profileData.country || ''}
                         onChange={handleProfileChange}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
                     >
-                        <option value="">اختر الدولة</option>
+                        <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
                         {apiCountries.map(c => (
                             <option key={c.id || c._id} value={c.id || c._id}>
                                 {c.flag ? `${c.flag} ` : ''}{c.name}
@@ -207,6 +234,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                                             type="button"
                                             onClick={() => {
                                                 setSelectedCountryCode({ code: country.phoneCode, flag: country.flag, name: country.name });
+                                                setProfileData(prev => ({ ...prev, country: country.id || country._id }));
                                                 setIsDropdownOpen(false);
                                             }}
                                             className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-left"
@@ -221,7 +249,26 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         <input
                             type="tel"
                             value={phoneVal}
-                            onChange={(e) => setPhoneVal(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val.startsWith('+')) {
+                                    const normalizedInput = val.replace(/\+/g, '').trim();
+                                    const matched = apiCountries
+                                        .map(c => ({ ...c, normCode: String(c.phoneCode || c.code || '').replace(/\+/g, '').trim() }))
+                                        .filter(c => c.normCode)
+                                        .sort((a, b) => b.normCode.length - a.normCode.length)
+                                        .find(c => normalizedInput.startsWith(c.normCode));
+
+                                    if (matched) {
+                                        setSelectedCountryCode({ code: matched.phoneCode, flag: matched.flag, name: matched.name });
+                                        setProfileData(prev => ({ ...prev, country: matched.id || matched._id }));
+                                        let remaining = val.substring(1).substring(matched.normCode.length).trim();
+                                        setPhoneVal(remaining);
+                                        return;
+                                    }
+                                }
+                                setPhoneVal(val);
+                            }}
                             className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 focus:border-[#0f7a6c]/50 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 outline-none transition-shadow text-sm"
                             placeholder="01012345678"
                         />

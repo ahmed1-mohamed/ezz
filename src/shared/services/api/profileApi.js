@@ -21,7 +21,13 @@ export const profileApi = {
           if (['image', 'photo', 'photoUrl', 'profileImage'].includes(key) && typeof val === 'string') {
             return;
           }
-          formData.append(key, val);
+          if (key === 'nameAr') {
+            formData.append('name[ar]', val);
+          } else if (key === 'nameEn') {
+            formData.append('name[en]', val);
+          } else {
+            formData.append(key, val);
+          }
         }
       });
       const response = await api.patch('/api/v1/profile', formData, {
