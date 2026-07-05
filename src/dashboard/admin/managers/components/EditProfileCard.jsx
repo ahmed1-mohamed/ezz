@@ -5,7 +5,6 @@ export default function EditProfileCard({
   formData,
   mockJoinDate,
   isRtl,
-  countryFlag,
   roleName
 }) {
   const avatarLetter = useMemo(() => {

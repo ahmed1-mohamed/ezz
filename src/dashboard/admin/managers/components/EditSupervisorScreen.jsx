@@ -46,6 +46,21 @@ export default function EditSupervisorScreen({
     return ''
   }, [supervisor])
 
+  const initialCountryId = useMemo(() => {
+    if (!supervisor.country) return ''
+    const sCountryId = supervisor.country?._id || supervisor.country?.id || supervisor.country;
+    if (typeof sCountryId === 'string' && sCountryId.length !== 24) {
+      const cleanStr = sCountryId.trim();
+      const found = countries.find(c => {
+        const cName = (c.name || '').trim();
+        const cFlag = (c.flag || '').trim();
+        return (cName && cleanStr.includes(cName)) || (cFlag && cleanStr.includes(cFlag));
+      });
+      return found?._id || found?.id || '';
+    }
+    return sCountryId || '';
+  }, [supervisor.country, countries])
+
   const [formData, setFormData] = useState({
     name: supervisor.name || '',
     nameEn: supervisor.nameEn || '',
@@ -53,7 +68,7 @@ export default function EditSupervisorScreen({
     phone: initialPhone,
     phonePrefix: initialPrefix,
     permissionId: supervisor.permissionId || null,
-    countryId: supervisor.country?._id || supervisor.country?.id || supervisor.country || '',
+    countryId: initialCountryId,
     status: supervisor.status || 'Active',
     photoUrl: supervisor.photoUrl || null
   })

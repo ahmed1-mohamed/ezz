@@ -6,9 +6,7 @@ import { explanationLanguagesApi } from '@/shared/services/api/explanationLangua
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 import { QUERY_KEY } from '../constants';
 
-/**
- * Manages all form state and CRUD mutations for explanation languages.
- */
+
 export function useExplanationLanguagesMutations() {
     const { i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
