@@ -12,13 +12,29 @@ export default function IdentityInfoCard({
   const fileInputRef = useRef(null)
   const [photoPreview, setPhotoPreview] = useState(formData.photoUrl || null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [countrySearch, setCountrySearch] = useState('')
 
   // Sort countries alphabetically by name
   const sortedCountries = useMemo(() => {
     return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
   }, [countries])
 
-  const selectedCountry = sortedCountries.find(c => formData.phonePrefix?.startsWith(c.phoneCode)) || sortedCountries[0] || {}
+  const filteredCountries = useMemo(() => {
+    if (!countrySearch.trim()) return sortedCountries;
+    const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
+    return sortedCountries.filter(c => {
+      const cName = (c.name || '').toLowerCase();
+      const cCode = (c.code || '').toLowerCase();
+      const cPhone = String(c.phoneCode || '').replace(/\+/g, '').trim();
+      return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
+    });
+  }, [sortedCountries, countrySearch])
+
+  const selectedCountry = sortedCountries.find(c => {
+    const prefixStr = String(formData.phonePrefix || '');
+    const countryCodeStr = String(c.phoneCode || c.code || '');
+    return prefixStr.replace(/\+/g, '').startsWith(countryCodeStr.replace(/\+/g, ''));
+  }) || sortedCountries[0] || {}
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click()
@@ -35,7 +51,13 @@ export default function IdentityInfoCard({
 
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
-    onChange('phonePrefix', country.phoneCode)
+    setCountrySearch('')
+    const pfx = String(country.phoneCode || country.code || '');
+    const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
+    onChange('phonePrefix', prefixWithPlus)
+    if (country.id || country._id) {
+      onChange('countryId', country.id || country._id)
+    }
   }
 
   return (
@@ -145,7 +167,10 @@ export default function IdentityInfoCard({
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={() => {
+                setIsDropdownOpen(!isDropdownOpen);
+                if (isDropdownOpen) setCountrySearch('');
+              }}
               className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
               <span>{selectedCountry?.flag}</span>
@@ -153,8 +178,17 @@ export default function IdentityInfoCard({
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute left-0 mt-2 z-20 w-48 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
-                {sortedCountries.map((country) => (
+              <div className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+                <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
+                  <input
+                    type="text"
+                    value={countrySearch}
+                    onChange={(e) => setCountrySearch(e.target.value)}
+                    placeholder={isRtl ? 'بحث...' : 'Search...'}
+                    className="w-full px-2.5 py-1.5 bg-[#f3f7f6] dark:bg-slate-900 text-xs rounded-xl outline-none text-slate-800 dark:text-slate-200 border border-transparent focus:border-brand-500"
+                  />
+                </div>
+                {filteredCountries.map((country) => (
                   <button
                     key={country.id || country._id}
                     type="button"
@@ -177,7 +211,28 @@ export default function IdentityInfoCard({
             type="tel"
             required
             value={formData.phone || ''}
-            onChange={(e) => onChange('phone', e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val.startsWith('+')) {
+                const normalizedInput = val.replace(/\+/g, '').trim();
+                const matched = countries
+                  .map(c => ({ ...c, normCode: String(c.phoneCode || c.code || '').replace(/\+/g, '').trim() }))
+                  .filter(c => c.normCode)
+                  .sort((a, b) => b.normCode.length - a.normCode.length)
+                  .find(c => normalizedInput.startsWith(c.normCode));
+
+                if (matched) {
+                  onChange('phonePrefix', matched.phoneCode || matched.code);
+                  if (matched.id || matched._id) {
+                    onChange('countryId', matched.id || matched._id);
+                  }
+                  let remaining = val.substring(1).substring(matched.normCode.length).trim();
+                  onChange('phone', remaining);
+                  return;
+                }
+              }
+              onChange('phone', val);
+            }}
             className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
 

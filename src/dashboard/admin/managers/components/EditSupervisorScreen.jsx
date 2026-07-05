@@ -78,6 +78,18 @@ export default function EditSupervisorScreen({
   }, [countries])
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [countrySearch, setCountrySearch] = useState('')
+
+  const filteredCountries = useMemo(() => {
+    if (!countrySearch.trim()) return sortedCountries;
+    const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
+    return sortedCountries.filter(c => {
+      const cName = (c.name || '').toLowerCase();
+      const cCode = (c.code || '').toLowerCase();
+      const cPhone = String(c.phoneCode || '').replace(/\+/g, '').trim();
+      return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
+    });
+  }, [sortedCountries, countrySearch])
 
   const normalizePhoneCode = (code) => {
     if (!code) return ''
@@ -95,7 +107,13 @@ export default function EditSupervisorScreen({
 
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
-    handleFieldChange('phonePrefix', country.phoneCode || country.code)
+    setCountrySearch('')
+    const pfx = String(country.phoneCode || country.code || '');
+    const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
+    handleFieldChange('phonePrefix', prefixWithPlus)
+    if (country.id || country._id) {
+      handleFieldChange('countryId', country.id || country._id)
+    }
   }
 
   const handleUpdatePassword = (newPassword) => {
@@ -243,7 +261,10 @@ export default function EditSupervisorScreen({
                     <div className="relative shrink-0">
                       <button
                         type="button"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        onClick={() => {
+                          setIsDropdownOpen(!isDropdownOpen);
+                          if (isDropdownOpen) setCountrySearch('');
+                        }}
                         className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
                       >
                         <span>{matchedCountry.flag}</span>
@@ -251,8 +272,17 @@ export default function EditSupervisorScreen({
                       </button>
 
                       {isDropdownOpen && (
-                        <div className="absolute left-0 mt-2 z-20 w-48 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
-                          {sortedCountries.map((country) => (
+                        <div className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
+                          <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-950 z-10">
+                            <input
+                              type="text"
+                              value={countrySearch}
+                              onChange={(e) => setCountrySearch(e.target.value)}
+                              placeholder={isRtl ? 'بحث...' : 'Search...'}
+                              className="w-full px-2.5 py-1.5 bg-[#f3f7f6] dark:bg-slate-900 text-xs rounded-xl outline-none text-slate-800 dark:text-slate-200 border border-transparent focus:border-brand-500"
+                            />
+                          </div>
+                          {filteredCountries.map((country) => (
                             <button
                               key={country.id || country._id}
                               type="button"
@@ -274,7 +304,28 @@ export default function EditSupervisorScreen({
                       type="tel"
                       required
                       value={formData.phone}
-                      onChange={(e) => handleFieldChange('phone', e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.startsWith('+')) {
+                          const normalizedInput = val.replace(/\+/g, '').trim();
+                          const matched = countries
+                            .map(c => ({ ...c, normCode: String(c.phoneCode || c.code || '').replace(/\+/g, '').trim() }))
+                            .filter(c => c.normCode)
+                            .sort((a, b) => b.normCode.length - a.normCode.length)
+                            .find(c => normalizedInput.startsWith(c.normCode));
+
+                          if (matched) {
+                            handleFieldChange('phonePrefix', matched.phoneCode || matched.code);
+                            if (matched.id || matched._id) {
+                              handleFieldChange('countryId', matched.id || matched._id);
+                            }
+                            let remaining = val.substring(1).substring(matched.normCode.length).trim();
+                            handleFieldChange('phone', remaining);
+                            return;
+                          }
+                        }
+                        handleFieldChange('phone', val);
+                      }}
                       className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                     />
 

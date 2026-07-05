@@ -182,7 +182,13 @@ export default function AdminManagers() {
           countries={countries}
           onSave={async (data) => {
             try {
-              await createMutation.mutateAsync(data)
+              const res = await createMutation.mutateAsync(data.adminData)
+              const newAdmin = res?.data || res;
+              const newAdminId = newAdmin?.admin_id || newAdmin?.id || newAdmin?._id;
+              if (newAdminId && data.permissionId) {
+                await managersApi.assignAdminPermission(newAdminId, data.permissionId);
+                queryClient.invalidateQueries({ queryKey: ['admins'] });
+              }
               setViewMode('list')
             } catch (err) {
               console.error('Failed to add supervisor:', err)
