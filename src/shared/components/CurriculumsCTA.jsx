@@ -24,7 +24,7 @@ export default function CurriculumsCTA() {
                         {t('curriculum.cta.desc', 'انضم إلى أكثر من ٥٠٠ طالب يستمتعون بتجربة تعليمية فريدة.')}
                     </p>
                     <div className="pt-2">
-                        <button 
+                        <button
                             onClick={() => navigate('/contact')}
                             className="bg-[#00695C] hover:bg-[#004D40] text-white px-8 py-3 rounded-xl font-bold text-lg transition-all active:scale-95 shadow-md w-full sm:w-auto"
                         >
@@ -33,7 +33,6 @@ export default function CurriculumsCTA() {
                     </div>
                 </div>
             </div>
-            {/* Background Icon */}
             <div className="absolute left-[-2rem] bottom-[-4rem] opacity-[0.15] pointer-events-none md:left-4 md:bottom-[-2rem]">
                 <GraduationCap className="w-64 h-64 text-[#735C00] transform -rotate-12" />
             </div>

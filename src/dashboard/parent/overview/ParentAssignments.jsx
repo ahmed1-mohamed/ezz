@@ -46,7 +46,6 @@ export default function ParentAssignments() {
         };
 
         fetchAssignments();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedStudent, i18n.language]);
 
     return (

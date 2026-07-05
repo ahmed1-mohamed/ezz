@@ -26,7 +26,6 @@ export default function TeacherSecurityCard({
     setConfirmPassword('')
   }
 
-  // Edit Mode Layout
   if (isEdit) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
@@ -95,21 +94,17 @@ export default function TeacherSecurityCard({
     )
   }
 
-  // Add Mode Layout (from mockup)
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
 
-      {/* Header */}
       <div>
         <h3 className="text-base font-bold text-slate-855 dark:text-white">
           {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
         </h3>
       </div>
 
-      {/* Row: Password & Confirm Password */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        {/* Password */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'كلمه المرور' : 'Password'}
@@ -124,7 +119,6 @@ export default function TeacherSecurityCard({
           />
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'تأكيد كلمة المرور' : 'Confirm Password'}

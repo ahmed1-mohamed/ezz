@@ -6,26 +6,25 @@ export default function EditGrantedPermissionsCard({
   supervisorPermissions = [],
   isRtl
 }) {
-  
+
   const categories = useMemo(() => {
     const items = []
-    // supervisorPermissions is an array of permission keys, e.g. ['users.read', 'students.create']
     const activeKeys = supervisorPermissions || []
 
     Object.values(PERMISSIONS_LIST).forEach(module => {
       const activeTags = []
-      
+
       module.actions.forEach(action => {
         if (activeKeys.includes(action.key)) {
-           activeTags.push(isRtl ? action.label.ar : action.label.en)
+          activeTags.push(isRtl ? action.label.ar : action.label.en)
         }
       })
 
       if (activeTags.length > 0) {
-         items.push({
-            title: isRtl ? module.name.ar : module.name.en,
-            tags: activeTags
-         })
+        items.push({
+          title: isRtl ? module.name.ar : module.name.en,
+          tags: activeTags
+        })
       }
     })
 
@@ -34,14 +33,12 @@ export default function EditGrantedPermissionsCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      
-      {/* Title */}
+
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <Shield size={18} className="text-[#0f7a6c]" />
         <span>{isRtl ? 'الصلاحيات الممنوحة' : 'Granted Permissions'}</span>
       </h3>
 
-      {/* Permissions tags grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {categories.map((cat, idx) => (
           <div
@@ -54,8 +51,7 @@ export default function EditGrantedPermissionsCard({
                 {cat.title}
               </p>
             </div>
-            
-            {/* Tag Badges list flex */}
+
             <div className="flex flex-wrap gap-2">
               {cat.tags.map((tag, tagIdx) => (
                 <span

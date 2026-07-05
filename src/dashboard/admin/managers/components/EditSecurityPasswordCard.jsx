@@ -42,7 +42,6 @@ export default function EditSecurityPasswordCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
 
-      {/* Title */}
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.securityTitle', 'الأمان وكلمة المرور')}</span>
       </h3>
@@ -52,7 +51,6 @@ export default function EditSecurityPasswordCard({
           {isRtl ? 'تغيير كلمة المرور' : 'Change Password'}
         </h4>
 
-        {/* Current Password Field */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'كلمة المرور الحالية' : 'Current Password'}
@@ -66,10 +64,8 @@ export default function EditSecurityPasswordCard({
           />
         </div>
 
-        {/* New Password & Confirm Password Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          {/* New Password */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'كلمه المرور الجديدة' : 'New Password'}
@@ -83,7 +79,6 @@ export default function EditSecurityPasswordCard({
             />
           </div>
 
-          {/* Confirm New Password */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
@@ -99,7 +94,6 @@ export default function EditSecurityPasswordCard({
 
         </div>
 
-        {/* Action Button: Update Password */}
         <div className="flex justify-end pt-2">
           <button
             type="button"

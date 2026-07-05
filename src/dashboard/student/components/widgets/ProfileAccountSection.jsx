@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { motion } from 'framer-motion';
-import { Calendar, User, Shield, CheckCircle, Award, Star, BookOpen, Crown, RefreshCw } from 'lucide-react';
+import { Calendar, User, Shield, CheckCircle, Award, Crown, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const recentAchievements = [

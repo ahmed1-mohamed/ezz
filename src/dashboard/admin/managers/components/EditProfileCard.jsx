@@ -70,7 +70,6 @@ export default function EditProfileCard({
             </div>
           </div>
 
-          {/* Email Address */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100/50 dark:border-slate-850 rounded-2xl flex items-center gap-3">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-blue-500 dark:text-blue-405 border border-slate-100 dark:border-slate-800">
               <Mail size={18} />

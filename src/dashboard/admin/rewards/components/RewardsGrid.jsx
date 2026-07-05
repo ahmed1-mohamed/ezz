@@ -20,8 +20,7 @@ export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
           key={reward.id || reward._id}
           className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 hover:border-slate-200 dark:hover:border-slate-700/60 transition-all duration-300 relative group"
         >
-          {/* Top colored section with the badge icon */}
-          <div 
+          <div
             className="h-28 flex items-center justify-center relative transition-transform duration-500 group-hover:scale-105"
             style={{ backgroundColor: reward.backgroundColor || '#f3f4f6' }}
           >
@@ -30,18 +29,16 @@ export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
             </div>
           </div>
 
-          {/* Middle white section */}
           <div className="p-5 flex flex-col items-center text-center flex-1 bg-white dark:bg-slate-900 relative z-10">
             <h4 className="font-bold text-slate-800 dark:text-white text-sm group-hover:text-[#0f7a6c] dark:group-hover:text-emerald-400 transition-colors">
               {typeof reward.name === 'object' ? (isRtl ? reward.name.ar : reward.name.en) : reward.name}
             </h4>
-            
+
             <p className="text-slate-400 dark:text-slate-500 text-xs mt-2 flex-1 line-clamp-3">
               {typeof reward.description === 'object' ? (isRtl ? reward.description.ar : reward.description.en) : reward.description}
             </p>
           </div>
 
-          {/* Footer Actions */}
           <div className="border-t border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-800/20 px-4 py-3 flex items-center justify-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity relative z-10">
             {onView && (
               <button

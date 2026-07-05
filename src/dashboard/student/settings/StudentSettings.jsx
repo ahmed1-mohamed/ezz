@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Sun, Moon, Settings as SettingsIcon, Mail, Lock, User, Globe, Bell, BookOpen, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

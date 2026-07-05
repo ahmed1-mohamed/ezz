@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Search } from 'lucide-react'
+import { X, Search, BookOpen } from 'lucide-react'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 
 const availableGroups = [
@@ -13,7 +13,7 @@ const availableGroups = [
     levelEn: 'Intermediate',
     schedule: 'السبت، الاثنين، الأربعاء - 10:00',
     scheduleEn: 'Sat, Mon, Wed - 10:00',
-    status: 'Active', // نشط
+    status: 'Active',
     type: 'Group',
     language: 'Arabic'
   },
@@ -88,13 +88,10 @@ export default function ChangeGroupModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Backdrop click to close */}
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
-      {/* Modal Container */}
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
 
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             {isRtl ? 'تغيير المجموعة للطالب' : 'Change Group for Student'}
@@ -108,7 +105,6 @@ export default function ChangeGroupModal({
           </button>
         </div>
 
-        {/* Student Name & Current Group Fields */}
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -135,13 +131,11 @@ export default function ChangeGroupModal({
           </div>
         </div>
 
-        {/* Select New Group Section */}
         <div className="space-y-4">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
             {isRtl ? 'اختر المجموعة الجديدة' : 'Select New Group'}
           </label>
 
-          {/* Search box */}
           <form onSubmit={handleSearch} className="flex gap-2">
             <button
               type="submit"
@@ -164,7 +158,6 @@ export default function ChangeGroupModal({
             </div>
           </form>
 
-          {/* List of Group options */}
           <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-1">
             {filteredGroups.length === 0 ? (
               <div className="text-center py-6 text-sm text-slate-400">
@@ -178,11 +171,10 @@ export default function ChangeGroupModal({
                     key={group.id}
                     onClick={() => setSelectedGroup(group)}
                     className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
-                        ? 'border-[#005953] bg-[#f3f7f6] dark:bg-slate-950/40'
-                        : 'border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-950/20 bg-white dark:bg-slate-900'
+                      ? 'border-[#005953] bg-[#f3f7f6] dark:bg-slate-950/40'
+                      : 'border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-950/20 bg-white dark:bg-slate-900'
                       }`}
                   >
-                    {/* Schedule and teacher info */}
                     <div className="text-start space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-bold text-slate-450 dark:text-slate-500">
@@ -195,9 +187,7 @@ export default function ChangeGroupModal({
                       </div>
                     </div>
 
-                    {/* Group title and badges */}
                     <div className="flex items-center gap-3">
-                      {/* Badges */}
                       <div className="flex gap-2">
                         <span className="inline-flex items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/25 dark:text-blue-400">
                           {isRtl ? group.level : group.levelEn}
@@ -224,7 +214,6 @@ export default function ChangeGroupModal({
           </div>
         </div>
 
-        {/* Change Group button */}
         <button
           type="button"
           onClick={handleConfirmChange}

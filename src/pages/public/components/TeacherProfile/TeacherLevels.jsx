@@ -1,11 +1,8 @@
-/* eslint-disable no-unused-vars */
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, BookOpen } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 
 export default function TeacherLevels({ levels, t }) {
-    const { i18n } = useTranslation()
     const [openLevel, setOpenLevel] = useState(null)
     const [showAll, setShowAll] = useState(false)
 
@@ -46,7 +43,6 @@ export default function TeacherLevels({ levels, t }) {
                                 transition={{ duration: 0.3 }}
                                 className="bg-white rounded-3xl overflow-hidden shadow-sm transition-all duration-300"
                             >
-                                {/* Accordion Header */}
                                 <button
                                     onClick={() => toggleLevel(level.id)}
                                     className="w-full flex items-center justify-between p-5 sm:p-6 bg-white hover:bg-slate-50 transition-colors"
@@ -74,7 +70,6 @@ export default function TeacherLevels({ levels, t }) {
                                     </div>
                                 </button>
 
-                                {/* Accordion Body */}
                                 <AnimatePresence>
                                     {isOpen && (
                                         <motion.div
@@ -110,7 +105,6 @@ export default function TeacherLevels({ levels, t }) {
                 </AnimatePresence>
             </div>
 
-            {/* Show More / Show Less Button */}
             {hasMoreLevels && (
                 <div className="mt-6 flex justify-center">
                     <button

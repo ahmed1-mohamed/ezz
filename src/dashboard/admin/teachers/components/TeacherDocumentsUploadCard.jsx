@@ -26,20 +26,18 @@ export default function TeacherDocumentsUploadCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
-      
-      {/* Header */}
+
       <h3 className="text-base font-bold text-slate-855 dark:text-white border-b border-slate-105 dark:border-slate-800/60 pb-3">
         {isRtl ? 'المستندات والمراجعة' : 'Documents & Review'}
       </h3>
 
       <div className="space-y-6">
-        
-        {/* CV Upload Container */}
+
         <div>
           <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
             {isRtl ? 'السيرة الذاتية' : 'Resume / CV'}
           </span>
-          
+
           {cvFile ? (
             <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-150 dark:border-slate-850">
               <div className="flex items-center gap-3">
@@ -82,7 +80,6 @@ export default function TeacherDocumentsUploadCard({
           )}
         </div>
 
-        {/* Certificate Upload Container */}
         <div>
           <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
             {isRtl ? 'الشهادات والأوراق' : 'Certificates & Documents'}

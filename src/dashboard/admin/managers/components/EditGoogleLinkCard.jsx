@@ -6,17 +6,14 @@ export default function EditGoogleLinkCard({
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      
-      {/* Title */}
+
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <Link size={18} className="text-brand-500" />
         <span>{isRtl ? 'ربط حساب جوجل' : 'Link Google Account'}</span>
       </h3>
 
-      {/* Main Body */}
       <div className="flex flex-col items-center justify-center text-center p-4 space-y-4">
-        
-        {/* Google Icon Wrapper */}
+
         <div className="h-16 w-16 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl flex items-center justify-center shadow-sm">
           <svg className="h-8 w-8" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
             <g transform="matrix(1, 0, 0, 1, 0, 0)">
@@ -28,19 +25,17 @@ export default function EditGoogleLinkCard({
           </svg>
         </div>
 
-        {/* Text */}
         <div className="space-y-1.5 max-w-sm">
           <p className="text-sm font-bold text-slate-700 dark:text-slate-350">
             {isRtl ? 'لم يتم ربط حساب جوجل بعد' : 'Google Account Not Linked Yet'}
           </p>
           <p className="text-xs text-slate-450 dark:text-slate-500 font-semibold leading-relaxed">
-            {isRtl 
-              ? 'قم بربط حسابك بجوجل لتسجيل دخول أسرع وأسهل.' 
+            {isRtl
+              ? 'قم بربط حسابك بجوجل لتسجيل دخول أسرع وأسهل.'
               : 'Link your account to Google for a faster and easier login experience.'}
           </p>
         </div>
 
-        {/* Button link */}
         <button
           type="button"
           onClick={onLinkGoogle}

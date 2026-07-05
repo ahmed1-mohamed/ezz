@@ -1,10 +1,8 @@
-/* eslint-disable no-unused-vars */
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 export default function AssignmentsStats({ data, variants }) {
-    const { t, i18n } = useTranslation();
-    const isRtl = i18n.language.startsWith('ar');
+    const { t } = useTranslation();
     if (!data) return null;
 
     return (
@@ -64,5 +62,5 @@ export default function AssignmentsStats({ data, variants }) {
                 </div>
             </div>
         </motion.div>
-    );
+    )
 }

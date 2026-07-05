@@ -54,7 +54,6 @@ export default function ParentAttendance() {
         };
 
         fetchAttendance();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedStudent, currentDate]);
 
     const handlePrevMonth = () => {

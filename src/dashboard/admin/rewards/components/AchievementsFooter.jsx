@@ -6,7 +6,6 @@ export default function AchievementsFooter({ stats }) {
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-6 flex items-center justify-between">
-      {/* Total badges count card (Left) */}
       <div className="flex flex-col items-center">
         <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold">
           {p('statTotalBadges')}
@@ -16,7 +15,6 @@ export default function AchievementsFooter({ stats }) {
         </span>
       </div>
 
-      {/* Heading (Right) */}
       <h3 className="font-extrabold text-slate-800 dark:text-white text-base">
         {p('footerTitle')}
       </h3>

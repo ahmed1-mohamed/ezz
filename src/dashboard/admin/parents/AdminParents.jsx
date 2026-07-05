@@ -97,7 +97,6 @@ export default function AdminParents() {
 
         const res = await adminParentsApi.createParent(payload)
         if (res) {
-          // If response contains data, add it, otherwise reload from API (or just show success)
           setParents((prev) => [res.data || res || formData, ...prev])
           setViewMode('list')
           toast.success(isRtl ? 'تم إضافة ولي الأمر بنجاح' : 'Parent created successfully')
@@ -220,7 +219,7 @@ export default function AdminParents() {
               {t('adminDashboard.parents.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
             </p>
           </div>
-          
+
           {statistics && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mt-6 mb-2">
               <StatsCard

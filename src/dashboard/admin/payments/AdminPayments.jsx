@@ -36,12 +36,10 @@ export default function AdminPayments() {
   }, [activePeriod, activeStatus, searchValue])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadStats()
   }, [loadStats])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadPayments()
   }, [loadPayments])
 
@@ -84,10 +82,8 @@ export default function AdminPayments() {
 
   return (
     <div className="space-y-8">
-      {/* Top Stats */}
       {stats && <PaymentsStats stats={stats} />}
 
-      {/* Filters Bar */}
       <PaymentsFilters
         activePeriod={activePeriod}
         setActivePeriod={setActivePeriod}
@@ -98,7 +94,6 @@ export default function AdminPayments() {
         onExport={handleExport}
       />
 
-      {/* Main Table */}
       {loading ? (
         <div className="flex items-center justify-center h-40">
           <Spinner />

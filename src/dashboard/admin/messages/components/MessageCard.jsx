@@ -122,7 +122,7 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 }
               </button>
 
-              <div className="flex-1 min-w-[20px]" /> {/* Spacer */}
+              <div className="flex-1 min-w-[20px]" />
 
               <button
                 onClick={() => onDelete(message)}

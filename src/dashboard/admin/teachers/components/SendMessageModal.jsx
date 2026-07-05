@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Send, Mail, Phone, MessageSquare, Info } from 'lucide-react'
+import { X } from 'lucide-react'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
 
 export default function SendMessageModal({
@@ -37,13 +37,10 @@ export default function SendMessageModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
 
-      {/* Backdrop click to close */}
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
-      {/* Modal Container */}
       <div className="relative w-full max-w-2xl bg-[#3a3a3a] dark:bg-slate-950 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-4 text-start">
 
-        {/* Header */}
         <div className="flex items-center justify-between text-white pb-2">
           <h3 className="text-lg font-bold">
             {isRtl ? 'ارسال رساله للمعلم' : 'Send Message to Teacher'}
@@ -57,10 +54,8 @@ export default function SendMessageModal({
           </button>
         </div>
 
-        {/* Form Container (white card background) */}
         <form onSubmit={handleSend} className="bg-white dark:bg-slate-900 rounded-2xl p-6 space-y-6">
 
-          {/* Teacher Name */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'أسم المعلم' : 'Teacher Name'}
@@ -74,10 +69,8 @@ export default function SendMessageModal({
             />
           </div>
 
-          {/* Email and Phone Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            {/* Email Address */}
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                 {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
@@ -92,7 +85,6 @@ export default function SendMessageModal({
               />
             </div>
 
-            {/* Phone Number */}
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                 {isRtl ? 'رقم الهاتف' : 'Phone Number'}
@@ -109,7 +101,6 @@ export default function SendMessageModal({
 
           </div>
 
-          {/* Message Textarea */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'الرسالة' : 'Message'}
@@ -124,7 +115,6 @@ export default function SendMessageModal({
             />
           </div>
 
-          {/* Send Button */}
           <div>
             <button
               type="submit"

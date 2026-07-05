@@ -31,7 +31,6 @@ export default function ManagersList({
 }) {
   const itemsPerPage = 5
 
-  // Calculations for Metric Cards (based on statistics from API or supervisors list length)
   const metrics = useMemo(() => {
     if (statistics) {
       return {
@@ -62,14 +61,12 @@ export default function ManagersList({
 
   return (
     <div className="space-y-8">
-      {/* Metric Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Total Supervisors Card */}
         <div
           onClick={() => onStatusFilterChange('all')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'all'
-              ? 'border-brand-500 ring-2 ring-brand-500/10 -translate-y-1'
-              : 'border-slate-100 dark:border-slate-800/60'
+            ? 'border-brand-500 ring-2 ring-brand-500/10 -translate-y-1'
+            : 'border-slate-100 dark:border-slate-800/60'
             }`}
         >
           <div className="flex items-center gap-4">
@@ -89,12 +86,11 @@ export default function ManagersList({
           </div>
         </div>
 
-        {/* Active Supervisors Card */}
         <div
           onClick={() => onStatusFilterChange('active')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'active'
-              ? 'border-emerald-500 ring-2 ring-emerald-500/10 -translate-y-1'
-              : 'border-slate-100 dark:border-slate-800/60'
+            ? 'border-emerald-500 ring-2 ring-emerald-500/10 -translate-y-1'
+            : 'border-slate-100 dark:border-slate-800/60'
             }`}
         >
           <div className="flex items-center gap-4">
@@ -114,12 +110,11 @@ export default function ManagersList({
           </div>
         </div>
 
-        {/* Suspended Supervisors Card */}
         <div
           onClick={() => onStatusFilterChange('stopped')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'stopped'
-              ? 'border-rose-500 ring-2 ring-rose-500/10 -translate-y-1'
-              : 'border-slate-100 dark:border-slate-800/60'
+            ? 'border-rose-500 ring-2 ring-rose-500/10 -translate-y-1'
+            : 'border-slate-100 dark:border-slate-800/60'
             }`}
         >
           <div className="flex items-center gap-4">
@@ -170,7 +165,6 @@ export default function ManagersList({
           </span>
         </div>
 
-        {/* Search on the left (RTL) / right (LTR) */}
         <div className="relative w-full md:w-80">
           <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-400`}>
             <Search size={18} />
@@ -185,7 +179,6 @@ export default function ManagersList({
         </div>
       </div>
 
-      {/* Supervisors Table Container */}
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-start text-sm">
@@ -210,7 +203,7 @@ export default function ManagersList({
                   const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
                   const initial = sName.trim().charAt(0) || 'م';
                   const avatarUrl = supervisor.image || supervisor.photoUrl;
-                  
+
                   let displayRole = isRtl ? 'لا يوجد' : 'None';
                   if (supervisor.role) {
                     displayRole = typeof supervisor.role === 'object' ? (isRtl ? supervisor.role.ar || supervisor.role.en : supervisor.role.en || supervisor.role.ar) : supervisor.role;
@@ -228,7 +221,6 @@ export default function ManagersList({
                       key={supervisor.admin_id || supervisor.id || supervisor._id || index}
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors"
                     >
-                      {/* Name with Avatar */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3 justify-start">
                           {avatarUrl ? (
@@ -248,19 +240,16 @@ export default function ManagersList({
                         </div>
                       </td>
 
-                      {/* Role (الصلاحيات) - Styled Pill */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-4 py-1.5 rounded-full bg-brand-50/70 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400 text-xs font-semibold">
                           {displayRole}
                         </span>
                       </td>
 
-                      {/* Email (labeled under 'البريد الإلكتروني' header) */}
                       <td className="px-6 py-4 whitespace-nowrap text-slate-700 dark:text-slate-300 text-start font-medium">
                         {supervisor.email}
                       </td>
 
-                      {/* Status */}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <span
                           onClick={() => onToggleStatus(supervisor)}
@@ -276,11 +265,9 @@ export default function ManagersList({
                         </span>
                       </td>
 
-                      {/* Actions (Trash, Book/Details, Edit/Pencil) in RTL Sequence */}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-4">
 
-                          {/* Trash Icon */}
                           <button
                             onClick={() => onDelete(supervisor)}
                             title={isRtl ? 'حذف المشرف' : 'Delete Supervisor'}
@@ -289,7 +276,6 @@ export default function ManagersList({
                             <Trash2 size={16} />
                           </button>
 
-                          {/* Open Book Icon (Details / Permissions screen trigger) */}
                           <button
                             onClick={() => onOpenRolePermissions(supervisor)}
                             title={t('adminDashboard.managers.editPermissions', 'تعديل الأذونات')}
@@ -298,7 +284,6 @@ export default function ManagersList({
                             <BookOpen size={16} />
                           </button>
 
-                          {/* Pencil/Edit Icon */}
                           <button
                             onClick={() => onOpenEditScreen(supervisor)}
                             title={isRtl ? 'تعديل المشرف' : 'Edit Supervisor'}
@@ -317,7 +302,6 @@ export default function ManagersList({
           </table>
         </div>
 
-        {/* Pagination Footer */}
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850 rounded-b-3xl">
             <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">

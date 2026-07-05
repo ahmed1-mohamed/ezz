@@ -16,17 +16,14 @@ export default function AdminStudentLevels() {
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
 
-  // Local state for levels
   const [levels, setLevels] = useState([])
 
-  // Fetch levels from API
   const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
     queryKey: ['student-levels'],
     queryFn: () => adminLevelsApi.fetchLevels(),
     staleTime: 5 * 60 * 1000,
   })
 
-  // Sync fetched levels to local state
   useEffect(() => {
     if (levelsData?.data) {
       const fetchedLevels = levelsData.data.map((item) => ({
@@ -39,13 +36,11 @@ export default function AdminStudentLevels() {
     }
   }, [levelsData, isRtl])
 
-  // Form states for Add/Edit Level
   const [showForm, setShowForm] = useState(false)
   const [editingLevelId, setEditingLevelId] = useState(null)
   const [levelNameAr, setLevelNameAr] = useState('')
   const [levelNameEn, setLevelNameEn] = useState('')
 
-  // --- Mutations ---
   const createMutation = useMutation({
     mutationFn: adminLevelsApi.createLevel,
     onSuccess: () => {
@@ -112,7 +107,6 @@ export default function AdminStudentLevels() {
 
   const handleEditLevelClick = async (lvl) => {
     try {
-      // In editing, use the get one endpoint that returns the full data (containing name in both languages)
       const res = await adminLevelsApi.fetchLevelById(lvl.id);
       const lvlData = res?.data || res;
       setEditingLevelId(lvl.id);
@@ -141,8 +135,7 @@ export default function AdminStudentLevels() {
 
   return (
     <div className="space-y-8 p-1 md:p-6 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      {/* 1. Header with title & add button */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
@@ -168,9 +161,8 @@ export default function AdminStudentLevels() {
         </button>
       </div>
 
-      {/* 2. Add / Edit Level Form Card */}
       {showForm && (
-        <StudentLevelForm 
+        <StudentLevelForm
           levelNameAr={levelNameAr}
           setLevelNameAr={setLevelNameAr}
           levelNameEn={levelNameEn}
@@ -184,17 +176,15 @@ export default function AdminStudentLevels() {
         />
       )}
 
-      {/* List section title */}
       <div className="text-start">
         <h2 className="text-base font-bold text-slate-800 dark:text-white">
           {isRtl ? 'مستويات الطلاب المتاحة' : 'Available Student Levels'}
         </h2>
       </div>
 
-      {/* 3. Levels Cards List */}
       <div className="space-y-5">
         {levels.map((lvl) => (
-          <StudentLevelCard 
+          <StudentLevelCard
             key={lvl.id}
             lvl={lvl}
             onEdit={handleEditLevelClick}

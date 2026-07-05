@@ -75,7 +75,6 @@ export default function ParentChildrenList() {
         };
 
         fetchChildren();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const containerVariants = {

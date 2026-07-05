@@ -232,7 +232,6 @@ export default function Login() {
 
             </div>
 
-            {/* Custom Toast Notification */}
             <AnimatePresence>
                 {toast.show && (
                     <motion.div
@@ -263,7 +262,6 @@ export default function Login() {
                 )}
             </AnimatePresence>
 
-            {/* Google Login Credentials Modal */}
             <AnimatePresence>
                 {showGoogleModal && (
                     <motion.div

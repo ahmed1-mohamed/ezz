@@ -45,7 +45,6 @@ export default function ResetPassword() {
         try {
             setLoading(true)
 
-            // Step 1: Verify code
             const verifyRes = await api.post('/api/v1/auth/verify-code', { resetCode: resetCode.trim() })
             const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token
 
@@ -53,7 +52,6 @@ export default function ResetPassword() {
                 localStorage.setItem('access_token', tempToken)
             }
 
-            // Step 2: Patch reset password
             await api.patch('/api/v1/auth/reset-password', {
                 password: password,
                 confirmPassword: confirmPassword

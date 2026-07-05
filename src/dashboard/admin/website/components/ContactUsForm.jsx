@@ -19,7 +19,6 @@ export default function ContactUsForm({
 
   useEffect(() => {
     if (contactInfo) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalContact({
         phone: contactInfo.phone || '',
         whatsapp: contactInfo.whatsapp || '',

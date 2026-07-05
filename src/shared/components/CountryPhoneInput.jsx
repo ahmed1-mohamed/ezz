@@ -28,7 +28,6 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
         const sortedCountries = [...allCountries].sort((a, b) => b.phoneCode.length - a.phoneCode.length)
         const matchedCountry = sortedCountries.find(c => value.trim().startsWith(c.phoneCode))
         if (matchedCountry && matchedCountry.phoneCode !== countryCode) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setCountryCode(matchedCountry.phoneCode)
         }
     }, [value, countriesList, DEFAULT_COUNTRIES, countryCode])
@@ -190,8 +189,8 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                                                     </div>
                                                     <div className="flex items-center gap-1.5 shrink-0">
                                                         <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-semibold border ${isSelected
-                                                                ? 'bg-[#00695C] text-white border-transparent'
-                                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-700/50'
+                                                            ? 'bg-[#00695C] text-white border-transparent'
+                                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-700/50'
                                                             }`}>
                                                             {country.phoneCode}
                                                         </span>

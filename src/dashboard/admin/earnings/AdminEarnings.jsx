@@ -11,7 +11,7 @@ export default function AdminEarnings() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)) // January 2026
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1))
   const [stats, setStats] = useState(null)
   const [teachers, setTeachers] = useState([])
   const [requests, setRequests] = useState([])
@@ -33,7 +33,6 @@ export default function AdminEarnings() {
   }, [currentDate])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData()
   }, [loadData])
 
@@ -107,13 +106,10 @@ export default function AdminEarnings() {
         </div>
       </div>
 
-      {/* Stats Cards */}
       {stats && <EarningsStats stats={stats} />}
 
-      {/* Teacher Earnings Progress List */}
       {teachers.length > 0 && <TeacherEarningsList teachers={teachers} />}
 
-      {/* Payout & Withdrawal Requests Section */}
       <WithdrawalRequests
         requests={requests}
         onApprove={handleApprove}

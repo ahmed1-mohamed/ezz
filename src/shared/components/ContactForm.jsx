@@ -276,7 +276,6 @@ export default function ContactForm() {
                 <ContactInfoCards contactInfo={contactInfo} />
             </motion.div>
 
-            {/* Custom Toast Notification */}
             <AnimatePresence>
                 {toast.show && (
                     <motion.div

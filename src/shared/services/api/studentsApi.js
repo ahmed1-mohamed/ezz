@@ -11,6 +11,11 @@ export const studentsApi = {
     return response.data;
   },
 
+  fetchLocalizedStudentsList: async (params) => {
+    const response = await api.get('/api/v1/students/localized/list', { params });
+    return response.data;
+  },
+
   fetchStudentById: async (id) => {
     const response = await api.get(`/api/v1/students/localized/${id}`);
     return response.data;

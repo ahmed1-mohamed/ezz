@@ -32,7 +32,6 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
 
         setSavingPassword(true);
 
-        // Required by backend validation schema
         const phone = profilePhone || '';
         const country = profileCountry || '';
 

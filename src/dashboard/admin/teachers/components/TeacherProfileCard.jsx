@@ -55,7 +55,6 @@ export default function TeacherProfileCard({
           </span>
         </div>
 
-        {/* Groups Count */}
         <div className="flex justify-between py-3">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.groupsCount', 'عدد المجموعات')}
@@ -65,7 +64,6 @@ export default function TeacherProfileCard({
           </span>
         </div>
 
-        {/* Sessions Count */}
         <div className="flex justify-between py-3">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.totalSessions', 'إجمالي الحصص')}
@@ -75,7 +73,6 @@ export default function TeacherProfileCard({
           </span>
         </div>
 
-        {/* Total Earnings */}
         <div className="flex justify-between py-3">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.totalEarnings', 'إجمالي الأرباح')}
@@ -87,10 +84,8 @@ export default function TeacherProfileCard({
 
       </div>
 
-      {/* Action Buttons */}
       <div className="w-full space-y-3 pt-2">
 
-        {/* Edit Button */}
         <button
           onClick={() => onEdit(teacher)}
           className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
@@ -99,7 +94,6 @@ export default function TeacherProfileCard({
           <span>{t('adminDashboard.teachers.editData', 'تعديل البيانات')}</span>
         </button>
 
-        {/* Suspend Status Button */}
         <button
           onClick={() => onToggleStatus(teacher.id)}
           className={`w-full py-3 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer ${isSuspended

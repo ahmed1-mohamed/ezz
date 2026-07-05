@@ -17,7 +17,6 @@ function ExplanationLanguageCard({ langItem, onEdit, onDelete }) {
             dir={isRtl ? 'rtl' : 'ltr'}
         >
             <div className="flex items-center justify-between gap-4 p-4 sm:p-5">
-                {/* Language identity */}
                 <div className="flex items-center gap-3 min-w-0">
                     <div className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl flex items-center justify-center text-[#005953] dark:text-emerald-400 border border-emerald-100/60 dark:border-emerald-900/40">
                         <Globe size={19} />
@@ -34,7 +33,6 @@ function ExplanationLanguageCard({ langItem, onEdit, onDelete }) {
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex items-center gap-1.5 shrink-0">
                     <button
                         type="button"

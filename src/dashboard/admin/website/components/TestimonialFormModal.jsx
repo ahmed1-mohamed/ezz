@@ -44,7 +44,6 @@ export default function TestimonialFormModal({
           className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[94vh]"
           dir={isRtl ? 'rtl' : 'ltr'}
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-6 sm:px-8 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">
@@ -101,7 +100,6 @@ export default function TestimonialFormModal({
                 </div>
               </div>
 
-              {/* Review Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <MessageSquare size={18} />
@@ -135,7 +133,6 @@ export default function TestimonialFormModal({
                 </div>
               </div>
 
-              {/* Image Upload */}
               <div className="flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-4">
                   {currentTestimonial.previewImage || (currentTestimonial.image && typeof currentTestimonial.image === 'string') ? (
@@ -174,8 +171,6 @@ export default function TestimonialFormModal({
               </div>
             </form>
           </div>
-
-          {/* Footer */}
           <div className="px-6 sm:px-8 py-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
             <div className="flex gap-3 justify-end w-full">
               <Button

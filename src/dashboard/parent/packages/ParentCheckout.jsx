@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { CreditCard, Smartphone, Building2, Lock, ArrowRight } from 'lucide-react';
+import { CreditCard, Smartphone, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ParentCheckout() {
@@ -32,8 +30,8 @@ export default function ParentCheckout() {
                             <div className="space-y-4">
                                 <label
                                     className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'credit_card'
-                                            ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
-                                            : 'border-slate-100 hover:border-slate-200'
+                                        ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
+                                        : 'border-slate-100 hover:border-slate-200'
                                         }`}
                                     onClick={() => setSelectedMethod('credit_card')}
                                 >
@@ -51,8 +49,8 @@ export default function ParentCheckout() {
 
                                 <label
                                     className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'wallet'
-                                            ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
-                                            : 'border-slate-100 hover:border-slate-200'
+                                        ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
+                                        : 'border-slate-100 hover:border-slate-200'
                                         }`}
                                     onClick={() => setSelectedMethod('wallet')}
                                 >
@@ -73,8 +71,8 @@ export default function ParentCheckout() {
 
                                 <label
                                     className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'bank_transfer'
-                                            ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
-                                            : 'border-slate-100 hover:border-slate-200'
+                                        ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
+                                        : 'border-slate-100 hover:border-slate-200'
                                         }`}
                                     onClick={() => setSelectedMethod('bank_transfer')}
                                 >

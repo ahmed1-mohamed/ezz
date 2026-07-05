@@ -1,7 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { Mail, Phone, MapPin } from "lucide-react"
+import { Mail, Phone } from "lucide-react"
 import { Link } from "react-router-dom"
 import api from '@/shared/services/api/axiosConfig'
 
@@ -34,11 +33,7 @@ export default function Footer() {
         { label: t('public.footer.refund', 'سياسة الاسترجاع'), href: '/refund' },
         { label: t('public.footer.support', 'الدعم الفني'), href: '/support' },
     ]
-    const quickLinks = [
-        { label: t('public.nav.aboutUs'), href: '/about' },
-        { label: t('public.nav.courses'), href: '/courses' },
-        { label: t('public.nav.contactUs'), href: '/contact' },
-    ]
+
 
     return (
         <footer className="bg-white text-slate-900 border-t border-slate-200">

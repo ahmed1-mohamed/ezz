@@ -16,7 +16,6 @@ export default function StudentsList({
   const [searchVal, setSearchVal] = useState('')
   const debouncedQuery = useDebounce(searchVal, 300)
 
-  // Filter list based on search
   const filteredStudents = useMemo(() => {
     if (!debouncedQuery.trim()) return students
     const query = debouncedQuery.toLowerCase()
@@ -33,7 +32,6 @@ export default function StudentsList({
 
   const currentItems = filteredStudents
 
-  // Calculate metrics dynamically based on total students list
   const metrics = useMemo(() => {
     const total = students.length
     const active = students.filter((s) => s.active === true || String(s.active) === 'true').length
@@ -44,10 +42,8 @@ export default function StudentsList({
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
 
-      {/* 1. Metrics Cards Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
 
-        {/* Total Students */}
         <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
           <div className="space-y-1 text-start">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
@@ -62,7 +58,6 @@ export default function StudentsList({
           </div>
         </div>
 
-        {/* Active Students */}
         <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
           <div className="space-y-1 text-start">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
@@ -77,7 +72,6 @@ export default function StudentsList({
           </div>
         </div>
 
-        {/* Inactive Students */}
         <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
           <div className="space-y-1 text-start">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
@@ -94,10 +88,8 @@ export default function StudentsList({
 
       </div>
 
-      {/* 2. Control bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
 
-        {/* Actions & Text */}
         <div className="flex flex-wrap items-center gap-4">
           <button
             onClick={onOpenAddScreen}
@@ -112,7 +104,6 @@ export default function StudentsList({
           </span>
         </div>
 
-        {/* Search */}
         <div className="relative w-full md:w-72">
           <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-450`}>
             <Search size={18} />
@@ -128,7 +119,6 @@ export default function StudentsList({
 
       </div>
 
-      {/* 3. Students Table */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 overflow-hidden shadow-soft">
         <div className="overflow-x-auto">
           <table className="w-full text-start border-collapse">

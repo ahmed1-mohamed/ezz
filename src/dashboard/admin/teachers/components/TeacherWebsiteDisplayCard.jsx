@@ -6,17 +6,14 @@ export default function TeacherWebsiteDisplayCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
 
-      {/* Header */}
       <h3 className="text-base font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
         {isRtl ? 'بيانات صفحة العرض في الموقع الإلكتروني' : 'Website Profile Display Data'}
       </h3>
 
       <div className="space-y-4">
 
-        {/* Row 1: Number of Students & Years of Experience */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          {/* Number of Students */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'عدد الطلاب' : 'Number of Students'}
@@ -30,7 +27,6 @@ export default function TeacherWebsiteDisplayCard({
             />
           </div>
 
-          {/* Years of Experience */}
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'سنوات الخبرة' : 'Years of Experience'}
@@ -46,7 +42,6 @@ export default function TeacherWebsiteDisplayCard({
 
         </div>
 
-        {/* Row 2: Total Sessions */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'اجمالي الحصص' : 'Total Sessions'}

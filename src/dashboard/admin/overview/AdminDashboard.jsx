@@ -210,7 +210,6 @@ export default function AdminDashboard() {
                             </span>
                         </div>
 
-                        {/* Live Session 2 */}
                         <div className="bg-red-50/40 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
@@ -230,7 +229,6 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    {/* Upcoming Footer */}
                     <div className="bg-slate-100 dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200/40 dark:border-slate-700/30">
                         <Clock size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
                         <span>{t('adminDashboard.upcomingSessionsToday', '5 حصص قادمة اليوم')}</span>

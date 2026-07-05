@@ -30,6 +30,28 @@ export const teachersApi = {
     }
   },
 
+  fetchLocalizedTeachersList: async (params) => {
+    try {
+      const response = await api.get('/api/v1/teachers/localized/list', { params });
+      const items = response.data?.data || response.data || [];
+      return { success: true, data: Array.isArray(items) ? items.map(mapTeacherData) : [] };
+    } catch (error) {
+      console.error('API fetchLocalizedTeachersList failed:', error);
+      return { success: false, data: [] };
+    }
+  },
+
+  fetchTeachersList: async (params) => {
+    try {
+      const response = await api.get('/api/v1/teachers/list', { params });
+      const items = response.data?.data || response.data || [];
+      return { success: true, data: Array.isArray(items) ? items.map(mapTeacherData) : [] };
+    } catch (error) {
+      console.error('API fetchTeachersList failed:', error);
+      return { success: false, data: [] };
+    }
+  },
+
   fetchActiveTeachers: async (params) => {
     try {
       const response = await api.get('/api/v1/teachers/localized/active', { params });
@@ -93,8 +115,7 @@ export const teachersApi = {
       if (teacherData.nameEn) formData.append('name[en]', teacherData.nameEn);
       if (teacherData.phone) formData.append('phone', teacherData.phone);
       if (teacherData.country) formData.append('country', teacherData.country);
-      
-      // Only append image if it's a File/Blob, not a string
+
       if (teacherData.profileImageFile instanceof File || teacherData.profileImageFile instanceof Blob) {
         formData.append('image', teacherData.profileImageFile);
       } else if (teacherData.image && (teacherData.image instanceof File || teacherData.image instanceof Blob)) {

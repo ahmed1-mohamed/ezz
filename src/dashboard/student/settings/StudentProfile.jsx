@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { motion } from 'framer-motion';
-import { BookOpen, Clock, Star, CheckCircle, Award, Mail, Phone, Calendar, Hash, ChevronRight } from 'lucide-react';
+import { BookOpen, Clock, Star, CheckCircle, Mail, Phone, Calendar, Hash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProfileAccountSection } from '../components/widgets/ProfileAccountSection.jsx';
 

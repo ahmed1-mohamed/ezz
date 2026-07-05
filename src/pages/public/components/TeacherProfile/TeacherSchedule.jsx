@@ -25,15 +25,13 @@ export default function TeacherSchedule({ schedule, t }) {
             <div className="space-y-4">
                 {schedule.map((item, index) => (
                     <div key={index} className="flex flex-col sm:flex-row items-center justify-between border border-slate-100 rounded-2xl p-4 sm:p-6 gap-6 hover:shadow-md transition-shadow">
-                        
-                        {/* Status Badge - Left on desktop */}
+
                         <div className="order-3 sm:order-1 sm:w-32 flex sm:justify-start justify-center w-full">
                             <span className="bg-slate-50 text-slate-400 font-bold px-6 py-2 rounded-xl text-sm border border-slate-100">
                                 {item.status}
                             </span>
                         </div>
 
-                        {/* Middle details */}
                         <div className="order-2 flex-1 text-center sm:text-start space-y-2 w-full">
                             <h3 className="font-extrabold text-slate-900 text-lg">
                                 {item.title}
@@ -50,7 +48,6 @@ export default function TeacherSchedule({ schedule, t }) {
                             </div>
                         </div>
 
-                        {/* Time Box - Right on desktop */}
                         <div className="order-1 sm:order-3 bg-[#F2F2F2] rounded-2xl p-4 flex flex-col items-center justify-center min-w-[120px]">
                             <span className="font-extrabold text-slate-700 text-xl" dir="ltr">{item.time}</span>
                             <span className="text-slate-500 font-bold text-sm mt-1">{item.period}</span>

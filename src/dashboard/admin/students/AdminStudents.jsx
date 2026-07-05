@@ -106,7 +106,6 @@ export default function AdminStudents() {
     }
   }
 
-  // Action: Delete student
   const handleDeleteStudent = async (student) => {
     if (!student) return;
     const id = student._id || student.student_id || student.id || student.studentId || student.userId;

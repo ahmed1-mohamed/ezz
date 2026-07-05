@@ -2,7 +2,6 @@ import { motion } from 'framer-motion'
 import { Book, Type, BookOpen } from 'lucide-react'
 
 export default function TeacherSubjects({ subjects, t }) {
-    // Map icons based on subject ID or type for dummy data
     const getIcon = (id) => {
         switch (id) {
             case 1:

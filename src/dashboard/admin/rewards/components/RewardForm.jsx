@@ -72,7 +72,6 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Name Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-2">Reward Name</label>
@@ -102,7 +101,6 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
           </div>
         </div>
 
-        {/* Emoji Icon Field */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2 text-end">أيقونة (إيموجي)</label>
           <input
@@ -114,7 +112,6 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
           />
         </div>
 
-        {/* Background Color Field */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2 text-end">لون الخلفية للمكافأة</label>
           <select
@@ -133,7 +130,6 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
           </select>
         </div>
 
-        {/* Description AR Field */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2 text-end">وصف المكافأة</label>
           <textarea
@@ -148,7 +144,6 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
           />
         </div>
 
-        {/* Description EN Field */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2">Reward Describe</label>
           <textarea
@@ -163,7 +158,6 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-end gap-3 pt-3">
           <button
             type="button"

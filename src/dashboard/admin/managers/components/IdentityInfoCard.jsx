@@ -14,7 +14,6 @@ export default function IdentityInfoCard({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
 
-  // Sort countries alphabetically by name
   const sortedCountries = useMemo(() => {
     return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
   }, [countries])
@@ -63,12 +62,10 @@ export default function IdentityInfoCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
 
-      {/* Title */}
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.identityTitle', '1- معلومات الهوية')}</span>
       </h3>
 
-      {/* Picture Upload */}
       <div className="flex flex-col items-center justify-center space-y-3">
         <input
           type="file"
@@ -107,10 +104,8 @@ export default function IdentityInfoCard({
         </span>
       </div>
 
-      {/* Inputs Form Row: Full Name Ar & Full Name En */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        {/* Full Name English */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
@@ -125,7 +120,6 @@ export default function IdentityInfoCard({
           />
         </div>
 
-        {/* Full Name Arabic */}
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
@@ -141,7 +135,6 @@ export default function IdentityInfoCard({
 
       </div>
 
-      {/* Email Address */}
       <div>
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.email', 'عنوان البريد الإلكتروني')}
@@ -156,14 +149,12 @@ export default function IdentityInfoCard({
         />
       </div>
 
-      {/* Phone Number */}
       <div>
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
         </label>
         <div className="flex gap-3" dir="ltr">
 
-          {/* Prefix Picker Code */}
           <div className="relative shrink-0">
             <button
               type="button"
@@ -206,7 +197,6 @@ export default function IdentityInfoCard({
             )}
           </div>
 
-          {/* Actual input number */}
           <input
             type="tel"
             required
@@ -239,7 +229,6 @@ export default function IdentityInfoCard({
         </div>
       </div>
 
-      {/* Country Selection */}
       <div>
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {isRtl ? 'الدولة' : 'Country'}

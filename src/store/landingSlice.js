@@ -53,7 +53,7 @@ const initialState = {
   landingData: null,
   packagesData: null,
   contactInfo: null,
-  messageSubmitStatus: 'idle', // 'idle' | 'loading' | 'success' | 'failed'
+  messageSubmitStatus: 'idle',
   loading: false,
   error: null,
 };

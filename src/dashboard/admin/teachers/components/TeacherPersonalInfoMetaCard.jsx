@@ -6,8 +6,7 @@ export default function TeacherPersonalInfoMetaCard({
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
-      
-      {/* Title Header */}
+
       <div className="flex items-center gap-2 text-slate-800 dark:text-white">
         <Users className="text-brand-500" size={20} />
         <h3 className="text-base font-bold">
@@ -15,10 +14,8 @@ export default function TeacherPersonalInfoMetaCard({
         </h3>
       </div>
 
-      {/* Grid for details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        
-        {/* Join Date */}
+
         <div className="flex items-center gap-4 p-4 bg-[#f3f7f6] dark:bg-slate-950/40 rounded-2xl border border-slate-100/50 dark:border-slate-850/40">
           <div className="p-3 bg-white dark:bg-slate-900 rounded-xl text-[#005953] shadow-sm shrink-0">
             <Calendar size={18} />
@@ -33,7 +30,6 @@ export default function TeacherPersonalInfoMetaCard({
           </div>
         </div>
 
-        {/* Mobile Number */}
         <div className="flex items-center gap-4 p-4 bg-[#f3f7f6] dark:bg-slate-950/40 rounded-2xl border border-slate-100/50 dark:border-slate-850/40">
           <div className="p-3 bg-white dark:bg-slate-900 rounded-xl text-[#005953] shadow-sm shrink-0">
             <Phone size={18} />
@@ -48,7 +44,6 @@ export default function TeacherPersonalInfoMetaCard({
           </div>
         </div>
 
-        {/* Email Address */}
         <div className="flex items-center gap-4 p-4 bg-[#f3f7f6] dark:bg-slate-950/40 rounded-2xl border border-slate-100/50 dark:border-slate-850/40">
           <div className="p-3 bg-white dark:bg-slate-900 rounded-xl text-[#005953] shadow-sm shrink-0">
             <Mail size={18} />

@@ -21,16 +21,13 @@ function ExplanationLanguageForm({
             className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-5 sm:p-6 shadow-soft space-y-5 max-w-2xl mx-auto"
             dir={isRtl ? 'rtl' : 'ltr'}
         >
-            {/* Title */}
             <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
                 {isEditing
                     ? (isRtl ? 'تعديل لغة الشرح' : 'Edit Explanation Language')
                     : (isRtl ? 'إضافة لغة شرح جديدة' : 'Add New Explanation Language')}
             </h3>
 
-            {/* Inputs Container */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Arabic Name Input */}
                 <div className="text-start space-y-1.5">
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
                         {isRtl ? 'الاسم بالعربية' : 'Arabic Name'}
@@ -47,7 +44,6 @@ function ExplanationLanguageForm({
                     />
                 </div>
 
-                {/* English Name Input */}
                 <div className="text-start space-y-1.5">
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
                         {isRtl ? 'الاسم بالإنجليزية' : 'English Name'}
@@ -65,7 +61,6 @@ function ExplanationLanguageForm({
                 </div>
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end gap-3 pt-1">
                 <button
                     type="button"

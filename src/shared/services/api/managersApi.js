@@ -181,7 +181,6 @@ export const managersApi = {
   },
 
   fetchRolesPermissions: async () => {
-    // Legacy mock function - you can remove this if no longer needed
     return {
       success: true,
       data: {}

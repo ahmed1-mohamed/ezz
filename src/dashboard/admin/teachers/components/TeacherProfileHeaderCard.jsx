@@ -22,10 +22,8 @@ export default function TeacherProfileHeaderCard({
         </div>
       </div>
 
-      {/* Main card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
 
-        {/* Profile info header */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
 
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start">
@@ -54,7 +52,6 @@ export default function TeacherProfileHeaderCard({
             </div>
           </div>
 
-          {/* Status badge */}
           <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold ${isSuspended
             ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
             : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
@@ -67,10 +64,8 @@ export default function TeacherProfileHeaderCard({
 
         </div>
 
-        {/* 5 Stats boxes row */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
 
-          {/* Rating */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <Award size={18} />
@@ -84,7 +79,6 @@ export default function TeacherProfileHeaderCard({
             </p>
           </div>
 
-          {/* Sessions */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <BookOpen size={18} />
@@ -97,7 +91,6 @@ export default function TeacherProfileHeaderCard({
             </p>
           </div>
 
-          {/* Due Earnings */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <DollarSign size={18} />
@@ -110,7 +103,6 @@ export default function TeacherProfileHeaderCard({
             </p>
           </div>
 
-          {/* Total Earnings */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <DollarSign size={18} />
@@ -123,7 +115,6 @@ export default function TeacherProfileHeaderCard({
             </p>
           </div>
 
-          {/* Groups */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <Users size={18} />

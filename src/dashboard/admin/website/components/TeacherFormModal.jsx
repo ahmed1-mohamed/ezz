@@ -65,7 +65,6 @@ export default function TeacherFormModal({
             </div>
 
             <form onSubmit={onSubmit} className="space-y-5 text-start">
-              {/* Search Input */}
               <div className="relative">
                 <span className="absolute inset-y-0 start-0 flex items-center ps-4 text-slate-400">
                   <Search size={18} />

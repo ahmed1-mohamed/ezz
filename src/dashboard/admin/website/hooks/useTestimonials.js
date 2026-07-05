@@ -65,7 +65,7 @@ export default function useTestimonials(showNotification) {
     const parentNameStr = typeof testimonial.parentName === 'string'
       ? testimonial.parentName
       : (testimonial.parentName?.ar || testimonial.parentName?.en || 'ولي أمر');
-    
+
     const isRtl = i18n.language.startsWith('ar');
     const isConfirmed = await showDeleteConfirm(isRtl, parentNameStr);
     if (!isConfirmed) return;
@@ -109,7 +109,6 @@ export default function useTestimonials(showNotification) {
         formData.append('image', file);
       } catch (err) {
         console.warn('Failed to fetch existing image to convert to file:', err);
-        // We log the specific error that might occur here
       }
     }
 

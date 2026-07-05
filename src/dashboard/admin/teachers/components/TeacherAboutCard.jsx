@@ -5,8 +5,7 @@ export default function TeacherAboutCard({
 }) {
   return (
     <div className="space-y-6">
-      
-      {/* Arabic About card */}
+
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-4 text-start">
         <h3 className="text-sm font-bold text-slate-800 dark:text-white">
           {isRtl ? 'نبذة عن المعلم' : 'About the Teacher (Arabic)'}
@@ -20,7 +19,6 @@ export default function TeacherAboutCard({
         />
       </div>
 
-      {/* English About card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-4 text-start">
         <h3 className="text-sm font-bold text-slate-800 dark:text-white">
           {isRtl ? 'Brief About Teacher' : 'About the Teacher (English)'}

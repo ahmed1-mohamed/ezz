@@ -1,7 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Calendar, Clock, ChevronRight, X, User, FileText } from 'lucide-react';
+import { BookOpen, Calendar, X, User, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const TABS = [

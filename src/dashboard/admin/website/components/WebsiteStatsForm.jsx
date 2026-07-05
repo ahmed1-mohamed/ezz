@@ -30,7 +30,6 @@ export default function WebsiteStatsForm({
           />
         </div>
 
-        {/* Teachers Count */}
         <div className="space-y-2 text-start">
           <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.teachersLabel', 'عدد المعلمين')}
@@ -44,7 +43,6 @@ export default function WebsiteStatsForm({
           />
         </div>
 
-        {/* Students Count */}
         <div className="space-y-2 text-start">
           <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.studentsLabel', 'عدد الطلاب')}

@@ -58,7 +58,6 @@ export default function AddEditStudentScreen({
     experienceYears: 8
   })
 
-  // Fetch complete student details if we are in Edit mode
   useEffect(() => {
     if (student) {
       const studentId = student._id || student.id || student.studentId || student.userId;
@@ -75,11 +74,10 @@ export default function AddEditStudentScreen({
                 phone: fullData.phone || prev.phone,
                 country: fullData.country || prev.country
               }));
-              
+
               if (fullData.phone) {
                 const prefix = fullData.phone.startsWith('+') ? fullData.phone.split(' ')[0] : '+20';
                 setPhoneVal(fullData.phone.includes(' ') ? fullData.phone.split(' ').slice(1).join(' ') : fullData.phone);
-                // Country code update will happen in the countries fetch effect or here if countryCodesList is ready
               }
             }
           })
@@ -89,7 +87,6 @@ export default function AddEditStudentScreen({
   }, [student]);
 
   useEffect(() => {
-    // Fetch countries
     api.get('/api/v1/countries').then(res => {
       const data = res.data?.data || res.data || [];
       if (Array.isArray(data) && data.length > 0) {
@@ -110,8 +107,8 @@ export default function AddEditStudentScreen({
         if (!student?.country && fetchedCountries.length > 0) {
           handleChange('country', fetchedCountries[0].id);
         } else if (student?.country) {
-          const match = fetchedCountries.find(c => 
-            c.name === student.country || 
+          const match = fetchedCountries.find(c =>
+            c.name === student.country ||
             c.id === student.country ||
             (student.country && c.name && student.country.includes(c.name))
           );

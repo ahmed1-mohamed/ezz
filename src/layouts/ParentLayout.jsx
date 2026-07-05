@@ -39,7 +39,6 @@ export default function ParentLayout() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileMenuOpen(false);
   }, [location]);
 

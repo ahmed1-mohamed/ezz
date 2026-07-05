@@ -44,72 +44,72 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
     };
 
     return (
-    <motion.article
-        layout="position"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.4, delay: index * 0.05 }}
-        style={{ willChange: 'transform, opacity' }}
-        className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
-    >
-        <div 
-            onClick={handleProfileNavigation}
-            className="relative overflow-hidden rounded-[28px] p-3 pb-0 cursor-pointer"
+        <motion.article
+            layout="position"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.4, delay: index * 0.05 }}
+            style={{ willChange: 'transform, opacity' }}
+            className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
         >
-            <img
-                src={teacher.image}
-                alt={teacher.name}
-                width="320"
-                height="400"
-                className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-                decoding="async"
-            />
-        </div>
-
-        <div className="space-y-5 p-6 text-start">
-            <div className="flex items-start justify-between gap-2">
-                <div className="flex flex-col">
-                    <h3 
-                        onClick={handleProfileNavigation}
-                        className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1 cursor-pointer hover:underline"
-                    >
-                        {teacher.name}
-                    </h3>
-                    <p className="mt-2 text-base font-semibold text-[#8B6B15] line-clamp-1">
-                        {teacher.title}
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-1 text-[#9B7B16] shrink-0 mt-1">
-                    <Star className="h-4 w-4 fill-[#9B7B16] text-[#9B7B16]" />
-                    <span className="text-sm font-semibold">{teacher.rating}</span>
-                </div>
-            </div>
-
-            <div className="flex flex-wrap justify-start gap-2">
-                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
-                    {teacher.experience}
-                </span>
-                <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
-                    {teacher.subject}
-                </span>
-                {teacher.tags.map(tag => (
-                    <span key={tag} className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
-                        {tag}
-                    </span>
-                ))}
-            </div>
-
-            <button 
+            <div
                 onClick={handleProfileNavigation}
-                className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1"
+                className="relative overflow-hidden rounded-[28px] p-3 pb-0 cursor-pointer"
             >
-                {t('teacher.viewProfile', 'عرض الملف الشخصي')}
-            </button>
-        </div>
-    </motion.article>
+                <img
+                    src={teacher.image}
+                    alt={teacher.name}
+                    width="320"
+                    height="400"
+                    className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                />
+            </div>
+
+            <div className="space-y-5 p-6 text-start">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col">
+                        <h3
+                            onClick={handleProfileNavigation}
+                            className="text-2xl lg:text-[28px] font-extrabold leading-tight text-[#00695C] line-clamp-1 cursor-pointer hover:underline"
+                        >
+                            {teacher.name}
+                        </h3>
+                        <p className="mt-2 text-base font-semibold text-[#8B6B15] line-clamp-1">
+                            {teacher.title}
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-[#9B7B16] shrink-0 mt-1">
+                        <Star className="h-4 w-4 fill-[#9B7B16] text-[#9B7B16]" />
+                        <span className="text-sm font-semibold">{teacher.rating}</span>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap justify-start gap-2">
+                    <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                        {teacher.experience}
+                    </span>
+                    <span className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                        {teacher.subject}
+                    </span>
+                    {teacher.tags.map(tag => (
+                        <span key={tag} className="rounded-full bg-[#E7E7E4] px-4 py-2 text-sm text-[#7B7B7B]">
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+
+                <button
+                    onClick={handleProfileNavigation}
+                    className="w-full rounded-2xl bg-[#00695C] py-4 text-[18px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-1"
+                >
+                    {t('teacher.viewProfile', 'عرض الملف الشخصي')}
+                </button>
+            </div>
+        </motion.article>
     )
 });
 
@@ -149,7 +149,6 @@ export default function Teachers() {
     }, [searchTerm, selectedSubject, selectedLevel, teachersData])
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentPage(1)
     }, [searchTerm, selectedSubject, selectedLevel, teachersData])
 

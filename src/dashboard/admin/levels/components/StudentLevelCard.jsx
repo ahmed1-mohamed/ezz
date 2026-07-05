@@ -33,7 +33,6 @@ export default function StudentLevelCard({
           </div>
         </div>
 
-        {/* Right Side Header Detail */}
         <div className="flex items-center gap-4">
           <div className="text-end">
             <h3 className="text-base font-bold text-slate-800 dark:text-white">

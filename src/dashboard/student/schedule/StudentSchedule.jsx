@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Video } from 'lucide-react';
@@ -98,7 +97,7 @@ function hasSessions(dateKey) {
 }
 
 export default function StudentSchedule() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const today = new Date('2026-04-15');
   const [selectedDate, setSelectedDate] = useState(today);

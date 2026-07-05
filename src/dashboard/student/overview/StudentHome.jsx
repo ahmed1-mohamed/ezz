@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
@@ -6,7 +5,6 @@ import {
   CheckSquare,
   Award,
   FileText,
-  Video,
   Clock,
   User,
   Play,

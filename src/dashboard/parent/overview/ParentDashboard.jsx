@@ -1,7 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import StatCard from '../components/StatCard';
 import SubscriptionRenewal from '../components/SubscriptionRenewal';
 import {
