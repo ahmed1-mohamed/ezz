@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
+import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
 
 export default function ResetPassword() {
     const { t, i18n } = useTranslation()
@@ -49,7 +50,7 @@ export default function ResetPassword() {
             const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token
 
             if (tempToken) {
-                localStorage.setItem('access_token', tempToken)
+                setCookie('access_token', tempToken)
             }
 
             await api.patch('/api/v1/auth/reset-password', {
@@ -58,13 +59,13 @@ export default function ResetPassword() {
             })
 
             if (tempToken) {
-                localStorage.removeItem('access_token')
+                deleteCookie('access_token')
             }
 
             setIsSubmitted(true)
         } catch (err) {
-            if (localStorage.getItem('access_token')) {
-                localStorage.removeItem('access_token')
+            if (getCookie('access_token')) {
+                deleteCookie('access_token')
             }
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')

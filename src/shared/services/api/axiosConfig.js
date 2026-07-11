@@ -1,5 +1,6 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://manaret-ezz.dramcode.top',
@@ -16,7 +17,7 @@ api.interceptors.request.use(
       lang,
     };
 
-    const token = localStorage.getItem('access_token');
+    const token = getCookie('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -46,7 +47,7 @@ api.interceptors.response.use(
       if (!originalRequest._retry) {
         originalRequest._retry = true;
 
-        const refreshToken = localStorage.getItem('refresh_token');
+        const refreshToken = getCookie('refresh_token');
         if (refreshToken) {
           try {
             const lang = localStorage.getItem('appLanguage') || 'ar';
@@ -72,29 +73,27 @@ api.interceptors.response.use(
             const newRefresh = res.data?.refresh_token || res.data?.refreshToken || res.data?.data?.refresh_token;
 
             if (newAccess) {
-              localStorage.setItem('access_token', newAccess);
+              setCookie('access_token', newAccess);
               if (newRefresh) {
-                localStorage.setItem('refresh_token', newRefresh);
+                setCookie('refresh_token', newRefresh);
               }
               api.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
               originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
               return api(originalRequest);
             }
           } catch (refreshError) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            localStorage.removeItem('authUser');
-            sessionStorage.removeItem('authUser');
+            deleteCookie('access_token');
+            deleteCookie('refresh_token');
+            deleteCookie('authUser');
             window.location.href = '/login';
             return Promise.reject(refreshError);
           }
         }
       }
 
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('authUser');
-      sessionStorage.removeItem('authUser');
+      deleteCookie('access_token');
+      deleteCookie('refresh_token');
+      deleteCookie('authUser');
       window.location.href = '/login';
       return Promise.reject(error);
     }

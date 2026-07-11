@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/shared/context/useAuth.jsx'
+import { getCookie } from '@/shared/utils/cookieUtils.js'
 
 export default function ProtectedRoute() {
     const { user, logout } = useAuth()
     const location = useLocation()
-    const token = localStorage.getItem('access_token')
+    const token = getCookie('access_token')
 
     const hasUserButNoToken = !!(user && !token)
 

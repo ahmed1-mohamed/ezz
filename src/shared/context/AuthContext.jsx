@@ -1,18 +1,18 @@
-import { useCallback, useMemo, useState, useEffect } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { AuthContext } from './AuthContextValue.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import useLocalStorage from '@/shared/hooks/useLocalStorage.jsx'
+import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
 
 function readStoredUser() {
     try {
-        const token = localStorage.getItem('access_token')
+        const token = getCookie('access_token')
         if (!token) {
-            localStorage.removeItem('authUser')
-            sessionStorage.removeItem('authUser')
+            deleteCookie('authUser')
             return null
         }
-        const saved = localStorage.getItem('authUser') || sessionStorage.getItem('authUser')
-        return saved ? JSON.parse(saved) : null
+        const saved = getCookie('authUser')
+        return saved ? (typeof saved === 'string' ? JSON.parse(saved) : saved) : null
     } catch (error) {
         console.error('Error parsing stored user:', error)
         return null
@@ -23,8 +23,6 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => readStoredUser())
     const [loading, setLoading] = useState(false)
     const [theme, setTheme] = useLocalStorage('theme', 'light')
-
-
 
     const login = async (email, password, remember) => {
         setLoading(true)
@@ -38,11 +36,13 @@ export function AuthProvider({ children }) {
             const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
             const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
 
+            const cookieDays = remember ? 7 : null
+
             if (accessToken) {
-                localStorage.setItem('access_token', accessToken)
+                setCookie('access_token', accessToken, cookieDays)
             }
             if (refreshToken) {
-                localStorage.setItem('refresh_token', refreshToken)
+                setCookie('refresh_token', refreshToken, cookieDays)
             }
 
             const userDetails = data.user || data
@@ -63,14 +63,8 @@ export function AuthProvider({ children }) {
             }
 
             setUser(authUser)
-            const storage = remember ? localStorage : sessionStorage
-            storage.setItem('authUser', JSON.stringify(authUser))
+            setCookie('authUser', authUser, cookieDays)
 
-            if (remember) {
-                sessionStorage.removeItem('authUser')
-            } else {
-                localStorage.removeItem('authUser')
-            }
             setLoading(false)
             return authUser
         } catch (error) {
@@ -92,10 +86,10 @@ export function AuthProvider({ children }) {
             const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
             const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
             if (accessToken) {
-                localStorage.setItem('access_token', accessToken)
+                setCookie('access_token', accessToken, 7)
             }
             if (refreshToken) {
-                localStorage.setItem('refresh_token', refreshToken)
+                setCookie('refresh_token', refreshToken, 7)
             }
             const userDetails = data.user || data
             let userRole = 'Parent'
@@ -114,7 +108,7 @@ export function AuthProvider({ children }) {
                 role: userRole,
             }
             setUser(authUser)
-            localStorage.setItem('authUser', JSON.stringify(authUser))
+            setCookie('authUser', authUser, 7)
             setLoading(false)
             return authUser
         } catch (error) {
@@ -127,21 +121,10 @@ export function AuthProvider({ children }) {
 
     const logout = () => {
         setUser(null)
-        localStorage.removeItem('authUser')
-        sessionStorage.removeItem('authUser')
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
+        deleteCookie('authUser')
+        deleteCookie('access_token')
+        deleteCookie('refresh_token')
     }
-
-    useEffect(() => {
-        const handleStorageChange = (event) => {
-            if (event.key === 'access_token' && !event.newValue) {
-                logout()
-            }
-        }
-        window.addEventListener('storage', handleStorageChange)
-        return () => window.removeEventListener('storage', handleStorageChange)
-    }, [])
 
     const toggleTheme = useCallback(() => {
         setTheme((current) => (current === 'dark' ? 'light' : 'dark'))

@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute.jsx'
 import RoleBasedRoute from './RoleBasedRoute.jsx'
 import Spinner from '@/shared/components/Spinner.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
+import { getCookie } from '@/shared/utils/cookieUtils.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
 import Login from '../pages/auth/Login.jsx'
 import ForgotPassword from '../pages/auth/ForgotPassword.jsx'
@@ -151,7 +152,7 @@ export default function AppRoutes() {
                         <Route
                             path="/login"
                             element={
-                                (user && localStorage.getItem('access_token')) ? (
+                                (user && getCookie('access_token')) ? (
                                     <Navigate
                                         to={getRedirectPath(user.role)}
                                         replace
@@ -167,7 +168,7 @@ export default function AppRoutes() {
                         <Route
                             path="/forgot-password"
                             element={
-                                (user && localStorage.getItem('access_token')) ? (
+                                (user && getCookie('access_token')) ? (
                                     <Navigate
                                         to={getRedirectPath(user.role)}
                                         replace
@@ -183,7 +184,7 @@ export default function AppRoutes() {
                         <Route
                             path="/reset-password"
                             element={
-                                (user && localStorage.getItem('access_token')) ? (
+                                (user && getCookie('access_token')) ? (
                                     <Navigate
                                         to={getRedirectPath(user.role)}
                                         replace

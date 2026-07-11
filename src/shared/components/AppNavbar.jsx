@@ -9,6 +9,7 @@ import { setLanguage } from '../../i18n.js'
 import { publicNavigation } from '@/shared/constants/publicNavigation.js'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
+import { getCookie } from '@/shared/utils/cookieUtils.js'
 export default function AppNavbar() {
     const { t, i18n } = useTranslation()
     const navigate = useNavigate()
@@ -33,7 +34,7 @@ export default function AppNavbar() {
     }
 
     const { user, logout } = useAuth()
-    const hasToken = !!localStorage.getItem('access_token')
+    const hasToken = !!getCookie('access_token')
     const isAuthenticated = user && hasToken
 
     useEffect(() => {
