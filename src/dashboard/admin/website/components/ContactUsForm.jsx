@@ -9,7 +9,8 @@ export default function ContactUsForm({
   onSave,
   onCancel
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language.startsWith('ar');
 
   const [localContact, setLocalContact] = useState({
     phone: '',
@@ -48,14 +49,14 @@ export default function ContactUsForm({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">
-        {t('adminDashboard.website.contactUsNumbers', 'ارقام التواصل معنا')}
+        {t('adminDashboard.website.contactUsNumbers', isRtl ? 'ارقام التواصل معنا' : 'Contact Us Numbers')}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
           <div className="space-y-2 text-start">
             <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
-              {t('common.email', 'البريد الإلكتروني')}
+              {t('common.email', isRtl ? 'البريد الإلكتروني' : 'Email')}
             </label>
             <div className="relative">
               <input
@@ -73,7 +74,7 @@ export default function ContactUsForm({
             <CountryPhoneInput
               value={localContact.phone}
               onChange={(val) => setLocalContact({ ...localContact, phone: val })}
-              label={t('common.phoneNumber', 'رقم الهاتف')}
+              label={t('common.phoneNumber', isRtl ? 'رقم الهاتف' : 'Phone Number')}
             />
           </div>
 
@@ -81,7 +82,7 @@ export default function ContactUsForm({
             <CountryPhoneInput
               value={localContact.whatsapp}
               onChange={(val) => setLocalContact({ ...localContact, whatsapp: val })}
-              label={t('common.whatsapp', 'رقم الواتساب')}
+              label={t('common.whatsapp', isRtl ? 'رقم الواتساب' : 'WhatsApp Number')}
             />
           </div>
         </div>
@@ -91,7 +92,7 @@ export default function ContactUsForm({
             type="submit"
             className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-1.5"
           >
-            <span>{t('common.modify', 'تعديل')}</span>
+            <span>{t('common.modify', isRtl ? 'تعديل' : 'Modify')}</span>
           </Button>
           <Button
             type="button"
@@ -99,7 +100,7 @@ export default function ContactUsForm({
             onClick={handleCancelClick}
             className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold"
           >
-            {t('common.cancel', 'إلغاء')}
+            {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
           </Button>
         </div>
       </form>

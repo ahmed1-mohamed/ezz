@@ -27,14 +27,14 @@ export default function ExcellenceStarsSection({
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-          {t('adminDashboard.website.starsTitle', 'نجوم التميّز الأكاديمي')}
+          {t('adminDashboard.website.starsTitle', isRtl ? 'نجوم التميّز الأكاديمي' : 'Featured Students')}
         </h2>
         <Button
           onClick={handleOpenAddModal}
           className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
         >
           <Plus size={16} />
-          <span>{t('adminDashboard.website.addStar', 'إضافة طالب')}</span>
+          <span>{t('adminDashboard.website.addStar', isRtl ? 'إضافة طالب' : 'Add Student')}</span>
         </Button>
       </div>
 
@@ -43,7 +43,7 @@ export default function ExcellenceStarsSection({
           <div className="space-y-4">
             {stars.length === 0 ? (
               <div className="py-12 text-center text-slate-400 dark:text-slate-500">
-                {t('adminDashboard.website.noStars', 'لا يوجد نجوم تميز حالياً. اضغط "إضافة طالب" للبدء.')}
+                {t('adminDashboard.website.noStars', isRtl ? 'لا يوجد نجوم تميز حالياً. اضغط "إضافة طالب" للبدء.' : 'No featured students currently. Click "Add Student" to start.')}
               </div>
             ) : (
               stars.map((star) => {
@@ -52,27 +52,25 @@ export default function ExcellenceStarsSection({
 
                 return (
                   <div
-                    key={star.id}
+                    key={star.id || star._id}
                     className="flex flex-row items-center justify-between p-4 sm:p-5 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-900/40 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 gap-4 transition-all duration-200"
                   >
                     <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
-                        {userLetter}
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-lg shadow-sm shrink-0 overflow-hidden relative">
+                        {star.image ? (
+                          <img src={star.image} alt={star.name} className="w-full h-full object-cover" />
+                        ) : (
+                          userLetter
+                        )}
                       </div>
                       <div className="text-start">
                         <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
                           {isRtl ? star.name : star.nameEn}
                         </h4>
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                          {t('adminDashboard.website.age', { defaultValue: `العمر: {{age}} سنة`, age: star.age })}
+                          {t('adminDashboard.website.age', { defaultValue: isRtl ? `العمر: {{age}} سنة` : `Age: {{age}} years`, age: star.age })}
                         </p>
                       </div>
-                    </div>
-
-                    <div className="text-start w-24">
-                      <span className={`inline-block px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border ${levelCfg.bg} ${levelCfg.bgDark}`}>
-                        {isRtl ? star.level : star.levelEn}
-                      </span>
                     </div>
 
                     <div className="text-start w-32 hidden sm:block">
@@ -91,23 +89,15 @@ export default function ExcellenceStarsSection({
                       <button
                         onClick={() => handleOpenEditModal(star)}
                         className="p-1.5 sm:p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={t('common.edit', 'تعديل')}
+                        title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
                       >
                         <Pencil size={16} />
                       </button>
 
                       <button
-                        onClick={() => handleOpenViewModal(star)}
-                        className="p-1.5 sm:p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={t('common.view', 'عرض الملاحظات')}
-                      >
-                        <BookOpen size={16} />
-                      </button>
-
-                      <button
                         onClick={() => handleDeleteStar(star)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={t('common.delete', 'إزالة')}
+                        title={t('common.delete', isRtl ? 'إزالة' : 'Delete')}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -126,14 +116,14 @@ export default function ExcellenceStarsSection({
           className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
         >
           <Save size={16} />
-          <span>{t('common.save', 'حفظ')}</span>
+          <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
         </Button>
         <Button
           variant="secondary"
           onClick={handleCancelStarsList}
           className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
         >
-          {t('common.cancel', 'إلغاء')}
+          {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
         </Button>
       </div>
     </div>

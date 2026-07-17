@@ -315,7 +315,30 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 </div>
             </div>
 
-
+            <div className="mt-8">
+                <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-3 block text-start">
+                    {isRtl ? 'الحسابات المرتبطة' : 'Linked Accounts'}
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                        type="button"
+                        onClick={() => setProfileData(prev => ({ ...prev, isGoogleLinked: !prev.isGoogleLinked }))}
+                        className="w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-black dark:bg-[#1a1a1a] dark:hover:bg-black text-white rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-800 dark:border-slate-700"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.3C21.38 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
+                            <path d="M12 23C14.97 23 17.46 22.02 19.3 20.34L15.73 17.57C14.74 18.24 13.48 18.66 12 18.66C9.14 18.66 6.71 16.73 5.84 14.14H2.16V16.99C4.01 20.67 7.7 23 12 23Z" fill="#34A853" />
+                            <path d="M5.84 14.14C5.62 13.48 5.49 12.76 5.49 12C5.49 11.24 5.62 10.52 5.84 9.86V7.01H2.16C1.4 8.53 0.96 10.22 0.96 12C0.96 13.78 1.4 15.47 2.16 16.99L5.84 14.14Z" fill="#FBBC05" />
+                            <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
+                        </svg>
+                        <span className="font-semibold text-sm">
+                            {profileData.isGoogleLinked 
+                                ? (isRtl ? 'إلغاء ربط جوجل' : 'Unlink Google') 
+                                : (isRtl ? 'ربط حساب جوجل' : 'Link Google')}
+                        </span>
+                    </button>
+                </div>
+            </div>
 
             <div className="flex justify-start mt-8">
                 <button

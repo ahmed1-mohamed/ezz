@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, Pencil, Trash2, BookOpen, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, Save } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 
 export default function EliteTeachersSection({
@@ -7,29 +7,29 @@ export default function EliteTeachersSection({
   handleOpenAddTeacher,
   handleOpenEditTeacher,
   handleDeleteTeacher,
-  handleShowTeacherNotes
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language.startsWith('ar');
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
-          {t('adminDashboard.website.eliteTeachersTitle', 'افضل المعلمين')}
+          {t('adminDashboard.website.eliteTeachersTitle', isRtl ? 'افضل المعلمين' : 'Elite Teachers')}
         </h2>
         <Button
           onClick={handleOpenAddTeacher}
           className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
         >
           <Plus size={16} />
-          <span>{t('adminDashboard.website.addTeacher', 'إضافة معلم')}</span>
+          <span>{t('adminDashboard.website.addTeacher', isRtl ? 'إضافة معلم' : 'Add Teacher')}</span>
         </Button>
       </div>
 
       <div className="space-y-4 sm:space-y-6">
         {teachers.length === 0 ? (
           <div className="py-12 text-center text-slate-400 dark:text-slate-500">
-            {t('adminDashboard.website.noEliteTeachers', 'لا يوجد معلمون متميزون حالياً.')}
+            {t('adminDashboard.website.noEliteTeachers', isRtl ? 'لا يوجد معلمون متميزون حالياً.' : 'No elite teachers currently.')}
           </div>
         ) : (
           teachers.map((teacher) => {
@@ -64,7 +64,7 @@ export default function EliteTeachersSection({
                           {teacher.name}
                         </h4>
                         <p className="text-sm font-medium text-slate-500 mt-0.5">
-                          {teacher.review || t('teachers.defaultTitle', 'القرآن الكريم')}
+                          {teacher.review || t('teachers.defaultTitle', isRtl ? 'القرآن الكريم' : 'Quran')}
                         </p>
                       </div>
                     </div>
@@ -75,7 +75,7 @@ export default function EliteTeachersSection({
                           {teacher.groupsCount || 4}
                         </p>
                         <p className="text-xs font-semibold text-slate-450 dark:text-slate-500">
-                          {t('adminDashboard.website.groups', 'المجموعات')}
+                          {t('adminDashboard.website.groups', isRtl ? 'المجموعات' : 'Groups')}
                         </p>
                       </div>
 
@@ -84,7 +84,7 @@ export default function EliteTeachersSection({
                           {teacher.sessionsCount || 120}
                         </p>
                         <p className="text-xs font-semibold text-slate-450 dark:text-slate-500">
-                          {t('adminDashboard.website.sessions', 'الحصص')}
+                          {t('adminDashboard.website.sessions', isRtl ? 'الحصص' : 'Sessions')}
                         </p>
                       </div>
                     </div>
@@ -94,21 +94,14 @@ export default function EliteTeachersSection({
                     <button
                       onClick={() => handleOpenEditTeacher(teacher)}
                       className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={t('common.edit', 'تعديل')}
+                      title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
                     >
                       <Pencil size={18} />
                     </button>
                     <button
-                      onClick={() => handleShowTeacherNotes(teacher.id)}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={t('common.viewNotes', 'عرض الملاحظات')}
-                    >
-                      <BookOpen size={18} />
-                    </button>
-                    <button
                       onClick={() => handleDeleteTeacher(teacher)}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={t('common.delete', 'حذف')}
+                      title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -126,13 +119,13 @@ export default function EliteTeachersSection({
           className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
         >
           <Save size={16} />
-          <span>{t('common.save', 'حفظ')}</span>
+          <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
         </Button>
         <Button
           variant="secondary"
           className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
         >
-          {t('common.cancel', 'إلغاء')}
+          {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
         </Button>
       </div>
     </div>

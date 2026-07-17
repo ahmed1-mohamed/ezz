@@ -15,21 +15,21 @@ export default function ParentTestimonialsSection({
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8 mt-6 lg:mt-8">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
         <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
-          {t('adminDashboard.website.parentTestimonialsTitle', 'آراء أولياء الأمور')}
+          {t('adminDashboard.website.parentTestimonialsTitle', isRtl ? 'آراء أولياء الأمور' : 'Parents Testimonials')}
         </h2>
         <Button
           onClick={handleOpenAddTestimonial}
           className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm w-full sm:w-auto justify-center"
         >
           <Plus size={16} />
-          <span>{t('adminDashboard.website.addTestimonial', 'إضافة رأي')}</span>
+          <span>{t('adminDashboard.website.addTestimonial', isRtl ? 'إضافة رأي' : 'Add Testimonial')}</span>
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {testimonials.length === 0 ? (
           <div className="col-span-full py-12 text-center text-slate-400 dark:text-slate-500">
-            {t('adminDashboard.website.noTestimonials', 'لا توجد آراء حالياً.')}
+            {t('adminDashboard.website.noTestimonials', isRtl ? 'لا توجد آراء حالياً.' : 'No testimonials currently.')}
           </div>
         ) : (
           testimonials.map((testimonial) => {
@@ -70,7 +70,7 @@ export default function ParentTestimonialsSection({
                       {parentNameStr}
                     </h4>
                     <p className="text-xs text-slate-400">
-                      {t('adminDashboard.website.parentRole', 'ولي أمر')}
+                      {t('adminDashboard.website.parentRole', isRtl ? 'ولي أمر' : 'Parent')}
                     </p>
                   </div>
                 </div>
@@ -86,14 +86,14 @@ export default function ParentTestimonialsSection({
                   <button
                     onClick={() => handleOpenEditTestimonial(testimonial)}
                     className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-[#0f7a6c]/5 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    title={t('common.edit', 'تعديل')}
+                    title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
                   >
                     <Pencil size={18} />
                   </button>
                   <button
                     onClick={() => handleDeleteTestimonial(testimonial)}
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    title={t('common.delete', 'حذف')}
+                    title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
                   >
                     <Trash2 size={18} />
                   </button>
