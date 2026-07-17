@@ -8,7 +8,6 @@ import './i18n.js'
 import './index.css'
 import { AuthProvider } from '@/shared/context/AuthContext.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { HelmetProvider } from 'react-helmet-async'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,11 +26,9 @@ createRoot(document.getElementById('root')).render(
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <HelmetProvider>
-            <AuthProvider>
-              <App />
-            </AuthProvider>
-          </HelmetProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </Provider>

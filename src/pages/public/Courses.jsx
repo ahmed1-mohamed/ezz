@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import SEOHead from '@/shared/components/SEOHead.jsx'
+
 
 const courses = [
     { title: 'Design Thinking', description: 'Build creative classroom systems and flexible learning workflows.' },
@@ -12,11 +12,7 @@ export default function Courses() {
     const { t } = useTranslation()
 
     return (
-        <main className="space-y-6 sm:space-y-8 lg:space-y-10 min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <SEOHead 
-                title={t('public.nav.courses', 'الدورات')} 
-                description={t('public.courses.description', 'Explore our comprehensive courses designed to empower students and teachers alike.')}
-            />
+        <div className="space-y-6 sm:space-y-8 lg:space-y-10 min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <motion.section
                 initial={{ opacity: 0, y: -20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -71,6 +67,6 @@ export default function Courses() {
                     </button>
                 </div>
             </motion.div>
-        </main>
+        </div>
     )
 }

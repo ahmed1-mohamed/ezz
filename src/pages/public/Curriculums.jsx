@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import SEOHead from '@/shared/components/SEOHead.jsx'
 import imageSrc from '../../images/programs/7.webp';
 import CurriculumUnits from '@/shared/components/CurriculumUnits.jsx'
 import CurriculumsCTA from '@/shared/components/CurriculumsCTA.jsx'
@@ -58,11 +57,7 @@ export default React.memo(function Curriculums() {
     ];
 
     return (
-        <main className="min-h-screen bg-slate-50/50 pb-20">
-            <SEOHead 
-                title={t('public.nav.curriculums', 'المناهج')} 
-                description={t('curriculum.description', 'نقدم محتوى تعليمي متخصص مصمم بأحدث الأساليب التربوية لغرس القيم وبناء جيل متسلح بالعلم والإيمان')}
-            />
+        <div className="min-h-screen bg-slate-50/50 pb-20">
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
 
                 <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
@@ -116,6 +111,6 @@ export default React.memo(function Curriculums() {
                 <CurriculumsCTA />
 
             </div>
-        </main>
+        </div>
     )
 })
