@@ -69,25 +69,6 @@ export default function EliteTeachersSection({
                       </div>
                     </div>
 
-                    <div className="lg:col-span-6 xl:col-span-5 grid grid-cols-2 gap-4 text-center border-t lg:border-t-0 border-slate-100 dark:border-slate-800 pt-4 lg:pt-0">
-                      <div className="space-y-1">
-                        <p className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
-                          {teacher.groupsCount || 4}
-                        </p>
-                        <p className="text-xs font-semibold text-slate-450 dark:text-slate-500">
-                          {t('adminDashboard.website.groups', isRtl ? 'المجموعات' : 'Groups')}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
-                          {teacher.sessionsCount || 120}
-                        </p>
-                        <p className="text-xs font-semibold text-slate-450 dark:text-slate-500">
-                          {t('adminDashboard.website.sessions', isRtl ? 'الحصص' : 'Sessions')}
-                        </p>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 mt-4 xl:mt-0 w-full xl:w-auto justify-center sm:justify-end border-t xl:border-t-0 border-slate-100 dark:border-slate-800 pt-4 xl:pt-0">
