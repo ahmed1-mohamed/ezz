@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight } from 'lucide-react'
+import SEOHead from '@/shared/components/SEOHead.jsx'
 import imageSrc from '../../images/programs/6.webp'
 
 const containerVariants = {
@@ -160,7 +161,11 @@ export default function Teachers() {
     const ArrowPrev = isRtl ? ChevronRight : ChevronLeft
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-20">
+        <main className="min-h-screen bg-slate-50/50 pb-20">
+            <SEOHead 
+                title={t('public.nav.teachers', 'المعلمين')} 
+                description={t('teacher.titleLine3', 'تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.')}
+            />
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
                 <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
@@ -321,6 +326,6 @@ export default function Teachers() {
                     </div>
                 )}
             </div>
-        </div>
+        </main>
     )
 }

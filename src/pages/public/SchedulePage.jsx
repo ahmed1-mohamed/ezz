@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, User, PlayCircle, CalendarClock, MonitorPlay, CheckCircle2 } from 'lucide-react'
 import CTASection from '@/shared/components/CTASection.jsx'
+import SEOHead from '@/shared/components/SEOHead.jsx'
 
 export default function SchedulePage() {
     const { t, i18n } = useTranslation()
@@ -68,7 +69,11 @@ export default function SchedulePage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#EEF2F0]/80 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+        <main className="min-h-screen bg-[#EEF2F0]/80 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+            <SEOHead 
+                title={t('schedule.pageTitle', 'جدول الحلقات اليومي')} 
+                description={t('schedule.pageSubtitle', 'تابع رحلتك القرآنية والعلمية مع نخبة من المعلمين المعتمدين في منارة العز.')}
+            />
             <div className="max-w-7xl mx-auto space-y-12">
 
                 <motion.div
@@ -129,7 +134,7 @@ export default function SchedulePage() {
                 <CTASection />
 
             </div>
-        </div>
+        </main>
     )
 }
 

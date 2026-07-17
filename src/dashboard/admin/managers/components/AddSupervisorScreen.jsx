@@ -8,7 +8,6 @@ import PermissionsPreviewCard from './PermissionsPreviewCard'
 
 export default function AddSupervisorScreen({
   roles,
-  rolesPermissions,
   isRtl,
   t,
   onSave,
@@ -133,7 +132,7 @@ export default function AddSupervisorScreen({
         />
 
         <PermissionsCard
-          permissionsList={roles} 
+          permissionsList={roles}
           selectedPermissionId={formData.permissionId}
           onSelectPermission={(id) => handleFieldChange('permissionId', id)}
           onSkipPermissions={handleSkipPermissions}

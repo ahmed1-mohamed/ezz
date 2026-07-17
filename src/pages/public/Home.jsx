@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
+import SEOHead from '@/shared/components/SEOHead.jsx'
 import Button from '@/shared/components/Button.jsx'
 import imageSrc from '../../images/programs/NewLogo.webp'
 import { fetchLandingPage } from '@/store/landingSlice'
@@ -67,7 +68,11 @@ export default memo(function Home() {
     const heroTransition = { duration: 0.7, ease: 'easeOut', delay: 0.2 }
 
     return (
-        <div>
+        <main>
+            <SEOHead 
+                title={isRtl ? 'الرئيسية' : 'Home'} 
+                description={isRtl ? 'منصة منارة العز التعليمية لإدارة وتسهيل تعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور.' : 'Manarat Al-Ezz educational platform for teaching the Holy Quran, Arabic language, and Islamic studies to students and parents.'}
+            />
             <div className="space-y-8 sm:space-y-12 lg:space-y-16">
                 <section id="hero-section" className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
@@ -180,6 +185,6 @@ export default memo(function Home() {
             <Suspense fallback={<SectionSkeleton />}>
                 <CTASection />
             </Suspense>
-        </div>
+        </main>
     )
 })

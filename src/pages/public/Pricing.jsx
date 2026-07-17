@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import { BookOpen, Award, Gem, CheckCircle2, XCircle } from 'lucide-react'
 import { fetchPackagesAndFaqs } from '@/store/landingSlice'
+import SEOHead from '@/shared/components/SEOHead.jsx'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -122,8 +123,11 @@ export default function Pricing() {
         : faqs;
 
     return (
-        <div className="min-h-screen bg-[#EEF4F2]/50 py-16 sm:py-24 overflow-hidden font-sans">
-            
+        <main className="min-h-screen bg-[#EEF4F2]/50 py-16 sm:py-24 overflow-hidden font-sans">
+            <SEOHead 
+                title={t('public.nav.pricing', 'الباقات')} 
+                description={t('pricing.header.subtitle', 'خطط مرنة مصممة لتناسب احتياجات كل عائلة، مع نخبة من المعلمين المعتمدين في بيئة تعليمية آمنة وملهمة.')}
+            />
              <motion.div 
                 initial="hidden"
                 whileInView="visible"
@@ -219,6 +223,6 @@ export default function Pricing() {
                 </div>
             </div>
 
-        </div>
+        </main>
     )
 }

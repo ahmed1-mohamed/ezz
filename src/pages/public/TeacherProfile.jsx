@@ -7,6 +7,7 @@ import TeacherAbout from './components/TeacherProfile/TeacherAbout.jsx'
 import TeacherSubjects from './components/TeacherProfile/TeacherSubjects.jsx'
 import TeacherStats from './components/TeacherProfile/TeacherStats.jsx'
 import TeacherSchedule from './components/TeacherProfile/TeacherSchedule.jsx'
+import SEOHead from '@/shared/components/SEOHead.jsx'
 
 export default function TeacherProfile() {
     const { id } = useParams()
@@ -120,7 +121,13 @@ export default function TeacherProfile() {
     }
 
     return (
-        <div className="min-h-screen bg-[#EEF2F0]/80 pt-12 font-sans pb-10">
+        <main className="min-h-screen bg-[#EEF2F0]/80 pt-12 font-sans pb-10">
+            <SEOHead 
+                title={teacher.name} 
+                description={teacher.about}
+                image={teacher.image}
+                type="profile"
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
                 <Link to="/teachers" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#00695C] transition-colors font-bold">
                     <ArrowBack className="w-5 h-5" />
@@ -146,7 +153,6 @@ export default function TeacherProfile() {
                     <TeacherSchedule schedule={teacher.schedule} t={t} />
                 </div>
             </div>
-
-        </div>
+        </main>
     )
 }
