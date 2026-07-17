@@ -76,12 +76,12 @@ export default function EditSupervisorScreen({
   }, [supervisor.country, countries])
 
   const [formData, setFormData] = useState({
-    name: supervisor.name || '',
-    nameEn: supervisor.nameEn || '',
+    name: typeof supervisor.name === 'object' ? (supervisor.name?.ar || '') : (supervisor.name || ''),
+    nameEn: typeof supervisor.name === 'object' ? (supervisor.name?.en || '') : (supervisor.nameEn || ''),
     email: supervisor.email || '',
     phone: initialPhone,
     phonePrefix: initialPrefix,
-    permissionId: supervisor.permissionId || null,
+    permissionId: supervisor.permission?._id || supervisor.permissionId || null,
     countryId: initialCountryId,
     status: supervisor.status || 'Active',
     photoUrl: supervisor.photoUrl || null
@@ -234,7 +234,7 @@ export default function EditSupervisorScreen({
           isRtl={isRtl}
           t={t}
           countryFlag={matchedCountry?.flag}
-          roleName={roles?.find(r => r.id === formData.permissionId)?.name}
+          roleName={roles?.find(r => r.id === formData.permissionId)?.name || supervisor.permission?.name}
         />
 
         {isEditing && (
@@ -395,6 +395,25 @@ export default function EditSupervisorScreen({
                   </select>
                 </div>
 
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                    {isRtl ? 'الصلاحيات' : 'Permissions'}
+                  </label>
+                  <select
+                    required
+                    value={formData.permissionId || ''}
+                    onChange={(e) => handleFieldChange('permissionId', e.target.value)}
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+                  >
+                    <option value="" disabled>{isRtl ? 'اختر الصلاحية' : 'Select Role'}</option>
+                    {roles.map((r) => (
+                      <option key={r.id || r._id} value={r.id || r._id}>
+                        {typeof r.name === 'object' ? (isRtl ? r.name.ar || r.name.en : r.name.en || r.name.ar) : r.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
@@ -424,7 +443,7 @@ export default function EditSupervisorScreen({
         />
 
         <EditGrantedPermissionsCard
-          supervisorPermissions={supervisor.permissions}
+          supervisorPermissions={supervisor.permission?.actions || supervisor.permissions || []}
           isRtl={isRtl}
           t={t}
         />

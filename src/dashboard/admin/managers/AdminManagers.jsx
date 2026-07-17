@@ -217,7 +217,22 @@ export default function AdminManagers() {
           onToggleStatus={handleToggleStatus}
           onSave={async (data) => {
             try {
-              await updateMutation.mutateAsync({ id: selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id, adminData: data.adminData })
+              const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id;
+              await updateMutation.mutateAsync({ id: targetAdminId, adminData: data.adminData })
+              
+              if (data.permissionId && data.permissionId !== selectedSupervisor.permission?._id && data.permissionId !== selectedSupervisor.permissionId) {
+                try {
+                  if (selectedSupervisor.permission?._id || selectedSupervisor.permissionId) {
+                    await managersApi.updateAdminPermission(targetAdminId, data.permissionId);
+                  } else {
+                    await managersApi.assignAdminPermission(targetAdminId, data.permissionId);
+                  }
+                } catch (permErr) {
+                  console.error('Failed to update supervisor permission:', permErr)
+                }
+              }
+
+              queryClient.invalidateQueries({ queryKey: ['admins'] });
               setViewMode('list')
             } catch (err) {
               console.error('Failed to update supervisor:', err)
