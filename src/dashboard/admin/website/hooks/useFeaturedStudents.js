@@ -54,7 +54,7 @@ const serializeStudentReview = (star) => {
 };
 
 export default function useFeaturedStudents(showNotification) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [stars, setStars] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -176,6 +176,12 @@ export default function useFeaturedStudents(showNotification) {
 
     try {
       if (currentStar.id === null) {
+        const existing = stars.find(s => String(s.studentId) === String(currentStar.studentId));
+        if (existing) {
+          showNotification(t('adminDashboard.website.studentAlreadyAdded', 'هذا الطالب مضاف بالفعل مسبقاً'), 'error');
+          return;
+        }
+
         const response = await landingApi.addFeaturedStudent(featuredPayload);
         const added = response?.data || response;
 

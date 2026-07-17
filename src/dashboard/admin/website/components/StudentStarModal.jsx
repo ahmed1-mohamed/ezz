@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { z } from 'zod';
+
+const studentSchema = z.object({
+  studentId: z.string().min(1, 'يجب اختيار طالب من القائمة')
+});
 
 export default function StudentStarModal({
   isOpen,
@@ -16,6 +21,7 @@ export default function StudentStarModal({
   const isRtl = i18n.language.startsWith('ar');
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [errors, setErrors] = useState({});
 
   if (!isOpen || !currentStar) return null;
 
@@ -29,6 +35,21 @@ export default function StudentStarModal({
       : (s.name || '').toLowerCase();
     return nameStr.includes(query) || (s.email || '').toLowerCase().includes(query) || (s.user?.email || '').toLowerCase().includes(query);
   });
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const result = studentSchema.safeParse(currentStar);
+    if (!result.success) {
+      const formatted = {};
+      result.error.issues.forEach(issue => {
+        formatted[issue.path[0]] = isRtl ? issue.message : 'You must select a student';
+      });
+      setErrors(formatted);
+      return;
+    }
+    setErrors({});
+    onSubmit(e);
+  };
 
   return createPortal(
     <AnimatePresence>
@@ -64,7 +85,7 @@ export default function StudentStarModal({
               </button>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-5 text-start">
+            <form onSubmit={handleFormSubmit} className="space-y-5 text-start">
               <div className="relative">
                 <span className="absolute inset-y-0 start-0 flex items-center ps-4 text-slate-400">
                   <Search size={18} />
@@ -113,6 +134,7 @@ export default function StudentStarModal({
                               groupName: sItem.groupName || 'مجموعة القرآن أ',
                               parentName: sItem.parentName || ''
                             });
+                            if (errors.studentId) setErrors({ ...errors, studentId: null });
                           }}
                           className={`flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer ${isSelected
                             ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
@@ -186,6 +208,7 @@ export default function StudentStarModal({
                   </div>
                 </div>
               )}
+              {errors.studentId && <p className="text-xs text-red-500 font-medium text-center">{errors.studentId}</p>}
 
               <div className="flex flex-col sm:flex-row justify-start gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80">
                 <button

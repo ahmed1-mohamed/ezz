@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
-import { teachersApi } from '@/shared/services/api/teachersApi';
 
 export default function useEliteTeachers(showNotification) {
   const { t, i18n } = useTranslation();
@@ -112,7 +111,7 @@ export default function useEliteTeachers(showNotification) {
     const teacherNameStr = typeof teacher.name === 'string'
       ? teacher.name
       : (teacher.name?.ar || teacher.name?.en || 'معلم متميز');
-      
+
     const isRtl = i18n.language.startsWith('ar');
     const isConfirmed = await showDeleteConfirm(isRtl, teacherNameStr);
     if (!isConfirmed) return;
@@ -141,11 +140,17 @@ export default function useEliteTeachers(showNotification) {
 
     try {
       if (currentTeacher.id === null) {
+        const existing = eliteTeachers.find(t => String(t.teacherId) === String(currentTeacher.teacherId) || String(t.teacher?._id) === String(currentTeacher.teacherId) || String(t.teacher?.id) === String(currentTeacher.teacherId));
+        if (existing) {
+          showNotification(t('adminDashboard.website.teacherAlreadyAdded', 'هذا المعلم مضاف بالفعل مسبقاً'), 'error');
+          return;
+        }
+
         const response = await landingApi.addEliteTeacher(elitePayload);
         const added = response?.data || response;
         const systemT = systemTeachers.find(t => String(t.id || t._id || t.teacher_id) === String(currentTeacher.teacherId));
         const resolvedName = systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : currentTeacher.name;
-        
+
         const newTeacher = {
           ...added,
           id: added?.id || added?._id,
@@ -161,7 +166,7 @@ export default function useEliteTeachers(showNotification) {
         await landingApi.updateEliteTeacher(currentTeacher.id, elitePayload);
         const systemT = systemTeachers.find(t => String(t.id || t._id || t.teacher_id) === String(currentTeacher.teacherId));
         const resolvedName = systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : currentTeacher.name;
-        
+
         const updatedTeacher = {
           id: currentTeacher.id,
           teacher: systemT,

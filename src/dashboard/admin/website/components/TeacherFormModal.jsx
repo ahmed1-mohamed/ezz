@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { z } from 'zod';
+
+const teacherSchema = z.object({
+  teacherId: z.string().min(1, 'يجب اختيار معلم من القائمة')
+});
 
 export default function TeacherFormModal({
   isOpen,
@@ -16,6 +21,7 @@ export default function TeacherFormModal({
   const isRtl = i18n.language.startsWith('ar');
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [errors, setErrors] = useState({});
 
   if (!isOpen || !currentTeacher) return null;
 
@@ -29,6 +35,21 @@ export default function TeacherFormModal({
       : (t.name || '').toLowerCase();
     return nameStr.includes(query) || (t.email || '').toLowerCase().includes(query);
   });
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const result = teacherSchema.safeParse(currentTeacher);
+    if (!result.success) {
+      const formatted = {};
+      result.error.issues.forEach(issue => {
+        formatted[issue.path[0]] = isRtl ? issue.message : 'You must select a teacher';
+      });
+      setErrors(formatted);
+      return;
+    }
+    setErrors({});
+    onSubmit(e);
+  };
 
   return createPortal(
     <AnimatePresence>
@@ -64,7 +85,7 @@ export default function TeacherFormModal({
               </button>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-5 text-start">
+            <form onSubmit={handleFormSubmit} className="space-y-5 text-start">
               <div className="relative">
                 <span className="absolute inset-y-0 start-0 flex items-center ps-4 text-slate-400">
                   <Search size={18} />
@@ -108,6 +129,7 @@ export default function TeacherFormModal({
                               nameEn: typeof tItem.name === 'object' && tItem.name !== null ? tItem.name.en || '' : tItem.nameEn || tItem.name || '',
                               image: tItem.image || tItem.avatar || '',
                             });
+                            if (errors.teacherId) setErrors({ ...errors, teacherId: null });
                           }}
                           className={`flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer ${isSelected
                             ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
@@ -185,6 +207,7 @@ export default function TeacherFormModal({
                   </div>
                 </div>
               )}
+              {errors.teacherId && <p className="text-xs text-red-500 font-medium text-center">{errors.teacherId}</p>}
 
               <div className="flex flex-col sm:flex-row justify-start gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80">
                 <button

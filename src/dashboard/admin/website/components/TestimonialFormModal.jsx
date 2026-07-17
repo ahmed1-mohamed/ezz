@@ -1,8 +1,18 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, User, Image as ImageIcon, MessageSquare } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
+import { z } from 'zod';
+
+const testimonialSchema = z.object({
+  parentNameAr: z.string().min(2, 'الاسم بالعربية مطلوب ويجب أن يكون حرفين على الأقل'),
+  parentNameEn: z.string().optional(),
+  reviewAr: z.string().min(5, 'رأي ولي الأمر بالعربية مطلوب'),
+  reviewEn: z.string().optional(),
+  image: z.any().refine(val => val !== null && val !== undefined && val !== '', 'الصورة الشخصية إجبارية')
+});
 
 export default function TestimonialFormModal({
   isOpen,
@@ -13,8 +23,27 @@ export default function TestimonialFormModal({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
+  const [errors, setErrors] = useState({});
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    if (Object.keys(errors).length > 0) setErrors({});
+    return null;
+  }
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const result = testimonialSchema.safeParse(currentTestimonial);
+    if (!result.success) {
+      const formatted = {};
+      result.error.issues.forEach(issue => {
+        formatted[issue.path[0]] = isRtl ? issue.message : issue.message.replace('مطلوب', 'is required').replace('إجبارية', 'is required'); 
+      });
+      setErrors(formatted);
+      return;
+    }
+    setErrors({});
+    onSubmit(e);
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -64,7 +93,7 @@ export default function TestimonialFormModal({
           </div>
 
           <div className="p-6 sm:p-8 overflow-y-auto">
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-4">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <User size={18} />
@@ -78,11 +107,15 @@ export default function TestimonialFormModal({
                     <input
                       type="text"
                       value={currentTestimonial.parentNameAr}
-                      onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, parentNameAr: e.target.value })}
+                      onChange={(e) => {
+                        setCurrentTestimonial({ ...currentTestimonial, parentNameAr: e.target.value });
+                        if (errors.parentNameAr) setErrors({ ...errors, parentNameAr: null });
+                      }}
                       placeholder="اسم ولي الأمر بالعربية"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.parentNameAr ? 'border-red-500 focus:border-red-500' : 'border-slate-100 dark:border-slate-800 focus:border-[#0f7a6c]'}`}
                       required
                     />
+                    {errors.parentNameAr && <p className="text-xs text-red-500 font-medium mt-1">{errors.parentNameAr}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -91,11 +124,15 @@ export default function TestimonialFormModal({
                     <input
                       type="text"
                       value={currentTestimonial.parentNameEn}
-                      onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, parentNameEn: e.target.value })}
+                      onChange={(e) => {
+                        setCurrentTestimonial({ ...currentTestimonial, parentNameEn: e.target.value });
+                        if (errors.parentNameEn) setErrors({ ...errors, parentNameEn: null });
+                      }}
                       placeholder="Parent Name in English"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                      required
+                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl focus:bg-white dark:focus:bg-slate-900 outline-none text-slate-800 dark:text-slate-200 text-sm transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.parentNameEn ? 'border-red-500 focus:border-red-500' : 'border-slate-100 dark:border-slate-800 focus:border-[#0f7a6c]'}`}
+                      required={false}
                     />
+                    {errors.parentNameEn && <p className="text-xs text-red-500 font-medium mt-1">{errors.parentNameEn}</p>}
                   </div>
                 </div>
               </div>
@@ -112,11 +149,15 @@ export default function TestimonialFormModal({
                     </label>
                     <textarea
                       value={currentTestimonial.reviewAr}
-                      onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, reviewAr: e.target.value })}
+                      onChange={(e) => {
+                        setCurrentTestimonial({ ...currentTestimonial, reviewAr: e.target.value });
+                        if (errors.reviewAr) setErrors({ ...errors, reviewAr: null });
+                      }}
                       placeholder="رأي ولي الأمر بالعربية"
-                      className="w-full bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-900 rounded-xl p-3 min-h-[120px] resize-y outline-none border focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all dark:text-white"
+                      className={`w-full bg-slate-50 dark:bg-slate-800/50 focus:bg-white dark:focus:bg-slate-900 rounded-xl p-3 min-h-[120px] resize-y outline-none border focus:ring-2 transition-all dark:text-white ${errors.reviewAr ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 dark:border-slate-700 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c]'}`}
                       required
                     />
+                    {errors.reviewAr && <p className="text-xs text-red-500 font-medium mt-1">{errors.reviewAr}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -124,11 +165,15 @@ export default function TestimonialFormModal({
                     </label>
                     <textarea
                       value={currentTestimonial.reviewEn}
-                      onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, reviewEn: e.target.value })}
+                      onChange={(e) => {
+                        setCurrentTestimonial({ ...currentTestimonial, reviewEn: e.target.value });
+                        if (errors.reviewEn) setErrors({ ...errors, reviewEn: null });
+                      }}
                       placeholder="Parent Review in English"
-                      className="w-full bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-900 rounded-xl p-3 min-h-[120px] resize-y outline-none border focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all dark:text-white"
-                      required
+                      className={`w-full bg-slate-50 dark:bg-slate-800/50 focus:bg-white dark:focus:bg-slate-900 rounded-xl p-3 min-h-[120px] resize-y outline-none border focus:ring-2 transition-all dark:text-white ${errors.reviewEn ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 dark:border-slate-700 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c]'}`}
+                      required={false}
                     />
+                    {errors.reviewEn && <p className="text-xs text-red-500 font-medium mt-1">{errors.reviewEn}</p>}
                   </div>
                 </div>
               </div>
@@ -152,19 +197,25 @@ export default function TestimonialFormModal({
                       <ImageIcon size={16} />
                       {t('adminDashboard.website.personalImageRequired', 'صورة شخصية')} <span className="text-red-500">*</span>
                     </h4>
-                    <div className="mt-2 flex items-center gap-3">
-                      <label className="cursor-pointer bg-[#0f7a6c]/10 text-[#0f7a6c] hover:bg-[#0f7a6c]/20 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
-                        Choose File
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageChange}
-                        />
-                      </label>
-                      <span className="text-xs text-slate-400">
-                        {currentTestimonial.image?.name || "No file chosen"}
-                      </span>
+                    <div className="mt-2 flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <label className="cursor-pointer bg-[#0f7a6c]/10 text-[#0f7a6c] hover:bg-[#0f7a6c]/20 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
+                          Choose File
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              handleImageChange(e);
+                              if (errors.image) setErrors({ ...errors, image: null });
+                            }}
+                          />
+                        </label>
+                        <span className="text-xs text-slate-400">
+                          {currentTestimonial.image?.name || "No file chosen"}
+                        </span>
+                      </div>
+                      {errors.image && <p className="text-xs text-red-500 font-medium">{errors.image}</p>}
                     </div>
                   </div>
                 </div>
@@ -181,7 +232,7 @@ export default function TestimonialFormModal({
                 {t('common.cancel', 'إلغاء')}
               </Button>
               <Button
-                onClick={onSubmit}
+                onClick={handleFormSubmit}
                 className="px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2"
               >
                 <Save size={18} />

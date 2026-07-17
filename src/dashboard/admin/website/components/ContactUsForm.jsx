@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 
 import Button from '@/shared/components/Button.jsx';
 import CountryPhoneInput from '@/shared/components/CountryPhoneInput.jsx';
+
+const contactSchema = z.object({
+  email: z.string().min(1, 'البريد الإلكتروني مطلوب').email('البريد الإلكتروني غير صالح'),
+  phone: z.string().min(5, 'رقم الهاتف مطلوب'),
+  whatsapp: z.string().min(5, 'رقم الواتساب مطلوب')
+});
 
 export default function ContactUsForm({
   contactInfo,
@@ -11,6 +18,7 @@ export default function ContactUsForm({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
+  const [errors, setErrors] = useState({});
 
   const [localContact, setLocalContact] = useState({
     phone: '',
@@ -30,6 +38,16 @@ export default function ContactUsForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const result = contactSchema.safeParse(localContact);
+    if (!result.success) {
+      const formatted = {};
+      result.error.issues.forEach(issue => {
+        formatted[issue.path[0]] = isRtl ? issue.message : issue.message.replace('مطلوب', 'is required').replace('غير صالح', 'is invalid');
+      });
+      setErrors(formatted);
+      return;
+    }
+    setErrors({});
     onSave(localContact);
   };
 
@@ -44,6 +62,7 @@ export default function ContactUsForm({
     if (onCancel) {
       onCancel();
     }
+    setErrors({});
   };
 
   return (
@@ -63,27 +82,39 @@ export default function ContactUsForm({
                 type="email"
                 required
                 value={localContact.email}
-                onChange={(e) => setLocalContact({ ...localContact, email: e.target.value })}
+                onChange={(e) => {
+                  setLocalContact({ ...localContact, email: e.target.value });
+                  if (errors.email) setErrors({ ...errors, email: null });
+                }}
                 placeholder="ahmed@gmail.com"
-                className="w-full px-5 py-3.5 bg-[#F5F5F2] dark:bg-slate-950 border border-transparent dark:border-slate-850 rounded-2xl focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#0f7a6c] outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all"
+                className={`w-full px-5 py-3.5 bg-[#F5F5F2] dark:bg-slate-950 border rounded-2xl focus:bg-white dark:focus:bg-slate-900 focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-850 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'}`}
               />
             </div>
+            {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email}</p>}
           </div>
 
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.phone}
-              onChange={(val) => setLocalContact({ ...localContact, phone: val })}
+              onChange={(val) => {
+                setLocalContact({ ...localContact, phone: val });
+                if (errors.phone) setErrors({ ...errors, phone: null });
+              }}
               label={t('common.phoneNumber', isRtl ? 'رقم الهاتف' : 'Phone Number')}
             />
+            {errors.phone && <p className="text-xs text-red-500 font-medium">{errors.phone}</p>}
           </div>
 
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.whatsapp}
-              onChange={(val) => setLocalContact({ ...localContact, whatsapp: val })}
+              onChange={(val) => {
+                setLocalContact({ ...localContact, whatsapp: val });
+                if (errors.whatsapp) setErrors({ ...errors, whatsapp: null });
+              }}
               label={t('common.whatsapp', isRtl ? 'رقم الواتساب' : 'WhatsApp Number')}
             />
+            {errors.whatsapp && <p className="text-xs text-red-500 font-medium">{errors.whatsapp}</p>}
           </div>
         </div>
 

@@ -33,7 +33,6 @@ export default function AdminManagers() {
     supervisors,
     isLoadingSupervisors,
     permissionsList,
-    isLoadingPermissions,
     countries
   } = useManagers()
 
@@ -219,7 +218,7 @@ export default function AdminManagers() {
             try {
               const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id;
               await updateMutation.mutateAsync({ id: targetAdminId, adminData: data.adminData })
-              
+
               if (data.permissionId && data.permissionId !== selectedSupervisor.permission?._id && data.permissionId !== selectedSupervisor.permissionId) {
                 try {
                   if (selectedSupervisor.permission?._id || selectedSupervisor.permissionId) {

@@ -327,6 +327,8 @@
   },
   "public": {
     "login": "Login",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
     "register": "Register",
     "joinUs": "Join Us",
     "nav": {
