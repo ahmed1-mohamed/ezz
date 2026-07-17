@@ -177,13 +177,13 @@ export default function EditSupervisorScreen({
             <BackArrow size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <span>{isRtl ? 'قائمة المشرفين' : 'Supervisors List'}</span>
               <span className="text-slate-350 dark:text-slate-655 text-lg">/</span>
               <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg">
                 {isRtl ? 'تفاصيل المشرفين' : 'Supervisor Details'}
               </span>
-            </h1>
+            </h2>
           </div>
         </div>
 
@@ -247,10 +247,11 @@ export default function EditSupervisorScreen({
               <div className="flex flex-col gap-5">
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="editNameEnInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
                   </label>
                   <input
+                    id="editNameEnInput"
                     type="text"
                     required
                     value={formData.nameEn}
@@ -261,10 +262,11 @@ export default function EditSupervisorScreen({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="editNameArInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
                   </label>
                   <input
+                    id="editNameArInput"
                     type="text"
                     required
                     value={formData.name}
@@ -274,7 +276,7 @@ export default function EditSupervisorScreen({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="editPhoneInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
                   </label>
                   <div className="flex gap-3" dir="ltr">
@@ -282,21 +284,28 @@ export default function EditSupervisorScreen({
                     <div className="relative shrink-0">
                       <button
                         type="button"
+                        aria-label={isRtl ? 'اختر رمز الدولة' : 'Select country code'}
+                        aria-expanded={isDropdownOpen}
+                        aria-haspopup="listbox"
                         onClick={() => {
                           setIsDropdownOpen(!isDropdownOpen);
                           if (isDropdownOpen) setCountrySearch('');
                         }}
                         className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
                       >
-                        <span>{matchedCountry.flag}</span>
-                        <span>({matchedCountry.phoneCode || matchedCountry.code})</span>
+                        <span aria-hidden="true">{matchedCountry.flag}</span>
+                        <span aria-hidden="true">({matchedCountry.phoneCode || matchedCountry.code})</span>
                       </button>
 
                       {isDropdownOpen && (
-                        <div className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
+                        <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
                           <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-950 z-10">
+                            <label htmlFor="editCountrySearchInput" className="sr-only">
+                              {isRtl ? 'بحث...' : 'Search...'}
+                            </label>
                             <input
-                              type="text"
+                              id="editCountrySearchInput"
+                              type="search"
                               value={countrySearch}
                               onChange={(e) => setCountrySearch(e.target.value)}
                               placeholder={isRtl ? 'بحث...' : 'Search...'}
@@ -354,10 +363,11 @@ export default function EditSupervisorScreen({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="editEmailInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
                   </label>
                   <input
+                    id="editEmailInput"
                     type="email"
                     required
                     value={formData.email}
@@ -368,10 +378,11 @@ export default function EditSupervisorScreen({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="editCountrySelect" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الدولة' : 'Country'}
                   </label>
                   <select
+                    id="editCountrySelect"
                     required
                     value={formData.countryId || ''}
                     onChange={(e) => {
@@ -396,10 +407,11 @@ export default function EditSupervisorScreen({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="editPermissionSelect" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الصلاحيات' : 'Permissions'}
                   </label>
                   <select
+                    id="editPermissionSelect"
                     required
                     value={formData.permissionId || ''}
                     onChange={(e) => handleFieldChange('permissionId', e.target.value)}

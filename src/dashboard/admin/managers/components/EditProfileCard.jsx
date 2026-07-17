@@ -28,9 +28,9 @@ export default function EditProfileCard({
 
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <span>{formData.name}</span>
-              </h2>
+              </h3>
               {displayRole && (
                 <span className="px-3 py-1 bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] rounded-full text-xs font-bold">
                   {displayRole}

@@ -63,21 +63,23 @@ export default function ManagersList({
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div
+        <button
+          type="button"
+          aria-pressed={statusFilter === 'all'}
           onClick={() => onStatusFilterChange('all')}
-          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'all'
+          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer w-full text-start ${statusFilter === 'all'
             ? 'border-brand-500 ring-2 ring-brand-500/10 -translate-y-1'
             : 'border-slate-100 dark:border-slate-800/60'
             }`}
         >
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400">
-              <Shield size={24} />
+              <Shield size={24} aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-400 dark:text-slate-500">
+              <h2 className="text-sm font-medium text-slate-400 dark:text-slate-500 m-0">
                 {t('adminDashboard.managers.total', 'إجمالي المشرفين')}
-              </p>
+              </h2>
             </div>
           </div>
           <div>
@@ -85,23 +87,25 @@ export default function ManagersList({
               {metrics.total}
             </span>
           </div>
-        </div>
+        </button>
 
-        <div
+        <button
+          type="button"
+          aria-pressed={statusFilter === 'active'}
           onClick={() => onStatusFilterChange('active')}
-          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'active'
+          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer w-full text-start ${statusFilter === 'active'
             ? 'border-emerald-500 ring-2 ring-emerald-500/10 -translate-y-1'
             : 'border-slate-100 dark:border-slate-800/60'
             }`}
         >
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
-              <CheckCircle2 size={24} />
+              <CheckCircle2 size={24} aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-400 dark:text-slate-500">
+              <h2 className="text-sm font-medium text-slate-400 dark:text-slate-500 m-0">
                 {t('adminDashboard.managers.active', 'مشرف نشط')}
-              </p>
+              </h2>
             </div>
           </div>
           <div>
@@ -109,23 +113,25 @@ export default function ManagersList({
               {metrics.active}
             </span>
           </div>
-        </div>
+        </button>
 
-        <div
+        <button
+          type="button"
+          aria-pressed={statusFilter === 'stopped'}
           onClick={() => onStatusFilterChange('stopped')}
-          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer ${statusFilter === 'stopped'
+          className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-soft border transition-all duration-300 hover:-translate-y-1 cursor-pointer w-full text-start ${statusFilter === 'stopped'
             ? 'border-rose-500 ring-2 ring-rose-500/10 -translate-y-1'
             : 'border-slate-100 dark:border-slate-800/60'
             }`}
         >
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
-              <Ban size={24} />
+              <Ban size={24} aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-400 dark:text-slate-500">
+              <h2 className="text-sm font-medium text-slate-400 dark:text-slate-500 m-0">
                 {t('adminDashboard.managers.suspended', 'مشرف موقوف')}
-              </p>
+              </h2>
             </div>
           </div>
           <div>
@@ -133,7 +139,7 @@ export default function ManagersList({
               {metrics.suspended}
             </span>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
@@ -171,8 +177,12 @@ export default function ManagersList({
           className="relative w-full md:w-80 flex gap-2"
         >
           <div className="relative flex-1">
+            <label htmlFor="managersSearchInput" className="sr-only">
+              {t('adminDashboard.managers.searchPlaceholder', 'بحث...')}
+            </label>
             <input
-              type="text"
+              id="managersSearchInput"
+              type="search"
               placeholder={t('adminDashboard.managers.searchPlaceholder', 'بحث...')}
               value={searchVal}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -182,9 +192,10 @@ export default function ManagersList({
           </div>
           <button
             type="submit"
+            aria-label={t('adminDashboard.managers.search', 'بحث')}
             className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] shrink-0 cursor-pointer"
           >
-            <Search size={16} />
+            <Search size={16} aria-hidden="true" />
           </button>
         </form>
       </div>
@@ -192,13 +203,16 @@ export default function ManagersList({
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-start text-sm">
+            <caption className="sr-only">
+              {t('adminDashboard.managers.tableCaption', 'قائمة المشرفين')}
+            </caption>
             <thead className="bg-slate-50/75 text-slate-500 dark:bg-slate-950/40 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
               <tr>
-                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.name', 'الاسم')}</th>
-                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.role', 'الصلاحيات')}</th>
-                <th className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.email', 'البريد الإلكتروني')}</th>
-                <th className="px-6 py-4 font-semibold text-center">{t('adminDashboard.managers.status', 'الحالة')}</th>
-                <th className="px-6 py-4 font-semibold text-center">{t('adminDashboard.managers.actions', 'الإجراءات')}</th>
+                <th scope="col" className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.name', 'الاسم')}</th>
+                <th scope="col" className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.role', 'الصلاحيات')}</th>
+                <th scope="col" className="px-6 py-4 font-semibold text-start">{t('adminDashboard.managers.email', 'البريد الإلكتروني')}</th>
+                <th scope="col" className="px-6 py-4 font-semibold text-center">{t('adminDashboard.managers.status', 'الحالة')}</th>
+                <th scope="col" className="px-6 py-4 font-semibold text-center">{t('adminDashboard.managers.actions', 'الإجراءات')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -261,45 +275,52 @@ export default function ManagersList({
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span
+                        <button
+                          type="button"
                           onClick={() => onToggleStatus(supervisor)}
                           className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-colors cursor-pointer select-none ${isActive
                             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 hover:bg-emerald-100'
                             : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 hover:bg-slate-200'
                             }`}
                         >
-                          <span className={`me-1.5 h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-600' : 'bg-slate-400'}`} />
+                          <span className={`me-1.5 h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-600' : 'bg-slate-400'}`} aria-hidden="true" />
                           {isActive
                             ? t('adminDashboard.managers.statusActive', 'نشط')
                             : t('adminDashboard.managers.statusSuspended', 'غير نشط')}
-                        </span>
+                        </button>
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-4">
 
                           <button
+                            type="button"
                             onClick={() => onDelete(supervisor)}
+                            aria-label={isRtl ? 'حذف المشرف' : 'Delete Supervisor'}
                             title={isRtl ? 'حذف المشرف' : 'Delete Supervisor'}
                             className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={16} aria-hidden="true" />
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => onOpenRolePermissions(supervisor)}
+                            aria-label={t('adminDashboard.managers.editPermissions', 'تعديل الأذونات')}
                             title={t('adminDashboard.managers.editPermissions', 'تعديل الأذونات')}
                             className="p-1 text-slate-400 hover:text-brand-600 transition-colors"
                           >
-                            <BookOpen size={16} />
+                            <BookOpen size={16} aria-hidden="true" />
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => onOpenEditScreen(supervisor)}
+                            aria-label={isRtl ? 'تعديل المشرف' : 'Edit Supervisor'}
                             title={isRtl ? 'تعديل المشرف' : 'Edit Supervisor'}
                             className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
                           >
-                            <Pencil size={16} />
+                            <Pencil size={16} aria-hidden="true" />
                           </button>
 
                         </div>
@@ -324,8 +345,10 @@ export default function ManagersList({
 
             <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
+                aria-label={t('adminDashboard.managers.pagination.previousAria', 'الصفحة السابقة')}
                 className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 {t('adminDashboard.managers.pagination.previous', 'السابق')}
@@ -333,8 +356,11 @@ export default function ManagersList({
 
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
+                  type="button"
                   key={p}
                   onClick={() => onPageChange(p)}
+                  aria-label={t('adminDashboard.managers.pagination.page', { page: p }, `صفحة ${p}`)}
+                  aria-current={currentPage === p ? 'page' : undefined}
                   className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all ${currentPage === p
                     ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                     : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -345,8 +371,10 @@ export default function ManagersList({
               ))}
 
               <button
+                type="button"
                 onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
+                aria-label={t('adminDashboard.managers.pagination.nextAria', 'الصفحة التالية')}
                 className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 {t('adminDashboard.managers.pagination.next', 'التالي')}

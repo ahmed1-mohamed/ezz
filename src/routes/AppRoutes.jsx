@@ -1,10 +1,9 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, memo } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import RoleBasedRoute from './RoleBasedRoute.jsx'
-import Spinner from '@/shared/components/Spinner.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
@@ -90,40 +89,35 @@ import { ParentExams, ParentNotifications, ParentProfile } from '../dashboard/pa
 const NotFound = lazy(() => import('../pages/public/NotFound.jsx'))
 const Unauthorized = lazy(() => import('../pages/public/Unauthorized.jsx'))
 
-function AnimatedPage({ children }) {
+const pageTransition = { duration: 0.3, ease: 'easeOut' }
+const pageInitial = { opacity: 0, y: 12 }
+const pageAnimate = { opacity: 1, y: 0 }
+const pageExit = { opacity: 0, y: -12 }
+
+const AnimatedPage = memo(function AnimatedPage({ children }) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{
-                duration: 0.45,
-                ease: 'easeOut',
-            }}
+            initial={pageInitial}
+            animate={pageAnimate}
+            exit={pageExit}
+            transition={pageTransition}
             className="min-h-screen"
         >
             {children}
         </motion.div>
     )
-}
+})
 
 export default function AppRoutes() {
     const { user } = useAuth()
     const location = useLocation()
 
     return (
-        <div className="min-h-screen bg-[#FFFFFF] text-[#111827]">
-
-            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(15,122,108,0.04),transparent_45%)]" />
-
-            </div>
-
+        <div className="min-h-screen">
             <Suspense
                 fallback={
-                    <div className="flex min-h-screen items-center justify-center bg-white">
-                        <Spinner />
+                    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-slate-950">
+                        <div className="w-8 h-8 rounded-full border-2 border-[#0f7a6c] border-t-transparent animate-spin" />
                     </div>
                 }
             >
@@ -405,4 +399,4 @@ export default function AppRoutes() {
             </Suspense>
         </div>
     )
-}
+}

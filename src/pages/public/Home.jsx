@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { memo, useEffect, useState, lazy, Suspense, useCallback } from 'react';
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -20,57 +20,51 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-            delayChildren: 0.1
-        }
+        transition: { staggerChildren: 0.12, delayChildren: 0.05 }
     }
 }
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
 }
 
-export default React.memo(function Home() {
+const heroImageAnimation = {
+    animate: { y: [0, -12, 0] },
+    transition: { repeat: Infinity, duration: 4, ease: 'easeInOut' }
+}
+
+function readLocalStorage() {
+    let stats = null, stars = null, testimonials = null
+    try { stats = JSON.parse(localStorage.getItem('website_stats')) } catch (_) { }
+    try { stars = JSON.parse(localStorage.getItem('website_stars')) } catch (_) { }
+    try { testimonials = JSON.parse(localStorage.getItem('website_testimonials')) } catch (_) { }
+    return { stats, stars, testimonials }
+}
+
+const SectionSkeleton = () => <div className="h-40 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+
+export default memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
 
     const dispatch = useDispatch()
     const { landingData } = useSelector((state) => state.landing)
 
-    const [localStats, setLocalStats] = useState(null)
-    const [localStars, setLocalStars] = useState(null)
-    const [localTestimonials, setLocalTestimonials] = useState(null)
+    const [localData, setLocalData] = useState({ stats: null, stars: null, testimonials: null })
+
+    const loadLanding = useCallback(() => {
+        dispatch(fetchLandingPage(i18n.language))
+    }, [dispatch, i18n.language])
 
     useEffect(() => {
-        dispatch(fetchLandingPage(i18n.language))
-        
-        const stats = localStorage.getItem('website_stats')
-        if (stats) {
-            try {
-                setLocalStats(JSON.parse(stats))
-            } catch (e) {
-                console.error(e)
-            }
-        }
-        const stars = localStorage.getItem('website_stars')
-        if (stars) {
-            try {
-                setLocalStars(JSON.parse(stars))
-            } catch (e) {
-                console.error(e)
-            }
-        }
-        const testimonials = localStorage.getItem('website_testimonials')
-        if (testimonials) {
-            try {
-                setLocalTestimonials(JSON.parse(testimonials))
-            } catch (e) {
-                console.error(e)
-            }
-        }
-    }, [dispatch, i18n.language])
+        loadLanding()
+        setLocalData(readLocalStorage())
+    }, [loadLanding])
+
+    const heroInitial = { opacity: 0, scale: 0.92, x: isRtl ? 30 : -30 }
+    const heroAnimate = { opacity: 1, scale: 1, x: 0 }
+    const heroTransition = { duration: 0.7, ease: 'easeOut', delay: 0.2 }
 
     return (
         <div>
@@ -121,9 +115,9 @@ export default React.memo(function Home() {
                         </motion.div>
 
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, x: isRtl ? 40 : -40 }}
-                            animate={{ opacity: 1, scale: 1, x: 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                            initial={heroInitial}
+                            animate={heroAnimate}
+                            transition={heroTransition}
                             className="w-full lg:w-1/2 flex justify-center"
                         >
                             <div className="relative flex items-center justify-center w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl">
@@ -135,22 +129,23 @@ export default React.memo(function Home() {
                                         borderRadius: '199px 117px 459px 433px',
                                         transform: 'matrix(0.99, -0.11, 0.1, 1, 0, 0)',
                                     }}
+                                    aria-hidden="true"
                                 />
 
                                 <motion.div
-                                    animate={{ y: [0, -15, 0] }}
-                                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                                    animate={heroImageAnimation.animate}
+                                    transition={heroImageAnimation.transition}
                                     className="relative z-10 overflow-hidden rounded-2xl sm:rounded-[36px] border border-slate-200 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.12)] w-full"
                                 >
                                     <img
                                         src={imageSrc}
-                                        alt="Islamic Education"
+                                        alt={t('home.logoAlt', 'أكاديمية منارة العز')}
                                         loading="eager"
                                         fetchPriority="high"
                                         decoding="async"
                                         width="512"
                                         height="512"
-                                        className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain transition-transform duration-700 hover:scale-105 will-change-transform"
+                                        className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain"
                                     />
                                 </motion.div>
 
@@ -161,28 +156,28 @@ export default React.memo(function Home() {
                 </section>
             </div>
 
-            <Suspense fallback={<div className="h-40" />}>
-                <StatisticsBanner data={localStats || landingData?.statistics} />
+            <Suspense fallback={<SectionSkeleton />}>
+                <StatisticsBanner data={localData.stats || landingData?.statistics} />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
+            <Suspense fallback={<SectionSkeleton />}>
                 <PremiumParentsSection />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
+            <Suspense fallback={<SectionSkeleton />}>
                 <EducationalPrograms />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
-                <StarsSection featuredStudents={localStars || landingData?.featuredStudents} />
+            <Suspense fallback={<SectionSkeleton />}>
+                <StarsSection featuredStudents={localData.stars || landingData?.featuredStudents} />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
+            <Suspense fallback={<SectionSkeleton />}>
                 <JourneySteps />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
+            <Suspense fallback={<SectionSkeleton />}>
                 <TeachersSection eliteTeachers={landingData?.eliteTeachers} />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
-                <TestimonialsSection testimonials={localTestimonials || landingData?.testimonials} />
+            <Suspense fallback={<SectionSkeleton />}>
+                <TestimonialsSection testimonials={localData.testimonials || landingData?.testimonials} />
             </Suspense>
-            <Suspense fallback={<div className="h-40" />}>
+            <Suspense fallback={<SectionSkeleton />}>
                 <CTASection />
             </Suspense>
         </div>

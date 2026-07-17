@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Globe, Menu, X } from 'lucide-react'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, memo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from './Button.jsx'
 import Container from './Container.jsx'
@@ -10,28 +10,19 @@ import { publicNavigation } from '@/shared/constants/publicNavigation.js'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
-export default function AppNavbar() {
+
+const navItems = publicNavigation.map((item) => ({
+    label: item.labelKey,
+    to: item.path,
+}))
+
+export default memo(function AppNavbar() {
     const { t, i18n } = useTranslation()
     const navigate = useNavigate()
     const location = useLocation()
     const navRef = useRef(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-    const handleLogoClick = (e) => {
-        if (location.pathname === '/') {
-            e.preventDefault()
-            const hero = document.getElementById('hero-section')
-            if (hero) {
-                hero.scrollIntoView({ behavior: 'smooth' })
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' })
-            }
-        } else {
-            e.preventDefault()
-            navigate('/', { state: { scrollToHero: true } })
-        }
-    }
 
     const { user, logout } = useAuth()
     const hasToken = !!getCookie('access_token')
@@ -47,10 +38,24 @@ export default function AppNavbar() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    const handleLanguageToggle = (e) => {
+    const handleLogoClick = useCallback((e) => {
+        if (location.pathname === '/') {
+            e.preventDefault()
+            const hero = document.getElementById('hero-section')
+            if (hero) {
+                hero.scrollIntoView({ behavior: 'smooth' })
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
+        } else {
+            e.preventDefault()
+            navigate('/', { state: { scrollToHero: true } })
+        }
+    }, [location.pathname, navigate])
+
+    const handleLanguageToggle = useCallback((e) => {
         const newLang = i18n.language === 'ar' ? 'en' : 'ar'
         setLanguage(newLang)
-
         const btn = e.currentTarget
         if (btn) {
             btn.style.transition = 'transform 0.6s ease'
@@ -60,12 +65,10 @@ export default function AppNavbar() {
                 btn.style.transform = 'rotate(0deg)'
             }, 600)
         }
-    }
+    }, [i18n.language])
 
-    const navItems = publicNavigation.map((item) => ({
-        label: item.labelKey,
-        to: item.path,
-    }))
+    const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
+    const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
 
     return (
         <motion.header
@@ -169,9 +172,10 @@ export default function AppNavbar() {
                             <Globe size={18} strokeWidth={1.5} />
                         </button>
                         <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            onClick={toggleMobileMenu}
                             className="inline-flex items-center justify-center h-9 w-9 rounded-lg text-slate-700 hover:bg-brand-500/10 hover:text-brand-500 transition-all duration-200"
-                            aria-label="Toggle mobile menu"
+                            aria-label={isMobileMenuOpen ? t('public.nav.closeMenu', 'إغلاق القائمة') : t('public.nav.openMenu', 'فتح القائمة')}
+                            aria-expanded={isMobileMenuOpen}
                         >
                             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                         </button>
@@ -192,7 +196,7 @@ export default function AppNavbar() {
                                     <NavLink
                                         key={item.to}
                                         to={item.to}
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        onClick={closeMobileMenu}
                                         className={({ isActive }) =>
                                             `px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
                                                 ? 'text-white bg-gradient-to-r from-brand-500 to-brand-700 shadow-md'
@@ -256,4 +260,4 @@ export default function AppNavbar() {
             </Container>
         </motion.header>
     )
-}
+})

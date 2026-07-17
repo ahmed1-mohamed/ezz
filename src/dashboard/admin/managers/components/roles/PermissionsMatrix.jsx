@@ -21,18 +21,21 @@ export default function PermissionsMatrix({
     <div className="flex-1 w-full space-y-6">
       {SYSTEM_PERMISSIONS.map((module) => (
         <div key={module.module} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
-          <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
+          <h2 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
             {isRtl ? module.titleAr : module.titleEn}
-          </h3>
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
             {module.actions.map((action) => {
               const isActive = activeKeys.includes(action.key)
               return (
-                <div
+                <button
                   key={action.key}
+                  type="button"
+                  disabled={isAdminAssignment}
+                  aria-pressed={isActive}
                   onClick={isAdminAssignment ? undefined : () => handleToggleKey(action.key)}
-                  className={`flex items-center justify-between p-4 rounded-2xl border select-none transition-all duration-200 ${isAdminAssignment ? 'cursor-default opacity-80' : 'cursor-pointer'
+                  className={`w-full flex items-center justify-between p-4 rounded-2xl border select-none transition-all duration-200 ${isAdminAssignment ? 'cursor-default opacity-80' : 'cursor-pointer'
                     } ${isActive
                       ? 'bg-[#eef4f2] border-[#0f7a6c]/20 text-[#0f7a6c] dark:bg-[#0f7a6c]/10 dark:text-[#14a693] dark:border-[#0f7a6c]/10 font-bold shadow-sm'
                       : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-200 dark:hover:border-slate-700'
@@ -46,7 +49,7 @@ export default function PermissionsMatrix({
                     }`}>
                     {isActive && <CheckCircle2 size={14} className="text-white" />}
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>
@@ -54,9 +57,9 @@ export default function PermissionsMatrix({
       ))}
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
-        <h3 className="text-base font-bold text-slate-800 dark:text-white mb-5">
+        <h2 className="text-base font-bold text-slate-800 dark:text-white mb-5">
           {isRtl ? 'معاينة نطاق الأذونات' : 'Preview of Permissions Scope'}
-        </h3>
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 text-center">

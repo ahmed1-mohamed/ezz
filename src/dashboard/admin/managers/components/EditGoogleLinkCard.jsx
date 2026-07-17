@@ -7,10 +7,10 @@ export default function EditGoogleLinkCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
 
-      <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+      <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <Link size={18} className="text-brand-500" />
         <span>{isRtl ? 'ربط حساب جوجل' : 'Link Google Account'}</span>
-      </h3>
+      </h2>
 
       <div className="flex flex-col items-center justify-center text-center p-4 space-y-4">
 

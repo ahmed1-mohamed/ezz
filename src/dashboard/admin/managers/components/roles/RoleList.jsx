@@ -14,9 +14,9 @@ export default function RoleList({
 }) {
   return (
     <div className="w-full lg:w-80 shrink-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
-      <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4">
+      <h2 className="text-base font-bold text-slate-800 dark:text-white mb-4">
         {t('adminDashboard.managers.permissionsScreen.rolesTitle', 'الأدوار')}
-      </h3>
+      </h2>
 
       <div className="space-y-1.5 mb-6">
         {permissionsList.map((perm) => {
@@ -26,6 +26,7 @@ export default function RoleList({
             <div key={perm.id} className="group flex items-center gap-1">
               <button
                 type="button"
+                aria-pressed={isActive}
                 onClick={() => setSelectedPermissionId(perm.id)}
                 className={`flex items-center justify-between p-3.5 rounded-2xl flex-1 text-start transition-all cursor-pointer ${isActive
                   ? 'bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] font-semibold border-s-4 border-[#0f7a6c] shadow-sm'
@@ -45,6 +46,7 @@ export default function RoleList({
                 <button
                   type="button"
                   title={isRtl ? 'حذف الدور' : 'Delete role'}
+                  aria-label={isRtl ? 'حذف الدور' : 'Delete role'}
                   disabled={isDeletingRole}
                   onClick={async () => {
                     const confirmed = await showDeleteConfirm(isRtl, permName)

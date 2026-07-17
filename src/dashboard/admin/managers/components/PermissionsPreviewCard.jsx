@@ -33,9 +33,9 @@ export default function PermissionsPreviewCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      <h3 className="text-base font-bold text-slate-800 dark:text-white mb-2">
+      <h2 className="text-base font-bold text-slate-800 dark:text-white mb-2">
         {isRtl ? 'معاينة نطاق الأذونات' : 'Preview of Permissions Scope'}
-      </h3>
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 text-center">

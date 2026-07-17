@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import Spinner from '@/shared/components/Spinner'
 
@@ -13,29 +14,79 @@ export default function AddRoleModal({
   onSubmit,
   isPending
 }) {
+  const modalRef = useRef(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus()
+            e.preventDefault()
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus()
+            e.preventDefault()
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    setTimeout(() => {
+      const firstInput = modalRef.current?.querySelector('input')
+      if (firstInput) firstInput.focus()
+    }, 100)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-fadeIn">
-      <div className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 animate-slideUp">
+      <div 
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="addRoleModalTitle"
+        className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 animate-slideUp"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 p-6">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+          <h3 id="addRoleModalTitle" className="text-lg font-bold text-slate-800 dark:text-white">
             {t('adminDashboard.managers.permissionsScreen.addNewRoleModalTitle', 'إضافة دور جديد')}
           </h3>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t('adminDashboard.managers.permissionsScreen.cancel', 'إلغاء')}
             className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-slate-50 dark:bg-slate-800 rounded-full cursor-pointer"
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
+            <label htmlFor="roleNameArInput" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
               {isRtl ? 'الاسم (بالعربية)' : 'Name (Arabic)'}
             </label>
             <input
+              id="roleNameArInput"
               type="text"
               required
               value={newRoleNameAr}
@@ -46,10 +97,11 @@ export default function AddRoleModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
+            <label htmlFor="roleNameEnInput" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
               {isRtl ? 'الاسم (بالإنجليزية)' : 'Name (English)'}
             </label>
             <input
+              id="roleNameEnInput"
               type="text"
               required
               value={newRoleNameEn}

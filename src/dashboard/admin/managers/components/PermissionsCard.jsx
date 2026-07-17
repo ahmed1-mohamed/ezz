@@ -10,9 +10,9 @@ export default function PermissionsCard({
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+      <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.permissionsTitle', 'الأدوار (الأذونات)')}</span>
-      </h3>
+      </h2>
 
       <div className="space-y-3">
         {permissionsList.map((perm) => {
@@ -22,6 +22,7 @@ export default function PermissionsCard({
             <button
               key={perm.id}
               type="button"
+              aria-pressed={isActive}
               onClick={() => onSelectPermission(perm.id)}
               className={`flex items-center justify-between p-4 rounded-2xl w-full text-start transition-all cursor-pointer border ${
                 isActive

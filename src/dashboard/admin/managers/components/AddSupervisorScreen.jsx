@@ -89,6 +89,7 @@ export default function AddSupervisorScreen({
             onClick={onCancel}
             className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all cursor-pointer hover:scale-105"
             title={t('adminDashboard.managers.permissionsScreen.backToList', 'العودة لقائمة المشرفين')}
+            aria-label={t('adminDashboard.managers.permissionsScreen.backToList', 'العودة لقائمة المشرفين')}
           >
             <BackArrow size={20} />
           </button>

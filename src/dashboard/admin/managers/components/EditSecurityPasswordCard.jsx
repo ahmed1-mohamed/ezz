@@ -52,10 +52,11 @@ export default function EditSecurityPasswordCard({
         </h4>
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+          <label htmlFor="currentPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'كلمة المرور الحالية' : 'Current Password'}
           </label>
           <input
+            id="currentPasswordInput"
             type="password"
             value={passwordState.currentPassword}
             onChange={(e) => handleChange('currentPassword', e.target.value)}
@@ -67,10 +68,11 @@ export default function EditSecurityPasswordCard({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            <label htmlFor="newPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'كلمه المرور الجديدة' : 'New Password'}
             </label>
             <input
+              id="newPasswordInput"
               type="password"
               value={passwordState.newPassword}
               onChange={(e) => handleChange('newPassword', e.target.value)}
@@ -80,10 +82,11 @@ export default function EditSecurityPasswordCard({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            <label htmlFor="confirmNewPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
             </label>
             <input
+              id="confirmNewPasswordInput"
               type="password"
               value={passwordState.confirmPassword}
               onChange={(e) => handleChange('confirmPassword', e.target.value)}

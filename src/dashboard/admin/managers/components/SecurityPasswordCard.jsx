@@ -12,28 +12,30 @@ export default function SecurityPasswordCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {t('adminDashboard.managers.addSupervisorScreen.confirmPassword', 'تأكيد كلمة المرور')}
+          <label htmlFor="passwordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            {t('adminDashboard.managers.addSupervisorScreen.password', 'كلمه المرور')}
           </label>
           <input
+            id="passwordInput"
             type="password"
             required
-            value={formData.confirmPassword || ''}
-            onChange={(e) => onChange('confirmPassword', e.target.value)}
+            value={formData.password || ''}
+            onChange={(e) => onChange('password', e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
             dir="ltr"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {t('adminDashboard.managers.addSupervisorScreen.password', 'كلمه المرور')}
+          <label htmlFor="confirmPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            {t('adminDashboard.managers.addSupervisorScreen.confirmPassword', 'تأكيد كلمة المرور')}
           </label>
           <input
+            id="confirmPasswordInput"
             type="password"
             required
-            value={formData.password || ''}
-            onChange={(e) => onChange('password', e.target.value)}
+            value={formData.confirmPassword || ''}
+            onChange={(e) => onChange('confirmPassword', e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
             dir="ltr"
           />

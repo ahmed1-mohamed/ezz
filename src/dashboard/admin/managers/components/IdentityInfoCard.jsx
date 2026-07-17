@@ -73,9 +73,12 @@ export default function IdentityInfoCard({
           onChange={handleFileChange}
           accept="image/*"
           className="hidden"
+          aria-label={t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
         />
 
-        <div
+        <button
+          type="button"
+          aria-label={t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
           onClick={handlePhotoClick}
           className="relative group cursor-pointer flex flex-col items-center justify-center w-36 h-36 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-[#f9fbfb] dark:bg-slate-950/40 hover:border-brand-500 hover:bg-brand-50/10 transition-all overflow-hidden"
         >
@@ -98,8 +101,8 @@ export default function IdentityInfoCard({
               </span>
             </div>
           )}
-        </div>
-        <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
+        </button>
+        <span className="text-xs font-bold text-slate-400 dark:text-slate-500" aria-hidden="true">
           {t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
         </span>
       </div>
@@ -107,10 +110,11 @@ export default function IdentityInfoCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+          <label htmlFor="nameEnInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
           </label>
           <input
+            id="nameEnInput"
             type="text"
             required
             value={formData.nameEn || ''}
@@ -121,10 +125,11 @@ export default function IdentityInfoCard({
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+          <label htmlFor="nameArInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
           </label>
           <input
+            id="nameArInput"
             type="text"
             required
             value={formData.name || ''}
@@ -136,10 +141,11 @@ export default function IdentityInfoCard({
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+        <label htmlFor="emailInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.email', 'عنوان البريد الإلكتروني')}
         </label>
         <input
+          id="emailInput"
           type="email"
           required
           value={formData.email || ''}
@@ -150,7 +156,7 @@ export default function IdentityInfoCard({
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+        <label htmlFor="phoneInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
         </label>
         <div className="flex gap-3" dir="ltr">
@@ -158,21 +164,28 @@ export default function IdentityInfoCard({
           <div className="relative shrink-0">
             <button
               type="button"
+              aria-label={isRtl ? 'اختر رمز الدولة' : 'Select country code'}
+              aria-expanded={isDropdownOpen}
+              aria-haspopup="listbox"
               onClick={() => {
                 setIsDropdownOpen(!isDropdownOpen);
                 if (isDropdownOpen) setCountrySearch('');
               }}
               className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
-              <span>{selectedCountry?.flag}</span>
-              <span>({selectedCountry?.phoneCode})</span>
+              <span aria-hidden="true">{selectedCountry?.flag}</span>
+              <span aria-hidden="true">({selectedCountry?.phoneCode})</span>
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
                 <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
+                  <label htmlFor="countrySearchInput" className="sr-only">
+                    {isRtl ? 'بحث...' : 'Search...'}
+                  </label>
                   <input
-                    type="text"
+                    id="countrySearchInput"
+                    type="search"
                     value={countrySearch}
                     onChange={(e) => setCountrySearch(e.target.value)}
                     placeholder={isRtl ? 'بحث...' : 'Search...'}
@@ -198,6 +211,7 @@ export default function IdentityInfoCard({
           </div>
 
           <input
+            id="phoneInput"
             type="tel"
             required
             value={formData.phone || ''}
@@ -230,10 +244,11 @@ export default function IdentityInfoCard({
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+        <label htmlFor="countrySelectInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {isRtl ? 'الدولة' : 'Country'}
         </label>
         <select
+          id="countrySelectInput"
           required
           value={formData.countryId || ''}
           onChange={(e) => {

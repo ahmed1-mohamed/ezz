@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState, useCallback, useMemo } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -31,7 +31,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
 
-const navItems = [
+// Defined outside component to prevent recreation on every render
+const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers' },
   { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers' },
@@ -57,39 +58,63 @@ const navItems = [
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
 
-export default function AdminLayout() {
+function getDisplayName(nameVal) {
+  if (!nameVal) return ''
+  if (typeof nameVal === 'string') return nameVal
+  if (typeof nameVal === 'object') {
+    return nameVal.ar || nameVal.en || Object.values(nameVal)[0] || ''
+  }
+  return String(nameVal)
+}
+
+// Memoized nav item to prevent re-renders when mobile menu toggles
+const NavItem = memo(function NavItem({ item, t, onClose }) {
+  return (
+    <NavLink
+      to={item.path}
+      end={item.end}
+      onClick={onClose}
+      className={({ isActive }) => `
+        flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
+        ${isActive
+          ? 'bg-[#0f7a6c] text-white font-semibold shadow-md shadow-[#0f7a6c]/10'
+          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-[#0f7a6c] dark:hover:text-emerald-400 hover:ps-5'}
+      `}
+    >
+      <item.icon size={18} className="me-3 transition-transform group-hover:scale-110" aria-hidden="true" />
+      <span className="text-sm">{t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '')}</span>
+    </NavLink>
+  )
+})
+
+export default memo(function AdminLayout() {
   const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
-
-
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout()
     navigate('/login')
-  }
+  }, [logout, navigate])
 
-  const getDisplayName = (nameVal) => {
-    if (!nameVal) return '';
-    if (typeof nameVal === 'string') return nameVal;
-    if (typeof nameVal === 'object') {
-      return nameVal.ar || nameVal.en || Object.values(nameVal)[0] || '';
-    }
-    return String(nameVal);
-  }
+  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
+  const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
 
-  const resolvedName = getDisplayName(user?.name);
-  const userInitial = resolvedName ? resolvedName.trim().charAt(0) : 'أ'
-  const displayRole = user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول')
+  const resolvedName = useMemo(() => getDisplayName(user?.name), [user?.name])
+  const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
+  const displayRole = useMemo(
+    () => user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول'),
+    [user?.role, t]
+  )
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
 
       <header className="lg:hidden w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 h-16 px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white">
+          <div className="w-10 h-10 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white" aria-hidden="true">
             <BookMarked size={20} />
           </div>
           <div className="text-start">
@@ -102,8 +127,10 @@ export default function AdminLayout() {
           </div>
         </div>
         <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          onClick={toggleMobileMenu}
           className="p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-slate-700 dark:text-slate-300 transition-colors"
+          aria-label={isMobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+          aria-expanded={isMobileMenuOpen}
         >
           {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -116,7 +143,8 @@ export default function AdminLayout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={closeMobileMenu}
+            aria-hidden="true"
           />
         )}
       </AnimatePresence>
@@ -127,9 +155,11 @@ export default function AdminLayout() {
         transition-transform duration-300 ease-in-out
         flex flex-col shrink-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
-      `}>
+      `}
+        aria-label={t('adminDashboard.nav.sidebar', 'قائمة الإدارة')}
+      >
         <div className="p-5 flex items-center gap-3 border-b border-slate-100 dark:border-slate-900 shrink-0">
-          <div className="w-10 h-10 rounded-xl bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0" aria-hidden="true">
             <BookMarked size={22} />
           </div>
           <div className="text-start">
@@ -142,22 +172,9 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.end}
-              className={({ isActive }) => `
-                flex  items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
-                ${isActive
-                  ? 'bg-[#0f7a6c] text-white font-semibold shadow-md shadow-[#0f7a6c]/10'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-[#0f7a6c] dark:hover:text-emerald-400 hover:ps-5'}
-              `}
-            >
-              <item.icon size={18} className="me-3 transition-transform group-hover:scale-110" />
-              <span className="text-sm">{t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '')}</span>
-            </NavLink>
+        <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin" aria-label={t('adminDashboard.nav.main', 'التنقل الرئيسي')}>
+          {NAV_ITEMS.map((item) => (
+            <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} />
           ))}
         </nav>
 
@@ -166,7 +183,7 @@ export default function AdminLayout() {
             onClick={handleLogout}
             className="w-full flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-xl transition-all font-medium group"
           >
-            <LogOut size={18} className="me-2 transition-transform group-hover:-translate-x-1" />
+            <LogOut size={18} className="me-2 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
             <span className="text-sm">{t('dashboard.logout', 'تسجيل الخروج')}</span>
           </button>
         </div>
@@ -185,17 +202,16 @@ export default function AdminLayout() {
             </p>
           </div>
 
-
           <div className="flex items-center gap-6">
             <Link
               to="/"
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#f3f7f6] dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 hover:bg-[#0f7a6c] hover:text-white dark:hover:bg-emerald-500 dark:hover:text-slate-950 transition-all hover:scale-105 active:scale-95 duration-200"
             >
               <span>{t('adminDashboard.nav.mainWebsite', 'الموقع الرئيسي')}</span>
-              <Globe size={16} />
+              <Globe size={16} aria-hidden="true" />
             </Link>
 
-            <div className="w-[1px] h-8 bg-slate-200 dark:bg-slate-800" />
+            <div className="w-[1px] h-8 bg-slate-200 dark:bg-slate-800" aria-hidden="true" />
 
             <div className="flex items-center gap-3">
               <div className="text-end hidden xl:block">
@@ -206,11 +222,13 @@ export default function AdminLayout() {
                   {displayRole}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+              <div
+                className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0"
+                aria-label={resolvedName || 'المستخدم'}
+              >
                 {userInitial}
               </div>
             </div>
-
           </div>
 
         </header>
@@ -223,4 +241,4 @@ export default function AdminLayout() {
 
     </div>
   )
-}
+})
