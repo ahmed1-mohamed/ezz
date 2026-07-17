@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { BookOpen, GraduationCap, Users, Calendar, Layers, Activity, Clock } from 'lucide-react'
 import StatsCard from '@/shared/components/StatsCard.jsx'
@@ -9,26 +9,18 @@ import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
 
 export default function AdminDashboard() {
     const { t } = useTranslation()
-    const [dashboardStats, setDashboardStats] = useState({
-        students: '...',
-        teachers: '...',
-        parents: '...',
-        classes: '...'
+    const { data: statsRes } = useQuery({
+        queryKey: ['dashboard-stats'],
+        queryFn: () => dashboardApi.fetchStatistics(),
+        staleTime: 5 * 60 * 1000,
     });
-    useEffect(() => {
-        const fetchStats = async () => {
-            const res = await dashboardApi.fetchStatistics();
-            if (res.success && res.data) {
-                setDashboardStats({
-                    students: res.data?.statistics?.students ?? '0',
-                    teachers: res.data?.statistics?.teachers ?? '0',
-                    parents: res.data?.statistics?.parents ?? '0',
-                    classes: res.data?.statistics?.classes ?? '0'
-                });
-            }
-        };
-        fetchStats();
-    }, []);
+
+    const dashboardStats = {
+        students: statsRes?.data?.statistics?.students ?? '...',
+        teachers: statsRes?.data?.statistics?.teachers ?? '...',
+        parents: statsRes?.data?.statistics?.parents ?? '...',
+        classes: statsRes?.data?.statistics?.classes ?? '...'
+    };
 
     const stats = [
         {

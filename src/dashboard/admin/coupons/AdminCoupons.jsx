@@ -29,6 +29,8 @@ function AdminCoupons() {
         handleOpenForm,
         handleCloseForm,
         handleCloseDetails,
+        selectedStatus,
+        setSelectedStatus,
     } = useCoupons();
 
     if (loading) {
@@ -46,6 +48,8 @@ function AdminCoupons() {
                 active={activeCoupons}
                 expired={expiredCoupons}
                 used={usedCoupons}
+                selectedStatus={selectedStatus}
+                onSelectStatus={setSelectedStatus}
             />
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

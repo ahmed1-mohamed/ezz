@@ -236,7 +236,16 @@ export default function IdentityInfoCard({
         <select
           required
           value={formData.countryId || ''}
-          onChange={(e) => onChange('countryId', e.target.value)}
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            onChange('countryId', selectedId);
+            const found = sortedCountries.find(c => (c.id || c._id) === selectedId);
+            if (found) {
+              const pfx = String(found.phoneCode || found.code || '');
+              const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
+              onChange('phonePrefix', prefixWithPlus);
+            }
+          }}
           className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
         >
           <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>

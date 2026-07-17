@@ -9,7 +9,8 @@ export default function EditGrantedPermissionsCard({
 
   const categories = useMemo(() => {
     const items = []
-    const activeKeys = supervisorPermissions || []
+    const rawPerms = supervisorPermissions || []
+    const activeKeys = rawPerms.map(p => (typeof p === 'object' && p !== null ? (p.key || p.name || p._id || '') : String(p)))
 
     Object.values(PERMISSIONS_LIST).forEach(module => {
       const activeTags = []

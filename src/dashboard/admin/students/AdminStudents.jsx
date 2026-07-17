@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentsList from './components/StudentsList'
 import AddEditStudentScreen from './components/AddEditStudentScreen'
@@ -12,33 +13,20 @@ export default function AdminStudents() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
+  const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState('list')
-  const [students, setStudents] = useState([])
   const [selectedStudent, setSelectedStudent] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
-    async function loadStudents() {
-      setIsLoading(true)
-      try {
-        const res = await studentsApi.fetchStudents({ page: currentPage, limit: 20 })
-        const studentsData = res?.data || res || []
-        const parsedStudents = Array.isArray(studentsData) ? studentsData : [];
-        setStudents(parsedStudents)
+  const { data: fetchRes, isLoading } = useQuery({
+    queryKey: ['students', currentPage],
+    queryFn: () => studentsApi.fetchStudents({ page: currentPage, limit: 20 }),
+    staleTime: 5 * 60 * 1000,
+  });
 
-        if (res?.pagination) {
-          setTotalPages(res.pagination.numberOfPages || 1)
-        }
-      } catch (err) {
-        console.error('Failed to fetch students:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadStudents()
-  }, [currentPage])
+  const studentsData = fetchRes?.data || fetchRes || [];
+  const students = Array.isArray(studentsData) ? studentsData : [];
+  const totalPages = fetchRes?.pagination?.numberOfPages || 1;
 
   const buildStudentFormData = (data, isUpdate = false) => {
     const fd = new FormData();
@@ -75,12 +63,7 @@ export default function AdminStudents() {
 
       try {
         await studentsApi.updateStudent(studentId, apiData)
-
-        const res = await studentsApi.fetchStudents({ page: currentPage, limit: 20 })
-        const studentsData = res?.data || res || []
-        setStudents(Array.isArray(studentsData) ? studentsData : [])
-        if (res?.pagination) setTotalPages(res.pagination.numberOfPages || 1)
-
+        await queryClient.invalidateQueries({ queryKey: ['students'] })
         toast.success(isRtl ? 'تم تعديل بيانات الطالب بنجاح' : 'Student updated successfully');
         setSelectedStudent(null)
         setViewMode('list')
@@ -92,12 +75,7 @@ export default function AdminStudents() {
     } else {
       try {
         await studentsApi.createStudent(apiData)
-
-        const res = await studentsApi.fetchStudents({ page: currentPage, limit: 20 })
-        const studentsData = res?.data || res || []
-        setStudents(Array.isArray(studentsData) ? studentsData : [])
-        if (res?.pagination) setTotalPages(res.pagination.numberOfPages || 1)
-
+        await queryClient.invalidateQueries({ queryKey: ['students'] })
         setViewMode('list')
       } catch (err) {
         console.error('Failed to create student:', err)
@@ -117,7 +95,7 @@ export default function AdminStudents() {
     try {
       const res = await studentsApi.deleteStudent(id)
       if (res.success) {
-        setStudents((prev) => prev.filter((s) => s.id !== id && s._id !== id))
+        await queryClient.invalidateQueries({ queryKey: ['students'] })
         if (selectedStudent && (selectedStudent._id || selectedStudent.student_id || selectedStudent.id) === id) {
           setSelectedStudent(null)
           setViewMode('list')
@@ -137,9 +115,7 @@ export default function AdminStudents() {
     try {
       const res = await studentsApi.updateStudent(id, { ...student, subscriptionStatus: newStatus })
       if (res.success) {
-        setStudents((prev) =>
-          prev.map((s) => ((s._id || s.student_id || s.id || s.studentId || s.userId) === id ? { ...s, subscriptionStatus: newStatus } : s))
-        )
+        await queryClient.invalidateQueries({ queryKey: ['students'] })
         setSelectedStudent((prev) =>
           prev && (prev._id || prev.student_id || prev.id || prev.studentId || prev.userId) === id ? { ...prev, subscriptionStatus: newStatus } : prev
         )
@@ -155,9 +131,7 @@ export default function AdminStudents() {
     try {
       const res = await studentsApi.updateStudent(studentId, { ...student, groupName: newGroupName })
       if (res.success) {
-        setStudents((prev) =>
-          prev.map((s) => ((s._id || s.student_id || s.id || s.studentId || s.userId) === studentId ? { ...s, groupName: newGroupName } : s))
-        )
+        await queryClient.invalidateQueries({ queryKey: ['students'] })
         setSelectedStudent((prev) =>
           prev && (prev._id || prev.student_id || prev.id || prev.studentId || prev.userId) === studentId ? { ...prev, groupName: newGroupName } : prev
         )
@@ -177,16 +151,13 @@ export default function AdminStudents() {
     setViewMode('view-student')
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-8 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-8 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
+      {isLoading && viewMode === 'list' && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
+          <Spinner />
+        </div>
+      )}
 
       {viewMode === 'list' && (
         <>

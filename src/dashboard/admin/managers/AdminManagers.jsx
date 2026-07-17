@@ -26,6 +26,7 @@ export default function AdminManagers() {
     setCurrentPage,
     searchVal,
     setSearchVal,
+    commitSearch,
     statusFilter,
     setStatusFilter,
     supervisorsData,
@@ -96,7 +97,7 @@ export default function AdminManagers() {
     }
   }
 
-  if (isLoadingSupervisors || isLoadingPermissions || isLoadingDetails) {
+  if (isLoadingSupervisors) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
@@ -105,13 +106,20 @@ export default function AdminManagers() {
   }
 
   return (
-    <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
+      {isLoadingDetails && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
+          <Spinner />
+        </div>
+      )}
+
       {viewMode === 'list' && (
         <ManagersList
           supervisors={supervisors}
           statistics={supervisorsData?.statistics}
           searchVal={searchVal}
           onSearchChange={setSearchVal}
+          onSearch={commitSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
           currentPage={currentPage}

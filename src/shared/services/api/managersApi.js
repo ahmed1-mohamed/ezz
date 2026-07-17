@@ -3,7 +3,7 @@ import api from './axiosConfig';
 export const managersApi = {
   fetchSupervisors: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/admins/localized/list', { params });
+      const response = await api.get('/api/v1/admins/localized/all', { params });
       return response.data;
     } catch (error) {
       console.error('API fetchSupervisors failed:', error);
@@ -156,6 +156,16 @@ export const managersApi = {
       return response.data;
     } catch (error) {
       console.error('API updatePermission failed:', error);
+      throw error;
+    }
+  },
+
+  deletePermission: async (id) => {
+    try {
+      const response = await api.delete(`/api/v1/permissions/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('API deletePermission failed:', error);
       throw error;
     }
   },

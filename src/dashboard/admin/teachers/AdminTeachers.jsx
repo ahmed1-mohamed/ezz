@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import TeachersList from './components/TeachersList'
 import TeacherProfileCard from './components/TeacherProfileCard'
@@ -11,40 +12,40 @@ export default function AdminTeachers() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
+  const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState('list')
-  const [teachers, setTeachers] = useState([])
   const [selectedTeacherId, setSelectedTeacherId] = useState(null)
   const [selectedTeacherRecord, setSelectedTeacherRecord] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
 
-  const [activeTeachers, setActiveTeachers] = useState([])
-  const [suspendedTeachers, setSuspendedTeachers] = useState([])
+  const { data: allRes, isLoading: isLoadingAll } = useQuery({
+    queryKey: ['teachers'],
+    queryFn: () => teachersApi.fetchTeachers(),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: activeRes, isLoading: isLoadingActive } = useQuery({
+    queryKey: ['teachers-active'],
+    queryFn: () => teachersApi.fetchActiveTeachers(),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: stoppedRes, isLoading: isLoadingStopped } = useQuery({
+    queryKey: ['teachers-stopped'],
+    queryFn: () => teachersApi.fetchStoppedTeachers(),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const isLoading = isLoadingAll || isLoadingActive || isLoadingStopped
+
+  const teachers = useMemo(() => allRes?.success ? allRes.data : [], [allRes])
+  const activeTeachers = useMemo(() => activeRes?.success ? activeRes.data : [], [activeRes])
+  const suspendedTeachers = useMemo(() => stoppedRes?.success ? stoppedRes.data : [], [stoppedRes])
 
   useEffect(() => {
-    async function loadTeachers() {
-      setIsLoading(true)
-      try {
-        const [allRes, activeRes, stoppedRes] = await Promise.all([
-          teachersApi.fetchTeachers(),
-          teachersApi.fetchActiveTeachers(),
-          teachersApi.fetchStoppedTeachers()
-        ])
-        if (allRes.success) {
-          setTeachers(allRes.data)
-          if (allRes.data.length > 0) {
-            setSelectedTeacherId(allRes.data[0].id)
-          }
-        }
-        if (activeRes.success) setActiveTeachers(activeRes.data)
-        if (stoppedRes.success) setSuspendedTeachers(stoppedRes.data)
-      } catch (err) {
-        console.error('Failed to fetch teachers:', err)
-      } finally {
-        setIsLoading(false)
-      }
+    if (teachers.length > 0 && !selectedTeacherId) {
+      setSelectedTeacherId(teachers[0].id)
     }
-    loadTeachers()
-  }, [])
+  }, [teachers, selectedTeacherId])
 
   const metrics = useMemo(() => {
     const total = teachers.length
@@ -64,9 +65,9 @@ export default function AdminTeachers() {
     try {
       const res = await teachersApi.updateTeacher(id, { ...teacher, status: newStatus })
       if (res.success) {
-        setTeachers((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
-        )
+        await queryClient.invalidateQueries({ queryKey: ['teachers'] })
+        await queryClient.invalidateQueries({ queryKey: ['teachers-active'] })
+        await queryClient.invalidateQueries({ queryKey: ['teachers-stopped'] })
         setSelectedTeacherRecord((prev) =>
           prev && prev.id === id ? { ...prev, status: newStatus } : prev
         )
@@ -84,9 +85,7 @@ export default function AdminTeachers() {
           ...formData
         })
         if (res.success) {
-          setTeachers((prev) =>
-            prev.map((t) => (t.id === selectedTeacherRecord.id ? { ...t, ...res.data } : t))
-          )
+          await queryClient.invalidateQueries({ queryKey: ['teachers'] })
           setSelectedTeacherRecord(null)
           setViewMode('list')
         }
@@ -101,7 +100,8 @@ export default function AdminTeachers() {
           dueEarnings: 0
         })
         if (res.success) {
-          setTeachers((prev) => [...prev, res.data])
+          await queryClient.invalidateQueries({ queryKey: ['teachers'] })
+          await queryClient.invalidateQueries({ queryKey: ['teachers-active'] })
           setSelectedTeacherId(res.data.id)
           setViewMode('list')
         }
@@ -116,16 +116,13 @@ export default function AdminTeachers() {
     setViewMode('edit-teacher')
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-8 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-8 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
+      {isLoading && viewMode === 'list' && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
+          <Spinner />
+        </div>
+      )}
       {viewMode === 'list' && (
         <>
           <div className="text-start">

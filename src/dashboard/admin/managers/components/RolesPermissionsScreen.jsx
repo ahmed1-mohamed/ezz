@@ -70,6 +70,18 @@ export default function RolesPermissionsScreen({
     }
   })
 
+  const deleteRoleMutation = useMutation({
+    mutationFn: (id) => managersApi.deletePermission(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['permissions'])
+      showSuccessToast(isRtl ? 'تم حذف الدور بنجاح!' : 'Role deleted successfully!', isRtl)
+      if (permissionsList.length > 0) {
+        const remaining = permissionsList.filter(p => p.id !== selectedPermissionId)
+        setSelectedPermissionId(remaining[0]?.id || null)
+      }
+    }
+  })
+
   useEffect(() => {
     if (selectedPermissionId) {
       const selected = permissionsList.find(p => p.id === selectedPermissionId)
@@ -101,10 +113,27 @@ export default function RolesPermissionsScreen({
 
   const handleSave = () => {
     if (!selectedPermissionId) return
+
+    const updatedActions = [];
+    activeKeys.forEach(key => {
+      SYSTEM_PERMISSIONS.forEach(module => {
+        const action = module.actions.find(a => a.key === key)
+        if (action) {
+          updatedActions.push({
+            key: action.key,
+            label: {
+              en: action.labelEn,
+              ar: action.labelAr
+            }
+          })
+        }
+      })
+    })
+
     updateMutation.mutate({
       id: selectedPermissionId,
       payload: {
-        keys: activeKeys
+        actions: updatedActions
       }
     })
   }
@@ -118,7 +147,7 @@ export default function RolesPermissionsScreen({
         ar: newRoleNameAr.trim(),
         en: newRoleNameEn.trim()
       },
-      keys: []
+      actions: []
     })
   }
 
@@ -166,7 +195,9 @@ export default function RolesPermissionsScreen({
             <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
               {isAdminAssignment
                 ? (isRtl ? 'اختر الدور الوظيفي للمشرف لمشاهدة وحفظ الصلاحيات الخاصة به.' : 'Select job role for the supervisor to view and assign permissions.')
-                : t('adminDashboard.managers.permissionsScreen.subtitle', 'تكوين ما يمكن للمشرفين الوصول إليه وفعله.')}
+                : (isRtl
+                  ? `تكوين ما يمكن لمستخدمي "${selectedRoleName}" الوصول إليه وفعله.`
+                  : `Configure what "${selectedRoleName}" users can access and do.`)}
             </p>
           </div>
         </div>
@@ -189,6 +220,8 @@ export default function RolesPermissionsScreen({
           t={t}
           isAdminAssignment={isAdminAssignment}
           setIsAddRoleModalOpen={setIsAddRoleModalOpen}
+          onDeleteRole={(id) => deleteRoleMutation.mutate(id)}
+          isDeletingRole={deleteRoleMutation.isPending}
         />
 
         <PermissionsMatrix

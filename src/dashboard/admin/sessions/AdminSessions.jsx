@@ -131,16 +131,15 @@ export default function AdminSessions() {
     return map[key] || defaultLabel
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    )
-  }
+
 
   return (
-    <div className="space-y-6 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
+      {isLoading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
+          <Spinner />
+        </div>
+      )}
       <div className="text-start">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
           {t('adminDashboard.sessions.title', 'إدارة الحصص')}

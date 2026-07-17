@@ -32,7 +32,7 @@ export const teachersApi = {
 
   fetchLocalizedTeachersList: async (params) => {
     try {
-      const response = await api.get('/api/v1/teachers/localized/list', { params });
+      const response = await api.get('/api/v1/teachers/localized/all', { params });
       const items = response.data?.data || response.data || [];
       return { success: true, data: Array.isArray(items) ? items.map(mapTeacherData) : [] };
     } catch (error) {

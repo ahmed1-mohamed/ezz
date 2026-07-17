@@ -72,13 +72,7 @@ export default function AdminPayments() {
     setActiveStatus('pending')
   }
 
-  if (loading && !stats) {
-    return (
-      <div className="flex items-center justify-center h-60">
-        <Spinner />
-      </div>
-    )
-  }
+
 
   return (
     <div className="space-y-8">

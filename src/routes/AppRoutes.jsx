@@ -128,7 +128,7 @@ export default function AppRoutes() {
                 }
             >
                 <AnimatePresence mode="wait">
-                    <Routes location={location} key={location.pathname}>
+                    <Routes location={location}>
 
                         <Route
                             path="/"
@@ -216,91 +216,91 @@ export default function AppRoutes() {
                                 <Route element={<AdminLayout />}>
                                     <Route
                                         path="/dashboard/admin"
-                                        element={<AnimatedPage><AdminDashboard /></AnimatedPage>}
+                                        element={<AdminDashboard />}
                                     />
                                     <Route
                                         path="/dashboard/admin/managers"
-                                        element={<AnimatedPage><AdminManagers /></AnimatedPage>}
+                                        element={<AdminManagers />}
                                     />
                                     <Route
                                         path="/dashboard/admin/students"
-                                        element={<AnimatedPage><AdminStudents /></AnimatedPage>}
+                                        element={<AdminStudents />}
                                     />
                                     <Route
                                         path="/dashboard/admin/student-levels"
-                                        element={<AnimatedPage><AdminStudentLevels /></AnimatedPage>}
+                                        element={<AdminStudentLevels />}
                                     />
                                     <Route
                                         path="/dashboard/admin/teachers"
-                                        element={<AnimatedPage><AdminTeachers /></AnimatedPage>}
+                                        element={<AdminTeachers />}
                                     />
                                     <Route
                                         path="/dashboard/admin/reports"
-                                        element={<AnimatedPage><AdminReports /></AnimatedPage>}
+                                        element={<AdminReports />}
                                     />
                                     <Route
                                         path="/dashboard/admin/settings"
-                                        element={<AnimatedPage><AdminSettings /></AnimatedPage>}
+                                        element={<AdminSettings />}
                                     />
                                     <Route
                                         path="/dashboard/admin/parents"
-                                        element={<AnimatedPage><AdminParents /></AnimatedPage>}
+                                        element={<AdminParents />}
                                     />
                                     <Route
                                         path="/dashboard/admin/explanation-languages"
-                                        element={<AnimatedPage><AdminExplanationLanguages /></AnimatedPage>}
+                                        element={<AdminExplanationLanguages />}
                                     />
                                     <Route
                                         path="/dashboard/admin/groups"
-                                        element={<AnimatedPage><AdminGroups /></AnimatedPage>}
+                                        element={<AdminGroups />}
                                     />
                                     <Route
                                         path="/dashboard/admin/sessions"
-                                        element={<AnimatedPage><AdminSessions /></AnimatedPage>}
+                                        element={<AdminSessions />}
                                     />
                                     <Route
                                         path="/dashboard/admin/messages"
-                                        element={<AnimatedPage><AdminMessages /></AnimatedPage>}
+                                        element={<AdminMessages />}
                                     />
                                     <Route
                                         path="/dashboard/admin/schedule"
-                                        element={<AnimatedPage><AdminSchedule /></AnimatedPage>}
+                                        element={<AdminSchedule />}
                                     />
                                     <Route
                                         path="/dashboard/admin/packages"
-                                        element={<AnimatedPage><AdminPackages /></AnimatedPage>}
+                                        element={<AdminPackages />}
                                     />
                                     <Route
                                         path="/dashboard/admin/coupons"
-                                        element={<AnimatedPage><AdminCoupons /></AnimatedPage>}
+                                        element={<AdminCoupons />}
                                     />
                                     <Route
                                         path="/dashboard/admin/earnings"
-                                        element={<AnimatedPage><AdminEarnings /></AnimatedPage>}
+                                        element={<AdminEarnings />}
                                     />
                                     <Route
                                         path="/dashboard/admin/payments"
-                                        element={<AnimatedPage><AdminPayments /></AnimatedPage>}
+                                        element={<AdminPayments />}
                                     />
                                     <Route
                                         path="/dashboard/admin/rewards"
-                                        element={<AnimatedPage><AdminRewards /></AnimatedPage>}
+                                        element={<AdminRewards />}
                                     />
                                     <Route
                                         path="/dashboard/admin/assignments"
-                                        element={<AnimatedPage><AdminAssignments /></AnimatedPage>}
+                                        element={<AdminAssignments />}
                                     />
                                     <Route
                                         path="/dashboard/admin/website"
-                                        element={<AnimatedPage><AdminWebsite /></AnimatedPage>}
+                                        element={<AdminWebsite />}
                                     />
                                     <Route
                                         path="/dashboard/admin/curriculums"
-                                        element={<AnimatedPage><AdminCurriculums /></AnimatedPage>}
+                                        element={<AdminCurriculums />}
                                     />
                                     <Route
                                         path="/dashboard/admin/logs"
-                                        element={<AnimatedPage><AdminLogs /></AnimatedPage>}
+                                        element={<AdminLogs />}
                                     />
                                 </Route>
                             </Route>
@@ -308,76 +308,76 @@ export default function AppRoutes() {
                             <Route element={<RoleBasedRoute allowedRoles={['Manager']} />}>
                                 <Route
                                     path="/dashboard/manager"
-                                    element={<AnimatedPage><ManagerDashboard /></AnimatedPage>}
+                                    element={<ManagerDashboard />}
                                 />
                                 <Route
                                     path="/dashboard/manager/courses"
-                                    element={<AnimatedPage><ManagerCourses /></AnimatedPage>}
+                                    element={<ManagerCourses />}
                                 />
                                 <Route
                                     path="/dashboard/manager/schedule"
-                                    element={<AnimatedPage><ManagerSchedule /></AnimatedPage>}
+                                    element={<ManagerSchedule />}
                                 />
                                 <Route
                                     path="/dashboard/manager/reports"
-                                    element={<AnimatedPage><ManagerReports /></AnimatedPage>}
+                                    element={<ManagerReports />}
                                 />
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Teacher']} />}>
                                 <Route
                                     path="/dashboard/teacher"
-                                    element={<AnimatedPage><TeacherDashboard /></AnimatedPage>}
+                                    element={<TeacherDashboard />}
                                 />
                                 <Route
                                     path="/dashboard/teacher/schedule"
-                                    element={<AnimatedPage><TeacherSchedule /></AnimatedPage>}
+                                    element={<TeacherSchedule />}
                                 />
                                 <Route
                                     path="/dashboard/teacher/classes"
-                                    element={<AnimatedPage><TeacherClasses /></AnimatedPage>}
+                                    element={<TeacherClasses />}
                                 />
                                 <Route
                                     path="/dashboard/teacher/courses"
-                                    element={<AnimatedPage><TeacherCourses /></AnimatedPage>}
+                                    element={<TeacherCourses />}
                                 />
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Student']} />}>
                                 <Route element={<StudentLayout />}>
-                                    <Route path="/dashboard/student" element={<AnimatedPage><StudentHome /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/schedule" element={<AnimatedPage><StudentSchedule /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/live" element={<AnimatedPage><StudentLive /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/recorded" element={<AnimatedPage><StudentRecorded /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/teachers" element={<AnimatedPage><StudentTeachers /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/teachers/:id" element={<AnimatedPage><StudentTeacherProfile /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/assignments" element={<AnimatedPage><StudentAssignments /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/grades" element={<AnimatedPage><StudentGrades /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/attendance" element={<AnimatedPage><StudentAttendance /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/achievements" element={<AnimatedPage><StudentAchievements /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/materials" element={<AnimatedPage><StudentMaterials /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/profile" element={<AnimatedPage><StudentProfile /></AnimatedPage>} />
-                                    <Route path="/dashboard/student/settings" element={<AnimatedPage><StudentSettings /></AnimatedPage>} />
+                                    <Route path="/dashboard/student" element={<StudentHome />} />
+                                    <Route path="/dashboard/student/schedule" element={<StudentSchedule />} />
+                                    <Route path="/dashboard/student/live" element={<StudentLive />} />
+                                    <Route path="/dashboard/student/recorded" element={<StudentRecorded />} />
+                                    <Route path="/dashboard/student/teachers" element={<StudentTeachers />} />
+                                    <Route path="/dashboard/student/teachers/:id" element={<StudentTeacherProfile />} />
+                                    <Route path="/dashboard/student/assignments" element={<StudentAssignments />} />
+                                    <Route path="/dashboard/student/grades" element={<StudentGrades />} />
+                                    <Route path="/dashboard/student/attendance" element={<StudentAttendance />} />
+                                    <Route path="/dashboard/student/achievements" element={<StudentAchievements />} />
+                                    <Route path="/dashboard/student/materials" element={<StudentMaterials />} />
+                                    <Route path="/dashboard/student/profile" element={<StudentProfile />} />
+                                    <Route path="/dashboard/student/settings" element={<StudentSettings />} />
                                 </Route>
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Parent']} />}>
                                 <Route element={<ParentLayout />}>
-                                    <Route path="/dashboard/parent" element={<AnimatedPage><ParentDashboard /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/schedule" element={<AnimatedPage><ParentSchedule /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/children" element={<AnimatedPage><ParentChildrenList /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/child-details" element={<AnimatedPage><ParentChildren /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/attendance" element={<AnimatedPage><ParentAttendance /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/reports" element={<AnimatedPage><ParentReports /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/ratings" element={<AnimatedPage><ParentRatings /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/assignments" element={<AnimatedPage><ParentAssignments /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/assignments/:id" element={<AnimatedPage><ParentAssignmentDetails /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/complaints" element={<AnimatedPage><ParentComplaints /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/exams" element={<AnimatedPage><ParentExams /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/notifications" element={<AnimatedPage><ParentNotifications /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/profile" element={<AnimatedPage><ParentProfile /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/settings" element={<AnimatedPage><ParentSettings /></AnimatedPage>} />
-                                    <Route path="/dashboard/parent/checkout" element={<AnimatedPage><ParentCheckout /></AnimatedPage>} />
+                                    <Route path="/dashboard/parent" element={<ParentDashboard />} />
+                                    <Route path="/dashboard/parent/schedule" element={<ParentSchedule />} />
+                                    <Route path="/dashboard/parent/children" element={<ParentChildrenList />} />
+                                    <Route path="/dashboard/parent/child-details" element={<ParentChildren />} />
+                                    <Route path="/dashboard/parent/attendance" element={<ParentAttendance />} />
+                                    <Route path="/dashboard/parent/reports" element={<ParentReports />} />
+                                    <Route path="/dashboard/parent/ratings" element={<ParentRatings />} />
+                                    <Route path="/dashboard/parent/assignments" element={<ParentAssignments />} />
+                                    <Route path="/dashboard/parent/assignments/:id" element={<ParentAssignmentDetails />} />
+                                    <Route path="/dashboard/parent/complaints" element={<ParentComplaints />} />
+                                    <Route path="/dashboard/parent/exams" element={<ParentExams />} />
+                                    <Route path="/dashboard/parent/notifications" element={<ParentNotifications />} />
+                                    <Route path="/dashboard/parent/profile" element={<ParentProfile />} />
+                                    <Route path="/dashboard/parent/settings" element={<ParentSettings />} />
+                                    <Route path="/dashboard/parent/checkout" element={<ParentCheckout />} />
                                 </Route>
                             </Route>
                         </Route>

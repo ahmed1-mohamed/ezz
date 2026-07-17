@@ -12,7 +12,7 @@ export const studentsApi = {
   },
 
   fetchLocalizedStudentsList: async (params) => {
-    const response = await api.get('/api/v1/students/localized/list', { params });
+    const response = await api.get('/api/v1/students/localized/all', { params });
     return response.data;
   },
 

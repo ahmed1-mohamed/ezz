@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -133,14 +133,21 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const handleSaveProfile = async () => {
         setSavingProfile(true);
         const fullPhone = phoneVal ? `${selectedCountryCode.code} ${phoneVal.trim()}` : '';
-        const res = await profileApi.updateProfile({
-            nameAr: profileData.fullName,
-            nameEn: profileData.fullName,
+        const payload = {
+            name: profileData.fullName,
             country: profileData.country,
             phone: fullPhone
-        });
+        };
+        if (profileData.imageFile) {
+            payload.image = profileData.imageFile;
+        }
+
+        const res = await profileApi.updateProfile(payload);
         if (res?.success) {
             showSuccessToast('تم تحديث الملف الشخصي بنجاح');
+            if (onProfileLoaded) {
+                onProfileLoaded({ phone: fullPhone, country: profileData.country, image: res.data?.image });
+            }
         } else {
             showErrorToast(res?.error || 'حدث خطأ أثناء التحديث');
         }
@@ -148,6 +155,23 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     };
 
     const userInitial = profileData.fullName ? profileData.fullName.trim().charAt(0) : 'أ';
+    const fileInputRef = useRef(null);
+
+    const handlePhotoClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const tempUrl = URL.createObjectURL(file);
+            setProfileData(prev => ({
+                ...prev,
+                avatar: tempUrl,
+                imageFile: file
+            }));
+        }
+    };
 
     if (loadingProfile) {
         return (
@@ -163,11 +187,26 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-8 text-start">{t('parentSettings.profile')}</h2>
 
             <div className="flex flex-col md:flex-row items-center justify-start gap-6 mb-8">
-                <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shrink-0 relative overflow-hidden">
-                    {userInitial}
+                <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shrink-0 relative overflow-hidden shadow-sm">
+                    {profileData.avatar ? (
+                        <img src={profileData.avatar} alt="Profile Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                        userInitial
+                    )}
                 </div>
                 <div className="flex flex-col items-center md:items-start text-center md:text-start mt-4 md:mt-0">
-                    <button className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors mb-2">
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handlePhotoChange} 
+                        accept="image/jpeg, image/png, image/webp" 
+                        className="hidden" 
+                    />
+                    <button 
+                        type="button"
+                        onClick={handlePhotoClick}
+                        className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors mb-2 cursor-pointer"
+                    >
                         {t('parentSettings.changePhoto')}
                     </button>
                     <span className="text-[10px] text-slate-400">{t('parentSettings.photoLimit')}</span>

@@ -42,25 +42,25 @@ function CouponListTable({ coupons, onDelete, onView }) {
             <table className="w-full text-sm text-center text-slate-500 dark:text-slate-400">
                 <thead className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-800/50">
                     <tr>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-right w-[15%]">
                             {t('adminDashboard.coupons.code', 'رمز الكوبون')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-center w-[10%]">
                             {t('adminDashboard.coupons.discountValue', 'قيمة الخصم')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-right w-[25%]">
                             {t('adminDashboard.coupons.studentLabel', 'الطالب')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-center w-[15%]">
                             {t('adminDashboard.coupons.savedAmountLabel', 'المبلغ الموفر')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-center w-[15%]">
                             {t('adminDashboard.coupons.expiryDate', 'تاريخ الانتهاء')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-center w-[10%]">
                             {t('adminDashboard.coupons.status', 'الحالة')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-center">
+                        <th scope="col" className="px-6 py-4 font-semibold text-center w-[10%]">
                             {t('adminDashboard.coupons.actions', 'إجراءات')}
                         </th>
                     </tr>
@@ -81,7 +81,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                 onClick={() => onView(coupon)}
                             >
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-center gap-2 font-bold text-[#0f7a6c] dark:text-[#14a693]">
+                                    <div className="flex items-center justify-right gap-2 font-bold text-[#0f7a6c] dark:text-[#14a693]">
                                         <Tag size={16} />
                                         {coupon.code}
                                     </div>
@@ -90,7 +90,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                     {coupon.discountPercentage}%
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-center gap-2.5">
+                                    <div className="flex items-center justify-right gap-2.5">
                                         {studentAvatar ? (
                                             <img
                                                 src={studentAvatar}
@@ -121,16 +121,14 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                 </td>
                                 <td className="px-6 py-4">
                                     <span
-                                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-                                            isActive
-                                                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                                                : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
-                                        }`}
+                                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${isActive
+                                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+                                            : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
+                                            }`}
                                     >
                                         <span
-                                            className={`w-1.5 h-1.5 rounded-full ${
-                                                isActive ? 'bg-emerald-500' : 'bg-red-500'
-                                            }`}
+                                            className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-red-500'
+                                                }`}
                                         />
                                         {isActive
                                             ? t('adminDashboard.coupons.active')

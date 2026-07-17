@@ -46,6 +46,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
             student_id: s.student_id || s._id || s.id,
             name: s.name,
             email: s.email,
+            image: s.image || s.profileImage || s.avatar,
         };
         setField('students', [mappedStudent]);
         setIsStudentModalOpen(false);
@@ -191,11 +192,11 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                 <thead className="bg-[#0f7a6c] text-white">
                                                     <tr>
                                                         <th className="px-4 py-3 font-semibold w-12" />
-                                                        <th className="px-4 py-3 font-semibold">
-                                                            {t('adminDashboard.coupons.emailLabel', 'البريد الإلكتروني')}
-                                                        </th>
                                                         <th className="px-4 py-3 font-semibold text-start">
                                                             {t('adminDashboard.coupons.studentNameLabel', 'اسم الطالب')}
+                                                        </th>
+                                                        <th className="px-4 py-3 font-semibold">
+                                                            {t('adminDashboard.coupons.emailLabel', 'البريد الإلكتروني')}
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -214,14 +215,25 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                                     <Trash2 size={16} />
                                                                 </button>
                                                             </td>
+                                                            <td className="px-4 py-3 text-start">
+                                                                <div className="flex items-center gap-3">
+                                                                    {student.image ? (
+                                                                        <img src={student.image} alt="Student" className="w-8 h-8 rounded-full object-cover border border-slate-200" />
+                                                                    ) : (
+                                                                        <div className="w-8 h-8 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] flex items-center justify-center font-bold text-xs">
+                                                                            {resolveStudentName(student.name).charAt(0) || 'S'}
+                                                                        </div>
+                                                                    )}
+                                                                    <span className="text-slate-800 dark:text-slate-205 font-bold">
+                                                                        {resolveStudentName(student.name)}
+                                                                    </span>
+                                                                </div>
+                                                            </td>
                                                             <td
                                                                 className="px-4 py-3 text-slate-600 dark:text-slate-305 font-medium"
                                                                 dir="ltr"
                                                             >
                                                                 {student.email}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-slate-800 dark:text-slate-205 font-bold text-start">
-                                                                {resolveStudentName(student.name)}
                                                             </td>
                                                         </tr>
                                                     ))}

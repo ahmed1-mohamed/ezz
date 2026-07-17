@@ -18,8 +18,8 @@ export function useCoupons() {
     const [expiredCoupons, setExpiredCoupons] = useState(0);
     const [usedCoupons, setUsedCoupons] = useState(0);
 
-    const loadAll = useCallback(async (searchVal = '') => {
-        setLoading(true);
+    const loadAll = useCallback(async (searchVal = '', isInitial = false) => {
+        if (isInitial) setLoading(true);
         const [res, activeRes, usedRes, expiredRes] = await Promise.all([
             adminCouponsApi.fetchCoupons({ search: searchVal }),
             adminCouponsApi.fetchActiveCoupons({ search: searchVal }),
@@ -32,16 +32,16 @@ export function useCoupons() {
         if (usedRes?.success) setUsedCoupons(usedRes.data.length || 0);
         if (expiredRes?.success) setExpiredCoupons(expiredRes.data.length || 0);
 
-        setLoading(false);
+        if (isInitial) setLoading(false);
     }, []);
 
     useEffect(() => {
-        loadAll();
+        loadAll('', true);
     }, [loadAll]);
 
     const handleSearch = useCallback((val) => {
         setSearchQuery(val);
-        loadAll(val);
+        loadAll(val, false);
     }, [loadAll]);
 
     const handleSaveCoupon = useCallback(async (data) => {
@@ -82,10 +82,22 @@ export function useCoupons() {
         setSelectedCoupon(null);
     }, []);
 
+    const [selectedStatus, setSelectedStatus] = useState('all');
+
+    const filteredCoupons = coupons.filter((coupon) => {
+        if (selectedStatus === 'all') return true;
+        const isActive = coupon.status === 'active' || new Date(coupon.expirationDate) >= new Date();
+        
+        if (selectedStatus === 'active') return isActive;
+        if (selectedStatus === 'expired') return !isActive;
+        if (selectedStatus === 'used') return coupon.usageCount > 0 || coupon.status === 'used';
+        return true;
+    });
+
     return {
         loading,
         coupons,
-        filteredCoupons: coupons,
+        filteredCoupons,
         activeCoupons,
         expiredCoupons,
         usedCoupons,
@@ -101,5 +113,7 @@ export function useCoupons() {
         handleOpenForm,
         handleCloseForm,
         handleCloseDetails,
+        selectedStatus,
+        setSelectedStatus,
     };
 }

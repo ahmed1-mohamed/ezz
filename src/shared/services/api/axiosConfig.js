@@ -85,7 +85,9 @@ api.interceptors.response.use(
             deleteCookie('access_token');
             deleteCookie('refresh_token');
             deleteCookie('authUser');
-            window.location.href = '/login';
+            if (window.location.pathname.startsWith('/dashboard')) {
+              window.location.href = '/login';
+            }
             return Promise.reject(refreshError);
           }
         }
@@ -94,7 +96,9 @@ api.interceptors.response.use(
       deleteCookie('access_token');
       deleteCookie('refresh_token');
       deleteCookie('authUser');
-      window.location.href = '/login';
+      if (window.location.pathname.startsWith('/dashboard')) {
+        window.location.href = '/login';
+      }
       return Promise.reject(error);
     }
 

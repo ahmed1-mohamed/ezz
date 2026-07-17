@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Mail, Phone, User, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -19,9 +19,8 @@ const getInitials = (name) => {
 function StudentInfoRow({ icon: Icon, label, value, isLtr = false }) {
     return (
         <div
-            className={`flex items-center gap-2 bg-[#f8fafc] dark:bg-slate-900/60 p-2 rounded-lg text-slate-655 dark:text-slate-300 ${
-                isLtr ? 'flex-row-reverse justify-end' : ''
-            }`}
+            className={`flex items-center gap-2 bg-[#f8fafc] dark:bg-slate-900/60 p-2 rounded-lg text-slate-655 dark:text-slate-300 ${isLtr ? 'flex-row-reverse justify-end' : ''
+                }`}
             dir={isLtr ? 'ltr' : undefined}
         >
             {Icon && <Icon size={14} className="text-slate-400 shrink-0" />}
@@ -36,27 +35,40 @@ function StudentInfoRow({ icon: Icon, label, value, isLtr = false }) {
 }
 
 function StudentCard({ student, isSelected, onToggle, t }) {
-    const studentId = getStudentId(student);
     const studentName = resolveStudentName(student.name);
+    const studentImage = student.image || student.profileImage || student.avatar;
 
     return (
         <div
             onClick={() => onToggle(student)}
-            className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                isSelected
+            className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${isSelected
                     ? 'border-[#0f7a6c] bg-[#0f7a6c]/5'
                     : 'border-slate-100 dark:border-slate-700 hover:border-[#0f7a6c]/30'
-            }`}
+                }`}
         >
             <div className="flex items-center gap-4 mb-4">
-                <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 ${
-                        isSelected ? 'bg-[#0f7a6c]' : 'bg-slate-400'
-                    }`}
-                >
-                    {isSelected ? <Check size={20} /> : getInitials(studentName)}
+                <div className="relative w-10 h-10 shrink-0">
+                    {studentImage ? (
+                        <img
+                            src={studentImage}
+                            alt={studentName}
+                            className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm"
+                        />
+                    ) : (
+                        <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg ${isSelected ? 'bg-[#0f7a6c]' : 'bg-slate-400'
+                                }`}
+                        >
+                            {isSelected ? <Check size={20} /> : getInitials(studentName)}
+                        </div>
+                    )}
+                    {isSelected && studentImage && (
+                        <div className="absolute inset-0 bg-[#0f7a6c]/80 rounded-full flex items-center justify-center text-white backdrop-blur-[1px]">
+                            <Check size={20} />
+                        </div>
+                    )}
                 </div>
-                <div className="font-bold text-slate-800 dark:text-white text-base">
+                <div className="font-bold text-slate-800 dark:text-white text-base truncate">
                     {studentName}
                 </div>
             </div>
@@ -105,15 +117,8 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStudents, setSelectedStudents] = useState([]);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        setSelectedStudents([]);
-        setSearchQuery('');
-        fetchStudents('');
-    }, [isOpen]);
-
-    const fetchStudents = async (query = '') => {
-        setLoading(true);
+    const fetchStudents = useCallback(async (query = '', isInitial = false) => {
+        if (isInitial) setLoading(true);
         try {
             const res = await studentsApi.fetchStudents({ search: query });
             let studentList = [];
@@ -128,9 +133,16 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
         } catch (error) {
             console.error('Failed to fetch students:', error);
         } finally {
-            setLoading(false);
+            if (isInitial) setLoading(false);
         }
-    };
+    }, [alreadySelectedIds]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setSelectedStudents([]);
+        setSearchQuery('');
+        fetchStudents('', true);
+    }, [isOpen, fetchStudents]);
 
     const toggleStudent = (student) => {
         const studentId = getStudentId(student);
@@ -143,7 +155,7 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        fetchStudents(searchQuery);
+        fetchStudents(searchQuery, false);
     };
 
     return (
@@ -233,7 +245,7 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                 disabled={selectedStudents.length === 0}
                                 className="flex-1 py-3.5 rounded-xl font-bold transition-colors bg-[#0f7a6c] text-white hover:bg-[#0d6b5e] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
-                                {selectedStudents.length === 1 
+                                {selectedStudents.length === 1
                                     ? (isRtl ? 'إضافة الطالب المحدد للكوبون' : 'Add Selected Student')
                                     : (isRtl ? 'إضافة طالب' : 'Add Student')}
                             </button>

@@ -16,6 +16,7 @@ export default function ManagersList({
   statistics,
   searchVal,
   onSearchChange,
+  onSearch,
   statusFilter,
   onStatusFilterChange,
   currentPage,
@@ -165,18 +166,27 @@ export default function ManagersList({
           </span>
         </div>
 
-        <div className="relative w-full md:w-80">
-          <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-400`}>
-            <Search size={18} />
+        <form
+          onSubmit={(e) => { e.preventDefault(); onSearch(); }}
+          className="relative w-full md:w-80 flex gap-2"
+        >
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder={t('adminDashboard.managers.searchPlaceholder', 'بحث...')}
+              value={searchVal}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSearch(); } }}
+              className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-4 pr-4' : 'pl-4 pr-4'} outline-none transition-all text-sm placeholder-slate-400`}
+            />
           </div>
-          <input
-            type="text"
-            placeholder={t('adminDashboard.managers.searchPlaceholder', 'بحث...')}
-            value={searchVal}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
-          />
-        </div>
+          <button
+            type="submit"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] shrink-0 cursor-pointer"
+          >
+            <Search size={16} />
+          </button>
+        </form>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">

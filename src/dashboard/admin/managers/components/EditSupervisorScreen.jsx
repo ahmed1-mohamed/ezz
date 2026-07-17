@@ -25,26 +25,40 @@ export default function EditSupervisorScreen({
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const initialPrefix = useMemo(() => {
-    if (supervisor.phone) {
-      const parts = supervisor.phone.split(' ')
-      if (parts.length > 1 && parts[0].startsWith('+')) {
-        return parts[0]
-      }
-    }
-    return '+20'
-  }, [supervisor])
+  const { initialPrefix, initialPhone } = useMemo(() => {
+    const fallback = { initialPrefix: '+20', initialPhone: '' }
+    if (!supervisor.phone) return fallback
 
-  const initialPhone = useMemo(() => {
-    if (supervisor.phone) {
-      const parts = supervisor.phone.split(' ')
-      if (parts.length > 1) {
-        return parts.slice(1).join(' ')
-      }
-      return supervisor.phone
+    const phone = String(supervisor.phone).trim()
+
+    // Case 1: phone has a space separator like "+20 1234567"
+    const spaceIdx = phone.indexOf(' ')
+    if (spaceIdx > 0 && phone.startsWith('+')) {
+      const prefix = phone.slice(0, spaceIdx)
+      const number = phone.slice(spaceIdx + 1).trim()
+      return { initialPrefix: prefix, initialPhone: number }
     }
-    return ''
-  }, [supervisor])
+
+    // Case 2: phone has no space like "+201234567"
+    // Match against known country phone codes (longest first to avoid partial matches)
+    if (phone.startsWith('+') && countries && countries.length > 0) {
+      const sorted = [...countries].sort(
+        (a, b) => String(b.phoneCode || '').replace(/\+/g, '').length - String(a.phoneCode || '').replace(/\+/g, '').length
+      )
+      for (const country of sorted) {
+        const code = String(country.phoneCode || '').trim()
+        if (code && phone.startsWith(code)) {
+          return { initialPrefix: code, initialPhone: phone.slice(code.length).trim() }
+        }
+      }
+      // Fallback: guess prefix is first 3 chars (+XX or +XXX)
+      const guessPrefix = phone.match(/^(\+\d{1,4})/)?.[1] || '+20'
+      return { initialPrefix: guessPrefix, initialPhone: phone.slice(guessPrefix.length).trim() }
+    }
+
+    // Case 3: no plus sign at all — just a plain number
+    return { initialPrefix: '+20', initialPhone: phone }
+  }, [supervisor.phone, countries])
 
   const initialCountryId = useMemo(() => {
     if (!supervisor.country) return ''
@@ -126,12 +140,19 @@ export default function EditSupervisorScreen({
     const foundCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
     const countryId = formData.countryId || foundCountry?.id || foundCountry?._id || null;
 
+    let rawPhone = formData.phone || '';
+    if (rawPhone.startsWith('+')) {
+      const normPrefix = String(formData.phonePrefix || '').replace(/\+/g, '').trim();
+      const normPhone = rawPhone.replace(/^\+/, '').trim();
+      rawPhone = normPhone.startsWith(normPrefix) ? normPhone.slice(normPrefix.length).trim() : normPhone;
+    }
+
     onSave({
       adminData: {
         'name[ar]': formData.name,
         'name[en]': formData.nameEn,
         email: formData.email,
-        phone: formData.phonePrefix + ' ' + formData.phone,
+        phone: formData.phonePrefix + ' ' + rawPhone,
         country: countryId
       },
       permissionId: formData.permissionId
@@ -353,7 +374,16 @@ export default function EditSupervisorScreen({
                   <select
                     required
                     value={formData.countryId || ''}
-                    onChange={(e) => handleFieldChange('countryId', e.target.value)}
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      handleFieldChange('countryId', selectedId);
+                      const found = sortedCountries.find(c => (c.id || c._id) === selectedId);
+                      if (found) {
+                        const pfx = String(found.phoneCode || found.code || '');
+                        const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
+                        handleFieldChange('phonePrefix', prefixWithPlus);
+                      }
+                    }}
                     className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
                   >
                     <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>

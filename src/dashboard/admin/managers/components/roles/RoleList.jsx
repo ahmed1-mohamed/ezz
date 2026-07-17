@@ -1,4 +1,5 @@
-import { Plus, Shield } from 'lucide-react'
+import { Plus, Shield, Trash2 } from 'lucide-react'
+import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 
 export default function RoleList({
   permissionsList,
@@ -7,7 +8,9 @@ export default function RoleList({
   isRtl,
   t,
   isAdminAssignment,
-  setIsAddRoleModalOpen
+  setIsAddRoleModalOpen,
+  onDeleteRole,
+  isDeletingRole
 }) {
   return (
     <div className="w-full lg:w-80 shrink-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
@@ -20,23 +23,39 @@ export default function RoleList({
           const isActive = selectedPermissionId === perm.id
           const permName = typeof perm.name === 'object' ? (isRtl ? perm.name.ar || perm.name.en : perm.name.en || perm.name.ar) : perm.name
           return (
-            <button
-              key={perm.id}
-              type="button"
-              onClick={() => setSelectedPermissionId(perm.id)}
-              className={`flex items-center justify-between p-3.5 rounded-2xl w-full text-start transition-all cursor-pointer ${isActive
-                ? 'bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] font-semibold border-s-4 border-[#0f7a6c] shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950/40'
-                }`}
-              dir={isRtl ? 'rtl' : 'ltr'}
-            >
-              <div className="flex items-center gap-3">
-                <div className={isActive ? 'text-[#0f7a6c] dark:text-[#14a693]' : 'text-slate-400'}>
-                  <Shield size={18} />
+            <div key={perm.id} className="group flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setSelectedPermissionId(perm.id)}
+                className={`flex items-center justify-between p-3.5 rounded-2xl flex-1 text-start transition-all cursor-pointer ${isActive
+                  ? 'bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] font-semibold border-s-4 border-[#0f7a6c] shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950/40'
+                  }`}
+                dir={isRtl ? 'rtl' : 'ltr'}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={isActive ? 'text-[#0f7a6c] dark:text-[#14a693]' : 'text-slate-400'}>
+                    <Shield size={18} />
+                  </div>
+                  <span className="text-sm font-medium">{permName}</span>
                 </div>
-                <span className="text-sm font-medium">{permName}</span>
-              </div>
-            </button>
+              </button>
+
+              {!isAdminAssignment && onDeleteRole && (
+                <button
+                  type="button"
+                  title={isRtl ? 'حذف الدور' : 'Delete role'}
+                  disabled={isDeletingRole}
+                  onClick={async () => {
+                    const confirmed = await showDeleteConfirm(isRtl, permName)
+                    if (confirmed) onDeleteRole(perm.id)
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-2 rounded-xl text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 transition-all cursor-pointer disabled:opacity-30 shrink-0"
+                >
+                  <Trash2 size={15} />
+                </button>
+              )}
+            </div>
           )
         })}
 
