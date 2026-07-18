@@ -177,21 +177,36 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
               </div>
             </div>
 
-            {message.isRead && readByName && (
-              <div className="md:col-span-2 space-y-1.5">
-                <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
-                  {t('adminDashboard.messages.readByLabel', 'تم القراءة بواسطة')}
-                </label>
-                <div className="flex items-center gap-3 w-full bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-200 font-semibold">
-                  {readByObj?.image && (
-                    <img
-                      src={readByObj.image}
-                      alt={readByName}
-                      className="w-7 h-7 rounded-full object-cover border border-slate-200"
-                    />
-                  )}
-                  <span>{readByName}</span>
-                </div>
+            {message.isRead && (readByName || message.readAt) && (
+              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {readByName && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                      {t('adminDashboard.messages.readByLabel', 'تم القراءة بواسطة')}
+                    </label>
+                    <div className="flex items-center gap-3 w-full bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-200 font-semibold">
+                      {readByObj?.image && (
+                        <img
+                          src={readByObj.image}
+                          alt={readByName}
+                          className="w-7 h-7 rounded-full object-cover border border-slate-200"
+                        />
+                      )}
+                      <span>{readByName}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {message.readAt && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                      {t('adminDashboard.messages.readAtLabel', 'تاريخ القراءة')}
+                    </label>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-200 font-semibold" dir="ltr">
+                      {formatDate(message.readAt)}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

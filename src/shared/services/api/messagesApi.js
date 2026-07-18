@@ -3,8 +3,24 @@ import api from './axiosConfig'
 export const messagesApi = {
   fetchMessages: async (params) => {
     try {
-      const response = await api.get('/api/v1/messages/private', { params })
-      return response.data
+      const [readRes, unreadRes] = await Promise.all([
+        api.get('/api/v1/messages/private/read', { params }),
+        api.get('/api/v1/messages/private/unread', { params })
+      ])
+      
+      const readData = Array.isArray(readRes.data?.data) ? readRes.data.data : (Array.isArray(readRes.data) ? readRes.data : [])
+      const unreadData = Array.isArray(unreadRes.data?.data) ? unreadRes.data.data : (Array.isArray(unreadRes.data) ? unreadRes.data : [])
+      
+      const combined = [...unreadData, ...readData]
+      
+      return {
+        data: combined,
+        statistics: {
+          total: combined.length,
+          read: readData.length,
+          unread: unreadData.length
+        }
+      }
     } catch (error) {
       console.error('Error fetching messages:', error)
       throw error

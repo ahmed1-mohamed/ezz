@@ -20,18 +20,19 @@ export default function AdminMessages() {
     isError,
     error
   } = useQuery({
-    queryKey: ['adminMessages', activeTab, i18n.language],
-    queryFn: () => {
-      const params = { lang: i18n.language }
-      if (activeTab === 'unread') return messagesApi.fetchUnreadMessages(params)
-      if (activeTab === 'read') return messagesApi.fetchReadMessages(params)
-      return messagesApi.fetchMessages(params)
-    },
+    queryKey: ['adminMessages', i18n.language],
+    queryFn: () => messagesApi.fetchMessages({ lang: i18n.language }),
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000,
   })
 
-  const messages = Array.isArray(messagesData?.data) ? messagesData.data : (Array.isArray(messagesData) ? messagesData : [])
+  const allMessages = Array.isArray(messagesData?.data) ? messagesData.data : (Array.isArray(messagesData) ? messagesData : [])
+  const messages = allMessages.filter(msg => {
+    if (activeTab === 'unread') return !msg.isRead;
+    if (activeTab === 'read') return msg.isRead;
+    return true;
+  })
+  
   const statistics = messagesData?.statistics || null
 
   const deleteMutation = useMutation({
