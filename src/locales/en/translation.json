@@ -1984,7 +1984,7 @@
         "subtitle": "Configure what users in the {{roleName}} role can access and do.",
         "backToList": "Back to Supervisors List",
         "rolesTitle": "Roles",
-        "addNewRole": "+ Add New Role",
+        "addNewRole": " Add New Role",
         "addNewRoleModalTitle": "Add New Role",
         "roleNameLabel": "New Role Name",
         "addRoleSubmit": "Add Role",

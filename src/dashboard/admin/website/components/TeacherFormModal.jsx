@@ -9,6 +9,70 @@ const teacherSchema = z.object({
   teacherId: z.string().min(1, 'يجب اختيار معلم من القائمة')
 });
 
+/**
+ * Normalizes a name (object or string) into an array of lowercase parts.
+ */
+function getNameParts(name) {
+  if (!name) return [];
+  if (typeof name === 'string') return [name.trim().toLowerCase()];
+  if (typeof name === 'object') {
+    return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase());
+  }
+  return [];
+}
+
+/**
+ * Collects all IDs from an object.
+ */
+function collectIds(obj) {
+  if (!obj) return new Set();
+  const ids = new Set();
+  [obj._id, obj.id, obj.teacher_id, obj.teacherId, obj.user_id, obj.userId]
+    .filter(Boolean).forEach(id => ids.add(String(id)));
+  return ids;
+}
+
+/**
+ * Checks if a system teacher matches an elite teacher record.
+ * Uses ID + name + email for comprehensive matching.
+ */
+function doesSystemTeacherMatchElite(sysTeacher, eliteTeacher) {
+  // --- ID matching ---
+  const sysIds = collectIds(sysTeacher);
+
+  // Collect all IDs from elite teacher's "teacher" ref
+  const etTeacher = eliteTeacher?.teacher;
+  const etRefIds = new Set();
+  if (typeof etTeacher === 'string' && etTeacher) etRefIds.add(etTeacher);
+  if (etTeacher && typeof etTeacher === 'object') {
+    collectIds(etTeacher).forEach(id => etRefIds.add(id));
+  }
+  // Also check direct fields on elite teacher
+  [eliteTeacher?.teacher_id, eliteTeacher?.teacherId, eliteTeacher?.userId, eliteTeacher?.user_id]
+    .filter(Boolean).forEach(id => etRefIds.add(String(id)));
+
+  for (const sysId of sysIds) {
+    if (etRefIds.has(sysId)) return true;
+  }
+
+  // --- Name matching ---
+  const sysNameParts = getNameParts(sysTeacher?.name);
+  const etNameParts = [
+    ...getNameParts(eliteTeacher?.name),
+    ...getNameParts(eliteTeacher?.teacher?.name)
+  ];
+  if (sysNameParts.length > 0 && etNameParts.length > 0) {
+    if (sysNameParts.some(sp => etNameParts.includes(sp))) return true;
+  }
+
+  // --- Email matching ---
+  const sysEmail = (sysTeacher?.email || '').trim().toLowerCase();
+  const etEmail = (eliteTeacher?.email || eliteTeacher?.teacher?.email || '').trim().toLowerCase();
+  if (sysEmail && etEmail && sysEmail === etEmail) return true;
+
+  return false;
+}
+
 export default function TeacherFormModal({
   isOpen,
   onClose,
@@ -28,21 +92,27 @@ export default function TeacherFormModal({
 
   const isAdd = currentTeacher.id === null;
 
-  const filteredTeachers = systemTeachers.filter((t) => {
-    if (eliteTeachers.some(et => {
-      const etId = et.teacher?.id || et.teacher?._id || et.teacherId || '';
-      const tId = t.id || t._id || t.teacher_id || '';
-      return String(etId) === String(tId);
-    })) {
-      return false;
-    }
+  const filteredTeachers = systemTeachers.filter((sysT) => {
+    // Check if this system teacher is already in elite list
+    const alreadyElite = eliteTeachers.some(et => {
+      const isMatch = doesSystemTeacherMatchElite(sysT, et);
+      // If editing, allow the currently selected teacher to still show
+      if (!isAdd && isMatch) {
+        const sysIds = collectIds(sysT);
+        if (sysIds.has(String(currentTeacher.teacherId))) return false;
+      }
+      return isMatch;
+    });
 
+    if (alreadyElite) return false;
+
+    // Apply search filter
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
-    const nameStr = typeof t.name === 'object'
-      ? ((t.name.ar || '') + ' ' + (t.name.en || '')).toLowerCase()
-      : (t.name || '').toLowerCase();
-    return nameStr.includes(query) || (t.email || '').toLowerCase().includes(query);
+    const nameStr = typeof sysT.name === 'object'
+      ? ((sysT.name.ar || '') + ' ' + (sysT.name.en || '')).toLowerCase()
+      : (sysT.name || '').toLowerCase();
+    return nameStr.includes(query) || (sysT.email || '').toLowerCase().includes(query);
   });
 
   const handleFormSubmit = (e) => {
@@ -62,8 +132,8 @@ export default function TeacherFormModal({
 
   return createPortal(
     <AnimatePresence>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
+      <div key="backdrop" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
+      <div key="modal-wrap" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -120,7 +190,7 @@ export default function TeacherFormModal({
                     </div>
                   ) : (
                     filteredTeachers.map((tItem, index) => {
-                      const teacherIdVal = tItem.id || tItem._id || tItem.teacher_id || tItem.user_id || `teacher-${index}`;
+                      const teacherIdVal = tItem._id || tItem.id || tItem.teacher_id || tItem.teacherId || tItem.user_id || tItem.userId || `teacher-${index}`;
                       const isSelected = String(currentTeacher.teacherId) === String(teacherIdVal);
                       const teacherNameStr = typeof tItem.name === 'object'
                         ? (isRtl ? tItem.name.ar || tItem.name.en : tItem.name.en || tItem.name.ar)

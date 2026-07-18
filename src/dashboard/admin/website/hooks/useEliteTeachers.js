@@ -3,6 +3,82 @@ import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
+/**
+ * Extracts all possible IDs from an elite teacher record.
+ * Covers every known shape the API might return.
+ */
+function extractEliteTeacherRefIds(et) {
+  const ids = new Set();
+  if (!et) return ids;
+  // teacher field might be a string ID, an object, or missing
+  const teacher = et.teacher;
+  if (typeof teacher === 'string' && teacher) ids.add(teacher);
+  if (teacher && typeof teacher === 'object') {
+    [teacher._id, teacher.id, teacher.teacher_id, teacher.teacherId, teacher.user_id, teacher.userId]
+      .filter(Boolean).forEach(id => ids.add(String(id)));
+  }
+  // Direct fields on the elite teacher record
+  [et.teacher_id, et.teacherId, et.userId, et.user_id]
+    .filter(Boolean).forEach(id => ids.add(String(id)));
+  return ids;
+}
+
+/**
+ * Extracts all possible IDs from a system teacher record.
+ */
+function extractSystemTeacherIds(t) {
+  const ids = new Set();
+  if (!t) return ids;
+  [t._id, t.id, t.teacher_id, t.teacherId, t.user_id, t.userId]
+    .filter(Boolean).forEach(id => ids.add(String(id)));
+  return ids;
+}
+
+/**
+ * Normalizes a name (object or string) into a lowercase comparable string.
+ */
+function normalizeName(name) {
+  if (!name) return '';
+  if (typeof name === 'string') return name.trim().toLowerCase();
+  if (typeof name === 'object') {
+    return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase()).join('|');
+  }
+  return '';
+}
+
+/**
+ * Checks if a system teacher is already in the elite teachers list.
+ * Uses both ID matching AND name matching as fallback.
+ */
+function isTeacherAlreadyElite(systemTeacher, eliteTeachers) {
+  const sysIds = extractSystemTeacherIds(systemTeacher);
+  const sysName = normalizeName(systemTeacher?.name);
+  const sysEmail = (systemTeacher?.email || '').trim().toLowerCase();
+
+  for (const et of eliteTeachers) {
+    // 1) ID-based matching
+    const etIds = extractEliteTeacherRefIds(et);
+    for (const sysId of sysIds) {
+      if (etIds.has(sysId)) return true;
+    }
+
+    // 2) Name-based matching (fallback when IDs don't line up)
+    if (sysName) {
+      const etName = normalizeName(et?.name || et?.teacher?.name);
+      if (etName && sysName.split('|').some(part => etName.split('|').includes(part))) {
+        return true;
+      }
+    }
+
+    // 3) Email-based matching (another fallback)
+    if (sysEmail) {
+      const etEmail = (et?.email || et?.teacher?.email || '').trim().toLowerCase();
+      if (etEmail && sysEmail === etEmail) return true;
+    }
+  }
+  return false;
+}
+
 export default function useEliteTeachers(showNotification) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -21,19 +97,22 @@ export default function useEliteTeachers(showNotification) {
   });
   const [systemTeachers, setSystemTeachers] = useState([]);
 
-  useEffect(() => {
-    async function loadEliteTeachers() {
-      try {
-        const res = await landingApi.fetchEliteTeachers();
-        const data = res?.data || res;
-        if (Array.isArray(data)) {
-          setEliteTeachers(data);
-        }
-      } catch (err) {
-        console.warn('Failed to fetch elite teachers:', err);
+  const fetchEliteTeachers = async () => {
+    try {
+      const res = await landingApi.fetchEliteTeachers();
+      const data = res?.data || res;
+      if (Array.isArray(data)) {
+        setEliteTeachers(data);
+        return data;
       }
+    } catch (err) {
+      console.warn('Failed to fetch elite teachers:', err);
     }
-    loadEliteTeachers();
+    return eliteTeachers;
+  };
+
+  useEffect(() => {
+    fetchEliteTeachers();
   }, []);
 
   const loadSystemTeachersLazily = async () => {
@@ -49,7 +128,9 @@ export default function useEliteTeachers(showNotification) {
     }
   };
 
-  const handleOpenAddTeacher = () => {
+  const handleOpenAddTeacher = async () => {
+    // Always re-fetch elite teachers before opening add modal for fresh data
+    await fetchEliteTeachers();
     loadSystemTeachersLazily();
     setCurrentTeacher({
       id: null,
@@ -140,8 +221,18 @@ export default function useEliteTeachers(showNotification) {
 
     try {
       if (currentTeacher.id === null) {
-        const existing = eliteTeachers.find(t => String(t.teacherId) === String(currentTeacher.teacherId) || String(t.teacher?._id) === String(currentTeacher.teacherId) || String(t.teacher?.id) === String(currentTeacher.teacherId));
-        if (existing) {
+        // Re-fetch elite teachers for the most up-to-date list before checking
+        const freshElite = await fetchEliteTeachers();
+        const freshEliteList = Array.isArray(freshElite) ? freshElite : eliteTeachers;
+
+        // Find the system teacher object being added
+        const selectedSystemTeacher = systemTeachers.find(st => {
+          const stIds = extractSystemTeacherIds(st);
+          return stIds.has(String(currentTeacher.teacherId));
+        });
+
+        // Check if already elite using comprehensive matching
+        if (selectedSystemTeacher && isTeacherAlreadyElite(selectedSystemTeacher, freshEliteList)) {
           showNotification(t('adminDashboard.website.teacherAlreadyAdded', 'هذا المعلم مضاف بالفعل مسبقاً'), 'error');
           return;
         }
@@ -183,7 +274,13 @@ export default function useEliteTeachers(showNotification) {
       setIsTeacherFormOpen(false);
     } catch (err) {
       console.error(err);
-      showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'), 'error');
+      // Handle backend duplicate error
+      const errMsg = err?.response?.data?.message;
+      if (typeof errMsg === 'string' && (errMsg.includes('already') || errMsg.includes('مضاف') || errMsg.includes('موجود') || errMsg.includes('duplicate'))) {
+        showNotification(t('adminDashboard.website.teacherAlreadyAdded', 'هذا المعلم مضاف بالفعل مسبقاً'), 'error');
+      } else {
+        showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'), 'error');
+      }
     }
   };
 
@@ -202,6 +299,7 @@ export default function useEliteTeachers(showNotification) {
     handleOpenEditTeacher,
     handleShowTeacherNotes,
     handleDeleteTeacher,
-    handleSaveTeacherSubmit
+    handleSaveTeacherSubmit,
+    isTeacherAlreadyElite
   };
 }

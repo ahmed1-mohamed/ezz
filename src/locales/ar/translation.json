@@ -1663,7 +1663,7 @@
       "totalEvents": "إجمالي الأحداث",
       "today": "اليوم",
       "thisWeek": "هذا الأسبوع",
-      "usersThisMonth": "المستخدمين الشهر"
+      "usersThisMonth": "هذا الاسبوع"
     },
     "messages": {
       "title": "طلبات التسجيل",
@@ -1795,7 +1795,7 @@
         "subtitle": "تكوين ما يمكن لمستخدمي {{roleName}} الوصول إليه وفعله.",
         "backToList": "العودة لقائمة المشرفين",
         "rolesTitle": "الأدوار",
-        "addNewRole": "+ إضافة دور جديد",
+        "addNewRole": " إضافة دور جديد",
         "addNewRoleModalTitle": "إضافة دور جديد",
         "roleNameLabel": "اسم الدور الجديد",
         "addRoleSubmit": "إضافة دور",

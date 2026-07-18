@@ -91,6 +91,10 @@ export const teachersApi = {
       formData.append('name[ar]', teacherData.name || "");
       formData.append('name[en]', teacherData.nameEn || teacherData.name || "");
       if (teacherData.phone) formData.append('phone', teacherData.phone);
+      if (teacherData.email) formData.append('email', teacherData.email);
+      if (teacherData.password) formData.append('password', teacherData.password);
+      if (teacherData.confirmPassword) formData.append('confirmPassword', teacherData.confirmPassword);
+      if (teacherData.country) formData.append('country', teacherData.country);
       if (teacherData.profileImageFile instanceof File || teacherData.profileImageFile instanceof Blob) {
         formData.append('image', teacherData.profileImageFile);
       } else if (teacherData.image && (teacherData.image instanceof File || teacherData.image instanceof Blob)) {
@@ -114,7 +118,10 @@ export const teachersApi = {
       if (teacherData.name) formData.append('name[ar]', teacherData.name);
       if (teacherData.nameEn) formData.append('name[en]', teacherData.nameEn);
       if (teacherData.phone) formData.append('phone', teacherData.phone);
+      if (teacherData.email) formData.append('email', teacherData.email);
       if (teacherData.country) formData.append('country', teacherData.country);
+      if (teacherData.password) formData.append('password', teacherData.password);
+      if (teacherData.confirmPassword) formData.append('confirmPassword', teacherData.confirmPassword);
 
       if (teacherData.profileImageFile instanceof File || teacherData.profileImageFile instanceof Blob) {
         formData.append('image', teacherData.profileImageFile);

@@ -75,7 +75,7 @@ export default function RoleList({
           className="w-full py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 text-[#0f7a6c] dark:text-[#14a693] text-sm font-bold transition-all text-center flex items-center justify-center gap-2 border border-transparent hover:border-[#0f7a6c]/20 cursor-pointer"
         >
           <Plus size={16} />
-          <span>{t('adminDashboard.managers.permissionsScreen.addNewRole', '+ إضافة دور جديد')}</span>
+          <span>{t('adminDashboard.managers.permissionsScreen.addNewRole', ' إضافة دور جديد')}</span>
         </button>
       )}
     </div>

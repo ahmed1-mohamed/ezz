@@ -87,13 +87,13 @@ export default function AdminPackages() {
 
             const mappedPkg = {
                 id: pkgData.id || pkgData._id,
-                name: pkgData.name?.ar || '',
-                name_en: pkgData.name?.en || '',
+                name: typeof pkgData.name === 'object' && pkgData.name !== null ? pkgData.name.ar || '' : pkgData.name || '',
+                name_en: typeof pkgData.name === 'object' && pkgData.name !== null ? pkgData.name.en || '' : pkgData.name || '',
                 price: pkgData.price,
                 sessions_per_month: pkgData.sessionsCount,
                 sessions_language: langId,
-                features: pkgData.features?.ar || [],
-                features_en: pkgData.features?.en || [],
+                features: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.ar || []),
+                features_en: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.en || []),
             }
 
             setEditingPkg(mappedPkg)
@@ -114,10 +114,10 @@ export default function AdminPackages() {
 
             const mappedFaq = {
                 id: faqData.id || faqData._id,
-                question: faqData.question?.ar || '',
-                question_en: faqData.question?.en || '',
-                answer: faqData.answer?.ar || '',
-                answer_en: faqData.answer?.en || '',
+                question: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.ar || '' : faqData.question || '',
+                question_en: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.en || '' : faqData.question || '',
+                answer: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.ar || '' : faqData.answer || '',
+                answer_en: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.en || '' : faqData.answer || '',
             }
 
             setEditingFaq(mappedFaq)

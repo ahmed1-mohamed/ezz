@@ -224,7 +224,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="flex-1 py-2.5 rounded-xl bg-[#0f7a6c] text-white text-sm font-semibold hover:bg-[#0d6b5e] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-[#0f7a6c] text-white text-sm font-semibold hover:bg-[#0d6b5e] transition-colors disabled:opacity-60 flex items-center justify-center gap-2 min-w-[140px]"
               >
                 {saving && <Spinner />}
                 {p('save')}

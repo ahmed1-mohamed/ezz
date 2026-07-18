@@ -111,7 +111,7 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
                 <button
                     onClick={handleUpdatePassword}
                     disabled={savingPassword}
-                    className="bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-70 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto flex items-center justify-center gap-2"
+                    className="bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-70 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto min-w-[160px] flex items-center justify-center gap-2"
                 >
                     {savingPassword && <Spinner className="w-4 h-4" />}
                     {t('parentSettings.updatePassword')}

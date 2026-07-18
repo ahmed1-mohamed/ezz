@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
 import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
+import { landingApi } from '@/shared/services/api/landingApi'
 import TeacherAboutCard from './TeacherAboutCard'
 import TeacherCertificatesCard from './TeacherCertificatesCard'
 import TeacherSecurityCard from './TeacherSecurityCard'
@@ -19,6 +20,29 @@ export default function AddEditTeacherScreen({
   onCancel
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
+
+  const [apiCountries, setApiCountries] = useState([])
+
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await landingApi.fetchCountries();
+        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        if (fetchedCountries.length > 0) {
+          setApiCountries(fetchedCountries);
+          if (!teacher) {
+            const defaultCountry = fetchedCountries.find(c => c.phoneCode === '+20' || c.name === 'Egypt' || c.name === 'مصر');
+            if (defaultCountry) {
+              setFormData(prev => ({ ...prev, country: defaultCountry.id || defaultCountry._id }));
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load countries', err);
+      }
+    };
+    loadCountries();
+  }, [teacher]);
 
   const [formData, setFormData] = useState({
     name: teacher?.name || '',
@@ -121,6 +145,7 @@ export default function AddEditTeacherScreen({
             onChange={handleFieldChange}
             isRtl={isRtl}
             t={t}
+            countries={apiCountries}
           />
 
           {teacher && (

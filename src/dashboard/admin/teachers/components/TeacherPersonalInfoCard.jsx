@@ -11,15 +11,20 @@ const countryCodes = [
 export default function TeacherPersonalInfoCard({
   formData,
   onChange,
-  isRtl
+  isRtl,
+  countries = []
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const phonePrefix = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : '+20'
   const phoneNumberOnly = formData.phone?.includes(' ') ? formData.phone.split(' ').slice(1).join(' ') : formData.phone
 
+  const activeCountryCodes = countries.length > 0
+    ? countries.map(c => ({ code: c.phoneCode, flag: c.flag, name: c.name, id: c.id || c._id }))
+    : countryCodes;
+
   const [selectedCountry, setSelectedCountry] = useState(
-    countryCodes.find((c) => c.code === phonePrefix) || countryCodes[0]
+    activeCountryCodes.find((c) => c.code === phonePrefix) || activeCountryCodes[0] || countryCodes[0]
   )
 
   const handlePhoneNumChange = (value) => {
@@ -131,8 +136,8 @@ export default function TeacherPersonalInfoCard({
               </button>
 
               {isDropdownOpen && (
-                <div className={`absolute ${isRtl ? 'right-0' : 'left-0'} mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn`}>
-                  {countryCodes.map((country) => (
+                <div className={`absolute ${isRtl ? 'right-0' : 'left-0'} mt-2 z-10 w-44 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn`}>
+                  {activeCountryCodes.map((country) => (
                     <button
                       key={country.code}
                       type="button"
@@ -175,6 +180,29 @@ export default function TeacherPersonalInfoCard({
           />
         </div>
 
+      </div>
+
+      <div className="grid grid-cols-1 gap-5">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'الدولة' : 'Country'}
+          </label>
+          <select
+            name="country"
+            required
+            value={formData.country || ''}
+            onChange={(e) => onChange('country', e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium text-start appearance-none"
+          >
+            <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
+            {countries.map(c => (
+                <option key={c.id || c._id} value={c.id || c._id}>
+                    {c.flag ? `${c.flag} ` : ''}{c.name}
+                </option>
+            ))}
+            {countries.length === 0 && <option value={formData.country || 'مصر'}>{formData.country || 'مصر'}</option>}
+          </select>
+        </div>
       </div>
 
     </div>
