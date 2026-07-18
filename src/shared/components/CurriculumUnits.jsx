@@ -1,195 +1,350 @@
-import React from 'react';
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, BookText, GraduationCap, Award, Users, ArrowLeft, ArrowRight, Mic, Lightbulb, Star, Book } from 'lucide-react'
+import { BookOpen, Award, Users, ChevronDown, Book, Star } from 'lucide-react'
+import api from '@/shared/services/api/axiosConfig'
+import { useQuery } from '@tanstack/react-query'
 
 export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
-    const ArrowIcon = isRtl ? ArrowLeft : ArrowRight
 
-    const [activeTab, setActiveTab] = useState('quran')
-
-    const tabs = [
-        { id: 'quran', label: t('curriculumUnits.tabs.quran', 'القرآن الكريم'), icon: BookOpen },
-        { id: 'arabic', label: t('curriculumUnits.tabs.arabic', 'اللغة العربية'), icon: BookText },
-        { id: 'islamic', label: t('curriculumUnits.tabs.islamic', 'الدراسات الإسلامية'), icon: GraduationCap },
-    ]
-
-    const tabData = {
-        quran: {
-            sidebar: {
-                title: t('curriculumUnits.quran.sidebar.title', 'عن منهج القرآن الكريم'),
-                description: t('curriculumUnits.quran.sidebar.desc', 'منهج متكامل يجمع بين التلاوة الصحيحة، الحفظ المتقن، وفهم معاني الآيات. نعتمد منهجية التدرج ومراعاة الفروق الفردية لكل طالب مع التركيز على أحكام التجويد الأساسية.'),
-                features: [
-                    { icon: Award, title: t('curriculumUnits.quran.feat1.title', 'شهادة معتمدة'), subtitle: t('curriculumUnits.quran.feat1.desc', 'عند إتمام كل جزء') },
-                    { icon: Users, title: t('curriculumUnits.quran.feat2.title', 'حلقات تفاعلية'), subtitle: t('curriculumUnits.quran.feat2.desc', 'مع أمهر المقرئين') }
-                ],
-                buttonText: t('curriculumUnits.quran.btn', 'استعرض المنهج')
-            },
-            units: [
-                { id: 1, title: t('curriculumUnits.quran.u1.title', 'مبادئ التجويد'), desc: t('curriculumUnits.quran.u1.desc', 'تعرف على مخارج الحروف وصفاتها الأساسية لتلاوة صحيحة خالية من اللحن.'), level: t('curriculumUnits.quran.u1.level', 'مستوى مبتدئ'), icon: Book },
-                { id: 2, title: t('curriculumUnits.quran.u2.title', 'جزء عمّ تلاوة وحفظاً'), desc: t('curriculumUnits.quran.u2.desc', 'حفظ وتدبر قصار السور بأسلوب ممتع يربط الآيات بحياة الطفل اليومية.'), level: t('curriculumUnits.quran.u2.level', 'المرحلة الأولى'), icon: Star },
-                { id: 3, title: t('curriculumUnits.quran.u3.title', 'مقامات القراءة'), desc: t('curriculumUnits.quran.u3.desc', 'تحسين الصوت بالأداء القرآني وتعلم المقامات الأساسية بوقار وهدوء.'), level: t('curriculumUnits.quran.u3.level', 'مستوى متقدم'), icon: Mic },
-                { id: 4, title: t('curriculumUnits.quran.u4.title', 'قصص من القرآن'), desc: t('curriculumUnits.quran.u4.desc', 'استخلاص العبر والدروس التربوية من قصص الأنبياء المذكورة في القرآن.'), level: t('curriculumUnits.quran.u4.level', 'منهج إثرائي'), icon: Lightbulb }
-            ]
-        },
-        arabic: {
-            sidebar: {
-                title: t('curriculumUnits.arabic.sidebar.title', 'عن منهج اللغة العربية'),
-                description: t('curriculumUnits.arabic.sidebar.desc', 'منهج يؤسس لمهارات اللغة الأربع: الاستماع، التحدث، القراءة، والكتابة بأساليب حديثة تربط اللغة بالواقع اليومي.'),
-                features: [
-                    { icon: Award, title: t('curriculumUnits.arabic.feat1.title', 'تقييم مستمر'), subtitle: t('curriculumUnits.arabic.feat1.desc', 'لقياس تطور المهارات') },
-                    { icon: Users, title: t('curriculumUnits.arabic.feat2.title', 'ممارسة عملية'), subtitle: t('curriculumUnits.arabic.feat2.desc', 'من خلال أنشطة تفاعلية') }
-                ],
-                buttonText: t('curriculumUnits.arabic.btn', 'استعرض المنهج')
-            },
-            units: [
-                { id: 1, title: t('curriculumUnits.arabic.u1.title', 'أساسيات النحو'), desc: t('curriculumUnits.arabic.u1.desc', 'فهم القواعد النحوية الأساسية وتطبيقها في التحدث والكتابة.'), level: t('curriculumUnits.arabic.u1.level', 'مستوى مبتدئ'), icon: Book },
-                { id: 2, title: t('curriculumUnits.arabic.u2.title', 'مهارات التعبير'), desc: t('curriculumUnits.arabic.u2.desc', 'تطوير قدرة الطالب على التعبير عن أفكاره بوضوح وسلاسة.'), level: t('curriculumUnits.arabic.u2.level', 'المرحلة الأولى'), icon: Star },
-                { id: 3, title: t('curriculumUnits.arabic.u3.title', 'الأدب والبلاغة'), desc: t('curriculumUnits.arabic.u3.desc', 'تذوق جماليات اللغة العربية من خلال دراسة النصوص الأدبية.'), level: t('curriculumUnits.arabic.u3.level', 'مستوى متقدم'), icon: Mic },
-                { id: 4, title: t('curriculumUnits.arabic.u4.title', 'القراءة الحرة'), desc: t('curriculumUnits.arabic.u4.desc', 'تشجيع المطالعة وتوسيع المدارك اللغوية والمعرفية.'), level: t('curriculumUnits.arabic.u4.level', 'منهج إثرائي'), icon: Lightbulb }
-            ]
-        },
-        islamic: {
-            sidebar: {
-                title: t('curriculumUnits.islamic.sidebar.title', 'عن منهج الدراسات الإسلامية'),
-                description: t('curriculumUnits.islamic.sidebar.desc', 'برنامج يهدف إلى غرس العقيدة الصحيحة، وتعليم الفقه الميسر، واستلهام العبر من السيرة النبوية لتربية جيل واعٍ بدينه.'),
-                features: [
-                    { icon: Award, title: t('curriculumUnits.islamic.feat1.title', 'شهادة إتمام'), subtitle: t('curriculumUnits.islamic.feat1.desc', 'بعد اجتياز الاختبارات') },
-                    { icon: Users, title: t('curriculumUnits.islamic.feat2.title', 'نقاشات هادفة'), subtitle: t('curriculumUnits.islamic.feat2.desc', 'لترسيخ المفاهيم') }
-                ],
-                buttonText: t('curriculumUnits.islamic.btn', 'استعرض المنهج')
-            },
-            units: [
-                { id: 1, title: t('curriculumUnits.islamic.u1.title', 'العقيدة الإسلامية'), desc: t('curriculumUnits.islamic.u1.desc', 'ترسيخ أركان الإيمان وتوضيح مفاهيم التوحيد بأسلوب مبسط.'), level: t('curriculumUnits.islamic.u1.level', 'مستوى مبتدئ'), icon: Book },
-                { id: 2, title: t('curriculumUnits.islamic.u2.title', 'فقه العبادات'), desc: t('curriculumUnits.islamic.u2.desc', 'تعلم أحكام الطهارة والصلاة والصيام عملياً ونظرياً.'), level: t('curriculumUnits.islamic.u2.level', 'المرحلة الأولى'), icon: Star },
-                { id: 3, title: t('curriculumUnits.islamic.u3.title', 'السيرة النبوية'), desc: t('curriculumUnits.islamic.u3.desc', 'محطات من حياة النبي ﷺ واستخلاص الدروس والعبر منها.'), level: t('curriculumUnits.islamic.u3.level', 'مستوى متقدم'), icon: Mic },
-                { id: 4, title: t('curriculumUnits.islamic.u4.title', 'الأخلاق والآداب'), desc: t('curriculumUnits.islamic.u4.desc', 'تعزيز السلوكيات الإيجابية والآداب الإسلامية في الحياة اليومية.'), level: t('curriculumUnits.islamic.u4.level', 'منهج إثرائي'), icon: Lightbulb }
-            ]
+    // 1. Fetch All Curricula
+    const { data: curriculaData, isLoading: isCurriculaLoading } = useQuery({
+        queryKey: ['public-curricula'],
+        queryFn: async () => {
+            const res = await api.get('/api/v1/curricula/public');
+            const items = res.data?.data || [];
+            return items.map(item => item.data || item);
         }
-    }
+    });
 
-    const currentData = tabData[activeTab]
+    const curricula = curriculaData || [];
+    const [activeTabId, setActiveTabId] = useState(null);
+    const [openLevel, setOpenLevel] = useState(null);
+    const [showAllLevels, setShowAllLevels] = useState(false);
 
+    // Set first tab as active by default
+    useEffect(() => {
+        if (curricula.length > 0 && !activeTabId) {
+            setActiveTabId(curricula[0].id || curricula[0]._id);
+        }
+    }, [curricula, activeTabId]);
+
+    // 2. Fetch Selected Curriculum Details
+    const { data: activeCurriculumData, isLoading: isDetailsLoading } = useQuery({
+        queryKey: ['public-curriculum-details', activeTabId],
+        queryFn: async () => {
+            if (!activeTabId) return null;
+            const res = await api.get(`/api/v1/curricula/public/${activeTabId}`);
+
+            let curr = res.data?.data || res.data;
+            // If the detail endpoint returns an array with one element (like the list endpoint), extract it
+            if (Array.isArray(curr)) {
+                curr = curr[0]?.data || curr[0] || {};
+            } else if (curr?.data) {
+                curr = curr.data;
+            }
+
+            return curr;
+        },
+        enabled: !!activeTabId
+    });
+
+    const currentData = activeCurriculumData || curricula.find(c => (c.id || c._id) === activeTabId);
+
+    console.log(currentData)
     return (
-        <section className="py-12 sm:py-16 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-                        {t('curriculumUnits.mainTitle', 'الوحدات التعليمية')}
-                    </h2>
-                    <div className="bg-[#E7E7E4] text-[#735C00] font-bold px-6 py-2.5 rounded-full text-sm sm:text-base">
-                        {t('curriculumUnits.badgeCount', '١٢ وحدة دراسية')}
-                    </div>
-                </div>
+        <section className="py-12 sm:py-20 relative z-10">
+            {/* Background Decorative Gradients */}
+            <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none" />
 
-                 <div className="flex flex-wrap justify-center gap-4 mb-12">
-                    {tabs.map((tab) => {
-                        const isActive = activeTab === tab.id
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 border-2 ${isActive 
-                                    ? 'bg-white border-[#00695C] text-[#00695C] shadow-md' 
-                                    : 'bg-white border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50'
-                                }`}
-                            >
-                                <tab.icon className={`w-5 h-5 ${isActive ? 'text-[#00695C]' : 'text-slate-400'}`} />
-                                {tab.label}
-                            </button>
-                        )
-                    })}
-                </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-                 <AnimatePresence mode="wait">
+                <div className="text-center mb-16 space-y-4">
                     <motion.div
-                        key={activeTab}
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                        variants={{
-                            hidden: { opacity: 0 },
-                            visible: { opacity: 1, transition: { duration: 0.3, staggerChildren: 0.1 } }
-                        }}
-                        className="flex flex-col lg:flex-row gap-6 lg:gap-8"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="inline-flex items-center gap-2 bg-[#00695C]/5 text-[#00695C] border border-[#00695C]/10 px-6 py-2 rounded-full font-bold text-sm"
                     >
-                         <motion.div 
-                            variants={{
-                                hidden: { opacity: 0, y: 20 },
-                                visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
-                            }}
-                            style={{ willChange: 'transform, opacity' }}
-                            className="w-full lg:w-1/3"
-                        >
-                            <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 h-full flex flex-col relative overflow-hidden group text-start">
-                                <div className="absolute top-0 end-0 w-48 h-48 bg-[#00695C] opacity-[0.03] rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:opacity-[0.06]" />
-                                
-                                <h3 className="text-2xl font-extrabold text-[#00695C] mb-4 relative z-10">
-                                    {currentData.sidebar.title}
-                                </h3>
-                                <p className="text-slate-600 leading-relaxed font-medium mb-8 relative z-10">
-                                    {currentData.sidebar.description}
-                                </p>
-
-                                <div className="space-y-4 mb-10 relative z-10">
-                                    {currentData.sidebar.features.map((feat, idx) => (
-                                        <div key={idx} className="bg-slate-50/80 rounded-2xl p-4 flex items-center gap-4 border border-slate-100 transition-all duration-300 hover:bg-white hover:shadow-md hover:border-[#00695C]/20 hover:-translate-y-1">
-                                            <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                                                <feat.icon className="w-6 h-6 text-[#735C00]" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900">{feat.title}</h4>
-                                                <p className="text-sm text-slate-500">{feat.subtitle}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-auto relative z-10">
-                                    <button className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-xl hover:-translate-y-1 active:scale-95 group/btn">
-                                        {currentData.sidebar.buttonText}
-                                        <ArrowIcon className="w-5 h-5 transition-transform duration-300 rtl:group-hover/btn:-translate-x-1 ltr:group-hover/btn:translate-x-1" />
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                         <div className="w-full lg:w-2/3">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {currentData.units.map((unit) => (
-                                    <motion.button 
-                                        variants={{
-                                            hidden: { opacity: 0, scale: 0.95, y: 10 },
-                                            visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
-                                        }}
-                                        key={unit.id} 
-                                        className="group bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-[#00695C]/30 text-start relative overflow-hidden focus:outline-none focus:ring-4 focus:ring-[#00695C]/20"
-                                    >
-                                        <div className="absolute top-0 end-0 w-32 h-32 bg-gradient-to-br from-[#00695C] to-[#004D40] opacity-[0.02] rounded-full blur-2xl transition-transform duration-500 group-hover:scale-150 group-hover:opacity-[0.06]" />
-                                        
-                                        <div className="flex justify-between items-start mb-6 relative z-10">
-                                            <div className="bg-[#E7E7E4]/50 w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#00695C]/10">
-                                                <unit.icon className="w-7 h-7 text-[#00695C] transition-colors duration-300" />
-                                            </div>
-                                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 transition-all duration-300 opacity-0 rtl:translate-x-4 ltr:-translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:bg-[#00695C]/10 text-[#00695C]">
-                                                <ArrowIcon className="w-5 h-5" />
-                                            </div>
-                                        </div>
-                                        <h4 className="text-xl font-extrabold text-slate-900 mb-3 relative z-10 transition-colors duration-300 group-hover:text-[#00695C]">{unit.title}</h4>
-                                        <p className="text-slate-500 leading-relaxed mb-6 font-medium text-sm relative z-10 transition-colors duration-300 group-hover:text-slate-600">
-                                            {unit.desc}
-                                        </p>
-                                        <div className="inline-flex items-center gap-2 bg-[#FEF6E0] text-[#735C00] text-sm font-bold px-4 py-2 rounded-full relative z-10 transition-all duration-300 group-hover:bg-[#735C00] group-hover:text-white">
-                                            {unit.level}
-                                        </div>
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </div>
+                        <Star className="w-4 h-4" />
+                        {t('curriculumUnits.badgeCount', 'رحلة المعرفة والإيمان')}
                     </motion.div>
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight"
+                    >
+                        {t('curriculumUnits.mainTitle', 'اختر منهجك التعليمي')}
+                    </motion.h2>
+                </div>
+
+                {/* Premium Tabs */}
+                {isCurriculaLoading ? (
+                    <div className="flex justify-center gap-4 mb-16">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-16 w-48 bg-white shadow-sm rounded-full animate-pulse border border-slate-100" />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-wrap justify-center gap-4 mb-16">
+                        {curricula.map((curr) => {
+                            const id = curr.id || curr._id;
+                            const isActive = activeTabId === id;
+                            const name = typeof curr.name === 'object' ? (isRtl ? curr.name.ar : curr.name.en) || curr.name.ar : curr.name;
+
+                            return (
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    key={id}
+                                    onClick={() => {
+                                        setActiveTabId(id);
+                                        setOpenLevel(null);
+                                    }}
+                                    className={`relative flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 overflow-hidden ${isActive
+                                        ? 'bg-[#00695C] text-white shadow-lg shadow-[#00695C]/30 border border-[#00695C]'
+                                        : 'bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
+                                        }`}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeTabIndicator"
+                                            className="absolute inset-0 bg-[#00695C] z-0"
+                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                        />
+                                    )}
+                                    <div className="relative z-10 flex items-center gap-3">
+                                        <BookOpen className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#00695C]'}`} />
+                                        <span>{name}</span>
+                                    </div>
+                                </motion.button>
+                            )
+                        })}
+                    </div>
+                )}
+
+                <AnimatePresence mode="wait">
+                    {activeTabId && currentData && (
+                        <motion.div
+                            key={activeTabId}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -30 }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                            className="space-y-16"
+                        >
+                            {/* Premium Hero Card for Curriculum Details */}
+                            <div className="bg-white rounded-[3rem] p-6 sm:p-8 md:p-12 shadow-2xl shadow-[#00695C]/5 border border-slate-100 relative overflow-hidden flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
+                                {/* Decorative Background Elements */}
+                                <div className="absolute top-0 end-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#00695C]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+                                <div className="absolute bottom-0 start-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+                                {/* Image Section */}
+                                {currentData.image && (
+                                    <div className="w-full lg:w-2/5 relative z-10">
+                                        <div className="relative rounded-[2rem] overflow-hidden aspect-[4/5] shadow-lg border border-slate-100 group">
+                                            <div className="absolute inset-0 bg-[#00695C]/10 mix-blend-multiply group-hover:bg-transparent transition-colors duration-500 z-10" />
+                                            <img
+                                                src={currentData.image}
+                                                alt="Curriculum Cover"
+                                                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                                            />
+                                            <div className="absolute bottom-4 inset-x-4 bg-white/90 backdrop-blur-md rounded-2xl p-4 flex items-center gap-3 shadow-lg z-20 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                                                <div className="bg-[#00695C]/10 p-2 rounded-xl text-[#00695C]">
+                                                    <Award className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-slate-500 font-bold mb-0.5">{isRtl ? 'منهج معتمد' : 'Certified Curriculum'}</p>
+                                                    <p className="text-sm font-extrabold text-slate-900">{isRtl ? 'جودة تعليمية عالية' : 'High Educational Quality'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Content Section */}
+                                <div className="w-full lg:w-3/5 relative z-10 text-start space-y-8">
+                                    <div className="space-y-4">
+                                        <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full text-sm font-bold border border-amber-100">
+                                            <Star className="w-4 h-4" />
+                                            {isRtl ? 'نظرة عامة على المنهج' : 'Curriculum Overview'}
+                                        </div>
+                                        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.2]">
+                                            {typeof currentData.name === 'object' ? (isRtl ? currentData.name?.ar : currentData.name?.en) || currentData.name?.ar : currentData.name}
+                                        </h3>
+                                        <p className="text-lg sm:text-xl text-slate-600 leading-relaxed font-medium">
+                                            {typeof currentData.description === 'object' ? (isRtl ? currentData.description?.ar : currentData.description?.en) || currentData.description?.ar : currentData.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                                        {/* Features */}
+                                        {(() => {
+                                            const features = typeof currentData.features === 'object' && !Array.isArray(currentData.features)
+                                                ? (isRtl ? currentData.features.ar : currentData.features.en) || currentData.features.ar || []
+                                                : (currentData.features || []);
+
+                                            return features.map((feat, idx) => (
+                                                <div key={`f-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm transition-all duration-300">
+                                                    <div className="bg-[#00695C] text-white p-2.5 rounded-xl shrink-0 mt-0.5">
+                                                        <Users className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-extrabold text-slate-800 leading-snug">{feat}</h4>
+                                                        <p className="text-sm text-slate-500 font-medium mt-1">{isRtl ? 'ميزة تفاعلية' : 'Interactive Feature'}</p>
+                                                    </div>
+                                                </div>
+                                            ));
+                                        })()}
+
+                                        {/* Benefits */}
+                                        {(() => {
+                                            const benefits = typeof currentData.benefitsAfterGraduation === 'object' && !Array.isArray(currentData.benefitsAfterGraduation)
+                                                ? (isRtl ? currentData.benefitsAfterGraduation.ar : currentData.benefitsAfterGraduation.en) || currentData.benefitsAfterGraduation.ar || []
+                                                : (currentData.benefitsAfterGraduation || []);
+
+                                            return benefits.map((ben, idx) => (
+                                                <div key={`b-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-amber-50/50 hover:bg-white border border-transparent hover:border-amber-100 hover:shadow-sm transition-all duration-300">
+                                                    <div className="bg-amber-500 text-white p-2.5 rounded-xl shrink-0 mt-0.5">
+                                                        <Award className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-extrabold text-slate-800 leading-snug">{ben}</h4>
+                                                        <p className="text-sm text-amber-600/80 font-medium mt-1">{isRtl ? 'استفادة بعد التخرج' : 'Graduation Benefit'}</p>
+                                                    </div>
+                                                </div>
+                                            ));
+                                        })()}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Interactive Levels Accordion */}
+                            {(() => {
+                                const levels = currentData.levels || [];
+                                if (levels.length === 0) return null;
+
+                                const visibleLevels = showAllLevels ? levels : levels.slice(0, 4);
+                                const hasMoreLevels = levels.length > 4;
+
+                                return (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="w-full bg-[#EEF4F2] rounded-[2.5rem] p-6 sm:p-10 shadow-inner border border-slate-200/50"
+                                    >
+                                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+                                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                                                {isRtl ? 'المستويات والوحدات الدراسية' : 'Study Levels & Units'}
+                                            </h2>
+                                            <div className="bg-[#E2EBE8] text-slate-700 px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 border border-slate-300/30">
+                                                <BookOpen className="w-4 h-4 text-[#00695C]" />
+                                                {levels.length} {isRtl ? 'مستويات' : 'Levels'}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <AnimatePresence initial={false}>
+                                                {visibleLevels.map((level, index) => {
+                                                    const levelId = level.level_id || level._id || level.id || index;
+                                                    const isOpen = openLevel === levelId;
+                                                    const levelName = typeof level.name === 'object' ? (isRtl ? level.name?.ar : level.name?.en) || level.name?.ar : level.name;
+                                                    const units = level.units || [];
+
+                                                    return (
+                                                        <motion.div
+                                                            key={levelId}
+                                                            className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100"
+                                                        >
+                                                            <button
+                                                                onClick={() => setOpenLevel(isOpen ? null : levelId)}
+                                                                className="w-full flex items-center justify-between p-5 sm:p-6 bg-white hover:bg-slate-50/50 transition-colors"
+                                                            >
+                                                                <div className="flex items-center gap-5 text-start">
+                                                                    <div className="bg-[#FFFDF5] text-[#9B7B16] w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border border-amber-100/50">
+                                                                        <Book className="w-6 h-6" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h3 className="font-extrabold text-slate-900 text-lg sm:text-xl">
+                                                                            {levelName}
+                                                                        </h3>
+                                                                        <p className="text-[#00695C] text-sm font-bold mt-1">
+                                                                            {units.length} {isRtl ? 'وحدات دراسية' : 'Units'}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className={`p-3 rounded-full transition-colors ${isOpen ? 'bg-[#00695C]/10 text-[#00695C]' : 'bg-slate-100 text-slate-400'}`}>
+                                                                    <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                                                                        <ChevronDown className="w-5 h-5" />
+                                                                    </motion.div>
+                                                                </div>
+                                                            </button>
+
+                                                            <AnimatePresence>
+                                                                {isOpen && (
+                                                                    <motion.div
+                                                                        initial={{ height: 0, opacity: 0 }}
+                                                                        animate={{ height: "auto", opacity: 1 }}
+                                                                        exit={{ height: 0, opacity: 0 }}
+                                                                        transition={{ duration: 0.3 }}
+                                                                        className="bg-white border-t border-slate-50"
+                                                                    >
+                                                                        <div className="p-6 pt-2 space-y-3">
+                                                                            {units.length === 0 ? (
+                                                                                <div className="text-center py-4 text-slate-400 font-medium">
+                                                                                    {isRtl ? 'لا توجد وحدات مضافة بعد' : 'No units added yet'}
+                                                                                </div>
+                                                                            ) : (
+                                                                                units.map((unit, uIdx) => {
+                                                                                    const unitName = typeof unit.name === 'object' ? (isRtl ? unit.name?.ar : unit.name?.en) || unit.name?.ar : unit.name;
+                                                                                    return (
+                                                                                        <div key={unit.unit_id || unit._id || uIdx} className="flex items-center justify-between bg-[#F9FBFB] p-4 rounded-2xl hover:bg-[#EEF4F2] transition-all duration-300 border border-slate-100 hover:border-[#00695C]/20 group">
+                                                                                            <div className="flex items-center gap-4">
+                                                                                                <div className="bg-[#82C3B8] text-white w-8 h-8 flex items-center justify-center rounded-xl text-sm font-bold shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                                                                                                    {uIdx + 1}
+                                                                                                </div>
+                                                                                                <span className="text-slate-700 font-bold text-sm sm:text-base group-hover:text-[#00695C] transition-colors">
+                                                                                                    {unitName}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    )
+                                                                                })
+                                                                            )}
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </motion.div>
+                                                    )
+                                                })}
+                                            </AnimatePresence>
+                                        </div>
+
+                                        {hasMoreLevels && (
+                                            <div className="mt-8 flex justify-center">
+                                                <button
+                                                    onClick={() => setShowAllLevels(!showAllLevels)}
+                                                    className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] bg-white font-bold py-3 px-8 rounded-full shadow-sm hover:shadow-md border border-[#00695C]/10 transition-all hover:-translate-y-0.5"
+                                                >
+                                                    <span>
+                                                        {showAllLevels
+                                                            ? (isRtl ? 'عرض أقل' : 'Show Less')
+                                                            : (isRtl ? 'عرض المزيد من المستويات' : 'Show More Levels')}
+                                                    </span>
+                                                    <motion.div animate={{ rotate: showAllLevels ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                                                        <ChevronDown className="w-5 h-5" />
+                                                    </motion.div>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                );
+                            })()}
+                        </motion.div>
+                    )}
                 </AnimatePresence>
             </div>
         </section>

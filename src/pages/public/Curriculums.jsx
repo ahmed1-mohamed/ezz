@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import imageSrc from '../../images/programs/7.webp';
 import CurriculumUnits from '@/shared/components/CurriculumUnits.jsx'
 import CurriculumsCTA from '@/shared/components/CurriculumsCTA.jsx'
-import TeacherLevels from './components/TeacherProfile/TeacherLevels.jsx'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -25,36 +24,6 @@ const itemVariants = {
 export default React.memo(function Curriculums() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
-
-    const levelsData = [
-        {
-            id: 1,
-            title: t('levels.level1.title', "المستوى الأول التجويد"),
-            unitsCount: 8,
-            modules: [
-                { title: t('levels.level1.mod1', "مقدمة في التجويد") },
-                { title: t('levels.level1.mod2', "مخارج الحروف") }
-            ]
-        },
-        {
-            id: 2,
-            title: t('levels.level2.title', "المستوى الثاني القرآن"),
-            unitsCount: 8,
-            modules: [
-                { title: t('levels.level2.mod1', "القاعدة النورانية") },
-                { title: t('levels.level2.mod2', "أحكام التجويد الأساسية") }
-            ]
-        },
-        {
-            id: 3,
-            title: t('levels.level3.title', "المستوى الثالث التلاوة"),
-            unitsCount: 8,
-            modules: [
-                { title: t('levels.level3.mod1', "تلاوة سورة البقرة") },
-                { title: t('levels.level3.mod2', "تلاوة سورة آل عمران") }
-            ]
-        }
-    ];
 
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20">
@@ -105,8 +74,6 @@ export default React.memo(function Curriculums() {
                 </section>
 
                 <CurriculumUnits />
-
-                <TeacherLevels levels={levelsData} t={t} />
 
                 <CurriculumsCTA />
 
