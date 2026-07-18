@@ -2,6 +2,7 @@ import { useState, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Mail, Phone, User, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import Spinner from '@/shared/components/Spinner';
 import { studentsApi } from '@/shared/services/api/studentsApi';
 
@@ -158,11 +159,11 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
         fetchStudents(searchQuery, false);
     };
 
-    return (
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     dir={isRtl ? 'rtl' : 'ltr'}
                 >
                     <motion.div
@@ -260,7 +261,8 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }
 

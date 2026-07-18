@@ -25,6 +25,14 @@ export const profileApi = {
             formData.append('name[ar]', val);
           } else if (key === 'nameEn') {
             formData.append('name[en]', val);
+          } else if (key === 'name') {
+            if (typeof val === 'string') {
+              formData.append('name[ar]', val);
+              formData.append('name[en]', val);
+            } else if (typeof val === 'object' && val !== null) {
+              if (val.ar) formData.append('name[ar]', val.ar);
+              if (val.en) formData.append('name[en]', val.en);
+            }
           } else {
             formData.append(key, val);
           }

@@ -67,22 +67,7 @@ export default function ExcellenceStarsSection({
                         <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
                           {isRtl ? star.name : star.nameEn}
                         </h4>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                          {t('adminDashboard.website.age', { defaultValue: isRtl ? `العمر: {{age}} سنة` : `Age: {{age}} years`, age: star.age })}
-                        </p>
                       </div>
-                    </div>
-
-                    <div className="text-start w-32 hidden sm:block">
-                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 truncate">
-                        {isRtl ? star.groupName : star.groupNameEn}
-                      </p>
-                    </div>
-
-                    <div className="text-start w-32 hidden md:block">
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
-                        {isRtl ? star.parentName : star.parentNameEn}
-                      </p>
                     </div>
 
                     <div className="flex items-center gap-1">

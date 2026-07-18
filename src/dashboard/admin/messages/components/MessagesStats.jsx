@@ -1,7 +1,7 @@
 import { FileText, PlusCircle, CheckCircle } from 'lucide-react'
 
-export default function MessagesStats({ messages = [], isLoading, t }) {
-  if (isLoading) {
+export default function MessagesStats({ statistics, isLoading, t }) {
+  if (isLoading && !statistics) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {[1, 2, 3].map((i) => (
@@ -17,9 +17,9 @@ export default function MessagesStats({ messages = [], isLoading, t }) {
     )
   }
 
-  const total = messages.length
-  const newRequests = messages.filter(m => !m.isRead).length
-  const replied = messages.filter(m => m.isRead).length
+  const total = statistics?.total || 0
+  const newRequests = statistics?.unread || statistics?.unRead || statistics?.newRequests || 0
+  const replied = statistics?.read || statistics?.isRead || statistics?.replied || 0
 
   const statCards = [
     {

@@ -103,6 +103,7 @@ export default function AdminWebsite() {
         setCurrentStar={setCurrentStar}
         onSubmit={handleSaveModal}
         systemStudents={systemStudents}
+        stars={stars}
       />
 
       <TeacherFormModal
@@ -112,6 +113,7 @@ export default function AdminWebsite() {
         setCurrentTeacher={setCurrentTeacher}
         onSubmit={handleSaveTeacherSubmit}
         systemTeachers={systemTeachers}
+        eliteTeachers={eliteTeachers}
       />
 
       <StarViewModal

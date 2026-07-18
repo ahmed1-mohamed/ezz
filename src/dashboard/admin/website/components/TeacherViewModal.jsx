@@ -16,8 +16,8 @@ export default function TeacherViewModal({
 
   return createPortal(
     <AnimatePresence>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0 }}>
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

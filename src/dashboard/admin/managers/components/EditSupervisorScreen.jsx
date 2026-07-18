@@ -406,25 +406,7 @@ export default function EditSupervisorScreen({
                   </select>
                 </div>
 
-                <div>
-                  <label htmlFor="editPermissionSelect" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-                    {isRtl ? 'الصلاحيات' : 'Permissions'}
-                  </label>
-                  <select
-                    id="editPermissionSelect"
-                    required
-                    value={formData.permissionId || ''}
-                    onChange={(e) => handleFieldChange('permissionId', e.target.value)}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
-                  >
-                    <option value="" disabled>{isRtl ? 'اختر الصلاحية' : 'Select Role'}</option>
-                    {roles.map((r) => (
-                      <option key={r.id || r._id} value={r.id || r._id}>
-                        {typeof r.name === 'object' ? (isRtl ? r.name.ar || r.name.en : r.name.en || r.name.ar) : r.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+
 
               </div>
 

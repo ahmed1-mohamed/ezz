@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import Spinner from '@/shared/components/Spinner'
 
@@ -57,15 +58,17 @@ export default function AddRoleModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-fadeIn">
-      <div 
-        ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="addRoleModalTitle"
-        className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 animate-slideUp"
-      >
+  return createPortal(
+    <>
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/60 animate-fadeIn" style={{ position: 'fixed', inset: 0 }} onClick={onClose} />
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+        <div 
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="addRoleModalTitle"
+          className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 animate-slideUp pointer-events-auto"
+        >
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 p-6">
           <h3 id="addRoleModalTitle" className="text-lg font-bold text-slate-800 dark:text-white">
             {t('adminDashboard.managers.permissionsScreen.addNewRoleModalTitle', 'إضافة دور جديد')}
@@ -130,7 +133,9 @@ export default function AddRoleModal({
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>,
+    document.body
   )
 }

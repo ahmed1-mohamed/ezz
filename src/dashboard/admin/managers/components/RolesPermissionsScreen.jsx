@@ -24,15 +24,15 @@ export default function RolesPermissionsScreen({
 
   const initialPermissionId = useMemo(() => {
     if (!adminSupervisor) return null
-    return adminSupervisor.permissionId || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? adminSupervisor.permission.id : adminSupervisor.permission) || null
+    return adminSupervisor.permissionId || adminSupervisor.permission?._id || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? (adminSupervisor.permission._id || adminSupervisor.permission.id) : adminSupervisor.permission) || null
   }, [adminSupervisor])
 
   const [selectedPermissionId, setSelectedPermissionId] = useState(() => {
     if (isAdminAssignment && adminSupervisor) {
-      const initialId = adminSupervisor.permissionId || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? adminSupervisor.permission.id : adminSupervisor.permission);
+      const initialId = adminSupervisor.permissionId || adminSupervisor.permission?._id || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? (adminSupervisor.permission._id || adminSupervisor.permission.id) : adminSupervisor.permission);
       if (initialId) return initialId;
     }
-    return permissionsList[0]?.id || null;
+    return permissionsList[0]?.id || permissionsList[0]?._id || null;
   })
 
   useEffect(() => {
@@ -114,26 +114,10 @@ export default function RolesPermissionsScreen({
   const handleSave = () => {
     if (!selectedPermissionId) return
 
-    const updatedActions = [];
-    activeKeys.forEach(key => {
-      SYSTEM_PERMISSIONS.forEach(module => {
-        const action = module.actions.find(a => a.key === key)
-        if (action) {
-          updatedActions.push({
-            key: action.key,
-            label: {
-              en: action.labelEn,
-              ar: action.labelAr
-            }
-          })
-        }
-      })
-    })
-
     updateMutation.mutate({
       id: selectedPermissionId,
       payload: {
-        actions: updatedActions
+        keys: activeKeys
       }
     })
   }
@@ -147,7 +131,7 @@ export default function RolesPermissionsScreen({
         ar: newRoleNameAr.trim(),
         en: newRoleNameEn.trim()
       },
-      actions: []
+      keys: []
     })
   }
 

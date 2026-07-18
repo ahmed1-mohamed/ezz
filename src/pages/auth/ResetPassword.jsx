@@ -4,25 +4,53 @@ import { useTranslation } from 'react-i18next'
 import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
-import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
+import { setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
 
 export default function ResetPassword() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
 
+    const [step, setStep] = useState(1) // 1: Verify Code, 2: New Password, 3: Success
     const [resetCode, setResetCode] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [errors, setErrors] = useState({})
-    const [isSubmitted, setIsSubmitted] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    const validate = () => {
-        const nextErrors = {}
+    const handleVerifyCode = async (e) => {
+        e.preventDefault()
+        setErrors({})
+
         if (!resetCode.trim()) {
-            nextErrors.resetCode = t('resetPassword.codeRequired', 'رمز التحقق مطلوب.')
+            setErrors({ resetCode: t('resetPassword.codeRequired', 'رمز التحقق مطلوب.') })
+            return
         }
+
+        try {
+            setLoading(true)
+            const verifyRes = await api.post('/api/v1/auth/verify-code', { resetCode: resetCode.trim() })
+            const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token
+
+            if (tempToken) {
+                setCookie('access_token', tempToken)
+            }
+
+            setStep(2)
+        } catch (err) {
+            const data = err.response?.data
+            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
+            setErrors({ submit: msg })
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleResetPassword = async (e) => {
+        e.preventDefault()
+        setErrors({})
+
+        const nextErrors = {}
         if (!password) {
             nextErrors.password = t('resetPassword.passwordRequired', 'كلمة المرور مطلوبة.')
         } else if (password.length < 6) {
@@ -33,40 +61,20 @@ export default function ResetPassword() {
             nextErrors.confirmPassword = t('resetPassword.passwordMismatch', 'كلمتا المرور غير متطابقتين.')
         }
 
-        setErrors(nextErrors)
-        return Object.keys(nextErrors).length === 0
-    }
-
-    const handleSubmit = async (event) => {
-        event.preventDefault()
-        setErrors({})
-
-        if (!validate()) return
+        if (Object.keys(nextErrors).length > 0) {
+            setErrors(nextErrors)
+            return
+        }
 
         try {
             setLoading(true)
-
-            const verifyRes = await api.post('/api/v1/auth/verify-code', { resetCode: resetCode.trim() })
-            const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token
-
-            if (tempToken) {
-                setCookie('access_token', tempToken)
-            }
-
             await api.patch('/api/v1/auth/reset-password', {
                 password: password,
                 confirmPassword: confirmPassword
             })
-
-            if (tempToken) {
-                deleteCookie('access_token')
-            }
-
-            setIsSubmitted(true)
+            deleteCookie('access_token')
+            setStep(3)
         } catch (err) {
-            if (getCookie('access_token')) {
-                deleteCookie('access_token')
-            }
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
             setErrors({ submit: msg })
@@ -99,16 +107,16 @@ export default function ResetPassword() {
                 </div>
 
                 <div className="bg-white w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100">
-                    {!isSubmitted ? (
+                    {step === 1 && (
                         <>
                             <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center sm:text-start">
-                                {t('resetPassword.title', 'إعادة تعيين كلمة المرور')}
+                                {t('resetPassword.verifyCodeTitle', 'التحقق من الرمز')}
                             </h2>
                             <p className="text-slate-500 mb-8 text-center sm:text-start text-sm leading-relaxed">
-                                {t('resetPassword.subtitle', 'يرجى إدخال كلمة المرور الجديدة الخاصة بك وتأكيدها.')}
+                                {t('resetPassword.verifyCodeSubtitle', 'يرجى إدخال رمز التحقق الذي تم إرساله إلى بريدك الإلكتروني.')}
                             </p>
 
-                            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                            <form onSubmit={handleVerifyCode} className="space-y-5" noValidate>
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 px-1">
                                         {t('resetPassword.verificationCode', 'رمز التحقق')}
@@ -129,6 +137,29 @@ export default function ResetPassword() {
                                     {errors.resetCode && <p className="text-xs text-red-500 px-1">{errors.resetCode}</p>}
                                 </div>
 
+                                {errors.submit && <p className="text-xs text-red-500 px-1">{errors.submit}</p>}
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
+                                >
+                                    {loading ? t('resetPassword.verifying', 'جاري التحقق...') : t('resetPassword.verifyBtn', 'التحقق من الرمز')}
+                                </button>
+                            </form>
+                        </>
+                    )}
+
+                    {step === 2 && (
+                        <>
+                            <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center sm:text-start">
+                                {t('resetPassword.title', 'إعادة تعيين كلمة المرور')}
+                            </h2>
+                            <p className="text-slate-500 mb-8 text-center sm:text-start text-sm leading-relaxed">
+                                {t('resetPassword.subtitle', 'يرجى إدخال كلمة المرور الجديدة الخاصة بك وتأكيدها.')}
+                            </p>
+
+                            <form onSubmit={handleResetPassword} className="space-y-5" noValidate>
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 px-1">
                                         {t('resetPassword.newPassword', 'كلمة المرور الجديدة')}
@@ -178,7 +209,9 @@ export default function ResetPassword() {
                                 </button>
                             </form>
                         </>
-                    ) : (
+                    )}
+
+                    {step === 3 && (
                         <div className="text-center space-y-6">
                             <div className="bg-emerald-100 text-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle2 className="w-10 h-10" />

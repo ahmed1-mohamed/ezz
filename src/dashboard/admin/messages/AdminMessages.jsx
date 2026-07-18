@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, List, Mail, MailOpen } from 'lucide-react'
 import { messagesApi } from '@/shared/services/api/messagesApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import MessagesStats from './components/MessagesStats'
@@ -11,17 +12,27 @@ export default function AdminMessages() {
   const isRtl = i18n.language === 'ar'
   const queryClient = useQueryClient()
 
+  const [activeTab, setActiveTab] = useState('all') // 'all', 'unread', 'read'
+
   const {
-    data: messages = [],
+    data: messagesData,
     isLoading,
     isError,
     error
   } = useQuery({
-    queryKey: ['adminMessages', i18n.language],
-    queryFn: () => messagesApi.fetchMessages({ lang: i18n.language }),
+    queryKey: ['adminMessages', activeTab, i18n.language],
+    queryFn: () => {
+      const params = { lang: i18n.language }
+      if (activeTab === 'unread') return messagesApi.fetchUnreadMessages(params)
+      if (activeTab === 'read') return messagesApi.fetchReadMessages(params)
+      return messagesApi.fetchMessages(params)
+    },
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000,
   })
+
+  const messages = Array.isArray(messagesData?.data) ? messagesData.data : (Array.isArray(messagesData) ? messagesData : [])
+  const statistics = messagesData?.statistics || null
 
   const deleteMutation = useMutation({
     mutationFn: messagesApi.deleteMessage,
@@ -67,7 +78,33 @@ export default function AdminMessages() {
         </div>
       )}
 
-      <MessagesStats messages={messages} isRtl={isRtl} isLoading={isLoading} t={t} />
+      {/* Tabs */}
+      <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl w-full sm:w-fit overflow-x-auto no-scrollbar">
+        {[
+          { id: 'all', label: t('adminDashboard.messages.tabs.all', 'الكل'), icon: List },
+          { id: 'unread', label: t('adminDashboard.messages.tabs.unread', 'غير مقروءة'), icon: Mail },
+          { id: 'read', label: t('adminDashboard.messages.tabs.read', 'مقروءة'), icon: MailOpen }
+        ].map(tab => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                isActive
+                  ? 'bg-white dark:bg-slate-700 text-[#005953] dark:text-brand-400 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+              }`}
+            >
+              <Icon size={16} />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      <MessagesStats statistics={statistics} isRtl={isRtl} isLoading={isLoading} t={t} />
 
       <div className="space-y-4 sm:space-y-6">
         {isLoading ? (

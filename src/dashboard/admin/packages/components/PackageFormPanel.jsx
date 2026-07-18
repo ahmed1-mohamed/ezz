@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import SelectField from './SelectField'
@@ -20,35 +21,32 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [imageFile, setImageFile] = useState(null)
-  const [prevEditingPackage, setPrevEditingPackage] = useState(editingPackage)
-  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
+  useEffect(() => {
+    if (isOpen) {
+      if (editingPackage) {
+        const validLanguage = explanationLanguages.some(l => l.id === editingPackage.sessions_language)
+          ? editingPackage.sessions_language
+          : (explanationLanguages?.[0]?.id || '');
 
-  if (editingPackage !== prevEditingPackage || isOpen !== prevIsOpen) {
-    setPrevEditingPackage(editingPackage)
-    setPrevIsOpen(isOpen)
-    if (editingPackage) {
-      const validLanguage = explanationLanguages.some(l => l.id === editingPackage.sessions_language)
-        ? editingPackage.sessions_language
-        : (explanationLanguages?.[0]?.id || '');
-
-      setForm({
-        ...EMPTY_PACKAGE,
-        ...editingPackage,
-        sessions_language: validLanguage,
-        features: editingPackage.features?.length ? [...editingPackage.features] : [''],
-        features_en: editingPackage.features_en?.length ? [...editingPackage.features_en] : [''],
-      })
-      setImagePreview(null)
-      setImageFile(null)
-    } else {
-      setForm({
-        ...EMPTY_PACKAGE,
-        sessions_language: explanationLanguages?.[0]?.id || ''
-      })
-      setImagePreview(null)
-      setImageFile(null)
+        setForm({
+          ...EMPTY_PACKAGE,
+          ...editingPackage,
+          sessions_language: validLanguage,
+          features: editingPackage.features?.length ? [...editingPackage.features] : [''],
+          features_en: editingPackage.features_en?.length ? [...editingPackage.features_en] : [''],
+        })
+        setImagePreview(editingPackage.image || null)
+        setImageFile(null)
+      } else {
+        setForm({
+          ...EMPTY_PACKAGE,
+          sessions_language: explanationLanguages?.[0]?.id || ''
+        })
+        setImagePreview(null)
+        setImageFile(null)
+      }
     }
-  }
+  }, [isOpen, editingPackage, explanationLanguages])
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -98,10 +96,10 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
     setSaving(false)
   }
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -235,6 +233,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

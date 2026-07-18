@@ -15,7 +15,8 @@ export default function StudentStarModal({
   currentStar,
   setCurrentStar,
   onSubmit,
-  systemStudents = []
+  systemStudents = [],
+  stars = []
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -28,6 +29,14 @@ export default function StudentStarModal({
   const isAdd = currentStar.id === null;
 
   const filteredStudents = systemStudents.filter((s) => {
+    if (stars.some(star => {
+      const starId = star.student?.id || star.student?._id || star.studentId || '';
+      const sId = s.id || s._id || s.student_id || '';
+      return String(starId) === String(sId);
+    })) {
+      return false;
+    }
+
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
     const nameStr = typeof s.name === 'object'
@@ -53,8 +62,8 @@ export default function StudentStarModal({
 
   return createPortal(
     <AnimatePresence>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -128,11 +137,7 @@ export default function StudentStarModal({
                               studentId: studentIdVal,
                               name: typeof sItem.name === 'object' && sItem.name !== null ? sItem.name.ar || '' : sItem.name || '',
                               nameEn: typeof sItem.name === 'object' && sItem.name !== null ? sItem.name.en || '' : sItem.nameEn || sItem.name || '',
-                              image: studentPhoto,
-                              age: sItem.age || 10,
-                              level: sItem.level || 'متوسط',
-                              groupName: sItem.groupName || 'مجموعة القرآن أ',
-                              parentName: sItem.parentName || ''
+                              image: studentPhoto
                             });
                             if (errors.studentId) setErrors({ ...errors, studentId: null });
                           }}
@@ -198,9 +203,6 @@ export default function StudentStarModal({
                       <h5 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">
                         {isRtl ? currentStar.name : currentStar.nameEn}
                       </h5>
-                      <p className="text-xs text-slate-450 dark:text-slate-400 mt-0.5 font-medium">
-                        {isRtl ? 'المستوى:' : 'Level:'} {currentStar.level}
-                      </p>
                       <p className="text-xs text-slate-400 mt-0.5">
                         ID: {currentStar.studentId}
                       </p>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import Spinner from '@/shared/components/Spinner';
 import StudentSelectionModal from './StudentSelectionModal';
 
@@ -69,10 +70,11 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
 
     return (
         <>
-            <AnimatePresence>
+            {createPortal(
+                <AnimatePresence>
                 {isOpen && (
                     <div
-                        className="fixed inset-0 z-40 flex items-center justify-center p-4"
+                        className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                         dir={isRtl ? 'rtl' : 'ltr'}
                     >
                         <motion.div
@@ -265,7 +267,9 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                         </motion.div>
                     </div>
                 )}
-            </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+            )}
 
             <StudentSelectionModal
                 isOpen={isStudentModalOpen}

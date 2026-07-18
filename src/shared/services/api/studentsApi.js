@@ -30,6 +30,14 @@ export const studentsApi = {
 
   updateStudent: async (id, studentData) => {
     const isFormData = studentData instanceof FormData;
+    if (!isFormData && typeof studentData === 'object' && studentData !== null) {
+      const keysToRemove = ['image', 'photo', 'photoUrl', 'profileImage'];
+      keysToRemove.forEach(k => {
+        if (typeof studentData[k] === 'string') {
+          delete studentData[k];
+        }
+      });
+    }
     const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
     const response = await api.patch(`/api/v1/students/${id}`, studentData, { headers });
     return response.data;

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Search, X, UserPlus } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentListCard from './StudentListCard'
 
@@ -142,9 +143,9 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
     return t('adminDashboard.groups.addStudentsModal.placeholderPhone', 'ابحث برقم الجوال...')
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       dir={isRtlResolved ? 'rtl' : 'ltr'}
     >
       <div
@@ -291,6 +292,7 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

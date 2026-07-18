@@ -8,6 +8,7 @@ import {
   Users,
   Layers,
 } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import AddEditGroupScreen from './components/AddEditGroupScreen'
@@ -85,9 +86,9 @@ function GroupCard({ group, onEdit, onViewStudents, onDelete }) {
 }
 
 function GroupDetailsModal({ group, onClose, onRemoveStudent }) {
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
@@ -132,7 +133,8 @@ function GroupDetailsModal({ group, onClose, onRemoveStudent }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

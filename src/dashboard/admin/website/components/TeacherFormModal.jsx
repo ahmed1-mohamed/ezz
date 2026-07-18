@@ -15,7 +15,8 @@ export default function TeacherFormModal({
   currentTeacher,
   setCurrentTeacher,
   onSubmit,
-  systemTeachers = []
+  systemTeachers = [],
+  eliteTeachers = []
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -28,6 +29,14 @@ export default function TeacherFormModal({
   const isAdd = currentTeacher.id === null;
 
   const filteredTeachers = systemTeachers.filter((t) => {
+    if (eliteTeachers.some(et => {
+      const etId = et.teacher?.id || et.teacher?._id || et.teacherId || '';
+      const tId = t.id || t._id || t.teacher_id || '';
+      return String(etId) === String(tId);
+    })) {
+      return false;
+    }
+
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
     const nameStr = typeof t.name === 'object'
@@ -53,8 +62,8 @@ export default function TeacherFormModal({
 
   return createPortal(
     <AnimatePresence>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

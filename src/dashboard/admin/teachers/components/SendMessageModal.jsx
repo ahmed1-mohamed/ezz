@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
 
 export default function SendMessageModal({
@@ -34,8 +35,8 @@ export default function SendMessageModal({
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
 
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
@@ -128,6 +129,7 @@ export default function SendMessageModal({
 
       </div>
 
-    </div>
+    </div>,
+    document.body
   )
 }

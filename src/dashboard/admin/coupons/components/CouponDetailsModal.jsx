@@ -2,6 +2,7 @@ import { useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Trash2, Check, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 
 const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -36,11 +37,11 @@ function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
             : [coupon.student]
         : [];
 
-    return (
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     dir={isRtl ? 'rtl' : 'ltr'}
                 >
                     <motion.div
@@ -166,7 +167,8 @@ function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }
 

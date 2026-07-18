@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, Send, MessageSquare } from 'lucide-react'
+import { createPortal } from 'react-dom'
 
 export default function SendMessageModal({ parent, isRtl, t, onClose, onSend }) {
   const [message, setMessage] = useState('')
@@ -36,11 +37,11 @@ export default function SendMessageModal({ parent, isRtl, t, onClose, onSend }) 
     }
   }
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -140,6 +141,7 @@ export default function SendMessageModal({ parent, isRtl, t, onClose, onSend }) 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

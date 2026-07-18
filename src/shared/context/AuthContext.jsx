@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import { AuthContext, AuthActionsContext } from './AuthContextValue.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import useLocalStorage from '@/shared/hooks/useLocalStorage.jsx'
@@ -30,6 +30,31 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => readStoredUser())
     const [loading, setLoading] = useState(false)
     const [theme, setTheme] = useLocalStorage('theme', 'light')
+
+    useEffect(() => {
+        const token = getCookie('access_token');
+        if (token && user) {
+            api.get('/api/v1/profile').then(res => {
+                const data = res.data?.data || res.data;
+                if (data) {
+                    setUser(prev => {
+                        if (!prev) return prev;
+                        const updated = { 
+                            ...prev, 
+                            name: data.name || prev.name, 
+                            image: data.image || prev.image, 
+                            email: data.email || prev.email, 
+                            role: data.role ? normalizeRole(data.role) : prev.role 
+                        };
+                        setCookie('authUser', updated, 7);
+                        return updated;
+                    });
+                }
+            }).catch(err => {
+                console.error("Error fetching latest profile for header:", err);
+            });
+        }
+    }, []);
 
     const login = useCallback(async (email, password, remember) => {
         setLoading(true)
@@ -101,6 +126,15 @@ export function AuthProvider({ children }) {
         deleteCookie('refresh_token')
     }, [])
 
+    const updateUser = useCallback((newData) => {
+        setUser((prev) => {
+            if (!prev) return prev;
+            const updated = { ...prev, ...newData };
+            setCookie('authUser', updated, 7);
+            return updated;
+        });
+    }, []);
+
     const toggleTheme = useCallback(() => {
         setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
     }, [setTheme])
@@ -113,8 +147,8 @@ export function AuthProvider({ children }) {
 
     // Actions context — stable function references
     const actionsValue = useMemo(
-        () => ({ login, loginWithGoogle, logout, theme, toggleTheme, setTheme }),
-        [login, loginWithGoogle, logout, theme, toggleTheme, setTheme],
+        () => ({ login, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
+        [login, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme],
     )
 
     return (

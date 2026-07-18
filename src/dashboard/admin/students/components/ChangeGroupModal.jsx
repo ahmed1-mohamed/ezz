@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, Search, BookOpen } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 
 const availableGroups = [
@@ -86,8 +87,8 @@ export default function ChangeGroupModal({
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
@@ -223,6 +224,7 @@ export default function ChangeGroupModal({
         </button>
 
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

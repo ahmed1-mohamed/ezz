@@ -58,16 +58,17 @@ const NAV_ITEMS = [
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
 
-function getDisplayName(nameVal) {
+function getDisplayName(nameVal, isRtl) {
   if (!nameVal) return ''
   if (typeof nameVal === 'string') return nameVal
   if (typeof nameVal === 'object') {
-    return nameVal.ar || nameVal.en || Object.values(nameVal)[0] || ''
+    return isRtl
+      ? (nameVal.ar || nameVal.en || Object.values(nameVal)[0] || '')
+      : (nameVal.en || nameVal.ar || Object.values(nameVal)[0] || '')
   }
   return String(nameVal)
 }
 
-// Memoized nav item to prevent re-renders when mobile menu toggles
 const NavItem = memo(function NavItem({ item, t, onClose }) {
   return (
     <NavLink
@@ -102,7 +103,7 @@ export default memo(function AdminLayout() {
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
 
-  const resolvedName = useMemo(() => getDisplayName(user?.name), [user?.name])
+  const resolvedName = useMemo(() => getDisplayName(user?.name, isRtl), [user?.name, isRtl])
   const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
   const displayRole = useMemo(
     () => user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول'),
@@ -223,10 +224,18 @@ export default memo(function AdminLayout() {
                 </p>
               </div>
               <div
-                className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0"
+                className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
                 aria-label={resolvedName || 'المستخدم'}
               >
-                {userInitial}
+                {user?.image || user?.photoUrl || user?.photo ? (
+                  <img
+                    src={user?.image || user?.photoUrl || user?.photo}
+                    alt={resolvedName || 'User profile'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userInitial
+                )}
               </div>
             </div>
           </div>

@@ -37,9 +37,17 @@ export const adminParentsApi = {
 
   updateParent: async (id, parentData) => {
     try {
-      const response = await api.patch(`/api/v1/parents/${id}`, parentData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const isFormData = parentData instanceof FormData;
+      if (!isFormData && typeof parentData === 'object' && parentData !== null) {
+        const keysToRemove = ['image', 'photo', 'photoUrl', 'profileImage'];
+        keysToRemove.forEach(k => {
+          if (typeof parentData[k] === 'string') {
+            delete parentData[k];
+          }
+        });
+      }
+      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+      const response = await api.patch(`/api/v1/parents/${id}`, parentData, { headers });
       return response.data;
     } catch (error) {
       console.error('API updateParent failed:', error);

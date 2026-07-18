@@ -6,11 +6,12 @@ import { profileApi } from '@/shared/services/api/profileApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
+import { Loader2 } from 'lucide-react';
 
 export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
 
     const displayUserName = user?.name
         ? (typeof user.name === 'string'
@@ -21,7 +22,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const [profileData, setProfileData] = useState({
         email: user?.email || '',
         fullName: displayUserName || '',
-        country: ''
+        country: '',
+        avatar: user?.image || user?.photoUrl || user?.photo || ''
     });
 
     const [loadingProfile, setLoadingProfile] = useState(true);
@@ -63,8 +65,9 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         const cleanStr = sCountryId.trim();
                         const found = fetchedCountries.find(c => {
                             const cName = (c.name || '').trim();
+                            const cNameEn = (c.nameEn || '').trim();
                             const cFlag = (c.flag || '').trim();
-                            return (cName && cleanStr.includes(cName)) || (cFlag && cleanStr.includes(cFlag));
+                            return (cName && cleanStr.includes(cName)) || (cNameEn && cleanStr.toLowerCase().includes(cNameEn.toLowerCase())) || (cFlag && cleanStr.includes(cFlag));
                         });
                         mappedCountry = found?._id || found?.id || '';
                     } else {
@@ -72,11 +75,13 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     }
                 }
 
-                setProfileData({
+                setProfileData(prev => ({
+                    ...prev,
                     email: res.data.email || '',
                     fullName: parsedName,
-                    country: mappedCountry
-                });
+                    country: mappedCountry,
+                    avatar: res.data.image || res.data.photoUrl || res.data.photo || prev.avatar
+                }));
 
                 const phoneData = res.data.phone || '';
 
@@ -145,6 +150,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         const res = await profileApi.updateProfile(payload);
         if (res?.success) {
             showSuccessToast('تم تحديث الملف الشخصي بنجاح');
+            updateUser({ name: profileData.fullName, image: res.data?.image || profileData.avatar });
             if (onProfileLoaded) {
                 onProfileLoaded({ phone: fullPhone, country: profileData.country, image: res.data?.image });
             }
@@ -346,7 +352,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     disabled={savingProfile}
                     className="bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-70 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto flex items-center justify-center gap-2"
                 >
-                    {savingProfile && <Spinner className="w-4 h-4" />}
+                    {savingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
                     {t('parentSettings.saveChanges')}
                 </button>
             </div>

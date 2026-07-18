@@ -63,9 +63,6 @@ export default function EliteTeachersSection({
                         <h4 className="font-extrabold text-lg text-slate-800 dark:text-slate-200">
                           {teacher.name}
                         </h4>
-                        <p className="text-sm font-medium text-slate-500 mt-0.5">
-                          {teacher.review || t('teachers.defaultTitle', isRtl ? 'القرآن الكريم' : 'Quran')}
-                        </p>
                       </div>
                     </div>
 

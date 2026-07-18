@@ -7,7 +7,6 @@ export default function EditSecurityPasswordCard({
   onUpdatePassword
 }) {
   const [passwordState, setPasswordState] = useState({
-    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   })
@@ -18,7 +17,7 @@ export default function EditSecurityPasswordCard({
 
   const handleUpdate = (e) => {
     e.preventDefault()
-    if (!passwordState.currentPassword || !passwordState.newPassword || !passwordState.confirmPassword) {
+    if (!passwordState.newPassword || !passwordState.confirmPassword) {
       showErrorToast(isRtl ? 'الرجاء ملء جميع الحقول!' : 'Please fill all fields!', isRtl)
       return
     }
@@ -33,7 +32,6 @@ export default function EditSecurityPasswordCard({
 
     onUpdatePassword(passwordState.newPassword)
     setPasswordState({
-      currentPassword: '',
       newPassword: '',
       confirmPassword: ''
     })
@@ -51,19 +49,7 @@ export default function EditSecurityPasswordCard({
           {isRtl ? 'تغيير كلمة المرور' : 'Change Password'}
         </h4>
 
-        <div>
-          <label htmlFor="currentPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'كلمة المرور الحالية' : 'Current Password'}
-          </label>
-          <input
-            id="currentPasswordInput"
-            type="password"
-            value={passwordState.currentPassword}
-            onChange={(e) => handleChange('currentPassword', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
-            dir="ltr"
-          />
-        </div>
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
