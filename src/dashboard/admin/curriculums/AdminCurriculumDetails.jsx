@@ -22,7 +22,6 @@ import {
 import { toast } from 'react-hot-toast'
 
 import axios from 'axios'
-import api from '@/shared/services/api/axiosConfig'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
@@ -231,7 +230,7 @@ export default function AdminCurriculumDetails() {
       const response = await axios.get(fullUrl, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
       const blobUrl = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = blobUrl;
       const fallbackName = fullUrl.split('/').pop() || 'download';

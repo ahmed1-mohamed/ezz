@@ -7,7 +7,8 @@ import { SYSTEM_PERMISSIONS } from '@/dashboard/admin/managers/constants';
 import ProfileSettingsPanel from './components/ProfileSettingsPanel.jsx';
 import PasswordSettingsPanel from './components/PasswordSettingsPanel.jsx';
 import LanguageAppearancePanel from './components/LanguageAppearancePanel.jsx';
-import { Shield, CheckCircle, XCircle } from 'lucide-react';
+import { profileApi } from '@/shared/services/api/profileApi.js';
+import { CheckCircle, Shield, XCircle } from 'lucide-react';
 
 export default function AdminSettings() {
     const { t, i18n } = useTranslation();
@@ -26,7 +27,7 @@ export default function AdminSettings() {
                 try {
                     const res = await managersApi.fetchPermissions();
                     const allPermissions = res?.data || res || [];
-                    const profileRes = await import('@/shared/services/api/profileApi.js').then(m => m.profileApi.fetchProfile());
+                    const profileRes = await profileApi.fetchProfile();
                     const profileData = profileRes?.data;
                     const userPermissionId = profileData?.permissionId || profileData?.permission?.id || profileData?.permission;
                     if (userPermissionId && Array.isArray(allPermissions)) {
