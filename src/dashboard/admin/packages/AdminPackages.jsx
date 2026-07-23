@@ -42,14 +42,22 @@ export default function AdminPackages() {
     }, [loadAll])
 
     const handleSavePkg = async (data) => {
+        let res;
         if (editingPkg) {
-            const res = await adminPackagesApi.updatePackage(editingPkg.id, data)
+            res = await adminPackagesApi.updatePackage(editingPkg.id, data)
             if (res?.success) setPackages((prev) => prev.map((p) => (p.id === editingPkg.id ? res.data : p)))
         } else {
-            const res = await adminPackagesApi.createPackage(data)
+            res = await adminPackagesApi.createPackage(data)
             if (res?.success) setPackages((prev) => [...prev, res.data])
         }
-        setPkgPanelOpen(false)
+
+        if (res?.success) {
+            toast.success(isRtl ? 'تم حفظ الباقة بنجاح' : 'Package saved successfully')
+            setPkgPanelOpen(false)
+        } else {
+            const err = Array.isArray(res?.error) ? res.error.join(', ') : res?.error;
+            toast.error(err || (isRtl ? 'حدث خطأ أثناء حفظ الباقة' : 'Failed to save package'))
+        }
     }
 
     const executeDelete = async (type, id, name) => {
@@ -66,15 +74,23 @@ export default function AdminPackages() {
     }
 
     const handleSaveFaq = async (data) => {
+        let res;
         if (editingFaq) {
-            const res = await adminPackagesApi.updateFaq(editingFaq.id, data)
-            if (res?.success) setFaqs((prev) => prev.map((f) => (f.id === editingFaq.id ? { ...f, ...data } : f)))
+            res = await adminPackagesApi.updateFaq(editingFaq.id, data)
+            if (res?.success) setFaqs((prev) => prev.map((f) => (f.id === editingFaq.id ? { ...f, ...res.data } : f)))
         } else {
-            const res = await adminPackagesApi.createFaq(data)
+            res = await adminPackagesApi.createFaq(data)
             if (res?.success) setFaqs((prev) => [...prev, res.data])
         }
-        setEditingFaq(null)
-        setIsFaqFormOpen(false)
+
+        if (res?.success) {
+            toast.success(isRtl ? 'تم حفظ السؤال بنجاح' : 'FAQ saved successfully')
+            setEditingFaq(null)
+            setIsFaqFormOpen(false)
+        } else {
+            const err = Array.isArray(res?.error) ? res.error.join(', ') : res?.error;
+            toast.error(err || (isRtl ? 'حدث خطأ أثناء حفظ السؤال' : 'Failed to save FAQ'))
+        }
     }
 
     const handleEditPkgClick = async (pkg) => {

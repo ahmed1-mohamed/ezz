@@ -19,22 +19,23 @@ export default function AdminStudentLevels() {
   const [levels, setLevels] = useState([])
 
   const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
-    queryKey: ['student-levels'],
-    queryFn: () => adminLevelsApi.fetchLevels(),
+    queryKey: ['student-levels', i18n.language],
+    queryFn: () => adminLevelsApi.fetchLevels({ lang: i18n.language }),
     staleTime: 5 * 60 * 1000,
   })
 
   useEffect(() => {
-    if (levelsData?.data) {
-      const fetchedLevels = levelsData.data.map((item) => ({
-        id: item.id,
+    const rawData = levelsData?.data || (Array.isArray(levelsData) ? levelsData : [])
+    if (rawData) {
+      const fetchedLevels = rawData.map((item) => ({
+        id: item.id || item._id,
         name: typeof item.name === 'object' ? (item.name.ar || item.name.en || '') : item.name,
         nameEn: typeof item.name === 'object' ? (item.name.en || item.name.ar || '') : (item.nameEn || item.name || ''),
         createdAt: item.createdAt,
       }))
       setLevels(fetchedLevels)
     }
-  }, [levelsData, isRtl])
+  }, [levelsData, i18n.language])
 
   const [showForm, setShowForm] = useState(false)
   const [editingLevelId, setEditingLevelId] = useState(null)

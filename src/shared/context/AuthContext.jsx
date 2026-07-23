@@ -31,28 +31,33 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(false)
     const [theme, setTheme] = useLocalStorage('theme', 'light')
 
+    const refreshProfile = useCallback(async (baseUser, cookieDays = 7) => {
+        try {
+            const res = await api.get('/api/v1/profile');
+            const data = res.data?.data || res.data;
+            if (data) {
+                const updated = {
+                    ...baseUser,
+                    name: data.name || baseUser.name,
+                    image: data.image || data.avatar || data.photo || data.photoUrl || baseUser.image,
+                    avatar: data.avatar || data.image || data.photo || data.photoUrl || baseUser.avatar,
+                    email: data.email || baseUser.email,
+                    role: data.role ? normalizeRole(data.role) : baseUser.role
+                };
+                setUser(updated);
+                setCookie('authUser', updated, cookieDays);
+                return updated;
+            }
+        } catch (err) {
+            console.error("Error fetching latest profile:", err);
+        }
+        return baseUser;
+    }, []);
+
     useEffect(() => {
         const token = getCookie('access_token');
         if (token && user) {
-            api.get('/api/v1/profile').then(res => {
-                const data = res.data?.data || res.data;
-                if (data) {
-                    setUser(prev => {
-                        if (!prev) return prev;
-                        const updated = { 
-                            ...prev, 
-                            name: data.name || prev.name, 
-                            image: data.image || prev.image, 
-                            email: data.email || prev.email, 
-                            role: data.role ? normalizeRole(data.role) : prev.role 
-                        };
-                        setCookie('authUser', updated, 7);
-                        return updated;
-                    });
-                }
-            }).catch(err => {
-                console.error("Error fetching latest profile for header:", err);
-            });
+            refreshProfile(user);
         }
     }, []);
 
@@ -70,14 +75,21 @@ export function AuthProvider({ children }) {
             if (accessToken) setCookie('access_token', accessToken, cookieDays)
             if (refreshToken) setCookie('refresh_token', refreshToken, cookieDays)
             const userDetails = data.user || data
-            const authUser = {
+            let authUser = {
                 id: userDetails.id || 1,
                 name: userDetails.name || 'User',
                 email: userDetails.email || email,
                 role: normalizeRole(userDetails.role),
+                image: userDetails.image || userDetails.avatar || userDetails.photo || userDetails.photoUrl || null,
+                avatar: userDetails.avatar || userDetails.image || userDetails.photo || userDetails.photoUrl || null,
             }
             setUser(authUser)
             setCookie('authUser', authUser, cookieDays)
+
+            // Immediately fetch full profile so avatar and localized name are ready right after login
+            const fullProfile = await refreshProfile(authUser, cookieDays)
+            if (fullProfile) authUser = fullProfile
+
             setLoading(false)
             return authUser
         } catch (error) {
@@ -86,7 +98,7 @@ export function AuthProvider({ children }) {
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Login failed'
             throw new Error(msg, { cause: error })
         }
-    }, [])
+    }, [refreshProfile])
 
     const loginWithGoogle = useCallback(async (username, password) => {
         setLoading(true)
@@ -101,14 +113,20 @@ export function AuthProvider({ children }) {
             if (accessToken) setCookie('access_token', accessToken, 7)
             if (refreshToken) setCookie('refresh_token', refreshToken, 7)
             const userDetails = data.user || data
-            const authUser = {
+            let authUser = {
                 id: userDetails.id || 1,
                 name: userDetails.name || 'User',
                 email: userDetails.email || username,
                 role: normalizeRole(userDetails.role),
+                image: userDetails.image || userDetails.avatar || userDetails.photo || userDetails.photoUrl || null,
+                avatar: userDetails.avatar || userDetails.image || userDetails.photo || userDetails.photoUrl || null,
             }
             setUser(authUser)
             setCookie('authUser', authUser, 7)
+
+            const fullProfile = await refreshProfile(authUser, 7)
+            if (fullProfile) authUser = fullProfile
+
             setLoading(false)
             return authUser
         } catch (error) {
@@ -117,7 +135,7 @@ export function AuthProvider({ children }) {
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Google login failed'
             throw new Error(msg, { cause: error })
         }
-    }, [])
+    }, [refreshProfile])
 
     const logout = useCallback(() => {
         setUser(null)

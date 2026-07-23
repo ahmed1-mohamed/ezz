@@ -31,6 +31,9 @@ export function setLanguage(language) {
   i18n.changeLanguage(language);
   localStorage.setItem("appLanguage", language);
   setDocumentDirection(language);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("appLanguageChanged", { detail: language }));
+  }
 }
 
 export default i18n;

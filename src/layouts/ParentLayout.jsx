@@ -33,10 +33,22 @@ const navItems = [
 ];
 
 export default function ParentLayout() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language.startsWith('ar');
+
+  const displayName = (() => {
+    if (!user) return t('parentDashboard.user.name');
+    if (typeof user.name === 'object' && user.name !== null) {
+      return isRtl ? (user.name.ar || user.name.en || '') : (user.name.en || user.name.ar || '');
+    }
+    if (user.nameAr || user.nameEn) {
+      return isRtl ? (user.nameAr || user.nameEn || user.name) : (user.nameEn || user.nameAr || user.name);
+    }
+    return user.name || t('parentDashboard.user.name');
+  })();
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -83,9 +95,16 @@ export default function ParentLayout() {
         </div>
 
         <div className="p-4 shrink-0">
-          <Link to="/dashboard/parent" className="bg-[#0f7a6c] text-white rounded-xl p-3 flex flex-col items-center shadow-md cursor-pointer hover:bg-[#0c6156] transition-transform hover:scale-[1.02] active:scale-95 block">
-            <h3 className="font-semibold text-base">{t('parentDashboard.user.name')}</h3>
-            <p className="text-xs opacity-80 mt-0.5">{t('parentDashboard.user.role')}</p>
+          <Link to="/dashboard/parent" className="bg-[#0f7a6c] text-white rounded-xl p-3 flex items-center gap-3 shadow-md cursor-pointer hover:bg-[#0c6156] transition-transform hover:scale-[1.02] active:scale-95 block">
+            {(user?.image || user?.avatar || user?.photoUrl || user?.photo) && (
+              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                <img src={user?.image || user?.avatar || user?.photoUrl || user?.photo} alt={displayName} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className="flex flex-col items-start">
+              <h3 className="font-semibold text-base">{displayName}</h3>
+              <p className="text-xs opacity-80 mt-0.5">{t('parentDashboard.user.role')}</p>
+            </div>
           </Link>
         </div>
 

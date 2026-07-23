@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 
@@ -28,15 +29,17 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!nameAr.trim() || !nameEn.trim()) return
+    if (!nameAr.trim() || !nameEn.trim()) {
+      return
+    }
 
     onSubmit({
       name: { ar: nameAr.trim(), en: nameEn.trim() }
     })
   }
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="p-5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h2>
@@ -85,6 +88,7 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

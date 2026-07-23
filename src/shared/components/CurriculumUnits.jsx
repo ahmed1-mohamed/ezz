@@ -53,7 +53,6 @@ export default React.memo(function CurriculumUnits() {
 
     const currentData = activeCurriculumData || curricula.find(c => (c.id || c._id) === activeTabId);
 
-    console.log(currentData)
     return (
         <section className="py-12 sm:py-20 relative z-10">
             {/* Background Decorative Gradients */}

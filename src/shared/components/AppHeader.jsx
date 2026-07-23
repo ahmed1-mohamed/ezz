@@ -5,13 +5,19 @@ import LanguageSwitcher from './LanguageSwitcher.jsx'
 
 export default function AppHeader({ title }) {
     const { user, theme, toggleTheme } = useAuth()
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const isArabic = i18n.language.startsWith('ar')
 
-    const displayUserName = user?.name
-        ? (typeof user.name === 'string'
-            ? user.name
-            : (user.name.ar || user.name.en || Object.values(user.name)[0] || ''))
-        : '';
+    const displayUserName = (() => {
+        if (!user) return ''
+        if (typeof user.name === 'object' && user.name !== null) {
+            return isArabic ? (user.name.ar || user.name.en || '') : (user.name.en || user.name.ar || '')
+        }
+        if (user.nameAr || user.nameEn) {
+            return isArabic ? (user.nameAr || user.nameEn || user.name) : (user.nameEn || user.nameAr || user.name)
+        }
+        return user.name || ''
+    })()
 
     return (
         <header className="flex flex-col gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/95 p-4 sm:p-5 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80 lg:flex-row lg:items-center lg:justify-between">

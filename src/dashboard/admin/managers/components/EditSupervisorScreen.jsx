@@ -112,7 +112,8 @@ export default function EditSupervisorScreen({
 
   const matchedCountry = useMemo(() => {
     const prefixNorm = normalizePhoneCode(formData.phonePrefix)
-    return sortedCountries.find(c => normalizePhoneCode(c.phoneCode) === prefixNorm || normalizePhoneCode(c.code) === prefixNorm) || sortedCountries[0] || {}
+    const found = sortedCountries.find(c => normalizePhoneCode(c.phoneCode) === prefixNorm || normalizePhoneCode(c.code) === prefixNorm)
+    return found || { phoneCode: formData.phonePrefix || '+20', flag: '🌐' }
   }, [sortedCountries, formData.phonePrefix])
 
   const handleFieldChange = (key, value) => {
@@ -125,9 +126,6 @@ export default function EditSupervisorScreen({
     const pfx = String(country.phoneCode || country.code || '');
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     handleFieldChange('phonePrefix', prefixWithPlus)
-    if (country.id || country._id) {
-      handleFieldChange('countryId', country.id || country._id)
-    }
   }
 
   const handleUpdatePassword = (newPassword) => {
@@ -385,17 +383,8 @@ export default function EditSupervisorScreen({
                     id="editCountrySelect"
                     required
                     value={formData.countryId || ''}
-                    onChange={(e) => {
-                      const selectedId = e.target.value;
-                      handleFieldChange('countryId', selectedId);
-                      const found = sortedCountries.find(c => (c.id || c._id) === selectedId);
-                      if (found) {
-                        const pfx = String(found.phoneCode || found.code || '');
-                        const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
-                        handleFieldChange('phonePrefix', prefixWithPlus);
-                      }
-                    }}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+                    onChange={(e) => handleFieldChange('countryId', e.target.value)}
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-[#f3f7f6] text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
                   >
                     <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
                     {sortedCountries.map((country) => (

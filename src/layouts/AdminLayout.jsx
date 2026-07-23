@@ -58,15 +58,19 @@ const NAV_ITEMS = [
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
 
-function getDisplayName(nameVal, isRtl) {
-  if (!nameVal) return ''
-  if (typeof nameVal === 'string') return nameVal
-  if (typeof nameVal === 'object') {
+function getDisplayName(userObj, isRtl) {
+  if (!userObj) return ''
+  const nameVal = userObj.name
+  if (typeof nameVal === 'object' && nameVal !== null) {
     return isRtl
       ? (nameVal.ar || nameVal.en || Object.values(nameVal)[0] || '')
       : (nameVal.en || nameVal.ar || Object.values(nameVal)[0] || '')
   }
-  return String(nameVal)
+  if (userObj.nameAr || userObj.nameEn) {
+    return isRtl ? (userObj.nameAr || userObj.nameEn || userObj.name) : (userObj.nameEn || userObj.nameAr || userObj.name)
+  }
+  if (typeof nameVal === 'string') return nameVal
+  return String(nameVal || '')
 }
 
 const NavItem = memo(function NavItem({ item, t, onClose }) {
@@ -103,7 +107,7 @@ export default memo(function AdminLayout() {
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
 
-  const resolvedName = useMemo(() => getDisplayName(user?.name, isRtl), [user?.name, isRtl])
+  const resolvedName = useMemo(() => getDisplayName(user, isRtl), [user, isRtl])
   const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
   const displayRole = useMemo(
     () => user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول'),
@@ -227,9 +231,9 @@ export default memo(function AdminLayout() {
                 className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
                 aria-label={resolvedName || 'المستخدم'}
               >
-                {user?.image || user?.photoUrl || user?.photo ? (
+                {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
                   <img
-                    src={user?.image || user?.photoUrl || user?.photo}
+                    src={user?.image || user?.avatar || user?.photoUrl || user?.photo}
                     alt={resolvedName || 'User profile'}
                     className="w-full h-full object-cover"
                   />

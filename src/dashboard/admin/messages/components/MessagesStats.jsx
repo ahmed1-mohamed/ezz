@@ -1,6 +1,6 @@
-import { FileText, PlusCircle, CheckCircle } from 'lucide-react'
+import { List, Mail, MailOpen } from 'lucide-react'
 
-export default function MessagesStats({ statistics, isLoading, t }) {
+export default function MessagesStats({ statistics, activeTab, onSelectTab, isLoading, t }) {
   if (isLoading && !statistics) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
@@ -18,49 +18,62 @@ export default function MessagesStats({ statistics, isLoading, t }) {
   }
 
   const total = statistics?.total || 0
-  const newRequests = statistics?.unread || statistics?.unRead || statistics?.newRequests || 0
-  const replied = statistics?.read || statistics?.isRead || statistics?.replied || 0
+  const unread = statistics?.unread || 0
+  const read = statistics?.read || 0
 
   const statCards = [
     {
-      title: t('adminDashboard.messages.totalRequests', 'إجمالي الطلبات'),
+      id: 'all',
+      title: t('adminDashboard.messages.totalRequests', 'إجمالي طلبات التسجيل'),
       value: total,
-      icon: FileText,
-      color: 'text-blue-500',
-      bg: 'bg-blue-50 dark:bg-blue-900/20'
+      icon: List,
+      color: 'text-blue-600 dark:text-blue-400',
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      activeBorder: 'border-blue-500 ring-2 ring-blue-500/20'
     },
     {
-      title: t('adminDashboard.messages.newRequests', 'طلبات جديدة'),
-      value: newRequests,
-      icon: PlusCircle,
+      id: 'unread',
+      title: t('adminDashboard.messages.unreadRequests', 'طلبات تسجيل غير مقروءة'),
+      value: unread,
+      icon: Mail,
       color: 'text-[#005953] dark:text-brand-400',
-      bg: 'bg-[#005953]/10 dark:bg-[#005953]/20'
+      bg: 'bg-[#005953]/10 dark:bg-[#005953]/20',
+      activeBorder: 'border-[#005953] ring-2 ring-[#005953]/20'
     },
     {
-      title: t('adminDashboard.messages.replied', 'تم الرد عليها'),
-      value: replied,
-      icon: CheckCircle,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-50 dark:bg-emerald-900/20'
+      id: 'read',
+      title: t('adminDashboard.messages.readRequests', 'طلبات تسجيل مقروءة'),
+      value: read,
+      icon: MailOpen,
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+      activeBorder: 'border-emerald-500 ring-2 ring-emerald-500/20'
     }
   ]
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-      {statCards.map((stat, index) => {
+      {statCards.map((stat) => {
         const Icon = stat.icon
+        const isActive = activeTab === stat.id
+
         return (
           <div
-            key={index}
-            className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-soft hover:shadow-md transition-shadow"
+            key={stat.id}
+            onClick={() => onSelectTab && onSelectTab(stat.id)}
+            className={`bg-white dark:bg-slate-900 p-6 rounded-3xl border transition-all cursor-pointer flex items-center justify-between shadow-soft hover:shadow-md ${isActive ? stat.activeBorder : 'border-slate-100 dark:border-slate-800'
+              }`}
           >
             <div>
-              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">
+              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                 {stat.title}
               </p>
               <h3 className={`text-2xl sm:text-3xl font-black ${stat.color}`}>
                 {stat.value}
               </h3>
+              <span className="text-[10px] text-slate-400 font-medium block mt-1 dir-ltr">
+                {stat.endpoint}
+              </span>
             </div>
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.bg} ${stat.color}`}>
               <Icon size={24} />

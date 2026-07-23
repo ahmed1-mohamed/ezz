@@ -13,15 +13,12 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const isRtl = i18n.language.startsWith('ar');
     const { user, updateUser } = useAuth();
 
-    const displayUserName = user?.name
-        ? (typeof user.name === 'string'
-            ? user.name
-            : (user.name.ar || user.name.en || Object.values(user.name)[0] || ''))
-        : '';
+
 
     const [profileData, setProfileData] = useState({
         email: user?.email || '',
-        fullName: displayUserName || '',
+        nameAr: typeof user?.name === 'object' ? (user?.name?.ar || '') : (user?.name || ''),
+        nameEn: typeof user?.name === 'object' ? (user?.name?.en || '') : (user?.name || ''),
         country: '',
         avatar: user?.image || user?.photoUrl || user?.photo || ''
     });
@@ -33,8 +30,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const [selectedCountryCode, setSelectedCountryCode] = useState({ code: '+20', flag: '🇪🇬', name: 'Egypt' });
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [phoneVal, setPhoneVal] = useState('');
-
-
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -54,9 +49,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
             if (res?.success && res.data) {
                 const nameData = res.data.name;
-                const parsedName = typeof nameData === 'string'
-                    ? nameData
-                    : (nameData?.ar || nameData?.en || '');
+                const parsedNameAr = typeof nameData === 'object' ? (nameData?.ar || '') : (typeof nameData === 'string' ? nameData : '');
+                const parsedNameEn = typeof nameData === 'object' ? (nameData?.en || '') : (typeof nameData === 'string' ? nameData : '');
 
                 let mappedCountry = '';
                 if (res.data.country) {
@@ -78,7 +72,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 setProfileData(prev => ({
                     ...prev,
                     email: res.data.email || '',
-                    fullName: parsedName,
+                    nameAr: parsedNameAr,
+                    nameEn: parsedNameEn,
                     country: mappedCountry,
                     avatar: res.data.image || res.data.photoUrl || res.data.photo || prev.avatar
                 }));
@@ -139,7 +134,12 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         setSavingProfile(true);
         const fullPhone = phoneVal ? `${selectedCountryCode.code} ${phoneVal.trim()}` : '';
         const payload = {
-            name: profileData.fullName,
+            name: {
+                ar: profileData.nameAr.trim(),
+                en: profileData.nameEn.trim()
+            },
+            nameAr: profileData.nameAr.trim(),
+            nameEn: profileData.nameEn.trim(),
             country: profileData.country,
             phone: fullPhone
         };
@@ -149,18 +149,23 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
         const res = await profileApi.updateProfile(payload);
         if (res?.success) {
-            showSuccessToast('تم تحديث الملف الشخصي بنجاح');
-            updateUser({ name: profileData.fullName, image: res.data?.image || profileData.avatar });
+            showSuccessToast(isRtl ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
+            const updatedNameObj = res.data?.name || { ar: profileData.nameAr.trim(), en: profileData.nameEn.trim() };
+            updateUser({
+                name: updatedNameObj,
+                image: res.data?.image || profileData.avatar
+            });
             if (onProfileLoaded) {
                 onProfileLoaded({ phone: fullPhone, country: profileData.country, image: res.data?.image });
             }
         } else {
-            showErrorToast(res?.error || 'حدث خطأ أثناء التحديث');
+            showErrorToast(res?.error || (isRtl ? 'حدث خطأ أثناء التحديث' : 'Error updating profile'));
         }
         setSavingProfile(false);
     };
 
-    const userInitial = profileData.fullName ? profileData.fullName.trim().charAt(0) : 'أ';
+    const activeName = isRtl ? (profileData.nameAr || profileData.nameEn) : (profileData.nameEn || profileData.nameAr);
+    const userInitial = activeName ? activeName.trim().charAt(0) : 'أ';
     const fileInputRef = useRef(null);
 
     const handlePhotoClick = () => {
@@ -186,7 +191,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             </div>
         );
     }
-    console.log("profileData", profileData);
 
     return (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
@@ -201,14 +205,14 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     )}
                 </div>
                 <div className="flex flex-col items-center md:items-start text-center md:text-start mt-4 md:mt-0">
-                    <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handlePhotoChange} 
-                        accept="image/jpeg, image/png, image/webp" 
-                        className="hidden" 
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handlePhotoChange}
+                        accept="image/jpeg, image/png, image/webp"
+                        className="hidden"
                     />
-                    <button 
+                    <button
                         type="button"
                         onClick={handlePhotoClick}
                         className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors mb-2 cursor-pointer"
@@ -221,13 +225,30 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="flex flex-col items-start w-full">
-                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.fullName')}</label>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">
+                        {isRtl ? 'الاسم باللغة العربية' : 'Arabic Name'}
+                    </label>
                     <input
                         type="text"
-                        name="fullName"
-                        value={profileData.fullName}
+                        name="nameAr"
+                        value={profileData.nameAr}
                         onChange={handleProfileChange}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
+                        placeholder={isRtl ? 'أدخل الاسم بالعربية' : 'Enter Arabic name'}
+                    />
+                </div>
+                <div className="flex flex-col items-start w-full">
+                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">
+                        {isRtl ? 'الاسم باللغة الإنجليزية' : 'English Name'}
+                    </label>
+                    <input
+                        type="text"
+                        name="nameEn"
+                        value={profileData.nameEn}
+                        onChange={handleProfileChange}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
+                        placeholder={isRtl ? 'Enter English name' : 'Enter English name'}
+                        dir="ltr"
                     />
                 </div>
                 <div className="flex flex-col items-start w-full">
@@ -338,8 +359,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                             <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
                         </svg>
                         <span className="font-semibold text-sm">
-                            {profileData.isGoogleLinked 
-                                ? (isRtl ? 'إلغاء ربط جوجل' : 'Unlink Google') 
+                            {profileData.isGoogleLinked
+                                ? (isRtl ? 'إلغاء ربط جوجل' : 'Unlink Google')
                                 : (isRtl ? 'ربط حساب جوجل' : 'Link Google')}
                         </span>
                     </button>

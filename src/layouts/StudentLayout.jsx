@@ -39,10 +39,22 @@ const navItems = [
 ];
 
 export default function StudentLayout() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language.startsWith('ar');
+
+  const displayName = (() => {
+    if (!user) return t('studentDashboard.user.name');
+    if (typeof user.name === 'object' && user.name !== null) {
+      return isRtl ? (user.name.ar || user.name.en || '') : (user.name.en || user.name.ar || '');
+    }
+    if (user.nameAr || user.nameEn) {
+      return isRtl ? (user.nameAr || user.nameEn || user.name) : (user.nameEn || user.nameAr || user.name);
+    }
+    return user.name || t('studentDashboard.user.name');
+  })();
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -93,11 +105,15 @@ export default function StudentLayout() {
 
         <div className="p-4 shrink-0">
           <div className="bg-[#0f7a6c] text-white rounded-xl p-3 flex items-center gap-3 shadow-md">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-              <User size={16} className="text-white" />
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0 overflow-hidden">
+              {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
+                <img src={user?.image || user?.avatar || user?.photoUrl || user?.photo} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                <User size={16} className="text-white" />
+              )}
             </div>
             <div className="text-start">
-              <h3 className="font-semibold text-sm leading-tight">{t('studentDashboard.user.name')}</h3>
+              <h3 className="font-semibold text-sm leading-tight">{displayName}</h3>
               <p className="text-xs opacity-80">{t('studentDashboard.user.role')}</p>
             </div>
           </div>

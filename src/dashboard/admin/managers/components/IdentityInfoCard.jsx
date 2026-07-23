@@ -29,11 +29,14 @@ export default function IdentityInfoCard({
     });
   }, [sortedCountries, countrySearch])
 
-  const selectedCountry = sortedCountries.find(c => {
-    const prefixStr = String(formData.phonePrefix || '');
-    const countryCodeStr = String(c.phoneCode || c.code || '');
-    return prefixStr.replace(/\+/g, '').startsWith(countryCodeStr.replace(/\+/g, ''));
-  }) || sortedCountries[0] || {}
+  const selectedPhoneCountry = useMemo(() => {
+    const pfxNorm = String(formData.phonePrefix || '').replace(/\+/g, '').trim()
+    const found = sortedCountries.find(c => {
+      const cPhoneNorm = String(c.phoneCode || c.code || '').replace(/\+/g, '').trim()
+      return cPhoneNorm && cPhoneNorm === pfxNorm
+    })
+    return found || { phoneCode: formData.phonePrefix || '+20', flag: '🌐' }
+  }, [sortedCountries, formData.phonePrefix])
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click()
@@ -54,9 +57,6 @@ export default function IdentityInfoCard({
     const pfx = String(country.phoneCode || country.code || '');
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     onChange('phonePrefix', prefixWithPlus)
-    if (country.id || country._id) {
-      onChange('countryId', country.id || country._id)
-    }
   }
 
   return (
@@ -173,8 +173,8 @@ export default function IdentityInfoCard({
               }}
               className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
-              <span aria-hidden="true">{selectedCountry?.flag}</span>
-              <span aria-hidden="true">({selectedCountry?.phoneCode})</span>
+              <span aria-hidden="true">{selectedPhoneCountry?.flag}</span>
+              <span aria-hidden="true">({selectedPhoneCountry?.phoneCode || formData.phonePrefix || '+20'})</span>
             </button>
 
             {isDropdownOpen && (
@@ -197,7 +197,7 @@ export default function IdentityInfoCard({
                     key={country.id || country._id}
                     type="button"
                     onClick={() => selectCountryCode(country)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold"
+                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold cursor-pointer"
                   >
                     <span>{country.name}</span>
                     <span className="flex items-center gap-2">
@@ -215,28 +215,7 @@ export default function IdentityInfoCard({
             type="tel"
             required
             value={formData.phone || ''}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val.startsWith('+')) {
-                const normalizedInput = val.replace(/\+/g, '').trim();
-                const matched = countries
-                  .map(c => ({ ...c, normCode: String(c.phoneCode || c.code || '').replace(/\+/g, '').trim() }))
-                  .filter(c => c.normCode)
-                  .sort((a, b) => b.normCode.length - a.normCode.length)
-                  .find(c => normalizedInput.startsWith(c.normCode));
-
-                if (matched) {
-                  onChange('phonePrefix', matched.phoneCode || matched.code);
-                  if (matched.id || matched._id) {
-                    onChange('countryId', matched.id || matched._id);
-                  }
-                  let remaining = val.substring(1).substring(matched.normCode.length).trim();
-                  onChange('phone', remaining);
-                  return;
-                }
-              }
-              onChange('phone', val);
-            }}
+            onChange={(e) => onChange('phone', e.target.value)}
             className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
 
@@ -251,16 +230,7 @@ export default function IdentityInfoCard({
           id="countrySelectInput"
           required
           value={formData.countryId || ''}
-          onChange={(e) => {
-            const selectedId = e.target.value;
-            onChange('countryId', selectedId);
-            const found = sortedCountries.find(c => (c.id || c._id) === selectedId);
-            if (found) {
-              const pfx = String(found.phoneCode || found.code || '');
-              const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
-              onChange('phonePrefix', prefixWithPlus);
-            }
-          }}
+          onChange={(e) => onChange('countryId', e.target.value)}
           className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
         >
           <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>

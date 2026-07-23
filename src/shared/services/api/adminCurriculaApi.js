@@ -78,8 +78,9 @@ export const adminCurriculaApi = {
   // Levels
   addLevel: async (curriculumId, payload) => {
     try {
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const body = { name: { ar: payload.name?.ar, en: payload.name?.en } };
-      const response = await api.post(`/api/v1/curricula/private/${curriculumId}/levels`, body, {
+      const response = await api.post(`/api/v1/curricula/private/${cId}/levels`, body, {
         headers: { 'Content-Type': 'application/json' }
       });
       return response.data;
@@ -90,8 +91,10 @@ export const adminCurriculaApi = {
   },
   updateLevel: async (curriculumId, levelId, payload) => {
     try {
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id) : levelId;
       const body = { name: { ar: payload.name?.ar, en: payload.name?.en } };
-      const response = await api.patch(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}`, body, {
+      const response = await api.patch(`/api/v1/curricula/private/${cId}/levels/${lId}`, body, {
         headers: { 'Content-Type': 'application/json' }
       });
       return response.data;
@@ -102,8 +105,11 @@ export const adminCurriculaApi = {
   },
   deleteLevel: async (curriculumId, levelId) => {
     try {
-      const response = await api.delete(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}`);
-      return response.data;
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+
+      const response = await api.delete(`/api/v1/curricula/private/${cId}/levels/${lId}`);
+      return response.data || response;
     } catch (error) {
       console.error('API deleteLevel failed:', error);
       throw error;
@@ -113,36 +119,57 @@ export const adminCurriculaApi = {
   // Units
   addUnit: async (curriculumId, levelId, payload) => {
     try {
-      const body = { name: { ar: payload.name?.ar, en: payload.name?.en } };
-      console.log('=== ADD UNIT DEBUG ===');
-      console.log('URL:', `/api/v1/curricula/private/${curriculumId}/levels/${levelId}/units`);
-      console.log('Body:', JSON.stringify(body));
-      console.log('curriculumId:', curriculumId, 'levelId:', levelId);
-      const response = await api.post(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}/units`, body, {
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+
+      const body = {
+        name: {
+          ar: payload.name?.ar || (typeof payload.name === 'string' ? payload.name : ''),
+          en: payload.name?.en || (typeof payload.name === 'string' ? payload.name : (payload.name?.ar || ''))
+        }
+      };
+
+      const response = await api.post(`/api/v1/curricula/private/${cId}/levels/${lId}/units`, body, {
         headers: { 'Content-Type': 'application/json' }
       });
-      return response.data;
+      return response.data || response;
     } catch (error) {
       console.error('API addUnit failed:', error);
       throw error;
     }
   },
+
   updateUnit: async (curriculumId, levelId, unitId, payload) => {
     try {
-      const body = { name: { ar: payload.name?.ar, en: payload.name?.en } };
-      const response = await api.patch(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}/units/${unitId}`, body, {
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+      const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
+
+      const body = {
+        name: {
+          ar: payload.name?.ar || (typeof payload.name === 'string' ? payload.name : ''),
+          en: payload.name?.en || (typeof payload.name === 'string' ? payload.name : (payload.name?.ar || ''))
+        }
+      };
+
+      const response = await api.patch(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}`, body, {
         headers: { 'Content-Type': 'application/json' }
       });
-      return response.data;
+      return response.data || response;
     } catch (error) {
       console.error('API updateUnit failed:', error);
       throw error;
     }
   },
+
   deleteUnit: async (curriculumId, levelId, unitId) => {
     try {
-      const response = await api.delete(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}/units/${unitId}`);
-      return response.data;
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+      const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
+
+      const response = await api.delete(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}`);
+      return response.data || response;
     } catch (error) {
       console.error('API deleteUnit failed:', error);
       throw error;
@@ -152,9 +179,12 @@ export const adminCurriculaApi = {
   // Files
   addFile: async (curriculumId, levelId, unitId, payload) => {
     try {
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+      const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
       const isFormData = payload instanceof FormData;
       const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
-      const response = await api.post(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}/units/${unitId}/files`, payload, { headers });
+      const response = await api.post(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files`, payload, { headers });
       return response.data;
     } catch (error) {
       console.error('API addFile failed:', error);
@@ -163,7 +193,11 @@ export const adminCurriculaApi = {
   },
   deleteFile: async (curriculumId, levelId, unitId, fileId) => {
     try {
-      const response = await api.delete(`/api/v1/curricula/private/${curriculumId}/levels/${levelId}/units/${unitId}/files/${fileId}`);
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+      const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
+      const fId = typeof fileId === 'object' ? (fileId._id || fileId.id || fileId.fileId) : fileId;
+      const response = await api.delete(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files/${fId}`);
       return response.data;
     } catch (error) {
       console.error('API deleteFile failed:', error);

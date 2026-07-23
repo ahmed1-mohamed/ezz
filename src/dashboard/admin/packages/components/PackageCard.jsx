@@ -15,6 +15,11 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
     ? (isRtl ? (langObj.name?.ar || langObj.name?.en) : (langObj.name?.en || langObj.name?.ar))
     : pkg.sessions_language
 
+  const displayName = isRtl ? (pkg.name || pkg.name_en) : (pkg.name_en || pkg.name)
+  const displayFeatures = isRtl
+    ? (pkg.features?.length ? pkg.features : pkg.features_en || [])
+    : (pkg.features_en?.length ? pkg.features_en : pkg.features || [])
+
   return (
     <motion.div
       layout
@@ -25,15 +30,31 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
     >
       <div className="p-6 flex flex-col items-center gap-3 flex-1">
         <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm mt-1"
+          className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm mt-1 overflow-hidden"
           style={{ backgroundColor: accentColor }}
         >
-          <Package size={24} className="text-white" />
+          {pkg.image ? (
+            <img
+              src={pkg.image}
+              alt={displayName}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+                const fallbackIcon = e.currentTarget.parentElement.querySelector('.pkg-fallback-icon')
+                if (fallbackIcon) fallbackIcon.style.display = 'block'
+              }}
+            />
+          ) : null}
+          <Package
+            size={24}
+            className="text-white pkg-fallback-icon"
+            style={{ display: pkg.image ? 'none' : 'block' }}
+          />
         </div>
 
         <div className="text-center">
           <h3 className="font-bold text-slate-800 dark:text-white text-base leading-tight">
-            {pkg.name}
+            {displayName}
           </h3>
         </div>
 
@@ -50,7 +71,7 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
         </div>
 
         <ul className="w-full space-y-1.5 mt-1">
-          {(pkg.features || []).map((feat, i) => (
+          {displayFeatures.map((feat, i) => (
             <li key={i} className="flex items-center justify-start gap-2 text-sm text-slate-600 dark:text-slate-400">
               <Check size={14} className="shrink-0" style={{ color: accentColor }} />
               <span>{feat}</span>
