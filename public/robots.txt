@@ -1,9 +1,7 @@
 User-agent: *
 Allow: /
+
+# Private Dashboard Routes
 Disallow: /dashboard/
-Disallow: /login
-Disallow: /forgot-password
-Disallow: /reset-password
-Disallow: /unauthorized
 
 Sitemap: https://manarat-al-ezz.com/sitemap.xml
