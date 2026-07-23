@@ -117,28 +117,52 @@ export default memo(function AdminLayout() {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
 
-      <header className="lg:hidden w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 h-16 px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
+      <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white" aria-hidden="true">
-            <BookMarked size={20} />
-          </div>
-          <div className="text-start">
-            <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">
-              {t('adminDashboard.header.title', 'منارة العز')}
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-[10px]">
-              {t('adminDashboard.header.subtitle', 'لوحة الإدارة')}
-            </p>
+          <button
+            onClick={toggleMobileMenu}
+            className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-slate-700 dark:text-slate-300 transition-colors"
+            aria-label={isMobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0" aria-hidden="true">
+              <BookMarked size={18} />
+            </div>
+            <div className="text-start hidden sm:block">
+              <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">
+                {t('adminDashboard.header.title', 'منارة العز')}
+              </h2>
+            </div>
           </div>
         </div>
-        <button
-          onClick={toggleMobileMenu}
-          className="p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-slate-700 dark:text-slate-300 transition-colors"
-          aria-label={isMobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
-          aria-expanded={isMobileMenuOpen}
-        >
-          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+
+        <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
+          <div className="text-end">
+            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[100px] sm:max-w-[140px]">
+              {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+            </h4>
+            <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium line-clamp-1">
+              {displayRole}
+            </p>
+          </div>
+          <div
+            className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
+          >
+            {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
+              <img
+                src={user?.image || user?.avatar || user?.photoUrl || user?.photo}
+                alt={resolvedName || 'User profile'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              userInitial
+            )}
+          </div>
+        </Link>
       </header>
 
       <AnimatePresence>
