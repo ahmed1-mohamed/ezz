@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Mail, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
+import { setCookie } from '@/shared/utils/cookieUtils.js'
 
 export default function ForgotPassword() {
     const { t, i18n } = useTranslation()
@@ -14,6 +15,7 @@ export default function ForgotPassword() {
     const [error, setError] = useState('')
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [resetToken, setResetToken] = useState('')
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -26,7 +28,13 @@ export default function ForgotPassword() {
 
         try {
             setLoading(true)
-            await api.post('/api/v1/auth/forget-password', { email })
+            const res = await api.post('/api/v1/auth/forget-password', { email })
+            const returnedToken = res?.data?.token || res?.data?.resetToken || res?.data?.data?.token || res?.data?.data?.resetToken || ''
+            if (returnedToken) {
+                setResetToken(returnedToken)
+                sessionStorage.setItem('reset_token', returnedToken)
+                setCookie('access_token', returnedToken)
+            }
             setIsSubmitted(true)
         } catch (err) {
             const data = err.response?.data
@@ -112,6 +120,7 @@ export default function ForgotPassword() {
                             </p>
                             <Link
                                 to="/reset-password"
+                                state={{ token: resetToken }}
                                 className="block w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] text-center"
                             >
                                 {t('resetPassword.title', 'إعادة تعيين كلمة المرور')}

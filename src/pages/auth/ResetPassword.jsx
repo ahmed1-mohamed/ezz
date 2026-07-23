@@ -1,22 +1,27 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
-import { setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
+import { setCookie, getCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
 
 export default function ResetPassword() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
+    const location = useLocation()
+    const [searchParams] = useSearchParams()
 
-    const [step, setStep] = useState(1) // 1: Verify Code, 2: New Password, 3: Success
+    const initialToken = location.state?.token || searchParams.get('token') || searchParams.get('resetToken') || sessionStorage.getItem('reset_token') || getCookie('access_token') || ''
+
+    const [step, setStep] = useState(1)
     const [resetCode, setResetCode] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
+    const [token, setToken] = useState(initialToken)
 
     const handleVerifyCode = async (e) => {
         e.preventDefault()
@@ -29,11 +34,20 @@ export default function ResetPassword() {
 
         try {
             setLoading(true)
-            const verifyRes = await api.post('/api/v1/auth/verify-code', { resetCode: resetCode.trim() })
-            const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token
+            const currentToken = token || sessionStorage.getItem('reset_token') || getCookie('access_token') || ''
+            const payload = {
+                resetCode: resetCode.trim()
+            }
+            const config = currentToken ? { headers: { Authorization: `Bearer ${currentToken}` } } : {}
+
+            const verifyRes = await api.post('/api/v1/auth/verify-code', payload, config)
+            const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token || verifyRes.data?.resetToken || verifyRes.data?.data?.resetToken || currentToken
 
             if (tempToken) {
+                setToken(tempToken)
+                sessionStorage.setItem('reset_token', tempToken)
                 setCookie('access_token', tempToken)
+                api.defaults.headers.common['Authorization'] = `Bearer ${tempToken}`
             }
 
             setStep(2)
@@ -68,10 +82,15 @@ export default function ResetPassword() {
 
         try {
             setLoading(true)
-            await api.patch('/api/v1/auth/reset-password', {
+            const currentToken = token || sessionStorage.getItem('reset_token') || getCookie('access_token') || ''
+            const payload = {
                 password: password,
                 confirmPassword: confirmPassword
-            })
+            }
+            const config = currentToken ? { headers: { Authorization: `Bearer ${currentToken}` } } : {}
+
+            await api.patch('/api/v1/auth/reset-password', payload, config)
+            sessionStorage.removeItem('reset_token')
             deleteCookie('access_token')
             setStep(3)
         } catch (err) {

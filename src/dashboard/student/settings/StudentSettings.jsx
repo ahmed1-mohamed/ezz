@@ -98,9 +98,9 @@ function SaveButton({ label, onClick }) {
       <button
         type="button"
         onClick={onClick}
-        className="flex items-center gap-2 bg-[#0f7a6c] hover:bg-[#0c6156] active:scale-[0.98] text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm"
+        className="flex items-center justify-center gap-2 bg-[#0f7a6c] hover:bg-[#0c6156] active:scale-[0.98] text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm h-auto"
       >
-        <Save size={15} />
+        <Save size={15} className="shrink-0" />
         {label}
       </button>
     </div>

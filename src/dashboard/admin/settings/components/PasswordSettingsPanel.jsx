@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
-import Spinner from '@/shared/components/Spinner.jsx';
+import { Loader2 } from 'lucide-react';
 
 export default function PasswordSettingsPanel({ itemVariants, profilePhone, profileCountry }) {
     const { t } = useTranslation();
@@ -113,7 +113,7 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
                     disabled={savingPassword}
                     className="bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-70 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto min-w-[160px] flex items-center justify-center gap-2"
                 >
-                    {savingPassword && <Spinner className="w-4 h-4" />}
+                    {savingPassword && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
                     {t('parentSettings.updatePassword')}
                 </button>
             </div>

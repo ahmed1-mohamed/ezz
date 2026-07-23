@@ -81,6 +81,7 @@ export default function StarsSection({ featuredStudents }) {
                                                     width="160"
                                                     height="160"
                                                     loading="lazy"
+                                                    decoding="async"
                                                     className="w-full h-full rounded-full object-cover"
                                                 />
                                             ) : (
