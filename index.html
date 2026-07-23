@@ -9,7 +9,9 @@
     <meta name="keywords" content="تعليم, منارة العز, تجويد, قرآن كريم, لغة عربية, إدارة الطلاب, منصة تعليمية, لوحة تحكم" />
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     <meta name="referrer" content="no-referrer-when-downgrade" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="أكاديمية منارة العز التعليمية" />
+    <link rel="manifest" href="/manifest.json" />
     <meta property="og:title" content="منصة منارة العز التعليمية | Manarat Al-Ezz Platform" />
     <meta property="og:description" content="منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور." />
     <meta property="og:type" content="website" />
@@ -36,18 +38,31 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "أكاديمية منارة العز",
-        "alternateName": "Manarat Al-Ezz Educational Platform",
-        "url": "https://manarat-al-ezz.com/",
-        "logo": "https://manarat-al-ezz.com/assets/NewLogo.webp",
-        "description": "منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور.",
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "telephone": "+0201012345678",
-          "contactType": "customer service",
-          "email": "info@manaratezz.edu.sa"
-        }
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://manarat-al-ezz.com/#website",
+            "url": "https://manarat-al-ezz.com/",
+            "name": "منصة منارة العز التعليمية",
+            "description": "منصة منارة العز التعليمية لإدارة وتسهيل تعليم القرآن الكريم واللغة العربية والمواد الإسلامية",
+            "inLanguage": "ar"
+          },
+          {
+            "@type": "EducationalOrganization",
+            "@id": "https://manarat-al-ezz.com/#organization",
+            "name": "أكاديمية منارة العز",
+            "alternateName": "Manarat Al-Ezz Educational Platform",
+            "url": "https://manarat-al-ezz.com/",
+            "logo": "https://manarat-al-ezz.com/assets/NewLogo.webp",
+            "description": "منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور.",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+0201012345678",
+              "contactType": "customer service",
+              "email": "info@manaratezz.edu.sa"
+            }
+          }
+        ]
       }
     </script>
     <script>

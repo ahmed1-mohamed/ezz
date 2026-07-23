@@ -1,0 +1,19 @@
+{
+  "name": "منصة منارة العز التعليمية",
+  "short_name": "منارة العز",
+  "description": "منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور والمعلمين.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0F7A6C",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
