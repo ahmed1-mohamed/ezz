@@ -110,6 +110,7 @@ export default function AdminPackages() {
                 sessions_language: langId,
                 features: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.ar || []),
                 features_en: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.en || []),
+                image: pkgData.image || pkg.image || null,
             }
 
             setEditingPkg(mappedPkg)

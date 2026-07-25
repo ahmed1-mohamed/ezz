@@ -5,7 +5,10 @@ export default function PackageImageUpload({
   onImageChange,
   label,
   hint,
+  packageName = '',
 }) {
+  const firstLetter = packageName?.trim()?.charAt(0)?.toUpperCase() || ''
+
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
@@ -15,6 +18,13 @@ export default function PackageImageUpload({
         <div className="w-full h-36 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-2 hover:border-[#0f7a6c]/50 bg-slate-50 dark:bg-slate-900 overflow-hidden transition-colors">
           {imagePreview ? (
             <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+          ) : firstLetter ? (
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="w-16 h-16 rounded-2xl bg-[#0f7a6c] text-white font-bold text-3xl flex items-center justify-center shadow-md">
+                {firstLetter}
+              </div>
+              <span className="text-xs text-slate-400">{hint}</span>
+            </div>
           ) : (
             <>
               <ImageIcon size={28} className="text-slate-300 dark:text-slate-600" />

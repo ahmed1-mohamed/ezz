@@ -94,7 +94,7 @@ export const adminPackagesApi = {
           en: enFeatures
         }
       };
-      
+
       const response = await api.post('/api/v1/packages/private', payload);
       const item = response.data?.data || response.data;
       return { success: true, data: mapPackageData(item) };
@@ -235,7 +235,7 @@ export const adminPackagesApi = {
 
   fetchFaqById: async (id) => {
     try {
-      const response = await api.get(`/api/v1/faqs/private/localized/${id}`);
+      const response = await api.get(`/api/v1/faqs/private/${id}`);
       return response.data;
     } catch (error) {
       console.error(`API fetchFaqById failed for ${id}:`, error);
@@ -245,7 +245,7 @@ export const adminPackagesApi = {
 
   fetchPackageById: async (id) => {
     try {
-      const response = await api.get(`/api/v1/packages/private/localized/${id}`);
+      const response = await api.get(`/api/v1/packages/private/${id}`);
       return response.data;
     } catch (error) {
       console.error(`API fetchPackageById failed for ${id}:`, error);

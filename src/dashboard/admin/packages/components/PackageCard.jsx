@@ -41,15 +41,16 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
               onError={(e) => {
                 e.currentTarget.style.display = 'none'
                 const fallbackIcon = e.currentTarget.parentElement.querySelector('.pkg-fallback-icon')
-                if (fallbackIcon) fallbackIcon.style.display = 'block'
+                if (fallbackIcon) fallbackIcon.style.display = 'flex'
               }}
             />
           ) : null}
-          <Package
-            size={24}
-            className="text-white pkg-fallback-icon"
-            style={{ display: pkg.image ? 'none' : 'block' }}
-          />
+          <div
+            className="w-full h-full flex items-center justify-center text-white font-bold text-2xl uppercase pkg-fallback-icon"
+            style={{ display: pkg.image ? 'none' : 'flex' }}
+          >
+            {displayName?.trim()?.charAt(0) || <Package size={24} className="text-white" />}
+          </div>
         </div>
 
         <div className="text-center">

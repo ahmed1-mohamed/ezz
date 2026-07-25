@@ -133,22 +133,12 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 onImageChange={handleImageChange}
                 label={p('packageImage')}
                 hint={p('imageHint')}
+                packageName={form.name || form.name_en}
               />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="name_en" className="block text-xs font-medium text-slate-500 mb-1.5">{p('packageNameEn')}</label>
-                  <input
-                    id="name_en"
-                    name="name_en"
-                    value={form.name_en}
-                    onChange={(e) => setField('name_en', e.target.value)}
-                    placeholder={p('packageNameEnPlaceholder')}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-slate-800 dark:text-slate-100"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="name" className="block text-xs font-medium text-slate-500 mb-1.5 text-end">{p('packageNameAr')}</label>
+                  <label htmlFor="name" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('packageNameAr')}</label>
                   <input
                     id="name"
                     name="name"
@@ -156,7 +146,20 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                     onChange={(e) => setField('name', e.target.value)}
                     placeholder={p('packageNameArPlaceholder')}
                     required
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-end text-slate-800 dark:text-slate-100"
+                    dir="rtl"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="name_en" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('packageNameEn')}</label>
+                  <input
+                    id="name_en"
+                    name="name_en"
+                    value={form.name_en}
+                    onChange={(e) => setField('name_en', e.target.value)}
+                    placeholder={p('packageNameEnPlaceholder')}
+                    dir="ltr"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
                   />
                 </div>
               </div>
@@ -171,6 +174,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   onChange={(e) => setField('price', e.target.value)}
                   placeholder={p('pricePlaceholder')}
                   required
+                  dir="ltr"
                   className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
                 />
               </div>

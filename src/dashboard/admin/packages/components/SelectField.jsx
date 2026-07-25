@@ -14,7 +14,7 @@ export default function SelectField({ id, label, value, onChange, options, place
   return (
     <div id={id} className="relative" tabIndex={-1}>
       {label && (
-        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5 text-end">
+        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5 text-start">
           {label}
         </label>
       )}
@@ -23,10 +23,10 @@ export default function SelectField({ id, label, value, onChange, options, place
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-900/60 border border-transparent rounded-xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900"
       >
-        <ChevronDown size={15} className="text-slate-400 shrink-0" />
-        <span className={value || value === 0 ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'}>
+        <span className={`text-start ${value || value === 0 ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'}`}>
           {selectedLabel}
         </span>
+        <ChevronDown size={15} className="text-slate-400 shrink-0" />
       </button>
       <AnimatePresence>
         {open && (
@@ -45,7 +45,7 @@ export default function SelectField({ id, label, value, onChange, options, place
                   key={val}
                   type="button"
                   onClick={() => { onChange(val); setOpen(false) }}
-                  className="w-full text-end px-4 py-2.5 text-sm hover:bg-[#f3f7f6] dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
+                  className="w-full text-start px-4 py-2.5 text-sm hover:bg-[#f3f7f6] dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
                 >
                   {lbl}
                 </button>
