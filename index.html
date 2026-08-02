@@ -84,12 +84,37 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      (function initWebMCP() {
+        if (typeof navigator === 'undefined' || !navigator.modelContext || typeof navigator.modelContext.registerTool !== 'function') return;
+        var BASE_API = 'https://manaret-ezz.dramcode.top/api';
+        var controller = new AbortController();
+        var signal = controller.signal;
+
+        navigator.modelContext.registerTool({
+          name: 'list_courses',
+          description: 'List all available courses on the platform including Quran, Arabic language, and Islamic Studies.',
+          inputSchema: { type: 'object', properties: { category: { type: 'string', enum: ['quran', 'arabic', 'islamic_studies', 'all'] } } },
+          execute: async function(args) {
+            var cat = (args && args.category) || 'all';
+            var res = await fetch(BASE_API + '/courses' + (cat !== 'all' ? '?category=' + cat : ''));
+            return res.json();
+          }
+        }, { signal: signal });
+
+        navigator.modelContext.registerTool({
+          name: 'get_platform_info',
+          description: 'Get general information about the Manarat Al-Ezz platform, its mission, and contact details.',
+          inputSchema: { type: 'object', properties: {} },
+          execute: async function() {
+            return { name: 'منارة العز | Manarat Al-Ezz', website: 'https://manarat-al-ezz.com/', apiBase: BASE_API, authDocs: 'https://manarat-al-ezz.com/auth.md' };
+          }
+        }, { signal: signal });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <!-- WebMCP: Expose platform tools to browser AI agents -->
-    <!-- https://webmachinelearning.github.io/webmcp/ -->
-    <script src="/webmcp.js" defer></script>
   </body>
 </html>

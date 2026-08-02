@@ -1,22 +1,21 @@
-# Auth.md — Agent Registration for Manarat Al-Ezz
+---
+agent_auth:
+  register_uri: https://manaret-ezz.dramcode.top/api/oauth/register
+  supported_identity_types:
+    - email
+    - api_key
+  supported_credential_types:
+    - jwt
+    - api_key
+  claim_url: https://manarat-al-ezz.com/auth.md
+  revocation_url: https://manaret-ezz.dramcode.top/api/oauth/revoke
+---
+
+# Manarat Al-Ezz auth.md
 
 > **Version**: 1.0.0  
 > **Updated**: 2026-08-03  
 > **Platform**: Manarat Al-Ezz Educational Platform (`https://manarat-al-ezz.com`)
-
----
-
-## agent_auth
-
-```json
-{
-  "register_uri": "https://manaret-ezz.dramcode.top/api/oauth/register",
-  "supported_identity_types": ["email", "api_key"],
-  "supported_credential_types": ["jwt", "api_key"],
-  "claim_uri": "https://manarat-al-ezz.com/auth.md",
-  "revocation_uri": "https://manaret-ezz.dramcode.top/api/oauth/revoke"
-}
-```
 
 ---
 

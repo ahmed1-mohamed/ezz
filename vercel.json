@@ -1,7 +1,20 @@
 {
   "headers": [
     {
-      "source": "/(index.html)?",
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\", </.well-known/agent-skills/index.json>; rel=\"service-desc\", </auth.md>; rel=\"service-doc\", </.well-known/mcp/server-card.json>; rel=\"mcp-server-card\""
+        },
+        {
+          "key": "Vary",
+          "value": "Accept"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
       "headers": [
         {
           "key": "Link",
@@ -117,7 +130,7 @@
         },
         {
           "key": "X-Markdown-Tokens",
-          "value": "enabled"
+          "value": "1250"
         }
       ]
     },
@@ -138,23 +151,6 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept",
-          "value": ".*text/markdown.*"
-        }
-      ],
-      "destination": "/api/markdown"
-    },
-    {
-      "source": "/markdown",
-      "destination": "/api/markdown"
     }
   ]
 }
