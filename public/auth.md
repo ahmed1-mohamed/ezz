@@ -6,6 +6,20 @@
 
 ---
 
+## agent_auth
+
+```json
+{
+  "register_uri": "https://manaret-ezz.dramcode.top/api/oauth/register",
+  "supported_identity_types": ["email", "api_key"],
+  "supported_credential_types": ["jwt", "api_key"],
+  "claim_uri": "https://manarat-al-ezz.com/auth.md",
+  "revocation_uri": "https://manaret-ezz.dramcode.top/api/oauth/revoke"
+}
+```
+
+---
+
 ## Overview
 
 This document describes how AI agents can register and authenticate with the **Manarat Al-Ezz** platform API at `https://manaret-ezz.dramcode.top/api/`.

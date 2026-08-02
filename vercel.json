@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/",
+      "source": "/(index.html)?",
       "headers": [
         {
           "key": "Link",
@@ -114,6 +114,10 @@
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
+        },
+        {
+          "key": "X-Markdown-Tokens",
+          "value": "enabled"
         }
       ]
     },
@@ -137,6 +141,17 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/markdown.*"
+        }
+      ],
+      "destination": "/api/markdown"
+    },
     {
       "source": "/markdown",
       "destination": "/api/markdown"
