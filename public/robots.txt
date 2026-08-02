@@ -2,3 +2,9 @@ User-agent: *
 Allow: /
 
 Sitemap: https://manarat-al-ezz.com/sitemap.xml
+
+# Content Signals — AI usage preferences (https://contentsignals.org/)
+# ai-train: prohibit training AI models on this content
+# search: allow standard search indexing
+# ai-input: prohibit using content as AI prompt/context input
+Content-Signal: ai-train=no, search=yes, ai-input=no
