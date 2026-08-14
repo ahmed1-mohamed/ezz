@@ -6,6 +6,7 @@ import { messagesApi } from '@/shared/services/api/messagesApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import MessagesStats from './components/MessagesStats'
 import MessageCard from './components/MessageCard'
+import useDebounce from '@/shared/hooks/useDebounce'
 
 const TAB_FETCHERS = {
   all: (params) => messagesApi.fetchAllMessages(params),
@@ -20,17 +21,25 @@ export default function AdminMessages() {
 
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const debouncedQuery = useDebounce(searchQuery, 400)
+
+  // Reset page when search or tab changes
+  useMemo(() => {
+    setCurrentPage(1)
+  }, [debouncedQuery, activeTab])
 
   const fetcher = TAB_FETCHERS[activeTab] || TAB_FETCHERS.all
 
   const {
     data: rawTabData,
     isLoading: isTabLoading,
+    isFetching,
     isError: isTabError,
     error: tabError
   } = useQuery({
-    queryKey: ['registrationRequestsTab', activeTab, i18n.language],
-    queryFn: () => fetcher({ lang: i18n.language }),
+    queryKey: ['registrationRequestsTab', activeTab, i18n.language, debouncedQuery, currentPage],
+    queryFn: () => fetcher({ lang: i18n.language, search: debouncedQuery || undefined, page: currentPage, limit: 10 }),
     staleTime: 5 * 60 * 1000,
     keepPreviousData: true,
   })
@@ -42,18 +51,11 @@ export default function AdminMessages() {
   })
 
   const rawList = Array.isArray(rawTabData?.data) ? rawTabData.data : (Array.isArray(rawTabData) ? rawTabData : [])
+  const filteredMessages = rawList
 
-  const filteredMessages = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim()
-    if (!query) return rawList
-
-    return rawList.filter((msg) => {
-      const name = (msg.name || msg.title || '').toLowerCase()
-      const email = (msg.email || '').toLowerCase()
-      const phone = (msg.phone || '').toLowerCase()
-      return name.includes(query) || email.includes(query) || phone.includes(query)
-    })
-  }, [rawList, searchQuery])
+  const pagination = rawTabData?.pagination || rawTabData?.meta || null
+  const totalPages = pagination?.numberOfPages || pagination?.pages || pagination?.totalPages || 1
+  const totalItems = pagination?.total || pagination?.totalItems || rawList.length
 
   const deleteMutation = useMutation({
     mutationFn: messagesApi.deleteMessage,
@@ -91,6 +93,7 @@ export default function AdminMessages() {
               <MessageSquare size={24} />
             </div>
             {t('adminDashboard.messages.title', 'طلبات التسجيل')}
+            {isFetching && <div className="w-5 h-5 ms-2 border-2 border-[#005953]/30 border-t-[#005953] rounded-full animate-spin" />}
           </h1>
         </div>
       </div>
@@ -151,6 +154,57 @@ export default function AdminMessages() {
           ))
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6">
+          <div className="text-xs text-slate-400 dark:text-slate-500 font-bold">
+            {t('adminDashboard.managers.pagination.showing', 'عرض')}{' '}
+            <span className="font-extrabold text-slate-700 dark:text-slate-200">
+              {(currentPage - 1) * 10 + 1}
+            </span>{' '}
+            {t('adminDashboard.managers.pagination.to', 'إلى')}{' '}
+            <span className="font-extrabold text-slate-700 dark:text-slate-200">
+              {Math.min(currentPage * 10, totalItems)}
+            </span>{' '}
+            {t('adminDashboard.managers.pagination.of', 'من أصل')}{' '}
+            <span className="font-extrabold text-slate-700 dark:text-slate-200">
+              {totalItems}
+            </span>{' '}
+            {isRtl ? 'طلب' : 'requests'}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {t('adminDashboard.managers.pagination.previous', 'السابق')}
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                className={`h-8 w-8 flex items-center justify-center rounded-xl text-xs font-black transition-all ${currentPage === p
+                    ? 'bg-[#005953] text-white shadow-md shadow-[#005953]/20'
+                    : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+              >
+                {p}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {t('adminDashboard.managers.pagination.next', 'التالي')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

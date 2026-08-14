@@ -85,6 +85,17 @@ export const teachersApi = {
     }
   },
 
+  fetchRawTeacherById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/teachers/${id}`);
+      const item = response.data?.data || response.data;
+      return { success: true, data: item };
+    } catch (error) {
+      console.error(`API fetchRawTeacherById failed for ${id}:`, error);
+      return { success: false, data: null };
+    }
+  },
+
   createTeacher: async (teacherData) => {
     try {
       const formData = new FormData();

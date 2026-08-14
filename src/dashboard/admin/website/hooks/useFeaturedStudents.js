@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
+import { studentsApi } from '@/shared/services/api/studentsApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
 const parseStudentReview = (student) => {
@@ -90,16 +91,18 @@ export default function useFeaturedStudents(showNotification) {
   }, []);
 
   const loadSystemStudentsLazily = async () => {
-    if (systemStudents.length > 0) return;
+    if (systemStudents.length > 0) return systemStudents;
     try {
       const res = await landingApi.fetchSystemStudents();
       const data = res?.data || res;
       if (Array.isArray(data)) {
         setSystemStudents(data);
+        return data;
       }
     } catch (err) {
       console.warn('Failed to fetch system students:', err);
     }
+    return [];
   };
 
   const handleOpenAddModal = () => {
@@ -122,19 +125,57 @@ export default function useFeaturedStudents(showNotification) {
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (star) => {
-    loadSystemStudentsLazily();
-    let studentId = star.studentId || '';
-    if (!studentId && systemStudents.length > 0) {
-      const matched = systemStudents.find(s => {
-        const studentName = typeof s.name === 'object' ? (s.name.ar || s.name.en) : s.name;
-        return studentName && (studentName === star.name || studentName === star.nameEn || studentName === star.parentName);
-      });
-      if (matched) {
-        studentId = matched.student_id || matched.id || matched._id;
+  const handleOpenEditModal = async (star) => {
+
+    // Extract studentId from all possible shapes
+    const resolvedStudentId =
+      star.studentId ||
+      (typeof star.student === 'string' ? star.student : '') ||
+      star.student?.id ||
+      star.student?._id ||
+      star.student?.student_id ||
+      star.student_id ||
+      '';
+
+    let studentId = resolvedStudentId;
+
+    // Fallback: match by name if still no ID
+    if (!studentId) {
+      const loadedStudents = await loadSystemStudentsLazily();
+      const currentSysStudents = systemStudents.length > 0 ? systemStudents : loadedStudents;
+      if (currentSysStudents.length > 0) {
+        const matched = currentSysStudents.find(s => {
+          const studentName = typeof s.name === 'object' ? (s.name.ar || s.name.en) : s.name;
+          return studentName && (studentName === star.name || studentName === star.nameEn);
+        });
+        if (matched) {
+          studentId = matched.student_id || matched.id || matched._id || '';
+        }
       }
     }
-    setCurrentStar({ ...star, studentId });
+
+    let extraData = {};
+    if (studentId) {
+      try {
+        const res = await studentsApi.fetchRawStudentById(studentId);
+        const rawStudent = res?.data || res;
+        if (rawStudent) {
+          extraData = {
+            name: typeof rawStudent.name === 'object' ? rawStudent.name.ar || star.name : rawStudent.name || star.name,
+            nameEn: typeof rawStudent.name === 'object' ? rawStudent.name.en || star.nameEn : rawStudent.nameEn || star.nameEn,
+            image: rawStudent.image || rawStudent.user?.photoUrl || star.image,
+            email: rawStudent.email || rawStudent.user?.email || star.email || '',
+            phone: rawStudent.phone || rawStudent.user?.phone || star.phone || '',
+            country: rawStudent.country || rawStudent.user?.country || star.country || '',
+            active: rawStudent.active !== false
+          };
+        }
+      } catch (err) {
+        console.warn('Failed to fetch raw student by id:', err);
+      }
+    }
+
+    setCurrentStar({ ...star, studentId, ...extraData });
     setIsModalOpen(true);
   };
 
@@ -170,13 +211,42 @@ export default function useFeaturedStudents(showNotification) {
       return;
     }
 
-    const featuredPayload = {
-      student: currentStar.studentId
-    };
-
     try {
+      const getAllStudentIds = (s) => [
+        s.id, s._id, s.student_id, s.user_id,
+        s.student?.id, s.student?._id, s.studentId
+      ].filter(Boolean).map(String);
+
+      const systemS = systemStudents.find(s =>
+        getAllStudentIds(s).includes(String(currentStar.studentId))
+      );
+
+      const sNameAr = systemS ? (typeof systemS.name === 'object' ? systemS.name.ar : systemS.name) : '';
+      const sNameEn = systemS ? (typeof systemS.name === 'object' ? systemS.name.en : (systemS.nameEn || systemS.name)) : '';
+
+      const finalNameAr = currentStar.name?.trim() || sNameAr || 'طالب متميز';
+      const finalNameEn = currentStar.nameEn?.trim() || sNameEn || finalNameAr;
+      const finalAge = currentStar.age ? Number(currentStar.age) : (systemS?.age || 10);
+      const finalLevel = currentStar.level || systemS?.level || 'متوسط';
+      const finalGroupName = currentStar.groupName?.trim() || systemS?.groupName || 'مجموعة القرآن أ';
+      const finalParentName = currentStar.parentName?.trim() || systemS?.parentName || '';
+      const finalImage = currentStar.image || systemS?.image || systemS?.user?.photoUrl || '';
+
+      const serializedReview = serializeStudentReview({
+        age: finalAge,
+        level: finalLevel,
+        groupName: finalGroupName,
+        parentName: finalParentName
+      });
+
+      const featuredPayload = {
+        student: currentStar.studentId
+      };
+
       if (currentStar.id === null) {
-        const existing = stars.find(s => String(s.studentId) === String(currentStar.studentId));
+        const existing = stars.find(s =>
+          getAllStudentIds(s).includes(String(currentStar.studentId))
+        );
         if (existing) {
           showNotification(t('adminDashboard.website.studentAlreadyAdded', 'هذا الطالب مضاف بالفعل مسبقاً'), 'error');
           return;
@@ -185,64 +255,72 @@ export default function useFeaturedStudents(showNotification) {
         const response = await landingApi.addFeaturedStudent(featuredPayload);
         const added = response?.data || response;
 
-        const systemS = systemStudents.find(s => String(s.id || s._id || s.student_id) === String(currentStar.studentId));
-        const sNameAr = systemS ? (typeof systemS.name === 'object' ? systemS.name.ar : systemS.name) : currentStar.name;
-        const sNameEn = systemS ? (typeof systemS.name === 'object' ? systemS.name.en : (systemS.nameEn || systemS.name)) : currentStar.nameEn;
-
         const newStar = {
           ...added,
           id: added?.id || added?._id,
-          student: systemS,
+          student: systemS || { id: currentStar.studentId },
           studentId: currentStar.studentId,
-          name: sNameAr,
-          nameEn: sNameEn,
-          age: systemS?.age || currentStar.age || 10,
-          level: systemS?.level || currentStar.level || 'متوسط',
-          groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
-          parentName: systemS?.parentName || currentStar.parentName || '',
-          image: systemS?.image || systemS?.user?.photoUrl || currentStar.image || '',
-          review: serializeStudentReview({
-            age: systemS?.age || currentStar.age || 10,
-            level: systemS?.level || currentStar.level || 'متوسط',
-            groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
-            parentName: systemS?.parentName || currentStar.parentName || ''
-          })
+          name: finalNameAr,
+          nameEn: finalNameEn,
+          age: finalAge,
+          level: finalLevel,
+          groupName: finalGroupName,
+          parentName: finalParentName,
+          image: finalImage,
+          review: serializedReview
         };
         const parsed = parseStudentReview(newStar);
         setStars((prev) => [...prev, parsed]);
         showNotification(t('adminDashboard.website.studentAdded', 'تمت إضافة الطالب بنجاح!'));
+
+        try {
+          const formData = new FormData();
+          if (currentStar.imageFile) formData.append('image', currentStar.imageFile);
+          if (currentStar.name) formData.append('name[ar]', currentStar.name);
+          if (currentStar.nameEn) formData.append('name[en]', currentStar.nameEn);
+          if (currentStar.phone) formData.append('phone', currentStar.phone);
+          formData.append('active', currentStar.active !== false);
+          
+          await studentsApi.updateStudent(currentStar.studentId, formData);
+        } catch (e) {
+          console.warn('Failed to update system student data:', e);
+        }
       } else {
         const response = await landingApi.updateFeaturedStudent(currentStar.id, featuredPayload);
         const added = response?.data || response;
 
-        const systemS = systemStudents.find(s => String(s.id || s._id || s.student_id) === String(currentStar.studentId));
-        const sNameAr = systemS ? (typeof systemS.name === 'object' ? systemS.name.ar : systemS.name) : currentStar.name;
-        const sNameEn = systemS ? (typeof systemS.name === 'object' ? systemS.name.en : (systemS.nameEn || systemS.name)) : currentStar.nameEn;
-
         const updatedStar = {
           ...added,
           id: currentStar.id,
-          student: systemS,
+          student: systemS || { id: currentStar.studentId },
           studentId: currentStar.studentId,
-          name: sNameAr,
-          nameEn: sNameEn,
-          age: systemS?.age || currentStar.age || 10,
-          level: systemS?.level || currentStar.level || 'متوسط',
-          groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
-          parentName: systemS?.parentName || currentStar.parentName || '',
-          image: systemS?.image || systemS?.user?.photoUrl || currentStar.image || '',
-          review: serializeStudentReview({
-            age: systemS?.age || currentStar.age || 10,
-            level: systemS?.level || currentStar.level || 'متوسط',
-            groupName: systemS?.groupName || currentStar.groupName || 'مجموعة القرآن أ',
-            parentName: systemS?.parentName || currentStar.parentName || ''
-          })
+          name: finalNameAr,
+          nameEn: finalNameEn,
+          age: finalAge,
+          level: finalLevel,
+          groupName: finalGroupName,
+          parentName: finalParentName,
+          image: finalImage,
+          review: serializedReview
         };
         const parsed = parseStudentReview(updatedStar);
         setStars((prev) =>
           prev.map((s) => (s.id === currentStar.id ? parsed : s))
         );
         showNotification(t('adminDashboard.website.studentUpdated', 'تم تحديث بيانات الطالب بنجاح!'));
+
+        try {
+          const formData = new FormData();
+          if (currentStar.imageFile) formData.append('image', currentStar.imageFile);
+          if (currentStar.name) formData.append('name[ar]', currentStar.name);
+          if (currentStar.nameEn) formData.append('name[en]', currentStar.nameEn);
+          if (currentStar.phone) formData.append('phone', currentStar.phone);
+          formData.append('active', currentStar.active !== false);
+          
+          await studentsApi.updateStudent(currentStar.studentId, formData);
+        } catch (e) {
+          console.warn('Failed to update system student data:', e);
+        }
       }
       setIsModalOpen(false);
     } catch (err) {

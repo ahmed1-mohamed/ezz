@@ -354,21 +354,42 @@ export default function ManagersList({
                 {t('adminDashboard.managers.pagination.previous', 'السابق')}
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  type="button"
-                  key={p}
-                  onClick={() => onPageChange(p)}
-                  aria-label={t('adminDashboard.managers.pagination.page', { page: p }, `صفحة ${p}`)}
-                  aria-current={currentPage === p ? 'page' : undefined}
-                  className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all ${currentPage === p
-                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
-                    : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
+              {(() => {
+                const pages = [];
+                const delta = 1;
+                const rangeStart = Math.max(2, currentPage - delta);
+                const rangeEnd = Math.min(totalPages - 1, currentPage + delta);
+
+                pages.push(1);
+
+                if (rangeStart > 2) pages.push('...');
+
+                for (let i = rangeStart; i <= rangeEnd; i++) pages.push(i);
+
+                if (rangeEnd < totalPages - 1) pages.push('...');
+
+                if (totalPages > 1) pages.push(totalPages);
+
+                return pages.map((p, idx) =>
+                  p === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="px-2 text-slate-400 dark:text-slate-500 text-sm select-none">…</span>
+                  ) : (
+                    <button
+                      type="button"
+                      key={p}
+                      onClick={() => onPageChange(p)}
+                      aria-label={t('adminDashboard.managers.pagination.page', { page: p }, `صفحة ${p}`)}
+                      aria-current={currentPage === p ? 'page' : undefined}
+                      className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all ${currentPage === p
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
+                        : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                );
+              })()}
 
               <button
                 type="button"

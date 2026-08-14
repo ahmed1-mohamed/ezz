@@ -129,7 +129,10 @@ export default function EditSupervisorScreen({
   }
 
   const handleUpdatePassword = (newPassword) => {
-    if (onUpdatePassword) onUpdatePassword(newPassword);
+    if (onUpdatePassword) onUpdatePassword(newPassword, {
+      phone: `${formData.phonePrefix} ${formData.phone}`.trim(),
+      countryId: formData.countryId,
+    });
   }
 
   const handleSubmit = (e) => {
@@ -179,7 +182,7 @@ export default function EditSupervisorScreen({
               <span>{isRtl ? 'قائمة المشرفين' : 'Supervisors List'}</span>
               <span className="text-slate-350 dark:text-slate-655 text-lg">/</span>
               <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg">
-                {isRtl ? 'تفاصيل المشرفين' : 'Supervisor Details'}
+                {isRtl ? 'تفاصيل المشرف' : 'Supervisor Details'}
               </span>
             </h2>
           </div>
@@ -227,7 +230,12 @@ export default function EditSupervisorScreen({
       <div className="space-y-8 max-w-8xl mx-auto">
 
         <EditProfileCard
-          formData={formData}
+          formData={{
+            name: typeof supervisor.name === 'object' ? (supervisor.name?.ar || '') : (supervisor.name || ''),
+            email: supervisor.email || '',
+            phone: initialPhone,
+            phonePrefix: initialPrefix,
+          }}
           mockJoinDate={mockJoinDate}
           isRtl={isRtl}
           t={t}
@@ -360,20 +368,7 @@ export default function EditSupervisorScreen({
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="editEmailInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-                    {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
-                  </label>
-                  <input
-                    id="editEmailInput"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => handleFieldChange('email', e.target.value)}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
-                    dir="ltr"
-                  />
-                </div>
+
 
                 <div>
                   <label htmlFor="editCountrySelect" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">

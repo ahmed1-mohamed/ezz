@@ -96,25 +96,29 @@ export default function AdminWebsite() {
         handleDeleteTestimonial={handleDeleteTestimonial}
       />
 
-      <StudentStarModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        currentStar={currentStar}
-        setCurrentStar={setCurrentStar}
-        onSubmit={handleSaveModal}
-        systemStudents={systemStudents}
-        stars={stars}
-      />
+      {isModalOpen && currentStar && (
+        <StudentStarModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          currentStar={currentStar}
+          setCurrentStar={setCurrentStar}
+          onSubmit={handleSaveModal}
+          systemStudents={systemStudents}
+          stars={stars}
+        />
+      )}
 
-      <TeacherFormModal
-        isOpen={isTeacherFormOpen}
-        onClose={() => setIsTeacherFormOpen(false)}
-        currentTeacher={currentTeacher}
-        setCurrentTeacher={setCurrentTeacher}
-        onSubmit={handleSaveTeacherSubmit}
-        systemTeachers={systemTeachers}
-        eliteTeachers={eliteTeachers}
-      />
+      {isTeacherFormOpen && currentTeacher && (
+        <TeacherFormModal
+          isOpen={isTeacherFormOpen}
+          onClose={() => setIsTeacherFormOpen(false)}
+          currentTeacher={currentTeacher}
+          setCurrentTeacher={setCurrentTeacher}
+          onSubmit={handleSaveTeacherSubmit}
+          systemTeachers={systemTeachers}
+          eliteTeachers={eliteTeachers}
+        />
+      )}
 
       <StarViewModal
         isOpen={isViewModalOpen}

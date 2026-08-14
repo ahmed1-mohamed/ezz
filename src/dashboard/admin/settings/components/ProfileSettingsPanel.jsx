@@ -134,15 +134,18 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         setSavingProfile(true);
         const fullPhone = phoneVal ? `${selectedCountryCode.code} ${phoneVal.trim()}` : '';
         const payload = {
-            name: {
-                ar: profileData.nameAr.trim(),
-                en: profileData.nameEn.trim()
-            },
             nameAr: profileData.nameAr.trim(),
             nameEn: profileData.nameEn.trim(),
-            country: profileData.country,
-            phone: fullPhone
         };
+        
+        if (profileData.country) {
+            payload.country = profileData.country;
+        }
+        
+        if (fullPhone) {
+            payload.phone = fullPhone;
+        }
+        
         if (profileData.imageFile) {
             payload.image = profileData.imageFile;
         }

@@ -49,8 +49,9 @@ export function useCoupons() {
         if (res?.success) {
             setCoupons((prev) => [...prev, res.data]);
             setIsFormOpen(false);
+            loadAll(searchQuery, false);
         }
-    }, []);
+    }, [loadAll, searchQuery]);
 
     const handleDeleteCoupon = useCallback(async (id, code) => {
         const isRtl = i18n.language.startsWith('ar');
@@ -67,8 +68,9 @@ export function useCoupons() {
                 }
                 return open;
             });
+            loadAll(searchQuery, false);
         }
-    }, [i18n.language, selectedCoupon]);
+    }, [i18n.language, selectedCoupon, loadAll, searchQuery]);
 
     const handleViewCoupon = useCallback((coupon) => {
         setSelectedCoupon(coupon);

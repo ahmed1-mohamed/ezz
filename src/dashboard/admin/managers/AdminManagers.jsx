@@ -49,7 +49,21 @@ export default function AdminManagers() {
       console.error('UserId is missing for toggle status operation!')
       return
     }
-    toggleStatusMutation.mutate({ userId: targetUserId })
+    toggleStatusMutation.mutate(
+      { userId: targetUserId },
+      {
+        onSuccess: () => {
+          setSelectedSupervisor((prev) => {
+            if (!prev) return prev
+            const currentActive = prev.user?.active !== undefined ? prev.user.active : prev.active
+            if (prev.user?.active !== undefined) {
+              return { ...prev, user: { ...prev.user, active: !currentActive } }
+            }
+            return { ...prev, active: !currentActive }
+          })
+        }
+      }
+    )
   }
 
   const handleDelete = async (supervisor) => {
@@ -123,7 +137,7 @@ export default function AdminManagers() {
           onStatusFilterChange={setStatusFilter}
           currentPage={currentPage}
           onPageChange={setCurrentPage}
-          totalPages={supervisorsData?.pagination?.numberOfPages || supervisorsData?.pagination?.pages || supervisorsData?.pagination?.totalPages || 1}
+          totalPages={supervisorsData?.pagination?.numberOfPages || 1}
           isRtl={isRtl}
           t={t}
           onToggleStatus={handleToggleStatus}
@@ -237,10 +251,17 @@ export default function AdminManagers() {
               console.error('Failed to update supervisor:', err)
             }
           }}
-          onUpdatePassword={async (newPassword) => {
+          onUpdatePassword={async (newPassword, extra = {}) => {
             try {
               const targetUserId = selectedSupervisor.user_id || selectedSupervisor.user?.id || selectedSupervisor.user?._id;
-              await managersApi.changeUserPassword(targetUserId, { password: newPassword });
+              const phone = extra.phone || selectedSupervisor.phone || selectedSupervisor.user?.phone || '';
+              const countryId = extra.countryId || selectedSupervisor.country?._id || selectedSupervisor.country?.id || '';
+              await managersApi.changeUserPassword(targetUserId, {
+                password: newPassword,
+                confirmPassword: newPassword,
+                phone,
+                country: countryId,
+              });
               showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl);
             } catch (err) {
               console.error('Failed to update password:', err);

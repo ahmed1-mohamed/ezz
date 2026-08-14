@@ -17,7 +17,8 @@ import {
   Music as AudioIcon,
   File as FileIcon,
   Download,
-  Eye
+  Eye,
+  Link as LinkIcon
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
@@ -37,6 +38,12 @@ const buildFullFileUrl = (url) => {
 
 const getFileMeta = (file) => {
   const fileUrl = typeof file === 'string' ? file : (file?.url || file?.file || file?.link || file?.path || file?.src || file?.fileUrl || '')
+  
+  const isLink = file?.type === 'link' || (!file?.file && (file?.link || file?.url)) || (typeof file === 'string' && (file.startsWith('http') && !file.includes('manaret-ezz.dramcode.top')))
+  if (isLink) {
+    return { icon: LinkIcon, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30', type: 'Link', fullUrl: fileUrl }
+  }
+
   const fullUrl = buildFullFileUrl(fileUrl)
   const ext = (fileUrl.split('.').pop() || '').toLowerCase()
 

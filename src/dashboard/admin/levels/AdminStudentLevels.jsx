@@ -110,6 +110,7 @@ export default function AdminStudentLevels() {
     try {
       const res = await adminLevelsApi.fetchLevelById(lvl.id);
       const lvlData = res?.data || res;
+      setShowForm(false)
       setEditingLevelId(lvl.id);
       setLevelNameAr(lvlData.name?.ar || lvlData.name || '');
       setLevelNameEn(lvlData.name?.en || lvlData.nameEn || lvlData.name || '');
@@ -164,6 +165,7 @@ export default function AdminStudentLevels() {
 
       {showForm && (
         <StudentLevelForm
+          key={editingLevelId || 'new'}
           levelNameAr={levelNameAr}
           setLevelNameAr={setLevelNameAr}
           levelNameEn={levelNameEn}

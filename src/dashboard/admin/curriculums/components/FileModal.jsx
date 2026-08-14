@@ -32,17 +32,22 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit }) {
     if (resourceType === 'file' && !file) return
     if (resourceType === 'link' && !url.trim()) return
 
+    if (resourceType === 'link') {
+      const payload = {
+        type: 'link',
+        name: { ar: nameAr.trim(), en: nameEn.trim() },
+        url: url.trim(),
+        link: url.trim()
+      }
+      onSubmit(payload)
+      return
+    }
+
     const formData = new FormData()
-    formData.append('type', resourceType)
+    formData.append('type', 'file')
     formData.append('name[ar]', nameAr.trim())
     formData.append('name[en]', nameEn.trim())
-    
-    if (resourceType === 'file' && file) {
-      formData.append('file', file)
-    } else if (resourceType === 'link') {
-      formData.append('url', url.trim())
-      formData.append('link', url.trim())
-    }
+    formData.append('file', file)
 
     onSubmit(formData)
   }

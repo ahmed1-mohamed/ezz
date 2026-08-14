@@ -12,6 +12,7 @@ import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
 
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
+import useDebounce from '@/shared/hooks/useDebounce'
 import CurriculumCard from './components/CurriculumCard'
 import CurriculumForm from './components/CurriculumForm'
 
@@ -24,11 +25,12 @@ export default function AdminCurriculums() {
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedQuery = useDebounce(searchQuery, 400)
 
   // Fetch Curricula
-  const { data: curriculaResponse, isLoading } = useQuery({
-    queryKey: ['admin-curricula'],
-    queryFn: () => adminCurriculaApi.fetchCurricula(),
+  const { data: curriculaResponse, isLoading, isFetching } = useQuery({
+    queryKey: ['admin-curricula', debouncedQuery],
+    queryFn: () => adminCurriculaApi.fetchCurricula({ search: debouncedQuery || undefined }),
   })
 
   // Fetch Languages for Form
@@ -119,13 +121,7 @@ export default function AdminCurriculums() {
     navigate(`/dashboard/admin/curriculums/${id}`);
   }
 
-  const filteredCurricula = curricula.filter(c => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    const nameAr = (c.name?.ar || '').toLowerCase();
-    const nameEn = (typeof c.name === 'string' ? c.name : (c.name?.en || '')).toLowerCase();
-    return nameAr.includes(q) || nameEn.includes(q);
-  });
+  const filteredCurricula = curricula;
 
   if (isLoading) {
     return (
@@ -167,8 +163,9 @@ export default function AdminCurriculums() {
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 text-start">
-          <h2 className="text-base font-bold text-slate-800 dark:text-white">
+          <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
             {isRtl ? `المناهج المتاحة (${filteredCurricula.length})` : `Available Curricula (${filteredCurricula.length})`}
+            {isFetching && <div className="w-4 h-4 border-2 border-[#0f7a6c]/30 border-t-[#0f7a6c] rounded-full animate-spin" />}
           </h2>
 
           <input

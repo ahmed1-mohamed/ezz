@@ -66,9 +66,31 @@ export function useManagers() {
 
   const responseData = supervisorsData || {};
   const dataObj = responseData.data || responseData;
-  const supervisorsList = Array.isArray(dataObj) ? dataObj : (Array.isArray(dataObj.admins) ? dataObj.admins : (Array.isArray(dataObj.data) ? dataObj.data : []));
+
+  // Extract supervisors list from various possible response shapes
+  const supervisorsList = Array.isArray(dataObj)
+    ? dataObj
+    : Array.isArray(dataObj.admins)
+      ? dataObj.admins
+      : Array.isArray(dataObj.data)
+        ? dataObj.data
+        : [];
+
   const statsObj = responseData.statistics || dataObj.statistics || null;
-  const paginationObj = responseData.pagination || dataObj.pagination || null;
+
+  // Extract pagination from various possible response shapes
+  const rawPagination = responseData.pagination || dataObj.pagination || responseData.meta || dataObj.meta || null;
+  const totalCount = statsObj?.total ?? rawPagination?.total ?? rawPagination?.totalItems ?? supervisorsList.length;
+  const totalPagesCount = rawPagination?.numberOfPages
+    ?? rawPagination?.pages
+    ?? rawPagination?.totalPages
+    ?? rawPagination?.pageCount
+    ?? rawPagination?.total_pages
+    ?? (totalCount > 0 ? Math.ceil(totalCount / 5) : 1);
+
+  const paginationObj = rawPagination
+    ? { ...rawPagination, numberOfPages: totalPagesCount, total: totalCount }
+    : { numberOfPages: totalPagesCount, total: totalCount };
 
   return {
     currentPage,

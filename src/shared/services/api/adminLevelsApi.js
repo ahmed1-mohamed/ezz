@@ -13,7 +13,7 @@ export const adminLevelsApi = {
 
   fetchLevelById: async (id) => {
     try {
-      const response = await api.get(`/api/v1/student-levels/private/localized/${id}`);
+      const response = await api.get(`/api/v1/student-levels/private/${id}`);
       return response.data;
     } catch (error) {
       console.error('API fetchLevelById failed:', error);

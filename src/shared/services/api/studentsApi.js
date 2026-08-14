@@ -21,6 +21,11 @@ export const studentsApi = {
     return response.data;
   },
 
+  fetchRawStudentById: async (id) => {
+    const response = await api.get(`/api/v1/students/${id}`);
+    return response.data;
+  },
+
   createStudent: async (studentData) => {
     const isFormData = studentData instanceof FormData;
     const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};

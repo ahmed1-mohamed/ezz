@@ -71,24 +71,21 @@ export const adminPackagesApi = {
       const arTitle = (typeof packageData.name === 'object' ? packageData.name?.ar : packageData.name) || packageData.titleAr || '';
       const enTitle = (typeof packageData.name === 'object' ? packageData.name?.en : packageData.name_en) || packageData.nameEn || packageData.titleEn || arTitle;
 
-      const arDesc = (typeof packageData.description === 'object' ? packageData.description?.ar : packageData.description) || packageData.descriptionAr || '';
-      const enDesc = (typeof packageData.description === 'object' ? packageData.description?.en : packageData.description_en) || packageData.descriptionEn || arDesc;
+      const arFeaturesRaw = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
+      const enFeaturesRaw = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeaturesRaw));
 
-      const arSub = (typeof packageData.subtitle === 'object' ? packageData.subtitle?.ar : packageData.subtitle) || packageData.subtitleAr || '';
-      const enSub = (typeof packageData.subtitle === 'object' ? packageData.subtitle?.en : packageData.subtitle_en) || packageData.subtitleEn || arSub;
+      let arFeatures = arFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
+      let enFeatures = enFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
 
-      const arFeatures = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
-      const enFeatures = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeatures));
+      if (enFeatures.length === 0 && arFeatures.length > 0) enFeatures = [...arFeatures];
+      if (arFeatures.length === 0 && enFeatures.length > 0) arFeatures = [...enFeatures];
 
       const payload = {
         name: { ar: arTitle, en: enTitle },
-        title: { ar: arTitle, en: enTitle },
-        description: { ar: arDesc, en: enDesc },
-        subtitle: { ar: arSub, en: enSub },
         icon: 'star',
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
-        language: packageData.sessions_language,
+        language: packageData.sessions_language || undefined,
         features: {
           ar: arFeatures,
           en: enFeatures
@@ -110,24 +107,21 @@ export const adminPackagesApi = {
       const arTitle = (typeof packageData.name === 'object' ? packageData.name?.ar : packageData.name) || packageData.titleAr || '';
       const enTitle = (typeof packageData.name === 'object' ? packageData.name?.en : packageData.name_en) || packageData.nameEn || packageData.titleEn || arTitle;
 
-      const arDesc = (typeof packageData.description === 'object' ? packageData.description?.ar : packageData.description) || packageData.descriptionAr || '';
-      const enDesc = (typeof packageData.description === 'object' ? packageData.description?.en : packageData.description_en) || packageData.descriptionEn || arDesc;
+      const arFeaturesRaw = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
+      const enFeaturesRaw = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeaturesRaw));
 
-      const arSub = (typeof packageData.subtitle === 'object' ? packageData.subtitle?.ar : packageData.subtitle) || packageData.subtitleAr || '';
-      const enSub = (typeof packageData.subtitle === 'object' ? packageData.subtitle?.en : packageData.subtitle_en) || packageData.subtitleEn || arSub;
+      let arFeatures = arFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
+      let enFeatures = enFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
 
-      const arFeatures = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
-      const enFeatures = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeatures));
+      if (enFeatures.length === 0 && arFeatures.length > 0) enFeatures = [...arFeatures];
+      if (arFeatures.length === 0 && enFeatures.length > 0) arFeatures = [...enFeatures];
 
       const payload = {
         name: { ar: arTitle, en: enTitle },
-        title: { ar: arTitle, en: enTitle },
-        description: { ar: arDesc, en: enDesc },
-        subtitle: { ar: arSub, en: enSub },
         icon: 'star',
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
-        language: packageData.sessions_language,
+        language: packageData.sessions_language || undefined,
         features: {
           ar: arFeatures,
           en: enFeatures

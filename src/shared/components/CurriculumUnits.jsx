@@ -11,7 +11,7 @@ export default React.memo(function CurriculumUnits() {
 
     // 1. Fetch All Curricula
     const { data: curriculaData, isLoading: isCurriculaLoading } = useQuery({
-        queryKey: ['public-curricula'],
+        queryKey: ['public-curricula', i18n.language],
         queryFn: async () => {
             const res = await api.get('/api/v1/curricula/public');
             const items = res.data?.data || [];
@@ -24,6 +24,11 @@ export default React.memo(function CurriculumUnits() {
     const [openLevel, setOpenLevel] = useState(null);
     const [showAllLevels, setShowAllLevels] = useState(false);
 
+    // Reset active tab when language changes so the new language data is shown
+    useEffect(() => {
+        setActiveTabId(null);
+    }, [i18n.language]);
+
     // Set first tab as active by default
     useEffect(() => {
         if (curricula.length > 0 && !activeTabId) {
@@ -33,7 +38,7 @@ export default React.memo(function CurriculumUnits() {
 
     // 2. Fetch Selected Curriculum Details
     const { data: activeCurriculumData, isLoading: isDetailsLoading } = useQuery({
-        queryKey: ['public-curriculum-details', activeTabId],
+        queryKey: ['public-curriculum-details', activeTabId, i18n.language],
         queryFn: async () => {
             if (!activeTabId) return null;
             const res = await api.get(`/api/v1/curricula/public/${activeTabId}`);
