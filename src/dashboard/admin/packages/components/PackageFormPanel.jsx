@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
+import toast from 'react-hot-toast'
 import SelectField from './SelectField'
 import PackageImageUpload from './PackageImageUpload'
 import PackageFeaturesField from './PackageFeaturesField'
@@ -83,13 +84,38 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    const rawFeatures = form.features
+      .map(f => typeof f === 'string' ? f.trim() : '')
+      .filter(f => f.length > 0)
+
+    const rawFeaturesEn = form.features_en
+      .map(f => typeof f === 'string' ? f.trim() : '')
+      .filter(f => f.length > 0)
+
+    if (rawFeatures.length === 0) {
+      toast.error(isRtl ? 'يجب إضافة ميزة واحدة على الأقل للباقة' : 'At least one feature is required')
+      return
+    }
+
+    const hasShortAr = rawFeatures.some(f => f.length < 3)
+    if (hasShortAr) {
+      toast.error(isRtl ? 'يجب أن لا يقل طول نص كل ميزة عن 3 أحرف' : 'Each feature must be at least 3 characters')
+      return
+    }
+
+    const finalFeaturesEn = rawFeatures.map((feat, idx) => {
+      const enVal = rawFeaturesEn[idx]
+      return (enVal && enVal.trim().length >= 3) ? enVal.trim() : feat
+    })
+
     setSaving(true)
     const cleaned = {
       ...form,
       price: Number(form.price),
       sessions_per_month: Number(form.sessions_per_month),
-      features: form.features.filter(Boolean),
-      features_en: form.features_en.filter(Boolean),
+      features: rawFeatures,
+      features_en: finalFeaturesEn,
       imageFile
     }
     await onSave(cleaned)
@@ -193,14 +219,21 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   }))}
                   placeholder={p('language')}
                 />
-                <SelectField
-                  id="sessions_per_month"
-                  label={p('sessionsCount')}
-                  value={form.sessions_per_month ? String(form.sessions_per_month) : ''}
-                  onChange={(v) => setField('sessions_per_month', v)}
-                  options={SESSION_OPTIONS.map(String)}
-                  placeholder={p('sessionsCount')}
-                />
+                <div>
+                  <label htmlFor="sessions_per_month" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('sessionsCount')}</label>
+                  <input
+                    id="sessions_per_month"
+                    name="sessions_per_month"
+                    type="number"
+                    min="1"
+                    value={form.sessions_per_month ?? ''}
+                    onChange={(e) => setField('sessions_per_month', e.target.value)}
+                    placeholder={p('sessionsCount')}
+                    required
+                    dir="ltr"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
+                  />
+                </div>
               </div>
 
 

@@ -143,11 +143,19 @@ api.interceptors.response.use(
         }
       };
 
+      const formatErrorMsg = (msg) => {
+        if (typeof msg !== 'string') return 'حدث خطأ في البيانات المدخلة';
+        if (msg.includes('FEATURE_ITEM_LENGTH') || msg.includes('feature_item_length')) {
+          return 'يجب أن لا يقل طول نص كل ميزة عن 3 أحرف';
+        }
+        return msg;
+      };
+
       if (Array.isArray(msgs)) {
-        msgs.forEach(msg => toast.error(msg, { duration: 5000 }));
+        msgs.forEach(msg => toast.error(formatErrorMsg(msg), { duration: 5000 }));
         if (msgs.length > 0) focusInputByError(msgs[0]);
       } else if (typeof msgs === 'string') {
-        toast.error(msgs, { duration: 5000 });
+        toast.error(formatErrorMsg(msgs), { duration: 5000 });
         focusInputByError(msgs);
       } else {
         toast.error('حدث خطأ في البيانات المدخلة', { duration: 5000 });

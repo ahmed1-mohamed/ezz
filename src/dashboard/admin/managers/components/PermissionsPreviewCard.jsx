@@ -8,7 +8,6 @@ export default function PermissionsPreviewCard({
 }) {
 
   const previewStats = useMemo(() => {
-    let granted = 0
     let totalOptions = 0
 
     const selected = permissionsList.find(p => p.id === selectedPermissionId)
@@ -24,7 +23,7 @@ export default function PermissionsPreviewCard({
       totalOptions += m.actions.length
     })
 
-    granted = activeKeys.length
+    const granted = activeKeys.length
     const denied = totalOptions - granted
     const accessLevel = totalOptions > 0 ? Math.round((granted / totalOptions) * 100) : 0
 

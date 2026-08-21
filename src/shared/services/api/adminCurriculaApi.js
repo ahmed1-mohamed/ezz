@@ -178,15 +178,55 @@ export const adminCurriculaApi = {
 
   // Files
   addFile: async (curriculumId, levelId, unitId, payload) => {
+    const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+    const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+    const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
+    const endpoint = `/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files`;
+
     try {
-      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
-      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
-      const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
       const isFormData = payload instanceof FormData;
-      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
-      const response = await api.post(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files`, payload, { headers });
+      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' };
+      const response = await api.post(endpoint, payload, { headers });
       return response.data;
     } catch (error) {
+      // Fallback: If primary attempt failed and it's a link, try alternative format
+      try {
+        if (payload instanceof FormData) {
+          const type = payload.get('type');
+          const nameAr = payload.get('name[ar]') || payload.get('nameAr') || '';
+          const nameEn = payload.get('name[en]') || payload.get('nameEn') || nameAr;
+          const linkUrl = payload.get('url');
+
+          if (type === 'link' && linkUrl) {
+            const jsonBody = {
+              type: 'link',
+              name: { ar: nameAr, en: nameEn },
+              url: linkUrl
+            };
+            const jsonRes = await api.post(endpoint, jsonBody, {
+              headers: { 'Content-Type': 'application/json' }
+            });
+            return jsonRes.data;
+          }
+        } else if (typeof payload === 'object' && !(payload instanceof FormData)) {
+          const fd = new FormData();
+          fd.append('type', payload.type || 'link');
+          const ar = payload.name?.ar || payload.nameAr || (typeof payload.name === 'string' ? payload.name : '');
+          const en = payload.name?.en || payload.nameEn || ar;
+          fd.append('name[ar]', ar);
+          fd.append('name[en]', en);
+          if (payload.url) {
+            fd.append('url', payload.url);
+          }
+          const fdRes = await api.post(endpoint, fd, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          return fdRes.data;
+        }
+      } catch (fallbackErr) {
+        console.warn('API addFile fallback attempt also failed:', fallbackErr);
+      }
+
       console.error('API addFile failed:', error);
       throw error;
     }

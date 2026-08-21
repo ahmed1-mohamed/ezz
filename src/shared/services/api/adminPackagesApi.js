@@ -2,6 +2,7 @@ import api from './axiosConfig';
 
 const buildImageUrl = (url) => {
   if (!url || typeof url !== 'string') return null;
+  if (url === 'star' || url.trim().length < 4) return null;
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
     return url;
   }
@@ -13,7 +14,7 @@ const mapPackageData = (item) => ({
   id: item.id || item._id,
   name: typeof item.name === 'object' ? (item.name.ar || item.name.en || '') : (item.nameAr || item.titleAr || item.name || ''),
   name_en: typeof item.name === 'object' ? (item.name.en || item.name.ar || '') : (item.nameEn || item.titleEn || item.name_en || ''),
-  image: buildImageUrl(item.image || item.imageUrl || item.photo || item.photoUrl || (typeof item.icon === 'string' && (item.icon.includes('/') || item.icon.includes('.')) ? item.icon : null)),
+  image: buildImageUrl(item.image || item.imageUrl || item.photo || item.photoUrl || item.iconPath || item.iconUrl || item.icon),
   description: typeof item.description === 'object' ? (item.description.ar || item.description.en || '') : (item.descriptionAr || item.description || ''),
   description_en: typeof item.description === 'object' ? (item.description.en || item.description.ar || '') : (item.descriptionEn || item.description_en || ''),
   subtitle: typeof item.subtitle === 'object' ? (item.subtitle.ar || item.subtitle.en || '') : (item.subtitleAr || item.subtitle || ''),
@@ -74,15 +75,44 @@ export const adminPackagesApi = {
       const arFeaturesRaw = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
       const enFeaturesRaw = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeaturesRaw));
 
-      let arFeatures = arFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
-      let enFeatures = enFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
+      let arFeatures = arFeaturesRaw
+        .map(f => typeof f === 'string' ? f.trim() : '')
+        .filter(f => f.length >= 3);
+      let enFeatures = enFeaturesRaw
+        .map(f => typeof f === 'string' ? f.trim() : '')
+        .filter(f => f.length >= 3);
 
       if (enFeatures.length === 0 && arFeatures.length > 0) enFeatures = [...arFeatures];
       if (arFeatures.length === 0 && enFeatures.length > 0) arFeatures = [...enFeatures];
 
+      const file = packageData.imageFile || (packageData.image instanceof File ? packageData.image : null);
+
+      if (file instanceof File || file instanceof Blob) {
+        const fd = new FormData();
+        fd.append('name[ar]', arTitle);
+        fd.append('name[en]', enTitle);
+        fd.append('price', String(packageData.price));
+        fd.append('sessionsCount', String(packageData.sessions_per_month));
+        if (packageData.sessions_language) {
+          fd.append('language', packageData.sessions_language);
+        }
+        arFeatures.forEach((feat) => {
+          fd.append('features[ar][]', feat);
+        });
+        enFeatures.forEach((feat) => {
+          fd.append('features[en][]', feat);
+        });
+        fd.append('icon', file);
+
+        const response = await api.post('/api/v1/packages/private', fd, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        const item = response.data?.data || response.data;
+        return { success: true, data: mapPackageData(item) };
+      }
+
       const payload = {
         name: { ar: arTitle, en: enTitle },
-        icon: 'star',
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
         language: packageData.sessions_language || undefined,
@@ -91,6 +121,10 @@ export const adminPackagesApi = {
           en: enFeatures
         }
       };
+
+      if (packageData.icon && packageData.icon !== 'star') {
+        payload.icon = packageData.icon;
+      }
 
       const response = await api.post('/api/v1/packages/private', payload);
       const item = response.data?.data || response.data;
@@ -110,15 +144,44 @@ export const adminPackagesApi = {
       const arFeaturesRaw = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
       const enFeaturesRaw = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeaturesRaw));
 
-      let arFeatures = arFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
-      let enFeatures = enFeaturesRaw.map(f => typeof f === 'string' ? f.trim() : f).filter(f => f && f.length > 0);
+      let arFeatures = arFeaturesRaw
+        .map(f => typeof f === 'string' ? f.trim() : '')
+        .filter(f => f.length >= 3);
+      let enFeatures = enFeaturesRaw
+        .map(f => typeof f === 'string' ? f.trim() : '')
+        .filter(f => f.length >= 3);
 
       if (enFeatures.length === 0 && arFeatures.length > 0) enFeatures = [...arFeatures];
       if (arFeatures.length === 0 && enFeatures.length > 0) arFeatures = [...enFeatures];
 
+      const file = packageData.imageFile || (packageData.image instanceof File ? packageData.image : null);
+
+      if (file instanceof File || file instanceof Blob) {
+        const fd = new FormData();
+        fd.append('name[ar]', arTitle);
+        fd.append('name[en]', enTitle);
+        fd.append('price', String(packageData.price));
+        fd.append('sessionsCount', String(packageData.sessions_per_month));
+        if (packageData.sessions_language) {
+          fd.append('language', packageData.sessions_language);
+        }
+        arFeatures.forEach((feat) => {
+          fd.append('features[ar][]', feat);
+        });
+        enFeatures.forEach((feat) => {
+          fd.append('features[en][]', feat);
+        });
+        fd.append('icon', file);
+
+        const response = await api.patch(`/api/v1/packages/private/${id}`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        const item = response.data?.data || response.data;
+        return { success: true, data: mapPackageData(item) };
+      }
+
       const payload = {
         name: { ar: arTitle, en: enTitle },
-        icon: 'star',
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
         language: packageData.sessions_language || undefined,
@@ -127,6 +190,10 @@ export const adminPackagesApi = {
           en: enFeatures
         }
       };
+
+      if (packageData.icon && packageData.icon !== 'star') {
+        payload.icon = packageData.icon;
+      }
 
       const response = await api.patch(`/api/v1/packages/private/${id}`, payload);
       const item = response.data?.data || response.data;

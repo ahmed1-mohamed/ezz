@@ -1,67 +1,112 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 import { teachersApi } from '@/shared/services/api/teachersApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
-function extractEliteTeacherRefIds(et) {
+const buildImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url;
+  }
+  const cleanPath = url.startsWith('/') ? url.slice(1) : url;
+  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+};
+
+export const mapEliteTeacher = (item) => {
+  if (!item) return null;
+
+  const tRef = (item.teacher && typeof item.teacher === 'object') ? item.teacher : {};
+  const userRef = (tRef.user && typeof tRef.user === 'object') ? tRef.user : {};
+
+  // Extract Name (Arabic and English)
+  let nameAr = '';
+  let nameEn = '';
+  const rawName = item.name || tRef.name || item.teacherName || tRef.teacherName;
+  if (typeof rawName === 'object' && rawName !== null) {
+    nameAr = rawName.ar || rawName.en || '';
+    nameEn = rawName.en || rawName.ar || '';
+  } else if (typeof rawName === 'string') {
+    nameAr = rawName;
+    nameEn = item.nameEn || tRef.nameEn || rawName;
+  }
+
+  // Extract Image
+  const rawImage =
+    item.image ||
+    item.imageUrl ||
+    item.avatar ||
+    tRef.image ||
+    tRef.imageUrl ||
+    tRef.avatar ||
+    tRef.photoUrl ||
+    userRef.photoUrl ||
+    userRef.avatar ||
+    '';
+
+  const finalImage = buildImageUrl(rawImage);
+
+  // Extract Teacher Reference ID in the system
+  const resolvedTeacherId =
+    tRef.id ||
+    tRef._id ||
+    tRef.teacher_id ||
+    tRef.teacherId ||
+    (typeof item.teacher === 'string' ? item.teacher : '') ||
+    item.teacherId ||
+    item.teacher_id ||
+    item.id ||
+    item._id ||
+    '';
+
+  return {
+    id: item.id || item._id, // Elite teacher row id
+    _id: item._id || item.id,
+    teacher: item.teacher || tRef,
+    teacherId: String(resolvedTeacherId),
+    name: nameAr || 'معلم متميز',
+    nameEn: nameEn || nameAr || 'Elite Teacher',
+    image: finalImage,
+    email: item.email || tRef.email || userRef.email || '',
+    phone: item.phone || tRef.phone || userRef.phone || '',
+    country: item.country || tRef.country || userRef.country || '',
+    active: item.active !== false && tRef.active !== false,
+    groupsCount: item.groupsCount || tRef.groupsCount || 0,
+    sessionsCount: item.sessionsCount || tRef.sessionsCount || 0,
+    notes: item.notes || item.review || ''
+  };
+};
+
+export const collectAllTeacherIds = (obj) => {
+  if (!obj) return new Set();
   const ids = new Set();
-  if (!et) return ids;
-  const teacher = et.teacher;
-  if (typeof teacher === 'string' && teacher) ids.add(teacher);
-  if (teacher && typeof teacher === 'object') {
-    [teacher._id, teacher.id, teacher.teacher_id, teacher.teacherId, teacher.user_id, teacher.userId]
-      .filter(Boolean).forEach(id => ids.add(String(id)));
+  const add = (v) => { if (v !== undefined && v !== null && String(v).trim()) ids.add(String(v).trim()); };
+
+  add(obj.id);
+  add(obj._id);
+  add(obj.teacher_id);
+  add(obj.teacherId);
+  add(obj.user_id);
+  add(obj.userId);
+
+  if (obj.teacher && typeof obj.teacher === 'object') {
+    add(obj.teacher.id);
+    add(obj.teacher._id);
+    add(obj.teacher.teacher_id);
+    add(obj.teacher.teacherId);
+    add(obj.teacher.user_id);
+    add(obj.teacher.userId);
+  } else if (typeof obj.teacher === 'string') {
+    add(obj.teacher);
   }
-  [et.teacher_id, et.teacherId, et.userId, et.user_id]
-    .filter(Boolean).forEach(id => ids.add(String(id)));
+
+  if (obj.user && typeof obj.user === 'object') {
+    add(obj.user.id);
+    add(obj.user._id);
+  }
+
   return ids;
-}
-
-
-function extractSystemTeacherIds(t) {
-  const ids = new Set();
-  if (!t) return ids;
-  [t._id, t.id, t.teacher_id, t.teacherId, t.user_id, t.userId]
-    .filter(Boolean).forEach(id => ids.add(String(id)));
-  return ids;
-}
-
-
-function normalizeName(name) {
-  if (!name) return '';
-  if (typeof name === 'string') return name.trim().toLowerCase();
-  if (typeof name === 'object') {
-    return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase()).join('|');
-  }
-  return '';
-}
-
-
-function isTeacherAlreadyElite(systemTeacher, eliteTeachers) {
-  const sysIds = extractSystemTeacherIds(systemTeacher);
-  const sysName = normalizeName(systemTeacher?.name);
-  const sysEmail = (systemTeacher?.email || '').trim().toLowerCase();
-
-  for (const et of eliteTeachers) {
-    const etIds = extractEliteTeacherRefIds(et);
-    for (const sysId of sysIds) {
-      if (etIds.has(sysId)) return true;
-    }
-    if (sysName) {
-      const etName = normalizeName(et?.name || et?.teacher?.name);
-      if (etName && sysName.split('|').some(part => etName.split('|').includes(part))) {
-        return true;
-      }
-    }
-
-    if (sysEmail) {
-      const etEmail = (et?.email || et?.teacher?.email || '').trim().toLowerCase();
-      if (etEmail && sysEmail === etEmail) return true;
-    }
-  }
-  return false;
-}
+};
 
 export default function useEliteTeachers(showNotification) {
   const { t, i18n } = useTranslation();
@@ -80,44 +125,45 @@ export default function useEliteTeachers(showNotification) {
     image: ''
   });
   const [systemTeachers, setSystemTeachers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchEliteTeachers = async () => {
+  const loadData = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await landingApi.fetchEliteTeachers();
-      const data = res?.data || res;
-      if (Array.isArray(data)) {
-        setEliteTeachers(data);
-        return data;
-      }
-    } catch (err) {
-      console.warn('Failed to fetch elite teachers:', err);
-    }
-    return eliteTeachers;
-  };
+      const [eliteRes, sysRes] = await Promise.all([
+        landingApi.fetchEliteTeachers().catch(() => []),
+        landingApi.fetchSystemTeachers().catch(() => [])
+      ]);
 
-  useEffect(() => {
-    fetchEliteTeachers();
+      const eliteData = eliteRes?.data || eliteRes;
+      const eliteList = Array.isArray(eliteData) ? eliteData : (Array.isArray(eliteData?.data) ? eliteData.data : []);
+      const mappedList = eliteList.map(mapEliteTeacher).filter(Boolean);
+      setEliteTeachers(mappedList);
+
+      const sysData = sysRes?.data || sysRes;
+      const sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      setSystemTeachers(sysList);
+    } catch (err) {
+      console.warn('Failed to fetch elite teachers data:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const loadSystemTeachersLazily = async () => {
-    if (systemTeachers.length > 0) return systemTeachers;
-    try {
-      const res = await teachersApi.fetchActiveTeachers();
-      const data = res?.data?.data || res?.data || res;
-      if (Array.isArray(data)) {
-        setSystemTeachers(data);
-        return data;
-      }
-    } catch (err) {
-      console.warn('Failed to fetch system teachers:', err);
-    }
-    return [];
-  };
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleOpenAddTeacher = async () => {
-    // Always re-fetch elite teachers before opening add modal for fresh data
-    await fetchEliteTeachers();
-    await loadSystemTeachersLazily();
+    try {
+      const sysRes = await landingApi.fetchSystemTeachers().catch(() => []);
+      const sysData = sysRes?.data || sysRes;
+      const sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      if (sysList.length > 0) setSystemTeachers(sysList);
+    } catch (e) {
+      console.warn(e);
+    }
+
     setCurrentTeacher({
       id: null,
       teacherId: '',
@@ -129,40 +175,25 @@ export default function useEliteTeachers(showNotification) {
   };
 
   const handleOpenEditTeacher = async (teacher) => {
-    let nameAr = '';
-    let nameEn = '';
-    if (typeof teacher.name === 'object' && teacher.name !== null) {
-      nameAr = teacher.name.ar || '';
-      nameEn = teacher.name.en || '';
-    } else if (typeof teacher.name === 'string') {
-      nameAr = teacher.name;
-      nameEn = teacher.nameEn || teacher.name || '';
-    }
-
     const resolvedTeacherId =
-      (typeof teacher.teacher === 'string' ? teacher.teacher : '') ||
+      teacher.teacherId ||
       teacher.teacher?._id ||
       teacher.teacher?.id ||
       teacher.teacher?.teacher_id ||
-      teacher.teacher_id ||
-      teacher.teacherId ||
-      teacher.user?._id ||
-      teacher.user?.id ||
-      teacher.user_id ||
+      (typeof teacher.teacher === 'string' ? teacher.teacher : '') ||
+      teacher.id ||
       '';
 
-    let finalTeacherId = resolvedTeacherId;
-    if (!finalTeacherId) {
-      const loadedTeachers = await loadSystemTeachersLazily();
-      const currentSysTeachers = systemTeachers.length > 0 ? systemTeachers : loadedTeachers;
-      if (currentSysTeachers.length > 0) {
-        const matched = currentSysTeachers.find(st => {
-          const sysName = typeof st.name === 'object' ? (st.name.ar || st.name.en) : st.name;
-          return sysName && (sysName === nameAr || sysName === nameEn);
-        });
-        if (matched) {
-          finalTeacherId = matched.id || matched._id || matched.teacher_id || '';
-        }
+    let finalTeacherId = String(resolvedTeacherId);
+
+    // Fallback match by name
+    if (!finalTeacherId && systemTeachers.length > 0) {
+      const matched = systemTeachers.find(st => {
+        const sysName = typeof st.name === 'object' ? (st.name.ar || st.name.en) : st.name;
+        return sysName && (sysName === teacher.name || sysName === teacher.nameEn);
+      });
+      if (matched) {
+        finalTeacherId = String(matched.id || matched._id || matched.teacher_id || '');
       }
     }
 
@@ -173,25 +204,23 @@ export default function useEliteTeachers(showNotification) {
         const rawTeacher = res.success ? res.data : null;
         if (rawTeacher && typeof rawTeacher === 'object') {
           extraData = {
-            name: typeof rawTeacher.name === 'object' && rawTeacher.name ? rawTeacher.name.ar || rawTeacher.ar || nameAr : rawTeacher.name || rawTeacher.ar || nameAr,
-            nameEn: typeof rawTeacher.name === 'object' && rawTeacher.name ? rawTeacher.name.en || rawTeacher.en || nameEn : rawTeacher.nameEn || rawTeacher.en || nameEn,
+            name: typeof rawTeacher.name === 'object' && rawTeacher.name ? rawTeacher.name.ar || teacher.name : rawTeacher.name || teacher.name,
+            nameEn: typeof rawTeacher.name === 'object' && rawTeacher.name ? rawTeacher.name.en || teacher.nameEn : rawTeacher.nameEn || teacher.nameEn,
             email: rawTeacher.email || teacher.email || '',
             phone: rawTeacher.phone || teacher.phone || '',
             country: rawTeacher.country || teacher.country || '',
             active: rawTeacher.active !== false,
-            image: rawTeacher.image || rawTeacher.avatar || rawTeacher.user?.photoUrl || teacher.image || ''
+            image: buildImageUrl(rawTeacher.image || rawTeacher.avatar || rawTeacher.user?.photoUrl || teacher.image)
           };
         }
       } catch (err) {
-        console.warn('Failed to fetch raw teacher by id via GET /api/v1/teachers/:id', err);
+        console.warn('Failed to fetch raw teacher by id:', err);
       }
     }
 
     setCurrentTeacher({
       ...teacher,
       teacherId: finalTeacherId,
-      name: nameAr,
-      nameEn: nameEn,
       image: teacher.image || '',
       ...extraData
     });
@@ -220,7 +249,6 @@ export default function useEliteTeachers(showNotification) {
       ? teacher.name
       : (teacher.name?.ar || teacher.name?.en || 'معلم متميز');
 
-    const isRtl = i18n.language.startsWith('ar');
     const isConfirmed = await showDeleteConfirm(isRtl, teacherNameStr);
     if (!isConfirmed) return;
 
@@ -248,34 +276,31 @@ export default function useEliteTeachers(showNotification) {
 
     try {
       if (currentTeacher.id === null) {
-        const freshElite = await fetchEliteTeachers();
-        const freshEliteList = Array.isArray(freshElite) ? freshElite : eliteTeachers;
-
-        const selectedSystemTeacher = systemTeachers.find(st => {
-          const stIds = extractSystemTeacherIds(st);
-          return stIds.has(String(currentTeacher.teacherId));
-        });
-
-        if (selectedSystemTeacher && isTeacherAlreadyElite(selectedSystemTeacher, freshEliteList)) {
-          showNotification(t('adminDashboard.website.teacherAlreadyAdded', 'هذا المعلم مضاف بالفعل مسبقاً'), 'error');
-          return;
-        }
-
         const response = await landingApi.addEliteTeacher(elitePayload);
         const added = response?.data || response;
-        const systemT = systemTeachers.find(t => String(t.id || t._id || t.teacher_id) === String(currentTeacher.teacherId));
-        const resolvedName = systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : currentTeacher.name;
+
+        const systemT = systemTeachers.find(t => {
+          const ids = collectAllTeacherIds(t);
+          return ids.has(String(currentTeacher.teacherId));
+        });
+
+        const resolvedName = systemT
+          ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name)
+          : currentTeacher.name;
 
         const newTeacher = {
           ...added,
           id: added?.id || added?._id,
-          teacher: systemT,
-          name: resolvedName,
-          image: systemT?.image || systemT?.avatar || currentTeacher.image,
+          teacher: systemT || { id: currentTeacher.teacherId },
+          teacherId: currentTeacher.teacherId,
+          name: resolvedName || currentTeacher.name || 'معلم متميز',
+          nameEn: currentTeacher.nameEn || resolvedName || 'Elite Teacher',
+          image: currentTeacher.image || systemT?.image || systemT?.avatar || '',
           groupsCount: systemT?.groupsCount || 0,
           sessionsCount: systemT?.sessionsCount || 0
         };
-        setEliteTeachers((prev) => [...prev, newTeacher]);
+        const mapped = mapEliteTeacher(newTeacher);
+        setEliteTeachers((prev) => [...prev, mapped]);
         showNotification(t('adminDashboard.website.teacherAdded', 'تمت إضافة المعلم بنجاح!'));
       } else {
         const targetTeacherId = currentTeacher.teacherId;
@@ -289,27 +314,35 @@ export default function useEliteTeachers(showNotification) {
               profileImageFile: currentTeacher.profileImageFile
             });
           } catch (patchErr) {
-            console.warn('Failed to update system teacher details via PATCH /api/v1/teachers/:id', patchErr);
+            console.warn('Failed to update system teacher details:', patchErr);
           }
         }
 
         await landingApi.updateEliteTeacher(currentTeacher.id, elitePayload);
-        const systemT = systemTeachers.find(t => String(t.id || t._id || t.teacher_id) === String(currentTeacher.teacherId));
+
+        const systemT = systemTeachers.find(t => {
+          const ids = collectAllTeacherIds(t);
+          return ids.has(String(currentTeacher.teacherId));
+        });
+
         const resolvedName = currentTeacher.name || (systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : 'معلم متميز');
 
         const updatedTeacher = {
           ...currentTeacher,
           id: currentTeacher.id,
           teacher: systemT || currentTeacher.teacher,
+          teacherId: currentTeacher.teacherId,
           name: resolvedName,
-          image: currentTeacher.image || systemT?.image || systemT?.avatar,
-          email: currentTeacher.email || systemT?.email,
-          phone: currentTeacher.phone || systemT?.phone,
-          country: currentTeacher.country || systemT?.country,
+          nameEn: currentTeacher.nameEn || resolvedName,
+          image: currentTeacher.image || systemT?.image || systemT?.avatar || '',
+          email: currentTeacher.email || systemT?.email || '',
+          phone: currentTeacher.phone || systemT?.phone || '',
+          country: currentTeacher.country || systemT?.country || '',
           active: currentTeacher.active !== false
         };
+        const mapped = mapEliteTeacher(updatedTeacher);
         setEliteTeachers((prev) =>
-          prev.map((t) => (t.id === currentTeacher.id ? updatedTeacher : t))
+          prev.map((t) => (t.id === currentTeacher.id ? mapped : t))
         );
         showNotification(t('adminDashboard.website.teacherUpdated', 'تم تحديث بيانات المعلم بنجاح!'));
       }
@@ -336,11 +369,11 @@ export default function useEliteTeachers(showNotification) {
     currentTeacher,
     setCurrentTeacher,
     systemTeachers,
+    loading,
     handleOpenAddTeacher,
     handleOpenEditTeacher,
     handleShowTeacherNotes,
     handleDeleteTeacher,
-    handleSaveTeacherSubmit,
-    isTeacherAlreadyElite
+    handleSaveTeacherSubmit
   };
 }

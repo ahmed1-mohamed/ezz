@@ -47,3 +47,9 @@
   background: rgba(15, 23, 42, 0.72);
   backdrop-filter: blur(16px);
 }
+
+/* Ensure toast notifications always render on the top-most layer above all modals and blur backdrops */
+div[data-toaster-container],
+div:has(> [data-hot-toast]) {
+  z-index: 99999999 !important;
+}

@@ -58,6 +58,10 @@ export default function AddEditStudentScreen({
     experienceYears: 8
   })
 
+  const handleChange = (key, value) => {
+    setFormData((prev) => ({ ...prev, [key]: value }))
+  }
+
   useEffect(() => {
     if (student) {
       const studentId = student._id || student.id || student.studentId || student.userId;
@@ -136,9 +140,7 @@ export default function AddEditStudentScreen({
     }).catch(err => console.error('Error fetching parents:', err));
   }, [student?.phone]);
 
-  const handleChange = (key, value) => {
-    setFormData((prev) => ({ ...prev, [key]: value }))
-  }
+
 
   const handleNextStep = () => {
     if (step === 1) {

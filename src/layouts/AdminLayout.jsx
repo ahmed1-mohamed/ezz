@@ -152,15 +152,19 @@ export default memo(function AdminLayout() {
           <div
             className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
           >
-            {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
-              <img
-                src={user?.image || user?.avatar || user?.photoUrl || user?.photo}
-                alt={resolvedName || 'User profile'}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              userInitial
-            )}
+            {(() => {
+              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+              return cleanImg ? (
+                <img
+                  src={cleanImg}
+                  alt={resolvedName || 'User profile'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                userInitial
+              );
+            })()}
           </div>
         </Link>
       </header>
@@ -255,15 +259,19 @@ export default memo(function AdminLayout() {
                 className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
                 aria-label={resolvedName || 'المستخدم'}
               >
-                {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
-                  <img
-                    src={user?.image || user?.avatar || user?.photoUrl || user?.photo}
-                    alt={resolvedName || 'User profile'}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  userInitial
-                )}
+                {(() => {
+                  const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                  const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                  return cleanImg ? (
+                    <img
+                      src={cleanImg}
+                      alt={resolvedName || 'User profile'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    userInitial
+                  );
+                })()}
               </div>
             </div>
           </div>

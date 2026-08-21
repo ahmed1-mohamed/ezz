@@ -87,11 +87,15 @@ export default function StudentLayout() {
             </p>
           </div>
           <div className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden">
-            {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
-              <img src={user?.image || user?.avatar || user?.photoUrl || user?.photo} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              (displayName?.charAt(0) || 'S').toUpperCase()
-            )}
+            {(() => {
+              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+              return cleanImg ? (
+                <img src={cleanImg} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                (displayName?.charAt(0) || 'S').toUpperCase()
+              );
+            })()}
           </div>
         </Link>
       </header>
@@ -126,11 +130,15 @@ export default function StudentLayout() {
         <div className="p-4 shrink-0">
           <div className="bg-[#0f7a6c] text-white rounded-xl p-3 flex items-center gap-3 shadow-md">
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0 overflow-hidden">
-              {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
-                <img src={user?.image || user?.avatar || user?.photoUrl || user?.photo} alt={displayName} className="w-full h-full object-cover" />
-              ) : (
-                <User size={16} className="text-white" />
-              )}
+              {(() => {
+                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                return cleanImg ? (
+                  <img src={cleanImg} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  <User size={16} className="text-white" />
+                );
+              })()}
             </div>
             <div className="text-start">
               <h3 className="font-semibold text-sm leading-tight">{displayName}</h3>

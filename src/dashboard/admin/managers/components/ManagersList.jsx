@@ -30,7 +30,7 @@ export default function ManagersList({
   onOpenEditScreen,
   onOpenRolePermissions
 }) {
-  const itemsPerPage = 5
+  const itemsPerPage = 10
 
   const metrics = useMemo(() => {
     if (statistics) {
@@ -46,8 +46,6 @@ export default function ManagersList({
     return { total, active, suspended }
   }, [supervisors, statistics])
 
-  const currentItems = supervisors
-
   const totalCount = useMemo(() => {
     if (statistics) {
       if (statusFilter === 'active') return statistics.active ?? 0
@@ -56,6 +54,23 @@ export default function ManagersList({
     }
     return supervisors.length
   }, [supervisors.length, statistics, statusFilter])
+
+  const effectiveTotalPages = useMemo(() => {
+    if (totalPages && totalPages > 1) return totalPages
+    return Math.max(1, Math.ceil(totalCount / itemsPerPage))
+  }, [totalPages, totalCount, itemsPerPage])
+
+  const currentItems = useMemo(() => {
+    // If already paginated by backend (length <= itemsPerPage and totalPages > 1)
+    if (totalPages > 1 && supervisors.length <= itemsPerPage) {
+      return supervisors
+    }
+    if (supervisors.length > itemsPerPage) {
+      const start = (currentPage - 1) * itemsPerPage
+      return supervisors.slice(start, start + itemsPerPage)
+    }
+    return supervisors
+  }, [supervisors, totalPages, itemsPerPage, currentPage])
 
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
@@ -333,7 +348,7 @@ export default function ManagersList({
           </table>
         </div>
 
-        {totalPages > 1 && (
+        {effectiveTotalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850 rounded-b-3xl">
             <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
               {isRtl ? (
@@ -349,7 +364,7 @@ export default function ManagersList({
                 onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
                 aria-label={t('adminDashboard.managers.pagination.previousAria', 'الصفحة السابقة')}
-                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
                 {t('adminDashboard.managers.pagination.previous', 'السابق')}
               </button>
@@ -358,7 +373,7 @@ export default function ManagersList({
                 const pages = [];
                 const delta = 1;
                 const rangeStart = Math.max(2, currentPage - delta);
-                const rangeEnd = Math.min(totalPages - 1, currentPage + delta);
+                const rangeEnd = Math.min(effectiveTotalPages - 1, currentPage + delta);
 
                 pages.push(1);
 
@@ -366,9 +381,9 @@ export default function ManagersList({
 
                 for (let i = rangeStart; i <= rangeEnd; i++) pages.push(i);
 
-                if (rangeEnd < totalPages - 1) pages.push('...');
+                if (rangeEnd < effectiveTotalPages - 1) pages.push('...');
 
-                if (totalPages > 1) pages.push(totalPages);
+                if (effectiveTotalPages > 1) pages.push(effectiveTotalPages);
 
                 return pages.map((p, idx) =>
                   p === '...' ? (
@@ -380,8 +395,8 @@ export default function ManagersList({
                       onClick={() => onPageChange(p)}
                       aria-label={t('adminDashboard.managers.pagination.page', { page: p }, `صفحة ${p}`)}
                       aria-current={currentPage === p ? 'page' : undefined}
-                      className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all ${currentPage === p
-                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
+                      className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${currentPage === p
+                        ? 'bg-[#0f7a6c] text-white shadow-md shadow-[#0f7a6c]/20'
                         : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                         }`}
                     >
@@ -393,10 +408,10 @@ export default function ManagersList({
 
               <button
                 type="button"
-                onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-                disabled={currentPage === totalPages}
+                onClick={() => onPageChange(Math.min(currentPage + 1, effectiveTotalPages))}
+                disabled={currentPage === effectiveTotalPages}
                 aria-label={t('adminDashboard.managers.pagination.nextAria', 'الصفحة التالية')}
-                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
                 {t('adminDashboard.managers.pagination.next', 'التالي')}
               </button>

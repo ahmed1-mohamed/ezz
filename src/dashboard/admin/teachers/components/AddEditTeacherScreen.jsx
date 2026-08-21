@@ -23,27 +23,6 @@ export default function AddEditTeacherScreen({
 
   const [apiCountries, setApiCountries] = useState([])
 
-  useEffect(() => {
-    const loadCountries = async () => {
-      try {
-        const res = await landingApi.fetchCountries();
-        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
-        if (fetchedCountries.length > 0) {
-          setApiCountries(fetchedCountries);
-          if (!teacher) {
-            const defaultCountry = fetchedCountries.find(c => c.phoneCode === '+20' || c.name === 'Egypt' || c.name === 'مصر');
-            if (defaultCountry) {
-              setFormData(prev => ({ ...prev, country: defaultCountry.id || defaultCountry._id }));
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load countries', err);
-      }
-    };
-    loadCountries();
-  }, [teacher]);
-
   const [formData, setFormData] = useState({
     name: teacher?.name || '',
     nameEn: teacher?.nameEn || '',
@@ -67,6 +46,27 @@ export default function AddEditTeacherScreen({
     studentsCount: teacher?.studentsCount || 0,
     documents: teacher?.documents || []
   })
+
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await landingApi.fetchCountries();
+        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        if (fetchedCountries.length > 0) {
+          setApiCountries(fetchedCountries);
+          if (!teacher) {
+            const defaultCountry = fetchedCountries.find(c => c.phoneCode === '+20' || c.name === 'Egypt' || c.name === 'مصر');
+            if (defaultCountry) {
+              setFormData(prev => ({ ...prev, country: defaultCountry.id || defaultCountry._id }));
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load countries', err);
+      }
+    };
+    loadCountries();
+  }, [teacher]);
 
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))

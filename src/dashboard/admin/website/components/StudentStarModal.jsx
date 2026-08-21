@@ -9,6 +9,44 @@ const studentSchema = z.object({
   studentId: z.string().min(1, 'يجب اختيار طالب من القائمة')
 });
 
+const collectAllStudentIds = (obj) => {
+  if (!obj) return new Set();
+  const ids = new Set();
+  const add = (v) => { if (v !== undefined && v !== null && String(v).trim()) ids.add(String(v).trim()); };
+
+  add(obj.id);
+  add(obj._id);
+  add(obj.student_id);
+  add(obj.studentId);
+  add(obj.user_id);
+  add(obj.userId);
+
+  if (obj.student && typeof obj.student === 'object') {
+    add(obj.student.id);
+    add(obj.student._id);
+    add(obj.student.student_id);
+    add(obj.student.user_id);
+  } else if (typeof obj.student === 'string') {
+    add(obj.student);
+  }
+
+  if (obj.user && typeof obj.user === 'object') {
+    add(obj.user.id);
+    add(obj.user._id);
+  }
+
+  return ids;
+};
+
+const normalizeName = (name) => {
+  if (!name) return '';
+  if (typeof name === 'string') return name.trim().toLowerCase();
+  if (typeof name === 'object') {
+    return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase()).join(' ');
+  }
+  return '';
+};
+
 export default function StudentStarModal({
   isOpen,
   onClose,
@@ -25,24 +63,12 @@ export default function StudentStarModal({
   const [errors, setErrors] = useState({});
   const [showStudentSearch, setShowStudentSearch] = useState(false);
 
-  const getAllIds = (obj) => {
-    if (!obj) return new Set();
-    const ids = new Set();
-    const addId = (val) => { if (val) ids.add(String(val)); };
-    addId(obj.id);
-    addId(obj._id);
-    addId(obj.student_id);
-    addId(obj.user_id);
-    addId(obj.student?.id);
-    addId(obj.student?._id);
-    addId(obj.studentId);
-    return ids;
-  };
+  const isAdd = !currentStar?.id;
 
   const originalStudentName = useMemo(() => {
     if (!currentStar?.studentId) return { ar: currentStar?.name || '', en: currentStar?.nameEn || '' };
     const sysS = systemStudents.find(s => {
-      const sIds = getAllIds(s);
+      const sIds = collectAllStudentIds(s);
       return sIds.has(String(currentStar.studentId));
     });
     if (sysS) {
@@ -55,28 +81,43 @@ export default function StudentStarModal({
 
   if (!isOpen || !currentStar) return null;
 
-  const isAdd = currentStar.id === null;
+  // Filter available students from the system:
+  // In Add mode: Exclude any system student who is already in `stars`
+  // In Edit mode: Allow the student matching `currentStar.studentId`, but exclude other featured students
+  const filteredStudents = systemStudents.filter((sysS) => {
+    const sysIds = collectAllStudentIds(sysS);
+    const sysEmail = (sysS.email || sysS.user?.email || '').trim().toLowerCase();
+    const sysName = normalizeName(sysS.name);
 
-  const currentStarIds = getAllIds(currentStar);
+    const isMatchedInStars = stars.some(star => {
+      // If in edit mode, skip the star currently being edited
+      if (!isAdd && (star.id === currentStar.id || star._id === currentStar.id)) {
+        return false;
+      }
 
-  const addedStudentIds = new Set(
-    stars.flatMap(star => {
-      if (!isAdd && (star.id === currentStar.id || star._id === currentStar.id)) return [];
-      return [...getAllIds(star)];
-    })
-  );
+      const starIds = collectAllStudentIds(star);
+      for (const id of sysIds) {
+        if (starIds.has(id)) return true;
+      }
 
-  const filteredStudents = systemStudents.filter((s) => {
-    const sIds = getAllIds(s);
-    const isAlreadyAdded = [...sIds].some(id => addedStudentIds.has(id));
-    if (isAlreadyAdded) return false;
+      const starEmail = (star.email || star.student?.email || '').trim().toLowerCase();
+      if (sysEmail && starEmail && sysEmail === starEmail) return true;
+
+      const starName = normalizeName(star.name || star.nameEn || star.student?.name);
+      if (sysName && starName && sysName === starName) return true;
+
+      return false;
+    });
+
+    if (isMatchedInStars) return false;
 
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
-    const nameStr = typeof s.name === 'object'
-      ? ((s.name.ar || '') + ' ' + (s.name.en || '')).toLowerCase()
-      : (s.name || '').toLowerCase();
-    return nameStr.includes(query) || (s.email || '').toLowerCase().includes(query) || (s.user?.email || '').toLowerCase().includes(query);
+
+    const nameStr = typeof sysS.name === 'object'
+      ? ((sysS.name?.ar || '') + ' ' + (sysS.name?.en || '')).toLowerCase()
+      : (sysS.name || '').toLowerCase();
+    return nameStr.includes(query) || sysEmail.includes(query);
   });
 
   const handleFormSubmit = (e) => {
@@ -190,7 +231,7 @@ export default function StudentStarModal({
                 </div>
               ) : null}
 
-              {/* Student Search & Select Section (Add mode only) */}
+              {/* Student Search & Select Section (Add mode only or when no student selected) */}
               {isAdd && (showStudentSearch || !currentStar.studentId) && (
                 <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4 animate-fadeIn">
                   <div className="relative">
@@ -214,17 +255,17 @@ export default function StudentStarModal({
                     <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                       {filteredStudents.length === 0 ? (
                         <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs font-medium">
-                          {t('adminDashboard.website.noMatchingStudents', 'لا يوجد طلاب مطابقون للبحث')}
+                          {t('adminDashboard.website.noMatchingStudents', 'لا يوجد طلاب متاحون للإضافة')}
                         </div>
                       ) : (
-                        filteredStudents.map((sItem, index) => {
-                          const studentIdVal = sItem.id || sItem._id || sItem.student_id || sItem.user_id || `student-${index}`;
-                          const isSelected = String(currentStar.studentId) === String(studentIdVal);
+                        filteredStudents.map((sItem) => {
+                          const studentIdVal = String(sItem.id || sItem._id || sItem.student_id || sItem.user_id || '');
+                          const isSelected = String(currentStar.studentId) === studentIdVal;
                           const studentNameStr = typeof sItem.name === 'object'
                             ? (isRtl ? sItem.name.ar || sItem.name.en : sItem.name.en || sItem.name.ar)
                             : sItem.name;
                           const initial = studentNameStr?.trim()?.charAt(0) || 'ط';
-                          const studentPhoto = sItem.image || sItem.user?.photoUrl || '';
+                          const studentPhoto = sItem.image || sItem.avatar || sItem.user?.photoUrl || '';
 
                           return (
                             <div
@@ -237,7 +278,10 @@ export default function StudentStarModal({
                                   studentId: studentIdVal,
                                   name: arName,
                                   nameEn: enName,
-                                  image: studentPhoto
+                                  image: studentPhoto,
+                                  email: sItem.email || sItem.user?.email || '',
+                                  phone: sItem.phone || sItem.user?.phone || '',
+                                  country: sItem.country || sItem.user?.country || ''
                                 });
                                 setShowStudentSearch(false);
                                 if (errors.studentId) setErrors({ ...errors, studentId: null });

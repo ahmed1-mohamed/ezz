@@ -18,7 +18,8 @@ import {
   File as FileIcon,
   Download,
   Eye,
-  Link as LinkIcon
+  Link as LinkIcon,
+  ExternalLink
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
@@ -36,33 +37,74 @@ const buildFullFileUrl = (url) => {
   return `${baseUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
 }
 
-const getFileMeta = (file) => {
-  const fileUrl = typeof file === 'string' ? file : (file?.url || file?.file || file?.link || file?.path || file?.src || file?.fileUrl || '')
-  
-  const isLink = file?.type === 'link' || (!file?.file && (file?.link || file?.url)) || (typeof file === 'string' && (file.startsWith('http') && !file.includes('manaret-ezz.dramcode.top')))
+const getFileMeta = (file, isRtl = false) => {
+  const rawType = (typeof file === 'object' && file?.type ? String(file.type).toLowerCase().trim() : '')
+  const fileUrl = typeof file === 'string'
+    ? file
+    : (file?.url || file?.file || file?.link || file?.path || file?.src || file?.fileUrl || '')
+
+  const cleanPath = (fileUrl.split('?')[0].split('#')[0] || '').trim()
+  const ext = (cleanPath.split('.').pop() || '').toLowerCase()
+
+  // 1. Explicit Link check
+  const isExplicitLink = rawType === 'link' || rawType === 'url'
+  // 2. Explicit File check
+  const isExplicitFile = rawType === 'file' || rawType === 'document' || rawType === 'pdf' || rawType === 'image' || rawType === 'video' || rawType === 'audio'
+
+  // Known file extensions
+  const isPdf = ext === 'pdf'
+  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)
+  const isVideo = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'wmv', 'flv', 'm4v'].includes(ext)
+  const isArchive = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)
+  const isAudio = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)
+  const isDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'csv'].includes(ext)
+  const hasKnownFileExt = isPdf || isImage || isVideo || isArchive || isAudio || isDoc
+
+  // Determine whether it's truly a link or a file
+  let isLink = false
+  if (isExplicitLink) {
+    isLink = true
+  } else if (isExplicitFile || hasKnownFileExt) {
+    isLink = false
+  } else if (Boolean(file?.link) && !file?.file && !file?.url) {
+    isLink = true
+  } else if (typeof file === 'string' && file.startsWith('http') && !file.includes('manaret-ezz.dramcode.top') && !hasKnownFileExt) {
+    isLink = true
+  }
+
   if (isLink) {
-    return { icon: LinkIcon, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30', type: 'Link', fullUrl: fileUrl }
+    const fullUrl = fileUrl ? (fileUrl.startsWith('http://') || fileUrl.startsWith('https://') ? fileUrl : `https://${fileUrl}`) : ''
+    return {
+      icon: LinkIcon,
+      color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30',
+      type: isRtl ? 'رابط خارجي' : 'Link',
+      isLink: true,
+      fullUrl
+    }
   }
 
   const fullUrl = buildFullFileUrl(fileUrl)
-  const ext = (fileUrl.split('.').pop() || '').toLowerCase()
 
-  if (['pdf'].includes(ext)) {
-    return { icon: FileText, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/30', type: 'PDF', fullUrl }
+  if (isPdf) {
+    return { icon: FileText, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/30', type: isRtl ? 'ملف PDF' : 'PDF', isLink: false, isImage: false, fullUrl }
   }
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
-    return { icon: ImageIcon, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30', type: 'Image', fullUrl }
+  if (isImage) {
+    return { icon: ImageIcon, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30', type: isRtl ? 'صورة' : 'Image', isLink: false, isImage: true, fullUrl }
   }
-  if (['mp4', 'mkv', 'avi', 'mov', 'webm'].includes(ext)) {
-    return { icon: VideoIcon, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/30', type: 'Video', fullUrl }
+  if (isVideo) {
+    return { icon: VideoIcon, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/30', type: isRtl ? 'فيديو' : 'Video', isLink: false, isImage: false, fullUrl }
   }
-  if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
-    return { icon: ZipIcon, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30', type: 'Archive', fullUrl }
+  if (isArchive) {
+    return { icon: ZipIcon, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30', type: isRtl ? 'ملف مضغوط' : 'Archive', isLink: false, isImage: false, fullUrl }
   }
-  if (['mp3', 'wav', 'ogg'].includes(ext)) {
-    return { icon: AudioIcon, color: 'text-pink-500 bg-pink-50 dark:bg-pink-950/30', type: 'Audio', fullUrl }
+  if (isAudio) {
+    return { icon: AudioIcon, color: 'text-pink-500 bg-pink-50 dark:bg-pink-950/30', type: isRtl ? 'ملف صوتي' : 'Audio', isLink: false, fullUrl }
   }
-  return { icon: FileIcon, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: 'Document', fullUrl }
+  if (isDoc) {
+    return { icon: FileText, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: isRtl ? 'مستند' : 'Document', isLink: false, fullUrl }
+  }
+
+  return { icon: FileIcon, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: isRtl ? 'ملف' : 'File', isLink: false, fullUrl }
 }
 
 export default function AdminCurriculumDetails() {
@@ -225,9 +267,14 @@ export default function AdminCurriculumDetails() {
     window.open(fullUrl, '_blank', 'noopener,noreferrer')
   }
 
-  const handleDownloadFile = async (fullUrl, fileName) => {
+  const handleDownloadFile = async (fullUrl, fileName, isLink = false) => {
     if (!fullUrl) {
       toast.error(isRtl ? 'رابط الملف غير متاح' : 'File URL unavailable');
+      return;
+    }
+
+    if (isLink || (!fullUrl.includes('.') && fullUrl.startsWith('http'))) {
+      window.open(fullUrl, '_blank', 'noopener,noreferrer');
       return;
     }
 
@@ -511,15 +558,39 @@ export default function AdminCurriculumDetails() {
                                     {files.map((file, fileIdx) => {
                                       const fileId = getCleanId(file) || `file-${fileIdx}`;
                                       const fileName = typeof file.name === 'object' ? (isRtl ? file.name?.ar : file.name?.en) || file.name?.ar : file.name;
-                                      const meta = getFileMeta(file)
+                                      const meta = getFileMeta(file, isRtl)
                                       const MetaIcon = meta.icon
 
                                       return (
-                                        <div key={fileId} className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-3 flex items-center justify-between gap-3 group shadow-sm transition-all hover:shadow-md">
+                                        <div key={fileId} className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-3 flex items-center justify-between gap-3 group shadow-sm transition-all hover:shadow-md">
                                           <div className="flex items-center gap-3 overflow-hidden">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${meta.color}`}>
-                                              <MetaIcon size={20} />
-                                            </div>
+                                            {meta.isImage && meta.fullUrl ? (
+                                              <div
+                                                onClick={() => handlePreviewFile(meta.fullUrl)}
+                                                className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 shadow-sm cursor-pointer relative group/thumb flex items-center justify-center"
+                                                title={isRtl ? 'اضغط لعرض الصورة بحجمها الكامل' : 'Click to view full image'}
+                                              >
+                                                <img
+                                                  src={meta.fullUrl}
+                                                  alt={fileName}
+                                                  className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300"
+                                                  onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    if (e.currentTarget.nextSibling) {
+                                                      e.currentTarget.nextSibling.style.display = 'flex';
+                                                    }
+                                                  }}
+                                                />
+                                                <div className={`w-full h-full hidden items-center justify-center ${meta.color}`}>
+                                                  <MetaIcon size={20} />
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${meta.color}`}>
+                                                <MetaIcon size={20} />
+                                              </div>
+                                            )}
+
                                             <div className="overflow-hidden">
                                               <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{fileName}</p>
                                               <span className="text-[10px] font-semibold text-slate-400">{meta.type}</span>
@@ -531,19 +602,21 @@ export default function AdminCurriculumDetails() {
                                             <button
                                               onClick={() => handlePreviewFile(meta.fullUrl)}
                                               className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-all cursor-pointer"
-                                              title={isRtl ? 'معاينة / فتح في تبويب جديد' : 'Preview / Open in new tab'}
+                                              title={meta.isLink ? (isRtl ? 'فتح الرابط في تبويب جديد' : 'Open link in new tab') : (isRtl ? 'معاينة / فتح في تبويب جديد' : 'Preview / Open in new tab')}
                                             >
-                                              <Eye size={15} />
+                                              {meta.isLink ? <ExternalLink size={15} /> : <Eye size={15} />}
                                             </button>
 
-                                            {/* Download */}
-                                            <button
-                                              onClick={() => handleDownloadFile(meta.fullUrl, fileName)}
-                                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
-                                              title={isRtl ? 'تحميل الملف' : 'Download File'}
-                                            >
-                                              <Download size={15} />
-                                            </button>
+                                            {/* Download for files only */}
+                                            {!meta.isLink && (
+                                              <button
+                                                onClick={() => handleDownloadFile(meta.fullUrl, fileName, meta.isLink)}
+                                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
+                                                title={isRtl ? 'تحميل الملف' : 'Download File'}
+                                              >
+                                                <Download size={15} />
+                                              </button>
+                                            )}
 
                                             {/* Delete */}
                                             <button

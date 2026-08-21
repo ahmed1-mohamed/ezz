@@ -23,7 +23,7 @@ export function useManagers() {
     queryFn: () => {
       const params = {
         page: currentPage,
-        limit: 5,
+        limit: 10,
         search: committedSearch
       };
       if (statusFilter === 'active') {
@@ -86,7 +86,7 @@ export function useManagers() {
     ?? rawPagination?.totalPages
     ?? rawPagination?.pageCount
     ?? rawPagination?.total_pages
-    ?? (totalCount > 0 ? Math.ceil(totalCount / 5) : 1);
+    ?? (totalCount > 0 ? Math.ceil(totalCount / 10) : 1);
 
   const paginationObj = rawPagination
     ? { ...rawPagination, numberOfPages: totalPagesCount, total: totalCount }

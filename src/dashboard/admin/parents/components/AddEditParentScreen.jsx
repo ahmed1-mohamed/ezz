@@ -17,6 +17,33 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
   const [phoneVal, setPhoneVal] = useState('')
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
+  const [apiStudents, setApiStudents] = useState([])
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [studentSearchTab, setStudentSearchTab] = useState('name')
+  const [studentSearch, setStudentSearch] = useState('')
+  const [selectedStudents, setSelectedStudents] = useState([])
+  const [showStudentSearch, setShowStudentSearch] = useState(false)
+
+  const initialNameObj = typeof parent?.name === 'object' ? parent.name : null;
+  const initialName = initialNameObj ? (initialNameObj.ar || '') : (parent?.name || '');
+  const initialNameEn = initialNameObj ? (initialNameObj.en || '') : (parent?.nameEn || '');
+
+  const [formData, setFormData] = useState({
+    name: initialName,
+    nameEn: initialNameEn,
+    email: parent?.email || '',
+    country: parent?.country || 'المملكة العربية السعودية',
+    birthDate: parent?.birthDate || '',
+    status: parent?.active ? 'Active' : (parent?.status || 'Active'),
+    gender: parent?.gender || 'male',
+    password: parent ? '********' : '',
+    confirmPassword: parent ? '********' : '',
+    notes: '',
+    notesEn: '',
+    profileImage: parent?.image || parent?.profileImage || null,
+    profileImageFile: null,
+  })
 
   useEffect(() => {
     const loadCountries = async () => {
@@ -81,33 +108,7 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
     loadStudents();
   }, []);
 
-  const [apiStudents, setApiStudents] = useState([])
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const [studentSearchTab, setStudentSearchTab] = useState('name')
-  const [studentSearch, setStudentSearch] = useState('')
-  const [selectedStudents, setSelectedStudents] = useState([])
-  const [showStudentSearch, setShowStudentSearch] = useState(false)
-  const initialNameObj = typeof parent?.name === 'object' ? parent.name : null;
-  const initialName = initialNameObj ? (initialNameObj.ar || '') : (parent?.name || '');
-  const initialNameEn = initialNameObj ? (initialNameObj.en || '') : (parent?.nameEn || '');
-
-  const [formData, setFormData] = useState({
-    name: initialName,
-    nameEn: initialNameEn,
-    email: parent?.email || '',
-    country: parent?.country || 'المملكة العربية السعودية',
-    birthDate: parent?.birthDate || '',
-    status: parent?.active ? 'Active' : (parent?.status || 'Active'),
-    gender: parent?.gender || 'male',
-    password: parent ? '********' : '',
-    confirmPassword: parent ? '********' : '',
-    notes: '',
-    notesEn: '',
-    profileImage: parent?.image || parent?.profileImage || null,
-    profileImageFile: null,
-  })
 
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))

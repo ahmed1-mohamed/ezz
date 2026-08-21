@@ -81,11 +81,15 @@ export default function ParentLayout() {
             </p>
           </div>
           <div className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden">
-            {user?.image || user?.avatar || user?.photoUrl || user?.photo ? (
-              <img src={user?.image || user?.avatar || user?.photoUrl || user?.photo} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              (displayName?.charAt(0) || 'P').toUpperCase()
-            )}
+            {(() => {
+              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+              return cleanImg ? (
+                <img src={cleanImg} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                (displayName?.charAt(0) || 'P').toUpperCase()
+              );
+            })()}
           </div>
         </Link>
       </header>
@@ -116,11 +120,15 @@ export default function ParentLayout() {
 
         <div className="p-4 shrink-0">
           <Link to="/dashboard/parent" className="bg-[#0f7a6c] text-white rounded-xl p-3 flex items-center gap-3 shadow-md cursor-pointer hover:bg-[#0c6156] transition-transform hover:scale-[1.02] active:scale-95 block">
-            {(user?.image || user?.avatar || user?.photoUrl || user?.photo) && (
-              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
-                <img src={user?.image || user?.avatar || user?.photoUrl || user?.photo} alt={displayName} className="w-full h-full object-cover" />
-              </div>
-            )}
+            {(() => {
+              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+              return cleanImg ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                  <img src={cleanImg} alt={displayName} className="w-full h-full object-cover" />
+                </div>
+              ) : null;
+            })()}
             <div className="flex flex-col items-start">
               <h3 className="font-semibold text-base">{displayName}</h3>
               <p className="text-xs opacity-80 mt-0.5">{t('parentDashboard.user.role')}</p>

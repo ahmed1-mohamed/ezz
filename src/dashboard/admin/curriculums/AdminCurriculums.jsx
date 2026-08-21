@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { BookMarked, Plus, X } from 'lucide-react'
+import { BookMarked, Plus, X, Search } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { createPortal } from 'react-dom'
 
@@ -12,7 +12,6 @@ import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
 
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
-import useDebounce from '@/shared/hooks/useDebounce'
 import CurriculumCard from './components/CurriculumCard'
 import CurriculumForm from './components/CurriculumForm'
 
@@ -24,13 +23,13 @@ export default function AdminCurriculums() {
 
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const debouncedQuery = useDebounce(searchQuery, 400)
+  const [searchInput, setSearchInput] = useState('')
+  const [appliedSearch, setAppliedSearch] = useState('')
 
   // Fetch Curricula
   const { data: curriculaResponse, isLoading, isFetching } = useQuery({
-    queryKey: ['admin-curricula', debouncedQuery],
-    queryFn: () => adminCurriculaApi.fetchCurricula({ search: debouncedQuery || undefined }),
+    queryKey: ['admin-curricula', appliedSearch],
+    queryFn: () => adminCurriculaApi.fetchCurricula({ search: appliedSearch || undefined }),
   })
 
   // Fetch Languages for Form
@@ -121,7 +120,30 @@ export default function AdminCurriculums() {
     navigate(`/dashboard/admin/curriculums/${id}`);
   }
 
-  const filteredCurricula = curricula;
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    setAppliedSearch(searchInput.trim());
+  }
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setAppliedSearch('');
+  }
+
+  const filteredCurricula = (curricula || []).filter((item) => {
+    if (!appliedSearch) return true;
+    const query = appliedSearch.toLowerCase();
+    const arName = typeof item.name === 'object' ? (item.name?.ar || '') : (item.name || '');
+    const enName = typeof item.name === 'object' ? (item.name?.en || '') : (item.name || '');
+    const arDesc = typeof item.description === 'object' ? (item.description?.ar || '') : (item.description || '');
+    const enDesc = typeof item.description === 'object' ? (item.description?.en || '') : (item.description || '');
+    return (
+      arName.toLowerCase().includes(query) ||
+      enName.toLowerCase().includes(query) ||
+      arDesc.toLowerCase().includes(query) ||
+      enDesc.toLowerCase().includes(query)
+    );
+  });
 
   if (isLoading) {
     return (
@@ -154,7 +176,7 @@ export default function AdminCurriculums() {
             setEditingItem(null)
             setShowForm(true)
           }}
-          className="px-5 py-3 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white rounded-2xl text-sm font-semibold transition-all shadow-sm shadow-[#0f7a6c]/20 flex items-center justify-center gap-2"
+          className="px-5 py-3 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white rounded-2xl text-sm font-semibold transition-all shadow-sm shadow-[#0f7a6c]/20 flex items-center justify-center gap-2 cursor-pointer"
         >
           <Plus size={18} />
           <span>{isRtl ? 'إضافة منهج جديد' : 'Add Curriculum'}</span>
@@ -168,13 +190,34 @@ export default function AdminCurriculums() {
             {isFetching && <div className="w-4 h-4 border-2 border-[#0f7a6c]/30 border-t-[#0f7a6c] rounded-full animate-spin" />}
           </h2>
 
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isRtl ? 'بحث في المناهج...' : 'Search curricula...'}
-            className="w-full sm:w-72 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#0f7a6c] dark:focus:border-[#0f7a6c] rounded-xl px-4 py-2.5 text-sm outline-none transition-all dark:text-white"
-          />
+          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-72">
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder={isRtl ? 'بحث في المناهج...' : 'Search curricula...'}
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#0f7a6c] dark:focus:border-[#0f7a6c] rounded-xl ps-4 pe-9 py-2.5 text-sm outline-none transition-all dark:text-white"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute inset-y-0 end-2 flex items-center px-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  title={isRtl ? 'مسح البحث' : 'Clear search'}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="px-4 py-2.5 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Search size={16} />
+              <span>{isRtl ? 'بحث' : 'Search'}</span>
+            </button>
+          </form>
         </div>
 
         {filteredCurricula.length > 0 ? (

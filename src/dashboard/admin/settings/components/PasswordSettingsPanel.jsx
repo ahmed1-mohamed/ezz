@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
+import { setCookie } from '@/shared/utils/cookieUtils.js';
+import api from '@/shared/services/api/axiosConfig.js';
 import { Loader2 } from 'lucide-react';
 
 export default function PasswordSettingsPanel({ itemVariants, profilePhone, profileCountry }) {
@@ -54,6 +56,30 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
         }
 
         if (res?.success) {
+            // Update stored access token and refresh token if returned by the server
+            const resData = res.data?.data || res.data;
+            const newAccessToken =
+                resData?.token ||
+                resData?.accessToken ||
+                resData?.access_token ||
+                res.data?.token ||
+                res.data?.accessToken ||
+                res.data?.access_token;
+
+            const newRefreshToken =
+                resData?.refreshToken ||
+                resData?.refresh_token ||
+                res.data?.refreshToken ||
+                res.data?.refresh_token;
+
+            if (newAccessToken) {
+                setCookie('access_token', newAccessToken, 7);
+                api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+            }
+            if (newRefreshToken) {
+                setCookie('refresh_token', newRefreshToken, 7);
+            }
+
             showSuccessToast('تم تحديث كلمة المرور بنجاح');
             setPasswordData({ current: '', new: '', confirm: '' });
         } else {

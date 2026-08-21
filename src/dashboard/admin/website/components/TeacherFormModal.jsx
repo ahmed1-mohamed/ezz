@@ -4,74 +4,20 @@ import { createPortal } from 'react-dom';
 import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
+import { collectAllTeacherIds } from '../hooks/useEliteTeachers';
 
 const teacherSchema = z.object({
   teacherId: z.string().min(1, 'يجب اختيار معلم من القائمة')
 });
 
-/**
- * Normalizes a name (object or string) into an array of lowercase parts.
- */
-function getNameParts(name) {
-  if (!name) return [];
-  if (typeof name === 'string') return [name.trim().toLowerCase()];
+const normalizeName = (name) => {
+  if (!name) return '';
+  if (typeof name === 'string') return name.trim().toLowerCase();
   if (typeof name === 'object') {
-    return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase());
+    return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase()).join(' ');
   }
-  return [];
-}
-
-/**
- * Collects all IDs from an object.
- */
-function collectIds(obj) {
-  if (!obj) return new Set();
-  const ids = new Set();
-  [obj._id, obj.id, obj.teacher_id, obj.teacherId, obj.user_id, obj.userId]
-    .filter(Boolean).forEach(id => ids.add(String(id)));
-  return ids;
-}
-
-/**
- * Checks if a system teacher matches an elite teacher record.
- * Uses ID + name + email for comprehensive matching.
- */
-function doesSystemTeacherMatchElite(sysTeacher, eliteTeacher) {
-  // --- ID matching ---
-  const sysIds = collectIds(sysTeacher);
-
-  // Collect all IDs from elite teacher's "teacher" ref
-  const etTeacher = eliteTeacher?.teacher;
-  const etRefIds = new Set();
-  if (typeof etTeacher === 'string' && etTeacher) etRefIds.add(etTeacher);
-  if (etTeacher && typeof etTeacher === 'object') {
-    collectIds(etTeacher).forEach(id => etRefIds.add(id));
-  }
-  // Also check direct fields on elite teacher
-  [eliteTeacher?.teacher_id, eliteTeacher?.teacherId, eliteTeacher?.userId, eliteTeacher?.user_id]
-    .filter(Boolean).forEach(id => etRefIds.add(String(id)));
-
-  for (const sysId of sysIds) {
-    if (etRefIds.has(sysId)) return true;
-  }
-
-  // --- Name matching ---
-  const sysNameParts = getNameParts(sysTeacher?.name);
-  const etNameParts = [
-    ...getNameParts(eliteTeacher?.name),
-    ...getNameParts(eliteTeacher?.teacher?.name)
-  ];
-  if (sysNameParts.length > 0 && etNameParts.length > 0) {
-    if (sysNameParts.some(sp => etNameParts.includes(sp))) return true;
-  }
-
-  // --- Email matching ---
-  const sysEmail = (sysTeacher?.email || '').trim().toLowerCase();
-  const etEmail = (eliteTeacher?.email || eliteTeacher?.teacher?.email || '').trim().toLowerCase();
-  if (sysEmail && etEmail && sysEmail === etEmail) return true;
-
-  return false;
-}
+  return '';
+};
 
 export default function TeacherFormModal({
   isOpen,
@@ -89,11 +35,12 @@ export default function TeacherFormModal({
   const [errors, setErrors] = useState({});
   const [showTeacherSearch, setShowTeacherSearch] = useState(false);
 
-  // Stable snapshot of original system teacher name so top preview card doesn't change live during editing before save
+  const isAdd = !currentTeacher?.id;
+
   const originalTeacherName = useMemo(() => {
     if (!currentTeacher?.teacherId) return { ar: currentTeacher?.name || '', en: currentTeacher?.nameEn || '' };
     const sysT = systemTeachers.find(tItem => {
-      const tIds = collectIds(tItem);
+      const tIds = collectAllTeacherIds(tItem);
       return tIds.has(String(currentTeacher.teacherId));
     });
     if (sysT) {
@@ -106,35 +53,43 @@ export default function TeacherFormModal({
 
   if (!isOpen || !currentTeacher) return null;
 
-  const isAdd = currentTeacher.id === null;
-
+  // Filter available teachers:
+  // In Add mode: Exclude any teacher already in eliteTeachers
+  // In Edit mode: Allow the teacher matching currentTeacher.teacherId, but exclude other elite teachers
   const filteredTeachers = systemTeachers.filter((sysT) => {
-    const sysIds = collectIds(sysT);
+    const sysIds = collectAllTeacherIds(sysT);
+    const sysEmail = (sysT.email || sysT.user?.email || '').trim().toLowerCase();
+    const sysName = normalizeName(sysT.name);
 
-    // Check if this system teacher is already in elite list
-    const alreadyElite = eliteTeachers.some(et => {
-      const isMatch = doesSystemTeacherMatchElite(sysT, et);
-      if (!isMatch) return false;
-
-      // If editing, allow the currently-selected teacher to still show
-      if (!isAdd && currentTeacher.teacherId) {
-        if (sysIds.has(String(currentTeacher.teacherId))) return false;
-        // Also check if the elite teacher being edited matches this slot
-        const editingId = currentTeacher.id;
-        if (editingId && (et.id === editingId || et._id === editingId)) return false;
+    const isMatchedInElite = eliteTeachers.some(et => {
+      // If editing, skip the elite teacher currently being edited
+      if (!isAdd && (et.id === currentTeacher.id || et._id === currentTeacher.id)) {
+        return false;
       }
-      return true;
+
+      const etIds = collectAllTeacherIds(et);
+      for (const id of sysIds) {
+        if (etIds.has(id)) return true;
+      }
+
+      const etEmail = (et.email || et.teacher?.email || '').trim().toLowerCase();
+      if (sysEmail && etEmail && sysEmail === etEmail) return true;
+
+      const etName = normalizeName(et.name || et.nameEn || et.teacher?.name);
+      if (sysName && etName && sysName === etName) return true;
+
+      return false;
     });
 
-    if (alreadyElite) return false;
+    if (isMatchedInElite) return false;
 
-    // Apply search filter
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
+
     const nameStr = typeof sysT.name === 'object'
-      ? ((sysT.name.ar || '') + ' ' + (sysT.name.en || '')).toLowerCase()
+      ? ((sysT.name?.ar || '') + ' ' + (sysT.name?.en || '')).toLowerCase()
       : (sysT.name || '').toLowerCase();
-    return nameStr.includes(query) || (sysT.email || '').toLowerCase().includes(query);
+    return nameStr.includes(query) || sysEmail.includes(query);
   });
 
   const handleFormSubmit = (e) => {
@@ -170,13 +125,13 @@ export default function TeacherFormModal({
               <div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                   {isAdd
-                    ? t('adminDashboard.website.addEliteTeacher', 'إضافة معلم متميز')
-                    : t('adminDashboard.website.editEliteTeacher', 'تعديل المعلم المتميز')}
+                    ? t('adminDashboard.website.addTeacher', 'إضافة معلم متميز')
+                    : t('adminDashboard.website.editTeacher', 'تعديل بيانات المعلم المتميز')}
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   {isAdd
-                    ? t('adminDashboard.website.selectTeacherSubtitle', 'اختر معلماً من القائمة ثم استكمل البيانات')
-                    : t('adminDashboard.website.editTeacherSubtitle', 'قم بتعديل بيانات وتأهيل المعلم المتميز')}
+                    ? t('adminDashboard.website.selectTeacherSubtitle', 'اختر معلماً ثم استكمل البيانات المطلوبة')
+                    : t('adminDashboard.website.editTeacherSubtitle', 'تعديل بيانات المعلم الشخصية وحالته')}
                 </p>
               </div>
               <button
@@ -272,17 +227,17 @@ export default function TeacherFormModal({
                     <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                       {filteredTeachers.length === 0 ? (
                         <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs font-medium">
-                          {t('adminDashboard.website.noMatchingTeachers', 'لا يوجد معلمون مطابقون للبحث')}
+                          {t('adminDashboard.website.noMatchingTeachers', 'لا يوجد معلمون متاحون للإضافة')}
                         </div>
                       ) : (
-                        filteredTeachers.map((tItem, index) => {
-                          const teacherIdVal = tItem._id || tItem.id || tItem.teacher_id || tItem.teacherId || tItem.user_id || tItem.userId || `teacher-${index}`;
-                          const isSelected = String(currentTeacher.teacherId) === String(teacherIdVal);
+                        filteredTeachers.map((tItem) => {
+                          const teacherIdVal = String(tItem.id || tItem._id || tItem.teacher_id || tItem.user_id || '');
+                          const isSelected = String(currentTeacher.teacherId) === teacherIdVal;
                           const teacherNameStr = typeof tItem.name === 'object'
                             ? (isRtl ? tItem.name.ar || tItem.name.en : tItem.name.en || tItem.name.ar)
                             : tItem.name;
                           const initial = teacherNameStr?.trim()?.charAt(0) || 'م';
-                          const teacherPhoto = tItem.image || tItem.avatar || '';
+                          const teacherPhoto = tItem.image || tItem.avatar || tItem.user?.photoUrl || '';
 
                           return (
                             <div
@@ -295,7 +250,10 @@ export default function TeacherFormModal({
                                   teacherId: teacherIdVal,
                                   name: arName,
                                   nameEn: enName,
-                                  image: teacherPhoto
+                                  image: teacherPhoto,
+                                  email: tItem.email || tItem.user?.email || '',
+                                  phone: tItem.phone || tItem.user?.phone || '',
+                                  country: tItem.country || tItem.user?.country || ''
                                 });
                                 setShowTeacherSearch(false);
                                 if (errors.teacherId) setErrors({ ...errors, teacherId: null });
@@ -323,7 +281,7 @@ export default function TeacherFormModal({
                                   {teacherNameStr}
                                 </h5>
                                 <p className="text-[11px] text-slate-400 truncate">
-                                  {tItem.email || tItem.phone || ''}
+                                  {tItem.email || tItem.user?.email || ''}
                                 </p>
                               </div>
 
@@ -346,32 +304,33 @@ export default function TeacherFormModal({
               {/* Form Input Fields for Editing Details */}
               <div className="space-y-4 pt-2">
                 <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 pb-2">
-                  {isRtl ? 'بيانات وتفاصيل التميز للمعلم:' : 'Teacher Details & Attributes:'}
+                  {isRtl ? 'البيانات الأساسية للمعلم:' : 'Basic Teacher Details:'}
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-                      {isRtl ? 'الاسم باللغة العربية' : 'Name (Arabic)'}
+                      {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
+                      required
                       value={currentTeacher.name || ''}
                       onChange={(e) => setCurrentTeacher({ ...currentTeacher, name: e.target.value })}
-                      placeholder={isRtl ? 'اسم المعلم بالعربية' : 'Teacher Name in Arabic'}
+                      placeholder={isRtl ? 'اسم المعلم بالعربية' : 'Teacher Name (Arabic)'}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] outline-none text-slate-800 dark:text-slate-100 text-sm transition-all"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-                      {isRtl ? 'الاسم باللغة الإنجليزية' : 'Name (English)'}
+                      {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
                     </label>
                     <input
                       type="text"
                       value={currentTeacher.nameEn || ''}
                       onChange={(e) => setCurrentTeacher({ ...currentTeacher, nameEn: e.target.value })}
-                      placeholder={isRtl ? 'اسم المعلم بالإنجليزية' : 'Teacher Name in English'}
+                      placeholder={isRtl ? 'اسم المعلم بالإنجليزية' : 'Teacher Name (English)'}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] outline-none text-slate-800 dark:text-slate-100 text-sm transition-all"
                       dir="ltr"
                     />

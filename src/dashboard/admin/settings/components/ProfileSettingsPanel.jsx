@@ -103,11 +103,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
                 if (matchedCountry) {
                     setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name });
-                } else if (mappedCountry) {
-                    const countryByMapping = fetchedCountries.find(c => (c.id || c._id) === mappedCountry);
-                    if (countryByMapping) {
-                        setSelectedCountryCode({ code: countryByMapping.phoneCode, flag: countryByMapping.flag, name: countryByMapping.name });
-                    }
                 }
 
                 if (onProfileLoaded) {
@@ -122,12 +117,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const handleProfileChange = (e) => {
         const val = e.target.value;
         setProfileData({ ...profileData, [e.target.name]: val });
-        if (e.target.name === 'country') {
-            const matched = apiCountries.find(c => (c.id || c._id) === val);
-            if (matched) {
-                setSelectedCountryCode({ code: matched.phoneCode, flag: matched.flag, name: matched.name });
-            }
-        }
     };
 
     const handleSaveProfile = async () => {
@@ -303,7 +292,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                                             type="button"
                                             onClick={() => {
                                                 setSelectedCountryCode({ code: country.phoneCode, flag: country.flag, name: country.name });
-                                                setProfileData(prev => ({ ...prev, country: country.id || country._id }));
                                                 setIsDropdownOpen(false);
                                             }}
                                             className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-left"
@@ -330,7 +318,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
                                     if (matched) {
                                         setSelectedCountryCode({ code: matched.phoneCode, flag: matched.flag, name: matched.name });
-                                        setProfileData(prev => ({ ...prev, country: matched.id || matched._id }));
                                         let remaining = val.substring(1).substring(matched.normCode.length).trim();
                                         setPhoneVal(remaining);
                                         return;
