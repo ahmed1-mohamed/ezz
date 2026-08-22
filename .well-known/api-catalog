@@ -1,0 +1,39 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://manaret-ezz.dramcode.top/api/",
+      "service-desc": [
+        {
+          "href": "https://manaret-ezz.dramcode.top/api/docs",
+          "type": "application/vnd.oai.openapi+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://manarat-al-ezz.com/auth.md",
+          "type": "text/markdown"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://manaret-ezz.dramcode.top/api/health"
+        }
+      ]
+    },
+    {
+      "anchor": "https://manarat-al-ezz.com/",
+      "describedby": [
+        {
+          "href": "https://manarat-al-ezz.com/.well-known/agent-skills/index.json",
+          "type": "application/json"
+        }
+      ],
+      "mcp-server-card": [
+        {
+          "href": "https://manarat-al-ezz.com/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}

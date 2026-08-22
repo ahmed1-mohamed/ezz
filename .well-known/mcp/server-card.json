@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "serverInfo": {
+    "name": "Manarat Al-Ezz Educational Platform",
+    "version": "1.0.0",
+    "description": "MCP server for the Manarat Al-Ezz educational platform. Provides tools for querying student data, course information, schedules, and platform resources.",
+    "contact": {
+      "email": "info@manaratezz.edu.sa",
+      "url": "https://manarat-al-ezz.com/"
+    }
+  },
+  "transport": {
+    "type": "http",
+    "endpoint": "https://manaret-ezz.dramcode.top/api/mcp"
+  },
+  "authentication": {
+    "type": "oauth2",
+    "oauth2": {
+      "authorizationUrl": "https://manaret-ezz.dramcode.top/api/oauth/authorize",
+      "tokenUrl": "https://manaret-ezz.dramcode.top/api/oauth/token",
+      "scopes": {
+        "read": "Read-only access to platform data",
+        "write": "Read and write access to platform data"
+      }
+    }
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": false,
+    "sampling": false
+  },
+  "tools": [
+    {
+      "name": "get_courses",
+      "description": "List available courses on the platform (Quran, Arabic, Islamic Studies)"
+    },
+    {
+      "name": "get_student_progress",
+      "description": "Retrieve a student's learning progress and attendance"
+    },
+    {
+      "name": "get_schedule",
+      "description": "Get class schedules for students or teachers"
+    }
+  ]
+}
