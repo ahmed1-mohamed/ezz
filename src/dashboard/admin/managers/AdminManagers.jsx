@@ -29,6 +29,7 @@ export default function AdminManagers() {
     commitSearch,
     statusFilter,
     setStatusFilter,
+    enableExtraData,
     supervisorsData,
     supervisors,
     isLoadingSupervisors,
@@ -83,6 +84,7 @@ export default function AdminManagers() {
   }
 
   const handleOpenEditScreen = async (supervisor) => {
+    enableExtraData()
     setIsLoadingDetails(true)
     try {
       const adminId = supervisor.admin_id || supervisor.id || supervisor._id
@@ -142,9 +144,13 @@ export default function AdminManagers() {
           t={t}
           onToggleStatus={handleToggleStatus}
           onDelete={handleDelete}
-          onOpenAddScreen={() => setViewMode('add-supervisor')}
+          onOpenAddScreen={() => {
+            enableExtraData()
+            setViewMode('add-supervisor')
+          }}
           onOpenEditScreen={handleOpenEditScreen}
           onOpenRolePermissions={(supervisorOrRoleName) => {
+            enableExtraData()
             if (supervisorOrRoleName && typeof supervisorOrRoleName === 'object') {
               setSelectedSupervisor(supervisorOrRoleName)
               setViewMode('assign-role')

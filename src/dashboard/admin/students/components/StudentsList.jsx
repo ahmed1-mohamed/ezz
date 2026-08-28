@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
-import { Plus, Search, Pencil, Trash2, CheckCircle2, XCircle, Users, Calendar, Eye } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, CheckCircle2, XCircle, Users, Calendar, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function StudentsList({
   students,
   isRtl,
+  t,
   onOpenAddScreen,
   onOpenEditScreen,
   onDelete,
@@ -15,6 +16,7 @@ export default function StudentsList({
 }) {
   const [searchVal, setSearchVal] = useState('')
   const debouncedQuery = useDebounce(searchVal, 300)
+  const itemsPerPage = 20
 
   const filteredStudents = useMemo(() => {
     if (!debouncedQuery.trim()) return students
@@ -39,6 +41,12 @@ export default function StudentsList({
     return { total, active, inactive }
   }, [students])
 
+  const effectiveTotalPages = totalPages && totalPages > 0 ? totalPages : 1
+  const isPaginationDimmed = effectiveTotalPages <= 1
+  const totalCount = filteredStudents.length
+  const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
+  const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
+
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
 
@@ -47,7 +55,7 @@ export default function StudentsList({
         <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
           <div className="space-y-1 text-start">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
-              {isRtl ? 'إجمالي الطلاب' : 'Total Students'}
+              {t('adminDashboard.students.totalStudents', 'إجمالي الطلاب')}
             </span>
             <span className="text-3xl font-extrabold text-slate-700 dark:text-slate-205 block">
               {metrics.total}
@@ -61,7 +69,7 @@ export default function StudentsList({
         <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
           <div className="space-y-1 text-start">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
-              {isRtl ? 'طالب نشط' : 'Active Students'}
+              {t('adminDashboard.students.activeStudents', 'طالب نشط')}
             </span>
             <span className="text-3xl font-extrabold text-emerald-650 dark:text-emerald-450 block">
               {metrics.active}
@@ -75,7 +83,7 @@ export default function StudentsList({
         <div className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
           <div className="space-y-1 text-start">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
-              {isRtl ? 'طالب غير نشط' : 'Inactive Students'}
+              {t('adminDashboard.students.inactiveStudents', 'طالب غير نشط')}
             </span>
             <span className="text-3xl font-extrabold text-rose-650 dark:text-rose-450 block">
               {metrics.inactive}
@@ -96,11 +104,11 @@ export default function StudentsList({
             className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#005953] hover:bg-[#004742] text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
           >
             <Plus size={18} />
-            <span>{isRtl ? 'إضافة طالب' : 'Add Student'}</span>
+            <span>{t('adminDashboard.students.addStudent', 'إضافة طالب')}</span>
           </button>
 
           <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
-            {isRtl ? 'قائمة الطلاب المسجلين في المنصة' : 'Registered Students List'}
+            {t('adminDashboard.students.registeredList', 'قائمة الطلاب المسجلين في المنصة')}
           </span>
         </div>
 
@@ -110,7 +118,7 @@ export default function StudentsList({
           </div>
           <input
             type="text"
-            placeholder={isRtl ? 'بحث بالاسم، الإيميل، الهاتف...' : 'Search...'}
+            placeholder={t('adminDashboard.students.searchPlaceholder', 'بحث بالاسم، الإيميل، الهاتف...')}
             value={searchVal}
             onChange={(e) => { setSearchVal(e.target.value); onPageChange(1) }}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm placeholder-slate-400`}
@@ -124,19 +132,19 @@ export default function StudentsList({
           <table className="w-full text-start border-collapse">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-950/20">
-                <th className="py-4 px-6 text-start">{isRtl ? 'الطالب' : 'Student'}</th>
-                <th className="py-4 px-6 text-start">{isRtl ? 'معلومات التواصل' : 'Contact Info'}</th>
-                <th className="py-4 px-6 text-start">{isRtl ? 'الدولة' : 'Country'}</th>
-                <th className="py-4 px-6 text-start">{isRtl ? 'تاريخ التسجيل' : 'Created At'}</th>
-                <th className="py-4 px-6 text-start">{isRtl ? 'الحالة' : 'Status'}</th>
-                <th className="py-4 px-6 text-center">{isRtl ? 'الإجراءات' : 'Actions'}</th>
+                <th className="py-4 px-6 text-start">{t('adminDashboard.students.table.student', 'الطالب')}</th>
+                <th className="py-4 px-6 text-start">{t('adminDashboard.students.table.contact', 'معلومات التواصل')}</th>
+                <th className="py-4 px-6 text-start">{t('adminDashboard.students.table.country', 'الدولة')}</th>
+                <th className="py-4 px-6 text-start">{t('adminDashboard.students.table.createdAt', 'تاريخ التسجيل')}</th>
+                <th className="py-4 px-6 text-start">{t('adminDashboard.students.table.status', 'الحالة')}</th>
+                <th className="py-4 px-6 text-center">{t('adminDashboard.students.table.actions', 'الإجراءات')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
               {currentItems.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-10 text-center text-slate-400 dark:text-slate-500 font-bold">
-                    {isRtl ? 'لا يوجد طلاب يطابقون بحثك' : 'No students found matching your search'}
+                    {t('adminDashboard.students.noStudents', 'لا يوجد طلاب يطابقون بحثك')}
                   </td>
                 </tr>
               ) : (
@@ -153,11 +161,11 @@ export default function StudentsList({
                   if (student.active === true || String(student.active) === 'true') {
                     statusBadgeClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-955/15 dark:text-emerald-400'
                     statusDotClass = 'bg-emerald-600'
-                    statusText = isRtl ? 'نشط' : 'Active'
+                    statusText = t('adminDashboard.students.status.active', 'نشط')
                   } else {
                     statusBadgeClass = 'bg-rose-50 text-rose-700 dark:bg-rose-955/15 dark:text-rose-400'
                     statusDotClass = 'bg-rose-600'
-                    statusText = isRtl ? 'غير نشط' : 'Inactive'
+                    statusText = t('adminDashboard.students.status.inactive', 'غير نشط')
                   }
 
                   const createdDate = student.createdAt ? new Date(student.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
@@ -225,7 +233,7 @@ export default function StudentsList({
                             type="button"
                             onClick={() => onOpenSessions(student)}
                             className="p-2 bg-slate-50 hover:bg-brand-50 text-slate-500 hover:text-brand-600 rounded-xl transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-brand-500/20 dark:hover:text-brand-400"
-                            title={isRtl ? 'عرض' : 'View'}
+                            title={t('adminDashboard.students.actions.view', 'عرض')}
                           >
                             <Eye size={16} />
                           </button>
@@ -233,7 +241,7 @@ export default function StudentsList({
                             type="button"
                             onClick={() => onOpenEditScreen(student)}
                             className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-xl transition-all cursor-pointer border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
-                            title={isRtl ? 'تعديل البيانات' : 'Edit details'}
+                            title={t('adminDashboard.students.actions.edit', 'تعديل البيانات')}
                           >
                             <Pencil size={15} />
                           </button>
@@ -242,7 +250,7 @@ export default function StudentsList({
                             type="button"
                             onClick={() => onDelete(student)}
                             className="p-2 hover:bg-rose-50 dark:hover:bg-rose-955/20 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-all cursor-pointer border border-transparent hover:border-rose-100/10"
-                            title={isRtl ? 'حذف الطالب' : 'Delete student'}
+                            title={t('adminDashboard.students.actions.delete', 'حذف الطالب')}
                           >
                             <Trash2 size={15} />
                           </button>
@@ -258,56 +266,58 @@ export default function StudentsList({
           </table>
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-slate-50/50 dark:bg-slate-950/20 border-t border-slate-100 dark:border-slate-800/60">
-            <div className="text-xs text-slate-400 dark:text-slate-500 font-bold">
-              {isRtl ? 'عرض' : 'Showing'}{' '}
-              <span className="font-extrabold text-slate-700 dark:text-slate-200">
-                {indexOfFirstItem + 1}
-              </span>{' '}
-              {isRtl ? 'إلى' : 'to'}{' '}
-              <span className="font-extrabold text-slate-700 dark:text-slate-200">
-                {Math.min(indexOfLastItem, filteredStudents.length)}
-              </span>{' '}
-              {isRtl ? 'من أصل' : 'of'}{' '}
-              <span className="font-extrabold text-slate-700 dark:text-slate-200">
-                {filteredStudents.length}
-              </span>{' '}
-              {isRtl ? 'طلاب' : 'students'}
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                {isRtl ? 'السابق' : 'Previous'}
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => onPageChange(p)}
-                  className={`h-8 w-8 flex items-center justify-center rounded-xl text-xs font-black transition-all ${currentPage === p
-                    ? 'bg-[#005953] text-white shadow-md shadow-[#005953]/20'
-                    : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
-
-              <button
-                onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                {isRtl ? 'التالي' : 'Next'}
-              </button>
-            </div>
+        {/* Pagination — always visible, dimmed when only 1 page */}
+        <div
+          className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
+        >
+          <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
+            {isRtl ? (
+              <>
+                {t('adminDashboard.students.pagination.showing', 'عرض')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.to', 'إلى')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.of', 'من أصل')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
+                {t('adminDashboard.students.pagination.students', 'طلاب')}
+              </>
+            ) : (
+              <>
+                {t('adminDashboard.students.pagination.showing', 'Showing')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.to', 'to')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.of', 'of')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
+                {t('adminDashboard.students.pagination.students', 'students')}
+              </>
+            )}
           </div>
-        )}
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1 || isPaginationDimmed}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
+            </button>
+
+            <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
+              {currentPage} / {effectiveTotalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => onPageChange(Math.min(currentPage + 1, effectiveTotalPages))}
+              disabled={currentPage === effectiveTotalPages || isPaginationDimmed}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {isRtl ? <ChevronLeft size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
 
       </div>
 

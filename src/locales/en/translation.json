@@ -1843,6 +1843,7 @@
     },
     "logs": {
       "title": "Activity Logs",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
       "titleWithCount": "Activity Logs ({{count}})",
       "desc": "Monitor user activity log and key events on the platform.",
       "errorLoading": "Error loading events",
@@ -1852,17 +1853,28 @@
       "totalEvents": "Total Events",
       "today": "Today",
       "thisWeek": "This Week",
-      "usersThisMonth": "Users this Month"
+      "thisMonth": "This Month",
+      "usersThisMonth": "Users this Month",
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "events": "events"
+      }
     },
     "messages": {
       "title": "Registration Requests",
-      "totalRequests": "Total Requests",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
+      "totalRequests": "Total Registration Requests",
+      "unreadRequests": "Unread Requests",
+      "readRequests": "Read Requests",
       "newRequests": "New Requests",
       "replied": "Replied",
       "underReview": "Under Review",
       "new": "New",
       "read": "Read",
       "readByLabel": "Read By",
+      "readAtLabel": "Read At",
       "messageSubject": "Message Subject",
       "showSenderDetails": "View Sender Details",
       "hideSenderDetails": "Hide Sender Details",
@@ -1871,11 +1883,24 @@
       "email": "Email",
       "fullName": "Full Name",
       "phoneNumber": "Phone Number",
-      "yourMessage": "Your Message",
-      "searchPlaceholder": "Search...",
+      "yourMessage": "Message Content",
+      "searchPlaceholder": "Search by name, email, or phone number...",
+      "search": "Search by name, email, or phone number...",
+      "clearSearch": "Clear search",
+      "searchBtn": "Search",
       "loading": "Loading messages...",
       "errorLoading": "Error loading messages",
-      "noMessages": "No registration requests found"
+      "noMessages": "No registration requests found",
+      "noResultsFound": "No results found matching your search",
+      "resetSearch": "Reset search",
+      "noSubject": "No subject",
+      "deleteTooltip": "Delete",
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "requests": "requests"
+      }
     },
     "nav": {
       "home": "Overview",
@@ -2067,24 +2092,217 @@
         "cancel": "Cancel"
       }
     },
+    "students": {
+      "title": "Student Management",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
+      "totalStudents": "Total Students",
+      "activeStudents": "Active Students",
+      "inactiveStudents": "Inactive Students",
+      "addStudent": "Add Student",
+      "registeredList": "Registered Students List",
+      "searchPlaceholder": "Search by name, email, phone...",
+      "noStudents": "No students found matching your search",
+      "table": {
+        "student": "Student",
+        "contact": "Contact Info",
+        "country": "Country",
+        "createdAt": "Registration Date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "view": "View",
+        "edit": "Edit details",
+        "delete": "Delete student"
+      },
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "students": "students"
+      },
+      "form": {
+        "addTitle": "Add New Student",
+        "editTitle": "Edit Student Details",
+        "personalInfo": "Personal Information",
+        "security": "Security & Password",
+        "save": "Save",
+        "saveChanges": "Save Changes",
+        "next": "Next",
+        "previous": "Previous",
+        "cancel": "Cancel",
+        "backToList": "Back to Students List"
+      },
+      "details": {
+        "title": "Student Details",
+        "groupCard": "Study Group",
+        "subscriptionCard": "Subscription Details",
+        "achievementsCard": "Achievements & Ratings",
+        "parentCard": "Parent Information",
+        "securityCard": "Security & Account"
+      }
+    },
     "parents": {
       "title": "Parents Management",
       "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
       "total": "Total Parents",
-      "active": "Active Parent",
+      "totalParents": "Total Parents",
+      "active": "Active",
+      "activeParent": "Active Parent",
+      "stopped": "Stopped",
       "expiring": "Expiring Soon",
       "add": "Add Parent",
-      "search": "Search...",
+      "search": "Search by name, email, or phone...",
+      "registeredList": "Registered Parents List",
+      "totalCountLabel": "Total {{count}} parents",
+      "noParents": "No parents found matching your search",
       "parentName": "Parent",
+      "contact": "Contact Info",
       "children": "Children",
       "status": "Status",
+      "joined": "Join Date",
       "actions": "Actions",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "edit": "Edit",
+      "delete": "Delete",
+      "details": "Details",
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "parents": "parents"
+      },
       "name": "Name",
       "email": "Email",
-      "phone": "Phone",
+      "phone": "Phone Number",
       "message": "Message",
       "send": "Send",
       "sendMessage": "Send Message"
+    },
+    "groups": {
+      "title": "Groups Management",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
+      "totalGroups": "Total Groups",
+      "activeGroups": "Active Groups",
+      "suspendedGroups": "Suspended",
+      "totalStudents": "Total Students",
+      "addGroup": "Add Group",
+      "editGroup": "Edit Group",
+      "searchPlaceholder": "Search groups...",
+      "noGroupsFound": "No matching groups found",
+      "teacher": "Teacher",
+      "students": "Students",
+      "viewAndManageStudents": "View & Manage Students",
+      "status": {
+        "all": "All",
+        "active": "Active",
+        "suspended": "Suspended",
+        "completed": "Completed"
+      },
+      "filterAll": "All",
+      "filterActive": "Active",
+      "filterSuspended": "Suspended",
+      "filterCompleted": "Completed",
+      "groupStudents": "Group Students ({{count}})",
+      "noStudentsInGroup": "No students registered in this group",
+      "removeStudent": "Remove",
+      "days": {
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday"
+      },
+      "timePeriod": {
+        "am": "{{num}} AM",
+        "pm": "{{num}} PM"
+      },
+      "enterGroupNameError": "Please enter group name!",
+      "selectSubjectError": "Please select subject!",
+      "selectTeacherError": "Please select teacher!"
+    },
+    "sessions": {
+      "title": "Sessions Management",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
+      "liveNow": "Live Now",
+      "upcoming": "Upcoming Sessions",
+      "completed": "Completed Sessions",
+      "cancelled": "Cancelled",
+      "searchPlaceholder": "Search by group or teacher name...",
+      "noSessionsFound": "No matching sessions found",
+      "paginationText": "Showing {{count}} of {{total}}",
+      "minutesValue": "{{count}} mins",
+      "rescheduleTitle": "Reschedule {{name}}",
+      "chooseNewDate": "Choose New Date",
+      "chooseTime": "Choose Time",
+      "confirmReschedule": "Confirm Reschedule",
+      "cancel": "Cancel",
+      "changeTeacherTitle": "Change Teacher",
+      "chooseSubstituteTeacher": "Choose Substitute Teacher",
+      "confirmTeacher": "Confirm Teacher",
+      "tabs": {
+        "all": "All",
+        "live": "Live Now",
+        "upcoming": "Upcoming",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "headers": {
+        "actions": "Actions",
+        "status": "Status",
+        "count": "Students",
+        "time": "Time",
+        "date": "Date",
+        "teacher": "Teacher",
+        "group": "Group"
+      },
+      "actions": {
+        "reschedule": "Reschedule",
+        "changeTeacher": "Change Teacher",
+        "cancelGroup": "Cancel Session"
+      },
+      "status": {
+        "live": "Live Now",
+        "upcoming": "Upcoming",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "schedule": {
+      "title": "Study Schedule",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
+      "periods": {
+        "today": "Today",
+        "week": "This Week",
+        "month": "This Month",
+        "all": "All"
+      },
+      "conflictsDetected": "{{count}} schedule conflict(s) detected",
+      "duplicateSession": "Duplicate group at the same time",
+      "attendanceRate": "Attendance Rate",
+      "present": "Present",
+      "absent": "Absent",
+      "postponed": "Postponed",
+      "addGroup": "Add Group",
+      "allTeachers": "All Teachers",
+      "today": "Today",
+      "currentWeek": "Current Week",
+      "noEventsPeriod": "No events in this period",
+      "editSessionToast": "Edit session: {{name}}",
+      "deleteSessionToast": "Deleted session #{{id}}",
+      "status": {
+        "scheduled": "Scheduled",
+        "postponed": "Postponed",
+        "conflict": "Conflict",
+        "completed": "Completed"
+      }
     },
     "packages": {
       "pageTitle": "Packages & Pricing",
@@ -2248,10 +2466,12 @@
       "viewDetails": "View"
     },
     "coupons": {
-      "pageTitle": "Discount Coupon Management",
+      "pageTitle": "Discount Coupons Management",
+      "subtitle": "Manarat Al-Ezz Academy · Admin Panel",
       "totalCodes": "Total Codes",
       "activeCodes": "Active Codes",
       "expiredCodes": "Expired Codes",
+      "usedCodes": "Used Codes",
       "createCoupon": "Create Discount Code",
       "searchByCode": "Search by coupon code...",
       "currentCoupons": "Current Coupons",
@@ -2260,11 +2480,17 @@
       "noUsageHistory": "No usage history yet",
       "createCouponTitle": "Create New Discount Code",
       "codeLabel": "Code",
+      "codePlaceholder": "e.g. RAMADAN50",
       "discountPercentageLabel": "Discount Percentage",
       "expirationDateLabel": "Expiration Date",
       "addStudentsBtn": "Add Students to Coupon",
+      "addStudentBtn": "Add Student to Coupon",
+      "changeStudentBtn": "Change Student",
+      "addSelectedStudentBtn": "Add Selected Student",
       "emailLabel": "Email",
       "studentNameLabel": "Student Name",
+      "studentLabel": "Student",
+      "savedAmountLabel": "Saved Amount",
       "cancelBtn": "Cancel",
       "createCodeBtn": "Create Code",
       "code": "Code",
@@ -2285,7 +2511,7 @@
       "searchByName": "Search by name",
       "searchByEmail": "Search by email",
       "searchByPhone": "Search by phone",
-      "searchStudentPlaceholder": "Search by student name...",
+      "searchStudentPlaceholder": "Search by student name, email or phone...",
       "availableStudents": "Available Students",
       "noStudentsFound": "No students match the search",
       "ageLabel": "Age",

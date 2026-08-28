@@ -562,11 +562,14 @@ export default function AdminCurriculumDetails() {
                                       const MetaIcon = meta.icon
 
                                       return (
-                                        <div key={fileId} className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-3 flex items-center justify-between gap-3 group shadow-sm transition-all hover:shadow-md">
+                                        <div key={fileId} 
+                                          className={`bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-3 flex items-center justify-between gap-3 group shadow-sm transition-all hover:shadow-md ${meta.isLink && meta.fullUrl ? 'cursor-pointer hover:border-blue-200 dark:hover:border-blue-800' : ''}`}
+                                          onClick={meta.isLink && meta.fullUrl ? () => window.open(meta.fullUrl, '_blank', 'noopener,noreferrer') : undefined}
+                                        >
                                           <div className="flex items-center gap-3 overflow-hidden">
                                             {meta.isImage && meta.fullUrl ? (
                                               <div
-                                                onClick={() => handlePreviewFile(meta.fullUrl)}
+                                                onClick={(e) => { e.stopPropagation(); handlePreviewFile(meta.fullUrl); }}
                                                 className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 shadow-sm cursor-pointer relative group/thumb flex items-center justify-center"
                                                 title={isRtl ? 'اضغط لعرض الصورة بحجمها الكامل' : 'Click to view full image'}
                                               >
@@ -600,7 +603,7 @@ export default function AdminCurriculumDetails() {
                                           <div className="flex items-center gap-1 shrink-0">
                                             {/* Preview / Open in New Tab */}
                                             <button
-                                              onClick={() => handlePreviewFile(meta.fullUrl)}
+                                              onClick={(e) => { e.stopPropagation(); handlePreviewFile(meta.fullUrl); }}
                                               className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-all cursor-pointer"
                                               title={meta.isLink ? (isRtl ? 'فتح الرابط في تبويب جديد' : 'Open link in new tab') : (isRtl ? 'معاينة / فتح في تبويب جديد' : 'Preview / Open in new tab')}
                                             >
@@ -610,7 +613,7 @@ export default function AdminCurriculumDetails() {
                                             {/* Download for files only */}
                                             {!meta.isLink && (
                                               <button
-                                                onClick={() => handleDownloadFile(meta.fullUrl, fileName, meta.isLink)}
+                                                onClick={(e) => { e.stopPropagation(); handleDownloadFile(meta.fullUrl, fileName, meta.isLink); }}
                                                 className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
                                                 title={isRtl ? 'تحميل الملف' : 'Download File'}
                                               >
@@ -620,7 +623,7 @@ export default function AdminCurriculumDetails() {
 
                                             {/* Delete */}
                                             <button
-                                              onClick={() => handleDelete('file', file, { levelId: rawLevelId || levelId, unitId: rawUnitId || unitId })}
+                                              onClick={(e) => { e.stopPropagation(); handleDelete('file', file, { levelId: rawLevelId || levelId, unitId: rawUnitId || unitId }); }}
                                               className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
                                               title={isRtl ? 'حذف' : 'Delete'}
                                             >

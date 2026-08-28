@@ -121,7 +121,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         required
                                         value={form.code}
                                         onChange={(e) => setField('code', e.target.value)}
-                                        placeholder="e.g. RAMADAN50"
+                                        placeholder={t('adminDashboard.coupons.codePlaceholder', 'مثال: RAMADAN50')}
                                         className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-850 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                     />
                                 </div>

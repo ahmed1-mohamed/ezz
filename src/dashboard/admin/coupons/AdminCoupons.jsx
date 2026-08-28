@@ -10,7 +10,8 @@ import CouponFormPanel from './components/CouponFormPanel';
 import CouponDetailsModal from './components/CouponDetailsModal';
 
 function AdminCoupons() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     const {
         loading,
         filteredCoupons,
@@ -42,7 +43,16 @@ function AdminCoupons() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+            <div className="text-start">
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+                    {t('adminDashboard.coupons.pageTitle', 'إدارة كوبونات الخصم')}
+                </h1>
+                <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+                    {t('adminDashboard.coupons.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
+                </p>
+            </div>
+
             <CouponStatsBar
                 total={coupons.length}
                 active={activeCoupons}
@@ -55,19 +65,19 @@ function AdminCoupons() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button
                     onClick={handleOpenForm}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20 w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20 w-full sm:w-auto cursor-pointer"
                 >
                     <Plus size={18} />
-                    {t('adminDashboard.coupons.createCoupon')}
+                    {t('adminDashboard.coupons.createCoupon', 'إنشاء كود خصم')}
                 </button>
 
                 <CouponSearchBar value={searchQuery} onSearch={handleSearch} />
             </div>
 
-            <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-soft">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 text-start">
                     <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-                        {t('adminDashboard.coupons.currentCoupons')}
+                        {t('adminDashboard.coupons.currentCoupons', 'الكوبونات الحالية')}
                     </h2>
                 </div>
 
@@ -77,7 +87,7 @@ function AdminCoupons() {
                             <Ticket size={28} className="text-slate-300 dark:text-slate-600" />
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 font-medium">
-                            {t('adminDashboard.coupons.noCouponsFound')}
+                            {t('adminDashboard.coupons.noCouponsFound', 'لا توجد كوبونات')}
                         </p>
                     </div>
                 ) : (

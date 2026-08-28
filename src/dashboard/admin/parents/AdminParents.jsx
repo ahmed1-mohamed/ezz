@@ -211,7 +211,7 @@ export default function AdminParents() {
 
       {viewMode === 'list' && (
         <>
-          <div className="text-end">
+          <div className="text-start">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {t('adminDashboard.parents.title', 'إدارة أولياء الأمور')}
             </h1>
@@ -223,19 +223,19 @@ export default function AdminParents() {
           {statistics && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mt-6 mb-2">
               <StatsCard
-                title={isRtl ? 'إجمالي أولياء الأمور' : 'Total Parents'}
+                title={t('adminDashboard.parents.totalParents', 'إجمالي أولياء الأمور')}
                 value={statistics.total}
                 icon={<Users size={20} />}
                 accent="bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400"
               />
               <StatsCard
-                title={isRtl ? 'نشط' : 'Active'}
+                title={t('adminDashboard.parents.active', 'نشط')}
                 value={statistics.active}
                 icon={<UserCheck size={20} />}
                 accent="bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
               />
               <StatsCard
-                title={isRtl ? 'موقوف' : 'Stopped'}
+                title={t('adminDashboard.parents.stopped', 'موقوف')}
                 value={statistics.stopped}
                 icon={<UserX size={20} />}
                 accent="bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"

@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import {
   Search,
   Plus,
@@ -9,6 +8,8 @@ import {
   BookOpen,
   Pencil,
   Lock,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 
 export default function ManagersList({
@@ -32,45 +33,31 @@ export default function ManagersList({
 }) {
   const itemsPerPage = 10
 
-  const metrics = useMemo(() => {
-    if (statistics) {
-      return {
-        total: statistics.total ?? 0,
-        active: statistics.active ?? 0,
-        suspended: statistics.stopped ?? 0
-      }
-    }
-    const total = supervisors.length
-    const active = supervisors.filter((s) => s.status === 'Active' || s.active).length
-    const suspended = supervisors.filter((s) => s.status === 'Suspended' || !s.active).length
-    return { total, active, suspended }
-  }, [supervisors, statistics])
+  // Cards data — read directly from backend statistics
+  const metrics = {
+    total: statistics?.total ?? supervisors.length,
+    active: statistics?.active ?? supervisors.filter((s) => s.status === 'Active' || s.active).length,
+    suspended: statistics?.stopped ?? supervisors.filter((s) => s.status === 'Suspended' || !s.active).length,
+  }
 
-  const totalCount = useMemo(() => {
+  // Total count for the current filter tab
+  const totalCount = (() => {
     if (statistics) {
       if (statusFilter === 'active') return statistics.active ?? 0
       if (statusFilter === 'stopped') return statistics.stopped ?? 0
       return statistics.total ?? 0
     }
     return supervisors.length
-  }, [supervisors.length, statistics, statusFilter])
+  })()
 
-  const effectiveTotalPages = useMemo(() => {
-    if (totalPages && totalPages > 1) return totalPages
-    return Math.max(1, Math.ceil(totalCount / itemsPerPage))
-  }, [totalPages, totalCount, itemsPerPage])
+  // Backend-driven: numberOfPages is the single source of truth
+  const effectiveTotalPages = totalPages && totalPages > 0 ? totalPages : 1
 
-  const currentItems = useMemo(() => {
-    // If already paginated by backend (length <= itemsPerPage and totalPages > 1)
-    if (totalPages > 1 && supervisors.length <= itemsPerPage) {
-      return supervisors
-    }
-    if (supervisors.length > itemsPerPage) {
-      const start = (currentPage - 1) * itemsPerPage
-      return supervisors.slice(start, start + itemsPerPage)
-    }
-    return supervisors
-  }, [supervisors, totalPages, itemsPerPage, currentPage])
+  // Backend already returns the paginated slice
+  const currentItems = supervisors
+
+  // Dimmed when there is only one page (numberOfPages === 1 from backend)
+  const isPaginationDimmed = effectiveTotalPages === 1
 
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
@@ -348,76 +335,46 @@ export default function ManagersList({
           </table>
         </div>
 
-        {effectiveTotalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850 rounded-b-3xl">
-            <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
-              {isRtl ? (
-                <>عرض <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> إلى <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> من أصل <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> مشرف</>
-              ) : (
-                <>Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> to <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> of <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> supervisors</>
-              )}
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-                aria-label={t('adminDashboard.managers.pagination.previousAria', 'الصفحة السابقة')}
-                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                {t('adminDashboard.managers.pagination.previous', 'السابق')}
-              </button>
-
-              {(() => {
-                const pages = [];
-                const delta = 1;
-                const rangeStart = Math.max(2, currentPage - delta);
-                const rangeEnd = Math.min(effectiveTotalPages - 1, currentPage + delta);
-
-                pages.push(1);
-
-                if (rangeStart > 2) pages.push('...');
-
-                for (let i = rangeStart; i <= rangeEnd; i++) pages.push(i);
-
-                if (rangeEnd < effectiveTotalPages - 1) pages.push('...');
-
-                if (effectiveTotalPages > 1) pages.push(effectiveTotalPages);
-
-                return pages.map((p, idx) =>
-                  p === '...' ? (
-                    <span key={`ellipsis-${idx}`} className="px-2 text-slate-400 dark:text-slate-500 text-sm select-none">…</span>
-                  ) : (
-                    <button
-                      type="button"
-                      key={p}
-                      onClick={() => onPageChange(p)}
-                      aria-label={t('adminDashboard.managers.pagination.page', { page: p }, `صفحة ${p}`)}
-                      aria-current={currentPage === p ? 'page' : undefined}
-                      className={`h-9 w-9 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${currentPage === p
-                        ? 'bg-[#0f7a6c] text-white shadow-md shadow-[#0f7a6c]/20'
-                        : 'border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                        }`}
-                    >
-                      {p}
-                    </button>
-                  )
-                );
-              })()}
-
-              <button
-                type="button"
-                onClick={() => onPageChange(Math.min(currentPage + 1, effectiveTotalPages))}
-                disabled={currentPage === effectiveTotalPages}
-                aria-label={t('adminDashboard.managers.pagination.nextAria', 'الصفحة التالية')}
-                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                {t('adminDashboard.managers.pagination.next', 'التالي')}
-              </button>
-            </div>
+        <div
+          className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
+        >
+          <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
+            {isRtl ? (
+              <>عرض <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> إلى <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> من أصل <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> مشرف</>
+            ) : (
+              <>Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> to <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> of <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> supervisors</>
+            )}
           </div>
-        )}
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1 || isPaginationDimmed}
+              aria-label={t('adminDashboard.managers.pagination.previousAria', 'الصفحة السابقة')}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
+            </button>
+
+            <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
+              {isRtl
+                ? `${currentPage} / ${effectiveTotalPages}`
+                : `${currentPage} / ${effectiveTotalPages}`
+              }
+            </span>
+
+            <button
+              type="button"
+              onClick={() => onPageChange(Math.min(currentPage + 1, effectiveTotalPages))}
+              disabled={currentPage === effectiveTotalPages || isPaginationDimmed}
+              aria-label={t('adminDashboard.managers.pagination.nextAria', 'الصفحة التالية')}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {isRtl ? <ChevronLeft size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

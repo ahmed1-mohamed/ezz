@@ -8,6 +8,7 @@ export function useManagers() {
   const [searchVal, setSearchVal] = useState('');
   const [committedSearch, setCommittedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [needsExtraData, setNeedsExtraData] = useState(false);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -36,13 +37,13 @@ export function useManagers() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: permissionsData, isLoading: isLoadingPermissions } = useQuery({
+  // Only fires when user opens add/edit screens
+  const { data: permissionsData } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => managersApi.fetchPermissions(),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    enabled: needsExtraData,
     select: (raw) => {
-      // API returns items shaped as: { permission: {_id, name}, actions: [{key, label}] }
-      // Normalize to: { id, name, keys[] } which the UI components expect
       const items = raw?.data || raw || [];
       const normalized = Array.isArray(items) ? items.map((item) => {
         const perm = item.permission || item;
@@ -58,16 +59,17 @@ export function useManagers() {
     },
   });
 
+  // Only fires when user opens add/edit screens
   const { data: countriesData } = useQuery({
     queryKey: ['countries'],
     queryFn: () => landingApi.fetchCountries(),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
+    enabled: needsExtraData,
   });
 
   const responseData = supervisorsData || {};
   const dataObj = responseData.data || responseData;
 
-  // Extract supervisors list from various possible response shapes
   const supervisorsList = Array.isArray(dataObj)
     ? dataObj
     : Array.isArray(dataObj.admins)
@@ -78,7 +80,6 @@ export function useManagers() {
 
   const statsObj = responseData.statistics || dataObj.statistics || null;
 
-  // Extract pagination from various possible response shapes
   const rawPagination = responseData.pagination || dataObj.pagination || responseData.meta || dataObj.meta || null;
   const totalCount = statsObj?.total ?? rawPagination?.total ?? rawPagination?.totalItems ?? supervisorsList.length;
   const totalPagesCount = rawPagination?.numberOfPages
@@ -100,6 +101,7 @@ export function useManagers() {
     commitSearch,
     statusFilter,
     setStatusFilter,
+    enableExtraData: () => setNeedsExtraData(true),
     supervisorsData: {
       ...responseData,
       statistics: statsObj,
@@ -108,7 +110,6 @@ export function useManagers() {
     supervisors: supervisorsList,
     isLoadingSupervisors,
     permissionsList: permissionsData?.data || [],
-    isLoadingPermissions,
     countries: countriesData?.data || []
   };
 }

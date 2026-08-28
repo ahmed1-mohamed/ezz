@@ -58,10 +58,10 @@ function buildMockSessions(weekDates) {
 
 // Period filter options
 const PERIOD_FILTERS = [
-  { key: 'today', labelAr: 'اليوم', labelEn: 'Today', icon: CalendarDays, color: 'blue' },
-  { key: 'week', labelAr: 'هذا الأسبوع', labelEn: 'This Week', icon: CalendarRange, color: 'purple' },
-  { key: 'month', labelAr: 'هذا الشهر', labelEn: 'This Month', icon: CalendarClock, color: 'amber' },
-  { key: 'all', labelAr: 'الكل', labelEn: 'All', icon: LayoutList, color: 'slate' },
+  { key: 'today', labelKey: 'today', defaultAr: 'اليوم', defaultEn: 'Today', icon: CalendarDays, color: 'blue' },
+  { key: 'week', labelKey: 'week', defaultAr: 'هذا الأسبوع', defaultEn: 'This Week', icon: CalendarRange, color: 'purple' },
+  { key: 'month', labelKey: 'month', defaultAr: 'هذا الشهر', defaultEn: 'This Month', icon: CalendarClock, color: 'amber' },
+  { key: 'all', labelKey: 'all', defaultAr: 'الكل', defaultEn: 'All', icon: LayoutList, color: 'slate' },
 ]
 
 export default function AdminSchedule() {
@@ -209,8 +209,8 @@ export default function AdminSchedule() {
         {PERIOD_FILTERS.map((period) => (
           <StatCard
             key={period.key}
-            label={isRtl ? period.labelAr : period.labelEn}
-            value={isRtl ? period.labelAr : period.labelEn}
+            label={t(`adminDashboard.schedule.periods.${period.labelKey}`, isRtl ? period.defaultAr : period.defaultEn)}
+            value={t(`adminDashboard.schedule.periods.${period.labelKey}`, isRtl ? period.defaultAr : period.defaultEn)}
             color={period.color}
             icon={period.icon}
             isActive={selectedPeriod === period.key}
@@ -285,7 +285,7 @@ export default function AdminSchedule() {
         <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <CalendarDays size={40} className="text-slate-300 dark:text-slate-700 mb-3" />
           <p className="text-slate-400 dark:text-slate-500 font-semibold text-sm">
-            {isRtl ? 'لا توجد أحداث في هذه الفترة' : 'No events in this period'}
+            {t('adminDashboard.schedule.noEventsPeriod', 'لا توجد أحداث في هذه الفترة')}
           </p>
         </div>
       ) : (

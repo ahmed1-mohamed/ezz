@@ -247,8 +247,8 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                 className="flex-1 py-3.5 rounded-xl font-bold transition-colors bg-[#0f7a6c] text-white hover:bg-[#0d6b5e] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {selectedStudents.length === 1
-                                    ? (isRtl ? 'إضافة الطالب المحدد للكوبون' : 'Add Selected Student')
-                                    : (isRtl ? 'إضافة طالب' : 'Add Student')}
+                                    ? t('adminDashboard.coupons.addSelectedStudentBtn', 'إضافة الطالب المحدد للكوبون')
+                                    : t('adminDashboard.coupons.addStudentBtn', 'إضافة طالب')}
                             </button>
                             <button
                                 type="button"

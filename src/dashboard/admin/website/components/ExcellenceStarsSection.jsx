@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, Pencil, Trash2, BookOpen, Save } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 
 const LEVEL_CONFIG = {
@@ -14,11 +14,8 @@ const LEVEL_CONFIG = {
 export default function ExcellenceStarsSection({
   stars,
   handleOpenAddModal,
-  handleOpenEditModal,
   handleOpenViewModal,
   handleDeleteStar,
-  handleCancelStarsList,
-  handleSaveStarsList
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -72,14 +69,6 @@ export default function ExcellenceStarsSection({
 
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => handleOpenEditModal(star)}
-                        className="p-1.5 sm:p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
-                      >
-                        <Pencil size={16} />
-                      </button>
-
-                      <button
                         onClick={() => handleDeleteStar(star)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                         title={t('common.delete', isRtl ? 'إزالة' : 'Delete')}
@@ -95,22 +84,6 @@ export default function ExcellenceStarsSection({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
-        <Button
-          onClick={handleSaveStarsList}
-          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
-        >
-          <Save size={16} />
-          <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={handleCancelStarsList}
-          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
-        >
-          {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
-        </Button>
-      </div>
     </div>
   );
 }

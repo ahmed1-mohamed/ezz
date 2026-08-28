@@ -17,9 +17,9 @@ export default function MessagesStats({ statistics, activeTab, onSelectTab, isLo
     )
   }
 
-  const total = statistics?.total || 0
-  const unread = statistics?.unread || 0
-  const read = statistics?.read || 0
+  const total = statistics?.totalMessages ?? statistics?.total ?? 0
+  const unread = statistics?.unreadMessages ?? statistics?.unread ?? 0
+  const read = statistics?.readMessages ?? statistics?.read ?? 0
 
   const statCards = [
     {

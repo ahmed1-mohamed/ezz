@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Calendar } from 'lucide-react'
+import { Search, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import Spinner from '@/shared/components/Spinner'
 import StatCard from './components/StatCard'
@@ -64,14 +64,17 @@ export default function AdminSessions() {
       const q = searchQuery.toLowerCase()
       result = result.filter(
         (s) =>
-          s.groupName.toLowerCase().includes(q) ||
-          s.teacher.toLowerCase().includes(q)
+          (s.groupName || '').toLowerCase().includes(q) ||
+          (s.teacher || '').toLowerCase().includes(q)
       )
     }
     return result
   }, [sessions, activeTab, searchQuery])
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const totalCount = filtered.length
+  const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage))
+  const isPaginationDimmed = totalPages <= 1
+
   const paged = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage
     return filtered.slice(start, start + itemsPerPage)
@@ -131,7 +134,8 @@ export default function AdminSessions() {
     return map[key] || defaultLabel
   }
 
-
+  const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
+  const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
 
   return (
     <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -162,7 +166,7 @@ export default function AdminSessions() {
             <Search size={16} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
             <input
               type="text"
-              placeholder={t('adminDashboard.sessions.searchPlaceholder', 'بحث...')}
+              placeholder={t('adminDashboard.sessions.searchPlaceholder', 'بحث باسم المجموعة أو المعلم...')}
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
               className={`w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-2xl py-2.5 ${isRtl ? 'pr-9 pl-4' : 'pl-9 pr-4'} text-sm text-slate-700 dark:text-slate-200 outline-none border border-transparent focus:border-brand-400 transition-colors placeholder-slate-400`}
@@ -219,31 +223,58 @@ export default function AdminSessions() {
           )}
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 dark:border-slate-800">
-            <span className="text-xs text-slate-400 dark:text-slate-500">
-              {t('adminDashboard.sessions.paginationText', {
-                defaultValue: 'عرض {{count}} من {{total}}',
-                count: Math.min(currentPage * itemsPerPage, filtered.length),
-                total: filtered.length
-              })}
-            </span>
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-8 h-8 rounded-xl text-sm font-bold transition-all cursor-pointer ${currentPage === page
-                      ? 'bg-brand-500 text-white shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
+        {/* Pagination — always visible, dimmed when only 1 page */}
+        <div
+          className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
+        >
+          <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
+            {isRtl ? (
+              <>
+                {t('adminDashboard.students.pagination.showing', 'عرض')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.to', 'إلى')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.of', 'من أصل')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
+                {t('adminDashboard.sessions.title', 'حصص')}
+              </>
+            ) : (
+              <>
+                {t('adminDashboard.students.pagination.showing', 'Showing')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.to', 'to')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
+                {t('adminDashboard.students.pagination.of', 'of')}{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
+                {t('adminDashboard.sessions.title', 'sessions')}
+              </>
+            )}
           </div>
-        )}
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || isPaginationDimmed}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
+            </button>
+
+            <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
+              {currentPage} / {totalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || isPaginationDimmed}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {isRtl ? <ChevronLeft size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

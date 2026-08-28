@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, Pencil, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 
 export default function EliteTeachersSection({
   teachers,
   handleOpenAddTeacher,
-  handleOpenEditTeacher,
   handleDeleteTeacher,
 }) {
   const { t, i18n } = useTranslation();
@@ -70,13 +69,6 @@ export default function EliteTeachersSection({
 
                   <div className="flex items-center gap-2 mt-4 xl:mt-0 w-full xl:w-auto justify-center sm:justify-end border-t xl:border-t-0 border-slate-100 dark:border-slate-800 pt-4 xl:pt-0">
                     <button
-                      onClick={() => handleOpenEditTeacher(teacher)}
-                      className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
-                    >
-                      <Pencil size={18} />
-                    </button>
-                    <button
                       onClick={() => handleDeleteTeacher(teacher)}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
@@ -91,21 +83,6 @@ export default function EliteTeachersSection({
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-8">
-        <Button
-          onClick={handleOpenAddTeacher}
-          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
-        >
-          <Save size={16} />
-          <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
-        </Button>
-        <Button
-          variant="secondary"
-          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
-        >
-          {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
-        </Button>
-      </div>
     </div>
   );
 }
