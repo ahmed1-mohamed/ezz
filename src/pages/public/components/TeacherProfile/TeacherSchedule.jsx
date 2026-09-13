@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { Calendar, Users, Clock } from 'lucide-react'
 
-export default function TeacherSchedule({ schedule, t }) {
+export default function TeacherSchedule({ schedule = [], t }) {
+    const list = Array.isArray(schedule) ? schedule : [];
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -23,7 +25,7 @@ export default function TeacherSchedule({ schedule, t }) {
             </div>
 
             <div className="space-y-4">
-                {schedule.map((item, index) => (
+                {list.map((item, index) => (
                     <div key={index} className="flex flex-col sm:flex-row items-center justify-between border border-slate-100 rounded-2xl p-4 sm:p-6 gap-6 hover:shadow-md transition-shadow">
 
                         <div className="order-3 sm:order-1 sm:w-32 flex sm:justify-start justify-center w-full">

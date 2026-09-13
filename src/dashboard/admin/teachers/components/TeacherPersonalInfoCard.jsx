@@ -46,9 +46,9 @@ export default function TeacherPersonalInfoCard({
 
       <div className="flex flex-col items-center justify-center space-y-2 py-2">
         <label className="relative cursor-pointer group flex flex-col items-center justify-center w-40 h-40 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 bg-[#f3f7f6] dark:bg-slate-950/20 transition-all overflow-hidden">
-          {formData.profileImage ? (
+          {formData.profileImage || formData.image ? (
             <img
-              src={formData.profileImage}
+              src={formData.profileImage || formData.image}
               alt="Profile"
               className="w-full h-full object-cover"
             />
@@ -60,7 +60,7 @@ export default function TeacherPersonalInfoCard({
                 </svg>
               </div>
               <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                {isRtl ? 'اضغط لرفع صورة المكافأة' : 'Click to upload profile image'}
+                {isRtl ? 'اضغط لرفع صورة شخصية' : 'Click to upload profile image'}
               </span>
             </div>
           )}
@@ -71,6 +71,7 @@ export default function TeacherPersonalInfoCard({
             onChange={(e) => {
               const file = e.target.files[0]
               if (file) {
+                onChange('profileImageFile', file)
                 const reader = new FileReader()
                 reader.onloadend = () => {
                   onChange('profileImage', reader.result)

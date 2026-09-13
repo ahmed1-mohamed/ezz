@@ -31,7 +31,7 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                 </div>
 
                 <div className="flex-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
-                    {teacher.tags.map((tag, i) => (
+                    {(teacher.tags || []).map((tag, i) => (
                         <span key={i} className="whitespace-nowrap bg-[#F2F2F2] text-slate-700 px-4 py-2 rounded-full text-sm font-bold">
                             {tag}
                         </span>

@@ -29,7 +29,7 @@ export default function TeacherAbout({ teacher, t }) {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 pt-2">
-                {teacher.credentials.map((cred, i) => (
+                {(teacher.credentials || []).map((cred, i) => (
                     <div key={i} className="flex items-center gap-3">
                         <div className="text-[#735C00]">
                             {i === 0 ? <Award className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}

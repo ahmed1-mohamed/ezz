@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { Book, Type, BookOpen } from 'lucide-react'
 
-export default function TeacherSubjects({ subjects, t }) {
+export default function TeacherSubjects({ subjects = [], t }) {
+    const list = Array.isArray(subjects) ? subjects : [];
     const getIcon = (id) => {
         switch (id) {
             case 1:
@@ -37,7 +38,7 @@ export default function TeacherSubjects({ subjects, t }) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {subjects.map((subject) => (
+                {list.map((subject) => (
                     <div key={subject.id} className="bg-[#EEF2F0]/80 rounded-2xl p-6 flex flex-col items-center text-center space-y-4 hover:-translate-y-1 transition-transform">
                         {getIcon(subject.id)}
                         <h3 className="font-bold text-lg text-slate-800">

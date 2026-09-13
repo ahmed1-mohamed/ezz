@@ -7,6 +7,7 @@ import TeacherAbout from './components/TeacherProfile/TeacherAbout.jsx'
 import TeacherSubjects from './components/TeacherProfile/TeacherSubjects.jsx'
 import TeacherStats from './components/TeacherProfile/TeacherStats.jsx'
 import TeacherSchedule from './components/TeacherProfile/TeacherSchedule.jsx'
+import { teachersApi } from '../../shared/services/api/teachersApi.js'
 
 export default function TeacherProfile() {
     const { id } = useParams()
@@ -24,39 +25,52 @@ export default function TeacherProfile() {
         const fetchTeacher = async () => {
             try {
                 setLoading(true)
-                await new Promise(resolve => setTimeout(resolve, 600))
+                const res = await teachersApi.fetchPublicTeacherById(id)
+                const realData = res?.data
+
+                const fallbackImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&h=600&auto=format&fit=crop"
 
                 const mockData = {
-                    id: id,
-                    name: t('teacherProfile.mock.name', "الشيخ أحمد منصور"),
-                    title: t('teacherProfile.mock.title', "حاصل على إجازة في القراءات العشر"),
-                    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&h=600&auto=format&fit=crop",
-                    rating: 4.9,
+                    id: realData?.teacher_id || realData?.id || id,
+                    name: realData?.name || t('teacherProfile.mock.name', "الشيخ أحمد منصور"),
+                    title: realData?.degree || realData?.title || t('teacherProfile.mock.title', "حاصل على إجازة في القراءات العشر"),
+                    image: realData?.image || fallbackImage,
+                    rating: realData?.rating && Number(realData.rating) > 0 ? Number(realData.rating).toFixed(1) : 4.9,
                     reviewsCount: 128,
-                    experience: t('teacherProfile.mock.experience', "15 سنة خبرة"),
-                    location: t('teacherProfile.mock.location', "مصر"),
-                    sessionsCount: "+1,250",
-                    tags: [
-                        t('teacherProfile.mock.tags.tajweed', "التجويد"),
-                        t('teacherProfile.mock.tags.quran', "القرآن الكريم"),
-                        t('teacherProfile.mock.tags.exp', "15 سنة خبرة")
-                    ],
-                    about: t('teacherProfile.mock.about', "أستاذ القراءات وعلوم القرآن بخبرة تزيد عن 15 عاماً في التدريس الأكاديمي والخاص. حصلت على إجازة في القراءات العشر المتواترة من طريق الشاطبية والدرة، وأسعى دائماً لتبسيط العلوم الشرعية لجيل الشباب بأسلوب معاصر يجمع بين الأصالة والحداثة."),
-                    philosophy: t('teacherProfile.mock.philosophy', "التدريس ليس مجرد نقل للمعلومات، بل هو غرس للقيم وبناء للشخصية القرآنية المتوازنة. أؤمن بأن كل طالب لديه رحلة فريدة مع القرآن، ودوري هو إنارة هذا الطريق."),
-                    credentials: [
-                        t('teacherProfile.mock.credentials.phd', "دكتوراه في الدراسات الإسلامية"),
-                        t('teacherProfile.mock.credentials.ijaza', "إجازة بالسند المتصل للنبي")
-                    ],
+                    experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : t('teacherProfile.mock.experience', "15 سنة خبرة"),
+                    location: realData?.country || t('teacherProfile.mock.location', "مصر"),
+                    sessionsCount: realData?.totalLessons ? `+${realData.totalLessons}` : "+1,250",
+                    tags: Array.isArray(realData?.specializations) && realData.specializations.length > 0
+                        ? realData.specializations.map(s => typeof s === 'object' ? s.name : s).concat(realData.country ? [realData.country] : [])
+                        : [
+                            t('teacherProfile.mock.tags.tajweed', "التجويد"),
+                            t('teacherProfile.mock.tags.quran', "القرآن الكريم"),
+                            t('teacherProfile.mock.tags.exp', "15 سنة خبرة")
+                        ],
+                    about: realData?.bio || realData?.aboutAr || t('teacherProfile.mock.about', "أستاذ القراءات وعلوم القرآن بخبرة تزيد عن 15 عاماً في التدريس الأكاديمي والخاص. حصلت على إجازة في القراءات العشر المتواترة من طريق الشاطبية والدرة، وأسعى دائماً لتبسيط العلوم الشرعية لجيل الشباب بأسلوب معاصر يجمع بين الأصالة والحداثة."),
+                    philosophy: realData?.philosophy || t('teacherProfile.mock.philosophy', "التدريس ليس مجرد نقل للمعلومات، بل هو غرس للقيم وبناء للشخصية القرآنية المتوازنة. أؤمن بأن كل طالب لديه رحلة فريدة مع القرآن، ودوري هو إنارة هذا الطريق."),
+                    credentials: Array.isArray(realData?.achievements) && realData.achievements.length > 0
+                        ? realData.achievements
+                        : [
+                            realData?.degree || t('teacherProfile.mock.credentials.phd', "دكتوراه في الدراسات الإسلامية"),
+                            t('teacherProfile.mock.credentials.ijaza', "إجازة بالسند المتصل للنبي")
+                        ],
                     stats: {
-                        studentsCount: "300+",
-                        sessionsCount: "1,250+",
-                        experience: t('teacherProfile.mock.experience', "15 سنة خبرة")
+                        studentsCount: realData?.totalStudents ? `${realData.totalStudents}+` : "300+",
+                        sessionsCount: realData?.totalLessons ? `${realData.totalLessons}+` : "1,250+",
+                        experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : t('teacherProfile.mock.experience', "15 سنة خبرة")
                     },
-                    subjects: [
-                        { id: 1, name: t('teacherProfile.mock.subjects.sub1.name', "تحفيظ القرآن"), description: t('teacherProfile.mock.subjects.sub1.desc', "تحفيظ ميسر مع مراعاة أحكام التجويد الأساسية.") },
-                        { id: 2, name: t('teacherProfile.mock.subjects.sub2.name', "علوم التجويد"), description: t('teacherProfile.mock.subjects.sub2.desc', "شرح مفصل لمخارج الحروف وصفاتها والمدود.") },
-                        { id: 3, name: t('teacherProfile.mock.subjects.sub3.name', "تفسير القرآن"), description: t('teacherProfile.mock.subjects.sub3.desc', "ربط الآيات بالواقع المعاصر وفهم المقاصد.") }
-                    ],
+                    subjects: Array.isArray(realData?.specializations) && realData.specializations.length > 0
+                        ? realData.specializations.map((s, idx) => ({
+                            id: s.id || idx + 1,
+                            name: typeof s === 'object' ? s.name : s,
+                            description: t('teacherProfile.specDescription', 'تدريس متميز وشامل وفق أعلى معايير الجودة الأكاديمية.')
+                        }))
+                        : [
+                            { id: 1, name: t('teacherProfile.mock.subjects.sub1.name', "تحفيظ القرآن"), description: t('teacherProfile.mock.subjects.sub1.desc', "تحفيظ ميسر مع مراعاة أحكام التجويد الأساسية.") },
+                            { id: 2, name: t('teacherProfile.mock.subjects.sub2.name', "علوم التجويد"), description: t('teacherProfile.mock.subjects.sub2.desc', "شرح مفصل لمخارج الحروف وصفاتها والمدود.") },
+                            { id: 3, name: t('teacherProfile.mock.subjects.sub3.name', "تفسير القرآن"), description: t('teacherProfile.mock.subjects.sub3.desc', "ربط الآيات بالواقع المعاصر وفهم المقاصد.") }
+                        ],
                     levels: [
                         {
                             id: 1,

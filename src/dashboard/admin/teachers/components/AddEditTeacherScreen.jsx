@@ -5,6 +5,7 @@ import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
 import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
 import { landingApi } from '@/shared/services/api/landingApi'
+import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import TeacherAboutCard from './TeacherAboutCard'
 import TeacherCertificatesCard from './TeacherCertificatesCard'
 import TeacherSecurityCard from './TeacherSecurityCard'
@@ -22,6 +23,7 @@ export default function AddEditTeacherScreen({
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
   const [apiCountries, setApiCountries] = useState([])
+  const [apiCurricula, setApiCurricula] = useState([])
 
   const [formData, setFormData] = useState({
     name: teacher?.name || '',
@@ -32,41 +34,65 @@ export default function AddEditTeacherScreen({
     joinDate: teacher?.joinDate || new Date().toISOString().split('T')[0],
     totalEarnings: teacher?.totalEarnings || 0,
     dueEarnings: teacher?.dueEarnings || 0,
-    experienceYears: teacher?.experienceYears || 0,
+    yearsOfExperience: teacher?.yearsOfExperience ?? teacher?.experienceYears ?? 0,
+    experienceYears: teacher?.yearsOfExperience ?? teacher?.experienceYears ?? 0,
     country: teacher?.country || 'مصر',
-    qualification: teacher?.qualification || '',
+    degree: teacher?.degree || teacher?.qualification || '',
+    qualification: teacher?.degree || teacher?.qualification || '',
     qualificationEn: teacher?.qualificationEn || '',
-    groupsCount: teacher?.groupsCount || 0,
-    totalSessions: teacher?.totalSessions || 0,
-    status: teacher?.status || 'Active',
+    totalGroups: teacher?.totalGroups ?? teacher?.groupsCount ?? 0,
+    groupsCount: teacher?.totalGroups ?? teacher?.groupsCount ?? 0,
+    totalLessons: teacher?.totalLessons ?? teacher?.totalSessions ?? 0,
+    totalSessions: teacher?.totalLessons ?? teacher?.totalSessions ?? 0,
+    totalStudents: teacher?.totalStudents ?? teacher?.studentsCount ?? 0,
+    studentsCount: teacher?.totalStudents ?? teacher?.studentsCount ?? 0,
+    profitPercentage: teacher?.profitPercentage ?? 20,
+    status: teacher?.active === false ? 'Suspended' : 'Active',
+    active: teacher?.active !== false,
     rating: teacher?.rating || 5.0,
-    aboutAr: teacher?.aboutAr || '',
+    bio: teacher?.bio || teacher?.aboutAr || '',
+    aboutAr: teacher?.bio || teacher?.aboutAr || '',
     aboutEn: teacher?.aboutEn || '',
+    showOnWebsite: Boolean(teacher?.showOnWebsite),
     certificates: teacher?.certificates || [],
-    studentsCount: teacher?.studentsCount || 0,
+    specializations: teacher?.specializations || [],
+    achievements: teacher?.achievements || [],
+    image: teacher?.image || '',
+    profileImageFile: null,
+    password: '',
+    confirmPassword: '',
     documents: teacher?.documents || []
   })
 
   useEffect(() => {
-    const loadCountries = async () => {
+    const loadData = async () => {
       try {
-        const res = await landingApi.fetchCountries();
-        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        const [countriesRes, curriculaRes] = await Promise.all([
+          landingApi.fetchCountries().catch(() => []),
+          adminCurriculaApi.fetchCurricula().catch(() => [])
+        ])
+
+        const fetchedCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes?.data || [])
         if (fetchedCountries.length > 0) {
-          setApiCountries(fetchedCountries);
+          setApiCountries(fetchedCountries)
           if (!teacher) {
-            const defaultCountry = fetchedCountries.find(c => c.phoneCode === '+20' || c.name === 'Egypt' || c.name === 'مصر');
+            const defaultCountry = fetchedCountries.find((c) => c.phoneCode === '+20' || c.name === 'Egypt' || c.name === 'مصر')
             if (defaultCountry) {
-              setFormData(prev => ({ ...prev, country: defaultCountry.id || defaultCountry._id }));
+              setFormData((prev) => ({ ...prev, country: defaultCountry.id || defaultCountry._id }))
             }
           }
         }
+
+        const rawCurricula = curriculaRes?.data || (Array.isArray(curriculaRes) ? curriculaRes : [])
+        if (Array.isArray(rawCurricula)) {
+          setApiCurricula(rawCurricula)
+        }
       } catch (err) {
-        console.error('Failed to load countries', err);
+        console.error('Failed to load countries or curricula', err)
       }
-    };
-    loadCountries();
-  }, [teacher]);
+    }
+    loadData()
+  }, [teacher])
 
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -80,22 +106,39 @@ export default function AddEditTeacherScreen({
       return
     }
 
+    if (!teacher && !formData.password) {
+      showErrorToast(isRtl ? 'يرجى إدخال كلمة المرور للمعلم الجديد' : 'Please enter a password for the new teacher', isRtl)
+      return
+    }
+
+    if (formData.password && formData.password !== formData.confirmPassword) {
+      showErrorToast(isRtl ? 'كلمتا المرور غير متطابقتين!' : 'Passwords do not match!', isRtl)
+      return
+    }
+
+    const rawDegree = formData.degree || formData.qualification || ''
+    const rawDegreeEn = formData.qualificationEn || formData.degreeEn || rawDegree || ''
+
     onSave({
       ...formData,
+      degree: {
+        ar: rawDegree.trim() || 'مؤهل جامعي',
+        en: rawDegreeEn.trim() || 'University Degree'
+      },
+      yearsOfExperience: Math.max(0, Number(formData.yearsOfExperience) || 0),
+      profitPercentage: Math.min(100, Math.max(0, Number(formData.profitPercentage) || 0)),
+      showOnWebsite: Boolean(formData.showOnWebsite),
       totalEarnings: Number(formData.totalEarnings) || 0,
       dueEarnings: Number(formData.dueEarnings) || 0,
-      experienceYears: Number(formData.experienceYears) || 0,
-      groupsCount: Number(formData.groupsCount) || 0,
-      totalSessions: Number(formData.totalSessions) || 0,
-      studentsCount: Number(formData.studentsCount) || 0
+      totalGroups: Number(formData.totalGroups || formData.groupsCount) || 0,
+      totalLessons: Number(formData.totalLessons || formData.totalSessions) || 0,
+      totalStudents: Number(formData.totalStudents || formData.studentsCount) || 0
     })
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-10 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -125,7 +168,6 @@ export default function AddEditTeacherScreen({
         >
           {t('adminDashboard.teachers.addModal.cancel', 'إلغاء')}
         </button>
-
       </div>
 
       {teacher && (
@@ -138,7 +180,7 @@ export default function AddEditTeacherScreen({
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-
+        {/* Left Column */}
         <div className="space-y-8">
           <TeacherPersonalInfoCard
             formData={formData}
@@ -148,14 +190,12 @@ export default function AddEditTeacherScreen({
             countries={apiCountries}
           />
 
-          {teacher && (
-            <TeacherAboutCard
-              formData={formData}
-              onChange={handleFieldChange}
-              isRtl={isRtl}
-              t={t}
-            />
-          )}
+          <TeacherAboutCard
+            formData={formData}
+            onChange={handleFieldChange}
+            isRtl={isRtl}
+            t={t}
+          />
 
           <TeacherSecurityCard
             formData={formData}
@@ -166,52 +206,40 @@ export default function AddEditTeacherScreen({
           />
         </div>
 
+        {/* Right Column */}
         <div className="space-y-8">
           <TeacherAcademicInfoCard
             formData={formData}
             onChange={handleFieldChange}
             isRtl={isRtl}
             t={t}
-            showAboutAndLicenses={!teacher}
+            curricula={apiCurricula}
+            showAboutAndLicenses={false}
+          />
+
+          <TeacherWebsiteDisplayCard
+            formData={formData}
+            onChange={handleFieldChange}
+            isRtl={isRtl}
+            t={t}
+          />
+
+          <TeacherCertificatesCard
+            formData={formData}
+            onChange={handleFieldChange}
+            isRtl={isRtl}
+            t={t}
           />
 
           {!teacher && (
-            <>
-              <TeacherWebsiteDisplayCard
-                formData={formData}
-                onChange={handleFieldChange}
-                isRtl={isRtl}
-                t={t}
-              />
-
-              <TeacherDocumentsUploadCard
-                formData={formData}
-                onChange={handleFieldChange}
-                isRtl={isRtl}
-                t={t}
-              />
-            </>
-          )}
-
-          {teacher && (
-            <>
-              <TeacherCertificatesCard
-                formData={formData}
-                onChange={handleFieldChange}
-                isRtl={isRtl}
-                t={t}
-              />
-
-              <TeacherWebsiteDisplayCard
-                formData={formData}
-                onChange={handleFieldChange}
-                isRtl={isRtl}
-                t={t}
-              />
-            </>
+            <TeacherDocumentsUploadCard
+              formData={formData}
+              onChange={handleFieldChange}
+              isRtl={isRtl}
+              t={t}
+            />
           )}
         </div>
-
       </div>
 
       {teacher && (
@@ -225,7 +253,7 @@ export default function AddEditTeacherScreen({
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="submit"
-          className="flex-1 py-4 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
+          className="flex-1 py-4 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] cursor-pointer"
         >
           {t('adminDashboard.teachers.addModal.submit', 'حفظ التغييرات')}
         </button>
@@ -237,7 +265,6 @@ export default function AddEditTeacherScreen({
           {t('adminDashboard.teachers.addModal.cancel', 'إلغاء')}
         </button>
       </div>
-
     </form>
   )
 }

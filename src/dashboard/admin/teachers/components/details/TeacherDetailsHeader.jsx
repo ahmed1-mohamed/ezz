@@ -1,10 +1,11 @@
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Pencil, Trash2 } from 'lucide-react'
 
 export default function TeacherDetailsHeader({
   teacher,
   isRtl,
   onCancel,
-  onEdit
+  onEdit,
+  onDelete
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
@@ -30,13 +31,27 @@ export default function TeacherDetailsHeader({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onEdit(teacher)}
-        className="px-5 py-2.5 bg-brand-500 hover:bg-brand-655 text-white rounded-2xl text-sm font-semibold transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
-      >
-        {isRtl ? 'تعديل البيانات' : 'Edit Profile'}
-      </button>
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => onEdit(teacher)}
+          className="flex items-center gap-1.5 px-5 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] cursor-pointer"
+        >
+          <Pencil size={15} />
+          <span>{isRtl ? 'تعديل البيانات' : 'Edit Profile'}</span>
+        </button>
+
+        {onDelete && (
+          <button
+            type="button"
+            onClick={() => onDelete(teacher)}
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 rounded-2xl text-sm font-semibold transition-all cursor-pointer"
+          >
+            <Trash2 size={15} />
+            <span>{isRtl ? 'حذف' : 'Delete'}</span>
+          </button>
+        )}
+      </div>
     </div>
   )
 }
