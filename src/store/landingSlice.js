@@ -49,10 +49,23 @@ export const sendMessage = createAsyncThunk(
   }
 );
 
+export const fetchPublicFeaturedStudents = createAsyncThunk(
+  'landing/fetchPublicFeaturedStudents',
+  async (lang, { rejectWithValue }) => {
+    try {
+      const response = await landingApi.fetchPublicFeaturedStudents({ lang });
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch public featured students');
+    }
+  }
+);
+
 const initialState = {
   landingData: null,
   packagesData: null,
   contactInfo: null,
+  publicFeaturedStudents: null,
   messageSubmitStatus: 'idle',
   loading: false,
   error: null,
@@ -115,6 +128,9 @@ const landingSlice = createSlice({
       .addCase(sendMessage.rejected, (state, action) => {
         state.messageSubmitStatus = 'failed';
         state.error = action.payload;
+      })
+      .addCase(fetchPublicFeaturedStudents.fulfilled, (state, action) => {
+        state.publicFeaturedStudents = action.payload?.data || action.payload || null;
       });
   },
 });

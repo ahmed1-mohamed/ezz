@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { studentsApi } from '@/shared/services/api/studentsApi'
+import { landingApi } from '@/shared/services/api/landingApi'
 
 const getImageUrl = (imagePath) => {
     if (!imagePath) return '';
@@ -22,17 +22,19 @@ export default function StarsSection({ featuredStudents }) {
     useEffect(() => {
         const loadStudentsList = async () => {
             try {
-                const res = await studentsApi.fetchLocalizedStudentsList()
+                const res = await landingApi.fetchPublicFeaturedStudents({ lang: i18n.language })
                 const data = res?.data || res || []
                 if (Array.isArray(data)) {
                     setStudentsList(data)
                 }
             } catch (err) {
-                console.error('Failed to fetch students list in StarsSection:', err)
+                console.error('Failed to fetch public featured students in StarsSection:', err)
             }
         }
-        loadStudentsList()
-    }, [])
+        if (!featuredStudents || featuredStudents.length === 0) {
+            loadStudentsList()
+        }
+    }, [featuredStudents, i18n.language])
 
     const displayStudents = featuredStudents && featuredStudents.length > 0
         ? featuredStudents
@@ -56,14 +58,17 @@ export default function StarsSection({ featuredStudents }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-8">
                     {displayStudents.map((student, index) => {
-                        const studentName = typeof student.name === 'object' && student.name !== null
-                            ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
-                            : (student.name || '');
+                        const sRef = student.student || {};
+                        const rawName = student.name || sRef.name;
+                        const studentName = typeof rawName === 'object' && rawName !== null
+                            ? (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar)
+                            : (rawName || '');
+                        const studentImage = student.image || student.avatar || sRef.image || sRef.avatar || student.photo || sRef.photo || '';
                         const initial = studentName ? studentName.trim().charAt(0) : 'ط';
 
                         return (
                             <motion.div
-                                key={student.id || student._id}
+                                key={student.id || student._id || index}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -74,9 +79,9 @@ export default function StarsSection({ featuredStudents }) {
                                     <div className="absolute inset-0 rounded-full bg-[#EAB308] opacity-50 blur-md group-hover:blur-2xl transition-all duration-300 transform scale-110"></div>
                                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FDE047] to-[#CA8A04] p-1.5">
                                         <div className="bg-white rounded-full w-full h-full p-1">
-                                            {student.image ? (
+                                            {studentImage ? (
                                                 <img
-                                                    src={getImageUrl(student.image)}
+                                                    src={getImageUrl(studentImage)}
                                                     alt={studentName}
                                                     width="160"
                                                     height="160"

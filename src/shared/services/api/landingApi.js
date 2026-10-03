@@ -55,6 +55,46 @@ export const landingApi = {
     }
   },
 
+  fetchPublicFeaturedStudents: async (params) => {
+    try {
+      const response = await api.get('/api/v1/featured-students/public', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching public featured students:', error);
+      throw error;
+    }
+  },
+
+  fetchFeaturedStudentsPublic: async (params) => {
+    try {
+      const response = await api.get('/api/v1/featured-students/public', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching public featured students:', error);
+      throw error;
+    }
+  },
+
+  fetchPublicTimetable: async (params) => {
+    try {
+      const response = await api.get('/api/v1/timetable/public', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching public timetable:', error);
+      throw error;
+    }
+  },
+
+  fetchPublicCurrentWeekTimetable: async (params) => {
+    try {
+      const response = await api.get('/api/v1/timetable/public/current-week', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching public current week timetable:', error);
+      throw error;
+    }
+  },
+
   fetchPrivateStatistics: async () => {
     try {
       const response = await api.get('/api/v1/statistics/private');

@@ -8,6 +8,7 @@ import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
 import Login from '../pages/auth/Login.jsx'
+import Register from '../pages/auth/Register.jsx'
 import ForgotPassword from '../pages/auth/ForgotPassword.jsx'
 import ResetPassword from '../pages/auth/ResetPassword.jsx'
 import AdminLayout from '../layouts/AdminLayout.jsx'
@@ -158,6 +159,27 @@ export default function AppRoutes() {
                                     </AnimatedPage>
                                 )
                             }
+                        />
+
+                        <Route
+                            path="/register"
+                            element={
+                                (user && getCookie('access_token')) ? (
+                                    <Navigate
+                                        to={getRedirectPath(user.role)}
+                                        replace
+                                    />
+                                ) : (
+                                    <AnimatedPage>
+                                        <Register />
+                                    </AnimatedPage>
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/signup"
+                            element={<Navigate to="/register" replace />}
                         />
 
                         <Route

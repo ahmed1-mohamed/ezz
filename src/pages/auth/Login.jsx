@@ -227,6 +227,13 @@ export default function Login() {
                             </svg>
                         </button>
                     </form>
+
+                    <div className="mt-8 text-center flex items-center justify-center gap-1.5 text-sm">
+                        <span className="text-slate-500 font-medium">{t('login.noAccount', 'لا تملك حسابًا؟')}</span>
+                        <Link to="/register" className="font-bold text-[#00695C] hover:text-[#004D40] hover:underline transition-colors">
+                            {t('login.registerNow', 'سجل الآن')}
+                        </Link>
+                    </div>
                 </div>
 
 

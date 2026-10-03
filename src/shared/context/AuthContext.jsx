@@ -100,6 +100,44 @@ export function AuthProvider({ children }) {
         }
     }, [refreshProfile])
 
+    const signup = useCallback(async (signupData) => {
+        setLoading(true)
+        try {
+            const res = await api.post('/api/v1/auth/signup', signupData)
+            const data = res.data?.data || res.data
+            const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
+            const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
+            if (accessToken) setCookie('access_token', accessToken, 7)
+            if (refreshToken) setCookie('refresh_token', refreshToken, 7)
+            const userDetails = data.user || data
+            let authUser = {
+                id: userDetails.id || userDetails._id || 1,
+                name: signupData.name || userDetails.name || 'User',
+                email: userDetails.email || signupData.email,
+                role: normalizeRole(userDetails.role || 'Student'),
+                image: userDetails.image || userDetails.avatar || null,
+                avatar: userDetails.avatar || userDetails.image || null,
+            }
+            setUser(authUser)
+            setCookie('authUser', authUser, 7)
+
+            try {
+                const fullProfile = await refreshProfile(authUser, 7)
+                if (fullProfile) authUser = fullProfile
+            } catch {
+                // Profile refresh is best-effort on new account
+            }
+
+            setLoading(false)
+            return authUser
+        } catch (error) {
+            setLoading(false)
+            const data = error.response?.data
+            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Signup failed'
+            throw new Error(msg, { cause: error })
+        }
+    }, [refreshProfile])
+
     const loginWithGoogle = useCallback(async (username, password) => {
         setLoading(true)
         try {
@@ -165,8 +203,8 @@ export function AuthProvider({ children }) {
 
     // Actions context — stable function references
     const actionsValue = useMemo(
-        () => ({ login, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
-        [login, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme],
+        () => ({ login, signup, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
+        [login, signup, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme],
     )
 
     return (
