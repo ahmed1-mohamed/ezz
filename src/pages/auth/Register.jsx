@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, User, Phone, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2 } from 'lucide-react'
+import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'

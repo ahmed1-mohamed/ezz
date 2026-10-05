@@ -24,6 +24,29 @@ export const showDeleteConfirm = async (isRtl = true, itemName = '') => {
   return result.isConfirmed;
 }
 
+export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = '', confirmColor = '#0f7a6c' } = {}) => {
+  const result = await Swal.fire({
+    title,
+    input: 'textarea',
+    inputPlaceholder: isRtl ? 'اكتب ملاحظاتك هنا...' : 'Write your notes here...',
+    inputAttributes: { dir: isRtl ? 'rtl' : 'ltr' },
+    showCancelButton: true,
+    confirmButtonColor: confirmColor,
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: confirmText || (isRtl ? 'تأكيد' : 'Confirm'),
+    cancelButtonText: isRtl ? 'إلغاء' : 'Cancel',
+    reverseButtons: isRtl,
+    inputValidator: (value) => (value && value.trim() ? null : (isRtl ? 'الملاحظات مطلوبة' : 'Notes are required')),
+    customClass: {
+      popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 rounded-3xl shadow-2xl',
+      title: 'dark:text-white',
+      input: 'dark:bg-slate-800 dark:text-white',
+    }
+  });
+
+  return result.isConfirmed ? result.value.trim() : null;
+}
+
 export const showSuccessToast = (title = '', isRtl = true) => {
   Swal.fire({
     toast: true,

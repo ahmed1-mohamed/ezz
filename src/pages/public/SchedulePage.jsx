@@ -23,38 +23,41 @@ import {
 import { landingApi } from '@/shared/services/api/landingApi'
 import CTASection from '@/shared/components/CTASection.jsx'
 
-// Fallback current week data matching the exact backend response structure
-const FALLBACK_WEEK_DATA = {
+// Localized fallback week data matching backend response structure
+const getFallbackWeekData = (isEn) => ({
     week: {
-        startDate: '2026-02-14',
-        endDate: '2026-02-20',
-        formattedRange: 'من تاريخ 14/02/2026 إلى تاريخ 20/02/2026'
+        startDate: '2026-10-03',
+        endDate: '2026-10-09',
+        formattedRange: isEn ? 'From 03/10/2026 to 09/10/2026' : 'من تاريخ 03/10/2026 إلى تاريخ 09/10/2026'
     },
     days: [
         {
-            day: 'السبت',
-            date: '2026-02-14',
+            day: 'saturday',
+            dayName: isEn ? 'Saturday' : 'السبت',
+            date: '2026-10-03',
+            isToday: true,
             sessions: [
                 {
                     id: '6a35c80bed7ee094f8cac039',
-                    title: 'مقدمة في علم التجويد ومخارج الحروف العامة',
+                    title: isEn ? 'Introduction to Tajweed & Articulation Points' : 'مقدمة في علم التجويد ومخارج الحروف العامة',
                     sessionNumber: 1,
-                    date: '2026-02-14',
-                    day: 'السبت',
+                    date: '2026-10-03',
+                    day: 'saturday',
                     rawDay: 'saturday',
                     startTime: '10:00',
                     endTime: '11:30',
+                    timeRange: isEn ? '10:00 AM - 11:30 AM' : '10:00 ص - 11:30 ص',
                     durationMinutes: 90,
                     type: 'regular',
                     status: 'completed',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac029',
-                        name: 'مجموعة التأسيس - المستوى الأول'
+                        name: isEn ? 'Foundation Group - Level 1' : 'مجموعة التأسيس - المستوى الأول'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfbd',
-                        name: 'الشيخ أحمد المصطفى',
+                        name: isEn ? 'Sheikh Ahmed Al-Mustafa' : 'الشيخ أحمد المصطفى',
                         email: 'ahmed@manaretalezz.com',
                         phone: '+966509988776'
                     }
@@ -62,53 +65,57 @@ const FALLBACK_WEEK_DATA = {
             ]
         },
         {
-            day: 'الأحد',
-            date: '2026-02-15',
+            day: 'sunday',
+            dayName: isEn ? 'Sunday' : 'الأحد',
+            date: '2026-10-04',
+            isToday: false,
             sessions: [
                 {
                     id: '6a35c80bed7ee094f8cac040',
-                    title: 'سورة النبأ من الآية 1 إلى 20 مع أحكام النون الساكنة',
+                    title: isEn ? 'Surah An-Naba (1-20) with Rules of Nun Sakinah' : 'سورة النبأ من الآية 1 إلى 20 مع أحكام النون الساكنة',
                     sessionNumber: 4,
-                    date: '2026-02-15',
-                    day: 'الأحد',
+                    date: '2026-10-04',
+                    day: 'sunday',
                     rawDay: 'sunday',
                     startTime: '16:00',
                     endTime: '17:30',
+                    timeRange: isEn ? '04:00 PM - 05:30 PM' : '04:00 م - 05:30 م',
                     durationMinutes: 90,
                     type: 'regular',
                     status: 'scheduled',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac030',
-                        name: 'مجموعة الإتقان - المستوى الثاني'
+                        name: isEn ? 'Mastery Group - Level 2' : 'مجموعة الإتقان - المستوى الثاني'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfbe',
-                        name: 'الشيخ عبد الرحمن السديس',
+                        name: isEn ? 'Sheikh Abdul Rahman Al-Sudais' : 'الشيخ عبد الرحمن السديس',
                         email: 'teacher@manaretalezz.com',
                         phone: '+966501112233'
                     }
                 },
                 {
                     id: '6a35c80bed7ee094f8cac041',
-                    title: 'شرح متن الآجرومية في قواعد النحو والصرف',
+                    title: isEn ? 'Explanation of Al-Ajurrumiyyah in Arabic Grammar' : 'شرح متن الآجرومية في قواعد النحو والصرف',
                     sessionNumber: 3,
-                    date: '2026-02-15',
-                    day: 'الأحد',
+                    date: '2026-10-04',
+                    day: 'sunday',
                     rawDay: 'sunday',
                     startTime: '18:00',
                     endTime: '19:30',
+                    timeRange: isEn ? '06:00 PM - 07:30 PM' : '06:00 م - 07:30 م',
                     durationMinutes: 90,
                     type: 'regular',
                     status: 'scheduled',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac031',
-                        name: 'برنامج اللغة العربية واللسان المبين'
+                        name: isEn ? 'Arabic Language & Eloquence Program' : 'برنامج اللغة العربية واللسان المبين'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfbf',
-                        name: 'أ. د. محمد سالم الشنقيطي',
+                        name: isEn ? 'Prof. Dr. Mohammed Salem Al-Shinqiti' : 'أ. د. محمد سالم الشنقيطي',
                         email: 'm.salem@manaretalezz.com',
                         phone: '+966502223344'
                     }
@@ -116,29 +123,32 @@ const FALLBACK_WEEK_DATA = {
             ]
         },
         {
-            day: 'الاثنين',
-            date: '2026-02-16',
+            day: 'monday',
+            dayName: isEn ? 'Monday' : 'الاثنين',
+            date: '2026-10-05',
+            isToday: false,
             sessions: [
                 {
                     id: '6a35c80bed7ee094f8cac042',
-                    title: 'حفظ ومراجعة سورة البقرة (الربع الثالث)',
+                    title: isEn ? 'Memorization & Revision of Surah Al-Baqarah' : 'حفظ ومراجعة سورة البقرة (الربع الثالث)',
                     sessionNumber: 8,
-                    date: '2026-02-16',
-                    day: 'الاثنين',
+                    date: '2026-10-05',
+                    day: 'monday',
                     rawDay: 'monday',
                     startTime: '16:30',
                     endTime: '18:00',
+                    timeRange: isEn ? '04:30 PM - 06:00 PM' : '04:30 م - 06:00 م',
                     durationMinutes: 90,
                     type: 'regular',
                     status: 'scheduled',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac032',
-                        name: 'حلقة الحفاظ - المستوى المتقدم'
+                        name: isEn ? 'Huffaz Circle - Advanced Level' : 'حلقة الحفاظ - المستوى المتقدم'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfc0',
-                        name: 'الشيخ عبد الله بن علي البصري',
+                        name: isEn ? 'Sheikh Abdullah Al-Basri' : 'الشيخ عبد الله بن علي البصري',
                         email: 'ali.basri@manaretalezz.com',
                         phone: '+966503334455'
                     }
@@ -146,29 +156,32 @@ const FALLBACK_WEEK_DATA = {
             ]
         },
         {
-            day: 'الثلاثاء',
-            date: '2026-02-17',
+            day: 'tuesday',
+            dayName: isEn ? 'Tuesday' : 'الثلاثاء',
+            date: '2026-10-06',
+            isToday: false,
             sessions: [
                 {
                     id: '6a35c80bed7ee094f8cac043',
-                    title: 'قصص الأنبياء والعبر الإيمانية للناشئة',
+                    title: isEn ? 'Stories of the Prophets & Faith Lessons for Youth' : 'قصص الأنبياء والعبر الإيمانية للناشئة',
                     sessionNumber: 5,
-                    date: '2026-02-17',
-                    day: 'الثلاثاء',
+                    date: '2026-10-06',
+                    day: 'tuesday',
                     rawDay: 'tuesday',
                     startTime: '17:00',
                     endTime: '18:15',
+                    timeRange: isEn ? '05:00 PM - 06:15 PM' : '05:00 م - 06:15 م',
                     durationMinutes: 75,
                     type: 'regular',
                     status: 'scheduled',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac033',
-                        name: 'براعم النور - المرحلة الابتدائية'
+                        name: isEn ? 'Buds of Light - Primary Stage' : 'براعم النور - المرحلة الابتدائية'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfc1',
-                        name: 'أ. فاطمة الزهراء الشريف',
+                        name: isEn ? 'Fatima Al-Zahraa Al-Sharif' : 'أ. فاطمة الزهراء الشريف',
                         email: 'fatima@manaretalezz.com',
                         phone: '+966504445566'
                     }
@@ -176,29 +189,32 @@ const FALLBACK_WEEK_DATA = {
             ]
         },
         {
-            day: 'الأربعاء',
-            date: '2026-02-18',
+            day: 'wednesday',
+            dayName: isEn ? 'Wednesday' : 'الأربعاء',
+            date: '2026-10-07',
+            isToday: false,
             sessions: [
                 {
                     id: '6a35c80bed7ee094f8cac044',
-                    title: 'تطبيق عملي: صفات الحروف وترقيق وتفخيم الراء واللام',
+                    title: isEn ? 'Practical Tajweed: Letter Characteristics & Tarqeeq/Tafkheem' : 'تطبيق عملي: صفات الحروف وترقيق وتفخيم الراء واللام',
                     sessionNumber: 6,
-                    date: '2026-02-18',
-                    day: 'الأربعاء',
+                    date: '2026-10-07',
+                    day: 'wednesday',
                     rawDay: 'wednesday',
                     startTime: '16:00',
                     endTime: '17:30',
+                    timeRange: isEn ? '04:00 PM - 05:30 PM' : '04:00 م - 05:30 م',
                     durationMinutes: 90,
                     type: 'regular',
                     status: 'scheduled',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac030',
-                        name: 'مجموعة الإتقان - المستوى الثاني'
+                        name: isEn ? 'Mastery Group - Level 2' : 'مجموعة الإتقان - المستوى الثاني'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfbe',
-                        name: 'الشيخ عبد الرحمن السديس',
+                        name: isEn ? 'Sheikh Abdul Rahman Al-Sudais' : 'الشيخ عبد الرحمن السديس',
                         email: 'teacher@manaretalezz.com',
                         phone: '+966501112233'
                     }
@@ -206,29 +222,32 @@ const FALLBACK_WEEK_DATA = {
             ]
         },
         {
-            day: 'الخميس',
-            date: '2026-02-19',
+            day: 'thursday',
+            dayName: isEn ? 'Thursday' : 'الخميس',
+            date: '2026-10-08',
+            isToday: false,
             sessions: [
                 {
                     id: '6a35c80bed7ee094f8cac045',
-                    title: 'حلقة التسميع الشامل والتقييم الأسبوعي',
+                    title: isEn ? 'Comprehensive Recitation & Weekly Assessment' : 'حلقة التسميع الشامل والتقييم الأسبوعي',
                     sessionNumber: 7,
-                    date: '2026-02-19',
-                    day: 'الخميس',
+                    date: '2026-10-08',
+                    day: 'thursday',
                     rawDay: 'thursday',
                     startTime: '15:30',
                     endTime: '17:00',
+                    timeRange: isEn ? '03:30 PM - 05:00 PM' : '03:30 م - 05:00 م',
                     durationMinutes: 90,
                     type: 'regular',
                     status: 'scheduled',
                     zoomJoinUrl: 'https://us05web.zoom.us/j/84920491823?pwd=secretPassword123',
                     group: {
                         id: '6a35c80bed7ee094f8cac034',
-                        name: 'حلقة الإجازة بالسند المتصل'
+                        name: isEn ? 'Ijazah Recitation Circle' : 'حلقة الإجازة بالسند المتصل'
                     },
                     teacher: {
                         id: '6a35c80bed7ee094f8cacfc2',
-                        name: 'فضيلة الشيخ المقرئ حسام الدين',
+                        name: isEn ? 'Sheikh Hossam El-Din' : 'فضيلة الشيخ المقرئ حسام الدين',
                         email: 'hossam@manaretalezz.com',
                         phone: '+966505556677'
                     }
@@ -236,20 +255,24 @@ const FALLBACK_WEEK_DATA = {
             ]
         },
         {
-            day: 'الجمعة',
-            date: '2026-02-20',
+            day: 'friday',
+            dayName: isEn ? 'Friday' : 'الجمعة',
+            date: '2026-10-09',
+            isToday: false,
             sessions: []
         }
     ]
-}
+})
 
-export default function SchedulePage() {
+export default function SchedulePage({ role }) {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
+    const isEn = i18n.language === 'en'
 
-    const [timetableData, setTimetableData] = useState(FALLBACK_WEEK_DATA)
+    const fallbackData = useMemo(() => getFallbackWeekData(isEn), [isEn])
+    const [timetableData, setTimetableData] = useState(fallbackData)
     const [loading, setLoading] = useState(true)
-    const [activeDayIndex, setActiveDayIndex] = useState(1) // Default to Sunday (index 1)
+    const [activeDayIndex, setActiveDayIndex] = useState(0)
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'scheduled' | 'live' | 'completed'
     const [copiedSessionId, setCopiedSessionId] = useState(null)
@@ -259,20 +282,31 @@ export default function SchedulePage() {
         let isMounted = true
         const loadTimetable = async () => {
             setLoading(true)
+            const fallback = getFallbackWeekData(i18n.language === 'en')
             try {
-                // Fetch public current week timetable
+                // Fetch public current week timetable with current language
                 const res = await landingApi.fetchPublicCurrentWeekTimetable({ lang: i18n.language })
                 const data = res?.data || res
-                if (isMounted && data && (data.days || data.week)) {
+                if (isMounted && data) {
+                    const week = data.currentWeek || data.week || fallback.week
+                    const days = Array.isArray(data.days) && data.days.length > 0 ? data.days : fallback.days
                     setTimetableData({
-                        week: data.week || FALLBACK_WEEK_DATA.week,
-                        days: Array.isArray(data.days) && data.days.length > 0 ? data.days : FALLBACK_WEEK_DATA.days
+                        week,
+                        days,
+                        title: data.title,
+                        subtitle: data.subtitle
                     })
+
+                    // Automatically select today if present in days
+                    const todayIdx = days.findIndex((d) => d.isToday)
+                    if (todayIdx !== -1) {
+                        setActiveDayIndex(todayIdx)
+                    }
                 }
             } catch (err) {
                 console.warn('Using fallback timetable data due to API status:', err?.message)
                 if (isMounted) {
-                    setTimetableData(FALLBACK_WEEK_DATA)
+                    setTimetableData(fallback)
                 }
             } finally {
                 if (isMounted) setLoading(false)
@@ -294,10 +328,95 @@ export default function SchedulePage() {
         return days[activeDayIndex] || days[0]
     }, [days, activeDayIndex])
 
+    // Formatted date range localized properly
+    const formattedWeekRange = useMemo(() => {
+        if (weekInfo?.formattedRange) {
+            // If English and the formattedRange contains Arabic letters, translate properly
+            if (isEn && /[\u0600-\u06FF]/.test(weekInfo.formattedRange)) {
+                if (weekInfo.startDate && weekInfo.endDate) {
+                    return `From ${weekInfo.startDate} to ${weekInfo.endDate}`
+                }
+            }
+            // If Arabic and formattedRange starts with English, translate properly
+            if (isRtl && weekInfo.formattedRange.startsWith('From')) {
+                if (weekInfo.startDate && weekInfo.endDate) {
+                    return `من تاريخ ${weekInfo.startDate} إلى تاريخ ${weekInfo.endDate}`
+                }
+            }
+            return weekInfo.formattedRange
+        }
+        if (weekInfo?.startDate && weekInfo?.endDate) {
+            return isRtl
+                ? `من تاريخ ${weekInfo.startDate} إلى تاريخ ${weekInfo.endDate}`
+                : `From ${weekInfo.startDate} to ${weekInfo.endDate}`
+        }
+        return ''
+    }, [weekInfo, isRtl, isEn])
+
     // Total counts across the week
     const totalWeeklySessions = useMemo(() => {
-        return days.reduce((acc, d) => acc + (d.sessions ? d.sessions.length : 0), 0)
+        return days.reduce((acc, d) => acc + (d.sessions ? d.sessions.length : (d.sessionsCount || 0)), 0)
     }, [days])
+
+    // Localize day name consistently
+    const getLocalizedDay = useCallback((dayItem) => {
+        if (!dayItem) return ''
+        const raw = (dayItem.day || dayItem.rawDay || '').toString().trim().toLowerCase()
+        const arabicToKey = {
+            'السبت': 'saturday',
+            'الأحد': 'sunday',
+            'الاحد': 'sunday',
+            'الاثنين': 'monday',
+            'الإثنين': 'monday',
+            'الثلاثاء': 'tuesday',
+            'الأربعاء': 'wednesday',
+            'الاربعاء': 'wednesday',
+            'الخميس': 'thursday',
+            'الجمعة': 'friday'
+        }
+        const key = arabicToKey[dayItem.day] || arabicToKey[dayItem.dayName] || raw
+        if (key && ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'].includes(key)) {
+            return t(`schedule.${key}`, { defaultValue: dayItem.dayName || dayItem.day })
+        }
+        if (dayItem.date) {
+            try {
+                const dateObj = new Date(dayItem.date)
+                if (!isNaN(dateObj.getTime())) {
+                    const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                    const dayIndex = dateObj.getDay()
+                    return t(`schedule.${dayKeys[dayIndex]}`, { defaultValue: dayItem.dayName || dayItem.day })
+                }
+            } catch {
+                // fallback
+            }
+        }
+        return dayItem.dayName || dayItem.day || ''
+    }, [t])
+
+    // Localize session time format
+    const formatSessionTime = useCallback((session) => {
+        if (session.timeRange) return session.timeRange
+        if (!session.startTime) return ''
+        if (!session.startTime.includes('T')) {
+            return session.endTime ? `${session.startTime} - ${session.endTime}` : session.startTime
+        }
+        try {
+            const locale = isRtl ? 'ar-EG' : 'en-US'
+            const start = new Date(session.startTime).toLocaleTimeString(locale, {
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+            const end = session.endTime
+                ? new Date(session.endTime).toLocaleTimeString(locale, {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                  })
+                : ''
+            return end ? `${start} - ${end}` : start
+        } catch {
+            return `${session.startTime} - ${session.endTime || ''}`
+        }
+    }, [isRtl])
 
     // Filter sessions of the active day
     const activeDaySessions = useMemo(() => {
@@ -307,12 +426,16 @@ export default function SchedulePage() {
                 !searchTerm.trim() ||
                 (s.title && s.title.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
                 (s.teacher?.name && s.teacher.name.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
-                (s.group?.name && s.group.name.toLowerCase().includes(searchTerm.toLowerCase().trim()))
+                (s.group?.name && s.group.name.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
+                (s.curriculum?.name && s.curriculum.name.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
+                (s.studentLevel?.name && s.studentLevel.name.toLowerCase().includes(searchTerm.toLowerCase().trim()))
 
             const matchesStatus =
                 statusFilter === 'all' ||
                 s.status === statusFilter ||
-                (statusFilter === 'completed' && (s.status === 'finished' || s.status === 'attended'))
+                (statusFilter === 'scheduled' && (s.status === 'scheduled' || s.status === 'upcoming' || s.badgeType === 'upcoming')) ||
+                (statusFilter === 'live' && (s.status === 'live' || s.isLive || s.badgeType === 'live')) ||
+                (statusFilter === 'completed' && (s.status === 'completed' || s.status === 'finished' || s.status === 'attended' || s.badgeType === 'completed'))
 
             return matchesSearch && matchesStatus
         })
@@ -342,18 +465,18 @@ export default function SchedulePage() {
                     </div>
 
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#00695C] tracking-tight">
-                        {t('schedule.pageTitle', 'جدول الحلقات والجلسات اليومية')}
+                        {timetableData.title || t('schedule.pageTitle', 'جدول الحلقات والجلسات اليومية')}
                     </h1>
 
                     <p className="text-slate-600 font-medium text-sm sm:text-base lg:text-lg leading-relaxed">
-                        {t('schedule.pageSubtitle', 'تابع رحلتك القرآنية والعلمية مع نخبة من المعلمين المعتمدين في منارة العز وانضم لحصتك بنقرة واحدة.')}
+                        {timetableData.subtitle || t('schedule.pageSubtitle', 'تابع رحلتك القرآنية والعلمية مع نخبة من المعلمين المعتمدين في منارة العز وانضم لحصتك بنقرة واحدة.')}
                     </p>
 
                     {/* Current Week Range Banner */}
                     <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-white shadow-sm border border-slate-200/80 text-slate-700 text-xs sm:text-sm font-semibold mt-2">
                         <CalendarDays className="w-4 h-4 text-[#00695C]" />
                         <span>
-                            {weekInfo.formattedRange ||
+                            {formattedWeekRange ||
                                 `${t('schedule.weekOf', 'أسبوع')}: ${weekInfo.startDate || ''} - ${weekInfo.endDate || ''}`}
                         </span>
                         <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
@@ -406,21 +529,22 @@ export default function SchedulePage() {
                 <div className="flex justify-center gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none">
                     {days.map((d, idx) => {
                         const isSelected = activeDayIndex === idx
-                        const sessionCount = d.sessions ? d.sessions.length : 0
-                        const dayNum = d.date ? d.date.split('-')[2] || d.date : ''
+                        const sessionCount = d.sessions ? d.sessions.length : (d.sessionsCount || 0)
+                        const dayNum = d.dayNumber || (d.date ? d.date.split('-')[2] || d.date : '')
+                        const localizedDay = getLocalizedDay(d)
 
                         return (
                             <button
                                 key={`${d.day}-${d.date || idx}`}
                                 onClick={() => setActiveDayIndex(idx)}
-                                className={`flex flex-col items-center justify-between min-w-[5.25rem] sm:min-w-[6rem] h-24 sm:h-28 rounded-3xl p-3 transition-all duration-300 font-bold focus:outline-none focus:ring-4 focus:ring-[#00695C]/20 shrink-0 cursor-pointer ${
+                                className={`flex flex-col items-center justify-between min-w-[5.5rem] sm:min-w-[6.25rem] h-24 sm:h-28 rounded-3xl p-3 transition-all duration-300 font-bold focus:outline-none focus:ring-4 focus:ring-[#00695C]/20 shrink-0 cursor-pointer ${
                                     isSelected
                                         ? 'bg-[#00695C] text-white shadow-lg shadow-[#00695C]/25 scale-105'
                                         : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100 hover:-translate-y-0.5'
                                 }`}
                             >
                                 <span className="text-xs sm:text-sm font-semibold truncate w-full text-center">
-                                    {d.day}
+                                    {localizedDay}
                                 </span>
                                 <span className="text-xl sm:text-2xl font-black">
                                     {dayNum}
@@ -434,7 +558,10 @@ export default function SchedulePage() {
                                             : 'bg-slate-100 text-slate-400'
                                     }`}
                                 >
-                                    {sessionCount} {isRtl ? 'جلسات' : 'sessions'}
+                                    {sessionCount}{' '}
+                                    {sessionCount === 1
+                                        ? t('schedule.sessionSingle', isRtl ? 'جلسة' : 'session')
+                                        : t('schedule.sessionsPlural', isRtl ? 'جلسات' : 'sessions')}
                                 </span>
                             </button>
                         )
@@ -444,11 +571,16 @@ export default function SchedulePage() {
                 {/* Active Day Title & Overview */}
                 {activeDay && (
                     <div className="flex items-center justify-between px-2 border-b border-slate-200/60 pb-3">
-                        <div className="flex items-center gap-2 text-slate-800 font-bold text-lg sm:text-xl">
+                        <div className="flex items-center gap-2.5 text-slate-800 font-bold text-lg sm:text-xl">
                             <Calendar className="w-5 h-5 text-[#00695C]" />
                             <span>
-                                {activeDay.day} - {activeDay.date}
+                                {getLocalizedDay(activeDay)} - {activeDay.formattedDate || activeDay.date}
                             </span>
+                            {activeDay.isToday && (
+                                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#00695C] font-bold">
+                                    {t('schedule.today', 'اليوم')}
+                                </span>
+                            )}
                         </div>
                         <span className="text-xs sm:text-sm text-slate-500 font-medium">
                             {activeDaySessions.length} {t('schedule.sessionsCount', 'جلسة مجدولة')}
@@ -479,7 +611,9 @@ export default function SchedulePage() {
                             {activeDaySessions.map((session, index) => {
                                 const teacherName = session.teacher?.name || t('schedule.certifiedTeacher', 'معلم معتمد')
                                 const teacherInitial = teacherName.trim().charAt(0) || 'م'
+                                const joinUrl = session.zoomJoinUrl || session.meetingUrl || session.zoomUrl || session.link
                                 const isCopied = copiedSessionId === session.id
+                                const groupOrCurriculum = session.group?.name || session.curriculum?.name
 
                                 return (
                                     <motion.div
@@ -498,13 +632,22 @@ export default function SchedulePage() {
                                                         {t('schedule.sessionNo', 'الجلسة')} #{session.sessionNumber}
                                                     </span>
                                                 )}
-                                                {session.group?.name && (
+                                                {groupOrCurriculum && (
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#00695C] border border-emerald-100/70">
                                                         <BookOpen className="w-3.5 h-3.5 text-[#00695C]" />
-                                                        <span className="truncate max-w-[200px] sm:max-w-none">{session.group.name}</span>
+                                                        <span className="truncate max-w-[200px] sm:max-w-none">
+                                                            {groupOrCurriculum}
+                                                            {session.studentLevel?.name && ` • ${session.studentLevel.name}`}
+                                                        </span>
                                                     </span>
                                                 )}
-                                                <StatusBadge status={session.status} t={t} />
+                                                <StatusBadge
+                                                    status={session.status}
+                                                    badge={session.badge}
+                                                    badgeType={session.badgeType}
+                                                    isLive={session.isLive}
+                                                    t={t}
+                                                />
                                             </div>
 
                                             {/* Session Title */}
@@ -526,15 +669,14 @@ export default function SchedulePage() {
                                                 <div className="flex items-center gap-1.5 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl text-slate-700">
                                                     <Clock className="w-4 h-4 text-[#00695C] shrink-0" />
                                                     <span className="font-bold dir-ltr">
-                                                        {session.startTime} - {session.endTime}
+                                                        {formatSessionTime(session)}
                                                     </span>
                                                 </div>
 
                                                 {/* Duration */}
-                                                {session.durationMinutes && (
+                                                {(session.durationMinutes || session.duration) && (
                                                     <div className="flex items-center gap-1 text-slate-500 text-xs px-2 py-1 bg-slate-100 rounded-xl">
-                                                        <span>{session.durationMinutes}</span>
-                                                        <span>{t('schedule.minutes', 'دقيقة')}</span>
+                                                        <span>{session.durationMinutes ? `${session.durationMinutes} ${t('schedule.minutes', 'دقيقة')}` : session.duration}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -542,21 +684,21 @@ export default function SchedulePage() {
 
                                         {/* Actions: Join Zoom / Copy Link */}
                                         <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-                                            {session.zoomJoinUrl ? (
+                                            {joinUrl ? (
                                                 <>
                                                     <a
-                                                        href={session.zoomJoinUrl}
+                                                        href={joinUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-md active:scale-95 text-white ${
-                                                            session.status === 'live'
+                                                            session.status === 'live' || session.isLive
                                                                 ? 'bg-red-600 hover:bg-red-700 animate-pulse shadow-red-500/20'
                                                                 : 'bg-[#00695C] hover:bg-[#005247] shadow-[#00695C]/20'
                                                         }`}
                                                     >
                                                         <Video className="w-4 h-4" />
                                                         <span>
-                                                            {session.status === 'live'
+                                                            {session.status === 'live' || session.isLive
                                                                 ? t('schedule.joinLiveNow', 'انضم للبث المباشر الآن')
                                                                 : t('schedule.joinViaZoom', 'الانضمام عبر Zoom')}
                                                         </span>
@@ -565,7 +707,7 @@ export default function SchedulePage() {
 
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleCopyZoom(session.zoomJoinUrl, session.id)}
+                                                        onClick={() => handleCopyZoom(joinUrl, session.id)}
                                                         className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-2xl border text-sm font-semibold transition-all cursor-pointer ${
                                                             isCopied
                                                                 ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
@@ -588,9 +730,9 @@ export default function SchedulePage() {
                                                 </>
                                             ) : (
                                                 <div className="px-5 py-3 rounded-2xl bg-slate-100 text-slate-500 text-xs sm:text-sm font-semibold text-center">
-                                                    {session.status === 'completed'
+                                                    {session.status === 'completed' || session.status === 'finished'
                                                         ? t('schedule.sessionCompleted', 'انتهت الجلسة')
-                                                        : t('schedule.linkPending', 'سيتم تفعيل الرابط قبل البدء')}
+                                                        : (session.actionText || t('schedule.linkPending', 'سيتم تفعيل الرابط قبل البدء'))}
                                                 </div>
                                             )}
                                         </div>
@@ -632,16 +774,20 @@ export default function SchedulePage() {
                     )}
                 </AnimatePresence>
 
-                {/* Bottom CTA Banner */}
-                <CTASection />
+                {/* Bottom CTA Banner (Only for public page, not nested in dashboards) */}
+                {!role && <CTASection />}
 
             </div>
         </div>
     )
 }
 
-const StatusBadge = React.memo(({ status, t }) => {
-    if (status === 'live') {
+const StatusBadge = React.memo(({ status, badge, badgeType, isLive: propIsLive, t }) => {
+    const isLive = status === 'live' || badgeType === 'live' || propIsLive
+    const isScheduled = status === 'scheduled' || badgeType === 'upcoming' || status === 'upcoming'
+    const isCompleted = status === 'completed' || status === 'finished' || badgeType === 'completed'
+
+    if (isLive) {
         return (
             <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-200">
                 <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
@@ -650,25 +796,25 @@ const StatusBadge = React.memo(({ status, t }) => {
             </span>
         )
     }
-    if (status === 'scheduled') {
+    if (isScheduled) {
         return (
             <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-bold border border-amber-200/80">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                {t('schedule.status.scheduled', 'مجدولة')}
+                {t('schedule.status.scheduled', t('schedule.status.upcoming', 'مجدولة'))}
             </span>
         )
     }
-    if (status === 'completed' || status === 'finished') {
+    if (isCompleted) {
         return (
             <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">
                 <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
-                {t('schedule.status.completed', 'مكتملة')}
+                {t('schedule.status.completed', t('schedule.status.finished', 'مكتملة'))}
             </span>
         )
     }
     return (
         <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">
-            {status}
+            {badge || status}
         </span>
     )
 })

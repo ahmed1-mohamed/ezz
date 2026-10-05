@@ -2,12 +2,21 @@ import { useMemo } from 'react'
 import { Calendar, Trash2 } from 'lucide-react'
 import DaySelect from './fields/DaySelect'
 
-const WEEK_DAYS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة']
+const WEEK_DAYS = [
+  { key: 'sunday', ar: 'الأحد', en: 'Sunday' },
+  { key: 'monday', ar: 'الاثنين', en: 'Monday' },
+  { key: 'tuesday', ar: 'الثلاثاء', en: 'Tuesday' },
+  { key: 'wednesday', ar: 'الأربعاء', en: 'Wednesday' },
+  { key: 'thursday', ar: 'الخميس', en: 'Thursday' },
+  { key: 'friday', ar: 'الجمعة', en: 'Friday' },
+  { key: 'saturday', ar: 'السبت', en: 'Saturday' },
+]
+
 const TIME_OPTIONS = [
-  '12 ص', '1 ص', '2 ص', '3 ص', '4 ص', '5 ص', '6 ص',
-  '7 ص', '8 ص', '9 ص', '10 ص', '11 ص',
-  '12 م', '1 م', '2 م', '3 م', '4 م', '5 م',
-  '6 م', '7 م', '8 م', '9 م', '10 م', '11 م',
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+  '20:00', '20:30', '21:00', '21:30', '22:00',
 ]
 
 export default function GroupScheduleCard({
@@ -20,56 +29,40 @@ export default function GroupScheduleCard({
   setNewTimeTo,
   handleAddSchedule,
   handleRemoveSchedule,
-  t
+  t,
+  isRtl,
+  error,
 }) {
-
-  const getDayLabel = (day) => {
-    const map = {
-      'السبت': t('adminDashboard.groups.days.saturday', 'السبت'),
-      'الأحد': t('adminDashboard.groups.days.sunday', 'الأحد'),
-      'الاثنين': t('adminDashboard.groups.days.monday', 'الاثنين'),
-      'الثلاثاء': t('adminDashboard.groups.days.tuesday', 'الثلاثاء'),
-      'الأربعاء': t('adminDashboard.groups.days.wednesday', 'الأربعاء'),
-      'الخميس': t('adminDashboard.groups.days.thursday', 'الخميس'),
-      'الجمعة': t('adminDashboard.groups.days.friday', 'الجمعة'),
+  const getDayLabel = (dayKey) => {
+    if (!dayKey) return ''
+    const normalized = dayKey.toString().trim().toLowerCase()
+    const found = WEEK_DAYS.find((d) => d.key === normalized || d.ar === dayKey || d.en.toLowerCase() === normalized)
+    if (found) {
+      return t ? t(`schedule.${found.key}`, isRtl ? found.ar : found.en) : (isRtl ? found.ar : found.en)
     }
-    return map[day] || day
-  }
-
-  const getTimeLabel = (timeStr) => {
-    if (!timeStr) return ''
-    const parts = timeStr.split(' ')
-    if (parts.length === 2) {
-      const num = parts[0]
-      const period = parts[1]
-      if (period === 'ص') {
-        return t('adminDashboard.groups.timePeriod.am', { defaultValue: '{{num}} ص', num })
-      } else if (period === 'م') {
-        return t('adminDashboard.groups.timePeriod.pm', { defaultValue: '{{num}} م', num })
-      }
-    }
-    return timeStr
+    return dayKey
   }
 
   const localizedWeekDays = useMemo(() => {
-    return WEEK_DAYS.map(day => ({
-      value: day,
-      label: getDayLabel(day)
+    return WEEK_DAYS.map((d) => ({
+      value: d.key,
+      label: t ? t(`schedule.${d.key}`, isRtl ? d.ar : d.en) : (isRtl ? d.ar : d.en),
     }))
-  }, [t])
-
-  const localizedTimeOptions = useMemo(() => {
-    return TIME_OPTIONS.map(time => ({
-      value: time,
-      label: getTimeLabel(time)
-    }))
-  }, [t])
+  }, [t, isRtl])
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-5">
-      <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
-        {t('adminDashboard.groups.scheduleTitle', 'إنشاء الجدول الدراسي للمجموعة')}
-      </h3>
+    <div className={`bg-white dark:bg-slate-900 rounded-3xl border ${error ? 'border-red-300 dark:border-red-900/60 ring-2 ring-red-500/10' : 'border-slate-100 dark:border-slate-800/80'} p-6 shadow-soft space-y-5`}>
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
+        <h3 className="text-base font-bold text-slate-800 dark:text-white text-start">
+          {t('adminDashboard.groups.scheduleTitle', 'إنشاء الجدول الدراسي للمجموعة')}
+          <span className="text-red-500 ms-1">*</span>
+        </h3>
+        {error && (
+          <span className="text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-xl">
+            {error}
+          </span>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="relative">
@@ -90,7 +83,7 @@ export default function GroupScheduleCard({
           <DaySelect
             value={newTimeFrom}
             onChange={setNewTimeFrom}
-            options={localizedTimeOptions}
+            options={TIME_OPTIONS}
           />
         </div>
 
@@ -101,7 +94,7 @@ export default function GroupScheduleCard({
           <DaySelect
             value={newTimeTo}
             onChange={setNewTimeTo}
-            options={localizedTimeOptions}
+            options={TIME_OPTIONS}
           />
         </div>
       </div>
@@ -128,25 +121,31 @@ export default function GroupScheduleCard({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {schedule.map((slot) => (
-                <tr key={slot.day} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
-                  <td className="px-5 py-3 text-start font-medium text-slate-700 dark:text-slate-300">
-                    {getDayLabel(slot.day)}
-                  </td>
-                  <td className="px-5 py-3 text-start text-slate-600 dark:text-slate-400">
-                    {getTimeLabel(slot.timeFrom)} - {getTimeLabel(slot.timeTo)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSchedule(slot.day)}
-                      className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-50 dark:hover:bg-rose-955/20 cursor-pointer"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {schedule.map((slot, index) => {
+                const startTime = slot.startTime || slot.timeFrom || ''
+                const endTime = slot.endTime || slot.timeTo || ''
+
+                return (
+                  <tr key={`${slot.day}-${index}`} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
+                    <td className="px-5 py-3 text-start font-medium text-slate-700 dark:text-slate-300">
+                      {getDayLabel(slot.day)}
+                    </td>
+                    <td className="px-5 py-3 text-start text-slate-600 dark:text-slate-400 dir-ltr">
+                      {startTime} - {endTime}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSchedule(slot.day, index)}
+                        className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 cursor-pointer"
+                        title={t('common.delete', 'حذف')}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
