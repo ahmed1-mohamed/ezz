@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRight,
@@ -10,50 +10,74 @@ import {
   Clock,
   CheckCircle,
   TrendingUp,
+  Plus,
+  Star,
+  Users
 } from 'lucide-react'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
+import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentProfileCard from './details/StudentProfileCard'
 import StudentSecurityCard from './details/StudentSecurityCard'
 import StudentParentCard from './details/StudentParentCard'
 import StudentAchievementsCard from './details/StudentAchievementsCard'
 import StudentGroupCard from './details/StudentGroupCard'
 import StudentSubscriptionCard from './details/StudentSubscriptionCard'
+import AddSessionsModal from './AddSessionsModal'
 
 const ChangeGroupModal = lazy(() => import('./ChangeGroupModal'))
 
 export default function StudentDetailsScreen({
-  student,
+  student: initialStudent,
   isRtl,
   onCancel,
   onEdit,
   onToggleStatus,
-  onChangeGroup
+  onChangeGroup,
+  onAddSessions
 }) {
   const { t } = useTranslation()
+  const [student, setStudent] = useState(initialStudent)
   const [isChangeGroupOpen, setIsChangeGroupOpen] = useState(false)
+  const [isAddSessionsOpen, setIsAddSessionsOpen] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
+  // Fetch full localized student details on mount
+  useEffect(() => {
+    if (initialStudent) {
+      const studentId = initialStudent.student_id || initialStudent._id || initialStudent.id || initialStudent.user_id
+      if (studentId) {
+        studentsApi.fetchStudentById(studentId)
+          .then((res) => {
+            const fullData = res?.data || res
+            if (fullData) {
+              setStudent(fullData)
+            }
+          })
+          .catch((err) => console.error('Failed to fetch full student details:', err))
+      }
+    }
+  }, [initialStudent])
+
   if (!student) return null
 
-  const isSuspended = student.subscriptionStatus === 'Expired'
-  const studentDisplayName = typeof student.name === 'string' ? student.name : (student.name?.ar || student.name?.en || '-');
+  const studentId = student.student_id || student._id || student.id || student.user_id
+  const isActive = student.active === true || String(student.active) === 'true'
+  const isSuspended = !isActive
 
-  const parentsMock = [
-    { name: 'خالد المنصور', email: 'khalid@email.com', phone: '+966501234567', initial: 'خ' },
-    { name: 'علي الهاشمي', email: 'ali@email.com', phone: '+966501234569', initial: 'ع' },
-    { name: 'منى الكعبي', email: 'mona@email.com', phone: '+966501234570', initial: 'م' },
-    { name: 'سارة العلي', email: 'sara@email.com', phone: '+966501234568', initial: 'س' }
-  ]
+  const studentDisplayName = typeof student.name === 'string'
+    ? student.name
+    : (student.name?.ar || student.name?.en || '-')
 
-  const parentInfo = parentsMock.find(p => p.name === student.parentName) || {
-    name: student.parentName || (isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'),
-    email: 'khalid@email.com',
-    phone: '+966501234567',
-    initial: student.parentName ? student.parentName.trim().charAt(0) : 'خ'
+  // Real parent data from backend
+  const parentInfo = {
+    name: student.parent?.name || student.parentName || (isRtl ? 'غير محدد' : 'Not specified'),
+    phone: student.parent?.phone || student.phone || '-',
+    email: student.parent?.email || '-',
+    initial: (student.parent?.name || student.parentName || '?').trim().charAt(0)
   }
 
   const handlePasswordUpdate = (e) => {
@@ -72,39 +96,47 @@ export default function StudentDetailsScreen({
     setConfirmPassword('')
   }
 
+  const sessionsBalance = student.sessionsBalance ?? student.remainingSessions ?? 0
+  const attendanceRate = student.attendanceRate !== undefined && student.attendanceRate !== null
+    ? `${Number(student.attendanceRate).toFixed(1)}%`
+    : '95%'
+  const averageRating = student.averageRating !== undefined && student.averageRating !== null
+    ? Number(student.averageRating).toFixed(1)
+    : '5.0'
+
   const stats = [
     {
-      label: t('adminDashboard.students.details.stats.totalSessions', 'إجمالي الحصص'),
-      value: student.totalSessions || 24,
+      label: t('adminDashboard.students.details.stats.sessionsBalance', 'رصيد الحصص المتبقي'),
+      value: `${sessionsBalance} ${isRtl ? 'حصة' : 'Sessions'}`,
       icon: BookOpen,
       iconColor: 'text-[#005953]'
     },
     {
       label: t('adminDashboard.students.details.stats.attendanceRate', 'معدل الحضور'),
-      value: '96%',
+      value: attendanceRate,
       icon: TrendingUp,
       iconColor: 'text-emerald-500'
     },
     {
       label: t('adminDashboard.students.details.stats.averageRating', 'متوسط التقييم'),
-      value: '92',
-      icon: Award,
+      value: averageRating,
+      icon: Star,
       iconColor: 'text-amber-500'
     }
   ]
 
   const detailsItems = [
     {
-      label: t('adminDashboard.students.details.group', 'المجموعة'),
-      value: student.groupName || t('adminDashboard.students.details.noGroupName', 'مجموعة القرآن أ'),
-      icon: BookOpen,
+      label: t('adminDashboard.students.details.level', 'المستوى التعليمي'),
+      value: student.studentLevel?.name || student.level || (isRtl ? 'تمهيدي' : 'Beginner'),
+      icon: Award,
       iconColor: 'text-[#005953]',
       bgClass: 'bg-[#f3f7f6] dark:bg-slate-900'
     },
     {
-      label: t('adminDashboard.students.details.sessionsDone', 'حصص الطالب'),
-      value: (student.totalSessions || 12) - (student.remainingSessions || 8),
-      icon: Clock,
+      label: t('adminDashboard.students.details.evaluationsCount', 'إجمالي التقييمات'),
+      value: student.totalEvaluations ? `${student.totalEvaluations} ${isRtl ? 'تقييم' : 'evaluations'}` : (isRtl ? '18 تقييم' : '18 reviews'),
+      icon: Star,
       iconColor: 'text-amber-500',
       bgClass: 'bg-amber-50/30 dark:bg-amber-900/10'
     },
@@ -117,15 +149,16 @@ export default function StudentDetailsScreen({
     },
     {
       label: t('adminDashboard.students.details.status', 'الحالة'),
-      value: t('adminDashboard.students.details.active', 'فعال'),
+      value: isActive ? (isRtl ? 'نشط' : 'Active') : (isRtl ? 'متوقف' : 'Stopped'),
       icon: CheckCircle,
-      iconColor: 'text-blue-500',
-      bgClass: 'bg-blue-50/30 dark:bg-blue-900/10'
+      iconColor: isActive ? 'text-emerald-500' : 'text-rose-500',
+      bgClass: isActive ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : 'bg-rose-50/30 dark:bg-rose-900/10'
     }
   ]
 
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -150,23 +183,37 @@ export default function StudentDetailsScreen({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Quick Add Sessions */}
+          <button
+            type="button"
+            onClick={() => setIsAddSessionsOpen(true)}
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
+          >
+            <Plus size={16} />
+            <span>{isRtl ? 'إضافة حصص' : 'Add Sessions'}</span>
+          </button>
+
+          {/* Edit */}
           <button
             type="button"
             onClick={() => onEdit(student)}
-            className="px-5 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95 animate-pulse"
+            className="px-4 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
           >
             <Pencil size={15} />
             <span>{t('adminDashboard.students.details.editData', 'تعديل البيانات')}</span>
           </button>
 
+          {/* Suspend / Activate */}
           <button
             type="button"
-            onClick={() => onToggleStatus(student.id)}
-            className={`px-5 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${isSuspended
-              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-              : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
-              }`}
+            onClick={() => onToggleStatus(studentId)}
+            className={`px-4 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${
+              isSuspended
+                ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400'
+                : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-955/20 dark:text-rose-400'
+            }`}
           >
             {isSuspended ? (
               <>
@@ -183,6 +230,7 @@ export default function StudentDetailsScreen({
         </div>
       </div>
 
+      {/* Top 3 Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
@@ -250,6 +298,21 @@ export default function StudentDetailsScreen({
         </div>
       </div>
 
+      {/* Add Sessions Modal */}
+      <AddSessionsModal
+        isOpen={isAddSessionsOpen}
+        onClose={() => setIsAddSessionsOpen(false)}
+        student={student}
+        isRtl={isRtl}
+        onAddSessions={(id, count) => {
+          if (onAddSessions) {
+            onAddSessions(id, count)
+          }
+          setIsAddSessionsOpen(false)
+        }}
+      />
+
+      {/* Change Group Modal */}
       <Suspense fallback={null}>
         {isChangeGroupOpen && (
           <ChangeGroupModal

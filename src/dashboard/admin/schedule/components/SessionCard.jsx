@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pencil, Trash2, Clock, User } from 'lucide-react'
+import { Clock, User } from 'lucide-react'
 
 function getLocalizedText(val, isRtl) {
   if (!val) return ''
@@ -33,7 +33,7 @@ const STATUS_FALLBACKS = {
   upcoming: { ar: 'قادمة', en: 'Upcoming' },
 }
 
-export default function SessionCard({ session, onEdit, onDelete }) {
+export default function SessionCard({ session }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
@@ -65,7 +65,7 @@ export default function SessionCard({ session, onEdit, onDelete }) {
 
   return (
     <div className="group relative rounded-2xl bg-gradient-to-br from-[#0f7a6c] to-[#0c6156] text-white p-3 text-xs space-y-1.5 shadow-sm shadow-[#0f7a6c]/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-      <p className="font-bold text-[13px] leading-snug line-clamp-2 pe-12" title={groupName}>
+      <p className="font-bold text-[13px] leading-snug line-clamp-2" title={groupName}>
         {groupName}
       </p>
 
@@ -90,25 +90,6 @@ export default function SessionCard({ session, onEdit, onDelete }) {
           {localizedStatus}
         </span>
       )}
-
-      <div className="absolute top-2 end-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onEdit(session) }}
-          className="p-1 rounded-lg bg-white/90 text-slate-700 hover:bg-white transition cursor-pointer"
-          title={t('adminDashboard.schedule.edit', 'تعديل')}
-        >
-          <Pencil size={11} />
-        </button>
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onDelete(session) }}
-          className="p-1 rounded-lg bg-white/90 text-red-600 hover:bg-white transition cursor-pointer"
-          title={t('adminDashboard.schedule.delete', 'حذف')}
-        >
-          <Trash2 size={11} />
-        </button>
-      </div>
     </div>
   )
 }

@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, CalendarDays, Users } from 'lucide-react'
-import { showDeleteConfirm, showSuccessToast } from '@/shared/utils/sweetAlert'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { timetableApi } from '@/shared/services/api/timetableApi'
 import ScheduleCalendarGrid from './components/ScheduleCalendarGrid'
@@ -97,30 +96,6 @@ export default function AdminSchedule() {
     const { value } = e.target
     if (!value) return
     setWeekQuery({ weekOffset: 0, date: value })
-  }
-
-  const handleEdit = (session) => {
-    const groupName =
-      (typeof session.group?.name === 'object'
-        ? (isRtl ? session.group?.name?.ar : session.group?.name?.en)
-        : session.group?.name) || ''
-    showSuccessToast(
-      t('adminDashboard.schedule.editSessionToast', 'تعديل الجلسة: {{name}}', { name: groupName }),
-      isRtl
-    )
-  }
-
-  const handleDelete = async (session) => {
-    const groupName =
-      (typeof session.group?.name === 'object'
-        ? (isRtl ? session.group?.name?.ar : session.group?.name?.en)
-        : session.group?.name) || ''
-    const isConfirmed = await showDeleteConfirm(isRtl, groupName)
-    if (!isConfirmed) return
-    showSuccessToast(
-      t('adminDashboard.schedule.deleteSessionToast', 'تم حذف الجلسة رقم: {{id}}', { id: session.sessionNumber || '' }),
-      isRtl
-    )
   }
 
   const weekLabel = useMemo(() => {
@@ -251,8 +226,6 @@ export default function AdminSchedule() {
             weekDates={weekDates}
             filteredSessions={sessions}
             today={today}
-            handleEdit={handleEdit}
-            handleDelete={handleDelete}
             t={t}
           />
           {sessions.length === 0 && (

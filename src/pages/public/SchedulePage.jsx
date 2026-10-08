@@ -579,7 +579,7 @@ export default function SchedulePage({ role }) {
                         </div>
                     ) : activeDaySessions.length > 0 ? (
                         <motion.div
-                            key={`${activeDay?.day}-${activeDayIndex}-${statusFilter}-${searchTerm}`}
+                            key={`${activeDay?.day}-${activeDayIndex}-${statusFilter}`}
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -12 }}
@@ -732,14 +732,13 @@ export default function SchedulePage({ role }) {
                                 {t('schedule.noSessionsTitle', 'لا توجد جلسات مجدولة في هذا اليوم')}
                             </h3>
                             <p className="text-sm text-slate-500">
-                                {searchTerm || statusFilter !== 'all'
-                                    ? t('schedule.noSearchResults', 'لا توجد جلسات تطابق البحث أو الفلتر المحدد. جرب مسح البحث.')
+                                {statusFilter !== 'all'
+                                    ? t('schedule.noSearchResults', 'لا توجد جلسات تطابق الفلتر المحدد.')
                                     : t('schedule.enjoyRest', 'يمكنك الاستفادة من وقتك في مراجعة الأوراد السابقة والاستعداد للجلسات القادمة.')}
                             </p>
-                            {(searchTerm || statusFilter !== 'all') && (
+                            {statusFilter !== 'all' && (
                                 <button
                                     onClick={() => {
-                                        setSearchTerm('')
                                         setStatusFilter('all')
                                     }}
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00695C] text-white text-xs sm:text-sm font-semibold hover:bg-[#005247] transition-all cursor-pointer"

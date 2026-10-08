@@ -55,7 +55,7 @@ export const mapTeacherData = (item) => {
     subject,
     email: item.email || '',
     phone: item.phone || '',
-    country: item.country || '🇪🇬 Egypt',
+    country: item.country || '',
     active,
     status: active ? 'Active' : 'Suspended',
     profitPercentage,
@@ -543,6 +543,16 @@ export const teachersApi = {
       return { success: true, message: 'Deleted successfully', data: response.data };
     } catch (error) {
       console.error('API deleteTeacher failed:', error);
+      throw error;
+    }
+  },
+
+  fetchCountries: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/countries', { params });
+      return response.data;
+    } catch (error) {
+      console.error('API fetchCountries failed:', error);
       throw error;
     }
   }

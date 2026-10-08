@@ -30,8 +30,6 @@ export default function ScheduleCalendarGrid({
   weekDates,
   filteredSessions,
   today,
-  handleEdit,
-  handleDelete,
   t,
 }) {
   const { i18n } = useTranslation()
@@ -91,8 +89,6 @@ export default function ScheduleCalendarGrid({
                     <SessionCard
                       key={session.id || session._id || `${dateKey}-${session.startTime}`}
                       session={session}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
                     />
                   ))
                 )}

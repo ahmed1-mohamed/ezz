@@ -6,6 +6,76 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight, RefreshCw, AlertCircle } from 'lucide-react'
 import imageSrc from '../../images/programs/6.webp'
 import { teachersApi } from '../../shared/services/api/teachersApi'
+import { landingApi } from '../../shared/services/api/landingApi'
+
+const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) => {
+    if (!selectedCountryId) return true
+    const countryObj = countriesList.find((c) => (c.id || c._id) === selectedCountryId || c.name === selectedCountryId)
+    if (!countryObj) {
+        return (teacher.country || '').toLowerCase().includes(String(selectedCountryId).toLowerCase())
+    }
+
+    const teacherCountryRaw = teacher.country || teacher.countryId || ''
+    const teacherCountryStr = typeof teacherCountryRaw === 'object'
+        ? (teacherCountryRaw.name || teacherCountryRaw.ar || teacherCountryRaw.en || '')
+        : String(teacherCountryRaw)
+
+    if (
+        teacher.countryId === countryObj.id ||
+        teacher.countryId === countryObj._id ||
+        teacherCountryStr === countryObj.id ||
+        teacherCountryStr === countryObj._id
+    ) {
+        return true
+    }
+
+    if (countryObj.flag && teacherCountryStr.includes(countryObj.flag)) {
+        return true
+    }
+
+    if (countryObj.phoneCode && teacherCountryStr.includes(countryObj.phoneCode)) {
+        return true
+    }
+
+    const targetNameLower = (countryObj.name || '').toLowerCase().trim()
+    const teacherCountryLower = teacherCountryStr.toLowerCase().trim()
+    if (
+        targetNameLower &&
+        (teacherCountryLower.includes(targetNameLower) || targetNameLower.includes(teacherCountryLower))
+    ) {
+        return true
+    }
+
+    const aliases = {
+        'مصر': ['egypt', 'مصر', 'eg'],
+        'egypt': ['egypt', 'مصر', 'eg'],
+        'السعودية': ['saudi', 'سعود', 'ksa'],
+        'saudi arabia': ['saudi', 'سعود', 'ksa'],
+        'الإمارات': ['emirates', 'امارات', 'uae'],
+        'united arab emirates': ['emirates', 'امارات', 'uae'],
+        'الكويت': ['kuwait', 'كويت'],
+        'قطر': ['qatar', 'قطر'],
+        'البحرين': ['bahrain', 'بحرين'],
+        'عمان': ['oman', 'عمان'],
+        'الأردن': ['jordan', 'اردن'],
+        'المغرب': ['morocco', 'مغرب'],
+        'الجزائر': ['algeria', 'جزائر'],
+        'تونس': ['tunisia', 'تونس'],
+        'السودان': ['sudan', 'سودان'],
+        'اليمن': ['yemen', 'يمن'],
+        'سوريا': ['syria', 'سوريا'],
+        'العراق': ['iraq', 'عراق'],
+        'فلسطين': ['palestine', 'فلسطين'],
+        'لبنان': ['lebanon', 'لبنان'],
+    }
+
+    const targetAliases = aliases[targetNameLower]
+    if (targetAliases) {
+        return targetAliases.some((alias) => teacherCountryLower.includes(alias))
+    }
+
+    return false
+}
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -215,15 +285,17 @@ export default function Teachers() {
         return Array.from(set)
     }, [rawTeachers])
 
-    const availableCountries = useMemo(() => {
-        const set = new Set()
-        rawTeachers.forEach((teacher) => {
-            if (teacher.country && typeof teacher.country === 'string' && teacher.country.trim()) {
-                set.add(teacher.country.trim())
-            }
-        })
-        return Array.from(set)
-    }, [rawTeachers])
+    const { data: countriesResponse } = useQuery({
+        queryKey: ['countries', i18n.language],
+        queryFn: () => landingApi.fetchCountries({ lang: i18n.language }),
+        staleTime: 1000 * 60 * 10,
+    })
+
+    const countriesList = useMemo(() => {
+        const raw = countriesResponse?.data || countriesResponse || []
+        if (!Array.isArray(raw)) return []
+        return [...raw].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
+    }, [countriesResponse, i18n.language])
 
     const filteredTeachers = useMemo(() => {
         return rawTeachers.filter((teacher) => {
@@ -237,13 +309,13 @@ export default function Teachers() {
                 if (!hasSpec && !matchesSubject) return false
             }
 
-            if (selectedCountry && teacher.country !== selectedCountry) {
+            if (selectedCountry && !matchesTeacherCountry(teacher, selectedCountry, countriesList)) {
                 return false
             }
 
             return true
         })
-    }, [rawTeachers, selectedSubject, selectedCountry])
+    }, [rawTeachers, selectedSubject, selectedCountry, countriesList])
 
     const totalPages = Math.max(1, Number(response?.pagination?.numberOfPages || 1))
 
@@ -385,9 +457,14 @@ export default function Teachers() {
                                     className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
                                 >
                                     <option value="">{t('teacher.allCountries', 'جميع الدول')}</option>
-                                    {availableCountries.map((country) => (
-                                        <option key={country} value={country}>{country}</option>
-                                    ))}
+                                    {countriesList.map((country) => {
+                                        const cId = country.id || country._id
+                                        return (
+                                            <option key={cId} value={cId}>
+                                                {country.flag ? `${country.flag} ` : ''}{country.name}
+                                            </option>
+                                        )
+                                    })}
                                 </select>
                                 <Award className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                             </div>

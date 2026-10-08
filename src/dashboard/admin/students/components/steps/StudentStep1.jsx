@@ -1,4 +1,4 @@
-import { Upload } from 'lucide-react'
+import { Upload, Calendar } from 'lucide-react'
 
 export default function StudentStep1({
   formData,
@@ -10,8 +10,8 @@ export default function StudentStep1({
   phoneVal,
   setPhoneVal,
   countryCodes,
-  countries,
-  levels,
+  countries = [],
+  levels = [],
   selectCountryCode,
   isEdit
 }) {
@@ -22,7 +22,7 @@ export default function StudentStep1({
       </h3>
 
       <div className="flex flex-col items-center justify-center space-y-2 py-2">
-        <label htmlFor="profileImageInput" className="relative cursor-pointer group flex flex-col items-center justify-center w-40 h-40 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 bg-[#f3f7f6] dark:bg-slate-950/20 transition-all overflow-hidden">
+        <label htmlFor="profileImageInput" className="relative cursor-pointer group flex flex-col items-center justify-center w-36 h-36 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 bg-[#f3f7f6] dark:bg-slate-950/20 transition-all overflow-hidden">
           {formData.profileImage ? (
             <div className="relative w-full h-full group">
               <img src={formData.profileImage} alt="" className="w-full h-full object-cover" />
@@ -36,7 +36,7 @@ export default function StudentStep1({
                 <Upload size={20} />
               </div>
               <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                {isRtl ? 'اضغط لرفع صورة المكافأة' : 'Click to upload profile image'}
+                {isRtl ? 'اضغط لرفع صورة الطالب' : 'Click to upload student image'}
               </span>
             </div>
           )}
@@ -55,27 +55,14 @@ export default function StudentStep1({
           />
         </label>
         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">
-          {isRtl ? 'صورة شخصية' : 'Profile Picture'}
+          {isRtl ? 'صورة شخصية (اختياري)' : 'Profile Picture (Optional)'}
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={formData.nameEn}
-            onChange={(e) => handleChange('nameEn', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-            placeholder="Nora ahmed"
-            dir="ltr"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'الإسم بالعربية' : 'Name in Arabic'}
+            {isRtl ? 'الإسم بالعربية *' : 'Name in Arabic *'}
           </label>
           <input
             type="text"
@@ -83,7 +70,20 @@ export default function StudentStep1({
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-            placeholder={isRtl ? 'نورة أحمد' : 'Nora Ahmed'}
+            placeholder={isRtl ? 'عمر خالد المنصور' : 'Omar Khaled Al-Mansour'}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'الاسم بالإنجليزية' : 'Full Name (English)'}
+          </label>
+          <input
+            type="text"
+            value={formData.nameEn}
+            onChange={(e) => handleChange('nameEn', e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            placeholder="Omar Khaled Al-Mansour"
+            dir="ltr"
           />
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function StudentStep1({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'رقم الهاتف' : 'Phone Number'}
+            {isRtl ? 'رقم الهاتف *' : 'Phone Number *'}
           </label>
           <div className="flex gap-3" dir="ltr">
             <div className="relative shrink-0">
@@ -100,20 +100,21 @@ export default function StudentStep1({
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
               >
-                <span>{selectedCountryCode.flag}</span>
-                <span>({selectedCountryCode.code})</span>
+                <span>{selectedCountryCode?.flag || '🌍'}</span>
+                <span>({selectedCountryCode?.code || '+20'})</span>
               </button>
               {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 overflow-hidden animate-fadeIn">
+                <div className="absolute left-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 animate-fadeIn">
                   {countryCodes.map((country) => (
                     <button
-                      key={country.code}
+                      key={country.code + (country.name || '')}
                       type="button"
                       onClick={() => selectCountryCode(country)}
                       className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-750 dark:text-slate-350 text-sm transition-colors text-left"
                     >
                       <span>{country.flag}</span>
                       <span className="font-semibold">{country.code}</span>
+                      <span className="text-xs text-slate-400 truncate">{country.name}</span>
                     </button>
                   ))}
                 </div>
@@ -121,81 +122,93 @@ export default function StudentStep1({
             </div>
             <input
               type="tel"
+              required
               value={phoneVal}
               onChange={(e) => setPhoneVal(e.target.value)}
               className="flex-1 bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-450"
-              placeholder="01012345678"
+              placeholder="501234567"
             />
           </div>
         </div>
-        {!isEdit && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-              {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
-              placeholder="Nora_ahmed@yahoo.com"
-              dir="ltr"
-            />
-          </div>
-        )}
+
+        <div>
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'البريد الإلكتروني *' : 'Email Address *'}
+          </label>
+          <input
+            type="email"
+            required
+            value={formData.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            placeholder="omar.khaled@example.com"
+            dir="ltr"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'البلد *' : 'Country *'}
+          </label>
+          <select
+            required
+            value={formData.country}
+            onChange={(e) => handleChange('country', e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
+          >
+            <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
+            {countries.map((c) => {
+              const cid = c.id || c._id
+              return (
+                <option key={cid} value={cid}>
+                  {c.flag ? `${c.flag} ` : ''}{c.name}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <Calendar size={14} />
+            <span>{isRtl ? 'تاريخ الميلاد *' : 'Birth Date *'}</span>
+          </label>
+          <input
+            type="date"
+            required
+            value={formData.birthDate || ''}
+            onChange={(e) => handleChange('birthDate', e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer"
+          />
+        </div>
       </div>
 
       <div>
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-          {isRtl ? 'البلد' : 'Country'}
+          {isRtl ? 'المستوى التعليمي للطالب *' : 'Student Educational Level *'}
         </label>
         <select
-          value={formData.country}
-          onChange={(e) => handleChange('country', e.target.value)}
+          required
+          value={formData.studentLevel}
+          onChange={(e) => handleChange('studentLevel', e.target.value)}
           className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
         >
-          {countries.map((c) => (
-            <option key={c.id || c.name} value={c.id || c.name}>
-              {isRtl ? c.name : c.nameEn}
-            </option>
-          ))}
+          <option value="" disabled>{isRtl ? 'اختر المستوى التعليمي' : 'Select Educational Level'}</option>
+          {levels.map((lvl) => {
+            const lid = lvl.id || lvl._id || lvl.value
+            const lname = typeof lvl.name === 'object'
+              ? (lvl.name.ar || lvl.name.en)
+              : (lvl.name || lvl.label || lid)
+            return (
+              <option key={lid} value={lid}>
+                {lname}
+              </option>
+            )
+          })}
         </select>
       </div>
-
-      {!isEdit && (
-        <>
-          <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-              {isRtl ? 'المستوى التعليمي *' : 'Educational Level *'}
-            </label>
-            <select
-              value={formData.level}
-              onChange={(e) => handleChange('level', e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
-            >
-              <option value="" disabled>{isRtl ? 'ادخل المستوى' : 'Select Level'}</option>
-              {levels.map((lvl) => (
-                <option key={lvl.value} value={lvl.value}>
-                  {lvl.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-              {isRtl ? 'ملاحظات إضافية' : 'Additional Notes'}
-            </label>
-            <textarea
-              rows={4}
-              value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm resize-none leading-relaxed"
-              placeholder={isRtl ? 'أي ملاحظات خاصة بالطالب...' : 'Any special notes for student...'}
-            />
-          </div>
-        </>
-      )}
     </div>
   )
 }
