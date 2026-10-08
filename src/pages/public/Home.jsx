@@ -163,7 +163,7 @@ export default memo(function Home() {
                 <PremiumParentsSection />
             </Suspense>
             <Suspense fallback={<SectionSkeleton />}>
-                <EducationalPrograms />
+                <EducationalPrograms curricula={landingData?.curricula} />
             </Suspense>
             <Suspense fallback={<SectionSkeleton />}>
                 <StarsSection featuredStudents={localData.stars || landingData?.featuredStudents} />

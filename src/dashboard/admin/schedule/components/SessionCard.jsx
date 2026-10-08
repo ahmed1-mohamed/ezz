@@ -1,37 +1,93 @@
-import { Pencil, Trash2, Clock } from 'lucide-react'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Pencil, Trash2, Clock, User } from 'lucide-react'
+
+function getLocalizedText(val, isRtl) {
+  if (!val) return ''
+  if (typeof val === 'object') {
+    return isRtl ? (val.ar || val.en || '') : (val.en || val.ar || '')
+  }
+  return String(val)
+}
+
+function formatTimeRange(session, isRtl) {
+  let range = session?.timeRange
+  if (!range && session?.startTime) {
+    range = session.endTime ? `${session.startTime} - ${session.endTime}` : session.startTime
+  }
+  if (!range) return ''
+  if (isRtl) {
+    return range.replace(/\bAM\b/gi, 'ص').replace(/\bPM\b/gi, 'م')
+  }
+  return range.replace(/ص/g, 'AM').replace(/م/g, 'PM')
+}
+
+const STATUS_FALLBACKS = {
+  scheduled: { ar: 'مجدولة', en: 'Scheduled' },
+  postponed: { ar: 'مؤجلة', en: 'Postponed' },
+  conflict: { ar: 'تعارض', en: 'Conflict' },
+  cancelled: { ar: 'ملغاة', en: 'Cancelled' },
+  completed: { ar: 'مكتملة', en: 'Completed' },
+  live: { ar: 'مباشرة الآن', en: 'Live Now' },
+  in_progress: { ar: 'جارية', en: 'In Progress' },
+  upcoming: { ar: 'قادمة', en: 'Upcoming' },
+}
 
 export default function SessionCard({ session, onEdit, onDelete }) {
-  const teacherName = session.teacher?.name || ''
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language.startsWith('ar')
+
+  const teacherName = useMemo(() => {
+    return (
+      getLocalizedText(session.teacher?.name, isRtl) ||
+      (isRtl ? session.teacher?.nameAr : session.teacher?.nameEn) ||
+      session.teacher?.name ||
+      ''
+    )
+  }, [session.teacher, isRtl])
+
+  const groupName = useMemo(() => {
+    return (
+      getLocalizedText(session.group?.name, isRtl) ||
+      (isRtl ? session.group?.nameAr : session.group?.nameEn) ||
+      session.group?.name ||
+      ''
+    )
+  }, [session.group, isRtl])
+
+  const localizedTime = useMemo(() => formatTimeRange(session, isRtl), [session, isRtl])
+
+  const localizedStatus = useMemo(() => {
+    if (!session.status || session.status === 'scheduled') return null
+    const fallback = STATUS_FALLBACKS[session.status]?.[isRtl ? 'ar' : 'en'] || session.statusText || session.status
+    return t(`adminDashboard.schedule.status.${session.status}`, fallback)
+  }, [session.status, session.statusText, isRtl, t])
 
   return (
-    <div className="group relative rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white p-3 text-xs space-y-2 shadow-sm shadow-brand-500/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-      <p className="font-bold text-[13px] leading-snug line-clamp-2 pe-10" title={session.group?.name}>
-        {session.group?.name}
+    <div className="group relative rounded-2xl bg-gradient-to-br from-[#0f7a6c] to-[#0c6156] text-white p-3 text-xs space-y-1.5 shadow-sm shadow-[#0f7a6c]/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+      <p className="font-bold text-[13px] leading-snug line-clamp-2 pe-12" title={groupName}>
+        {groupName}
       </p>
 
-      <div className="flex items-center gap-2 min-w-0">
-        {session.teacher?.image ? (
-          <img
-            src={session.teacher.image}
-            alt={teacherName}
-            className="w-5 h-5 rounded-full object-cover border border-white/40 shrink-0"
-          />
-        ) : (
-          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-bold shrink-0">
-            {teacherName.charAt(0)}
+      {teacherName && (
+        <div className="flex items-center gap-1.5 min-w-0 opacity-95">
+          <User size={12} className="shrink-0 opacity-80" />
+          <span className="truncate font-medium text-[11px]" title={teacherName}>
+            {teacherName}
           </span>
-        )}
-        <span className="truncate opacity-95" title={teacherName}>{teacherName}</span>
-      </div>
+        </div>
+      )}
 
-      <div className="flex items-center gap-1.5 opacity-90">
-        <Clock size={12} className="shrink-0" />
-        <span className="truncate" dir="auto">{session.timeRange}</span>
-      </div>
+      {localizedTime && (
+        <div className="flex items-center gap-1.5 opacity-90">
+          <Clock size={12} className="shrink-0" />
+          <span className="truncate text-[11px]" dir="auto">{localizedTime}</span>
+        </div>
+      )}
 
-      {session.status !== 'scheduled' && session.statusText && (
-        <span className="inline-block px-2 py-0.5 rounded-full bg-white/25 text-[10px] font-bold">
-          {session.statusText}
+      {localizedStatus && (
+        <span className="inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold">
+          {localizedStatus}
         </span>
       )}
 
@@ -40,6 +96,7 @@ export default function SessionCard({ session, onEdit, onDelete }) {
           type="button"
           onClick={(e) => { e.stopPropagation(); onEdit(session) }}
           className="p-1 rounded-lg bg-white/90 text-slate-700 hover:bg-white transition cursor-pointer"
+          title={t('adminDashboard.schedule.edit', 'تعديل')}
         >
           <Pencil size={11} />
         </button>
@@ -47,6 +104,7 @@ export default function SessionCard({ session, onEdit, onDelete }) {
           type="button"
           onClick={(e) => { e.stopPropagation(); onDelete(session) }}
           className="p-1 rounded-lg bg-white/90 text-red-600 hover:bg-white transition cursor-pointer"
+          title={t('adminDashboard.schedule.delete', 'حذف')}
         >
           <Trash2 size={11} />
         </button>

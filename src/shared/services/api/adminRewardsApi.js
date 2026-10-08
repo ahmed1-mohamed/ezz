@@ -110,43 +110,115 @@ export const adminRewardsApi = {
     }
   },
 
-  fetchSuggestions: async () => {
+  fetchSuggestions: async (status = 'all') => {
     try {
-      const response = await api.get('/api/v1/suggested-rewards/private');
-      return { success: true, data: response.data.data, stats: response.data.stats };
+      let endpoint = '/api/v1/suggested-rewards/private';
+      if (status === 'pending') {
+        endpoint = '/api/v1/suggested-rewards/private/pending';
+      } else if (status === 'accepted') {
+        endpoint = '/api/v1/suggested-rewards/private/accepted';
+      } else if (status === 'rejected') {
+        endpoint = '/api/v1/suggested-rewards/private/rejected';
+      }
+
+      const response = await api.get(endpoint, { skipLang: true });
+      const resData = response.data;
+      const data = Array.isArray(resData?.data)
+        ? resData.data
+        : (Array.isArray(resData) ? resData : []);
+      const stats = resData?.stats || null;
+
+      return { success: true, data, stats };
     } catch (error) {
-      console.error('API fetchSuggestions failed:', error);
-      return { success: false, data: [] };
+      console.error(`API fetchSuggestions (${status}) failed:`, error);
+      return { success: false, data: [], stats: null, error: error.message };
+    }
+  },
+
+  fetchSuggestionById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/suggested-rewards/private/${id}`, { skipLang: true });
+      const data = response.data?.data || response.data;
+      return { success: true, data };
+    } catch (error) {
+      console.error(`API fetchSuggestionById (${id}) failed:`, error);
+      return { success: false, data: null };
     }
   },
 
   approveSuggestion: async (id) => {
     try {
-      const response = await api.patch(`/api/v1/suggested-rewards/private/accept/${id}`);
-      return { success: true, data: response.data };
+      const candidates = [
+        () => api.patch(`/api/v1/suggested-rewards/private/accept/${id}`, {}, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/approve/${id}`, {}, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/${id}/accept`, {}, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/${id}`, { status: 'accepted' }, { skipLang: true }),
+        () => api.put(`/api/v1/suggested-rewards/private/accept/${id}`, {}, { skipLang: true }),
+        () => api.post(`/api/v1/suggested-rewards/private/accept/${id}`, {}, { skipLang: true }),
+      ];
+      let lastErr = null;
+      for (const reqFn of candidates) {
+        try {
+          const res = await reqFn();
+          return { success: true, data: res.data };
+        } catch (err) {
+          lastErr = err;
+          if (err.response && err.response.status !== 404 && err.response.status !== 405) {
+            throw err;
+          }
+        }
+      }
+      throw lastErr;
     } catch (error) {
       console.error('API approveSuggestion failed:', error);
-      return { success: false };
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to approve suggestion',
+      };
     }
   },
 
   rejectSuggestion: async (id) => {
     try {
-      const response = await api.patch(`/api/v1/suggested-rewards/private/reject/${id}`);
-      return { success: true, data: response.data };
+      const candidates = [
+        () => api.patch(`/api/v1/suggested-rewards/private/reject/${id}`, {}, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/${id}/reject`, {}, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/${id}`, { status: 'rejected' }, { skipLang: true }),
+        () => api.put(`/api/v1/suggested-rewards/private/reject/${id}`, {}, { skipLang: true }),
+        () => api.post(`/api/v1/suggested-rewards/private/reject/${id}`, {}, { skipLang: true }),
+      ];
+      let lastErr = null;
+      for (const reqFn of candidates) {
+        try {
+          const res = await reqFn();
+          return { success: true, data: res.data };
+        } catch (err) {
+          lastErr = err;
+          if (err.response && err.response.status !== 404 && err.response.status !== 405) {
+            throw err;
+          }
+        }
+      }
+      throw lastErr;
     } catch (error) {
       console.error('API rejectSuggestion failed:', error);
-      return { success: false };
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to reject suggestion',
+      };
     }
   },
 
   deleteSuggestion: async (id) => {
     try {
-      await api.delete(`/api/v1/suggested-rewards/private/${id}`);
+      await api.delete(`/api/v1/suggested-rewards/private/${id}`, { skipLang: true });
       return { success: true };
     } catch (error) {
       console.error('API deleteSuggestion failed:', error);
-      return { success: false };
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to delete suggestion',
+      };
     }
   },
 

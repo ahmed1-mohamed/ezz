@@ -12,10 +12,14 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     const lang = localStorage.getItem('appLanguage') || 'ar';
-    config.params = {
-      ...config.params,
-      lang,
-    };
+    config.headers['Accept-Language'] = lang;
+
+    if (!config.skipLang) {
+      config.params = {
+        ...config.params,
+        lang,
+      };
+    }
 
     const token = getCookie('access_token');
     if (token) {

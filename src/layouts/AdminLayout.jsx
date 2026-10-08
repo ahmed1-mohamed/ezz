@@ -17,7 +17,6 @@ import {
   CreditCard,
   TrendingUp,
   Gift,
-  Edit3,
   BookMarked,
   Percent,
   BarChart2,
@@ -32,8 +31,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
 
-// Defined outside component to prevent recreation on every render
-const NAV_ITEMS = [
+ const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers' },
   { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers' },
@@ -49,7 +47,6 @@ const NAV_ITEMS = [
   { path: '/dashboard/admin/payments', icon: CreditCard, transKey: 'payments' },
   { path: '/dashboard/admin/earnings', icon: TrendingUp, transKey: 'earnings' },
   { path: '/dashboard/admin/rewards', icon: Gift, transKey: 'rewards' },
-  { path: '/dashboard/admin/assignments', icon: Edit3, transKey: 'assignments' },
   { path: '/dashboard/admin/curriculums', icon: BookMarked, transKey: 'curriculums' },
   { path: '/dashboard/admin/coupons', icon: Percent, transKey: 'discountCodes' },
   { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },

@@ -57,14 +57,28 @@ export default function AdminComplaints() {
     staleTime: STALE_TIME_MS,
   })
 
-  const statistics = statsData?.statistics || listData?.statistics || null
-  const items = useMemo(() => (Array.isArray(listData?.data) ? listData.data : []), [listData])
+  const items = useMemo(() => {
+    if (Array.isArray(listData?.data)) return listData.data
+    if (Array.isArray(listData)) return listData
+    return []
+  }, [listData])
   const pagination = listData?.pagination
   const totalPages = pagination?.numberOfPages ?? 1
   const totalItems = pagination?.totalCount ?? items.length
   const isPaginationDimmed = totalPages <= 1
   const indexOfFirstItem = totalItems > 0 ? (currentPage - 1) * PAGE_LIMIT + 1 : 0
   const indexOfLastItem = totalItems > 0 ? Math.min(currentPage * PAGE_LIMIT, totalItems) : 0
+
+  const statistics = useMemo(() => {
+    const raw = statsData?.statistics || listData?.statistics || statsData?.data?.statistics || listData?.data?.statistics
+    if (raw) return raw
+    return {
+      total: totalItems || items.length || 0,
+      pending: items.filter((i) => i.status === 'pending').length,
+      resolved: items.filter((i) => i.status === 'resolved').length,
+      rejected: items.filter((i) => i.status === 'rejected').length,
+    }
+  }, [statsData, listData, totalItems, items])
 
   const refreshData = () => {
     queryClient.invalidateQueries({ queryKey: ['complaints'] })

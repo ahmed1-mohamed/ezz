@@ -51,7 +51,16 @@ export default function AdminSchedule() {
   const teachers = Array.isArray(teachersRes?.data) ? teachersRes.data : []
 
   const weekInfo = timetable?.weekInfo
-  const weekDates = useMemo(() => getWeekDates(weekInfo?.startDate), [weekInfo?.startDate])
+  const weekDates = useMemo(() => {
+    if (Array.isArray(timetable?.days) && timetable.days.length === 7) {
+      const datesFromDays = timetable.days
+        .map((d) => (d.date ? parseLocalDate(d.date) : null))
+        .filter(Boolean)
+      if (datesFromDays.length === 7) return datesFromDays
+    }
+    return getWeekDates(weekInfo?.startDate)
+  }, [timetable?.days, weekInfo?.startDate])
+
   const sessions = useMemo(
     () => (timetable?.days || []).flatMap((day) => day.sessions || []),
     [timetable]
@@ -60,7 +69,10 @@ export default function AdminSchedule() {
   const getTeacherName = (tItem) => {
     if (!tItem) return ''
     if (typeof tItem.name === 'object' && tItem.name !== null) {
-      return isRtl ? tItem.name.ar || tItem.name.en : tItem.name.en || tItem.name.ar
+      return isRtl ? (tItem.name.ar || tItem.name.en || '') : (tItem.name.en || tItem.name.ar || '')
+    }
+    if (tItem.nameAr || tItem.nameEn) {
+      return isRtl ? (tItem.nameAr || tItem.nameEn || tItem.name) : (tItem.nameEn || tItem.nameAr || tItem.name)
     }
     return tItem.name || ''
   }
@@ -88,24 +100,71 @@ export default function AdminSchedule() {
   }
 
   const handleEdit = (session) => {
+    const groupName =
+      (typeof session.group?.name === 'object'
+        ? (isRtl ? session.group?.name?.ar : session.group?.name?.en)
+        : session.group?.name) || ''
     showSuccessToast(
-      t('adminDashboard.schedule.editSessionToast', 'تعديل الجلسة: {{name}}', { name: session.group?.name }),
+      t('adminDashboard.schedule.editSessionToast', 'تعديل الجلسة: {{name}}', { name: groupName }),
       isRtl
     )
   }
 
   const handleDelete = async (session) => {
-    const isConfirmed = await showDeleteConfirm(isRtl, session.group?.name)
+    const groupName =
+      (typeof session.group?.name === 'object'
+        ? (isRtl ? session.group?.name?.ar : session.group?.name?.en)
+        : session.group?.name) || ''
+    const isConfirmed = await showDeleteConfirm(isRtl, groupName)
     if (!isConfirmed) return
     showSuccessToast(
-      t('adminDashboard.schedule.deleteSessionToast', 'تم حذف الجلسة رقم: {{id}}', { id: session.sessionNumber }),
+      t('adminDashboard.schedule.deleteSessionToast', 'تم حذف الجلسة رقم: {{id}}', { id: session.sessionNumber || '' }),
       isRtl
     )
   }
 
-  const weekLabel = weekInfo?.isCurrentWeek
-    ? t('adminDashboard.schedule.currentWeek', 'الأسبوع الحالي')
-    : weekInfo?.weekLabel
+  const weekLabel = useMemo(() => {
+    if (weekInfo?.isCurrentWeek) {
+      return t('adminDashboard.schedule.currentWeek', 'الأسبوع الحالي')
+    }
+    if (weekInfo?.weekNumber) {
+      return isRtl ? `الأسبوع ${weekInfo.weekNumber}` : `Week ${weekInfo.weekNumber}`
+    }
+    if (weekInfo?.weekLabel) {
+      if (isRtl && /week\s*(\d+)/i.test(weekInfo.weekLabel)) {
+        const match = weekInfo.weekLabel.match(/week\s*(\d+)/i)
+        return `الأسبوع ${match[1]}`
+      }
+      if (!isRtl && /الأسبوع\s*(\d+)/.test(weekInfo.weekLabel)) {
+        const match = weekInfo.weekLabel.match(/الأسبوع\s*(\d+)/)
+        return `Week ${match[1]}`
+      }
+      return weekInfo.weekLabel
+    }
+    return ''
+  }, [weekInfo, isRtl, t])
+
+  const formattedWeekRange = useMemo(() => {
+    if (weekInfo?.startDate && weekInfo?.endDate) {
+      return isRtl
+        ? `من ${weekInfo.startDate} إلى ${weekInfo.endDate}`
+        : `From ${weekInfo.startDate} to ${weekInfo.endDate}`
+    }
+    if (weekInfo?.formattedRange) {
+      if (!isRtl && /[\u0600-\u06FF]/.test(weekInfo.formattedRange)) {
+        if (weekInfo.startDate && weekInfo.endDate) {
+          return `From ${weekInfo.startDate} to ${weekInfo.endDate}`
+        }
+      }
+      if (isRtl && weekInfo.formattedRange.toLowerCase().startsWith('from')) {
+        if (weekInfo.startDate && weekInfo.endDate) {
+          return `من ${weekInfo.startDate} إلى ${weekInfo.endDate}`
+        }
+      }
+      return weekInfo.formattedRange
+    }
+    return ''
+  }, [weekInfo, isRtl])
 
   const prevLabel = t('adminDashboard.schedule.previousWeek', 'الأسبوع السابق')
   const nextLabel = t('adminDashboard.schedule.nextWeek', 'الأسبوع التالي')
@@ -137,7 +196,7 @@ export default function AdminSchedule() {
           </button>
           <div className="px-4 py-1.5 text-center">
             <span className="block text-sm font-extrabold text-slate-800 dark:text-slate-100 whitespace-nowrap">{weekLabel || '—'}</span>
-            <span className="block text-[11px] text-slate-400 whitespace-nowrap min-h-[16px]">{weekInfo?.formattedRange}</span>
+            <span className="block text-[11px] text-slate-400 whitespace-nowrap min-h-[16px]" dir={isRtl ? 'rtl' : 'ltr'}>{formattedWeekRange}</span>
           </div>
           <button
             type="button"

@@ -1,10 +1,47 @@
-import { useState } from 'react'
-import { Trash2, Pencil, Award, Eye } from 'lucide-react'
+import {
+  Trash2,
+  Pencil,
+  Award,
+  Eye,
+  Check,
+  X,
+  Layers,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Star,
+  Trophy,
+  Medal,
+  Heart,
+  User,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+function renderRewardIcon(icon) {
+  if (!icon) return <span className="text-2xl">🎁</span>
+  const lower = String(icon).toLowerCase().trim()
+  if (lower === 'star') return <Star className="w-7 h-7 text-amber-500 fill-amber-500" />
+  if (lower === 'trophy') return <Trophy className="w-7 h-7 text-amber-500" />
+  if (lower === 'award') return <Award className="w-7 h-7 text-amber-500" />
+  if (lower === 'medal') return <Medal className="w-7 h-7 text-amber-500" />
+  if (lower === 'heart') return <Heart className="w-7 h-7 text-rose-500 fill-rose-500" />
+  return <span className="text-2xl">{icon}</span>
+}
+
+function getLocalizedText(val, isRtl) {
+  if (!val) return ''
+  if (typeof val === 'object') {
+    return isRtl ? (val.ar || val.en || '') : (val.en || val.ar || '')
+  }
+  return String(val)
+}
+
 export default function RewardsSuggestions({
-  suggestions,
-  stats,
+  suggestions = [],
+  stats = {},
+  activeFilter = 'all',
+  onFilterChange,
+  isLoading = false,
   onApprove,
   onReject,
   onEdit,
@@ -13,160 +50,248 @@ export default function RewardsSuggestions({
 }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-  const p = (key) => t(`adminDashboard.rewards.${key}`, key)
+  const p = (key, fallback) => t(`adminDashboard.rewards.${key}`, fallback)
 
-  const [activeTab, setActiveTab] = useState('pending') // 'all' or 'pending'
-
-  const filtered = activeTab === 'all'
-    ? suggestions
-    : suggestions.filter((s) => s.status === 'pending')
-
-  const pendingCount = suggestions.filter((s) => s.status === 'pending').length
-
-  const statsItems = [
-    { label: p('statTotalSuggestions'), value: stats?.total || stats?.totalSuggestions || 0, color: 'text-slate-700 dark:text-slate-300' },
-    { label: p('statApproved'), value: stats?.accepted || stats?.approvedCount || 0, color: 'text-emerald-600 dark:text-emerald-400' },
-    { label: p('statPendingReview'), value: stats?.pending || stats?.pendingCount || 0, color: 'text-blue-600 dark:text-blue-400' },
-    { label: p('statRejected'), value: stats?.rejected || stats?.rejectedCount || 0, color: 'text-red-600 dark:text-red-400' },
+  const statsCards = [
+    {
+      id: 'all',
+      label: p('statTotalSuggestions', 'إجمالي المقترحات'),
+      value: stats?.total ?? 0,
+      icon: Layers,
+      textColor: 'text-slate-800 dark:text-slate-100',
+      bgIcon: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+      activeBorder: 'border-[#0f7a6c] ring-2 ring-[#0f7a6c]/20 bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10',
+    },
+    {
+      id: 'pending',
+      label: p('statPendingReview', 'قيد المراجعة'),
+      value: stats?.pending ?? 0,
+      icon: Clock,
+      textColor: 'text-amber-600 dark:text-amber-400',
+      bgIcon: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+      activeBorder: 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/60 dark:bg-amber-900/10',
+    },
+    {
+      id: 'accepted',
+      label: p('statApproved', 'المقبولة'),
+      value: stats?.accepted ?? 0,
+      icon: CheckCircle2,
+      textColor: 'text-emerald-600 dark:text-emerald-400',
+      bgIcon: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+      activeBorder: 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/60 dark:bg-emerald-900/10',
+    },
+    {
+      id: 'rejected',
+      label: p('statRejected', 'المرفوضة'),
+      value: stats?.rejected ?? 0,
+      icon: XCircle,
+      textColor: 'text-rose-600 dark:text-rose-400',
+      bgIcon: 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400',
+      activeBorder: 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/60 dark:bg-rose-900/10',
+    },
   ]
+
+  const renderStatusBadge = (status) => {
+    if (status === 'accepted') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 shadow-sm">
+          <CheckCircle2 size={12} />
+          {isRtl ? 'مقبولة' : 'Accepted'}
+        </span>
+      )
+    }
+    if (status === 'rejected') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 shadow-sm">
+          <XCircle size={12} />
+          {isRtl ? 'مرفوضة' : 'Rejected'}
+        </span>
+      )
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 shadow-sm">
+        <Clock size={12} />
+        {isRtl ? 'قيد المراجعة' : 'Pending'}
+      </span>
+    )
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'pending'
-                ? 'bg-[#0f7a6c] text-white shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-              }`}
-          >
-            {p('tabPending')} ({pendingCount})
-          </button>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'all'
-                ? 'bg-[#0f7a6c] text-white shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-              }`}
-          >
-            {p('tabAll')} ({suggestions.length})
-          </button>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {pendingCount > 0 && (
-            <span className="px-3 py-1 bg-amber-500 text-white rounded-full text-xs font-bold animate-pulse">
-              {pendingCount} {p('pendingBadgeSuffix')}
-            </span>
-          )}
-          <h2 className="text-slate-800 dark:text-white font-bold text-base flex items-center gap-2">
-            <span>{p('suggestionsTitle')}</span>
-            <span className="text-amber-500">⏰</span>
-          </h2>
-        </div>
-      </div>
-
+      {/* 4 Clickable Rectangles corresponding to each endpoint */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {statsItems.map((item, idx) => (
-          <div
-            key={idx}
-            className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800/60 shadow-sm flex flex-col items-center justify-center text-center"
-          >
-            <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold">
-              {item.label}
-            </span>
-            <span className={`text-2xl font-extrabold mt-1.5 ${item.color}`}>
-              {item.value}
-            </span>
-          </div>
-        ))}
+        {statsCards.map((card) => {
+          const Icon = card.icon
+          const isActive = (activeFilter || 'all') === card.id
+          return (
+            <button
+              key={card.id}
+              type="button"
+              onClick={() => onFilterChange?.(card.id)}
+              className={`bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all cursor-pointer shadow-soft hover:shadow-md flex items-center justify-between text-start ${
+                isActive
+                  ? card.activeBorder
+                  : 'border-slate-100 dark:border-slate-800/60 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div>
+                <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold block">
+                  {card.label}
+                </span>
+                <span className={`text-2xl font-black mt-1 block ${card.textColor}`}>
+                  {card.value}
+                </span>
+              </div>
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${card.bgIcon}`}>
+                <Icon size={20} />
+              </div>
+            </button>
+          )
+        })}
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="py-12 bg-white dark:bg-slate-900 rounded-3xl text-center text-slate-400">
-          {p('noSuggestions')}
+      {/* Content Area */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800/60 animate-pulse space-y-4"
+            >
+              <div className="h-24 bg-slate-100 dark:bg-slate-800 rounded-2xl" />
+              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto" />
+              <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-3/4 mx-auto" />
+            </div>
+          ))}
+        </div>
+      ) : suggestions.length === 0 ? (
+        <div className="py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 text-center text-slate-400 dark:text-slate-500 shadow-soft">
+          <Award className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+          <p className="font-bold text-sm">
+            {p('noSuggestions', 'لا توجد اقتراحات مكافآت في هذا التصنيف')}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {filtered.map((sug) => (
-            <div
-              key={sug.id}
-              className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-5 shadow-sm flex flex-col relative transition-all hover:shadow-md"
-            >
+          {suggestions.map((sug) => {
+            const name = getLocalizedText(sug.name, isRtl)
+            const description = getLocalizedText(sug.description, isRtl)
+            const sugId = sug.id || sug._id
 
-              <div className="flex flex-col items-center text-center mt-3 flex-1">
-                <div className="w-14 h-14 rounded-2xl bg-sky-50 dark:bg-sky-950/20 text-sky-600 dark:text-sky-400 flex items-center justify-center text-3xl shadow-sm mb-3">
-                  {sug.icon || sug.emoji}
-                </div>
-                <h4 className="font-bold text-slate-800 dark:text-white text-base leading-tight">
-                  {typeof sug.name === 'object' ? (isRtl ? sug.name.ar : sug.name.en) : (isRtl ? sug.name : sug.nameEn)}
-                </h4>
-                <p className="text-slate-400 dark:text-slate-500 text-xs mt-2.5 max-w-sm px-4">
-                  {typeof sug.description === 'object' ? (isRtl ? sug.description.ar : sug.description.en) : (isRtl ? sug.description : sug.descriptionEn)}
-                </p>
-              </div>
+            return (
+              <div
+                key={sugId}
+                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-5 shadow-soft flex flex-col justify-between transition-all hover:shadow-md"
+              >
+                <div>
+                  {/* Card Banner with Background Color and Icon */}
+                  <div
+                    className="h-24 rounded-2xl flex items-center justify-center relative shadow-sm"
+                    style={{ backgroundColor: sug.backgroundColor || '#f3f4f6' }}
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-md">
+                      {renderRewardIcon(sug.icon || sug.emoji)}
+                    </div>
+                    <div className="absolute top-3 end-3">
+                      {renderStatusBadge(sug.status)}
+                    </div>
+                  </div>
 
-              <div className="flex items-center justify-between mt-5 text-xs">
-                {sug.studentTarget && (
-                  <span className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-500 dark:text-slate-400 font-semibold">
-                    {isRtl ? sug.studentTarget : sug.studentTargetEn}
-                  </span>
-                )}
-                {sug.grantedCount !== undefined && (
-                  <span className="flex items-center gap-1.5 text-amber-500 font-bold">
-                    <Award size={14} />
-                    {sug.grantedCount} {p('grantedBadgesSuffix')}
-                  </span>
-                )}
-              </div>
+                  {/* Name and Description */}
+                  <div className="text-center mt-3 px-2">
+                    <h4 className="font-bold text-slate-800 dark:text-white text-base leading-snug">
+                      {name}
+                    </h4>
+                    {description && (
+                      <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 line-clamp-2">
+                        {description}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4 mt-4">
-                <div className="flex items-center gap-2">
-                  {onView && (
-                    <button
-                      onClick={() => onView(sug)}
-                      className="p-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 transition-colors"
-                      title={isRtl ? 'عرض' : 'View'}
-                    >
-                      <Eye size={15} />
-                    </button>
+                  {/* Teacher Info */}
+                  {sug.teacher?.name && (
+                    <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/60 w-full text-xs text-slate-600 dark:text-slate-400 mt-3">
+                      {sug.teacher.image ? (
+                        <img
+                          src={sug.teacher.image}
+                          alt={sug.teacher.name}
+                          className="w-6 h-6 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-emerald-950/30 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold shrink-0">
+                          <User size={12} />
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[11px] text-slate-400">
+                          {isRtl ? 'المعلم:' : 'Teacher:'}
+                        </span>
+                        <span className="font-semibold truncate text-slate-700 dark:text-slate-300">
+                          {sug.teacher.name}
+                        </span>
+                      </div>
+                    </div>
                   )}
-                  <button
-                    onClick={() => onEdit(sug)}
-                    className="p-1.5 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 transition-colors"
-                    title={isRtl ? 'تعديل' : 'Edit'}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    onClick={() => onDelete(sug)}
-                    className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 transition-colors"
-                    title={isRtl ? 'حذف' : 'Delete'}
-                  >
-                    <Trash2 size={15} />
-                  </button>
                 </div>
 
-                {sug.status === 'pending' && (
-                  <div className="flex items-center gap-2">
+                {/* Actions Footer */}
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-4">
+                  <div className="flex items-center gap-1">
+                    {onView && (
+                      <button
+                        type="button"
+                        onClick={() => onView(sug)}
+                        className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                        title={isRtl ? 'عرض التفاصيل' : 'View Details'}
+                      >
+                        <Eye size={16} />
+                      </button>
+                    )}
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(sug)}
+                        className="p-2 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/30 rounded-xl transition-colors cursor-pointer"
+                        title={isRtl ? 'تعديل' : 'Edit'}
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    )}
                     <button
-                      onClick={() => onReject(sug.id || sug._id)}
-                      className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100/60 text-red-500 text-xs font-bold transition-colors"
+                      type="button"
+                      onClick={() => onDelete(sug)}
+                      className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-xl transition-colors cursor-pointer"
+                      title={isRtl ? 'حذف' : 'Delete'}
                     >
-                      {p('rejectBtn')}
-                    </button>
-                    <button
-                      onClick={() => onApprove(sug.id || sug._id)}
-                      className="px-3 py-1.5 rounded-lg bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors"
-                    >
-                      {p('approveBtn')}
+                      <Trash2 size={16} />
                     </button>
                   </div>
-                )}
+
+                  {sug.status === 'pending' && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onReject(sugId)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <X size={14} />
+                        {p('rejectBtn', 'رفض')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onApprove(sugId)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
+                      >
+                        <Check size={14} />
+                        {p('approveBtn', 'موافقة')}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

@@ -9,7 +9,6 @@ import {
     ExternalLink,
     Copy,
     Check,
-    Search,
     BookOpen,
     Sparkles,
     CalendarDays,
@@ -273,7 +272,6 @@ export default function SchedulePage({ role }) {
     const [timetableData, setTimetableData] = useState(fallbackData)
     const [loading, setLoading] = useState(true)
     const [activeDayIndex, setActiveDayIndex] = useState(0)
-    const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'scheduled' | 'live' | 'completed'
     const [copiedSessionId, setCopiedSessionId] = useState(null)
 
@@ -422,24 +420,19 @@ export default function SchedulePage({ role }) {
     const activeDaySessions = useMemo(() => {
         if (!activeDay || !activeDay.sessions) return []
         return activeDay.sessions.filter((s) => {
-            const matchesSearch =
-                !searchTerm.trim() ||
-                (s.title && s.title.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
-                (s.teacher?.name && s.teacher.name.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
-                (s.group?.name && s.group.name.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
-                (s.curriculum?.name && s.curriculum.name.toLowerCase().includes(searchTerm.toLowerCase().trim())) ||
-                (s.studentLevel?.name && s.studentLevel.name.toLowerCase().includes(searchTerm.toLowerCase().trim()))
-
-            const matchesStatus =
-                statusFilter === 'all' ||
-                s.status === statusFilter ||
-                (statusFilter === 'scheduled' && (s.status === 'scheduled' || s.status === 'upcoming' || s.badgeType === 'upcoming')) ||
-                (statusFilter === 'live' && (s.status === 'live' || s.isLive || s.badgeType === 'live')) ||
-                (statusFilter === 'completed' && (s.status === 'completed' || s.status === 'finished' || s.status === 'attended' || s.badgeType === 'completed'))
-
-            return matchesSearch && matchesStatus
+            if (statusFilter === 'all') return true
+            if (statusFilter === 'scheduled') {
+                return s.status === 'scheduled' || s.status === 'upcoming' || s.badgeType === 'upcoming'
+            }
+            if (statusFilter === 'live') {
+                return s.status === 'live' || s.isLive || s.badgeType === 'live'
+            }
+            if (statusFilter === 'completed') {
+                return s.status === 'completed' || s.status === 'finished' || s.status === 'attended' || s.badgeType === 'completed'
+            }
+            return s.status === statusFilter
         })
-    }, [activeDay, searchTerm, statusFilter])
+    }, [activeDay, statusFilter])
 
     const handleCopyZoom = useCallback((url, id) => {
         if (!url) return
@@ -486,24 +479,9 @@ export default function SchedulePage({ role }) {
                     </div>
                 </motion.div>
 
-                {/* Search & Filter Bar */}
-                <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                    {/* Search Input */}
-                    <div className="relative w-full md:w-80">
-                        <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-slate-400">
-                            <Search className="w-4 h-4" />
-                        </div>
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder={t('schedule.searchPlaceholder', 'ابحث عن حلقة، معلم، أو مجموعة...')}
-                            className="w-full bg-[#F5F8F7] border border-transparent focus:border-[#00695C] text-slate-800 rounded-2xl py-2.5 ps-10 pe-4 text-xs sm:text-sm outline-none transition-all placeholder-slate-400"
-                        />
-                    </div>
-
-                    {/* Filter Pills */}
-                    <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-start md:justify-end">
+                {/* Sessions Filter Bar */}
+                <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-sm border border-slate-100 flex items-center justify-center">
+                    <div className="flex items-center gap-2 flex-wrap justify-center">
                         {[
                             { key: 'all', label: t('schedule.filterAll', 'جميع الجلسات') },
                             { key: 'scheduled', label: t('schedule.filterScheduled', 'القادمة') },
@@ -513,7 +491,7 @@ export default function SchedulePage({ role }) {
                             <button
                                 key={flt.key}
                                 onClick={() => setStatusFilter(flt.key)}
-                                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                                className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                                     statusFilter === flt.key
                                         ? 'bg-[#00695C] text-white shadow-sm'
                                         : 'bg-slate-100 hover:bg-slate-200 text-slate-600'

@@ -2421,12 +2421,17 @@
       "loadError": "Failed to load the schedule",
       "editSessionToast": "Edit session: {{name}}",
       "deleteSessionToast": "Deleted session #{{id}}",
+      "edit": "Edit",
+      "delete": "Delete",
       "status": {
         "scheduled": "Scheduled",
         "postponed": "Postponed",
         "conflict": "Conflict",
         "cancelled": "Cancelled",
-        "completed": "Completed"
+        "completed": "Completed",
+        "live": "Live Now",
+        "in_progress": "In Progress",
+        "upcoming": "Upcoming"
       }
     },
     "packages": {

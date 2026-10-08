@@ -2240,12 +2240,17 @@
       "loadError": "تعذر تحميل الجدول الدراسي",
       "editSessionToast": "تعديل الجلسة: {{name}}",
       "deleteSessionToast": "تم حذف الجلسة رقم: {{id}}",
+      "edit": "تعديل",
+      "delete": "حذف",
       "status": {
         "scheduled": "مجدولة",
         "postponed": "مؤجلة",
         "conflict": "تعارض",
         "cancelled": "ملغاة",
-        "completed": "مكتملة"
+        "completed": "مكتملة",
+        "live": "مباشرة الآن",
+        "in_progress": "جارية",
+        "upcoming": "قادمة"
       }
     },
     "packages": {

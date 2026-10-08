@@ -19,18 +19,33 @@ export default function AdminRewards() {
   const [rewards, setRewards] = useState([])
   const [suggestions, setSuggestions] = useState([])
   const [suggestionsStats, setSuggestionsStats] = useState(null)
+  const [suggestionsFilter, setSuggestionsFilter] = useState('all')
+  const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const [activeMainTab, setActiveMainTab] = useState('rewards')
   const [showForm, setShowForm] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
 
+  const loadSuggestionsByStatus = useCallback(async (status) => {
+    setIsSuggestionsLoading(true)
+    setSuggestionsFilter(status)
+    const res = await adminRewardsApi.fetchSuggestions(status)
+    if (res?.success) {
+      setSuggestions(res.data)
+      if (res.stats) {
+        setSuggestionsStats(res.stats)
+      }
+    }
+    setIsSuggestionsLoading(false)
+  }, [])
+
   const loadData = useCallback(async () => {
     setLoading(true)
     const [statsRes, rewardsRes, suggestionsRes] = await Promise.all([
       adminRewardsApi.fetchStats(),
       adminRewardsApi.fetchRewards(),
-      adminRewardsApi.fetchSuggestions(),
+      adminRewardsApi.fetchSuggestions(suggestionsFilter),
     ])
     if (statsRes?.data) setStats(statsRes.data)
     if (rewardsRes?.success) setRewards(rewardsRes.data)
@@ -41,7 +56,7 @@ export default function AdminRewards() {
       }
     }
     setLoading(false)
-  }, [])
+  }, [suggestionsFilter])
 
   useEffect(() => {
     loadData()
@@ -109,9 +124,9 @@ export default function AdminRewards() {
     const res = await adminRewardsApi.approveSuggestion(id)
     if (res?.success) {
       showSuccessToast(isRtl ? 'تم قبول المقترح بنجاح' : 'Suggestion approved successfully', isRtl)
-      loadData()
+      loadSuggestionsByStatus(suggestionsFilter)
     } else {
-      showErrorToast(isRtl ? 'فشل قبول المقترح' : 'Failed to approve suggestion', isRtl)
+      showErrorToast(res?.error || (isRtl ? 'فشل قبول المقترح' : 'Failed to approve suggestion'), isRtl)
     }
   }
 
@@ -119,9 +134,9 @@ export default function AdminRewards() {
     const res = await adminRewardsApi.rejectSuggestion(id)
     if (res?.success) {
       showSuccessToast(isRtl ? 'تم رفض المقترح بنجاح' : 'Suggestion rejected successfully', isRtl)
-      loadData()
+      loadSuggestionsByStatus(suggestionsFilter)
     } else {
-      showErrorToast(isRtl ? 'فشل رفض المقترح' : 'Failed to reject suggestion', isRtl)
+      showErrorToast(res?.error || (isRtl ? 'فشل رفض المقترح' : 'Failed to reject suggestion'), isRtl)
     }
   }
 
@@ -133,9 +148,9 @@ export default function AdminRewards() {
     const res = await adminRewardsApi.deleteSuggestion(suggestion.id || suggestion._id)
     if (res?.success) {
       showSuccessToast(isRtl ? 'تم حذف المقترح بنجاح' : 'Suggestion deleted successfully', isRtl)
-      loadData()
+      loadSuggestionsByStatus(suggestionsFilter)
     } else {
-      showErrorToast(isRtl ? 'فشل حذف المقترح' : 'Failed to delete suggestion', isRtl)
+      showErrorToast(res?.error || (isRtl ? 'فشل حذف المقترح' : 'Failed to delete suggestion'), isRtl)
     }
   }
 
@@ -211,6 +226,9 @@ export default function AdminRewards() {
         <RewardsSuggestions
           suggestions={suggestions}
           stats={suggestionsStats || stats || {}}
+          activeFilter={suggestionsFilter}
+          onFilterChange={loadSuggestionsByStatus}
+          isLoading={isSuggestionsLoading}
           onView={(item) => showRewardDetails(item, isRtl)}
           onApprove={handleApproveSuggestion}
           onReject={handleRejectSuggestion}

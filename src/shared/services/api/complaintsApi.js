@@ -2,13 +2,6 @@ import api from './axiosConfig'
 
 const BASE_URL = '/api/v1/complaints-suggestions/private'
 
-const STATUS_ENDPOINTS = {
-  all: BASE_URL,
-  pending: `${BASE_URL}/pending`,
-  resolved: `${BASE_URL}/resolved`,
-  rejected: `${BASE_URL}/rejected`,
-}
-
 // The backend rejects empty query values, so only meaningful params are forwarded.
 const cleanParams = (params = {}) =>
   Object.fromEntries(
@@ -16,35 +9,45 @@ const cleanParams = (params = {}) =>
   )
 
 export const complaintsApi = {
-  fetchComplaints: async ({ status = 'all', ...params } = {}) => {
-    const endpoint = STATUS_ENDPOINTS[status] || STATUS_ENDPOINTS.all
-    const response = await api.get(endpoint, { params: cleanParams(params) })
+  fetchComplaints: async ({ status, type, page, limit, ...otherParams } = {}) => {
+    const queryParams = cleanParams({
+      ...(status && status !== 'all' ? { status } : {}),
+      ...(type ? { type } : {}),
+      ...(page ? { page } : {}),
+      ...(limit ? { limit } : {}),
+      ...otherParams,
+    })
+
+    const response = await api.get(BASE_URL, {
+      params: queryParams,
+      skipLang: true,
+    })
     return response.data
   },
 
   fetchComplaintById: async (id) => {
-    const response = await api.get(`${BASE_URL}/${id}`)
-    return response.data?.data || null
+    const response = await api.get(`${BASE_URL}/${id}`, { skipLang: true })
+    return response.data?.data || response.data || null
   },
 
   // Resolving a complaint and accepting a suggestion are the same action from the admin's point of view.
   resolveComplaint: async ({ id, notes }) => {
-    const response = await api.patch(`${BASE_URL}/resolve/${id}`, { notes })
+    const response = await api.patch(`${BASE_URL}/resolve/${id}`, { notes }, { skipLang: true })
     return response.data
   },
 
   acceptSuggestion: async ({ id, notes }) => {
-    const response = await api.patch(`${BASE_URL}/accept/${id}`, { notes })
+    const response = await api.patch(`${BASE_URL}/accept/${id}`, { notes }, { skipLang: true })
     return response.data
   },
 
   rejectComplaint: async ({ id, notes }) => {
-    const response = await api.patch(`${BASE_URL}/reject/${id}`, { notes })
+    const response = await api.patch(`${BASE_URL}/reject/${id}`, { notes }, { skipLang: true })
     return response.data
   },
 
   deleteComplaint: async (id) => {
-    const response = await api.delete(`${BASE_URL}/${id}`)
+    const response = await api.delete(`${BASE_URL}/${id}`, { skipLang: true })
     return response.data
   },
 }
