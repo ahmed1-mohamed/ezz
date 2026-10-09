@@ -106,7 +106,7 @@ export default function TeacherDetailsScreen({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="max-w-7xl mx-auto space-y-6 pb-12 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
        <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {onCancel && (

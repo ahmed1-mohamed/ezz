@@ -13,7 +13,6 @@ export default function TeacherAcademicInfoCard({
   formData,
   onChange,
   isRtl = true,
-  t,
   curricula = []
 }) {
   const [newAchievement, setNewAchievement] = useState('')
