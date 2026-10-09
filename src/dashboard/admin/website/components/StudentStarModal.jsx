@@ -172,8 +172,7 @@ export default function StudentStarModal({
             </div>
 
             <form onSubmit={handleFormSubmit} className="space-y-6 text-start">
-              {/* Selected Student Preview Bar */}
-              {currentStar.studentId ? (
+               {currentStar.studentId ? (
                 <div className="p-4 bg-[#e9f6f3]/60 dark:bg-[#0f7a6c]/10 border border-[#0f7a6c]/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <label className="relative cursor-pointer group">
@@ -231,8 +230,7 @@ export default function StudentStarModal({
                 </div>
               ) : null}
 
-              {/* Student Search & Select Section (Add mode only or when no student selected) */}
-              {isAdd && (showStudentSearch || !currentStar.studentId) && (
+               {isAdd && (showStudentSearch || !currentStar.studentId) && (
                 <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4 animate-fadeIn">
                   <div className="relative">
                     <span className="absolute inset-y-0 start-0 flex items-center ps-4 text-slate-400">

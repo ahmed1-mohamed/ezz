@@ -39,7 +39,7 @@ export default function TeacherPersonalInfoMetaCard({
               {isRtl ? 'رقم الجوال' : 'Mobile Number'}
             </span>
             <span className="text-sm font-extrabold text-slate-700 dark:text-slate-200" dir="ltr">
-              {formData.phone || '+966501234567'}
+              {formData.phone || '-'}
             </span>
           </div>
         </div>

@@ -77,8 +77,7 @@ export default function TeachersListHeader({
         </form>
       </div>
 
-      {/* Filter Tabs */}
-      {onStatusFilterChange && (
+       {onStatusFilterChange && (
         <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 overflow-x-auto">
           <button
             type="button"

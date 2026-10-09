@@ -6,8 +6,15 @@ import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
+import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi'
 import GroupInfoCard from './GroupInfoCard'
 import GroupScheduleCard from './GroupScheduleCard'
+
+const resolveEntityId = (val) => {
+  if (!val) return ''
+  if (typeof val === 'string') return val
+  return val.id || val._id || val.teacher_id || ''
+}
 
 export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCancel }) {
   const { t, i18n } = useTranslation()
@@ -19,16 +26,16 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
     name: typeof group?.name === 'object' ? (group.name.ar || '') : (group?.name || ''),
     nameAr: typeof group?.name === 'object' ? (group.name.ar || '') : (group?.name || ''),
     nameEn: typeof group?.name === 'object' ? (group.name.en || '') : (group?.nameEn || ''),
-    country: group?.country?.id || group?.country || '6a2d618a65f1cb3419a92672',
-    curriculum: group?.curriculum?.id || group?.curriculum || '6a35c80bed7ee094f8cac020',
-    studentLevel: group?.studentLevel?.id || group?.studentLevel || '6a35c80bed7ee094f8cac010',
-    teacher: group?.teacher?.id || (typeof group?.teacher === 'string' ? group.teacher : '6a35c80bed7ee094f8cacfbe'),
+    country: resolveEntityId(group?.country),
+    curriculum: resolveEntityId(group?.curriculum),
+    studentLevel: resolveEntityId(group?.studentLevel),
+    teacher: resolveEntityId(group?.teacher),
     type: group?.type || 'group',
     language: group?.language || 'العربية',
     maxStudents: group?.maxStudents || 5,
     status: group?.status || 'active',
-    startDate: group?.startDate || '2026-02-01',
-    endDate: group?.endDate || '2026-07-31',
+    startDate: group?.startDate ? group.startDate.split('T')[0] : '',
+    endDate: group?.endDate ? group.endDate.split('T')[0] : '',
     image: group?.image || null,
   })
 
@@ -63,35 +70,42 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
   const [curricula, setCurricula] = useState([])
   const [levels, setLevels] = useState([])
   const [teachers, setTeachers] = useState([])
+  const [languages, setLanguages] = useState([])
   const [loadingOptions, setLoadingOptions] = useState(true)
 
   useEffect(() => {
     let isMounted = true
     const loadSelectOptions = async () => {
       try {
-        const [cRes, curRes, lvlRes, tRes] = await Promise.allSettled([
+        const [cRes, curRes, lvlRes, tRes, langRes] = await Promise.allSettled([
           landingApi.fetchCountries(),
           adminCurriculaApi.fetchCurricula(),
           adminLevelsApi.fetchLevels(),
           teachersApi.fetchTeachers({ limit: 100 }),
+          explanationLanguagesApi.fetchLanguages(),
         ])
 
         if (!isMounted) return
 
-        if (cRes.status === 'fulfilled' && Array.isArray(cRes.value)) {
-          setCountries(cRes.value)
+        if (cRes.status === 'fulfilled' && cRes.value) {
+          const list = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
+          if (Array.isArray(list) && list.length > 0) setCountries(list)
         }
-        if (curRes.status === 'fulfilled') {
+        if (curRes.status === 'fulfilled' && curRes.value) {
           const list = curRes.value?.data || (Array.isArray(curRes.value) ? curRes.value : [])
-          if (list.length > 0) setCurricula(list)
+          if (Array.isArray(list) && list.length > 0) setCurricula(list)
         }
-        if (lvlRes.status === 'fulfilled') {
+        if (lvlRes.status === 'fulfilled' && lvlRes.value) {
           const list = lvlRes.value?.data || (Array.isArray(lvlRes.value) ? lvlRes.value : [])
-          if (list.length > 0) setLevels(list)
+          if (Array.isArray(list) && list.length > 0) setLevels(list)
         }
-        if (tRes.status === 'fulfilled') {
+        if (tRes.status === 'fulfilled' && tRes.value) {
           const list = tRes.value?.data || (Array.isArray(tRes.value) ? tRes.value : [])
-          if (list.length > 0) setTeachers(list)
+          if (Array.isArray(list) && list.length > 0) setTeachers(list)
+        }
+        if (langRes.status === 'fulfilled' && langRes.value) {
+          const list = langRes.value?.data || (Array.isArray(langRes.value) ? langRes.value : [])
+          if (Array.isArray(list) && list.length > 0) setLanguages(list)
         }
       } catch (err) {
         console.warn('Could not load options for group form:', err)
@@ -216,9 +230,9 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
         ar: nameAr,
         en: nameEn,
       },
-      country: formData.country || '6a2d618a65f1cb3419a92672',
+      country: formData.country,
       curriculum: formData.curriculum,
-      studentLevel: formData.studentLevel || '6a35c80bed7ee094f8cac010',
+      studentLevel: formData.studentLevel,
       type: formData.type || 'group',
       language: formData.language || 'العربية',
       maxStudents: maxStudentsNum || 5,
@@ -228,8 +242,8 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
         startTime: s.startTime || s.timeFrom || '16:00',
         endTime: s.endTime || s.timeTo || '17:30',
       })),
-      startDate: formData.startDate || '2026-02-01',
-      endDate: formData.endDate || '2026-07-31',
+      startDate: formData.startDate,
+      endDate: formData.endDate,
       status: formData.status || 'active',
     }
 
@@ -238,8 +252,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
 
   return (
     <div className="space-y-6" dir={isRtlResolved ? 'rtl' : 'ltr'}>
-      {/* Header bar */}
-      <div className="flex items-center justify-between">
+       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onCancel}
@@ -268,6 +281,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
           curricula={curricula}
           levels={levels}
           teachers={teachers}
+          languages={languages}
           isRtl={isRtlResolved}
           t={t}
           isEditing={Boolean(group)}
@@ -289,8 +303,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
           error={errors.schedule}
         />
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="button"
             onClick={onCancel}

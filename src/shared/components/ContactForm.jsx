@@ -33,7 +33,7 @@ export default function ContactForm() {
         name: '',
         email: '',
         title: '',
-        phone: '+20 ',
+        phone: '',
         message: ''
     })
     const [errors, setErrors] = useState({})
@@ -55,7 +55,7 @@ export default function ContactForm() {
                     name: '',
                     email: '',
                     title: '',
-                    phone: '+20 ',
+                    phone: '',
                     message: ''
                 })
                 dispatch(resetMessageSubmitStatus())

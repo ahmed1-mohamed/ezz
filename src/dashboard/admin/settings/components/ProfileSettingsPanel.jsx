@@ -27,7 +27,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const [savingProfile, setSavingProfile] = useState(false);
     const [apiCountries, setApiCountries] = useState([]);
 
-    const [selectedCountryCode, setSelectedCountryCode] = useState({ code: '+20', flag: '🇪🇬', name: 'Egypt' });
+    const [selectedCountryCode, setSelectedCountryCode] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [phoneVal, setPhoneVal] = useState('');
 
@@ -43,7 +43,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             const sortedCountries = [...fetchedCountries].sort((a, b) => {
                 const nameA = (a.name || a.nameEn || '').toLowerCase();
                 const nameB = (b.name || b.nameEn || '').toLowerCase();
-                return nameA.localeCompare(nameB, 'ar');
+                return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
             });
             setApiCountries(sortedCountries);
 
@@ -80,11 +80,11 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
                 const phoneData = res.data.phone || '';
 
-                const sortedCountries = [...fetchedCountries].filter(c => c.phoneCode).sort((a, b) => b.phoneCode.length - a.phoneCode.length);
-                let matchedPrefix = '+20';
+                const phoneCountries = [...fetchedCountries].filter(c => c.phoneCode).sort((a, b) => b.phoneCode.length - a.phoneCode.length);
+                let matchedPrefix = '';
                 let matchedCountry = null;
 
-                for (const c of sortedCountries) {
+                for (const c of phoneCountries) {
                     if (phoneData.startsWith(c.phoneCode)) {
                         matchedPrefix = c.phoneCode;
                         matchedCountry = c;
@@ -121,7 +121,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
     const handleSaveProfile = async () => {
         setSavingProfile(true);
-        const fullPhone = phoneVal ? `${selectedCountryCode.code} ${phoneVal.trim()}` : '';
+        const fullPhone = phoneVal ? `${selectedCountryCode?.code || ''} ${phoneVal.trim()}`.trim() : '';
         const payload = {
             nameAr: profileData.nameAr.trim(),
             nameEn: profileData.nameEn.trim(),
@@ -281,8 +281,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="h-12 flex items-center justify-center gap-2 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 rounded-xl transition-all text-sm font-semibold text-slate-600 dark:text-slate-300 cursor-pointer"
                             >
-                                <span>{selectedCountryCode.flag}</span>
-                                <span>({selectedCountryCode.code})</span>
+                                <span>{selectedCountryCode?.flag || '🌍'}</span>
+                                <span>{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
                             </button>
                             {isDropdownOpen && (
                                 <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden animate-fadeIn">

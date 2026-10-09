@@ -1,7 +1,7 @@
 import { BookOpen, Calendar } from 'lucide-react'
 
 export default function TeacherDetailsSessions({ teacher, isRtl, t }) {
-  const sessions = teacher?.sessions || []
+  const sessions = Array.isArray(teacher?.sessions) ? teacher.sessions : []
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
@@ -13,14 +13,14 @@ export default function TeacherDetailsSessions({ teacher, isRtl, t }) {
       <div className="space-y-4">
         {sessions.length === 0 ? (
           <div className="text-center py-6 text-slate-400 dark:text-slate-500 font-bold text-sm">
-            {t('adminDashboard.teachers.noSessions', 'لا توجد حصص حديثة')}
+            {t ? t('adminDashboard.teachers.noSessions', 'لا توجد حصص حديثة') : 'لا توجد حصص حديثة'}
           </div>
         ) : (
-          sessions.map((session) => {
-            const isLive = session.status === 'Live'
+          sessions.map((session, idx) => {
+            const isLive = session?.status === 'Live'
             return (
               <div
-                key={session.id}
+                key={session?.id || session?._id || idx}
                 className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-100/60 dark:border-slate-850/40"
               >
                 <div className="flex items-center gap-4">
@@ -29,12 +29,14 @@ export default function TeacherDetailsSessions({ teacher, isRtl, t }) {
                   </div>
                   <div>
                     <h4 className="text-sm font-extrabold text-slate-850 dark:text-white">
-                      {session.name}
+                      {session?.name || (isRtl ? 'حصة دراسية' : 'Lesson Session')}
                     </h4>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1.5">
-                      <Calendar size={12} />
-                      <span>{session.dateTime}</span>
-                    </p>
+                    {session?.dateTime && (
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1.5">
+                        <Calendar size={12} />
+                        <span>{session.dateTime}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -48,9 +50,11 @@ export default function TeacherDetailsSessions({ teacher, isRtl, t }) {
                       ? (isRtl ? 'مباشرة الآن' : 'Live Now')
                       : (isRtl ? 'قادمة' : 'Upcoming')}
                   </span>
-                  <span className="text-xs font-bold text-slate-400 dark:text-slate-500 hidden sm:inline">
-                    {session.students}
-                  </span>
+                  {session?.students !== undefined && (
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 hidden sm:inline">
+                      {session.students}
+                    </span>
+                  )}
                 </div>
               </div>
             )

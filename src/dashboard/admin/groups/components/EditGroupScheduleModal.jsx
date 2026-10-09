@@ -113,8 +113,7 @@ export default function EditGroupScheduleModal({ group, onClose, onSave, isRtl: 
         onClick={(e) => e.stopPropagation()}
         dir={isRtl ? 'rtl' : 'ltr'}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10 shrink-0">
+         <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
@@ -136,10 +135,8 @@ export default function EditGroupScheduleModal({ group, onClose, onSave, isRtl: 
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-5 overflow-y-auto flex-1">
-          {/* New Slot Pickers */}
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
+         <div className="p-6 space-y-5 overflow-y-auto flex-1">
+           <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block text-start">
               {t('adminDashboard.groups.addScheduleSlot', 'إضافة موعد جديد في الجدول')}
             </span>
@@ -198,8 +195,7 @@ export default function EditGroupScheduleModal({ group, onClose, onSave, isRtl: 
             </div>
           </div>
 
-          {/* Schedule List */}
-          <div className="space-y-2">
+           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 {t('adminDashboard.groups.currentSchedule', 'مواعيد الحصص المحددة')} ({schedule.length})
@@ -247,8 +243,7 @@ export default function EditGroupScheduleModal({ group, onClose, onSave, isRtl: 
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-end gap-3 sticky bottom-0">
+         <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-end gap-3 sticky bottom-0">
           <button
             type="button"
             onClick={onClose}

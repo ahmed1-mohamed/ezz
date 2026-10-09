@@ -12,18 +12,13 @@ import {
     BookOpen,
     Sparkles,
     CalendarDays,
-    Radio,
-    CheckCircle2,
-    Users,
-    ArrowRight,
-    ArrowLeft,
-    RotateCcw
+     CheckCircle2,
+        RotateCcw
 } from 'lucide-react'
 import { landingApi } from '@/shared/services/api/landingApi'
 import CTASection from '@/shared/components/CTASection.jsx'
 
-// Localized fallback week data matching backend response structure
-const getFallbackWeekData = (isEn) => ({
+ const getFallbackWeekData = (isEn) => ({
     week: {
         startDate: '2026-10-03',
         endDate: '2026-10-09',
@@ -445,8 +440,7 @@ export default function SchedulePage({ role }) {
         <div className="min-h-screen bg-[#EEF2F0]/80 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 font-sans">
             <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
 
-                {/* Hero Header */}
-                <motion.div
+                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -465,8 +459,7 @@ export default function SchedulePage({ role }) {
                         {timetableData.subtitle || t('schedule.pageSubtitle', 'تابع رحلتك القرآنية والعلمية مع نخبة من المعلمين المعتمدين في منارة العز وانضم لحصتك بنقرة واحدة.')}
                     </p>
 
-                    {/* Current Week Range Banner */}
-                    <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-white shadow-sm border border-slate-200/80 text-slate-700 text-xs sm:text-sm font-semibold mt-2">
+                     <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-white shadow-sm border border-slate-200/80 text-slate-700 text-xs sm:text-sm font-semibold mt-2">
                         <CalendarDays className="w-4 h-4 text-[#00695C]" />
                         <span>
                             {formattedWeekRange ||
@@ -479,8 +472,7 @@ export default function SchedulePage({ role }) {
                     </div>
                 </motion.div>
 
-                {/* Sessions Filter Bar */}
-                <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-sm border border-slate-100 flex items-center justify-center">
+                 <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-sm border border-slate-100 flex items-center justify-center">
                     <div className="flex items-center gap-2 flex-wrap justify-center">
                         {[
                             { key: 'all', label: t('schedule.filterAll', 'جميع الجلسات') },
@@ -503,8 +495,7 @@ export default function SchedulePage({ role }) {
                     </div>
                 </div>
 
-                {/* Days Navigation Tabs */}
-                <div className="flex justify-center gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none">
+                 <div className="flex justify-center gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none">
                     {days.map((d, idx) => {
                         const isSelected = activeDayIndex === idx
                         const sessionCount = d.sessions ? d.sessions.length : (d.sessionsCount || 0)
@@ -546,8 +537,7 @@ export default function SchedulePage({ role }) {
                     })}
                 </div>
 
-                {/* Active Day Title & Overview */}
-                {activeDay && (
+                 {activeDay && (
                     <div className="flex items-center justify-between px-2 border-b border-slate-200/60 pb-3">
                         <div className="flex items-center gap-2.5 text-slate-800 font-bold text-lg sm:text-xl">
                             <Calendar className="w-5 h-5 text-[#00695C]" />
@@ -566,8 +556,7 @@ export default function SchedulePage({ role }) {
                     </div>
                 )}
 
-                {/* Sessions List */}
-                <AnimatePresence mode="wait">
+                 <AnimatePresence mode="wait">
                     {loading ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((n) => (
@@ -601,10 +590,8 @@ export default function SchedulePage({ role }) {
                                         transition={{ duration: 0.3, delay: index * 0.05 }}
                                         className="bg-white rounded-[2rem] p-5 sm:p-7 shadow-sm border border-slate-100 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 hover:shadow-lg hover:border-[#00695C]/25 transition-all duration-300 group"
                                     >
-                                        {/* Main Session Info */}
-                                        <div className="space-y-3.5 flex-1 min-w-0">
-                                            {/* Top badges */}
-                                            <div className="flex flex-wrap items-center gap-2">
+                                         <div className="space-y-3.5 flex-1 min-w-0">
+                                             <div className="flex flex-wrap items-center gap-2">
                                                 {session.sessionNumber && (
                                                     <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#00695C] text-white">
                                                         {t('schedule.sessionNo', 'الجلسة')} #{session.sessionNumber}
@@ -628,31 +615,26 @@ export default function SchedulePage({ role }) {
                                                 />
                                             </div>
 
-                                            {/* Session Title */}
-                                            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-[#00695C] transition-colors leading-snug">
+                                             <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-[#00695C] transition-colors leading-snug">
                                                 {session.title}
                                             </h3>
 
-                                            {/* Session Details: Teacher, Timing, Duration */}
-                                            <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs sm:text-sm text-slate-600 font-medium">
-                                                {/* Teacher */}
-                                                <div className="flex items-center gap-2 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl">
+                                             <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs sm:text-sm text-slate-600 font-medium">
+                                                 <div className="flex items-center gap-2 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl">
                                                     <div className="w-7 h-7 rounded-full bg-[#00695C] text-white flex items-center justify-center font-bold text-xs shrink-0">
                                                         {teacherInitial}
                                                     </div>
                                                     <span className="font-semibold text-slate-800">{teacherName}</span>
                                                 </div>
 
-                                                {/* Time */}
-                                                <div className="flex items-center gap-1.5 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl text-slate-700">
+                                                 <div className="flex items-center gap-1.5 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl text-slate-700">
                                                     <Clock className="w-4 h-4 text-[#00695C] shrink-0" />
                                                     <span className="font-bold dir-ltr">
                                                         {formatSessionTime(session)}
                                                     </span>
                                                 </div>
 
-                                                {/* Duration */}
-                                                {(session.durationMinutes || session.duration) && (
+                                                 {(session.durationMinutes || session.duration) && (
                                                     <div className="flex items-center gap-1 text-slate-500 text-xs px-2 py-1 bg-slate-100 rounded-xl">
                                                         <span>{session.durationMinutes ? `${session.durationMinutes} ${t('schedule.minutes', 'دقيقة')}` : session.duration}</span>
                                                     </div>
@@ -660,8 +642,7 @@ export default function SchedulePage({ role }) {
                                             </div>
                                         </div>
 
-                                        {/* Actions: Join Zoom / Copy Link */}
-                                        <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                                         <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
                                             {joinUrl ? (
                                                 <>
                                                     <a
@@ -719,8 +700,7 @@ export default function SchedulePage({ role }) {
                             })}
                         </motion.div>
                     ) : (
-                        /* Empty state */
-                        <motion.div
+                         <motion.div
                             initial={{ opacity: 0, scale: 0.96 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="bg-white rounded-[2rem] p-12 text-center shadow-sm border border-slate-100 max-w-xl mx-auto space-y-4"
@@ -751,8 +731,7 @@ export default function SchedulePage({ role }) {
                     )}
                 </AnimatePresence>
 
-                {/* Bottom CTA Banner (Only for public page, not nested in dashboards) */}
-                {!role && <CTASection />}
+                 {!role && <CTASection />}
 
             </div>
         </div>

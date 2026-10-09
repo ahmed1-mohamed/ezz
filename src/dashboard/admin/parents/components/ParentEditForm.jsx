@@ -68,8 +68,8 @@ export default function ParentEditForm({
               <div className="relative shrink-0">
                 <button type="button" onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
                   className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer">
-                  <span>{selectedCountryCode.flag}</span>
-                  <span>({selectedCountryCode.code})</span>
+                  <span>{selectedCountryCode?.flag || '🌍'}</span>
+                  <span>{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
                 </button>
                 {isPhoneDropdownOpen && (
                   <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden animate-fadeIn">

@@ -17,8 +17,7 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 flex flex-col h-full overflow-hidden group">
 
       <div className="p-6 flex-1 flex flex-col items-center text-center">
-        {/* Elegant Image Container */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 rounded-[20px] overflow-hidden flex items-center justify-center shrink-0">
+         <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 rounded-[20px] overflow-hidden flex items-center justify-center shrink-0">
           {curriculum.image && curriculum.image.trim() !== '' ? (
             <img
               src={curriculum.image}
@@ -41,8 +40,7 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
         </p>
       </div>
 
-      {/* Action Buttons (Icons Only) */}
-      <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-center gap-2 bg-slate-50/50 dark:bg-slate-900/50">
+       <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-center gap-2 bg-slate-50/50 dark:bg-slate-900/50">
         <button
           type="button"
           onClick={() => onView(curriculum)}

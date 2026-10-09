@@ -7,18 +7,22 @@ import { landingApi } from '@/shared/services/api/landingApi'
 export default function CountryPhoneInput({ value = '', onChange, error, label }) {
     const { t, i18n } = useTranslation()
 
-    const DEFAULT_COUNTRIES = useMemo(() => [
-        { phoneCode: '+20', name: i18n.language === 'en' ? 'Egypt' : 'مصر', flag: '🇪🇬' },
-        { phoneCode: '+966', name: i18n.language === 'en' ? 'Saudi Arabia' : 'السعودية', flag: '🇸🇦' },
-        { phoneCode: '+971', name: i18n.language === 'en' ? 'UAE' : 'الإمارات', flag: '🇦🇪' },
-        { phoneCode: '+965', name: i18n.language === 'en' ? 'Kuwait' : 'الكويت', flag: '🇰🇼' },
-        { phoneCode: '+974', name: i18n.language === 'en' ? 'Qatar' : 'قطر', flag: '🇶🇦' },
-        { phoneCode: '+973', name: i18n.language === 'en' ? 'Bahrain' : 'البحرين', flag: '🇧🇭' },
-        { phoneCode: '+968', name: i18n.language === 'en' ? 'Oman' : 'عمان', flag: '🇴🇲' },
-    ], [i18n.language])
+    const DEFAULT_COUNTRIES = useMemo(() => {
+        const list = [
+            { phoneCode: '+962', name: i18n.language === 'en' ? 'Jordan' : 'الأردن', flag: '🇯🇴' },
+            { phoneCode: '+971', name: i18n.language === 'en' ? 'UAE' : 'الإمارات', flag: '🇦🇪' },
+            { phoneCode: '+973', name: i18n.language === 'en' ? 'Bahrain' : 'البحرين', flag: '🇧🇭' },
+            { phoneCode: '+966', name: i18n.language === 'en' ? 'Saudi Arabia' : 'السعودية', flag: '🇸🇦' },
+            { phoneCode: '+965', name: i18n.language === 'en' ? 'Kuwait' : 'الكويت', flag: '🇰🇼' },
+            { phoneCode: '+968', name: i18n.language === 'en' ? 'Oman' : 'عمان', flag: '🇴🇲' },
+            { phoneCode: '+974', name: i18n.language === 'en' ? 'Qatar' : 'قطر', flag: '🇶🇦' },
+            { phoneCode: '+20', name: i18n.language === 'en' ? 'Egypt' : 'مصر', flag: '🇪🇬' },
+        ]
+        return list.sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
+    }, [i18n.language])
 
     const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
-    const [countryCode, setCountryCode] = useState('+20')
+    const [countryCode, setCountryCode] = useState('')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
@@ -43,7 +47,9 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                     search: searchTerm.trim() || undefined
                 })
                 if (isMounted && response?.data) {
-                    setCountriesList(response.data)
+                    const rawData = Array.isArray(response.data) ? response.data : []
+                    const sorted = [...rawData].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
+                    setCountriesList(sorted)
                 }
             } catch (err) {
                 console.error("Failed to fetch countries:", err)

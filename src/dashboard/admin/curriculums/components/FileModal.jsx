@@ -93,8 +93,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5 text-start">
-          {/* Resource Type Selector */}
-          <div className="flex bg-slate-100 dark:bg-slate-800/60 p-1 rounded-2xl gap-1">
+           <div className="flex bg-slate-100 dark:bg-slate-800/60 p-1 rounded-2xl gap-1">
             <button
               type="button"
               onClick={() => setResourceType('file')}

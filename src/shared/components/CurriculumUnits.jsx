@@ -60,8 +60,7 @@ export default React.memo(function CurriculumUnits() {
 
     return (
         <section className="py-12 sm:py-20 relative z-10">
-            {/* Background Decorative Gradients */}
-            <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none" />
+             <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -84,8 +83,7 @@ export default React.memo(function CurriculumUnits() {
                     </motion.h2>
                 </div>
 
-                {/* Premium Tabs */}
-                {isCurriculaLoading ? (
+                 {isCurriculaLoading ? (
                     <div className="flex justify-center gap-4 mb-16">
                         {[1, 2, 3].map(i => (
                             <div key={i} className="h-16 w-48 bg-white shadow-sm rounded-full animate-pulse border border-slate-100" />
@@ -139,14 +137,11 @@ export default React.memo(function CurriculumUnits() {
                             transition={{ duration: 0.5, ease: "easeOut" }}
                             className="space-y-16"
                         >
-                            {/* Premium Hero Card for Curriculum Details */}
-                            <div className="bg-white rounded-[3rem] p-6 sm:p-8 md:p-12 shadow-2xl shadow-[#00695C]/5 border border-slate-100 relative overflow-hidden flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
-                                {/* Decorative Background Elements */}
-                                <div className="absolute top-0 end-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#00695C]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+                              <div className="bg-white rounded-[3rem] p-6 sm:p-8 md:p-12 shadow-2xl shadow-[#00695C]/5 border border-slate-100 relative overflow-hidden flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
+                                 <div className="absolute top-0 end-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#00695C]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
                                 <div className="absolute bottom-0 start-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-                                {/* Image Section */}
-                                {currentData.image && (
+                                 {currentData.image && (
                                     <div className="w-full lg:w-2/5 relative z-10">
                                         <div className="relative rounded-[2rem] overflow-hidden aspect-[4/5] shadow-lg border border-slate-100 group">
                                             <div className="absolute inset-0 bg-[#00695C]/10 mix-blend-multiply group-hover:bg-transparent transition-colors duration-500 z-10" />
@@ -168,8 +163,7 @@ export default React.memo(function CurriculumUnits() {
                                     </div>
                                 )}
 
-                                {/* Content Section */}
-                                <div className="w-full lg:w-3/5 relative z-10 text-start space-y-8">
+                                 <div className="w-full lg:w-3/5 relative z-10 text-start space-y-8">
                                     <div className="space-y-4">
                                         <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full text-sm font-bold border border-amber-100">
                                             <Star className="w-4 h-4" />
@@ -184,8 +178,7 @@ export default React.memo(function CurriculumUnits() {
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                                        {/* Features */}
-                                        {(() => {
+                                         {(() => {
                                             const features = typeof currentData.features === 'object' && !Array.isArray(currentData.features)
                                                 ? (isRtl ? currentData.features.ar : currentData.features.en) || currentData.features.ar || []
                                                 : (currentData.features || []);
@@ -203,8 +196,7 @@ export default React.memo(function CurriculumUnits() {
                                             ));
                                         })()}
 
-                                        {/* Benefits */}
-                                        {(() => {
+                                         {(() => {
                                             const benefits = typeof currentData.benefitsAfterGraduation === 'object' && !Array.isArray(currentData.benefitsAfterGraduation)
                                                 ? (isRtl ? currentData.benefitsAfterGraduation.ar : currentData.benefitsAfterGraduation.en) || currentData.benefitsAfterGraduation.ar || []
                                                 : (currentData.benefitsAfterGraduation || []);
@@ -225,8 +217,7 @@ export default React.memo(function CurriculumUnits() {
                                 </div>
                             </div>
 
-                            {/* Interactive Levels Accordion */}
-                            {(() => {
+                             {(() => {
                                 const levels = currentData.levels || [];
                                 if (levels.length === 0) return null;
 

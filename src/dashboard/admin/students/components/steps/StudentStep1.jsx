@@ -101,7 +101,7 @@ export default function StudentStep1({
                 className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
               >
                 <span>{selectedCountryCode?.flag || '🌍'}</span>
-                <span>({selectedCountryCode?.code || '+20'})</span>
+                <span>{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
               </button>
               {isDropdownOpen && (
                 <div className="absolute left-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 animate-fadeIn">

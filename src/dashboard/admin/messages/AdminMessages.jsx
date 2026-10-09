@@ -243,8 +243,7 @@ export default function AdminMessages() {
         )}
       </div>
 
-      {/* Pagination — always visible, dimmed when only 1 page */}
-      <div
+       <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
       >
         <div className="text-xs text-slate-400 dark:text-slate-500 font-bold">

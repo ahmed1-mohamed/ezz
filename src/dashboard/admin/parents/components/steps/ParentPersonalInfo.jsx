@@ -103,8 +103,8 @@ export default function ParentPersonalInfo({
                 onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
                 className="h-12 flex items-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
               >
-                <span>{selectedCountryCode.flag}</span>
-                <span className="text-xs">({selectedCountryCode.code})</span>
+                <span>{selectedCountryCode?.flag || '🌍'}</span>
+                <span className="text-xs">{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
                 <ChevronDown size={12} className="text-slate-400" />
               </button>
               {isPhoneDropdownOpen && (

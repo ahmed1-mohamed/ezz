@@ -253,8 +253,7 @@ export default function AdminStudents() {
         />
       )}
 
-      {/* Global Add Sessions Modal */}
-      <AddSessionsModal
+       <AddSessionsModal
         isOpen={Boolean(sessionModalStudent)}
         onClose={() => setSessionModalStudent(null)}
         student={sessionModalStudent}

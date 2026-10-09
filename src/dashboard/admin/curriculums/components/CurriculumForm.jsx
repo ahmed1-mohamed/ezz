@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Plus, Image as ImageIcon, Trash2 } from 'lucide-react'
+import {  Plus, Image as ImageIcon, Trash2 } from 'lucide-react'
 
 export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving, languages = [] }) {
   const { i18n } = useTranslation()
@@ -129,8 +129,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
   return (
     <form onSubmit={handleSubmit} className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
       
-      {/* Image Upload Area */}
-      <div className="flex flex-col items-center">
+       <div className="flex flex-col items-center">
         <div 
           onClick={() => fileInputRef.current?.click()}
           className="relative w-full h-40 rounded-3xl bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors overflow-hidden group"
@@ -160,8 +159,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
         />
       </div>
 
-      {/* Basic Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-start">
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-start">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'اسم المنهج (عربي)' : 'Curriculum Name (Arabic)'} <span className="text-red-500">*</span>
@@ -235,8 +233,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
         </select>
       </div>
 
-      {/* Features (Arabic & English) */}
-      <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-5">
+       <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-5">
         <div className="text-start">
           <label className="block text-sm font-bold text-slate-800 dark:text-white mb-3">
             {isRtl ? 'مميزات المنهج (عربي)' : 'Features (Arabic)'}
@@ -288,8 +285,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
         </div>
       </div>
 
-      {/* Benefits (Arabic & English) */}
-      <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-5">
+       <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-5">
         <div className="text-start">
           <label className="block text-sm font-bold text-slate-800 dark:text-white mb-3">
             {isRtl ? 'فوائد التخرج (عربي)' : 'Graduation Benefits (Arabic)'}

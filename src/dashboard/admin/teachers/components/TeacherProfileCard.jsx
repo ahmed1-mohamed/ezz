@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
-import { Star, Pencil, Ban, CheckCircle2, Trash2, Eye, Globe, BookOpen } from 'lucide-react'
+import { Star, Ban, CheckCircle2, Trash2, Eye, Globe, BookOpen } from 'lucide-react'
 
 export default function TeacherProfileCard({
   teacher,
   isRtl,
   t,
-  onEdit,
   onToggleStatus,
   onDelete,
   onViewDetails
@@ -26,8 +25,7 @@ export default function TeacherProfileCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft flex flex-col items-center text-center space-y-5">
-      {/* Avatar */}
-      <div className="relative">
+       <div className="relative">
         {teacher.image ? (
           <img
             src={teacher.image}
@@ -56,8 +54,7 @@ export default function TeacherProfileCard({
         )}
       </div>
 
-      {/* Name & Title */}
-      <div className="space-y-1 w-full">
+       <div className="space-y-1 w-full">
         <h3 className="text-lg font-extrabold text-slate-800 dark:text-white">
           {teacher.name}
         </h3>
@@ -69,8 +66,7 @@ export default function TeacherProfileCard({
         </p>
       </div>
 
-      {/* Status Badge & Rating */}
-      <div className="flex items-center gap-3">
+       <div className="flex items-center gap-3">
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
             isSuspended
@@ -88,8 +84,7 @@ export default function TeacherProfileCard({
         </div>
       </div>
 
-      {/* Specializations */}
-      {teacher.specializations && teacher.specializations.length > 0 && (
+       {teacher.specializations && teacher.specializations.length > 0 && (
         <div className="w-full space-y-1.5 pt-1 text-start">
           <span className="text-[11px] font-bold text-slate-400 block">
             {isRtl ? 'المناهج والتخصصات:' : 'Specializations:'}
@@ -108,8 +103,7 @@ export default function TeacherProfileCard({
         </div>
       )}
 
-      {/* Details list */}
-      <div className="w-full divide-y divide-slate-100 dark:divide-slate-800 text-xs text-start">
+       <div className="w-full divide-y divide-slate-100 dark:divide-slate-800 text-xs text-start">
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.joinDate', 'تاريخ الانضمام')}
@@ -168,6 +162,17 @@ export default function TeacherProfileCard({
           </div>
         )}
 
+        {teacher.hourlyRate > 0 && (
+          <div className="flex justify-between py-2.5">
+            <span className="text-slate-400 dark:text-slate-500 font-semibold">
+              {isRtl ? 'سعر الساعة' : 'Hourly Rate'}
+            </span>
+            <span className="font-bold text-teal-600 dark:text-teal-400">
+              {teacher.hourlyRate} {isRtl ? 'ر.س' : 'SAR'}
+            </span>
+          </div>
+        )}
+
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.totalEarnings', 'إجمالي الأرباح')}
@@ -189,27 +194,17 @@ export default function TeacherProfileCard({
         )}
       </div>
 
-      {/* Buttons */}
-      <div className="w-full space-y-2.5 pt-2">
+       <div className="w-full space-y-2.5 pt-2">
         {onViewDetails && (
           <button
             type="button"
             onClick={() => onViewDetails(teacher)}
-            className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-bold rounded-2xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2.5 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl text-xs transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] cursor-pointer"
           >
             <Eye size={15} />
-            <span>{t('adminDashboard.teachers.viewDetails', 'عرض كافة التفاصيل')}</span>
+            <span>{t ? t('adminDashboard.teachers.viewDetails', 'عرض كافة التفاصيل') : 'عرض كافة التفاصيل'}</span>
           </button>
         )}
-
-        <button
-          type="button"
-          onClick={() => onEdit(teacher)}
-          className="w-full py-2.5 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl text-xs transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] cursor-pointer"
-        >
-          <Pencil size={15} />
-          <span>{t('adminDashboard.teachers.editData', 'تعديل البيانات')}</span>
-        </button>
 
         <div className="grid grid-cols-2 gap-2">
           {onToggleStatus && (

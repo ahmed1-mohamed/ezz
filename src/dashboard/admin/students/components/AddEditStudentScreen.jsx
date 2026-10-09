@@ -18,7 +18,7 @@ export default function AddEditStudentScreen({
   const [step, setStep] = useState(1)
 
   const [countriesList, setCountriesList] = useState([])
-  const [countryCodesList, setCountryCodesList] = useState([{ code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' }])
+  const [countryCodesList, setCountryCodesList] = useState([])
   const [levelsList, setLevelsList] = useState([])
   const [parentsList, setParentsList] = useState([])
 
@@ -26,7 +26,7 @@ export default function AddEditStudentScreen({
     ? student.phone.split(' ').slice(1).join('')
     : (student?.phone ? student.phone.replace(/^\+\d{1,4}/, '') : '')
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState(countryCodesList[0])
+  const [selectedCountryCode, setSelectedCountryCode] = useState(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [phoneVal, setPhoneVal] = useState(phoneNumberOnly)
   const [parentSearch, setParentSearch] = useState('')
@@ -107,17 +107,8 @@ export default function AddEditStudentScreen({
             flag: c.flag || '🌍',
             name: c.name || ''
           })).filter((c) => c.code)
+          codes.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }))
           setCountryCodesList(codes)
-
-          if (!formData.country && !student?.country) {
-            handleChange('country', raw[0].id)
-          }
-
-          // Default phone prefix to Saudi or Egypt or first
-          const defaultCode = codes.find((c) => c.code === '+966') || codes.find((c) => c.code === '+20') || codes[0]
-          if (defaultCode && !student) {
-            setSelectedCountryCode(defaultCode)
-          }
         }
       })
       .catch((err) => console.error('Error fetching countries:', err))
@@ -244,8 +235,7 @@ export default function AddEditStudentScreen({
 
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -269,8 +259,7 @@ export default function AddEditStudentScreen({
           </div>
         </div>
 
-        {/* Stepper indicators */}
-        <div className="flex items-center gap-2 self-start sm:self-center">
+         <div className="flex items-center gap-2 self-start sm:self-center">
           <span
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               step === 1
@@ -292,8 +281,7 @@ export default function AddEditStudentScreen({
         </div>
       </div>
 
-      {/* Step Content */}
-      {step === 1 && (
+       {step === 1 && (
         <StudentStep1
           formData={formData}
           handleChange={handleChange}
@@ -325,8 +313,7 @@ export default function AddEditStudentScreen({
         />
       )}
 
-      {/* Navigation buttons */}
-      <div className="flex items-center justify-between max-w-4xl mx-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+       <div className="flex items-center justify-between max-w-4xl mx-auto pt-4 border-t border-slate-100 dark:border-slate-800">
         {step > 1 ? (
           <button
             type="button"

@@ -1992,7 +1992,18 @@
         "sessionsLabel": "إجمالي الحصص",
         "submit": "حفظ",
         "cancel": "إلغاء"
-      }
+      },
+      "academicInfo": "البيانات الأكاديمية",
+      "specialization": "التخصص",
+      "yearsOfExperience": "سنوات الخبرة",
+      "years": "سنوات",
+      "country": "البلد",
+      "qualificationAr": "المؤهل (بالعربية)",
+      "qualificationEn": "المؤهل (بالإنجليزية)",
+      "bioAr": "نبذة عن المعلم (بالعربية)",
+      "bioEn": "نبذة عن المعلم (بالإنجليزية)",
+      "achievementsAndCertificates": "الإجازات والشهادات",
+      "noAchievements": "لا توجد إجازات أو شهادات مضافة"
     },
     "students": {
       "title": "إدارة الطلاب",

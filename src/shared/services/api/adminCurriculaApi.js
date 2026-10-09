@@ -75,8 +75,7 @@ export const adminCurriculaApi = {
     }
   },
 
-  // Levels
-  addLevel: async (curriculumId, payload) => {
+   addLevel: async (curriculumId, payload) => {
     try {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const body = { name: { ar: payload.name?.ar, en: payload.name?.en } };
@@ -116,8 +115,7 @@ export const adminCurriculaApi = {
     }
   },
 
-  // Units
-  addUnit: async (curriculumId, levelId, payload) => {
+   addUnit: async (curriculumId, levelId, payload) => {
     try {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;

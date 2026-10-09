@@ -22,7 +22,7 @@ export default function AddSupervisorScreen({
     nameEn: initialData?.nameEn || '',
     email: initialData?.email || '',
     phone: initialData?.phone || '',
-    phonePrefix: initialData?.phonePrefix || '+20',
+    phonePrefix: initialData?.phonePrefix || '',
     password: '',
     confirmPassword: '',
     permissionId: initialData?.permissionId || null,

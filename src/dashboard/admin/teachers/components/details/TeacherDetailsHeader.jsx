@@ -1,10 +1,12 @@
-import { ArrowRight, ArrowLeft, Pencil, Trash2 } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Pencil, Trash2, DollarSign, KeyRound } from 'lucide-react'
 
 export default function TeacherDetailsHeader({
   teacher,
   isRtl,
   onCancel,
   onEdit,
+  onOpenHourlyRateModal,
+  onOpenPasswordModal,
   onDelete
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
@@ -31,23 +33,47 @@ export default function TeacherDetailsHeader({
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
-        <button
-          type="button"
-          onClick={() => onEdit(teacher)}
-          className="flex items-center gap-1.5 px-5 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] cursor-pointer"
-        >
-          <Pencil size={15} />
-          <span>{isRtl ? 'تعديل البيانات' : 'Edit Profile'}</span>
-        </button>
+      <div className="flex flex-wrap items-center gap-2">
+        {onOpenHourlyRateModal && (
+          <button
+            type="button"
+            onClick={onOpenHourlyRateModal}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-teal-50 hover:bg-teal-100 text-[#005953] dark:bg-emerald-950/30 dark:text-emerald-400 rounded-2xl text-xs font-bold transition-all cursor-pointer border border-teal-100 dark:border-transparent"
+          >
+            <DollarSign size={14} />
+            <span>{isRtl ? 'سعر الساعة' : 'Hourly Rate'}</span>
+          </button>
+        )}
+
+        {onOpenPasswordModal && (
+          <button
+            type="button"
+            onClick={onOpenPasswordModal}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400 rounded-2xl text-xs font-bold transition-all cursor-pointer border border-indigo-100 dark:border-transparent"
+          >
+            <KeyRound size={14} />
+            <span>{isRtl ? 'كلمة المرور' : 'Password'}</span>
+          </button>
+        )}
+
+        {onEdit && (
+          <button
+            type="button"
+            onClick={() => onEdit(teacher)}
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-xs font-bold transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] cursor-pointer"
+          >
+            <Pencil size={14} />
+            <span>{isRtl ? 'تعديل البيانات' : 'Edit Profile'}</span>
+          </button>
+        )}
 
         {onDelete && (
           <button
             type="button"
             onClick={() => onDelete(teacher)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 rounded-2xl text-sm font-semibold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 rounded-2xl text-xs font-bold transition-all cursor-pointer"
           >
-            <Trash2 size={15} />
+            <Trash2 size={14} />
             <span>{isRtl ? 'حذف' : 'Delete'}</span>
           </button>
         )}

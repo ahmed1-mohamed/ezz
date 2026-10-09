@@ -45,12 +45,22 @@ export default function StudentsList({
       const studentName = typeof student.name === 'string'
         ? student.name
         : (student.name?.ar || student.name?.en || '')
-      const parentName = student.parent?.name || student.parentName || ''
+      const rawParent = student.parent?.name || student.parentName || ''
+      const parentName = typeof rawParent === 'string'
+        ? rawParent
+        : (typeof rawParent === 'object' && rawParent !== null ? (rawParent.ar || rawParent.en || '') : '')
+      const rawCountry = student.country || ''
+      const countryStr = typeof rawCountry === 'string'
+        ? rawCountry
+        : (typeof rawCountry === 'object' && rawCountry !== null ? (rawCountry.name || rawCountry.code || '') : '')
+      const emailStr = String(student.email || '').toLowerCase()
+      const phoneStr = String(student.phone || '')
+
       return (
         studentName.toLowerCase().includes(query) ||
-        (student.email && student.email.toLowerCase().includes(query)) ||
-        (student.phone && student.phone.includes(query)) ||
-        (student.country && student.country.includes(query)) ||
+        emailStr.includes(query) ||
+        phoneStr.includes(query) ||
+        countryStr.toLowerCase().includes(query) ||
         parentName.toLowerCase().includes(query)
       )
     })
@@ -64,9 +74,7 @@ export default function StudentsList({
 
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* 3 Interactive Stat Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {/* Total Students Card */}
+       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div
           onClick={() => onStatusChange && onStatusChange('all')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border transition-all cursor-pointer shadow-soft hover:-translate-y-1 ${
@@ -91,8 +99,7 @@ export default function StudentsList({
           </div>
         </div>
 
-        {/* Active Students Card */}
-        <div
+         <div
           onClick={() => onStatusChange && onStatusChange('active')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border transition-all cursor-pointer shadow-soft hover:-translate-y-1 ${
             activeStatus === 'active'
@@ -116,8 +123,7 @@ export default function StudentsList({
           </div>
         </div>
 
-        {/* Stopped / Inactive Students Card */}
-        <div
+         <div
           onClick={() => onStatusChange && onStatusChange('stopped')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border transition-all cursor-pointer shadow-soft hover:-translate-y-1 ${
             activeStatus === 'stopped'
@@ -142,8 +148,7 @@ export default function StudentsList({
         </div>
       </div>
 
-      {/* Action Bar & Search */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
+       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex flex-wrap items-center gap-4">
           <button
             onClick={onOpenAddScreen}
@@ -177,8 +182,7 @@ export default function StudentsList({
         </div>
       </div>
 
-      {/* Students Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 overflow-hidden shadow-soft">
+       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 overflow-hidden shadow-soft">
         <div className="overflow-x-auto">
           <table className="w-full text-start border-collapse">
             <thead>
@@ -208,11 +212,33 @@ export default function StudentsList({
                   const initial = (displayName === '-' ? '?' : displayName).trim().charAt(0)
                   const imgUrl = student.image || student.profileImage
 
-                  const levelName = student.studentLevel?.name || student.level || ''
-                  const parentName = student.parent?.name || student.parentName || '-'
-                  const parentPhone = student.parent?.phone || ''
+                  // Safely extract level name as string
+                  const rawLevel = student.studentLevel?.name || student.levelName || student.level || ''
+                  const levelName = typeof rawLevel === 'object' && rawLevel !== null
+                    ? (rawLevel.ar || rawLevel.en || '')
+                    : String(rawLevel || '')
 
-                  const balance = student.sessionsBalance ?? student.remainingSessions ?? 0
+                  // Safely extract parent name as string
+                  const rawParent = student.parent?.name || student.parentName || '-'
+                  const parentName = typeof rawParent === 'object' && rawParent !== null
+                    ? (rawParent.ar || rawParent.en || '-')
+                    : String(rawParent || '-')
+                  const parentPhone = student.parent?.phone || student.parentPhone || ''
+
+                  // Safely extract sessions balance as number (handles backend object { total, used, manualAddedThisMonth, lastManualAddMonth })
+                  const rawBalance = student.sessionsBalance ?? student.remainingSessions ?? 0
+                  const balance = typeof rawBalance === 'object' && rawBalance !== null
+                    ? (rawBalance.remaining !== undefined
+                        ? Number(rawBalance.remaining)
+                        : Math.max(0, Number(rawBalance.total ?? 0) - Number(rawBalance.used ?? 0)))
+                    : Number(rawBalance || 0)
+
+                  // Safely extract country as string
+                  const rawCountry = student.country || '-'
+                  const countryDisplay = typeof rawCountry === 'object' && rawCountry !== null
+                    ? (rawCountry.name?.ar || rawCountry.name?.en || rawCountry.name || rawCountry.code || '-')
+                    : String(rawCountry || '-')
+
                   const rating = student.averageRating !== undefined && student.averageRating !== null
                     ? Number(student.averageRating).toFixed(1)
                     : null
@@ -234,8 +260,7 @@ export default function StudentsList({
                       key={studentId || `student-${index}`}
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-950/10 transition-colors"
                     >
-                      {/* Student info */}
-                      <td className="py-4.5 px-6">
+                       <td className="py-4.5 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 flex items-center justify-center font-bold text-base shrink-0 overflow-hidden">
                             {imgUrl ? (
@@ -260,8 +285,7 @@ export default function StudentsList({
                         </div>
                       </td>
 
-                      {/* Parent info */}
-                      <td className="py-4.5 px-6 text-start">
+                       <td className="py-4.5 px-6 text-start">
                         <div className="space-y-0.5">
                           <span className="font-bold text-xs text-slate-700 dark:text-slate-200 block">
                             {parentName}
@@ -274,8 +298,7 @@ export default function StudentsList({
                         </div>
                       </td>
 
-                      {/* Sessions Balance + Quick Add Button */}
-                      <td className="py-4.5 px-6 text-center">
+                       <td className="py-4.5 px-6 text-center">
                         <div className="inline-flex items-center gap-2">
                           <span className={`px-2.5 py-1 rounded-xl text-xs font-extrabold ${
                             balance > 0
@@ -297,8 +320,7 @@ export default function StudentsList({
                         </div>
                       </td>
 
-                      {/* Performance (Rating & Attendance) */}
-                      <td className="py-4.5 px-6 text-center">
+                       <td className="py-4.5 px-6 text-center">
                         <div className="flex items-center justify-center gap-3">
                           {rating && (
                             <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
@@ -317,11 +339,10 @@ export default function StudentsList({
                         </div>
                       </td>
 
-                      {/* Country & Phone */}
-                      <td className="py-4.5 px-6 text-start">
+                       <td className="py-4.5 px-6 text-start">
                         <div className="space-y-1">
                           <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 block">
-                            {student.country || '-'}
+                            {countryDisplay}
                           </span>
                           {student.phone && (
                             <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 block" dir="ltr">
@@ -331,19 +352,16 @@ export default function StudentsList({
                         </div>
                       </td>
 
-                      {/* Status */}
-                      <td className="py-4.5 px-6">
+                       <td className="py-4.5 px-6">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${statusBadgeClass}`}>
                           <span className={`w-1.5 h-1.5 rounded-full me-1.5 ${statusDotClass}`} />
                           {statusText}
                         </span>
                       </td>
 
-                      {/* Actions */}
-                      <td className="py-4.5 px-6">
+                       <td className="py-4.5 px-6">
                         <div className="flex items-center justify-center gap-1.5">
-                          {/* View details */}
-                          <button
+                           <button
                             type="button"
                             onClick={() => onOpenSessions && onOpenSessions(student)}
                             className="p-2 bg-slate-50 hover:bg-brand-50 text-slate-500 hover:text-brand-600 rounded-xl transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-brand-500/20 dark:hover:text-brand-400 cursor-pointer"
@@ -352,8 +370,7 @@ export default function StudentsList({
                             <Eye size={16} />
                           </button>
 
-                          {/* Add sessions button */}
-                          {onOpenAddSessions && (
+                           {onOpenAddSessions && (
                             <button
                               type="button"
                               onClick={() => onOpenAddSessions(student)}
@@ -364,8 +381,7 @@ export default function StudentsList({
                             </button>
                           )}
 
-                          {/* Edit */}
-                          <button
+                           <button
                             type="button"
                             onClick={() => onOpenEditScreen(student)}
                             className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-xl transition-all cursor-pointer"
@@ -374,8 +390,7 @@ export default function StudentsList({
                             <Pencil size={15} />
                           </button>
 
-                          {/* Delete */}
-                          <button
+                           <button
                             type="button"
                             onClick={() => onDelete(student)}
                             className="p-2 hover:bg-rose-50 dark:hover:bg-rose-955/20 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-all cursor-pointer"
@@ -393,8 +408,7 @@ export default function StudentsList({
           </table>
         </div>
 
-        {/* Pagination */}
-        <div
+         <div
           className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${
             isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
           }`}

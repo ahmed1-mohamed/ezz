@@ -9,14 +9,14 @@ import { landingApi } from '@/shared/services/api/landingApi'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const DEFAULT_COUNTRIES = [
-    { id: '6a2d618a65f1cb3419a926b0', name: 'مصر', nameEn: 'Egypt', phoneCode: '+20', flag: '🇪🇬' },
-    { id: '6a2d618a65f1cb3419a92732', name: 'السعودية', nameEn: 'Saudi Arabia', phoneCode: '+966', flag: '🇸🇦' },
-    { id: '6a2d618a65f1cb3419a9275d', name: 'الإمارات', nameEn: 'UAE', phoneCode: '+971', flag: '🇦🇪' },
-    { id: '6a2d618a65f1cb3419a926e5', name: 'الكويت', nameEn: 'Kuwait', phoneCode: '+965', flag: '🇰🇼' },
-    { id: '6a2d618a65f1cb3419a92722', name: 'قطر', nameEn: 'Qatar', phoneCode: '+974', flag: '🇶🇦' },
-    { id: '6a2d618a65f1cb3419a92680', name: 'البحرين', nameEn: 'Bahrain', phoneCode: '+973', flag: '🇧🇭' },
-    { id: '6a2d618a65f1cb3419a92715', name: 'عمان', nameEn: 'Oman', phoneCode: '+968', flag: '🇴🇲' },
     { id: '6a2d618a65f1cb3419a926df', name: 'الأردن', nameEn: 'Jordan', phoneCode: '+962', flag: '🇯🇴' },
+    { id: '6a2d618a65f1cb3419a9275d', name: 'الإمارات', nameEn: 'UAE', phoneCode: '+971', flag: '🇦🇪' },
+    { id: '6a2d618a65f1cb3419a92680', name: 'البحرين', nameEn: 'Bahrain', phoneCode: '+973', flag: '🇧🇭' },
+    { id: '6a2d618a65f1cb3419a92732', name: 'السعودية', nameEn: 'Saudi Arabia', phoneCode: '+966', flag: '🇸🇦' },
+    { id: '6a2d618a65f1cb3419a926e5', name: 'الكويت', nameEn: 'Kuwait', phoneCode: '+965', flag: '🇰🇼' },
+    { id: '6a2d618a65f1cb3419a92715', name: 'عمان', nameEn: 'Oman', phoneCode: '+968', flag: '🇴🇲' },
+    { id: '6a2d618a65f1cb3419a92722', name: 'قطر', nameEn: 'Qatar', phoneCode: '+974', flag: '🇶🇦' },
+    { id: '6a2d618a65f1cb3419a926b0', name: 'مصر', nameEn: 'Egypt', phoneCode: '+20', flag: '🇪🇬' },
 ]
 
 export default function Register() {
@@ -42,7 +42,7 @@ export default function Register() {
 
     // Countries management
     const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
-    const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRIES[0])
+    const [selectedCountry, setSelectedCountry] = useState(null)
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
     const [countrySearch, setCountrySearch] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
@@ -57,13 +57,12 @@ export default function Register() {
                 const res = await landingApi.fetchCountries({ lang: i18n.language, sort: 'name' })
                 const list = Array.isArray(res) ? res : (res?.data || [])
                 if (isMounted && list.length > 0) {
-                    setCountriesList(list)
-                    // Keep selected country or default to Egypt/Saudi
+                    const sorted = [...list].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
+                    setCountriesList(sorted)
                     setSelectedCountry((prev) => {
-                        const matched = list.find(c => c.id === prev?.id || c._id === prev?.id)
-                        if (matched) return matched
-                        const defaultC = list.find(c => c.phoneCode === '+20') || list.find(c => c.phoneCode === '+966') || list[0]
-                        return defaultC || prev
+                        if (!prev) return null
+                        const matched = sorted.find(c => c.id === prev?.id || c._id === prev?.id)
+                        return matched || prev
                     })
                 }
             } catch (err) {
@@ -168,7 +167,7 @@ export default function Register() {
         if (localDigits.startsWith('0')) {
             localDigits = localDigits.substring(1)
         }
-        const countryCode = selectedCountry?.phoneCode || '+20'
+        const countryCode = selectedCountry?.phoneCode || ''
         const fullPhone = `${countryCode}${localDigits}`
 
         const countryId = selectedCountry?.id || selectedCountry?._id
@@ -205,8 +204,7 @@ export default function Register() {
 
     return (
         <div className="min-h-screen bg-[#EEF4F2] flex flex-col relative font-sans py-6">
-            {/* Back to Home Button */}
-            <div className="absolute top-6 start-6 z-10">
+             <div className="absolute top-6 start-6 z-10">
                 <Link
                     to="/"
                     className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold transition-colors bg-white/70 hover:bg-white px-4 py-2 rounded-full shadow-sm backdrop-blur-sm"
@@ -216,14 +214,12 @@ export default function Register() {
                 </Link>
             </div>
 
-            {/* Language Switcher */}
-            <div className="absolute top-6 end-6 z-10">
+             <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 my-auto pt-14 pb-8">
-                {/* Academy Logo and Header */}
-                <div className="text-center mb-6">
+                 <div className="text-center mb-6">
                     <div className="bg-white w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
                         <BookOpen className="w-9 h-9 sm:w-10 sm:h-10 text-[#00695C]" />
                     </div>
@@ -235,8 +231,7 @@ export default function Register() {
                     </p>
                 </div>
 
-                {/* Registration Form Card */}
-                <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-sm p-6 sm:p-9 border border-slate-100">
+                 <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-sm p-6 sm:p-9 border border-slate-100">
                     <div className="mb-6 text-center sm:text-start">
                         <h2 className="text-2xl font-bold text-slate-800 mb-1">
                             {t('register.title', 'إنشاء حساب جديد')}
@@ -247,8 +242,7 @@ export default function Register() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                        {/* Full Name */}
-                        <div className="space-y-1.5">
+                         <div className="space-y-1.5">
                             <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1 text-start">
                                 {t('register.name', 'الاسم الكامل')}
                             </label>
@@ -270,8 +264,7 @@ export default function Register() {
                             {errors.name && <p className="text-xs text-red-500 px-1 text-start">{errors.name}</p>}
                         </div>
 
-                        {/* Email */}
-                        <div className="space-y-1.5">
+                         <div className="space-y-1.5">
                             <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1 text-start">
                                 {t('register.email', 'البريد الإلكتروني')}
                             </label>
@@ -294,10 +287,8 @@ export default function Register() {
                             {errors.email && <p className="text-xs text-red-500 px-1 text-start">{errors.email}</p>}
                         </div>
 
-                        {/* Country and Phone Number Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            {/* Country Selector */}
-                            <div className="space-y-1.5 text-start" ref={dropdownRef}>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                             <div className="space-y-1.5 text-start" ref={dropdownRef}>
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
                                     {t('register.country', 'الدولة')}
                                 </label>
@@ -319,8 +310,7 @@ export default function Register() {
                                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${countryDropdownOpen ? 'rotate-180' : ''}`} />
                                     </button>
 
-                                    {/* Country Dropdown Panel */}
-                                    <AnimatePresence>
+                                     <AnimatePresence>
                                         {countryDropdownOpen && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 8, scale: 0.98 }}
@@ -385,15 +375,14 @@ export default function Register() {
                                 {errors.country && <p className="text-xs text-red-500 px-1">{errors.country}</p>}
                             </div>
 
-                            {/* Phone Input */}
-                            <div className="space-y-1.5 text-start">
+                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
                                     {t('register.phone', 'رقم الهاتف')}
                                 </label>
                                 <div className="flex rounded-2xl bg-[#F5F8F7] border border-transparent focus-within:border-[#00695C] transition-all overflow-hidden">
                                     <div className="flex items-center gap-1 px-3 bg-slate-100/80 text-slate-600 font-bold text-xs sm:text-sm dir-ltr shrink-0 select-none">
-                                        <span>{selectedCountry?.flag || '📱'}</span>
-                                        <span>{selectedCountry?.phoneCode || '+20'}</span>
+                                        <span>{selectedCountry?.flag || '🌍'}</span>
+                                        <span>{selectedCountry?.phoneCode || ''}</span>
                                     </div>
                                     <input
                                         type="tel"
@@ -412,10 +401,8 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* Password and Confirm Password Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            {/* Password */}
-                            <div className="space-y-1.5 text-start">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
                                     {t('register.password', 'كلمة المرور')}
                                 </label>
@@ -445,8 +432,7 @@ export default function Register() {
                                 {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                             </div>
 
-                            {/* Confirm Password */}
-                            <div className="space-y-1.5 text-start">
+                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
                                     {t('register.confirmPassword', 'تأكيد كلمة المرور')}
                                 </label>
@@ -477,8 +463,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* Server Error Message */}
-                        {serverError && (
+                         {serverError && (
                             <motion.div
                                 initial={{ opacity: 0, y: -8 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -488,8 +473,7 @@ export default function Register() {
                             </motion.div>
                         )}
 
-                        {/* Submit Button */}
-                        <button
+                         <button
                             type="submit"
                             disabled={loading}
                             className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-3.5 transition-all shadow-md active:scale-[0.98] mt-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
@@ -505,8 +489,7 @@ export default function Register() {
                         </button>
                     </form>
 
-                    {/* Switch to Login */}
-                    <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-sm border-t border-slate-100 pt-5">
+                     <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-sm border-t border-slate-100 pt-5">
                         <span className="text-slate-500 font-medium">
                             {t('register.haveAccount', 'هل لديك حساب بالفعل؟')}
                         </span>
@@ -520,8 +503,7 @@ export default function Register() {
                 </div>
             </div>
 
-            {/* Floating Toast Notification */}
-            <AnimatePresence>
+             <AnimatePresence>
                 {toast.show && (
                     <motion.div
                         initial={{ opacity: 0, y: -40, x: 40, scale: 0.95 }}

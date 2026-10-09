@@ -64,8 +64,7 @@ export default function StudentSelect({
 
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Trigger Button */}
-      <button
+       <button
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -101,11 +100,9 @@ export default function StudentSelect({
         </div>
       </button>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
+       {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-3 space-y-2 max-h-72 flex flex-col animate-fadeIn">
-          {/* Search Box */}
-          <div className="relative shrink-0">
+           <div className="relative shrink-0">
             <Search size={14} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
             <input
               ref={searchInputRef}
@@ -128,8 +125,7 @@ export default function StudentSelect({
             )}
           </div>
 
-          {/* Options List */}
-          <div className="overflow-y-auto space-y-1 pr-0.5 max-h-52">
+           <div className="overflow-y-auto space-y-1 pr-0.5 max-h-52">
             {filteredStudents.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 {isRtl ? 'لا يوجد طلاب متاحون' : 'No students found'}

@@ -36,17 +36,13 @@ export default function ParentDetailsScreen({
   const [showMessageModal, setShowMessageModal] = useState(false)
   const [isSuspending, setIsSuspending] = useState(false)
 
-  const [countryCodesList, setCountryCodesList] = useState([
-    { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' }
-  ])
-  const [countriesList, setCountriesList] = useState([
-    { id: '', name: '🇪🇬 مصر', nameEn: 'Egypt' }
-  ])
+  const [countryCodesList, setCountryCodesList] = useState([])
+  const [countriesList, setCountriesList] = useState([])
 
-  const initialPrefix = parent.phonePrefix || '+966'
-  const initialPhone = parent.phone ? parent.phone.replace(initialPrefix, '').trim() : ''
+  const initialPrefix = parent.phonePrefix || ''
+  const initialPhone = parent.phone ? (initialPrefix ? parent.phone.replace(initialPrefix, '').trim() : parent.phone) : ''
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState(countryCodesList[0])
+  const [selectedCountryCode, setSelectedCountryCode] = useState(initialPrefix ? { code: initialPrefix, flag: '🌍', name: initialPrefix } : null)
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [phoneVal, setPhoneVal] = useState(initialPhone)
   const [showPassword, setShowPassword] = useState(false)
@@ -56,8 +52,11 @@ export default function ParentDetailsScreen({
     const fetchCountries = async () => {
       try {
         const res = await landingApi.fetchCountries();
-        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        let fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
         if (fetchedCountries.length > 0) {
+          fetchedCountries = [...fetchedCountries].sort((a, b) =>
+            (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' })
+          );
           const formattedCountries = fetchedCountries.map(c => ({
             id: c.id,
             name: c.name || '',
@@ -65,29 +64,33 @@ export default function ParentDetailsScreen({
           }));
           const formattedCodes = fetchedCountries.map(c => ({
             code: c.phoneCode || '',
-            flag: c.flag || '🌐',
+            flag: c.flag || '🌍',
             name: c.name || ''
-          }));
+          })).filter(c => c.code);
 
-          setCountriesList(formattedCountries.length ? formattedCountries : [{ id: '', name: '🇪🇬 مصر', nameEn: 'Egypt' }]);
-          setCountryCodesList(formattedCodes.length ? formattedCodes : [{ code: '+20', flag: '🇪🇬', name: 'Egypt' }]);
+          setCountriesList(formattedCountries);
+          setCountryCodesList(formattedCodes);
 
           let prefix = parent.phonePrefix;
           let phonePart = parent.phone || '';
 
           if (parent.phone && !parent.phonePrefix) {
-            const matchedCode = fetchedCountries.find(c => parent.phone.startsWith(c.phoneCode));
+            const matchedCode = fetchedCountries.find(c => c.phoneCode && parent.phone.startsWith(c.phoneCode));
             if (matchedCode) {
               prefix = matchedCode.phoneCode;
               phonePart = parent.phone.substring(prefix.length);
-            } else {
-              prefix = formattedCodes[0].code;
             }
+          } else if (prefix && phonePart) {
+            phonePart = phonePart.replace(prefix, '').trim();
           }
 
           setPhoneVal(phonePart);
-          const matchedCountry = formattedCodes.find(c => c.code === prefix) || formattedCodes[0];
-          setSelectedCountryCode(matchedCountry);
+          if (prefix) {
+            const matchedCountry = formattedCodes.find(c => c.code === prefix);
+            if (matchedCountry) {
+              setSelectedCountryCode(matchedCountry);
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to fetch countries:', err);
@@ -100,7 +103,7 @@ export default function ParentDetailsScreen({
     name: parent.name || '',
     nameEn: parent.nameEn || '',
     email: parent.email || '',
-    country: parent.country || 'المملكة العربية السعودية',
+    country: parent.country || '',
     birthDate: parent.birthDate || '',
     status: parent.status || 'Active',
     profileImage: parent.profileImage || null,
@@ -121,8 +124,8 @@ export default function ParentDetailsScreen({
     onSave({
       ...parent,
       ...formData,
-      phone: `${selectedCountryCode.code} ${phoneVal.trim()}`,
-      phonePrefix: selectedCountryCode.code,
+      phone: `${selectedCountryCode?.code || ''} ${phoneVal.trim()}`.trim(),
+      phonePrefix: selectedCountryCode?.code || '',
     })
     setMode('view')
   }

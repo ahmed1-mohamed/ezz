@@ -8,70 +8,117 @@ import imageSrc from '../../images/programs/6.webp'
 import { teachersApi } from '../../shared/services/api/teachersApi'
 import { landingApi } from '../../shared/services/api/landingApi'
 
+const normalizeCountryStr = (str) => {
+    if (!str) return ''
+    return String(str)
+        .toLowerCase()
+        .replace(/[\u064B-\u065F\u0670]/g, '') // remove arabic tashkeel
+        .replace(/[إأآا]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/(جمهورية|المملكة|سلطنة|دولة|الامارات|العربية|المتحدة|الهاشمية)/g, '')
+        .replace(/[\uD83C-\uDBFF\uDC00-\uDFFF]/g, '') // remove flags
+        .replace(/[^\p{L}\p{N}]/gu, '')
+        .trim()
+}
+
+const extractEmoji = (str) => {
+    const match = String(str || '').match(/[\uD83C-\uDBFF\uDC00-\uDFFF]+/)
+    return match ? match[0].trim() : ''
+}
+
 const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) => {
     if (!selectedCountryId) return true
-    const countryObj = countriesList.find((c) => (c.id || c._id) === selectedCountryId || c.name === selectedCountryId)
-    if (!countryObj) {
-        return (teacher.country || '').toLowerCase().includes(String(selectedCountryId).toLowerCase())
-    }
+    const countryObj = countriesList.find((c) => (c.id || c._id) === selectedCountryId || c.name === selectedCountryId || c.nameEn === selectedCountryId || c.phoneCode === selectedCountryId)
 
     const teacherCountryRaw = teacher.country || teacher.countryId || ''
     const teacherCountryStr = typeof teacherCountryRaw === 'object'
         ? (teacherCountryRaw.name || teacherCountryRaw.ar || teacherCountryRaw.en || '')
-        : String(teacherCountryRaw)
+        : String(teacherCountryRaw).trim()
 
+    // 1. Direct ID match
     if (
-        teacher.countryId === countryObj.id ||
-        teacher.countryId === countryObj._id ||
-        teacherCountryStr === countryObj.id ||
-        teacherCountryStr === countryObj._id
+        teacher.countryId &&
+        countryObj &&
+        (teacher.countryId === countryObj.id || teacher.countryId === countryObj._id)
     ) {
         return true
     }
 
-    if (countryObj.flag && teacherCountryStr.includes(countryObj.flag)) {
+    // 2. Direct string match
+    if (teacherCountryStr && (teacherCountryStr === selectedCountryId || (countryObj && (teacherCountryStr === countryObj.name || teacherCountryStr === countryObj.nameEn)))) {
         return true
     }
 
-    if (countryObj.phoneCode && teacherCountryStr.includes(countryObj.phoneCode)) {
+    // 3. Flag emoji match
+    const teacherEmoji = extractEmoji(teacherCountryStr)
+    const targetEmoji = countryObj?.flag ? extractEmoji(countryObj.flag) : extractEmoji(selectedCountryId)
+    if (teacherEmoji && targetEmoji && teacherEmoji === targetEmoji) {
+        return true
+    }
+    if (countryObj?.flag && teacherCountryStr.includes(countryObj.flag)) {
         return true
     }
 
-    const targetNameLower = (countryObj.name || '').toLowerCase().trim()
-    const teacherCountryLower = teacherCountryStr.toLowerCase().trim()
-    if (
-        targetNameLower &&
-        (teacherCountryLower.includes(targetNameLower) || targetNameLower.includes(teacherCountryLower))
-    ) {
-        return true
+    // 4. Phone code match
+    if (countryObj?.phoneCode) {
+        if (teacher.phone && teacher.phone.startsWith(countryObj.phoneCode)) {
+            return true
+        }
+        if (teacherCountryStr.includes(countryObj.phoneCode)) {
+            return true
+        }
     }
 
-    const aliases = {
-        'مصر': ['egypt', 'مصر', 'eg'],
-        'egypt': ['egypt', 'مصر', 'eg'],
-        'السعودية': ['saudi', 'سعود', 'ksa'],
-        'saudi arabia': ['saudi', 'سعود', 'ksa'],
-        'الإمارات': ['emirates', 'امارات', 'uae'],
-        'united arab emirates': ['emirates', 'امارات', 'uae'],
-        'الكويت': ['kuwait', 'كويت'],
-        'قطر': ['qatar', 'قطر'],
-        'البحرين': ['bahrain', 'بحرين'],
-        'عمان': ['oman', 'عمان'],
-        'الأردن': ['jordan', 'اردن'],
-        'المغرب': ['morocco', 'مغرب'],
-        'الجزائر': ['algeria', 'جزائر'],
-        'تونس': ['tunisia', 'تونس'],
-        'السودان': ['sudan', 'سودان'],
-        'اليمن': ['yemen', 'يمن'],
-        'سوريا': ['syria', 'سوريا'],
-        'العراق': ['iraq', 'عراق'],
-        'فلسطين': ['palestine', 'فلسطين'],
-        'لبنان': ['lebanon', 'لبنان'],
+    // 5. Normalized name substring match
+    const normTarget = normalizeCountryStr(countryObj?.name || selectedCountryId)
+    const normTargetEn = countryObj?.nameEn ? normalizeCountryStr(countryObj.nameEn) : ''
+    const normTeacher = normalizeCountryStr(teacherCountryStr)
+
+    if (normTarget && normTeacher) {
+        if (normTeacher.includes(normTarget) || normTarget.includes(normTeacher)) {
+            return true
+        }
+    }
+    if (normTargetEn && normTeacher) {
+        if (normTeacher.includes(normTargetEn) || normTargetEn.includes(normTeacher)) {
+            return true
+        }
     }
 
-    const targetAliases = aliases[targetNameLower]
-    if (targetAliases) {
-        return targetAliases.some((alias) => teacherCountryLower.includes(alias))
+    // 6. Regional aliases / synonym groups
+    const aliasesMap = [
+        { keys: ['مصر', 'egypt', 'eg'], id: 'eg' },
+        { keys: ['سعود', 'saudi', 'ksa'], id: 'sa' },
+        { keys: ['امارات', 'emirates', 'uae'], id: 'ae' },
+        { keys: ['كويت', 'kuwait'], id: 'kw' },
+        { keys: ['قطر', 'qatar'], id: 'qa' },
+        { keys: ['بحرين', 'bahrain'], id: 'bh' },
+        { keys: ['عمان', 'oman'], id: 'om' },
+        { keys: ['اردن', 'jordan'], id: 'jo' },
+        { keys: ['مغرب', 'morocco'], id: 'ma' },
+        { keys: ['جزائر', 'algeria'], id: 'dz' },
+        { keys: ['تونس', 'tunisia'], id: 'tn' },
+        { keys: ['سودان', 'sudan'], id: 'sd' },
+        { keys: ['يمن', 'yemen'], id: 'ye' },
+        { keys: ['سوريا', 'syria'], id: 'sy' },
+        { keys: ['عراق', 'iraq'], id: 'iq' },
+        { keys: ['فلسطين', 'palestine'], id: 'ps' },
+        { keys: ['لبنان', 'lebanon'], id: 'lb' },
+        { keys: ['ليبيا', 'libya'], id: 'ly' },
+    ]
+
+    const targetLower = String(countryObj?.name || countryObj?.nameEn || selectedCountryId).toLowerCase()
+    const teacherLower = teacherCountryStr.toLowerCase()
+
+    for (const group of aliasesMap) {
+        const targetMatches = group.keys.some(k => targetLower.includes(k))
+        if (targetMatches) {
+            const teacherMatches = group.keys.some(k => teacherLower.includes(k))
+            if (teacherMatches) {
+                return true
+            }
+        }
     }
 
     return false
@@ -256,10 +303,10 @@ export default function Teachers() {
         isError,
         refetch
     } = useQuery({
-        queryKey: ['publicTeachers', currentPage, itemsPerPage, searchTerm],
+        queryKey: ['publicTeachers', searchTerm],
         queryFn: () => teachersApi.fetchPublicTeachers({
-            page: currentPage,
-            limit: itemsPerPage,
+            page: 1,
+            limit: 100,
             search: searchTerm
         }),
         placeholderData: (previousData) => previousData,
@@ -285,6 +332,21 @@ export default function Teachers() {
         return Array.from(set)
     }, [rawTeachers])
 
+    const distinctTeacherCountries = useMemo(() => {
+        const map = new Map()
+        rawTeachers.forEach((t) => {
+            const raw = t.country || ''
+            const name = typeof raw === 'object' ? (raw.name || raw.ar || raw.en) : String(raw)
+            if (name && name.trim()) {
+                const cleanName = name.trim()
+                if (!map.has(cleanName)) {
+                    map.set(cleanName, { id: cleanName, name: cleanName, flag: extractEmoji(cleanName) })
+                }
+            }
+        })
+        return Array.from(map.values())
+    }, [rawTeachers])
+
     const { data: countriesResponse } = useQuery({
         queryKey: ['countries', i18n.language],
         queryFn: () => landingApi.fetchCountries({ lang: i18n.language }),
@@ -293,9 +355,15 @@ export default function Teachers() {
 
     const countriesList = useMemo(() => {
         const raw = countriesResponse?.data || countriesResponse || []
-        if (!Array.isArray(raw)) return []
-        return [...raw].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
-    }, [countriesResponse, i18n.language])
+        const list = Array.isArray(raw) ? [...raw] : []
+        distinctTeacherCountries.forEach((dc) => {
+            const exists = list.some(c => (c.name || '').includes(dc.name) || dc.name.includes(c.name || ''))
+            if (!exists) {
+                list.push(dc)
+            }
+        })
+        return list.sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
+    }, [countriesResponse, distinctTeacherCountries, i18n.language])
 
     const filteredTeachers = useMemo(() => {
         return rawTeachers.filter((teacher) => {
@@ -317,7 +385,12 @@ export default function Teachers() {
         })
     }, [rawTeachers, selectedSubject, selectedCountry, countriesList])
 
-    const totalPages = Math.max(1, Number(response?.pagination?.numberOfPages || 1))
+    const totalPages = Math.max(1, Math.ceil(filteredTeachers.length / itemsPerPage))
+
+    const paginatedTeachers = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage
+        return filteredTeachers.slice(start, start + itemsPerPage)
+    }, [filteredTeachers, currentPage, itemsPerPage])
 
     const handleSearchSubmit = (e) => {
         if (e) e.preventDefault()
@@ -507,7 +580,7 @@ export default function Teachers() {
                     ) : filteredTeachers.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
                             <AnimatePresence mode="popLayout">
-                                {filteredTeachers.map((teacher, idx) => (
+                                {paginatedTeachers.map((teacher, idx) => (
                                     <TeacherCard
                                         key={teacher.teacher_id || teacher.id || idx}
                                         teacher={teacher}

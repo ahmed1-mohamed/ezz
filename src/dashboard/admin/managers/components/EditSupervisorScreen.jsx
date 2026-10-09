@@ -26,12 +26,12 @@ export default function EditSupervisorScreen({
   const [isEditing, setIsEditing] = useState(false)
 
   const { initialPrefix, initialPhone } = useMemo(() => {
-    const fallback = { initialPrefix: '+20', initialPhone: '' }
+    const fallback = { initialPrefix: '', initialPhone: '' }
     if (!supervisor.phone) return fallback
 
     const phone = String(supervisor.phone).trim()
 
-    // Case 1: phone has a space separator like "+20 1234567"
+    // Case 1: phone has a space separator like "+966 1234567"
     const spaceIdx = phone.indexOf(' ')
     if (spaceIdx > 0 && phone.startsWith('+')) {
       const prefix = phone.slice(0, spaceIdx)
@@ -39,7 +39,7 @@ export default function EditSupervisorScreen({
       return { initialPrefix: prefix, initialPhone: number }
     }
 
-    // Case 2: phone has no space like "+201234567"
+    // Case 2: phone has no space like "+9661234567"
     // Match against known country phone codes (longest first to avoid partial matches)
     if (phone.startsWith('+') && countries && countries.length > 0) {
       const sorted = [...countries].sort(
@@ -51,13 +51,13 @@ export default function EditSupervisorScreen({
           return { initialPrefix: code, initialPhone: phone.slice(code.length).trim() }
         }
       }
-      // Fallback: guess prefix is first 3 chars (+XX or +XXX)
-      const guessPrefix = phone.match(/^(\+\d{1,4})/)?.[1] || '+20'
+      // Fallback: guess prefix is first chars (+XX or +XXX)
+      const guessPrefix = phone.match(/^(\+\d{1,4})/)?.[1] || ''
       return { initialPrefix: guessPrefix, initialPhone: phone.slice(guessPrefix.length).trim() }
     }
 
     // Case 3: no plus sign at all — just a plain number
-    return { initialPrefix: '+20', initialPhone: phone }
+    return { initialPrefix: '', initialPhone: phone }
   }, [supervisor.phone, countries])
 
   const initialCountryId = useMemo(() => {
@@ -88,7 +88,7 @@ export default function EditSupervisorScreen({
   })
 
   const sortedCountries = useMemo(() => {
-    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }))
   }, [countries])
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -112,8 +112,9 @@ export default function EditSupervisorScreen({
 
   const matchedCountry = useMemo(() => {
     const prefixNorm = normalizePhoneCode(formData.phonePrefix)
+    if (!prefixNorm) return null
     const found = sortedCountries.find(c => normalizePhoneCode(c.phoneCode) === prefixNorm || normalizePhoneCode(c.code) === prefixNorm)
-    return found || { phoneCode: formData.phonePrefix || '+20', flag: '🌐' }
+    return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
 
   const handleFieldChange = (key, value) => {
@@ -299,8 +300,8 @@ export default function EditSupervisorScreen({
                         }}
                         className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
                       >
-                        <span aria-hidden="true">{matchedCountry.flag}</span>
-                        <span aria-hidden="true">({matchedCountry.phoneCode || matchedCountry.code})</span>
+                        <span aria-hidden="true">{matchedCountry?.flag || '🌍'}</span>
+                        <span aria-hidden="true">{matchedCountry?.phoneCode || matchedCountry?.code ? `(${matchedCountry.phoneCode || matchedCountry.code})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
                       </button>
 
                       {isDropdownOpen && (

@@ -82,8 +82,7 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
         onClick={(e) => e.stopPropagation()}
         dir={isRtl ? 'rtl' : 'ltr'}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+         <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
@@ -105,10 +104,8 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
           </div>
         </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-5 overflow-y-auto flex-1">
-          {/* Current Teacher Info Box */}
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+         <div className="p-6 space-y-5 overflow-y-auto flex-1">
+           <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-sm shrink-0">
                 {currentTeacherName.charAt(0) || <GraduationCap size={18} />}
@@ -127,8 +124,7 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
             </span>
           </div>
 
-          {/* New Teacher Select */}
-          <div className="space-y-2">
+           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 text-start">
               {t('adminDashboard.groups.selectNewTeacher', 'اختر المعلم البديل الجديد')}
               <span className="text-red-500 ms-1">*</span>
@@ -144,8 +140,7 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
             />
           </div>
 
-          {/* Selected Teacher Details Preview Card */}
-          {selectedTeacher && (
+           {selectedTeacher && (
             <div className="p-4 bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl border border-amber-200 dark:border-amber-800/60 space-y-3 animate-fadeIn">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
@@ -187,8 +182,7 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
             </div>
           )}
 
-          {/* Info note */}
-          <p className="text-[11px] text-slate-400 leading-relaxed text-start">
+           <p className="text-[11px] text-slate-400 leading-relaxed text-start">
             {t(
               'adminDashboard.groups.changeTeacherNotice',
               'عند تغيير المعلم، سيتم تحديث جدول المجموعة وإسناد جميع الجلسات القادمة في هذه المجموعة إلى المعلم الجديد تلقائياً.'
@@ -196,8 +190,7 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
           </p>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-end gap-3 sticky bottom-0">
+         <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-end gap-3 sticky bottom-0">
           <button
             type="button"
             onClick={onClose}

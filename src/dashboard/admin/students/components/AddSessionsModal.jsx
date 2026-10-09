@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Plus, BookOpen, Check } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 
@@ -19,6 +19,13 @@ export default function AddSessionsModal({
   const studentName = typeof student.name === 'string'
     ? student.name
     : (student.name?.ar || student.name?.en || 'الطالب')
+
+  const rawBal = student.sessionsBalance ?? student.remainingSessions ?? 0
+  const currentBalance = typeof rawBal === 'object' && rawBal !== null
+    ? (rawBal.remaining !== undefined
+        ? Number(rawBal.remaining)
+        : Math.max(0, Number(rawBal.total ?? 0) - Number(rawBal.used ?? 0)))
+    : Number(rawBal || 0)
 
   const quickPresets = [4, 8, 12, 16]
 
@@ -72,7 +79,7 @@ export default function AddSessionsModal({
               {isRtl ? 'رصيد الحصص الحالي' : 'Current Sessions Balance'}
             </span>
             <span className="text-base font-extrabold text-[#005953] dark:text-emerald-400">
-              {student.sessionsBalance ?? student.remainingSessions ?? 0} {isRtl ? 'حصة' : 'sessions'}
+              {currentBalance} {isRtl ? 'حصة' : 'sessions'}
             </span>
           </div>
 

@@ -171,8 +171,7 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
+         <div className="flex items-center gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
           <button
             onClick={handleAdd}
             disabled={!selectedStudent || isSubmitting}

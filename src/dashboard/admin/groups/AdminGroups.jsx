@@ -377,8 +377,7 @@ export default function AdminGroups() {
         </p>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: t('adminDashboard.groups.totalGroups', 'إجمالي المجموعات'), value: metrics.total, cls: 'text-slate-700 dark:text-slate-200' },
           { label: t('adminDashboard.groups.activeGroups', 'المجموعات النشطة'), value: metrics.active, cls: 'text-brand-600 dark:text-brand-400' },
@@ -395,8 +394,7 @@ export default function AdminGroups() {
         ))}
       </div>
 
-      {/* Search and Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
+       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={() => {
@@ -441,8 +439,7 @@ export default function AdminGroups() {
         </div>
       </div>
 
-      {/* Grid of Groups */}
-      {paged.length === 0 ? (
+       {paged.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60">
           <Layers size={48} strokeWidth={1.5} />
           <p className="text-sm font-medium">{t('adminDashboard.groups.noGroupsFound', 'لا توجد مجموعات مطابقة')}</p>
@@ -464,8 +461,7 @@ export default function AdminGroups() {
         </div>
       )}
 
-      {/* Pagination — displays server or client pagination smoothly */}
-      <div
+       <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
           }`}
       >

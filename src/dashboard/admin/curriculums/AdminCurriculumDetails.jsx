@@ -336,7 +336,6 @@ export default function AdminCurriculumDetails() {
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Full Width Curriculum Info Card */}
       <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-6 md:p-8 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#0f7a6c]/5 to-transparent pointer-events-none" />
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#0f7a6c]/5 rounded-full blur-3xl pointer-events-none" />
@@ -431,7 +430,6 @@ export default function AdminCurriculumDetails() {
         </div>
       </div>
 
-      {/* Levels Tree */}
       <div className="space-y-4">
         {levels.map((level, levelIndex) => {
           const rawLevelId = getCleanId(level);
@@ -444,7 +442,6 @@ export default function AdminCurriculumDetails() {
 
           return (
             <div key={levelId} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm overflow-hidden transition-all">
-              {/* Level Header (Click toggles expansion) */}
               <div
                 className="p-4 sm:p-5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
                 onClick={() => toggleLevel(rawLevelId || levelId)}
@@ -462,7 +459,6 @@ export default function AdminCurriculumDetails() {
                 </div>
 
                 <div className="flex items-center gap-3 ms-auto">
-                  {/* Edit/Delete Actions stop propagation */}
                   <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-1" onClick={e => e.stopPropagation()}>
                     <button
                       onClick={() => setModalConfig({ isOpen: true, type: 'level', editingItem: level })}
@@ -480,14 +476,12 @@ export default function AdminCurriculumDetails() {
                     </button>
                   </div>
 
-                  {/* Expand Chevron Icon with Rotation Animation */}
                   <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-[#0f7a6c] transition-colors">
                     <ChevronDown size={18} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`} />
                   </div>
                 </div>
               </div>
 
-              {/* Units Collapsible Area */}
               <AnimatePresence initial={false}>
                 {isExpanded && (
                   <motion.div
@@ -508,7 +502,6 @@ export default function AdminCurriculumDetails() {
 
                       return (
                         <div key={unitId} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                          {/* Unit Header */}
                           <div
                             className="p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
                             onClick={() => toggleUnit(rawUnitId || unitId)}
@@ -543,7 +536,6 @@ export default function AdminCurriculumDetails() {
                             </div>
                           </div>
 
-                          {/* Files Collapsible Area */}
                           <AnimatePresence initial={false}>
                             {isUnitExpanded && (
                               <motion.div
@@ -562,7 +554,7 @@ export default function AdminCurriculumDetails() {
                                       const MetaIcon = meta.icon
 
                                       return (
-                                        <div key={fileId} 
+                                        <div key={fileId}
                                           className={`bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-3 flex items-center justify-between gap-3 group shadow-sm transition-all hover:shadow-md ${meta.isLink && meta.fullUrl ? 'cursor-pointer hover:border-blue-200 dark:hover:border-blue-800' : ''}`}
                                           onClick={meta.isLink && meta.fullUrl ? () => window.open(meta.fullUrl, '_blank', 'noopener,noreferrer') : undefined}
                                         >
@@ -601,7 +593,6 @@ export default function AdminCurriculumDetails() {
                                           </div>
 
                                           <div className="flex items-center gap-1 shrink-0">
-                                            {/* Preview / Open in New Tab */}
                                             <button
                                               onClick={(e) => { e.stopPropagation(); handlePreviewFile(meta.fullUrl); }}
                                               className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-all cursor-pointer"
@@ -610,7 +601,6 @@ export default function AdminCurriculumDetails() {
                                               {meta.isLink ? <ExternalLink size={15} /> : <Eye size={15} />}
                                             </button>
 
-                                            {/* Download for files only */}
                                             {!meta.isLink && (
                                               <button
                                                 onClick={(e) => { e.stopPropagation(); handleDownloadFile(meta.fullUrl, fileName, meta.isLink); }}
@@ -621,7 +611,6 @@ export default function AdminCurriculumDetails() {
                                               </button>
                                             )}
 
-                                            {/* Delete */}
                                             <button
                                               onClick={(e) => { e.stopPropagation(); handleDelete('file', file, { levelId: rawLevelId || levelId, unitId: rawUnitId || unitId }); }}
                                               className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
@@ -640,7 +629,6 @@ export default function AdminCurriculumDetails() {
                                   </div>
                                 )}
 
-                                {/* Add File Button */}
                                 <button
                                   onClick={() => setFileModalConfig({ isOpen: true, levelId: level, unitId: unit })}
                                   className="w-full py-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-[#0f7a6c] hover:border-[#0f7a6c] hover:bg-[#0f7a6c]/5 transition-all text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
@@ -655,7 +643,6 @@ export default function AdminCurriculumDetails() {
                       )
                     })}
 
-                    {/* Add Unit Button */}
                     <button
                       onClick={() => setModalConfig({ isOpen: true, type: 'unit', parentId: rawLevelId || levelId })}
                       className="w-full py-3.5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-slate-400 hover:text-[#0f7a6c] hover:border-[#0f7a6c] hover:bg-[#0f7a6c]/5 transition-all text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
@@ -670,7 +657,6 @@ export default function AdminCurriculumDetails() {
           )
         })}
 
-        {/* Add Level Button */}
         <button
           onClick={() => setModalConfig({ isOpen: true, type: 'level' })}
           className="w-full mt-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl text-slate-500 hover:text-[#0f7a6c] hover:border-[#0f7a6c] hover:bg-[#0f7a6c]/5 transition-all font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer"
@@ -680,7 +666,6 @@ export default function AdminCurriculumDetails() {
         </button>
       </div>
 
-      {/* Modals */}
       <BasicModal
         isOpen={modalConfig.isOpen}
         onClose={closeModal}

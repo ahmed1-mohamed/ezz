@@ -2173,7 +2173,18 @@
         "sessionsLabel": "Total Sessions",
         "submit": "Save",
         "cancel": "Cancel"
-      }
+      },
+      "academicInfo": "Academic Information",
+      "specialization": "Specialization",
+      "yearsOfExperience": "Years of Experience",
+      "years": "years",
+      "country": "Country",
+      "qualificationAr": "Qualification (Arabic)",
+      "qualificationEn": "Qualification (English)",
+      "bioAr": "About the Teacher (Arabic)",
+      "bioEn": "Brief About Teacher (English)",
+      "achievementsAndCertificates": "Achievements & Accreditations",
+      "noAchievements": "No achievements or accreditations added"
     },
     "students": {
       "title": "Student Management",

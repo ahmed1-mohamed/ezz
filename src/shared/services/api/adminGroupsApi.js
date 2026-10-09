@@ -6,33 +6,22 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  /**
-   * GET /api/v1/groups/private/localized/{id}
-   * Fetches localized group details (suitable for display and student lists).
-   */
   fetchGroupByIdLocalized: async (id, params = {}) => {
     try {
       const response = await api.get(`/api/v1/groups/private/localized/${id}`, { params });
       return response.data;
     } catch (error) {
-      // Fallback to raw endpoint if localized endpoint is unavailable
       const rawRes = await api.get(`/api/v1/groups/private/${id}`, { params });
       return rawRes.data;
     }
   },
 
-  /**
-   * GET /api/v1/groups/private/{id}
-   * Fetches raw group details with multilingual objects { name: { ar, en } } (ideal for edit forms).
-   */
+
   fetchGroupByIdRaw: async (id, params = {}) => {
     const response = await api.get(`/api/v1/groups/private/${id}`, { params });
     return response.data;
   },
 
-  /**
-   * Default alias for backward compatibility.
-   */
   fetchGroupById: async (id, params = {}) => {
     return adminGroupsApi.fetchGroupByIdLocalized(id, params);
   },
@@ -42,10 +31,7 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  /**
-   * PATCH /api/v1/groups/private/{id}
-   * Updates group details
-   */
+
   updateGroup: async (id, groupData) => {
     try {
       const response = await api.patch(`/api/v1/groups/private/${id}`, groupData);
@@ -56,19 +42,12 @@ export const adminGroupsApi = {
     }
   },
 
-  /**
-   * DELETE /api/v1/groups/private/{id}
-   * Deletes a group by id.
-   */
   deleteGroup: async (id) => {
     const response = await api.delete(`/api/v1/groups/private/${id}`);
     return response.data;
   },
 
-  /**
-   * POST /api/v1/groups/private/{groupId}/students
-   * Adds a student to a private group.
-   */
+
   addStudentToGroup: async (groupId, payload) => {
     const studentId = typeof payload === 'string'
       ? payload
@@ -83,19 +62,11 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  /**
-   * DELETE /api/v1/groups/private/{groupId}/students/{studentId}
-   * Removes a student from a private group.
-   */
   removeStudentFromGroup: async (groupId, studentId) => {
     const response = await api.delete(`/api/v1/groups/private/${groupId}/students/${studentId}`);
     return response.data;
   },
 
-  /**
-   * PATCH /api/v1/groups/private/{id}/change-teacher
-   * Changes the assigned teacher of a private group.
-   */
   changeTeacher: async (groupId, payload) => {
     const teacherId = typeof payload === 'string'
       ? payload
@@ -110,16 +81,7 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  /**
-   * PATCH /api/v1/groups/private/{id}/schedule
-   * Updates group weekly schedule.
-   * Body:
-   * {
-   *   "weeklySchedule": [
-   *     { "day": "monday", "startTime": "17:00", "endTime": "18:30" }
-   *   ]
-   * }
-   */
+
   updateGroupSchedule: async (groupId, payload) => {
     const weeklySchedule = Array.isArray(payload)
       ? payload

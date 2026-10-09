@@ -144,8 +144,7 @@ export default function TeacherFormModal({
             </div>
 
             <form onSubmit={handleFormSubmit} className="space-y-6 text-start">
-              {/* Selected Teacher Preview Bar */}
-              {currentTeacher.teacherId ? (
+               {currentTeacher.teacherId ? (
                 <div className="p-4 bg-[#e9f6f3]/60 dark:bg-[#0f7a6c]/10 border border-[#0f7a6c]/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <label className="relative cursor-pointer group">
@@ -203,8 +202,7 @@ export default function TeacherFormModal({
                 </div>
               ) : null}
 
-              {/* Teacher Search & Select Section (Add mode only) */}
-              {isAdd && (showTeacherSearch || !currentTeacher.teacherId) && (
+               {isAdd && (showTeacherSearch || !currentTeacher.teacherId) && (
                 <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4 animate-fadeIn">
                   <div className="relative">
                     <span className="absolute inset-y-0 start-0 flex items-center ps-4 text-slate-400">

@@ -1,7 +1,7 @@
 import { Users } from 'lucide-react'
 
 export default function TeacherDetailsGroups({ teacher, isRtl, t }) {
-  const groups = teacher?.groups || []
+  const groups = Array.isArray(teacher?.groups) ? teacher.groups : []
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
@@ -13,22 +13,24 @@ export default function TeacherDetailsGroups({ teacher, isRtl, t }) {
       <div className="space-y-4">
         {groups.length === 0 ? (
           <div className="text-center py-6 text-slate-400 dark:text-slate-500 font-bold text-sm">
-            {t('adminDashboard.teachers.noGroups', 'لا توجد مجموعات مرتبطة بهذا المعلم')}
+            {t ? t('adminDashboard.teachers.noGroups', 'لا توجد مجموعات مرتبطة بهذا المعلم') : 'لا توجد مجموعات مرتبطة بهذا المعلم'}
           </div>
         ) : (
-          groups.map((group) => (
+          groups.map((group, idx) => (
             <div
-              key={group.id}
+              key={group?.id || group?._id || idx}
               className="p-5 bg-slate-50/50 dark:bg-slate-950/20 rounded-3xl border border-slate-100 dark:border-slate-850/60 space-y-4"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <h4 className="text-base font-bold text-slate-800 dark:text-white">
-                    {group.name}
+                    {group?.name || group?.title || (isRtl ? 'مجموعة دراسية' : 'Study Group')}
                   </h4>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 font-bold">
-                    {group.level}
-                  </p>
+                  {group?.level && (
+                    <p className="text-xs text-slate-400 dark:text-slate-500 font-bold">
+                      {group.level}
+                    </p>
+                  )}
                 </div>
                 <span className="inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5" />
@@ -42,7 +44,7 @@ export default function TeacherDetailsGroups({ teacher, isRtl, t }) {
                     {isRtl ? 'الطلاب' : 'Students'}
                   </span>
                   <span className="text-sm font-extrabold text-slate-700 dark:text-slate-205 mt-0.5 block">
-                    {group.studentsCount}
+                    {group?.studentsCount ?? group?.totalStudents ?? 0}
                   </span>
                 </div>
                 <div>
@@ -50,7 +52,7 @@ export default function TeacherDetailsGroups({ teacher, isRtl, t }) {
                     {isRtl ? 'النوع' : 'Type'}
                   </span>
                   <span className="text-sm font-extrabold text-slate-700 dark:text-slate-205 mt-0.5 block">
-                    {group.type}
+                    {group?.type || (isRtl ? 'مجموعة' : 'Group')}
                   </span>
                 </div>
                 <div className="col-span-2">
@@ -58,7 +60,7 @@ export default function TeacherDetailsGroups({ teacher, isRtl, t }) {
                     {isRtl ? 'المواعيد' : 'Schedule'}
                   </span>
                   <span className="text-sm font-extrabold text-slate-700 dark:text-slate-205 mt-0.5 block">
-                    {group.schedule}
+                    {typeof group?.schedule === 'string' ? group.schedule : (group?.schedule ? JSON.stringify(group.schedule) : '-')}
                   </span>
                 </div>
               </div>

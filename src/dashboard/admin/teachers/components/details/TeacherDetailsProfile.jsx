@@ -7,8 +7,7 @@ export default function TeacherDetailsProfile({ teacher, isRtl }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 sm:p-8 shadow-soft space-y-6 text-start">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-        {/* Avatar */}
-        <div className="relative shrink-0">
+         <div className="relative shrink-0">
           {teacher?.image ? (
             <img
               src={teacher.image}
@@ -37,8 +36,7 @@ export default function TeacherDetailsProfile({ teacher, isRtl }) {
           )}
         </div>
 
-        {/* Identity & Main Info */}
-        <div className="space-y-3 text-center md:text-start flex-1 min-w-0">
+         <div className="space-y-3 text-center md:text-start flex-1 min-w-0">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
@@ -64,14 +62,14 @@ export default function TeacherDetailsProfile({ teacher, isRtl }) {
               </div>
 
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">
-                {teacher?.degree || teacher?.qualification || (isRtl ? 'معلم متخصص' : 'Specialized Teacher')}
+                {teacher?.degreeAr || (typeof teacher?.degree === 'object' ? teacher?.degree?.ar : teacher?.degree) || teacher?.qualification || (isRtl ? 'معلم متخصص' : 'Specialized Teacher')}
                 {teacher?.yearsOfExperience > 0 && ` · ${teacher.yearsOfExperience} ${isRtl ? 'سنوات خبرة' : 'years of experience'}`}
+                {teacher?.hourlyRate > 0 && ` · ${teacher.hourlyRate} ${isRtl ? 'ر.س/ساعة' : 'SAR/hr'}`}
               </p>
             </div>
           </div>
 
-          {/* Contact and Meta Details */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-5 text-xs font-semibold text-slate-500 dark:text-slate-400 pt-1">
+           <div className="flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-5 text-xs font-semibold text-slate-500 dark:text-slate-400 pt-1">
             <span className="flex items-center gap-1.5">
               <MapPin size={14} className="text-[#005953] dark:text-emerald-400" />
               <span>{teacher?.country || 'مصر'}</span>
@@ -92,8 +90,7 @@ export default function TeacherDetailsProfile({ teacher, isRtl }) {
         </div>
       </div>
 
-      {/* Bio / About */}
-      {teacher?.bio && (
+       {teacher?.bio && (
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 space-y-1.5">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
             {isRtl ? 'نبذة عن المعلم:' : 'Biography:'}
@@ -104,23 +101,27 @@ export default function TeacherDetailsProfile({ teacher, isRtl }) {
         </div>
       )}
 
-      {/* Achievements */}
-      {teacher?.achievements && teacher.achievements.length > 0 && (
+       {teacher?.achievements && teacher.achievements.length > 0 && (
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 space-y-2.5">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
             <Award size={14} className="text-amber-500" />
             <span>{isRtl ? 'الإنجازات والشهادات التقديرية:' : 'Achievements & Honors:'}</span>
           </h4>
           <div className="flex flex-wrap gap-2">
-            {teacher.achievements.map((ach, idx) => (
-              <span
-                key={idx}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/30"
-              >
-                <span>⭐</span>
-                <span>{ach}</span>
-              </span>
-            ))}
+            {teacher.achievements.map((ach, idx) => {
+              const achText = typeof ach === 'object' && ach !== null
+                ? (isRtl ? (ach.ar || ach.en) : (ach.en || ach.ar))
+                : ach
+              return (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/30"
+                >
+                  <span>⭐</span>
+                  <span>{achText}</span>
+                </span>
+              )
+            })}
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
@@ -11,6 +12,7 @@ import TeacherDetailsScreen from './components/TeacherDetailsScreen'
 import Spinner from '@/shared/components/Spinner'
 
 export default function AdminTeachers() {
+  const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
@@ -41,13 +43,13 @@ export default function AdminTeachers() {
     setCurrentPage(1)
   }
 
-  // Backend query passing page, limit: 20, committed search, and status
+  // Backend query passing page, limit: 10, committed search, and status
   const { data: res, isLoading, isFetching } = useQuery({
     queryKey: ['teachers', currentPage, committedSearch, statusFilter],
     queryFn: () =>
       teachersApi.fetchTeachers({
         page: currentPage,
-        limit: 20,
+        limit: 10,
         search: committedSearch,
         status: statusFilter !== 'all' ? statusFilter : undefined
       }),
@@ -55,7 +57,7 @@ export default function AdminTeachers() {
   })
 
   const teachers = useMemo(() => res?.data || [], [res])
-  const pagination = res?.pagination || { currentPage: 1, limit: 20, numberOfPages: 1 }
+  const pagination = res?.pagination || { currentPage: 1, limit: 10, numberOfPages: 1 }
   const statistics = res?.statistics || {
     total: teachers.length,
     active: teachers.filter((t) => t.active).length,
@@ -164,8 +166,13 @@ export default function AdminTeachers() {
   }
 
   const handleViewDetails = (teacher) => {
-    setSelectedTeacherRecord(teacher)
-    setViewMode('view-teacher')
+    const id = teacher?.teacher_id || teacher?.id || teacher?.user_id || selectedTeacherId
+    if (id) {
+      navigate(`/dashboard/admin/teachers/${id}`)
+    } else {
+      setSelectedTeacherRecord(teacher)
+      setViewMode('view-teacher')
+    }
   }
 
   return (
@@ -187,8 +194,7 @@ export default function AdminTeachers() {
             </p>
           </div>
 
-          {/* Statistics Cards with Interactive Status Filtering */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <button
               type="button"
               onClick={() => setStatusFilter('all')}
@@ -257,8 +263,7 @@ export default function AdminTeachers() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-            {/* Quick Profile Sidebar */}
-            <div className="w-full lg:w-80 shrink-0">
+             <div className="w-full lg:w-80 shrink-0">
               <TeacherProfileCard
                 teacher={selectedTeacher}
                 isRtl={isRtl}
@@ -270,8 +275,7 @@ export default function AdminTeachers() {
               />
             </div>
 
-            {/* Teachers List & Backend Pagination */}
-            <div className="flex-1 w-full">
+             <div className="flex-1 w-full">
               <TeachersList
                 teachers={teachers}
                 selectedTeacherId={selectedTeacherId}

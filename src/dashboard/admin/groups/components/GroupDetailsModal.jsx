@@ -114,8 +114,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
           </div>
         </div>
 
-        {/* Current Teacher Info & Change Bar */}
-        <div className="px-5 py-3 bg-amber-50/50 dark:bg-amber-950/20 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+         <div className="px-5 py-3 bg-amber-50/50 dark:bg-amber-950/20 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
               <GraduationCap size={16} />
@@ -140,8 +139,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
           )}
         </div>
 
-        {/* Weekly Schedule Bar */}
-        <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+         <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <Calendar size={15} className="text-brand-600 dark:text-brand-400 shrink-0" />
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -167,8 +165,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
           )}
         </div>
 
-        {/* Quick Add Student with Select Dropdown */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 space-y-2 shrink-0">
+         <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 space-y-2 shrink-0">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 text-start">
             {t('adminDashboard.groups.addStudentToGroup', 'إضافة طالب إلى المجموعة')}
           </label>

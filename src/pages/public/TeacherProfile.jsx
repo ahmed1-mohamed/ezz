@@ -157,8 +157,7 @@ export default function TeacherProfile() {
 
                 <div className="mt-8 space-y-6">
                     <TeacherStats stats={teacher.stats} t={t} />
-                    {/* <TeacherSchedule schedule={teacher.schedule} t={t} /> */}
-                </div>
+                 </div>
             </div>
 
         </div>

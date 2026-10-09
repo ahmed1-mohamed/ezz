@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Star, Users, DollarSign, BookOpen, Award, Pencil } from 'lucide-react'
+import { Star, Users, DollarSign, BookOpen, Award } from 'lucide-react'
 
 export default function TeacherProfileHeaderCard({
   formData,
@@ -14,13 +14,6 @@ export default function TeacherProfileHeaderCard({
 
   return (
     <div className="space-y-6">
-
-      <div className="flex justify-end select-none">
-        <div className="px-5 py-2.5 bg-brand-500 text-white rounded-2xl text-sm font-bold flex items-center gap-2 shadow-md shadow-brand-500/10">
-          <Pencil size={16} />
-          <span>{isRtl ? 'تعديل البيانات' : 'Edit Data'}</span>
-        </div>
-      </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
 

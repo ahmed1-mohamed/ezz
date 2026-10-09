@@ -1,11 +1,10 @@
-import { Eye, Pencil, Trash2, Star, Ban, CheckCircle2, Globe, BookOpen } from 'lucide-react'
+import { Eye, Trash2, Star, Ban, CheckCircle2, Globe, BookOpen } from 'lucide-react'
 
 export default function TeachersListItem({
   teacher,
   isSelected,
   onSelectTeacher,
   onViewDetails,
-  onOpenEditScreen,
   onDelete,
   onToggleStatus,
   isRtl,
@@ -24,8 +23,7 @@ export default function TeachersListItem({
       }`}
     >
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        {/* Left / Start: Avatar & Identity */}
-        <div className="flex items-center gap-3.5 flex-1 min-w-0 w-full md:w-auto">
+         <div className="flex items-center gap-3.5 flex-1 min-w-0 w-full md:w-auto">
           <div className="relative shrink-0">
             {teacher.image ? (
               <img
@@ -84,8 +82,7 @@ export default function TeachersListItem({
               {teacher.degree || teacher.subject || (isRtl ? 'معلم معتمد' : 'Certified Teacher')}
             </p>
 
-            {/* Specializations tags */}
-            {teacher.specializations && teacher.specializations.length > 0 && (
+             {teacher.specializations && teacher.specializations.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {teacher.specializations.slice(0, 3).map((spec) => (
                   <span
@@ -106,10 +103,8 @@ export default function TeachersListItem({
           </div>
         </div>
 
-        {/* Right Group: Metrics & Compact Action Icons */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800/80">
-          {/* Metrics Pill */}
-          <div className="flex items-center justify-around gap-2.5 sm:gap-3.5 bg-slate-50/80 dark:bg-slate-950/50 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-800/80 shrink-0">
+         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800/80">
+           <div className="flex items-center justify-around gap-2.5 sm:gap-3.5 bg-slate-50/80 dark:bg-slate-950/50 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-800/80 shrink-0">
             <div className="text-center px-1">
               <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold leading-tight">
                 {t('adminDashboard.teachers.groups', 'المجموعات')}
@@ -148,36 +143,22 @@ export default function TeachersListItem({
             </div>
           </div>
 
-          {/* Action Icons (Compact square buttons without text) */}
-          <div className="flex items-center gap-1.5 shrink-0">
+           <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 if (onViewDetails) {
                   onViewDetails(teacher)
-                } else {
+                } else if (onSelectTeacher) {
                   onSelectTeacher(teacher.id)
                 }
               }}
               className="w-9 h-9 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#005953] dark:hover:text-emerald-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
-              title={t('adminDashboard.teachers.viewDetails', 'عرض التفاصيل')}
-              aria-label={t('adminDashboard.teachers.viewDetails', 'عرض التفاصيل')}
+              title={t ? t('adminDashboard.teachers.viewDetails', 'عرض التفاصيل') : 'عرض التفاصيل'}
+              aria-label={t ? t('adminDashboard.teachers.viewDetails', 'عرض التفاصيل') : 'عرض التفاصيل'}
             >
               <Eye size={16} />
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onOpenEditScreen(teacher)
-              }}
-              className="w-9 h-9 flex items-center justify-center bg-[#005953] hover:bg-[#004742] text-white rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer"
-              title={isRtl ? 'تعديل المعلم' : 'Edit teacher'}
-              aria-label={isRtl ? 'تعديل المعلم' : 'Edit teacher'}
-            >
-              <Pencil size={15} />
             </button>
 
             {onToggleStatus && (

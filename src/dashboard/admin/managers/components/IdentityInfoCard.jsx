@@ -15,7 +15,7 @@ export default function IdentityInfoCard({
   const [countrySearch, setCountrySearch] = useState('')
 
   const sortedCountries = useMemo(() => {
-    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }))
   }, [countries])
 
   const filteredCountries = useMemo(() => {
@@ -31,11 +31,12 @@ export default function IdentityInfoCard({
 
   const selectedPhoneCountry = useMemo(() => {
     const pfxNorm = String(formData.phonePrefix || '').replace(/\+/g, '').trim()
+    if (!pfxNorm) return null
     const found = sortedCountries.find(c => {
       const cPhoneNorm = String(c.phoneCode || c.code || '').replace(/\+/g, '').trim()
       return cPhoneNorm && cPhoneNorm === pfxNorm
     })
-    return found || { phoneCode: formData.phonePrefix || '+20', flag: '🌐' }
+    return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
 
   const handlePhotoClick = () => {
@@ -173,8 +174,8 @@ export default function IdentityInfoCard({
               }}
               className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
-              <span aria-hidden="true">{selectedPhoneCountry?.flag}</span>
-              <span aria-hidden="true">({selectedPhoneCountry?.phoneCode || formData.phonePrefix || '+20'})</span>
+              <span aria-hidden="true">{selectedPhoneCountry?.flag || '🌍'}</span>
+              <span aria-hidden="true">{selectedPhoneCountry?.phoneCode ? `(${selectedPhoneCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
             </button>
 
             {isDropdownOpen && (

@@ -13,7 +13,7 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
   const fileInputRef = useRef(null)
 
   const [apiCountries, setApiCountries] = useState([])
-  const [selectedCountryCode, setSelectedCountryCode] = useState({ code: '', flag: '🌐', name: 'Loading...' })
+  const [selectedCountryCode, setSelectedCountryCode] = useState(null)
   const [phoneVal, setPhoneVal] = useState('')
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
@@ -33,7 +33,7 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
     name: initialName,
     nameEn: initialNameEn,
     email: parent?.email || '',
-    country: parent?.country || 'المملكة العربية السعودية',
+    country: parent?.country || '',
     birthDate: parent?.birthDate || '',
     status: parent?.active ? 'Active' : (parent?.status || 'Active'),
     gender: parent?.gender || 'male',
@@ -49,37 +49,40 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
     const loadCountries = async () => {
       try {
         const res = await landingApi.fetchCountries();
-        const fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        let fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
         if (fetchedCountries.length > 0) {
+          fetchedCountries = [...fetchedCountries].sort((a, b) =>
+            (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' })
+          );
           setApiCountries(fetchedCountries);
 
-          let prefix = parent?.phonePrefix;
+          let prefix = parent?.phonePrefix || '';
           let phonePart = parent?.phone || '';
 
-          if (parent?.phone && !parent?.phonePrefix) {
-            const matchedCode = fetchedCountries.find(c => parent.phone.startsWith(c.phoneCode));
+          if (parent?.phone && !prefix) {
+            const matchedCode = fetchedCountries.find(c => c.phoneCode && parent.phone.startsWith(c.phoneCode));
             if (matchedCode) {
               prefix = matchedCode.phoneCode;
               phonePart = parent.phone.substring(prefix.length);
-            } else {
-              prefix = fetchedCountries[0]?.phoneCode || '+966';
             }
-          } else {
-            prefix = prefix || fetchedCountries[0]?.phoneCode || '+966';
-            if (phonePart) phonePart = phonePart.replace(prefix, '');
+          } else if (prefix && phonePart) {
+            phonePart = phonePart.replace(prefix, '');
           }
 
           setPhoneVal(phonePart);
 
-          const matchedCountry = fetchedCountries.find(c => c.phoneCode === prefix) || fetchedCountries[0];
-          if (matchedCountry) {
-            setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name });
+          if (prefix) {
+            const matchedCountry = fetchedCountries.find(c => c.phoneCode === prefix);
+            if (matchedCountry) {
+              setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag || '🌍', name: matchedCountry.name });
+            } else {
+              setSelectedCountryCode({ code: prefix, flag: '🌍', name: prefix });
+            }
+          } else {
+            setSelectedCountryCode(null);
           }
 
-          if (!parent) {
-            const saudi = fetchedCountries.find(c => c.name === 'المملكة العربية السعودية' || c.nameEn === 'Saudi Arabia' || c.phoneCode === '+966');
-            if (saudi) setFormData(prev => ({ ...prev, country: saudi.id || saudi._id }));
-          } else if (parent.country) {
+          if (parent?.country) {
             const matchedCountry = fetchedCountries.find(c => c._id === parent.country || c.id === parent.country || c.name === parent.country || parent.country.includes(c.name));
             if (matchedCountry) {
               setFormData(prev => ({ ...prev, country: matchedCountry._id || matchedCountry.id }));

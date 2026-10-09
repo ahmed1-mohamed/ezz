@@ -118,8 +118,7 @@ export default function RewardsSuggestions({
 
   return (
     <div className="space-y-6">
-      {/* 4 Clickable Rectangles corresponding to each endpoint */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statsCards.map((card) => {
           const Icon = card.icon
           const isActive = (activeFilter || 'all') === card.id
@@ -150,8 +149,7 @@ export default function RewardsSuggestions({
         })}
       </div>
 
-      {/* Content Area */}
-      {isLoading ? (
+       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
@@ -184,8 +182,7 @@ export default function RewardsSuggestions({
                 className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-5 shadow-soft flex flex-col justify-between transition-all hover:shadow-md"
               >
                 <div>
-                  {/* Card Banner with Background Color and Icon */}
-                  <div
+                   <div
                     className="h-24 rounded-2xl flex items-center justify-center relative shadow-sm"
                     style={{ backgroundColor: sug.backgroundColor || '#f3f4f6' }}
                   >
@@ -197,8 +194,7 @@ export default function RewardsSuggestions({
                     </div>
                   </div>
 
-                  {/* Name and Description */}
-                  <div className="text-center mt-3 px-2">
+                   <div className="text-center mt-3 px-2">
                     <h4 className="font-bold text-slate-800 dark:text-white text-base leading-snug">
                       {name}
                     </h4>
@@ -209,8 +205,7 @@ export default function RewardsSuggestions({
                     )}
                   </div>
 
-                  {/* Teacher Info */}
-                  {sug.teacher?.name && (
+                   {sug.teacher?.name && (
                     <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/60 w-full text-xs text-slate-600 dark:text-slate-400 mt-3">
                       {sug.teacher.image ? (
                         <img
@@ -235,8 +230,7 @@ export default function RewardsSuggestions({
                   )}
                 </div>
 
-                {/* Actions Footer */}
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-4">
+                 <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-4">
                   <div className="flex items-center gap-1">
                     {onView && (
                       <button

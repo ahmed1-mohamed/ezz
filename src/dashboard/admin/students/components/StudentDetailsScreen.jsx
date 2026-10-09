@@ -73,11 +73,16 @@ export default function StudentDetailsScreen({
     : (student.name?.ar || student.name?.en || '-')
 
   // Real parent data from backend
+  const rawParentName = student.parent?.name || student.parentName || (isRtl ? 'غير محدد' : 'Not specified')
+  const parentNameStr = typeof rawParentName === 'object' && rawParentName !== null
+    ? (rawParentName.ar || rawParentName.en || '-')
+    : String(rawParentName || '-')
+
   const parentInfo = {
-    name: student.parent?.name || student.parentName || (isRtl ? 'غير محدد' : 'Not specified'),
-    phone: student.parent?.phone || student.phone || '-',
-    email: student.parent?.email || '-',
-    initial: (student.parent?.name || student.parentName || '?').trim().charAt(0)
+    name: parentNameStr,
+    phone: student.parent?.phone || student.parentPhone || student.phone || '-',
+    email: student.parent?.email || student.parentEmail || '-',
+    initial: parentNameStr.trim().charAt(0) || '?'
   }
 
   const handlePasswordUpdate = (e) => {
@@ -96,7 +101,13 @@ export default function StudentDetailsScreen({
     setConfirmPassword('')
   }
 
-  const sessionsBalance = student.sessionsBalance ?? student.remainingSessions ?? 0
+  const rawSessionsBal = student.sessionsBalance ?? student.remainingSessions ?? 0
+  const sessionsBalance = typeof rawSessionsBal === 'object' && rawSessionsBal !== null
+    ? (rawSessionsBal.remaining !== undefined
+        ? Number(rawSessionsBal.remaining)
+        : Math.max(0, Number(rawSessionsBal.total ?? 0) - Number(rawSessionsBal.used ?? 0)))
+    : Number(rawSessionsBal || 0)
+
   const attendanceRate = student.attendanceRate !== undefined && student.attendanceRate !== null
     ? `${Number(student.attendanceRate).toFixed(1)}%`
     : '95%'
@@ -125,10 +136,15 @@ export default function StudentDetailsScreen({
     }
   ]
 
+  const rawLevelVal = student.studentLevel?.name || student.levelName || student.level || (isRtl ? 'تمهيدي' : 'Beginner')
+  const levelVal = typeof rawLevelVal === 'object' && rawLevelVal !== null
+    ? (rawLevelVal.ar || rawLevelVal.en || '')
+    : String(rawLevelVal || '')
+
   const detailsItems = [
     {
       label: t('adminDashboard.students.details.level', 'المستوى التعليمي'),
-      value: student.studentLevel?.name || student.level || (isRtl ? 'تمهيدي' : 'Beginner'),
+      value: levelVal,
       icon: Award,
       iconColor: 'text-[#005953]',
       bgClass: 'bg-[#f3f7f6] dark:bg-slate-900'
@@ -158,8 +174,7 @@ export default function StudentDetailsScreen({
 
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -183,10 +198,8 @@ export default function StudentDetailsScreen({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Quick Add Sessions */}
-          <button
+         <div className="flex flex-wrap items-center gap-3">
+           <button
             type="button"
             onClick={() => setIsAddSessionsOpen(true)}
             className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
@@ -195,8 +208,7 @@ export default function StudentDetailsScreen({
             <span>{isRtl ? 'إضافة حصص' : 'Add Sessions'}</span>
           </button>
 
-          {/* Edit */}
-          <button
+           <button
             type="button"
             onClick={() => onEdit(student)}
             className="px-4 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
@@ -205,8 +217,7 @@ export default function StudentDetailsScreen({
             <span>{t('adminDashboard.students.details.editData', 'تعديل البيانات')}</span>
           </button>
 
-          {/* Suspend / Activate */}
-          <button
+           <button
             type="button"
             onClick={() => onToggleStatus(studentId)}
             className={`px-4 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${
@@ -230,8 +241,7 @@ export default function StudentDetailsScreen({
         </div>
       </div>
 
-      {/* Top 3 Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
@@ -298,8 +308,7 @@ export default function StudentDetailsScreen({
         </div>
       </div>
 
-      {/* Add Sessions Modal */}
-      <AddSessionsModal
+       <AddSessionsModal
         isOpen={isAddSessionsOpen}
         onClose={() => setIsAddSessionsOpen(false)}
         student={student}
@@ -312,8 +321,7 @@ export default function StudentDetailsScreen({
         }}
       />
 
-      {/* Change Group Modal */}
-      <Suspense fallback={null}>
+       <Suspense fallback={null}>
         {isChangeGroupOpen && (
           <ChangeGroupModal
             isOpen={isChangeGroupOpen}
