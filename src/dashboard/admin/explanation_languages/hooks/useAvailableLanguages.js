@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi';
 
-
 export function useAvailableLanguages() {
     const [languages, setLanguages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);

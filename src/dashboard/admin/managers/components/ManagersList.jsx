@@ -33,14 +33,12 @@ export default function ManagersList({
 }) {
   const itemsPerPage = 10
 
-  // Cards data — read directly from backend statistics
   const metrics = {
     total: statistics?.total ?? supervisors.length,
     active: statistics?.active ?? supervisors.filter((s) => s.status === 'Active' || s.active).length,
     suspended: statistics?.stopped ?? supervisors.filter((s) => s.status === 'Suspended' || !s.active).length,
   }
 
-  // Total count for the current filter tab
   const totalCount = (() => {
     if (statistics) {
       if (statusFilter === 'active') return statistics.active ?? 0
@@ -50,13 +48,10 @@ export default function ManagersList({
     return supervisors.length
   })()
 
-  // Backend-driven: numberOfPages is the single source of truth
   const effectiveTotalPages = totalPages && totalPages > 0 ? totalPages : 1
 
-  // Backend already returns the paginated slice
   const currentItems = supervisors
 
-  // Dimmed when there is only one page (numberOfPages === 1 from backend)
   const isPaginationDimmed = effectiveTotalPages === 1
 
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0

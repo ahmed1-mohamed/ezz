@@ -26,19 +26,16 @@ export default function AdminCurriculums() {
   const [searchInput, setSearchInput] = useState('')
   const [appliedSearch, setAppliedSearch] = useState('')
 
-  // Fetch Curricula
   const { data: curriculaResponse, isLoading, isFetching } = useQuery({
     queryKey: ['admin-curricula', appliedSearch],
     queryFn: () => adminCurriculaApi.fetchCurricula({ search: appliedSearch || undefined }),
   })
 
-  // Fetch Languages for Form
   const { data: languagesResponse } = useQuery({
     queryKey: ['admin-explanation-languages'],
     queryFn: () => explanationLanguagesApi.fetchLanguages(),
   })
 
-  // Fetch Levels for Form
   const { data: levelsResponse } = useQuery({
     queryKey: ['admin-levels'],
     queryFn: () => adminLevelsApi.fetchLevels(),

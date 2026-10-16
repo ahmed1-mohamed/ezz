@@ -109,8 +109,11 @@ export const mapStudentData = (item) => {
 
 export const studentsApi = {
    fetchStudents: async (params = {}) => {
-    const { status, page = 1, limit = 10, ...restParams } = params;
+    const { status, page = 1, limit = 10, search, ...restParams } = params;
     const queryParams = { page, limit, ...restParams };
+    if (search && typeof search === 'string' && search.trim()) {
+      queryParams.search = search.trim();
+    }
 
     let endpoint = '/api/v1/students/localized/all';
     if (status === 'active') {
@@ -147,7 +150,7 @@ export const studentsApi = {
         statistics
       };
     } catch (err) {
-       if (endpoint !== '/api/v1/students') {
+      if (endpoint !== '/api/v1/students') {
         try {
           const fallbackRes = await api.get('/api/v1/students', {
             params: queryParams,
@@ -187,27 +190,27 @@ export const studentsApi = {
     }
   },
 
-   fetchRawStudents: async (params = {}) => {
+  fetchRawStudents: async (params = {}) => {
     const response = await api.get('/api/v1/students', { params, skipLang: true });
     return response.data;
   },
 
-   fetchAllLocalizedStudents: async (params = {}) => {
+  fetchAllLocalizedStudents: async (params = {}) => {
     const response = await api.get('/api/v1/students/localized/all', { params });
     return response.data;
   },
 
-   fetchActiveLocalizedStudents: async (params = {}) => {
+  fetchActiveLocalizedStudents: async (params = {}) => {
     const response = await api.get('/api/v1/students/localized/active', { params });
     return response.data;
   },
 
-   fetchStoppedLocalizedStudents: async (params = {}) => {
+  fetchStoppedLocalizedStudents: async (params = {}) => {
     const response = await api.get('/api/v1/students/localized/stopped', { params });
     return response.data;
   },
 
-   fetchStudentsList: async (params = {}) => {
+  fetchStudentsList: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/students/list', { params, skipLang: true });
       return response.data;
@@ -217,12 +220,12 @@ export const studentsApi = {
     }
   },
 
-   fetchLocalizedStudentsList: async (params = {}) => {
+  fetchLocalizedStudentsList: async (params = {}) => {
     const response = await api.get('/api/v1/students/localized/list', { params });
     return response.data;
   },
 
-   fetchStudentById: async (id) => {
+  fetchStudentById: async (id) => {
     try {
       const response = await api.get(`/api/v1/students/localized/${id}`);
       const raw = response.data?.data || response.data;
@@ -239,14 +242,47 @@ export const studentsApi = {
     }
   },
 
-   fetchRawStudentById: async (id) => {
+  fetchRawStudentById: async (id) => {
     const response = await api.get(`/api/v1/students/${id}`, { skipLang: true });
     return response.data;
   },
 
-   createStudent: async (studentData) => {
+  createStudent: async (studentData) => {
     if (studentData instanceof FormData) {
       const response = await api.post('/api/v1/students', studentData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    }
+
+    const hasImageFile = (studentData?.profileImageFile instanceof File) || (studentData?.image instanceof File);
+
+    if (hasImageFile) {
+      const fd = new FormData();
+      const nameAr = typeof studentData.name === 'object' && studentData.name !== null
+        ? (studentData.name.ar || studentData.nameAr || '')
+        : (studentData.nameAr || studentData.name || '');
+      const nameEn = typeof studentData.name === 'object' && studentData.name !== null
+        ? (studentData.name.en || studentData.nameEn || '')
+        : (studentData.nameEn || studentData.name || '');
+
+      if (nameAr) fd.append('name[ar]', nameAr);
+      if (nameEn) fd.append('name[en]', nameEn);
+      if (studentData.email) fd.append('email', studentData.email);
+      if (studentData.phone) fd.append('phone', studentData.phone);
+      if (studentData.country) fd.append('country', studentData.country);
+      if (studentData.password) fd.append('password', studentData.password);
+      if (studentData.confirmPassword) fd.append('confirmPassword', studentData.confirmPassword);
+      if (studentData.birthDate) fd.append('birthDate', studentData.birthDate);
+      if (studentData.studentLevel) fd.append('studentLevel', studentData.studentLevel);
+      if (studentData.parent) fd.append('parent', studentData.parent);
+
+      const imageFile = studentData.profileImageFile instanceof File ? studentData.profileImageFile : studentData.image;
+      if (imageFile instanceof File) {
+        fd.append('image', imageFile);
+      }
+
+      const response = await api.post('/api/v1/students', fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       return response.data;
@@ -276,9 +312,46 @@ export const studentsApi = {
     return response.data;
   },
 
-   updateStudent: async (id, studentData) => {
+  updateStudent: async (id, studentData) => {
     if (studentData instanceof FormData) {
       const response = await api.patch(`/api/v1/students/${id}`, studentData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    }
+
+    const hasImageFile = (studentData?.profileImageFile instanceof File) || (studentData?.image instanceof File);
+
+    if (hasImageFile) {
+      const fd = new FormData();
+      if (studentData.name) {
+        const nameAr = typeof studentData.name === 'object' && studentData.name !== null
+          ? (studentData.name.ar || studentData.nameAr || '')
+          : (studentData.nameAr || studentData.name || '');
+        const nameEn = typeof studentData.name === 'object' && studentData.name !== null
+          ? (studentData.name.en || studentData.nameEn || '')
+          : (studentData.nameEn || studentData.name || '');
+        if (nameAr) fd.append('name[ar]', nameAr);
+        if (nameEn) fd.append('name[en]', nameEn);
+      }
+      if (studentData.email) fd.append('email', studentData.email);
+      if (studentData.phone) fd.append('phone', studentData.phone);
+      if (studentData.country) fd.append('country', studentData.country);
+      if (studentData.password) {
+        fd.append('password', studentData.password);
+        fd.append('confirmPassword', studentData.confirmPassword || studentData.password);
+      }
+      if (studentData.birthDate) fd.append('birthDate', studentData.birthDate);
+      if (studentData.studentLevel) fd.append('studentLevel', studentData.studentLevel);
+      if (studentData.parent) fd.append('parent', studentData.parent);
+      if (studentData.active !== undefined) fd.append('active', String(studentData.active));
+
+      const imageFile = studentData.profileImageFile instanceof File ? studentData.profileImageFile : studentData.image;
+      if (imageFile instanceof File) {
+        fd.append('image', imageFile);
+      }
+
+      const response = await api.patch(`/api/v1/students/${id}`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       return response.data;
@@ -291,20 +364,98 @@ export const studentsApi = {
     delete payload.id;
     delete payload.createdAt;
     delete payload.updatedAt;
+    delete payload.profileImageFile;
+    delete payload.profileImage;
 
     const response = await api.patch(`/api/v1/students/${id}`, payload);
     return response.data;
   },
 
-   addSessions: async (id, sessionsCount) => {
-    const response = await api.patch(`/api/v1/students/${id}/add-sessions`, {
+  addSessions: async (id, sessionsCount) => {
+    const response = await api.post(`/api/v1/students/${id}/add-sessions`, {
       sessionsCount: Number(sessionsCount)
     });
     return response.data;
   },
 
-   deleteStudent: async (id) => {
+  toggleStudentStatus: async (studentOrId) => {
+    try {
+      const student = typeof studentOrId === 'object' && studentOrId !== null ? studentOrId : null;
+      const id = student?.student_id || student?._id || student?.id || studentOrId;
+
+      let userId = student?.user_id || student?.userId || student?.user?._id || student?.user?.id;
+
+      if (!userId) {
+        try {
+          const raw = await api.get(`/api/v1/students/${id}`, { skipLang: true });
+          const rawData = raw.data?.data || raw.data;
+          userId = rawData?.user_id || rawData?.userId || rawData?.user?._id || rawData?.user?.id || rawData?.user;
+        } catch {
+          userId = null;
+        }
+      }
+
+      if (userId && typeof userId === 'string') {
+        try {
+          const res = await api.patch(`/api/v1/users/${userId}/toggle-active`);
+          return { success: true, data: res.data };
+        } catch (err) {
+          console.warn(`Failed toggle-active on /users/${userId}:`, err);
+        }
+      }
+
+      try {
+        const res = await api.patch(`/api/v1/users/${id}/toggle-active`);
+        return { success: true, data: res.data };
+      } catch (err) {
+        console.warn(`Failed toggle-active on /users/${id}:`, err);
+      }
+
+      try {
+        const res = await api.patch(`/api/v1/students/${id}/toggle-active`);
+        return { success: true, data: res.data };
+      } catch (err) {
+        console.warn(`Failed toggle-active on /students/${id}/toggle-active:`, err);
+      }
+
+      const currentActive = student?.active === true || String(student?.active) === 'true';
+      const res = await api.patch(`/api/v1/students/${id}`, { active: !currentActive });
+      return { success: true, data: res.data };
+    } catch (error) {
+      console.error('API toggleStudentStatus failed:', error);
+      throw error;
+    }
+  },
+
+  changeStudentPassword: async (userIdOrStudentId, passwordData) => {
+    try {
+      const password = typeof passwordData === 'string' ? passwordData : passwordData?.password;
+      const confirmPassword = typeof passwordData === 'object' ? (passwordData?.confirmPassword || password) : password;
+
+      const payload = {
+        password,
+        confirmPassword,
+        ...(passwordData?.phone ? { phone: passwordData.phone } : {}),
+        ...(passwordData?.email ? { email: passwordData.email } : {}),
+        ...(passwordData?.country ? { country: passwordData.country } : {})
+      };
+
+      try {
+        const response = await api.patch(`/api/v1/users/${userIdOrStudentId}/change-password`, payload);
+        return response.data;
+      } catch {
+        const response = await api.patch(`/api/v1/students/${userIdOrStudentId}/change-password`, payload);
+        return response.data;
+      }
+    } catch (error) {
+      console.error('API changeStudentPassword failed:', error);
+      throw error;
+    }
+  },
+
+  deleteStudent: async (id) => {
     const response = await api.delete(`/api/v1/students/${id}`);
     return response.data;
   }
 };
+

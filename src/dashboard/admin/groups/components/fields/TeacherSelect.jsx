@@ -44,7 +44,6 @@ export default function TeacherSelect({
     })
   }, [teachers, searchQuery, isRtl])
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {

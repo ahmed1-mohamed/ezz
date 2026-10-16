@@ -7,7 +7,6 @@ export function useAuth() {
     if (!userCtx || !actionsCtx) {
         throw new Error('useAuth must be used within AuthProvider')
     }
-    // Merge both contexts for backward compatibility — existing code doesn't need to change
     return { ...userCtx, ...actionsCtx }
 }
 

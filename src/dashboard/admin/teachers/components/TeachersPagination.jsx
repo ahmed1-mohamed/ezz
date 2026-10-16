@@ -12,7 +12,6 @@ export default function TeachersPagination({
 }) {
   const isSinglePage = totalPages <= 1
 
-  // Generate page numbers with smart ellipsis
   const getPageNumbers = () => {
     if (totalPages <= 1) return [1]
     if (totalPages <= 7) {

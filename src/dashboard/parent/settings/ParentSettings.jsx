@@ -50,8 +50,6 @@ export default function ParentSettings() {
         setLanguage(lang);
     };
 
-
-
     const handleProfileChange = (e) => {
         setProfileData({ ...profileData, [e.target.name]: e.target.value });
     };

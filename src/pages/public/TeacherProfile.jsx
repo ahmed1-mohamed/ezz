@@ -6,7 +6,6 @@ import TeacherCard from './components/TeacherProfile/TeacherCard.jsx'
 import TeacherAbout from './components/TeacherProfile/TeacherAbout.jsx'
 import TeacherSubjects from './components/TeacherProfile/TeacherSubjects.jsx'
 import TeacherStats from './components/TeacherProfile/TeacherStats.jsx'
-import TeacherSchedule from './components/TeacherProfile/TeacherSchedule.jsx'
 import { teachersApi } from '../../shared/services/api/teachersApi.js'
 
 export default function TeacherProfile() {

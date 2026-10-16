@@ -9,18 +9,15 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
 
   const [nameAr, setNameAr] = useState('')
   const [nameEn, setNameEn] = useState('')
-  const [showOnWebsite, setShowOnWebsite] = useState(true)
 
   useEffect(() => {
     if (isOpen) {
       if (editingItem) {
         setNameAr(typeof editingItem.name === 'object' ? (editingItem.name?.ar || '') : (editingItem.name || ''))
         setNameEn(typeof editingItem.name === 'object' ? (editingItem.name?.en || '') : (editingItem.name || ''))
-        setShowOnWebsite(editingItem.showOnWebsite ?? true)
       } else {
         setNameAr('')
         setNameEn('')
-        setShowOnWebsite(true)
       }
     }
   }, [isOpen, editingItem])

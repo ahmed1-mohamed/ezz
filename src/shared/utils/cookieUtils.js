@@ -20,8 +20,7 @@ export function getCookie(name) {
         if ((val.startsWith('{') && val.endsWith('}')) || (val.startsWith('[') && val.endsWith(']'))) {
           return JSON.parse(val);
         }
-      } catch (e) {
-        // Ignore and return raw string
+      } catch {
       }
       return val;
     }

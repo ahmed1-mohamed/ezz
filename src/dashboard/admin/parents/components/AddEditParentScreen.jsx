@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ArrowRight, ArrowLeft, Save } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Save, Loader2 } from 'lucide-react'
 import ParentPersonalInfo from './steps/ParentPersonalInfo'
 import ParentSecurity from './steps/ParentSecurity'
 import ParentStudentLinkage from './steps/ParentStudentLinkage'
@@ -7,8 +7,7 @@ import { landingApi } from '@/shared/services/api/landingApi'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 
-
-export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCancel }) {
+export default function AddEditParentScreen({ parent = null, isRtl, isSaving = false, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
 
@@ -110,8 +109,6 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
     loadCountries();
     loadStudents();
   }, []);
-
-
 
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -250,9 +247,10 @@ export default function AddEditParentScreen({ parent = null, isRtl, onSave, onCa
         <div className="flex justify-end pt-4">
           <button
             type="submit"
-            className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 active:scale-95 cursor-pointer"
+            disabled={isSaving}
+            className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 active:scale-95 cursor-pointer disabled:opacity-50"
           >
-            <Save size={18} />
+            {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
             <span>{isRtl ? 'حفظ التغييرات' : 'Save Changes'}</span>
           </button>
         </div>

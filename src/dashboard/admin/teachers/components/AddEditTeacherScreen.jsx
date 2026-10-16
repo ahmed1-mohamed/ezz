@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
@@ -7,12 +7,41 @@ import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import TeacherSecurityCard from './TeacherSecurityCard'
-import TeacherPersonalInfoMetaCard from './TeacherPersonalInfoMetaCard'
+
+const normalizeAchievements = (ach) => {
+  if (!ach) return []
+  if (Array.isArray(ach)) {
+    return ach.map(item => {
+      if (typeof item === 'object' && item !== null) {
+        return {
+          ar: item.ar || item.name || '',
+          en: item.en || item.nameEn || item.ar || ''
+        }
+      }
+      return { ar: String(item), en: String(item) }
+    })
+  }
+  if (typeof ach === 'object' && ach !== null) {
+    const arList = Array.isArray(ach.ar) ? ach.ar : []
+    const enList = Array.isArray(ach.en) ? ach.en : []
+    const maxLen = Math.max(arList.length, enList.length)
+    const list = []
+    for (let i = 0; i < maxLen; i++) {
+      list.push({
+        ar: arList[i] || '',
+        en: enList[i] || arList[i] || ''
+      })
+    }
+    return list
+  }
+  return []
+}
 
 export default function AddEditTeacherScreen({
   teacher = null,
   isRtl,
   t,
+  isSaving = false,
   onSave,
   onCancel
 }) {
@@ -55,7 +84,7 @@ export default function AddEditTeacherScreen({
     showOnWebsite: Boolean(teacher?.showOnWebsite),
     certificates: Array.isArray(teacher?.certificates) ? teacher.certificates : [],
     specializations: (teacher?.specializations || []).map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean),
-    achievements: Array.isArray(teacher?.achievements) ? teacher.achievements : [],
+    achievements: normalizeAchievements(teacher?.achievements),
     image: teacher?.image || '',
     profileImageFile: null,
     password: '',
@@ -107,13 +136,31 @@ export default function AddEditTeacherScreen({
       return
     }
 
-    if (formData.password && formData.password !== formData.confirmPassword) {
+    if (!teacher && formData.password && formData.password !== formData.confirmPassword) {
       showErrorToast(isRtl ? 'كلمتا المرور غير متطابقتين!' : 'Passwords do not match!', isRtl)
       return
     }
 
     const rawDegreeAr = formData.degreeAr || formData.degree || formData.qualification || ''
     const rawDegreeEn = formData.degreeEn || formData.qualificationEn || ''
+
+    let formattedAchievements = formData.achievements
+    if (Array.isArray(formData.achievements)) {
+      const arList = []
+      const enList = []
+      formData.achievements.forEach(item => {
+        if (typeof item === 'object' && item !== null) {
+          if (item.ar || item.en) {
+            arList.push(item.ar || item.en || '')
+            enList.push(item.en || item.ar || '')
+          }
+        } else if (typeof item === 'string' && item.trim()) {
+          arList.push(item.trim())
+          enList.push(item.trim())
+        }
+      })
+      formattedAchievements = { ar: arList, en: enList }
+    }
 
     onSave({
       ...formData,
@@ -123,20 +170,20 @@ export default function AddEditTeacherScreen({
       },
       nameEn: (formData.nameEn || formData.name).trim(),
       bio: {
-        ar: formData.aboutAr.trim(),
-        en: (formData.aboutEn || formData.aboutAr).trim()
+        ar: (formData.aboutAr || '').trim(),
+        en: (formData.aboutEn || formData.aboutAr || '').trim()
       },
-      aboutAr: formData.aboutAr.trim(),
-      aboutEn: (formData.aboutEn || formData.aboutAr).trim(),
+      aboutAr: (formData.aboutAr || '').trim(),
+      aboutEn: (formData.aboutEn || formData.aboutAr || '').trim(),
       degree: {
         ar: rawDegreeAr.trim() || 'مؤهل جامعي',
-        en: rawDegreeEn.trim() || 'University Degree'
+        en: (rawDegreeEn || rawDegreeAr).trim() || 'University Degree'
       },
       degreeAr: rawDegreeAr.trim() || 'مؤهل جامعي',
-      degreeEn: rawDegreeEn.trim() || 'University Degree',
+      degreeEn: (rawDegreeEn || rawDegreeAr).trim() || 'University Degree',
       specializations: (formData.specializations || []).map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean),
       certificates: formData.certificates,
-      achievements: formData.achievements,
+      achievements: formattedAchievements,
       yearsOfExperience: Math.max(0, Number(formData.yearsOfExperience) || 0),
       hourlyRate: Math.max(0, Number(formData.hourlyRate) || 0),
       totalLessons: Math.max(0, Number(formData.totalLessons || formData.totalSessions) || 0),
@@ -206,29 +253,26 @@ export default function AddEditTeacherScreen({
           isRtl={isRtl}
           t={t}
           curricula={apiCurricula}
+          teacher={teacher}
+          isEdit={!!teacher}
         />
 
-         <TeacherSecurityCard
+        <TeacherSecurityCard
           formData={formData}
           onChange={handleFieldChange}
           isRtl={isRtl}
           isEdit={!!teacher}
+          teacher={teacher}
         />
       </div>
-
-      {teacher && (
-        <TeacherPersonalInfoMetaCard
-          formData={formData}
-          isRtl={isRtl}
-          t={t}
-        />
-      )}
 
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
         <button
           type="submit"
-          className="flex-1 py-4 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] cursor-pointer text-base"
+          disabled={isSaving}
+          className="flex-1 py-4 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] cursor-pointer text-base flex items-center justify-center gap-2 disabled:opacity-50"
         >
+          {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
           {teacher
             ? t('adminDashboard.teachers.addModal.submit', 'حفظ التغييرات')
             : (isRtl ? 'إضافة معلم' : 'Add Teacher')}
@@ -236,7 +280,8 @@ export default function AddEditTeacherScreen({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer text-base"
+          disabled={isSaving}
+          className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer text-base disabled:opacity-50"
         >
           {t('adminDashboard.teachers.addModal.cancel', 'إلغاء')}
         </button>

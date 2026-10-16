@@ -26,6 +26,7 @@ export default function AdminRewards() {
   const [activeMainTab, setActiveMainTab] = useState('rewards')
   const [showForm, setShowForm] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   const loadSuggestionsByStatus = useCallback(async (status) => {
     setIsSuggestionsLoading(true)
@@ -85,25 +86,30 @@ export default function AdminRewards() {
   }
 
   const handleSaveReward = async (rewardData) => {
-    if (editingReward) {
-      const res = await adminRewardsApi.updateReward(editingReward.id || editingReward._id, rewardData)
-      if (res?.success) {
-        showSuccessToast(isRtl ? 'تم تحديث المكافأة بنجاح' : 'Reward updated successfully', isRtl)
-        loadData()
+    setIsSaving(true)
+    try {
+      if (editingReward) {
+        const res = await adminRewardsApi.updateReward(editingReward.id || editingReward._id, rewardData)
+        if (res?.success) {
+          showSuccessToast(isRtl ? 'تم تحديث المكافأة بنجاح' : 'Reward updated successfully', isRtl)
+          loadData()
+        } else {
+          showErrorToast(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update reward', isRtl)
+        }
       } else {
-        showErrorToast(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update reward', isRtl)
+        const res = await adminRewardsApi.createReward(rewardData)
+        if (res?.success) {
+          showSuccessToast(isRtl ? 'تم إضافة المكافأة بنجاح' : 'Reward added successfully', isRtl)
+          loadData()
+        } else {
+          showErrorToast(isRtl ? 'حدث خطأ أثناء الإضافة' : 'Failed to add reward', isRtl)
+        }
       }
-    } else {
-      const res = await adminRewardsApi.createReward(rewardData)
-      if (res?.success) {
-        showSuccessToast(isRtl ? 'تم إضافة المكافأة بنجاح' : 'Reward added successfully', isRtl)
-        loadData()
-      } else {
-        showErrorToast(isRtl ? 'حدث خطأ أثناء الإضافة' : 'Failed to add reward', isRtl)
-      }
+      setShowForm(false)
+      setEditingReward(null)
+    } finally {
+      setIsSaving(false)
     }
-    setShowForm(false)
-    setEditingReward(null)
   }
 
   const handleDeleteReward = async (reward) => {
@@ -214,7 +220,6 @@ export default function AdminRewards() {
             </button>
           </div>
 
-
           <RewardsGrid
             rewards={rewards}
             onView={(item) => showRewardDetails(item, isRtl)}
@@ -259,6 +264,7 @@ export default function AdminRewards() {
                   setEditingReward(null)
                 }}
                 editingReward={editingReward}
+                isSaving={isSaving}
               />
             </div>
           </div>

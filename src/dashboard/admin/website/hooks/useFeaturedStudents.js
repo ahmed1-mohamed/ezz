@@ -19,7 +19,6 @@ export const parseStudentReview = (item) => {
   const sRef = (item.student && typeof item.student === 'object') ? item.student : {};
   const userRef = (sRef.user && typeof sRef.user === 'object') ? sRef.user : {};
 
-  // Extract Name (Arabic and English)
   let nameAr = '';
   let nameEn = '';
   const rawName = item.name || sRef.name || item.studentName || sRef.studentName;
@@ -31,7 +30,6 @@ export const parseStudentReview = (item) => {
     nameEn = item.nameEn || sRef.nameEn || rawName;
   }
 
-  // Extract Image
   const rawImage =
     item.image ||
     item.imageUrl ||
@@ -46,7 +44,6 @@ export const parseStudentReview = (item) => {
 
   const finalImage = buildImageUrl(rawImage);
 
-  // Extract Student Reference ID (ID in system)
   const resolvedStudentId =
     sRef.id ||
     sRef._id ||
@@ -71,7 +68,7 @@ export const parseStudentReview = (item) => {
   const parentVal = parentPart.substring(parentPart.indexOf(':') + 1).trim() || sRef.parentName || '';
 
   return {
-    id: item.id || item._id, // Record ID
+    id: item.id || item._id,
     _id: item._id || item.id,
     student: item.student || sRef,
     studentId: String(resolvedStudentId),
@@ -106,6 +103,7 @@ export default function useFeaturedStudents(showNotification) {
   const [currentStar, setCurrentStar] = useState(null);
   const [systemStudents, setSystemStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -174,7 +172,6 @@ export default function useFeaturedStudents(showNotification) {
 
     let studentId = String(resolvedStudentId);
 
-    // Fallback match by name
     if (!studentId && systemStudents.length > 0) {
       const matched = systemStudents.find(s => {
         const studentName = typeof s.name === 'object' ? (s.name.ar || s.name.en) : s.name;
@@ -242,6 +239,7 @@ export default function useFeaturedStudents(showNotification) {
       return;
     }
 
+    setIsSaving(true);
     try {
       const getAllStudentIds = (s) => [
         s.id, s._id, s.student_id, s.user_id,
@@ -354,6 +352,8 @@ export default function useFeaturedStudents(showNotification) {
       } else {
         showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'), 'error');
       }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -377,6 +377,7 @@ export default function useFeaturedStudents(showNotification) {
     setCurrentStar,
     systemStudents,
     loading,
+    isSaving,
     handleOpenAddModal,
     handleOpenEditModal,
     handleOpenViewModal,

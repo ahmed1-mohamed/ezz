@@ -1,21 +1,17 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Plus,
   Search,
-  Pencil,
   Trash2,
   CheckCircle2,
   XCircle,
   Users,
-  Calendar,
   Eye,
   ChevronLeft,
   ChevronRight,
-  Star,
-  Layers,
-  UserCheck
+  Star
 } from 'lucide-react'
-import useDebounce from '@/shared/hooks/useDebounce'
 
 export default function StudentsList({
   students = [],
@@ -25,46 +21,20 @@ export default function StudentsList({
   isRtl,
   t,
   onOpenAddScreen,
-  onOpenEditScreen,
   onDelete,
   currentPage = 1,
   totalPages = 1,
   totalCount = 0,
   onPageChange,
-  onOpenSessions,
-  onOpenAddSessions
+  searchVal = '',
+  onSearchChange
 }) {
-  const [searchVal, setSearchVal] = useState('')
-  const debouncedQuery = useDebounce(searchVal, 300)
+  const navigate = useNavigate()
+  const [localSearch, setLocalSearch] = useState('')
+  const currentSearchVal = onSearchChange ? searchVal : localSearch
   const itemsPerPage = 10
 
-  const filteredStudents = useMemo(() => {
-    if (!debouncedQuery.trim()) return students
-    const query = debouncedQuery.toLowerCase()
-    return students.filter((student) => {
-      const studentName = typeof student.name === 'string'
-        ? student.name
-        : (student.name?.ar || student.name?.en || '')
-      const rawParent = student.parent?.name || student.parentName || ''
-      const parentName = typeof rawParent === 'string'
-        ? rawParent
-        : (typeof rawParent === 'object' && rawParent !== null ? (rawParent.ar || rawParent.en || '') : '')
-      const rawCountry = student.country || ''
-      const countryStr = typeof rawCountry === 'string'
-        ? rawCountry
-        : (typeof rawCountry === 'object' && rawCountry !== null ? (rawCountry.name || rawCountry.code || '') : '')
-      const emailStr = String(student.email || '').toLowerCase()
-      const phoneStr = String(student.phone || '')
-
-      return (
-        studentName.toLowerCase().includes(query) ||
-        emailStr.includes(query) ||
-        phoneStr.includes(query) ||
-        countryStr.toLowerCase().includes(query) ||
-        parentName.toLowerCase().includes(query)
-      )
-    })
-  }, [students, debouncedQuery])
+  const filteredStudents = students
 
   const effectiveTotalPages = totalPages && totalPages > 0 ? totalPages : 1
   const isPaginationDimmed = effectiveTotalPages <= 1
@@ -170,9 +140,14 @@ export default function StudentsList({
           <input
             type="text"
             placeholder={t('adminDashboard.students.searchPlaceholder', 'بحث بالاسم، الإيميل، الهاتف، ولي الأمر...')}
-            value={searchVal}
+            value={currentSearchVal}
             onChange={(e) => {
-              setSearchVal(e.target.value)
+              const val = e.target.value
+              if (onSearchChange) {
+                onSearchChange(val)
+              } else {
+                setLocalSearch(val)
+              }
               onPageChange(1)
             }}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${
@@ -212,20 +187,17 @@ export default function StudentsList({
                   const initial = (displayName === '-' ? '?' : displayName).trim().charAt(0)
                   const imgUrl = student.image || student.profileImage
 
-                  // Safely extract level name as string
                   const rawLevel = student.studentLevel?.name || student.levelName || student.level || ''
                   const levelName = typeof rawLevel === 'object' && rawLevel !== null
                     ? (rawLevel.ar || rawLevel.en || '')
                     : String(rawLevel || '')
 
-                  // Safely extract parent name as string
                   const rawParent = student.parent?.name || student.parentName || '-'
                   const parentName = typeof rawParent === 'object' && rawParent !== null
                     ? (rawParent.ar || rawParent.en || '-')
                     : String(rawParent || '-')
                   const parentPhone = student.parent?.phone || student.parentPhone || ''
 
-                  // Safely extract sessions balance as number (handles backend object { total, used, manualAddedThisMonth, lastManualAddMonth })
                   const rawBalance = student.sessionsBalance ?? student.remainingSessions ?? 0
                   const balance = typeof rawBalance === 'object' && rawBalance !== null
                     ? (rawBalance.remaining !== undefined
@@ -233,7 +205,6 @@ export default function StudentsList({
                         : Math.max(0, Number(rawBalance.total ?? 0) - Number(rawBalance.used ?? 0)))
                     : Number(rawBalance || 0)
 
-                  // Safely extract country as string
                   const rawCountry = student.country || '-'
                   const countryDisplay = typeof rawCountry === 'object' && rawCountry !== null
                     ? (rawCountry.name?.ar || rawCountry.name?.en || rawCountry.name || rawCountry.code || '-')
@@ -271,7 +242,7 @@ export default function StudentsList({
                           </div>
                           <div className="space-y-0.5 text-start">
                             <span
-                              onClick={() => onOpenSessions && onOpenSessions(student)}
+                              onClick={() => navigate(`/dashboard/admin/students/${studentId}`)}
                               className="font-bold text-slate-800 dark:text-white block hover:text-[#005953] transition-colors cursor-pointer"
                             >
                               {displayName}
@@ -299,25 +270,13 @@ export default function StudentsList({
                       </td>
 
                        <td className="py-4.5 px-6 text-center">
-                        <div className="inline-flex items-center gap-2">
-                          <span className={`px-2.5 py-1 rounded-xl text-xs font-extrabold ${
-                            balance > 0
-                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
-                              : 'bg-rose-50 text-rose-700 dark:bg-rose-955/20 dark:text-rose-400'
-                          }`}>
-                            {balance} {isRtl ? 'حصة' : 'sessions'}
-                          </span>
-                          {onOpenAddSessions && (
-                            <button
-                              type="button"
-                              onClick={() => onOpenAddSessions(student)}
-                              className="p-1.5 rounded-lg bg-[#005953]/10 hover:bg-[#005953] text-[#005953] hover:text-white transition-all cursor-pointer"
-                              title={isRtl ? 'إضافة حصص' : 'Add Sessions'}
-                            >
-                              <Plus size={14} />
-                            </button>
-                          )}
-                        </div>
+                        <span className={`inline-block px-3 py-1 rounded-xl text-xs font-extrabold ${
+                          balance > 0
+                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+                            : 'bg-rose-50 text-rose-700 dark:bg-rose-955/20 dark:text-rose-400'
+                        }`}>
+                          {balance} {isRtl ? 'حصة' : 'sessions'}
+                        </span>
                       </td>
 
                        <td className="py-4.5 px-6 text-center">
@@ -363,31 +322,11 @@ export default function StudentsList({
                         <div className="flex items-center justify-center gap-1.5">
                            <button
                             type="button"
-                            onClick={() => onOpenSessions && onOpenSessions(student)}
+                            onClick={() => navigate(`/dashboard/admin/students/${studentId}`)}
                             className="p-2 bg-slate-50 hover:bg-brand-50 text-slate-500 hover:text-brand-600 rounded-xl transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-brand-500/20 dark:hover:text-brand-400 cursor-pointer"
                             title={t('adminDashboard.students.actions.view', 'عرض الملف')}
                           >
                             <Eye size={16} />
-                          </button>
-
-                           {onOpenAddSessions && (
-                            <button
-                              type="button"
-                              onClick={() => onOpenAddSessions(student)}
-                              className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 rounded-xl transition-colors cursor-pointer"
-                              title={isRtl ? 'إضافة حصص' : 'Add Sessions'}
-                            >
-                              <Layers size={16} />
-                            </button>
-                          )}
-
-                           <button
-                            type="button"
-                            onClick={() => onOpenEditScreen(student)}
-                            className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-xl transition-all cursor-pointer"
-                            title={t('adminDashboard.students.actions.edit', 'تعديل البيانات')}
-                          >
-                            <Pencil size={15} />
                           </button>
 
                            <button

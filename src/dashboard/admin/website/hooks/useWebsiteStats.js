@@ -10,9 +10,12 @@ export default function useWebsiteStats(showNotification) {
     teachers: 85,
     students: 1250
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     async function loadStats() {
+      setIsLoading(true);
       try {
         const res = await landingApi.fetchPrivateStatistics();
         const statsData = res?.data || res;
@@ -33,6 +36,8 @@ export default function useWebsiteStats(showNotification) {
             console.error(e);
           }
         }
+      } finally {
+        setIsLoading(false);
       }
     }
     loadStats();
@@ -47,6 +52,7 @@ export default function useWebsiteStats(showNotification) {
   };
 
   const handleSaveStats = async () => {
+    setIsSaving(true);
     try {
       const payload = {
         students: parseInt(stats.students, 10) || 0,
@@ -60,6 +66,8 @@ export default function useWebsiteStats(showNotification) {
       console.warn('Failed to update statistics via API, saving to localStorage:', err);
       localStorage.setItem('website_stats', JSON.stringify(stats));
       showNotification(t('adminDashboard.website.statsSavedLocally', 'تم حفظ الأرقام الإحصائية محلياً!'));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -74,7 +82,7 @@ export default function useWebsiteStats(showNotification) {
           students: statsData.students ?? 1250
         });
       }
-    } catch (err) {
+    } catch {
       const savedStats = localStorage.getItem('website_stats');
       if (savedStats) {
         setStats(JSON.parse(savedStats));
@@ -87,6 +95,8 @@ export default function useWebsiteStats(showNotification) {
 
   return {
     stats,
+    isLoading,
+    isSaving,
     handleStatChange,
     handleSaveStats,
     handleCancelStats

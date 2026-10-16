@@ -69,7 +69,6 @@ export default function EditCertificateModal({
 
       if (replacementFile) {
         payload.file = replacementFile
-        payload.image = replacementFile
       }
 
       await teachersApi.updateTeacherCertificate(teacherId, certId, payload)

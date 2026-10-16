@@ -344,7 +344,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
         </div>
       </div>
 
-      {/* Show on website toggle */}
+      
       <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
         <div>
           <h4 className="text-sm font-bold text-slate-800 dark:text-white">

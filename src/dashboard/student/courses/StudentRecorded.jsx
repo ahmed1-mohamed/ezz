@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-
 const WEEK_DAYS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 const WEEK_DAYS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -78,7 +77,6 @@ const RECORDINGS_BY_DAY = {
   ],
 };
 
-
 function toDateKey(date) {
   return date.toISOString().split('T')[0];
 }
@@ -108,7 +106,6 @@ function daysRemaining(recordedAt) {
   const remaining = Math.ceil((THIRTY_DAYS_MS - elapsed) / (24 * 60 * 60 * 1000));
   return remaining;
 }
-
 
 function VideoModal({ recording, onClose, isRtl }) {
   return (
@@ -179,7 +176,6 @@ function VideoModal({ recording, onClose, isRtl }) {
     </motion.div>
   );
 }
-
 
 function RecordingRow({ recording, onWatch, isRtl }) {
   const expired = isExpired(recording.recordedAt);
@@ -255,7 +251,6 @@ function RecordingRow({ recording, onWatch, isRtl }) {
     </motion.div>
   );
 }
-
 
 export default function StudentRecorded() {
   const { i18n } = useTranslation();

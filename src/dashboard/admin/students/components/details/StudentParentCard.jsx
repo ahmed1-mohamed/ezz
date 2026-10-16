@@ -1,10 +1,20 @@
-import { UserCheck, Phone, Mail, Link } from 'lucide-react'
-import { showSuccessToast } from '@/shared/utils/sweetAlert'
+import { useNavigate } from 'react-router-dom'
+import { UserCheck, Phone, Mail } from 'lucide-react'
 
 export default function StudentParentCard({
   isRtl,
   parentInfo
 }) {
+  const navigate = useNavigate()
+
+  const handleViewParent = () => {
+    if (parentInfo?.id) {
+      navigate(`/dashboard/admin/parents/${parentInfo.id}`)
+    } else {
+      navigate('/dashboard/admin/parents')
+    }
+  }
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
       <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -27,8 +37,8 @@ export default function StudentParentCard({
 
           <button
             type="button"
-            onClick={() => showSuccessToast(isRtl ? `عرض تفاصيل ولي الأمر: ${parentInfo.name}` : `View details for parent: ${parentInfo.name}`, isRtl)}
-            className="text-xs font-bold text-brand-600 hover:text-brand-700 transition-colors cursor-pointer"
+            onClick={handleViewParent}
+            className="text-xs font-bold text-[#005953] hover:text-[#004742] dark:text-emerald-400 hover:underline transition-colors cursor-pointer"
           >
             {isRtl ? 'عرض الملف' : 'View Profile'}
           </button>

@@ -13,8 +13,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const isRtl = i18n.language.startsWith('ar');
     const { user, updateUser } = useAuth();
 
-
-
     const [profileData, setProfileData] = useState({
         email: user?.email || '',
         nameAr: typeof user?.name === 'object' ? (user?.name?.ar || '') : (user?.name || ''),

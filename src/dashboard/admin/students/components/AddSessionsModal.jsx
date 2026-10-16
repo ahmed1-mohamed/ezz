@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Loader2 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 
@@ -132,8 +132,9 @@ export default function AddSessionsModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 py-3.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl font-bold text-sm transition-all shadow-md shadow-brand-500/15 disabled:opacity-50 active:scale-[0.98] cursor-pointer"
+              className="flex-1 py-3.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl font-bold text-sm transition-all shadow-md shadow-brand-500/15 disabled:opacity-50 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
             >
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {isLoading ? (isRtl ? 'جاري الإضافة...' : 'Adding...') : (isRtl ? 'تأكيد وإضافة الحصص' : 'Confirm & Add Sessions')}
             </button>
             <button

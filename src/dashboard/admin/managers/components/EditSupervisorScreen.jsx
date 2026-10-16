@@ -4,7 +4,8 @@ import {
   ArrowLeft,
   Pencil,
   Ban,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react'
 import EditProfileCard from './EditProfileCard'
 import EditSecurityPasswordCard from './EditSecurityPasswordCard'
@@ -16,6 +17,7 @@ export default function EditSupervisorScreen({
   countries = [],
   isRtl,
   t,
+  isSaving = false,
   onSave,
   onToggleStatus,
   onUpdatePassword,
@@ -31,7 +33,6 @@ export default function EditSupervisorScreen({
 
     const phone = String(supervisor.phone).trim()
 
-    // Case 1: phone has a space separator like "+966 1234567"
     const spaceIdx = phone.indexOf(' ')
     if (spaceIdx > 0 && phone.startsWith('+')) {
       const prefix = phone.slice(0, spaceIdx)
@@ -39,8 +40,6 @@ export default function EditSupervisorScreen({
       return { initialPrefix: prefix, initialPhone: number }
     }
 
-    // Case 2: phone has no space like "+9661234567"
-    // Match against known country phone codes (longest first to avoid partial matches)
     if (phone.startsWith('+') && countries && countries.length > 0) {
       const sorted = [...countries].sort(
         (a, b) => String(b.phoneCode || '').replace(/\+/g, '').length - String(a.phoneCode || '').replace(/\+/g, '').length
@@ -51,12 +50,10 @@ export default function EditSupervisorScreen({
           return { initialPrefix: code, initialPhone: phone.slice(code.length).trim() }
         }
       }
-      // Fallback: guess prefix is first chars (+XX or +XXX)
       const guessPrefix = phone.match(/^(\+\d{1,4})/)?.[1] || ''
       return { initialPrefix: guessPrefix, initialPhone: phone.slice(guessPrefix.length).trim() }
     }
 
-    // Case 3: no plus sign at all — just a plain number
     return { initialPrefix: '', initialPhone: phone }
   }, [supervisor.phone, countries])
 
@@ -369,8 +366,6 @@ export default function EditSupervisorScreen({
                   </div>
                 </div>
 
-
-
                 <div>
                   <label htmlFor="editCountrySelect" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الدولة' : 'Country'}
@@ -391,22 +386,23 @@ export default function EditSupervisorScreen({
                   </select>
                 </div>
 
-
-
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="flex-1 py-4 bg-brand-500 hover:bg-brand-650 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
+                  disabled={isSaving}
+                  className="flex-1 py-4 bg-brand-500 hover:bg-brand-650 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                 >
+                  {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
                   {t('adminDashboard.managers.addSupervisorScreen.saveChanges', 'حفظ التغييرات')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer"
+                  disabled={isSaving}
+                  className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer disabled:opacity-50"
                 >
                   {t('adminDashboard.managers.addSupervisorScreen.cancel', 'إلغاء')}
                 </button>

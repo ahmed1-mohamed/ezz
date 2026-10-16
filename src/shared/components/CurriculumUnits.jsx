@@ -9,7 +9,6 @@ export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
 
-    // 1. Fetch All Curricula
     const { data: curriculaData, isLoading: isCurriculaLoading } = useQuery({
         queryKey: ['public-curricula', i18n.language],
         queryFn: async () => {
@@ -24,27 +23,23 @@ export default React.memo(function CurriculumUnits() {
     const [openLevel, setOpenLevel] = useState(null);
     const [showAllLevels, setShowAllLevels] = useState(false);
 
-    // Reset active tab when language changes so the new language data is shown
     useEffect(() => {
         setActiveTabId(null);
     }, [i18n.language]);
 
-    // Set first tab as active by default
     useEffect(() => {
         if (curricula.length > 0 && !activeTabId) {
             setActiveTabId(curricula[0].id || curricula[0]._id);
         }
     }, [curricula, activeTabId]);
 
-    // 2. Fetch Selected Curriculum Details
-    const { data: activeCurriculumData, isLoading: isDetailsLoading } = useQuery({
+    const { data: activeCurriculumData } = useQuery({
         queryKey: ['public-curriculum-details', activeTabId, i18n.language],
         queryFn: async () => {
             if (!activeTabId) return null;
             const res = await api.get(`/api/v1/curricula/public/${activeTabId}`);
 
             let curr = res.data?.data || res.data;
-            // If the detail endpoint returns an array with one element (like the list endpoint), extract it
             if (Array.isArray(curr)) {
                 curr = curr[0]?.data || curr[0] || {};
             } else if (curr?.data) {

@@ -7,21 +7,24 @@ export default function UpdateHourlyRateModal({
   isOpen,
   onClose,
   teacher,
-  isRtl,
+  isRtl = true,
   onSuccess
 }) {
   const [hourlyRate, setHourlyRate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (teacher) {
-      setHourlyRate(teacher.hourlyRate !== undefined ? String(teacher.hourlyRate) : '0')
+    if (teacher && isOpen) {
+      setHourlyRate(teacher.hourlyRate !== undefined && teacher.hourlyRate !== null ? String(teacher.hourlyRate) : '0')
     }
   }, [teacher, isOpen])
 
   if (!isOpen || !teacher) return null
 
-  const teacherId = teacher.teacher_id || teacher.id
+  const teacherId = teacher.teacher_id || teacher.id || teacher._id
+  const teacherName = typeof teacher.name === 'object' && teacher.name !== null
+    ? (isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || ''
+    : (teacher.name || '')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -68,9 +71,11 @@ export default function UpdateHourlyRateModal({
               <h3 className="text-base font-bold">
                 {isRtl ? 'تعديل سعر ساعة المعلم' : 'Update Teacher Hourly Rate'}
               </h3>
-              <p className="text-xs text-emerald-100 font-medium">
-                {teacher.name}
-              </p>
+              {teacherName && (
+                <p className="text-xs text-emerald-100 font-medium">
+                  {teacherName}
+                </p>
+              )}
             </div>
           </div>
           <button
@@ -96,7 +101,7 @@ export default function UpdateHourlyRateModal({
                 value={hourlyRate}
                 onChange={(e) => setHourlyRate(e.target.value)}
                 placeholder="90"
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-extrabold text-lg focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-extrabold text-lg focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
               />
               <span className="absolute end-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
                 $

@@ -40,7 +40,6 @@ export default function Register() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-    // Countries management
     const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
     const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRIES[0])
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
@@ -48,7 +47,6 @@ export default function Register() {
     const [loadingCountries, setLoadingCountries] = useState(false)
     const dropdownRef = useRef(null)
 
-    // Load countries from backend API
     useEffect(() => {
         let isMounted = true
         const fetchCountriesData = async () => {
@@ -78,7 +76,6 @@ export default function Register() {
         }
     }, [i18n.language])
 
-    // Close dropdown on outside click
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -93,7 +90,6 @@ export default function Register() {
         }
     }, [countryDropdownOpen])
 
-    // Toast auto-hide
     useEffect(() => {
         if (toast.show) {
             const timer = setTimeout(() => {
@@ -162,7 +158,6 @@ export default function Register() {
 
         if (!validate()) return
 
-        // Format phone into international format (e.g. +201012345678)
         let localDigits = formValues.phoneLocal.trim().replace(/\D/g, '')
         if (localDigits.startsWith('0')) {
             localDigits = localDigits.substring(1)

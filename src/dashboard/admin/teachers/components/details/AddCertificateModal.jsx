@@ -62,8 +62,7 @@ export default function AddCertificateModal({
         },
         nameAr: nameAr.trim(),
         nameEn: (nameEn || nameAr).trim(),
-        file: selectedFile,
-        image: selectedFile
+        file: selectedFile
       })
 
       toast.success(isRtl ? 'تمت إضافة الشهادة بنجاح!' : 'Certificate added successfully!')

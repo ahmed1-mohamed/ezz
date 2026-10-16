@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { Upload, Eye, EyeOff } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { adminParentsApi } from '@/shared/services/api/adminParentsApi'
 
 export default function ParentEditForm({
+  parent = null,
   formData,
   handleChange,
   handleSaveEdit,
@@ -19,6 +23,61 @@ export default function ParentEditForm({
   showConfirmPassword,
   setShowConfirmPassword
 }) {
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+
+  const handleUpdatePassword = async () => {
+    const pw = (formData.password || '').trim()
+    const cpw = (formData.confirmPassword || '').trim()
+
+    if (!pw || !cpw) {
+      toast.error(isRtl ? 'الرجاء إدخال كلمة المرور وتأكيدها' : 'Please enter and confirm password')
+      return
+    }
+    if (pw.length < 6) {
+      toast.error(isRtl ? 'كلمة المرور يجب أن لا تقل عن 6 أحرف' : 'Password must be at least 6 characters')
+      return
+    }
+    if (pw !== cpw) {
+      toast.error(isRtl ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match')
+      return
+    }
+
+    const userId =
+      (typeof parent?.user === 'string' && parent.user) ||
+      parent?.user?._id ||
+      parent?.user?.id ||
+      parent?.user_id ||
+      (typeof parent?.userId === 'string' && parent.userId) ||
+      parent?.userId?._id ||
+      parent?.userId?.id ||
+      parent?.parent_id ||
+      parent?._id ||
+      parent?.id
+
+    if (!userId) {
+      toast.error(isRtl ? 'تعذر تحديد معرّف ولي الأمر' : 'Could not resolve parent user ID')
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    try {
+      await adminParentsApi.changeParentPassword(userId, {
+        password: pw,
+        confirmPassword: cpw
+      })
+      toast.success(isRtl ? 'تم تحديث كلمة المرور بنجاح' : 'Password updated successfully')
+      handleChange('password', '')
+      handleChange('confirmPassword', '')
+    } catch (err) {
+      const msg = err.response?.data?.message
+      const errorText = Array.isArray(msg)
+        ? msg.join(' - ')
+        : (msg || (isRtl ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Failed to update password'))
+      toast.error(errorText)
+    } finally {
+      setIsUpdatingPassword(false)
+    }
+  }
   return (
     <form onSubmit={handleSaveEdit} className="space-y-5">
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-5">
@@ -131,6 +190,19 @@ export default function ParentEditForm({
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            onClick={handleUpdatePassword}
+            disabled={isUpdatingPassword}
+            className="px-6 py-3 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl text-xs sm:text-sm transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+          >
+            {isUpdatingPassword
+              ? (isRtl ? 'جاري تحديث كلمة المرور...' : 'Updating...')
+              : (isRtl ? 'تحديث كلمة المرور' : 'Update Password')}
+          </button>
         </div>
       </div>
 

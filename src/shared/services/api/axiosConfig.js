@@ -44,7 +44,6 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    // Check if server sent a new access token via header (DB-managed server-side refresh token)
     let newToken =
       response.headers?.['x-new-access-token'] ||
       response.headers?.['X-New-Access-Token'] ||
@@ -65,7 +64,6 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
-    // If error response carries a refreshed token
     const errToken =
       error.response?.headers?.['x-new-access-token'] ||
       error.response?.headers?.['X-New-Access-Token'] ||

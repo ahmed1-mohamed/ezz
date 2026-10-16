@@ -42,7 +42,6 @@ export default function ParentAssignmentDetails() {
         fetchDetails();
     }, [id, i18n.language]);
 
-
     const containerVariants = {
         hidden: { opacity: 0 },
         show: {

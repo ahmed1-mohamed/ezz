@@ -13,12 +13,15 @@ export const mapTeacherData = (item) => {
   if (!item) return null;
 
   const id = item.teacher_id || item._id || item.id || item.user_id;
-  const name = typeof item.name === 'object' && item.name !== null
-    ? (item.name.ar || item.name.en || '')
-    : (item.name || item.parentName || 'بدون اسم');
-  const nameEn = typeof item.name === 'object' && item.name !== null
-    ? (item.name.en || item.name.ar || '')
-    : (item.nameEn || item.name || '');
+
+  const rawName = item.name;
+  const nameAr = typeof rawName === 'object' && rawName !== null
+    ? (rawName.ar || rawName.en || '')
+    : (typeof rawName === 'string' ? rawName : (item.parentName || 'بدون اسم'));
+  const nameEn = typeof rawName === 'object' && rawName !== null
+    ? (rawName.en || '')
+    : (typeof item.nameEn === 'string' ? item.nameEn : '');
+  const displayName = nameAr || nameEn || 'بدون اسم';
 
   const totalLessons = Number(item.totalLessons ?? item.totalSessions ?? 0);
   const totalGroups = Number(item.totalGroups ?? item.groupsCount ?? (Array.isArray(item.groups) ? item.groups.length : 0));
@@ -29,13 +32,36 @@ export const mapTeacherData = (item) => {
   const rating = Number(item.rating ?? 0);
   const hourlyRate = Number(item.hourlyRate ?? 0);
   const yearsOfExperience = Number(item.yearsOfExperience ?? item.experienceYears ?? 0);
-  const degree = item.degree || item.qualification || item.qualificationAr || '';
-  const degreeAr = typeof degree === 'object' && degree !== null ? (degree.ar || degree.en || '') : String(degree || '');
-  const degreeEn = typeof degree === 'object' && degree !== null ? (degree.en || degree.ar || '') : String(item.degreeEn || item.qualificationEn || '');
-  const bio = item.bio || item.aboutAr || item.aboutEn || item.review || '';
-  const bioAr = typeof bio === 'object' && bio !== null ? (bio.ar || bio.en || '') : String(bio || '');
-  const bioEn = typeof bio === 'object' && bio !== null ? (bio.en || bio.ar || '') : String(item.aboutEn || bio || '');
-  const achievements = Array.isArray(item.achievements) ? item.achievements : [];
+
+  const rawDegree = item.degree || item.qualification;
+  const degreeAr = typeof rawDegree === 'object' && rawDegree !== null
+    ? (rawDegree.ar || '')
+    : (typeof rawDegree === 'string' ? rawDegree : (item.qualificationAr || ''));
+  const degreeEn = typeof rawDegree === 'object' && rawDegree !== null
+    ? (rawDegree.en || '')
+    : (typeof item.degreeEn === 'string' ? item.degreeEn : (item.qualificationEn || ''));
+
+  const rawBio = item.bio || item.aboutAr;
+  const bioAr = typeof rawBio === 'object' && rawBio !== null
+    ? (rawBio.ar || '')
+    : (typeof rawBio === 'string' ? rawBio : (item.aboutAr || ''));
+  const bioEn = typeof rawBio === 'object' && rawBio !== null
+    ? (rawBio.en || '')
+    : (typeof item.aboutEn === 'string' ? item.aboutEn : (item.bioEn || ''));
+
+  let achievements = [];
+  let achievementsAr = [];
+  let achievementsEn = [];
+  if (Array.isArray(item.achievements)) {
+    achievements = item.achievements;
+    achievementsAr = item.achievements;
+    achievementsEn = item.achievements;
+  } else if (typeof item.achievements === 'object' && item.achievements !== null) {
+    achievementsAr = Array.isArray(item.achievements.ar) ? item.achievements.ar : [];
+    achievementsEn = Array.isArray(item.achievements.en) ? item.achievements.en : [];
+    achievements = item.achievements;
+  }
+
   const certificates = Array.isArray(item.certificates)
     ? item.certificates.map((c, idx) => {
         if (!c) return null;
@@ -64,30 +90,53 @@ export const mapTeacherData = (item) => {
         };
       }).filter(Boolean)
     : [];
+
   const specializations = Array.isArray(item.specializations) ? item.specializations : [];
   const groups = Array.isArray(item.groups) ? item.groups : [];
   const active = item.active !== false;
 
   const subject = specializations.length > 0
-    ? specializations.map(s => (typeof s === 'object' ? s.name : s)).filter(Boolean).join(' · ')
-    : (item.subject || degreeAr || 'معلم');
+    ? specializations.map(s => {
+        if (typeof s === 'object' && s !== null) {
+          if (typeof s.name === 'object' && s.name !== null) {
+            return s.name.ar || s.name.en || '';
+          }
+          return s.name || s.title || '';
+        }
+        return String(s || '');
+      }).filter(Boolean).join(' · ')
+    : (degreeAr || 'معلم');
 
   const title = degreeAr.trim() || 'معلم معتمد';
   const experience = `${yearsOfExperience} سنوات خبرة`;
   const rawImage = item.image || item.imageUrl || item.avatar || '';
   const image = rawImage ? getImageUrl(rawImage) : '';
 
+  const resolvedUserId = (
+    (typeof item.user === 'string' && item.user) ||
+    item.user?._id ||
+    item.user?.id ||
+    item.user_id ||
+    (typeof item.userId === 'string' && item.userId) ||
+    item.userId?._id ||
+    item.userId?.id ||
+    item.userRef ||
+    ''
+  );
+
   return {
     ...item,
     id,
     teacher_id: item.teacher_id || id,
-    user_id: item.user_id || item.userId || '',
-    name,
+    user_id: resolvedUserId || item.user_id || item.userId || '',
+    name: item.name,
+    displayName,
+    nameAr,
     nameEn,
     subject,
-    email: item.email || '',
-    phone: item.phone || '',
-    country: item.country || '',
+    email: item.email || item.user?.email || item.userId?.email || '',
+    phone: item.phone || item.user?.phone || item.userId?.phone || '',
+    country: item.country || item.user?.country || item.userId?.country || '',
     active,
     status: active ? 'Active' : 'Suspended',
     profitPercentage,
@@ -101,18 +150,22 @@ export const mapTeacherData = (item) => {
     groupsCount: totalGroups,
     totalStudents,
     studentsCount: totalStudents,
-    bio: bioAr || bioEn,
+    bio: item.bio,
+    bioAr,
+    bioEn,
     aboutAr: bioAr,
     aboutEn: bioEn,
     yearsOfExperience,
     experienceYears: yearsOfExperience,
-    degree: degreeAr || degreeEn,
+    degree: item.degree,
     degreeAr,
     degreeEn,
     qualification: degreeAr || degreeEn,
     title,
     experience,
     achievements,
+    achievementsAr,
+    achievementsEn,
     showOnWebsite: Boolean(item.showOnWebsite),
     certificates,
     specializations,
@@ -208,7 +261,7 @@ export const teachersApi = {
       if (found) {
         return { success: true, data: found };
       }
-    } catch (err) {
+    } catch {
     }
 
     try {
@@ -217,7 +270,7 @@ export const teachersApi = {
       if (item) {
         return { success: true, data: mapTeacherData(item) };
       }
-    } catch (err) {
+    } catch {
     }
 
     return { success: false, data: null };
@@ -318,7 +371,7 @@ export const teachersApi = {
       const rawList = resData.data || (Array.isArray(resData) ? resData : []);
       const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
       return { success: true, data: items };
-    } catch (error) {
+    } catch {
       try {
         const fallback = await api.get('/api/v1/teachers/private/localized/all', { params });
         const resData = fallback.data || {};
@@ -334,21 +387,13 @@ export const teachersApi = {
 
   fetchTeacherById: async (id) => {
     try {
-      const response = await api.get(`/api/v1/teachers/private/localized/${id}`);
+      const response = await api.get(`/api/v1/teachers/private/${id}`);
       const item = response.data?.data || response.data;
       if (item) {
         return { success: true, data: mapTeacherData(item) };
       }
     } catch (error) {
-      console.warn(`API fetchTeacherById localized failed for ${id}, trying fallback:`, error);
-    }
-
-    try {
-      const fallback = await api.get(`/api/v1/teachers/private/${id}`);
-      const item = fallback.data?.data || fallback.data;
-      return { success: true, data: mapTeacherData(item) };
-    } catch (err) {
-      console.error(`API fetchTeacherById failed for ${id}:`, err);
+      console.error(`API fetchTeacherById failed for ${id}:`, error);
       return { success: false, data: null };
     }
   },
@@ -359,20 +404,13 @@ export const teachersApi = {
 
   fetchRawTeacherById: async (id) => {
     try {
-      const response = await api.get(`/api/v1/teachers/private/localized/${id}`);
+      const response = await api.get(`/api/v1/teachers/private/${id}`);
       const item = response.data?.data || response.data;
       if (item) {
         return { success: true, data: item };
       }
     } catch (error) {
-    }
-
-    try {
-      const fallback = await api.get(`/api/v1/teachers/private/${id}`);
-      const item = fallback.data?.data || fallback.data;
-      return { success: true, data: item };
-    } catch (err) {
-      console.error(`API fetchRawTeacherById failed for ${id}:`, err);
+      console.error(`API fetchRawTeacherById failed for ${id}:`, error);
       return { success: false, data: null };
     }
   },
@@ -427,10 +465,25 @@ export const teachersApi = {
             });
           }
 
-          if (Array.isArray(teacherData.achievements)) {
-            teacherData.achievements.forEach((ach) => {
-              fd.append('achievements[]', typeof ach === 'object' ? JSON.stringify(ach) : String(ach));
-            });
+          if (teacherData.achievements) {
+            if (Array.isArray(teacherData.achievements)) {
+              teacherData.achievements.forEach((ach) => {
+                if (typeof ach === 'object' && ach !== null) {
+                  if (ach.ar) fd.append('achievements[ar][]', ach.ar);
+                  if (ach.en) fd.append('achievements[en][]', ach.en);
+                } else {
+                  fd.append('achievements[ar][]', String(ach));
+                  fd.append('achievements[en][]', String(ach));
+                }
+              });
+            } else if (typeof teacherData.achievements === 'object' && teacherData.achievements !== null) {
+              if (Array.isArray(teacherData.achievements.ar)) {
+                teacherData.achievements.ar.forEach(a => fd.append('achievements[ar][]', a));
+              }
+              if (Array.isArray(teacherData.achievements.en)) {
+                teacherData.achievements.en.forEach(a => fd.append('achievements[en][]', a));
+              }
+            }
           }
 
           if (teacherData.profileImageFile instanceof File) {
@@ -548,6 +601,10 @@ export const teachersApi = {
           fd.append('image', imgFile);
         }
 
+        if (teacherData.email !== undefined && teacherData.email !== null) {
+          fd.append('email', typeof teacherData.email === 'string' ? teacherData.email.trim() : teacherData.email);
+        }
+
         if (teacherData.phone !== undefined) fd.append('phone', teacherData.phone);
 
         if (teacherData.country !== undefined) fd.append('country', teacherData.country);
@@ -587,10 +644,29 @@ export const teachersApi = {
           fd.append('degree[en]', degreeObj.en || '');
         }
 
-        if (Array.isArray(teacherData.achievements)) {
-          teacherData.achievements.forEach((ach) => {
-            fd.append('achievements[]', typeof ach === 'object' ? JSON.stringify(ach) : String(ach));
-          });
+        if (teacherData.achievements !== undefined) {
+          if (Array.isArray(teacherData.achievements)) {
+            teacherData.achievements.forEach((ach) => {
+              if (typeof ach === 'object' && ach !== null) {
+                if (ach.ar) fd.append('achievements[ar][]', ach.ar);
+                if (ach.en) fd.append('achievements[en][]', ach.en);
+              } else {
+                fd.append('achievements[ar][]', String(ach));
+                fd.append('achievements[en][]', String(ach));
+              }
+            });
+          } else if (typeof teacherData.achievements === 'object' && teacherData.achievements !== null) {
+            if (Array.isArray(teacherData.achievements.ar)) {
+              teacherData.achievements.ar.forEach(a => fd.append('achievements[ar][]', a));
+            }
+            if (Array.isArray(teacherData.achievements.en)) {
+              teacherData.achievements.en.forEach(a => fd.append('achievements[en][]', a));
+            }
+          }
+        }
+
+        if (teacherData.hourlyRate !== undefined) {
+          fd.append('hourlyRate', String(Math.max(0, Number(teacherData.hourlyRate) || 0)));
         }
 
         if (teacherData.showOnWebsite !== undefined) {
@@ -617,9 +693,17 @@ export const teachersApi = {
         payload.image = imageVal;
       }
 
+      if (teacherData.email !== undefined && teacherData.email !== null) {
+        payload.email = typeof teacherData.email === 'string' ? teacherData.email.trim() : teacherData.email;
+      }
+
       if (teacherData.phone !== undefined) payload.phone = teacherData.phone;
 
       if (teacherData.country !== undefined) payload.country = teacherData.country;
+
+      if (teacherData.hourlyRate !== undefined) {
+        payload.hourlyRate = Math.max(0, Number(teacherData.hourlyRate) || 0);
+      }
 
       if (teacherData.totalLessons !== undefined || teacherData.totalSessions !== undefined) {
         payload.totalLessons = Math.max(0, Number(teacherData.totalLessons ?? teacherData.totalSessions) || 0);
@@ -651,8 +735,8 @@ export const teachersApi = {
           : { ar: teacherData.degree || teacherData.degreeAr || teacherData.qualification || '', en: teacherData.degreeEn || teacherData.qualificationEn || '' };
       }
 
-      if (Array.isArray(teacherData.achievements)) {
-        payload.achievements = teacherData.achievements.filter(Boolean);
+      if (teacherData.achievements !== undefined) {
+        payload.achievements = teacherData.achievements;
       }
 
       if (teacherData.showOnWebsite !== undefined) {
@@ -668,13 +752,25 @@ export const teachersApi = {
     }
   },
 
-  updateTeacherHourlyRate: async (id, hourlyRate) => {
+  updateTeacherHourlyRate: async (idOrTeacher, hourlyRate) => {
+    const id = typeof idOrTeacher === 'object' && idOrTeacher !== null
+      ? (idOrTeacher.teacher_id || idOrTeacher.id || idOrTeacher._id)
+      : idOrTeacher;
+    const rateNumber = Math.max(0, Number(hourlyRate) || 0);
     try {
       const response = await api.patch(`/api/v1/teachers/private/${id}/hourly-rate`, {
-        hourlyRate: Number(hourlyRate)
+        hourlyRate: rateNumber,
+        hourly_rate: rateNumber
       });
       return response.data;
     } catch (error) {
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        const fallbackRes = await api.patch(`/api/v1/teachers/private/${id}`, {
+          hourlyRate: rateNumber,
+          hourly_rate: rateNumber
+        });
+        return fallbackRes.data;
+      }
       console.error('API updateTeacherHourlyRate failed:', error);
       throw error;
     }
@@ -683,43 +779,28 @@ export const teachersApi = {
   addTeacherCertificate: async (id, certData) => {
     try {
       const isFormData = certData instanceof FormData;
-      const fileObj = !isFormData ? (certData?.file || certData?.image) : null;
-      const hasFile = fileObj instanceof File;
-
       let body = certData;
       let headers = {};
 
-      if (hasFile) {
+      if (!isFormData) {
         const fd = new FormData();
-        fd.append('file', fileObj);
-        fd.append('image', fileObj);
-
-        if (certData?.name) {
-          if (typeof certData.name === 'object') {
-            if (certData.name.ar) fd.append('name[ar]', certData.name.ar);
-            if (certData.name.en) fd.append('name[en]', certData.name.en);
-          } else {
-            fd.append('name[ar]', certData.name);
-          }
+        const fileObj = certData?.file;
+        if (fileObj instanceof File) {
+          fd.append('file', fileObj);
         }
-        if (certData?.nameAr) fd.append('name[ar]', certData.nameAr);
-        if (certData?.nameEn) fd.append('name[en]', certData.nameEn);
+
+        const nameAr = typeof certData?.name === 'object' && certData?.name !== null
+          ? (certData.name.ar || '')
+          : (certData?.nameAr || (typeof certData?.name === 'string' ? certData.name : ''));
+        const nameEn = typeof certData?.name === 'object' && certData?.name !== null
+          ? (certData.name.en || '')
+          : (certData?.nameEn || '');
+
+        if (nameAr) fd.append('name[ar]', nameAr);
+        if (nameEn) fd.append('name[en]', nameEn);
 
         body = fd;
         headers = { 'Content-Type': 'multipart/form-data' };
-      } else if (!isFormData) {
-        const nameObj = typeof certData?.name === 'object' && certData?.name !== null
-          ? certData.name
-          : {
-              ar: certData?.nameAr || certData?.name || '',
-              ...(certData?.nameEn ? { en: certData.nameEn } : {})
-            };
-
-        body = {
-          name: nameObj,
-          ...(certData?.image ? { image: certData.image } : {}),
-          ...(certData?.file ? { file: certData.file } : {})
-        };
       }
 
       const response = await api.post(`/api/v1/teachers/private/${id}/certificates`, body, { headers });
@@ -733,43 +814,28 @@ export const teachersApi = {
   updateTeacherCertificate: async (id, certificateId, certData) => {
     try {
       const isFormData = certData instanceof FormData;
-      const fileObj = !isFormData ? (certData?.file || certData?.image) : null;
-      const hasFile = fileObj instanceof File;
-
       let body = certData;
       let headers = {};
 
-      if (hasFile) {
+      if (!isFormData) {
         const fd = new FormData();
-        fd.append('file', fileObj);
-        fd.append('image', fileObj);
-
-        if (certData?.name) {
-          if (typeof certData.name === 'object') {
-            if (certData.name.ar) fd.append('name[ar]', certData.name.ar);
-            if (certData.name.en) fd.append('name[en]', certData.name.en);
-          } else {
-            fd.append('name[ar]', certData.name);
-          }
+        const fileObj = certData?.file;
+        if (fileObj instanceof File) {
+          fd.append('file', fileObj);
         }
-        if (certData?.nameAr) fd.append('name[ar]', certData.nameAr);
-        if (certData?.nameEn) fd.append('name[en]', certData.nameEn);
+
+        const nameAr = typeof certData?.name === 'object' && certData?.name !== null
+          ? (certData.name.ar || '')
+          : (certData?.nameAr || (typeof certData?.name === 'string' ? certData.name : ''));
+        const nameEn = typeof certData?.name === 'object' && certData?.name !== null
+          ? (certData.name.en || '')
+          : (certData?.nameEn || '');
+
+        if (nameAr) fd.append('name[ar]', nameAr);
+        if (nameEn) fd.append('name[en]', nameEn);
 
         body = fd;
         headers = { 'Content-Type': 'multipart/form-data' };
-      } else if (!isFormData) {
-        const payload = {};
-        if (certData?.name !== undefined || certData?.nameAr !== undefined) {
-          payload.name = typeof certData.name === 'object' && certData.name !== null
-            ? certData.name
-            : {
-                ar: certData?.nameAr || certData?.name || '',
-                ...(certData?.nameEn ? { en: certData.nameEn } : {})
-              };
-        }
-        if (certData?.image) payload.image = certData.image;
-        if (certData?.file) payload.file = certData.file;
-        body = payload;
       }
 
       const response = await api.patch(`/api/v1/teachers/private/${id}/certificates/${certificateId}`, body, { headers });
@@ -790,8 +856,23 @@ export const teachersApi = {
     }
   },
 
-  changeTeacherPassword: async (userId, passwordData) => {
+  changeTeacherPassword: async (userIdOrTeacher, passwordData) => {
     try {
+      let userId = typeof userIdOrTeacher === 'object' && userIdOrTeacher !== null
+        ? (
+            (typeof userIdOrTeacher.user === 'string' && userIdOrTeacher.user) ||
+            userIdOrTeacher.user?._id ||
+            userIdOrTeacher.user?.id ||
+            userIdOrTeacher.user_id ||
+            (typeof userIdOrTeacher.userId === 'string' && userIdOrTeacher.userId) ||
+            userIdOrTeacher.userId?._id ||
+            userIdOrTeacher.userId?.id ||
+            userIdOrTeacher.userRef ||
+            userIdOrTeacher.id ||
+            userIdOrTeacher.teacher_id
+          )
+        : userIdOrTeacher;
+
       const password = typeof passwordData === 'string' ? passwordData : passwordData?.password;
       const confirmPassword = typeof passwordData === 'object' ? (passwordData?.confirmPassword || password) : password;
 
@@ -799,11 +880,35 @@ export const teachersApi = {
         password,
         confirmPassword,
         ...(passwordData?.phone ? { phone: passwordData.phone } : {}),
+        ...(passwordData?.email ? { email: passwordData.email } : {}),
         ...(passwordData?.country ? { country: passwordData.country } : {})
       };
 
-      const response = await api.patch(`/api/v1/users/${userId}/change-password`, payload);
-      return response.data;
+      try {
+        const response = await api.patch(`/api/v1/users/${userId}/change-password`, payload);
+        return response.data;
+      } catch (err) {
+        if (err.response?.status === 404 && typeof userId === 'string') {
+          try {
+            const raw = await api.get(`/api/v1/teachers/private/${userId}`);
+            const rawData = raw.data?.data || raw.data;
+            const actualUserId =
+              (typeof rawData?.user === 'string' && rawData.user) ||
+              rawData?.user?._id ||
+              rawData?.user?.id ||
+              rawData?.user_id ||
+              (typeof rawData?.userId === 'string' && rawData.userId) ||
+              rawData?.userId?._id ||
+              rawData?.userId?.id;
+            if (actualUserId && actualUserId !== userId) {
+              const res = await api.patch(`/api/v1/users/${actualUserId}/change-password`, payload);
+              return res.data;
+            }
+          } catch {
+          }
+        }
+        throw err;
+      }
     } catch (error) {
       console.error('API changeTeacherPassword failed:', error);
       throw error;
@@ -823,6 +928,7 @@ export const teachersApi = {
           const rawData = raw.data?.data || raw.data;
           userId = rawData?.user_id || rawData?.userId || rawData?.user?._id || rawData?.user?.id || rawData?.user;
         } catch {
+          userId = null;
         }
       }
 

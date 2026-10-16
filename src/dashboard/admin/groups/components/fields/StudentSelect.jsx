@@ -34,7 +34,6 @@ export default function StudentSelect({
     })
   }, [availableStudents, searchQuery])
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -45,7 +44,6 @@ export default function StudentSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Auto focus search input when opened
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       searchInputRef.current.focus()

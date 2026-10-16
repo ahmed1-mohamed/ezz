@@ -4,14 +4,12 @@ import { Trash2, FileText, Upload, Plus, Award, ExternalLink } from 'lucide-reac
 export default function TeacherCertificatesCard({
   formData,
   onChange,
-  isRtl,
-  t
+  isRtl
 }) {
   const fileInputRef = useRef(null)
   const certificates = Array.isArray(formData.certificates) ? formData.certificates : []
   const achievements = Array.isArray(formData.achievements) ? formData.achievements : []
 
-  // Achievement inputs state
   const [newAchAr, setNewAchAr] = useState('')
   const [newAchEn, setNewAchEn] = useState('')
 

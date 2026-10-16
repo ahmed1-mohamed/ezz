@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     Clock,
-    User,
     Calendar,
     Video,
     ExternalLink,
@@ -12,8 +11,8 @@ import {
     BookOpen,
     Sparkles,
     CalendarDays,
-     CheckCircle2,
-        RotateCcw
+    CheckCircle2,
+    RotateCcw
 } from 'lucide-react'
 import { landingApi } from '@/shared/services/api/landingApi'
 import CTASection from '@/shared/components/CTASection.jsx'
@@ -270,14 +269,12 @@ export default function SchedulePage({ role }) {
     const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'scheduled' | 'live' | 'completed'
     const [copiedSessionId, setCopiedSessionId] = useState(null)
 
-    // Load Timetable from backend public API
     useEffect(() => {
         let isMounted = true
         const loadTimetable = async () => {
             setLoading(true)
             const fallback = getFallbackWeekData(i18n.language === 'en')
             try {
-                // Fetch public current week timetable with current language
                 const res = await landingApi.fetchPublicCurrentWeekTimetable({ lang: i18n.language })
                 const data = res?.data || res
                 if (isMounted && data) {
@@ -290,7 +287,6 @@ export default function SchedulePage({ role }) {
                         subtitle: data.subtitle
                     })
 
-                    // Automatically select today if present in days
                     const todayIdx = days.findIndex((d) => d.isToday)
                     if (todayIdx !== -1) {
                         setActiveDayIndex(todayIdx)
@@ -315,22 +311,18 @@ export default function SchedulePage({ role }) {
     const days = useMemo(() => timetableData?.days || [], [timetableData])
     const weekInfo = useMemo(() => timetableData?.week || {}, [timetableData])
 
-    // Keep active day in valid range
     const activeDay = useMemo(() => {
         if (!days || days.length === 0) return null
         return days[activeDayIndex] || days[0]
     }, [days, activeDayIndex])
 
-    // Formatted date range localized properly
     const formattedWeekRange = useMemo(() => {
         if (weekInfo?.formattedRange) {
-            // If English and the formattedRange contains Arabic letters, translate properly
             if (isEn && /[\u0600-\u06FF]/.test(weekInfo.formattedRange)) {
                 if (weekInfo.startDate && weekInfo.endDate) {
                     return `From ${weekInfo.startDate} to ${weekInfo.endDate}`
                 }
             }
-            // If Arabic and formattedRange starts with English, translate properly
             if (isRtl && weekInfo.formattedRange.startsWith('From')) {
                 if (weekInfo.startDate && weekInfo.endDate) {
                     return `من تاريخ ${weekInfo.startDate} إلى تاريخ ${weekInfo.endDate}`
@@ -346,12 +338,10 @@ export default function SchedulePage({ role }) {
         return ''
     }, [weekInfo, isRtl, isEn])
 
-    // Total counts across the week
     const totalWeeklySessions = useMemo(() => {
         return days.reduce((acc, d) => acc + (d.sessions ? d.sessions.length : (d.sessionsCount || 0)), 0)
     }, [days])
 
-    // Localize day name consistently
     const getLocalizedDay = useCallback((dayItem) => {
         if (!dayItem) return ''
         const raw = (dayItem.day || dayItem.rawDay || '').toString().trim().toLowerCase()
@@ -380,13 +370,11 @@ export default function SchedulePage({ role }) {
                     return t(`schedule.${dayKeys[dayIndex]}`, { defaultValue: dayItem.dayName || dayItem.day })
                 }
             } catch {
-                // fallback
             }
         }
         return dayItem.dayName || dayItem.day || ''
     }, [t])
 
-    // Localize session time format
     const formatSessionTime = useCallback((session) => {
         if (session.timeRange) return session.timeRange
         if (!session.startTime) return ''
@@ -411,7 +399,6 @@ export default function SchedulePage({ role }) {
         }
     }, [isRtl])
 
-    // Filter sessions of the active day
     const activeDaySessions = useMemo(() => {
         if (!activeDay || !activeDay.sessions) return []
         return activeDay.sessions.filter((s) => {

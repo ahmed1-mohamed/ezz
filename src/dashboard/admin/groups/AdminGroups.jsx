@@ -105,7 +105,6 @@ export default function AdminGroups() {
     return result
   }, [groups, statusFilter, searchQuery, pagination, STATUS_FILTER_KEYS, isRtl])
 
-  // Metrics summary
   const metrics = useMemo(() => {
     const total = pagination?.totalCount ?? groups.length
     const active = groups.filter((g) => g.status === 'نشط' || g.status === 'active').length
@@ -115,14 +114,12 @@ export default function AdminGroups() {
     return { total, active, suspended, students }
   }, [groups, pagination])
 
-  // Pagination calculations
   const totalCount = pagination?.totalCount ?? filtered.length
   const totalPages = pagination?.numberOfPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage))
   const isPaginationDimmed = totalPages <= 1
 
   const paged = useMemo(() => {
     if (pagination) {
-      // Backend returned pre-paginated data
       return filtered
     }
     const start = (currentPage - 1) * itemsPerPage
@@ -214,7 +211,6 @@ export default function AdminGroups() {
   const handleEditGroup = async (group) => {
     setIsLoading(true)
     try {
-      // Use GET /api/v1/groups/private/{id} to get raw multilingual data
       const res = await adminGroupsApi.fetchGroupByIdRaw(group.id)
       const data = res?.data || res
       if (data && (data.id || data.name)) {
@@ -235,7 +231,6 @@ export default function AdminGroups() {
     setSelectedGroup(group)
     setShowStudentsModal(true)
     try {
-      // Use GET /api/v1/groups/private/localized/{id} to get localized student details
       const res = await adminGroupsApi.fetchGroupByIdLocalized(group.id)
       const detailedGroup = res?.data || res
       if (detailedGroup && (detailedGroup.students || detailedGroup.id)) {
@@ -349,6 +344,7 @@ export default function AdminGroups() {
         group={viewMode === 'edit-group' ? selectedGroup : null}
         isRtl={isRtl}
         t={t}
+        isSaving={isLoading}
         onSave={handleSaveGroup}
         onCancel={() => {
           setSelectedGroup(null)

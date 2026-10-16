@@ -1,6 +1,10 @@
 import { Award, BookOpen, Users, DollarSign, Percent, Clock, Pencil } from 'lucide-react'
 
-export default function TeacherDetailsStats({ teacher, isRtl, onOpenHourlyRateModal }) {
+export default function TeacherDetailsStats({ teacher, isRtl = true, onOpenHourlyRateModal }) {
+  const ratingValue = teacher?.rating !== undefined && teacher?.rating !== null
+    ? Number(teacher.rating).toFixed(1)
+    : '5.0'
+
   const metrics = [
     {
       key: 'totalLessons',
@@ -26,7 +30,7 @@ export default function TeacherDetailsStats({ teacher, isRtl, onOpenHourlyRateMo
     {
       key: 'rating',
       label: isRtl ? 'معدل التقييم' : 'Rating',
-      value: `${teacher?.rating ?? 0} / 5`,
+      value: `${ratingValue} / 5`,
       colorClass: 'text-amber-500',
       icon: Award
     },
@@ -65,8 +69,8 @@ export default function TeacherDetailsStats({ teacher, isRtl, onOpenHourlyRateMo
   ]
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-      <h3 className="text-base font-bold text-slate-850 dark:text-white border-b border-slate-105 dark:border-slate-800/60 pb-3 flex items-center gap-2">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
+      <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 flex items-center gap-2">
         <Award className="text-amber-500" size={18} />
         <span>{isRtl ? 'إحصائيات الأداء والأرباح' : 'Performance & Financial Statistics'}</span>
       </h3>
@@ -76,10 +80,10 @@ export default function TeacherDetailsStats({ teacher, isRtl, onOpenHourlyRateMo
           return (
             <div
               key={index}
-              className="flex items-center justify-between p-4 bg-[#f3f7f6] dark:bg-slate-950/40 rounded-2xl border border-slate-100/50 dark:border-slate-850/40 relative group"
+              className="flex items-center justify-between p-4 bg-[#f3f7f6] dark:bg-slate-950/40 rounded-2xl border border-slate-100/50 dark:border-slate-800/40 relative group"
             >
               <div>
-                <span className="block text-xs font-bold text-slate-450 dark:text-slate-500">
+                <span className="block text-xs font-bold text-slate-500 dark:text-slate-400">
                   {item.label}
                 </span>
                 <span className={`text-lg font-black ${item.colorClass} mt-1 block`}>

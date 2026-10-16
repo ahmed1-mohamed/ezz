@@ -10,12 +10,11 @@ export const adminGroupsApi = {
     try {
       const response = await api.get(`/api/v1/groups/private/localized/${id}`, { params });
       return response.data;
-    } catch (error) {
+    } catch {
       const rawRes = await api.get(`/api/v1/groups/private/${id}`, { params });
       return rawRes.data;
     }
   },
-
 
   fetchGroupByIdRaw: async (id, params = {}) => {
     const response = await api.get(`/api/v1/groups/private/${id}`, { params });
@@ -31,12 +30,11 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-
   updateGroup: async (id, groupData) => {
     try {
       const response = await api.patch(`/api/v1/groups/private/${id}`, groupData);
       return response.data;
-    } catch (error) {
+    } catch {
       const putRes = await api.put(`/api/v1/groups/private/${id}`, groupData);
       return putRes.data;
     }
@@ -46,7 +44,6 @@ export const adminGroupsApi = {
     const response = await api.delete(`/api/v1/groups/private/${id}`);
     return response.data;
   },
-
 
   addStudentToGroup: async (groupId, payload) => {
     const studentId = typeof payload === 'string'
@@ -81,7 +78,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-
   updateGroupSchedule: async (groupId, payload) => {
     const weeklySchedule = Array.isArray(payload)
       ? payload
@@ -100,7 +96,7 @@ export const adminGroupsApi = {
     try {
       const response = await api.patch(`/api/v1/groups/private/${groupId}/schedule`, body);
       return response.data;
-    } catch (error) {
+    } catch {
       const putRes = await api.put(`/api/v1/groups/private/${groupId}/schedule`, body);
       return putRes.data;
     }
@@ -127,7 +123,7 @@ export const adminGroupsApi = {
     try {
       const response = await api.patch(`/api/v1/groups/private/${groupId}/status`, body);
       return response.data;
-    } catch (error) {
+    } catch {
       const putRes = await api.put(`/api/v1/groups/private/${groupId}/status`, body);
       return putRes.data;
     }
@@ -156,7 +152,7 @@ export const adminGroupsApi = {
     try {
       const response = await api.post(`/api/v1/groups/private/${groupId}/students/transfer`, body);
       return response.data;
-    } catch (error) {
+    } catch {
       const patchRes = await api.patch(`/api/v1/groups/private/${groupId}/students/transfer`, body);
       return patchRes.data;
     }

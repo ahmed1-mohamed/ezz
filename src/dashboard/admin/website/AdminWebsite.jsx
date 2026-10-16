@@ -38,11 +38,11 @@ export default function AdminWebsite() {
     }
   }, [toast.show]);
 
-  const { stats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification);
+  const { stats, isLoading: isStatsLoading, isSaving: isSavingStats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification);
   
   const {
     stars, isModalOpen, setIsModalOpen, isViewModalOpen, setIsViewModalOpen,
-    currentStar, setCurrentStar, systemStudents,
+    currentStar, setCurrentStar, systemStudents, isSaving: isSavingStar,
     handleOpenAddModal, handleOpenEditModal, handleOpenViewModal,
     handleDeleteStar, handleSaveModal, handleSaveStarsList, handleCancelStarsList
   } = useFeaturedStudents(showNotification);
@@ -50,22 +50,25 @@ export default function AdminWebsite() {
   const {
     eliteTeachers, isTeacherModalOpen, setIsTeacherModalOpen, selectedTeacher,
     isTeacherLoading, isTeacherFormOpen, setIsTeacherFormOpen, currentTeacher,
-    setCurrentTeacher, systemTeachers, handleOpenAddTeacher, handleOpenEditTeacher,
+    setCurrentTeacher, systemTeachers, isSaving: isSavingTeacher,
+    handleOpenAddTeacher, handleOpenEditTeacher,
     handleShowTeacherNotes, handleDeleteTeacher, handleSaveTeacherSubmit
   } = useEliteTeachers(showNotification);
 
   const {
     testimonials, isTestimonialModalOpen, setIsTestimonialModalOpen, currentTestimonial,
-    setCurrentTestimonial, handleOpenAddTestimonial, handleOpenEditTestimonial,
+    setCurrentTestimonial, isSaving: isSavingTestimonial, handleOpenAddTestimonial, handleOpenEditTestimonial,
     handleDeleteTestimonial, handleSaveTestimonialSubmit
   } = useTestimonials(showNotification);
 
-  const { contactInfo, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification);
+  const { contactInfo, isLoading: isContactLoading, isSaving: isSavingContact, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification);
 
   return (
     <div className="space-y-6 lg:space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <WebsiteStatsForm
         stats={stats}
+        isLoading={isStatsLoading}
+        isSaving={isSavingStats}
         handleStatChange={handleStatChange}
         handleSaveStats={handleSaveStats}
         handleCancelStats={handleCancelStats}
@@ -105,6 +108,7 @@ export default function AdminWebsite() {
           onSubmit={handleSaveModal}
           systemStudents={systemStudents}
           stars={stars}
+          isSaving={isSavingStar}
         />
       )}
 
@@ -117,6 +121,7 @@ export default function AdminWebsite() {
           onSubmit={handleSaveTeacherSubmit}
           systemTeachers={systemTeachers}
           eliteTeachers={eliteTeachers}
+          isSaving={isSavingTeacher}
         />
       )}
 
@@ -139,9 +144,12 @@ export default function AdminWebsite() {
         currentTestimonial={currentTestimonial}
         setCurrentTestimonial={setCurrentTestimonial}
         onSubmit={handleSaveTestimonialSubmit}
+        isSaving={isSavingTestimonial}
       />
       <ContactUsForm
         contactInfo={contactInfo}
+        isLoading={isContactLoading}
+        isSaving={isSavingContact}
         onSave={handleSaveContactInfo}
         onCancel={handleCancelContactInfo}
       />

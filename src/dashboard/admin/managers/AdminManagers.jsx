@@ -17,7 +17,6 @@ export default function AdminManagers() {
   const queryClient = useQueryClient()
 
   const [viewMode, setViewMode] = useState('list')
-  const [selectedRole, setSelectedRole] = useState('مشرف عام')
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
   const [isLoadingDetails, setIsLoadingDetails] = useState(false)
 
@@ -101,7 +100,6 @@ export default function AdminManagers() {
       }
 
       setSelectedSupervisor(preparedAdmin)
-      setSelectedRole(rawAdmin.role || 'مشرف عام')
       setViewMode('edit-supervisor')
     } catch (err) {
       console.error('Failed to fetch raw admin details:', err)
@@ -155,7 +153,6 @@ export default function AdminManagers() {
               setSelectedSupervisor(supervisorOrRoleName)
               setViewMode('assign-role')
             } else {
-              setSelectedRole(supervisorOrRoleName || 'مشرف عام')
               setViewMode('permissions')
             }
           }}
@@ -208,6 +205,7 @@ export default function AdminManagers() {
           isRtl={isRtl}
           t={t}
           countries={countries}
+          isSaving={createMutation.isPending}
           onSave={async (data) => {
             try {
               const res = await createMutation.mutateAsync(data.adminData)
@@ -233,6 +231,7 @@ export default function AdminManagers() {
           countries={countries}
           isRtl={isRtl}
           t={t}
+          isSaving={updateMutation.isPending}
           onToggleStatus={handleToggleStatus}
           onSave={async (data) => {
             try {

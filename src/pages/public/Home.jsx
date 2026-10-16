@@ -34,12 +34,20 @@ const heroImageAnimation = {
     transition: { repeat: Infinity, duration: 4, ease: 'easeInOut' }
 }
 
+const safeJsonParse = (key) => {
+    try {
+        return JSON.parse(localStorage.getItem(key))
+    } catch {
+        return null
+    }
+}
+
 function readLocalStorage() {
-    let stats = null, stars = null, testimonials = null
-    try { stats = JSON.parse(localStorage.getItem('website_stats')) } catch (_) { }
-    try { stars = JSON.parse(localStorage.getItem('website_stars')) } catch (_) { }
-    try { testimonials = JSON.parse(localStorage.getItem('website_testimonials')) } catch (_) { }
-    return { stats, stars, testimonials }
+    return {
+        stats: safeJsonParse('website_stats'),
+        stars: safeJsonParse('website_stars'),
+        testimonials: safeJsonParse('website_testimonials')
+    }
 }
 
 const SectionSkeleton = () => <div className="h-40 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />

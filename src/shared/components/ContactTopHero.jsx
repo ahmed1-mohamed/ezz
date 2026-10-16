@@ -72,8 +72,6 @@ export default React.memo(function ContactTopHero() {
                             </div>
                         </div>
 
-
-
                     </motion.div>
                 </motion.div>
 

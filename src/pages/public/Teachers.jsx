@@ -17,13 +17,13 @@ const normalizeCountryStr = (str) => {
         .replace(/ة/g, 'ه')
         .replace(/ى/g, 'ي')
         .replace(/(جمهورية|المملكة|سلطنة|دولة|الامارات|العربية|المتحدة|الهاشمية)/g, '')
-        .replace(/[\uD83C-\uDBFF\uDC00-\uDFFF]/g, '') // remove flags
+        .replace(/\p{Extended_Pictographic}/gu, '') // remove flags
         .replace(/[^\p{L}\p{N}]/gu, '')
         .trim()
 }
 
 const extractEmoji = (str) => {
-    const match = String(str || '').match(/[\uD83C-\uDBFF\uDC00-\uDFFF]+/)
+    const match = String(str || '').match(/\p{Extended_Pictographic}+/u)
     return match ? match[0].trim() : ''
 }
 
@@ -36,7 +36,6 @@ const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) =
         ? (teacherCountryRaw.name || teacherCountryRaw.ar || teacherCountryRaw.en || '')
         : String(teacherCountryRaw).trim()
 
-    // 1. Direct ID match
     if (
         teacher.countryId &&
         countryObj &&
@@ -45,12 +44,10 @@ const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) =
         return true
     }
 
-    // 2. Direct string match
     if (teacherCountryStr && (teacherCountryStr === selectedCountryId || (countryObj && (teacherCountryStr === countryObj.name || teacherCountryStr === countryObj.nameEn)))) {
         return true
     }
 
-    // 3. Flag emoji match
     const teacherEmoji = extractEmoji(teacherCountryStr)
     const targetEmoji = countryObj?.flag ? extractEmoji(countryObj.flag) : extractEmoji(selectedCountryId)
     if (teacherEmoji && targetEmoji && teacherEmoji === targetEmoji) {
@@ -60,7 +57,6 @@ const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) =
         return true
     }
 
-    // 4. Phone code match
     if (countryObj?.phoneCode) {
         if (teacher.phone && teacher.phone.startsWith(countryObj.phoneCode)) {
             return true
@@ -70,7 +66,6 @@ const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) =
         }
     }
 
-    // 5. Normalized name substring match
     const normTarget = normalizeCountryStr(countryObj?.name || selectedCountryId)
     const normTargetEn = countryObj?.nameEn ? normalizeCountryStr(countryObj.nameEn) : ''
     const normTeacher = normalizeCountryStr(teacherCountryStr)
@@ -86,7 +81,6 @@ const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) =
         }
     }
 
-    // 6. Regional aliases / synonym groups
     const aliasesMap = [
         { keys: ['مصر', 'egypt', 'eg'], id: 'eg' },
         { keys: ['سعود', 'saudi', 'ksa'], id: 'sa' },
@@ -314,7 +308,7 @@ export default function Teachers() {
 
     const rawTeachers = useMemo(() => {
         return Array.isArray(response?.data) ? response.data : []
-    }, [response?.data])
+    }, [response])
 
     const availableSubjects = useMemo(() => {
         const set = new Set()

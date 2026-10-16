@@ -31,7 +31,6 @@ export default function GroupInfoCard({
 }) {
   const initial = formData.name ? formData.name.trim().charAt(0) : 'م'
 
-  // Internal states to fetch from endpoints if not provided by parent
   const [internalCountries, setInternalCountries] = useState([])
   const [internalCurricula, setInternalCurricula] = useState([])
   const [internalLevels, setInternalLevels] = useState([])
@@ -104,7 +103,6 @@ export default function GroupInfoCard({
   const resolvedTeachers = (teachers && teachers.length > 0) ? teachers : internalTeachers
   const resolvedLanguages = (languages && languages.length > 0) ? languages : internalLanguages
 
-  // Countries list options
   const countryOptions = useMemo(() => {
     return resolvedCountries.map((c) => {
       const id = c.id || c._id
@@ -119,7 +117,6 @@ export default function GroupInfoCard({
     })
   }, [resolvedCountries, isRtl])
 
-  // Curricula options
   const curriculumOptions = useMemo(() => {
     return resolvedCurricula.map((c) => {
       const id = c.id || c._id
@@ -133,13 +130,11 @@ export default function GroupInfoCard({
     })
   }, [resolvedCurricula, isRtl])
 
-  // Selected curriculum object to check for sub-levels
   const selectedCurriculumObj = useMemo(() => {
     if (!formData.curriculum) return null
     return resolvedCurricula.find((c) => (c.id || c._id) === formData.curriculum)
   }, [formData.curriculum, resolvedCurricula])
 
-  // Levels options: if selected curriculum defines levels, use them; otherwise use general levels
   const levelOptions = useMemo(() => {
     const list = (selectedCurriculumObj?.levels && selectedCurriculumObj.levels.length > 0)
       ? selectedCurriculumObj.levels
@@ -157,7 +152,6 @@ export default function GroupInfoCard({
     })
   }, [selectedCurriculumObj, resolvedLevels, isRtl])
 
-  // Teachers options
   const teacherOptions = useMemo(() => {
     return resolvedTeachers.map((tch) => {
       const id = tch.id || tch.teacher_id || tch._id
@@ -171,7 +165,6 @@ export default function GroupInfoCard({
     })
   }, [resolvedTeachers, isRtl])
 
-  // Languages options
   const languageOptions = useMemo(() => {
     if (resolvedLanguages.length > 0) {
       return resolvedLanguages.map((l) => {
@@ -303,7 +296,6 @@ export default function GroupInfoCard({
           value={formData.curriculum}
           onChange={(val) => {
             handleChange('curriculum', val)
-            // If the current studentLevel does not exist in the new curriculum's levels, clear it
             const newCurriculum = resolvedCurricula.find((c) => (c.id || c._id) === val)
             if (newCurriculum?.levels && newCurriculum.levels.length > 0) {
               const hasCurrentLevel = newCurriculum.levels.some((l) => (l.id || l._id) === formData.studentLevel)
@@ -344,7 +336,7 @@ export default function GroupInfoCard({
         />
       </div>
 
-      {/* Group Type & Language */}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <SelectField
           label={t('adminDashboard.groups.groupType', 'نوع المجموعة')}
@@ -369,7 +361,7 @@ export default function GroupInfoCard({
         />
       </div>
 
-      {/* Max Students & Dates */}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <SelectField
           label={t('adminDashboard.groups.maxStudents', 'الحد الأقصى للطلاب')}

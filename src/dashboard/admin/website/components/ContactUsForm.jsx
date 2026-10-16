@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
+import { Loader2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 import CountryPhoneInput from '@/shared/components/CountryPhoneInput.jsx';
 
@@ -14,7 +15,9 @@ const contactSchema = z.object({
 export default function ContactUsForm({
   contactInfo,
   onSave,
-  onCancel
+  onCancel,
+  isLoading = false,
+  isSaving = false
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -121,15 +124,18 @@ export default function ContactUsForm({
         <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
           <Button
             type="submit"
-            className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-1.5"
+            disabled={isSaving || isLoading}
+            className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-70 text-white rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-1.5"
           >
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             <span>{t('common.modify', isRtl ? 'تعديل' : 'Modify')}</span>
           </Button>
           <Button
             type="button"
             variant="secondary"
+            disabled={isSaving || isLoading}
             onClick={handleCancelClick}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold disabled:opacity-50"
           >
             {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
           </Button>

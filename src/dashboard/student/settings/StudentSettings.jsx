@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Sun, Moon, Settings as SettingsIcon, Mail, Lock, User, Globe, Bell, BookOpen, Save } from 'lucide-react';
+import { Camera, Sun, Moon, Settings as SettingsIcon, Mail, Lock, User, Globe, BookOpen, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../../../i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -35,7 +35,6 @@ function loadFromStorage() {
 function saveToStorage(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
-
 
 function ToggleSwitch({ checked, onChange, isRtl }) {
   return (
@@ -119,9 +118,8 @@ function PreferenceRow({ label, desc, checked, onChange, isRtl }) {
   );
 }
 
-
 export default function StudentSettings() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { theme, setTheme } = useAuth();
   const isRtl = i18n.language.startsWith('ar');
 

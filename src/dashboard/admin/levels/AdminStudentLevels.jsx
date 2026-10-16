@@ -170,6 +170,7 @@ export default function AdminStudentLevels() {
           setLevelNameAr={setLevelNameAr}
           levelNameEn={levelNameEn}
           setLevelNameEn={setLevelNameEn}
+          isSaving={createMutation.isPending || updateMutation.isPending}
           onCancel={() => {
             setShowForm(false)
             setEditingLevelId(null)

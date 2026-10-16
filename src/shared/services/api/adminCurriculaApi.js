@@ -174,7 +174,6 @@ export const adminCurriculaApi = {
     }
   },
 
-  // Files
   addFile: async (curriculumId, levelId, unitId, payload) => {
     const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
     const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
@@ -187,7 +186,6 @@ export const adminCurriculaApi = {
       const response = await api.post(endpoint, payload, { headers });
       return response.data;
     } catch (error) {
-      // Fallback: If primary attempt failed and it's a link, try alternative format
       try {
         if (payload instanceof FormData) {
           const type = payload.get('type');

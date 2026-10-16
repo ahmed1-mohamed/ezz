@@ -18,9 +18,7 @@ import {
   File as FileIcon,
   Download,
   Eye,
-  EyeOff,
   Globe,
-  Loader2,
   Link as LinkIcon,
   ExternalLink
 } from 'lucide-react'
@@ -49,12 +47,9 @@ const getFileMeta = (file, isRtl = false) => {
   const cleanPath = (fileUrl.split('?')[0].split('#')[0] || '').trim()
   const ext = (cleanPath.split('.').pop() || '').toLowerCase()
 
-  // 1. Explicit Link check
   const isExplicitLink = rawType === 'link' || rawType === 'url'
-  // 2. Explicit File check
   const isExplicitFile = rawType === 'file' || rawType === 'document' || rawType === 'pdf' || rawType === 'image' || rawType === 'video' || rawType === 'audio'
 
-  // Known file extensions
   const isPdf = ext === 'pdf'
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)
   const isVideo = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'wmv', 'flv', 'm4v'].includes(ext)
@@ -63,7 +58,6 @@ const getFileMeta = (file, isRtl = false) => {
   const isDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'csv'].includes(ext)
   const hasKnownFileExt = isPdf || isImage || isVideo || isArchive || isAudio || isDoc
 
-  // Determine whether it's truly a link or a file
   let isLink = false
   if (isExplicitLink) {
     isLink = true
@@ -120,11 +114,9 @@ export default function AdminCurriculumDetails() {
   const [expandedLevels, setExpandedLevels] = useState({})
   const [expandedUnits, setExpandedUnits] = useState({})
 
-  // Modals state
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, parentId: null, editingItem: null })
   const [fileModalConfig, setFileModalConfig] = useState({ isOpen: false, levelId: null, unitId: null })
 
-  // Fetch Curriculum Details
   const { data: responseData, isLoading } = useQuery({
     queryKey: ['admin-curriculum-details', id],
     queryFn: () => adminCurriculaApi.fetchCurriculumByIdRaw(id),
@@ -179,7 +171,6 @@ export default function AdminCurriculumDetails() {
     }
   }
 
-  // Mutations
   const actionMutation = useMutation({
     mutationFn: async ({ action, payload, ids }) => {
       switch (action) {
@@ -218,7 +209,6 @@ export default function AdminCurriculumDetails() {
     if (!item) return '';
     if (typeof item === 'string') return item.trim();
     if (typeof item === 'object') {
-      // 1. Direct standard keys
       const keys = ['_id', 'id', 'unitId', 'unit_id', 'levelId', 'level_id', 'fileId', 'file_id', '$oid', 'uuid', 'key'];
       for (const k of keys) {
         if (item[k]) {
@@ -228,7 +218,6 @@ export default function AdminCurriculumDetails() {
           }
         }
       }
-      // 2. Nested objects like item.level or item.unit or item.file
       const subObjects = [item.level, item.unit, item.file];
       for (const sub of subObjects) {
         if (sub) {
@@ -239,7 +228,6 @@ export default function AdminCurriculumDetails() {
           }
         }
       }
-      // 3. Fallback: Search values for any 24-character hex MongoDB ObjectId string
       for (const val of Object.values(item)) {
         if (typeof val === 'string' && /^[0-9a-fA-F]{24}$/.test(val.trim())) {
           return val.trim();
@@ -413,7 +401,7 @@ export default function AdminCurriculumDetails() {
                   <span className="text-[#0f7a6c]">{curriculumName}</span>
                 </h1>
 
-                {/* Website Visibility Toggle */}
+                
                 <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2 sm:px-4 sm:py-2.5 rounded-2xl border border-slate-100 dark:border-slate-700/60 self-start sm:self-auto shadow-sm">
                   <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
                     <Globe size={16} className="text-[#0f7a6c]" />

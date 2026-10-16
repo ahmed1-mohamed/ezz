@@ -1,6 +1,5 @@
 import Swal from 'sweetalert2'
 
-
 export const showDeleteConfirm = async (isRtl = true, itemName = '') => {
   const result = await Swal.fire({
     title: isRtl ? 'تأكيد الحذف' : 'Confirm Delete',
@@ -50,12 +49,15 @@ export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = 
 export const showSuccessToast = (title = '', isRtl = true) => {
   Swal.fire({
     toast: true,
-    position: 'top-right',
+    position: isRtl ? 'top-start' : 'top-end',
     icon: 'success',
     title: title,
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.dir = isRtl ? 'rtl' : 'ltr';
+    },
     customClass: {
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800',
       title: 'dark:text-white text-sm',
@@ -66,12 +68,15 @@ export const showSuccessToast = (title = '', isRtl = true) => {
 export const showErrorToast = (title = '', isRtl = true) => {
   Swal.fire({
     toast: true,
-    position: 'top-right',
+    position: isRtl ? 'top-start' : 'top-end',
     icon: 'error',
     title: title,
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.dir = isRtl ? 'rtl' : 'ltr';
+    },
     customClass: {
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800',
       title: 'dark:text-white text-sm',

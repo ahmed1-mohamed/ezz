@@ -30,8 +30,6 @@ export default function ParentDashboard() {
     });
   };
 
-
-
   const stats = useMemo(() => [
     {
       id: 1,

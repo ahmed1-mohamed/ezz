@@ -2,10 +2,6 @@ import api from './axiosConfig';
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-
-
-
-
 let mockAchievements = [
   { id: 1, title: 'متقن التجويد', titleEn: 'Tajweed Master', description: 'إتِمام 20 حصة تجويد بتقييم ممتاز', descriptionEn: 'Completed 20 Tajweed sessions with excellent rating', studentName: 'عمر السعيد', date: '18 أبريل 2024', emoji: '🏆', bgColor: 'bg-amber-400 dark:bg-amber-600' },
   { id: 2, title: 'حافظ متميز', titleEn: 'Excellent Memorizer', description: 'حفظ 5 سور بدون أخطاء', descriptionEn: 'Memorized 5 Surahs without mistakes', studentName: 'عبد الله محمد', date: '5 ديسمبر 2025', emoji: '⭐', bgColor: 'bg-slate-300 dark:bg-slate-600' },
@@ -41,8 +37,6 @@ export const adminRewardsApi = {
       return { success: true, data: mockStats };
     }
   },
-
-
 
   createReward: async (data) => {
     try {

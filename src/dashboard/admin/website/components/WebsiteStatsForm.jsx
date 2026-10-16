@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Save } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 import { z } from 'zod';
 
@@ -12,6 +12,8 @@ const statsSchema = z.object({
 
 export default function WebsiteStatsForm({
   stats,
+  isLoading = false,
+  isSaving = false,
   handleStatChange,
   handleSaveStats,
   handleCancelStats
@@ -99,9 +101,10 @@ export default function WebsiteStatsForm({
       <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
         <Button
           onClick={onSave}
-          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm"
+          disabled={isSaving || isLoading}
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <Save size={16} />
+          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
           <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
         </Button>
         <Button

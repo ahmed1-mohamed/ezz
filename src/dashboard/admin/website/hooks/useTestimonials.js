@@ -8,6 +8,7 @@ export default function useTestimonials(showNotification) {
 
   const [testimonials, setTestimonials] = useState([]);
   const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState({
     id: null,
     parentNameAr: '',
@@ -92,6 +93,7 @@ export default function useTestimonials(showNotification) {
       return;
     }
 
+    setIsSaving(true);
     const formData = new FormData();
     if (currentTestimonial.parentNameEn?.trim()) formData.append('parentName[en]', currentTestimonial.parentNameEn.trim());
     formData.append('parentName[ar]', currentTestimonial.parentNameAr.trim());
@@ -131,6 +133,8 @@ export default function useTestimonials(showNotification) {
       console.error(err);
       const errMsg = err.response?.data?.message || err.message || '';
       showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات') + (errMsg ? `: ${JSON.stringify(errMsg)}` : ''), 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -140,6 +144,7 @@ export default function useTestimonials(showNotification) {
     setIsTestimonialModalOpen,
     currentTestimonial,
     setCurrentTestimonial,
+    isSaving,
     handleOpenAddTestimonial,
     handleOpenEditTestimonial,
     handleDeleteTestimonial,

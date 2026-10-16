@@ -37,7 +37,6 @@ export function useManagers() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Only fires when user opens add/edit screens
   const { data: permissionsData } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => managersApi.fetchPermissions(),
@@ -59,7 +58,6 @@ export function useManagers() {
     },
   });
 
-  // Only fires when user opens add/edit screens
   const { data: countriesData } = useQuery({
     queryKey: ['countries'],
     queryFn: () => landingApi.fetchCountries(),

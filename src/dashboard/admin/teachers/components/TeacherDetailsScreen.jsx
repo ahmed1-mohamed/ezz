@@ -32,7 +32,7 @@ export default function TeacherDetailsScreen({
   const [isAddCertModalOpen, setIsAddCertModalOpen] = useState(false)
   const [editingCert, setEditingCert] = useState(null)
 
-  const teacherId = teacher?.teacher_id || teacher?.id
+  const teacherId = teacher?.teacher_id || teacher?.id || teacher?._id
 
   const { data: freshRes, isLoading, refetch } = useQuery({
     queryKey: ['teacher-details', teacherId],
@@ -140,6 +140,7 @@ export default function TeacherDetailsScreen({
        <TeacherDetailsHeaderCard
         teacher={currentTeacher}
         isRtl={isRtl}
+        onOpenHourlyRateModal={() => setIsHourlyRateModalOpen(true)}
       />
 
        <TeacherDetailsPersonalInfoCard
@@ -151,8 +152,15 @@ export default function TeacherDetailsScreen({
         teacher={currentTeacher}
         isRtl={isRtl}
         onDeleteAchievement={(idx) => {
-          const currentList = Array.isArray(currentTeacher.achievements) ? currentTeacher.achievements : []
-          const updated = currentList.filter((_, i) => i !== idx)
+          let updated = currentTeacher.achievements
+          if (Array.isArray(currentTeacher.achievements)) {
+            updated = currentTeacher.achievements.filter((_, i) => i !== idx)
+          } else if (typeof currentTeacher.achievements === 'object' && currentTeacher.achievements !== null) {
+            updated = {
+              ar: Array.isArray(currentTeacher.achievements.ar) ? currentTeacher.achievements.ar.filter((_, i) => i !== idx) : [],
+              en: Array.isArray(currentTeacher.achievements.en) ? currentTeacher.achievements.en.filter((_, i) => i !== idx) : []
+            }
+          }
           teachersApi.updateTeacher(teacherId, { achievements: updated })
             .then(handleRefetchTeacher)
             .catch(() => {})

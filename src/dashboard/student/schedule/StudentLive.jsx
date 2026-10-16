@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-
 const mockSession = {
   title: 'حصة التجويد - سورة البقرة',
   titleEn: 'Tajweed - Surah Al-Baqarah',

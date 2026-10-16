@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { X, Search } from 'lucide-react';
+import { X, Search, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
 import { collectAllTeacherIds } from '../hooks/useEliteTeachers';
@@ -26,7 +26,8 @@ export default function TeacherFormModal({
   setCurrentTeacher,
   onSubmit,
   systemTeachers = [],
-  eliteTeachers = []
+  eliteTeachers = [],
+  isSaving = false
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -53,16 +54,12 @@ export default function TeacherFormModal({
 
   if (!isOpen || !currentTeacher) return null;
 
-  // Filter available teachers:
-  // In Add mode: Exclude any teacher already in eliteTeachers
-  // In Edit mode: Allow the teacher matching currentTeacher.teacherId, but exclude other elite teachers
   const filteredTeachers = systemTeachers.filter((sysT) => {
     const sysIds = collectAllTeacherIds(sysT);
     const sysEmail = (sysT.email || sysT.user?.email || '').trim().toLowerCase();
     const sysName = normalizeName(sysT.name);
 
     const isMatchedInElite = eliteTeachers.some(et => {
-      // If editing, skip the elite teacher currently being edited
       if (!isAdd && (et.id === currentTeacher.id || et._id === currentTeacher.id)) {
         return false;
       }
@@ -299,21 +296,22 @@ export default function TeacherFormModal({
                 </div>
               )}
 
-
               {errors.teacherId && <p className="text-xs text-red-500 font-medium text-center">{errors.teacherId}</p>}
 
               <div className="flex flex-col sm:flex-row justify-start gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="submit"
-                  disabled={!currentTeacher.teacherId}
-                  className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors shadow-sm order-1 sm:order-2 cursor-pointer"
+                  disabled={!currentTeacher.teacherId || isSaving}
+                  className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors shadow-sm order-1 sm:order-2 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {isAdd ? t('common.add', 'إضافة المعلم') : t('common.saveChanges', 'حفظ التعديلات')}
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{isAdd ? t('common.add', 'إضافة المعلم') : t('common.saveChanges', 'حفظ التعديلات')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full sm:w-auto px-5 py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors order-2 sm:order-1 cursor-pointer"
+                  disabled={isSaving}
+                  className="w-full sm:w-auto px-5 py-2.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors order-2 sm:order-1 cursor-pointer disabled:opacity-50"
                 >
                   {t('common.cancel', 'إلغاء')}
                 </button>

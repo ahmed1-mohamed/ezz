@@ -10,7 +10,6 @@ import PackageImageUpload from './PackageImageUpload'
 import PackageFeaturesField from './PackageFeaturesField'
 import {
   EMPTY_PACKAGE,
-  SESSION_OPTIONS,
 } from './packages_constants'
 
 export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage, explanationLanguages = [] }) {
@@ -235,8 +234,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                   />
                 </div>
               </div>
-
-
 
               <div id="features" tabIndex={-1} className="outline-none">
                 <PackageFeaturesField

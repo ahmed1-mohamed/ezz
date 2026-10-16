@@ -17,6 +17,7 @@ export default function AdminTeacherDetails() {
   const queryClient = useQueryClient()
 
   const [isEditing, setIsEditing] = useState(false)
+  const [isSavingTeacher, setIsSavingTeacher] = useState(false)
 
   const { data: res, isLoading, isError, refetch } = useQuery({
     queryKey: ['teacher-details', id],
@@ -33,7 +34,6 @@ export default function AdminTeacherDetails() {
       : teacher
 
     if (!target) return
-    const targetId = target.id || target.teacher_id || id
     const newActive = !target.active
 
     try {
@@ -76,10 +76,10 @@ export default function AdminTeacherDetails() {
   }
 
   const handleSaveTeacher = async (formData) => {
+    setIsSavingTeacher(true)
     try {
       await teachersApi.updateTeacher(id, formData)
 
-      // If hourlyRate was modified in edit form, call dedicated endpoint
       const newRate = Number(formData.hourlyRate)
       const oldRate = Number(teacher?.hourlyRate)
       if (!isNaN(newRate) && newRate !== oldRate && newRate >= 0) {
@@ -90,13 +90,19 @@ export default function AdminTeacherDetails() {
         }
       }
 
-      // If password was provided, call dedicated password endpoint
       if (formData.password && formData.password.trim().length >= 6) {
-        const userId = teacher?.user_id || teacher?.userId || id
+        const userId =
+          (typeof teacher?.user === 'string' && teacher.user) ||
+          teacher?.user?._id ||
+          teacher?.user?.id ||
+          teacher?.user_id ||
+          teacher?.userId ||
+          id
         try {
           await teachersApi.changeTeacherPassword(userId, {
             password: formData.password,
             confirmPassword: formData.confirmPassword || formData.password,
+            email: formData.email || teacher?.email,
             phone: formData.phone || teacher?.phone,
             country: formData.country || teacher?.country
           })
@@ -116,6 +122,8 @@ export default function AdminTeacherDetails() {
         : (backendMsg || (isRtl ? 'حدث خطأ أثناء حفظ بيانات المعلم' : 'Failed to save teacher'))
       toast.error(errorText)
       console.error('Failed to save teacher:', err)
+    } finally {
+      setIsSavingTeacher(false)
     }
   }
 
@@ -170,6 +178,7 @@ export default function AdminTeacherDetails() {
           teacher={teacher}
           isRtl={isRtl}
           t={t}
+          isSaving={isSavingTeacher}
           onSave={handleSaveTeacher}
           onCancel={() => setIsEditing(false)}
         />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { adminParentsApi } from '@/shared/services/api/adminParentsApi'
 import ParentsList from './components/ParentsList'
@@ -11,6 +12,11 @@ import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import toast from 'react-hot-toast'
 
 export default function AdminParents() {
+  const { id: paramParentId } = useParams()
+  const [searchParams] = useSearchParams()
+  const queryParentId = searchParams.get('id')
+  const targetParentId = paramParentId || queryParentId
+
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
@@ -20,16 +26,39 @@ export default function AdminParents() {
   const [pagination, setPagination] = useState(null)
   const [selectedParent, setSelectedParent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isSavingParent, setIsSavingParent] = useState(false)
 
   useEffect(() => {
     async function loadParents() {
       setIsLoading(true)
       try {
         const res = await adminParentsApi.fetchParents()
+        const parentList = res?.data || res || []
         if (res) {
-          setParents(res.data || res)
+          setParents(parentList)
           setStatistics(res.statistics || null)
           setPagination(res.pagination || null)
+        }
+
+        if (targetParentId) {
+          const matched = parentList.find(
+            (p) => (p.parent_id || p._id || p.id || p.user_id) === targetParentId
+          )
+          if (matched) {
+            setSelectedParent(matched)
+            setViewMode('view-parent')
+          } else {
+            try {
+              const singleRes = await adminParentsApi.fetchParentById(targetParentId)
+              const singleData = singleRes?.data || singleRes
+              if (singleData) {
+                setSelectedParent(singleData)
+                setViewMode('view-parent')
+              }
+            } catch (singleErr) {
+              console.warn('Failed to fetch parent by ID:', singleErr)
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to fetch parents:', err)
@@ -38,80 +67,85 @@ export default function AdminParents() {
       }
     }
     loadParents()
-  }, [])
+  }, [targetParentId])
 
   const handleSaveParent = async (formData) => {
-    if (viewMode === 'edit-parent' && selectedParent) {
-      try {
-        const payload = new FormData();
-        payload.append('email', formData.email || '');
-        payload.append('name[ar]', formData.name || '');
-        payload.append('name[en]', formData.nameEn || '');
-        payload.append('phone', formData.phone || '');
-        payload.append('country', formData.country || '');
-        if (formData.password && formData.password !== '********') {
-          payload.append('password', formData.password);
-          payload.append('confirmPassword', formData.confirmPassword);
-        }
-        if (formData.profileImageFile) {
-          payload.append('image', formData.profileImageFile);
-        }
+    setIsSavingParent(true)
+    try {
+      if (viewMode === 'edit-parent' && selectedParent) {
+        try {
+          const payload = new FormData();
+          payload.append('email', formData.email || '');
+          payload.append('name[ar]', formData.name || '');
+          payload.append('name[en]', formData.nameEn || '');
+          payload.append('phone', formData.phone || '');
+          payload.append('country', formData.country || '');
+          if (formData.password && formData.password !== '********') {
+            payload.append('password', formData.password);
+            payload.append('confirmPassword', formData.confirmPassword);
+          }
+          if (formData.profileImageFile) {
+            payload.append('image', formData.profileImageFile);
+          }
 
-        const targetId = selectedParent.parent_id || selectedParent._id || selectedParent.id;
-        const res = await adminParentsApi.updateParent(targetId, payload)
-        if (res) {
-          setParents((prev) =>
-            prev.map((p) => {
-              const pId = p.parent_id || p._id || p.id;
-              return pId === targetId ? { ...p, ...(res.data || res || formData) } : p;
-            })
-          )
-          setSelectedParent(null)
-          setViewMode('list')
-          toast.success(isRtl ? 'تم تحديث البيانات بنجاح' : 'Parent updated successfully')
+          const targetId = selectedParent.parent_id || selectedParent._id || selectedParent.id;
+          const res = await adminParentsApi.updateParent(targetId, payload)
+          if (res) {
+            setParents((prev) =>
+              prev.map((p) => {
+                const pId = p.parent_id || p._id || p.id;
+                return pId === targetId ? { ...p, ...(res.data || res || formData) } : p;
+              })
+            )
+            setSelectedParent(null)
+            setViewMode('list')
+            toast.success(isRtl ? 'تم تحديث البيانات بنجاح' : 'Parent updated successfully')
+          }
+        } catch (err) {
+          console.error('Failed to update parent:', err)
+          const msgs = err.response?.data?.message;
+          if (Array.isArray(msgs)) {
+            msgs.forEach(m => toast.error(m));
+          } else if (typeof msgs === 'string') {
+            toast.error(msgs);
+          } else {
+            toast.error(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update parent');
+          }
         }
-      } catch (err) {
-        console.error('Failed to update parent:', err)
-        const msgs = err.response?.data?.message;
-        if (Array.isArray(msgs)) {
-          msgs.forEach(m => toast.error(m));
-        } else if (typeof msgs === 'string') {
-          toast.error(msgs);
-        } else {
-          toast.error(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update parent');
+      } else {
+        try {
+          const payload = new FormData();
+          payload.append('email', formData.email || '');
+          payload.append('name[ar]', formData.name || '');
+          payload.append('name[en]', formData.nameEn || '');
+          payload.append('phone', formData.phone || '');
+          payload.append('country', formData.country || '');
+          payload.append('password', formData.password || '');
+          payload.append('confirmPassword', formData.confirmPassword || '');
+          if (formData.profileImageFile) {
+            payload.append('image', formData.profileImageFile);
+          }
+
+          const res = await adminParentsApi.createParent(payload)
+          if (res) {
+            setParents((prev) => [res.data || res || formData, ...prev])
+            setViewMode('list')
+            toast.success(isRtl ? 'تم إضافة ولي الأمر بنجاح' : 'Parent created successfully')
+          }
+        } catch (err) {
+          console.error('Failed to create parent:', err)
+          const msgs = err.response?.data?.message;
+          if (Array.isArray(msgs)) {
+            msgs.forEach(m => toast.error(m));
+          } else if (typeof msgs === 'string') {
+            toast.error(msgs);
+          } else {
+            toast.error(isRtl ? 'حدث خطأ أثناء الإضافة' : 'Failed to create parent');
+          }
         }
       }
-    } else {
-      try {
-        const payload = new FormData();
-        payload.append('email', formData.email || '');
-        payload.append('name[ar]', formData.name || '');
-        payload.append('name[en]', formData.nameEn || '');
-        payload.append('phone', formData.phone || '');
-        payload.append('country', formData.country || '');
-        payload.append('password', formData.password || '');
-        payload.append('confirmPassword', formData.confirmPassword || '');
-        if (formData.profileImageFile) {
-          payload.append('image', formData.profileImageFile);
-        }
-
-        const res = await adminParentsApi.createParent(payload)
-        if (res) {
-          setParents((prev) => [res.data || res || formData, ...prev])
-          setViewMode('list')
-          toast.success(isRtl ? 'تم إضافة ولي الأمر بنجاح' : 'Parent created successfully')
-        }
-      } catch (err) {
-        console.error('Failed to create parent:', err)
-        const msgs = err.response?.data?.message;
-        if (Array.isArray(msgs)) {
-          msgs.forEach(m => toast.error(m));
-        } else if (typeof msgs === 'string') {
-          toast.error(msgs);
-        } else {
-          toast.error(isRtl ? 'حدث خطأ أثناء الإضافة' : 'Failed to create parent');
-        }
-      }
+    } finally {
+      setIsSavingParent(false)
     }
   }
 
@@ -261,6 +295,7 @@ export default function AdminParents() {
           parent={viewMode === 'edit-parent' ? selectedParent : null}
           isRtl={isRtl}
           t={t}
+          isSaving={isSavingParent}
           onSave={handleSaveParent}
           onCancel={() => {
             setSelectedParent(null)

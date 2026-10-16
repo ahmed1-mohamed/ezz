@@ -86,8 +86,6 @@ export default React.memo(function AboutHero() {
                             </div>
                         </div>
 
-
-
                     </motion.div>
                 </motion.div>
 

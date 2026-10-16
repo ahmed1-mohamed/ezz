@@ -9,6 +9,7 @@ import PackageFormPanel from './components/PackageFormPanel'
 import FaqInlineForm from './components/FaqInlineForm'
 import FaqTable from './components/FaqTable'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
+import Spinner from '@/shared/components/Spinner'
 
 export default function AdminPackages() {
     const { t, i18n } = useTranslation()
@@ -18,7 +19,7 @@ export default function AdminPackages() {
     const [packages, setPackages] = useState([])
     const [faqs, setFaqs] = useState([])
     const [explanationLanguages, setExplanationLanguages] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(true)
 
     const [pkgPanelOpen, setPkgPanelOpen] = useState(false)
     const [editingPkg, setEditingPkg] = useState(null)
@@ -26,15 +27,18 @@ export default function AdminPackages() {
     const [isFaqFormOpen, setIsFaqFormOpen] = useState(false)
 
     const loadAll = useCallback(async () => {
-        setLoading(true)
-        const [res, langRes] = await Promise.all([
-            adminPackagesApi.fetchPackagesAndFaqs(),
-            adminPackagesApi.fetchExplanationLanguages()
-        ])
-        if (res?.packages) setPackages(res.packages)
-        if (res?.faqs) setFaqs(res.faqs)
-        if (langRes?.success) setExplanationLanguages(langRes.data)
-        setLoading(false)
+        setIsLoading(true)
+        try {
+            const [res, langRes] = await Promise.all([
+                adminPackagesApi.fetchPackagesAndFaqs(),
+                adminPackagesApi.fetchExplanationLanguages()
+            ])
+            if (res?.packages) setPackages(res.packages)
+            if (res?.faqs) setFaqs(res.faqs)
+            if (langRes?.success) setExplanationLanguages(langRes.data)
+        } finally {
+            setIsLoading(false)
+        }
     }, [])
 
     useEffect(() => {
@@ -145,6 +149,14 @@ export default function AdminPackages() {
         } finally {
             toast.dismiss(loadingToast)
         }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <Spinner />
+            </div>
+        )
     }
 
     return (

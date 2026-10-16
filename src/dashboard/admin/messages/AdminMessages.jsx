@@ -91,7 +91,6 @@ export default function AdminMessages() {
     })
   }, [rawList, appliedSearch])
 
-  // Backend pagination — read numberOfPages & currentPage directly
   const paginationMeta = rawTabData?.pagination || rawTabData?.data?.pagination || rawTabData?.meta || null
   const totalPages = paginationMeta?.numberOfPages ?? paginationMeta?.pages ?? paginationMeta?.totalPages ?? 1
   
@@ -103,10 +102,8 @@ export default function AdminMessages() {
 
   const totalItems = paginationMeta?.total ?? paginationMeta?.totalItems ?? paginationMeta?.totalMessages ?? getTabTotal() ?? filteredMessages.length
 
-  // Backend already sends the correct page slice
   const displayedMessages = filteredMessages
 
-  // Dimmed when only 1 page
   const isPaginationDimmed = totalPages <= 1
 
   const indexOfFirstItem = totalItems > 0 ? (currentPage - 1) * limit + 1 : 0

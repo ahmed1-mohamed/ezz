@@ -87,7 +87,6 @@ export function AuthProvider({ children }) {
             setUser(authUser)
             setCookie('authUser', authUser, cookieDays)
 
-            // Immediately fetch full profile so avatar and localized name are ready right after login
             const fullProfile = await refreshProfile(authUser, cookieDays)
             if (fullProfile) authUser = fullProfile
 
@@ -126,7 +125,6 @@ export function AuthProvider({ children }) {
                 const fullProfile = await refreshProfile(authUser, 7)
                 if (fullProfile) authUser = fullProfile
             } catch {
-                // Profile refresh is best-effort on new account
             }
 
             setLoading(false)
@@ -177,9 +175,7 @@ export function AuthProvider({ children }) {
     }, [refreshProfile])
 
     const logout = useCallback(async () => {
-        // Call server to invalidate DB session first
         await authApi.logout()
-        // Then clear local state and cookies
         setUser(null)
         deleteCookie('authUser')
         deleteCookie('access_token')
@@ -199,13 +195,11 @@ export function AuthProvider({ children }) {
         setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
     }, [setTheme])
 
-    // User state context — re-renders on login/logout only
     const userValue = useMemo(
         () => ({ user, loading }),
         [user, loading],
     )
 
-    // Actions context — stable function references
     const actionsValue = useMemo(
         () => ({ login, signup, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
         [login, signup, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme],

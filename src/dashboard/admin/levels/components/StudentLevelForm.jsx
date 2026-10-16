@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Loader2 } from 'lucide-react'
 
 export default function StudentLevelForm({
   levelNameAr,
@@ -7,9 +8,10 @@ export default function StudentLevelForm({
   setLevelNameEn,
   onCancel,
   onSubmit,
-  isEditing
+  isEditing,
+  isSaving = false
 }) {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
   return (
@@ -56,14 +58,17 @@ export default function StudentLevelForm({
         <button
           type="button"
           onClick={onCancel}
-          className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer dark:bg-slate-800 dark:text-slate-300"
+          disabled={isSaving}
+          className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer dark:bg-slate-800 dark:text-slate-300 disabled:opacity-50"
         >
           {isRtl ? 'إلغاء' : 'Cancel'}
         </button>
         <button
           type="submit"
-          className="px-6 py-2.5 bg-[#005953] hover:bg-[#004742] text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm active:scale-95"
+          disabled={isSaving}
+          className="px-6 py-2.5 bg-[#005953] hover:bg-[#004742] text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-2 disabled:opacity-50"
         >
+          {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
           {isEditing
             ? (isRtl ? 'حفظ التغييرات' : 'Save Changes')
             : (isRtl ? 'إضافة' : 'Add')}

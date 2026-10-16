@@ -11,8 +11,12 @@ export default function useContactInfo(showNotification) {
     email: ''
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     async function loadContactInfo() {
+      setIsLoading(true);
       try {
         const res = await landingApi.fetchContactUs();
         const data = res?.data || res;
@@ -25,12 +29,15 @@ export default function useContactInfo(showNotification) {
         }
       } catch (err) {
         console.warn('Failed to fetch contact-us info:', err);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadContactInfo();
   }, []);
 
   const handleSaveContactInfo = async (updatedInfo) => {
+    setIsSaving(true);
     try {
       await landingApi.updateContactUs(updatedInfo);
       setContactInfo(updatedInfo);
@@ -38,10 +45,13 @@ export default function useContactInfo(showNotification) {
     } catch (err) {
       console.error(err);
       showNotification(t('adminDashboard.website.contactSaveError', 'فشل تحديث أرقام التواصل'), 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCancelContactInfo = async () => {
+    setIsLoading(true);
     try {
       const res = await landingApi.fetchContactUs();
       const data = res?.data || res;
@@ -54,12 +64,16 @@ export default function useContactInfo(showNotification) {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
     showNotification(t('adminDashboard.website.contactReverted', 'تم إلغاء تعديلات أرقام التواصل'), 'info');
   };
 
   return {
     contactInfo,
+    isLoading,
+    isSaving,
     handleSaveContactInfo,
     handleCancelContactInfo
   };

@@ -1,4 +1,4 @@
-import { Search, Download } from 'lucide-react'
+import { Search, Download, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function PaymentsFilters({
@@ -9,6 +9,7 @@ export default function PaymentsFilters({
   searchValue,
   setSearchValue,
   onExport,
+  isExporting = false,
 }) {
   const { t } = useTranslation()
   const p = (key) => t(`adminDashboard.payments.${key}`, key)
@@ -73,9 +74,10 @@ export default function PaymentsFilters({
 
         <button
           onClick={onExport}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors shadow-sm"
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
         >
-          <Download size={14} />
+          {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
           {p('exportCsv')}
         </button>
       </div>

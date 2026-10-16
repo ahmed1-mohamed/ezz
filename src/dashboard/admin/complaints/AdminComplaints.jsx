@@ -40,7 +40,6 @@ export default function AdminComplaints() {
     error: listError,
   } = useQuery({
     queryKey: ['complaints', activeTab, activeType, currentPage],
-    // `type` is omitted by the API layer when empty, the backend rejects empty values
     queryFn: () => complaintsApi.fetchComplaints({
       status: activeTab,
       type: activeType || undefined,

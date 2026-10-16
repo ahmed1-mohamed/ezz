@@ -33,7 +33,6 @@ export default function TeacherEarningsList({ teachers }) {
                 />
               </div>
 
-
               <div className="text-start shrink-0 min-w-[80px]">
                 <span className="text-sm font-bold text-[#0f7a6c] dark:text-emerald-400">
                   {item.amount} $

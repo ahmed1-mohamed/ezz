@@ -55,6 +55,16 @@ export const adminParentsApi = {
     }
   },
 
+  changeParentPassword: async (userId, data) => {
+    try {
+      const response = await api.patch(`/api/v1/users/${userId}/change-password`, data);
+      return response.data;
+    } catch (error) {
+      console.error('API changeParentPassword failed:', error);
+      throw error;
+    }
+  },
+
   deleteParent: async (id) => {
     try {
       const response = await api.delete(`/api/v1/parents/${id}`);

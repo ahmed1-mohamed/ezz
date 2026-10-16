@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Loader2 } from 'lucide-react'
 
 const COLOR_OPTIONS = [
   { key: 'red', labelAr: 'احمر', labelEn: 'Red', bgColor: '#fee2e2', textColor: '#dc2626' },
@@ -9,7 +10,7 @@ const COLOR_OPTIONS = [
   { key: 'purple', labelAr: 'بنفسجي', labelEn: 'Purple', bgColor: '#f3e8ff', textColor: '#7c3aed' },
 ]
 
-export default function RewardForm({ onSave, onCancel, editingReward }) {
+export default function RewardForm({ onSave, onCancel, editingReward, isSaving = false }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const p = (key) => t(`adminDashboard.rewards.${key}`, key)
@@ -159,14 +160,17 @@ export default function RewardForm({ onSave, onCancel, editingReward }) {
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 rounded-2xl text-xs font-bold transition-colors"
+            disabled={isSaving}
+            className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 rounded-2xl text-xs font-bold transition-colors disabled:opacity-50"
           >
             {p('cancelBtn')}
           </button>
           <button
             type="submit"
-            className="px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white rounded-2xl text-xs font-bold transition-all shadow-sm shadow-[#0f7a6c]/20"
+            disabled={isSaving}
+            className="px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white rounded-2xl text-xs font-bold transition-all shadow-sm shadow-[#0f7a6c]/20 disabled:opacity-70 flex items-center justify-center gap-2"
           >
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             {p('saveBtn')}
           </button>
         </div>

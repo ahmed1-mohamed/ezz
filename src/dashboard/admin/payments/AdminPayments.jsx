@@ -14,6 +14,7 @@ export default function AdminPayments() {
   const [stats, setStats] = useState(null)
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
 
   const [activePeriod, setActivePeriod] = useState('annual')
   const [activeStatus, setActiveStatus] = useState('all')
@@ -64,15 +65,26 @@ export default function AdminPayments() {
   }
 
   const handleExport = async () => {
-    await adminPaymentsApi.exportCsv()
-    showSuccessToast(isRtl ? 'تم تصدير ملف CSV بنجاح!' : 'CSV exported successfully!', isRtl)
+    setIsExporting(true)
+    try {
+      await adminPaymentsApi.exportCsv()
+      showSuccessToast(isRtl ? 'تم تصدير ملف CSV بنجاح!' : 'CSV exported successfully!', isRtl)
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   const handleReviewAll = () => {
     setActiveStatus('pending')
   }
 
-
+  if (loading && !stats) {
+    return (
+      <div className="flex items-center justify-center h-60">
+        <Spinner />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -86,6 +98,7 @@ export default function AdminPayments() {
         searchValue={searchValue}
         setSearchValue={setSearchValue}
         onExport={handleExport}
+        isExporting={isExporting}
       />
 
       {loading ? (

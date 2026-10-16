@@ -19,7 +19,6 @@ export const mapEliteTeacher = (item) => {
   const tRef = (item.teacher && typeof item.teacher === 'object') ? item.teacher : {};
   const userRef = (tRef.user && typeof tRef.user === 'object') ? tRef.user : {};
 
-  // Extract Name (Arabic and English)
   let nameAr = '';
   let nameEn = '';
   const rawName = item.name || tRef.name || item.teacherName || tRef.teacherName;
@@ -31,7 +30,6 @@ export const mapEliteTeacher = (item) => {
     nameEn = item.nameEn || tRef.nameEn || rawName;
   }
 
-  // Extract Image
   const rawImage =
     item.image ||
     item.imageUrl ||
@@ -46,7 +44,6 @@ export const mapEliteTeacher = (item) => {
 
   const finalImage = buildImageUrl(rawImage);
 
-  // Extract Teacher Reference ID in the system
   const resolvedTeacherId =
     tRef.id ||
     tRef._id ||
@@ -60,7 +57,7 @@ export const mapEliteTeacher = (item) => {
     '';
 
   return {
-    id: item.id || item._id, // Elite teacher row id
+    id: item.id || item._id,
     _id: item._id || item.id,
     teacher: item.teacher || tRef,
     teacherId: String(resolvedTeacherId),
@@ -126,6 +123,7 @@ export default function useEliteTeachers(showNotification) {
   });
   const [systemTeachers, setSystemTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -186,7 +184,6 @@ export default function useEliteTeachers(showNotification) {
 
     let finalTeacherId = String(resolvedTeacherId);
 
-    // Fallback match by name
     if (!finalTeacherId && systemTeachers.length > 0) {
       const matched = systemTeachers.find(st => {
         const sysName = typeof st.name === 'object' ? (st.name.ar || st.name.en) : st.name;
@@ -274,6 +271,7 @@ export default function useEliteTeachers(showNotification) {
       teacher: currentTeacher.teacherId
     };
 
+    setIsSaving(true);
     try {
       if (currentTeacher.id === null) {
         const response = await landingApi.addEliteTeacher(elitePayload);
@@ -355,6 +353,8 @@ export default function useEliteTeachers(showNotification) {
       } else {
         showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'), 'error');
       }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -370,6 +370,7 @@ export default function useEliteTeachers(showNotification) {
     setCurrentTeacher,
     systemTeachers,
     loading,
+    isSaving,
     handleOpenAddTeacher,
     handleOpenEditTeacher,
     handleShowTeacherNotes,

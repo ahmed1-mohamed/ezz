@@ -16,7 +16,7 @@ const resolveEntityId = (val) => {
   return val.id || val._id || val.teacher_id || ''
 }
 
-export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCancel }) {
+export default function AddEditGroupScreen({ group = null, isRtl, isSaving = false, onSave, onCancel }) {
   const { t, i18n } = useTranslation()
   const isRtlResolved = isRtl !== undefined ? isRtl : i18n.language.startsWith('ar')
   const BackArrow = isRtlResolved ? ArrowRight : ArrowLeft
@@ -65,13 +65,11 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
   const [newTimeTo, setNewTimeTo] = useState('17:30')
   const [errors, setErrors] = useState({})
 
-  // Dropdown options state
   const [countries, setCountries] = useState([])
   const [curricula, setCurricula] = useState([])
   const [levels, setLevels] = useState([])
   const [teachers, setTeachers] = useState([])
   const [languages, setLanguages] = useState([])
-  const [loadingOptions, setLoadingOptions] = useState(true)
 
   useEffect(() => {
     let isMounted = true
@@ -109,8 +107,6 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
         }
       } catch (err) {
         console.warn('Could not load options for group form:', err)
-      } finally {
-        if (isMounted) setLoadingOptions(false)
       }
     }
 
@@ -162,7 +158,6 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
     const nameAr = (formData.nameAr || formData.name || '').trim()
     const nameEn = (formData.nameEn || '').trim()
 
-    // 1. Group Names Validation
     if (!nameAr) {
       newErrors.nameAr = t('adminDashboard.groups.enterGroupNameArError', 'الرجاء إدخال اسم المجموعة باللغة العربية!')
     }
@@ -170,7 +165,6 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
       newErrors.nameEn = t('adminDashboard.groups.enterGroupNameEnError', 'الرجاء إدخال اسم المجموعة باللغة الإنجليزية!')
     }
 
-    // 2. Selects Validation
     if (!formData.country) {
       newErrors.country = t('adminDashboard.groups.selectCountryError', 'الرجاء اختيار الدولة!')
     }
@@ -184,13 +178,11 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
       newErrors.teacher = t('adminDashboard.groups.selectTeacherError', 'الرجاء اختيار المعلم!')
     }
 
-    // 3. Max Students Validation
     const maxStudentsNum = Number(formData.maxStudents)
     if (!formData.maxStudents || isNaN(maxStudentsNum) || maxStudentsNum < 1) {
       newErrors.maxStudents = t('adminDashboard.groups.maxStudentsError', 'الحد الأقصى للطلاب يجب أن يكون 1 على الأقل!')
     }
 
-    // 4. Dates Validation
     if (!formData.startDate) {
       newErrors.startDate = t('adminDashboard.groups.selectStartDateError', 'الرجاء تحديد تاريخ بدء المجموعة!')
     }
@@ -201,7 +193,6 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
       newErrors.endDate = t('adminDashboard.groups.dateOrderError', 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء!')
     }
 
-    // 5. Weekly Schedule Validation
     if (!schedule || schedule.length === 0) {
       newErrors.schedule = t('adminDashboard.groups.scheduleEmptyError', 'الرجاء إضافة موعد واحد على الأقل في الجدول الأسبوعي!')
     } else {
@@ -224,7 +215,6 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
       return
     }
 
-    // Prepare exact payload for POST / PATCH /api/v1/groups/private
     const payload = {
       name: {
         ar: nameAr,
@@ -307,14 +297,17 @@ export default function AddEditGroupScreen({ group = null, isRtl, onSave, onCanc
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-semibold transition-all cursor-pointer"
+            disabled={isSaving}
+            className="px-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-semibold transition-all cursor-pointer disabled:opacity-50"
           >
             {t('common.cancel', 'إلغاء')}
           </button>
           <button
             type="submit"
-            className="px-8 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold shadow-lg shadow-brand-500/20 active:scale-95 transition-all cursor-pointer"
+            disabled={isSaving}
+            className="px-8 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold shadow-lg shadow-brand-500/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             {group
               ? t('adminDashboard.groups.saveChanges', 'حفظ التعديلات')
               : t('adminDashboard.groups.createButton', 'إنشاء المجموعة')}

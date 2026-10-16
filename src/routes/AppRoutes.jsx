@@ -26,6 +26,7 @@ const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
 const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
 const AdminManagers = lazy(() => import('../dashboard/admin/managers/AdminManagers.jsx'))
 const AdminStudents = lazy(() => import('../dashboard/admin/students/AdminStudents.jsx'))
+const AdminStudentDetails = lazy(() => import('../dashboard/admin/students/AdminStudentDetails.jsx'))
 const AdminStudentLevels = lazy(() => import('../dashboard/admin/levels/AdminStudentLevels.jsx'))
 const AdminTeachers = lazy(() => import('../dashboard/admin/teachers/AdminTeachers.jsx'))
 const AdminTeacherDetails = lazy(() => import('../dashboard/admin/teachers/AdminTeacherDetails.jsx'))
@@ -246,6 +247,10 @@ export default function AppRoutes() {
                                         element={<AdminStudents />}
                                     />
                                     <Route
+                                        path="/dashboard/admin/students/:id"
+                                        element={<AdminStudentDetails />}
+                                    />
+                                    <Route
                                         path="/dashboard/admin/student-levels"
                                         element={<AdminStudentLevels />}
                                     />
@@ -267,6 +272,10 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/parents"
+                                        element={<AdminParents />}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/parents/:id"
                                         element={<AdminParents />}
                                     />
                                     <Route

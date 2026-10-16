@@ -31,7 +31,6 @@ export default function AdminSchedule() {
   const isRtl = i18n.language.startsWith('ar')
   const today = useMemo(() => new Date(), [])
 
-  // Either a relative week (weekOffset) or an absolute date, never both
   const [weekQuery, setWeekQuery] = useState({ weekOffset: 0, date: '' })
   const [selectedTeacherId, setSelectedTeacherId] = useState('')
 
@@ -58,7 +57,7 @@ export default function AdminSchedule() {
       if (datesFromDays.length === 7) return datesFromDays
     }
     return getWeekDates(weekInfo?.startDate)
-  }, [timetable?.days, weekInfo?.startDate])
+  }, [timetable])
 
   const sessions = useMemo(
     () => (timetable?.days || []).flatMap((day) => day.sessions || []),

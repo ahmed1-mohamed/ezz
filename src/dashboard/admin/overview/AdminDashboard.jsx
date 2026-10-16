@@ -6,7 +6,6 @@ import StatsCard from '@/shared/components/StatsCard.jsx'
 import DataTable from '@/shared/components/DataTable.jsx'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
 
-
 export default function AdminDashboard() {
     const { t } = useTranslation()
     const { data: statsRes } = useQuery({

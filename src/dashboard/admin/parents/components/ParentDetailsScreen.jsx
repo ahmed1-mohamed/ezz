@@ -143,7 +143,6 @@ export default function ParentDetailsScreen({
     }
   }
 
-  const initial = parent.name.trim().charAt(0)
   const statusCfg = statusConfig[parent.status] || statusConfig.Expired
   const children = parent.children || []
 
@@ -192,6 +191,7 @@ export default function ParentDetailsScreen({
 
       {mode === 'edit' && (
         <ParentEditForm
+          parent={parent}
           formData={formData}
           handleChange={handleChange}
           handleSaveEdit={handleSaveEdit}

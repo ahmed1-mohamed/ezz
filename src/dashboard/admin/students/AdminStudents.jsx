@@ -10,6 +10,8 @@ import AddSessionsModal from './components/AddSessionsModal'
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 
+import useDebounce from '@/shared/hooks/useDebounce'
+
 export default function AdminStudents() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
@@ -19,15 +21,19 @@ export default function AdminStudents() {
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [sessionModalStudent, setSessionModalStudent] = useState(null)
   const [isAddingSessions, setIsAddingSessions] = useState(false)
+  const [isSavingStudent, setIsSavingStudent] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'stopped'
   const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebounce(searchTerm, 400)
 
   const { data: fetchRes, isLoading } = useQuery({
-    queryKey: ['adminStudents', statusFilter, currentPage],
+    queryKey: ['adminStudents', statusFilter, currentPage, debouncedSearch],
     queryFn: () => studentsApi.fetchStudents({
       status: statusFilter,
       page: currentPage,
-      limit: 10
+      limit: 10,
+      search: debouncedSearch.trim() || undefined
     }),
     staleTime: 3 * 60 * 1000
   })
@@ -39,7 +45,6 @@ export default function AdminStudents() {
   const totalPages = Number(pagination.numberOfPages || 1)
   const totalCount = Number(pagination.totalCount || pagination.total || students.length)
 
-  // Real statistics from backend
   const statistics = fetchRes?.statistics || {
     total: students.length,
     active: students.filter((s) => s.active === true || String(s.active) === 'true').length,
@@ -57,9 +62,11 @@ export default function AdminStudents() {
       ? (selectedStudent.student_id || selectedStudent._id || selectedStudent.id || selectedStudent.user_id)
       : null
 
+    setIsSavingStudent(true)
     if (isUpdate) {
       if (!studentId) {
         toast.error(isRtl ? 'حدث خطأ: لا يوجد معرّف صالح للطالب!' : 'Invalid student ID!')
+        setIsSavingStudent(false)
         return
       }
 
@@ -74,6 +81,8 @@ export default function AdminStudents() {
         const displayMsg = Array.isArray(errorMsg) ? errorMsg.join(' - ') : errorMsg
         toast.error(displayMsg)
         console.error('Failed to update student details:', err)
+      } finally {
+        setIsSavingStudent(false)
       }
     } else {
       try {
@@ -86,6 +95,8 @@ export default function AdminStudents() {
         const displayMsg = Array.isArray(errorMsg) ? errorMsg.join(' - ') : errorMsg
         toast.error(displayMsg)
         console.error('Failed to create student:', err)
+      } finally {
+        setIsSavingStudent(false)
       }
     }
   }
@@ -180,11 +191,6 @@ export default function AdminStudents() {
     setViewMode('edit-student')
   }
 
-  const handleOpenDetailsScreen = (student) => {
-    setSelectedStudent(student)
-    setViewMode('view-student')
-  }
-
   return (
     <div className="space-y-8 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && viewMode === 'list' && (
@@ -212,13 +218,15 @@ export default function AdminStudents() {
             isRtl={isRtl}
             t={t}
             onOpenAddScreen={() => setViewMode('add-student')}
-            onOpenEditScreen={handleOpenEditScreen}
             currentPage={currentPage}
             totalPages={totalPages}
             totalCount={totalCount}
             onPageChange={setCurrentPage}
-            onOpenSessions={handleOpenDetailsScreen}
-            onOpenAddSessions={(s) => setSessionModalStudent(s)}
+            searchVal={searchTerm}
+            onSearchChange={(val) => {
+              setSearchTerm(val)
+              setCurrentPage(1)
+            }}
             onDelete={handleDeleteStudent}
           />
         </>
@@ -229,6 +237,7 @@ export default function AdminStudents() {
           student={viewMode === 'edit-student' ? selectedStudent : null}
           isRtl={isRtl}
           t={t}
+          isSaving={isSavingStudent}
           onSave={handleSaveStudent}
           onCancel={() => {
             setSelectedStudent(null)

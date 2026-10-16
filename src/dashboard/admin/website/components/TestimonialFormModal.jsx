@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, User, Image as ImageIcon, MessageSquare } from 'lucide-react';
+import { X, Save, User, Image as ImageIcon, MessageSquare, Loader2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 import { z } from 'zod';
 
@@ -19,7 +19,8 @@ export default function TestimonialFormModal({
   onClose,
   currentTestimonial,
   setCurrentTestimonial,
-  onSubmit
+  onSubmit,
+  isSaving = false
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -227,15 +228,17 @@ export default function TestimonialFormModal({
               <Button
                 variant="secondary"
                 onClick={onClose}
-                className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-bold transition-all"
+                disabled={isSaving}
+                className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
               >
                 {t('common.cancel', 'إلغاء')}
               </Button>
               <Button
                 onClick={handleFormSubmit}
-                className="px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2"
+                disabled={isSaving}
+                className="px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
               >
-                <Save size={18} />
+                {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                 {t('common.save', 'حفظ')}
               </Button>
             </div>

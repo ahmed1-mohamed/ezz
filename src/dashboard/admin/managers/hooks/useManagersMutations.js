@@ -30,7 +30,7 @@ export function useManagersMutations(isRtl) {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ userId }) => managersApi.toggleActiveUser(userId), // Wait, the original code called managersApi.toggleUserActive(userId), let's check managersApi! Oh, in managersApi it's toggleActiveUser(id).
+    mutationFn: ({ userId }) => managersApi.toggleActiveUser(userId),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
       const statusText = res?.data?.active ? (isRtl ? 'تفعيل' : 'activated') : (isRtl ? 'تعليق' : 'suspended');

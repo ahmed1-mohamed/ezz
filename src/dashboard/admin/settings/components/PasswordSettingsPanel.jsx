@@ -56,7 +56,6 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
         }
 
         if (res?.success) {
-            // Update stored access token and refresh token if returned by the server
             const resData = res.data?.data || res.data;
             const newAccessToken =
                 resData?.token ||

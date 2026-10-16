@@ -20,14 +20,13 @@ export default function AdminTeachers() {
   const [viewMode, setViewMode] = useState('list')
   const [selectedTeacherId, setSelectedTeacherId] = useState(null)
   const [selectedTeacherRecord, setSelectedTeacherRecord] = useState(null)
+  const [isSavingTeacher, setIsSavingTeacher] = useState(false)
 
-  // Backend search and pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const [searchVal, setSearchVal] = useState('')
   const [committedSearch, setCommittedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'stopped'
 
-  // Reset to page 1 whenever committed search query or status filter changes
   useEffect(() => {
     setCurrentPage(1)
   }, [committedSearch, statusFilter])
@@ -43,7 +42,6 @@ export default function AdminTeachers() {
     setCurrentPage(1)
   }
 
-  // Backend query passing page, limit: 10, committed search, and status
   const { data: res, isLoading, isFetching } = useQuery({
     queryKey: ['teachers', currentPage, committedSearch, statusFilter],
     queryFn: () =>
@@ -136,9 +134,21 @@ export default function AdminTeachers() {
     const isUpdate = viewMode === 'edit-teacher' && selectedTeacherRecord
     const id = selectedTeacherRecord?.teacher_id || selectedTeacherRecord?.id
 
+    setIsSavingTeacher(true)
     try {
       if (isUpdate) {
         await teachersApi.updateTeacher(id, formData)
+
+        const newRate = Number(formData.hourlyRate)
+        const oldRate = Number(selectedTeacherRecord?.hourlyRate)
+        if (!isNaN(newRate) && newRate !== oldRate && newRate >= 0) {
+          try {
+            await teachersApi.updateTeacherHourlyRate(id, newRate)
+          } catch (rateErr) {
+            console.warn('Hourly rate update failed during teacher edit:', rateErr)
+          }
+        }
+
         toast.success(isRtl ? 'تم تحديث بيانات المعلم بنجاح' : 'Teacher updated successfully')
       } else {
         const createRes = await teachersApi.createTeacher(formData)
@@ -157,6 +167,8 @@ export default function AdminTeachers() {
         : (backendMsg || (isRtl ? 'حدث خطأ أثناء حفظ بيانات المعلم' : 'Failed to save teacher'))
       toast.error(errorText)
       console.error('Failed to save teacher:', err)
+    } finally {
+      setIsSavingTeacher(false)
     }
   }
 
@@ -311,6 +323,7 @@ export default function AdminTeachers() {
           teacher={viewMode === 'edit-teacher' ? selectedTeacherRecord : null}
           isRtl={isRtl}
           t={t}
+          isSaving={isSavingTeacher}
           onSave={handleSaveTeacher}
           onCancel={() => {
             setSelectedTeacherRecord(null)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 import IdentityInfoCard from './IdentityInfoCard'
 import SecurityPasswordCard from './SecurityPasswordCard'
@@ -10,6 +10,7 @@ export default function AddSupervisorScreen({
   roles,
   isRtl,
   t,
+  isSaving = false,
   onSave,
   onCancel,
   initialData = null,
@@ -150,14 +151,17 @@ export default function AddSupervisorScreen({
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="submit"
-          className="flex-1 py-4 bg-brand-500 hover:bg-brand-650 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer"
+          disabled={isSaving}
+          className="flex-1 py-4 bg-brand-500 hover:bg-brand-650 text-white font-bold rounded-2xl transition-all shadow-md shadow-brand-500/10 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
         >
+          {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
           {t('adminDashboard.managers.addSupervisorScreen.saveChanges', 'حفظ التغييرات')}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer"
+          disabled={isSaving}
+          className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 transition-all dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 active:scale-[0.98] cursor-pointer disabled:opacity-50"
         >
           {t('adminDashboard.managers.addSupervisorScreen.cancel', 'إلغاء')}
         </button>

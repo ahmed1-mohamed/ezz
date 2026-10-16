@@ -12,8 +12,7 @@ export default function StudentStep1({
   countryCodes,
   countries = [],
   levels = [],
-  selectCountryCode,
-  isEdit
+  selectCountryCode
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 max-w-4xl mx-auto">

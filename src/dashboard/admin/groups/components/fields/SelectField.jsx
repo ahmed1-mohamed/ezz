@@ -4,7 +4,6 @@ import { ChevronDown } from 'lucide-react'
 export default function SelectField({ label, value, onChange, options = [], placeholder, isRtl, error, required }) {
   const [open, setOpen] = useState(false)
 
-  // Find label if value is an id or value
   const displayLabel = (() => {
     if (!value) return placeholder
     const found = options.find((opt) => {

@@ -2,19 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Plus, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
 
-const LEVEL_CONFIG = {
-  'مبتدئ': { bg: 'bg-amber-50 text-amber-600 border-amber-100', bgDark: 'dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30' },
-  'متوسط': { bg: 'bg-blue-50 text-blue-600 border-blue-100', bgDark: 'dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30' },
-  'متقدم': { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', bgDark: 'dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30' },
-  'Beginner': { bg: 'bg-amber-50 text-amber-600 border-amber-100', bgDark: 'dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30' },
-  'Intermediate': { bg: 'bg-blue-50 text-blue-600 border-blue-100', bgDark: 'dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30' },
-  'Advanced': { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', bgDark: 'dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30' }
-};
-
 export default function ExcellenceStarsSection({
   stars,
   handleOpenAddModal,
-  handleOpenViewModal,
   handleDeleteStar,
 }) {
   const { t, i18n } = useTranslation();
@@ -44,7 +34,6 @@ export default function ExcellenceStarsSection({
               </div>
             ) : (
               stars.map((star) => {
-                const levelCfg = LEVEL_CONFIG[star.level] || LEVEL_CONFIG['متوسط'];
                 const userLetter = star.name ? star.name.trim().charAt(0) : 'أ';
 
                 return (

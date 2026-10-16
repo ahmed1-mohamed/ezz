@@ -65,7 +65,6 @@ export const authApi = {
     try {
       await api.post('/api/v1/auth/logout');
     } catch (error) {
-      // Silently ignore logout API errors — local cleanup still happens
       console.warn('Logout API call failed (session may already be expired):', error?.response?.status);
     }
   },

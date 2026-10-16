@@ -49,8 +49,6 @@ export default function EditSecurityPasswordCard({
           {isRtl ? 'تغيير كلمة المرور' : 'Change Password'}
         </h4>
 
-
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <div>

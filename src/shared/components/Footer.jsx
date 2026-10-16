@@ -34,7 +34,6 @@ export default function Footer() {
         { label: t('public.footer.support', 'الدعم الفني'), href: '/support' },
     ]
 
-
     return (
         <footer className="bg-white text-slate-900 border-t border-slate-200">
             <div className="container mx-auto px-6 py-10">
