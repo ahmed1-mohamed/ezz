@@ -9,10 +9,10 @@ import { landingApi } from '@/shared/services/api/landingApi'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const DEFAULT_COUNTRIES = [
-    { id: '6a2d618a65f1cb3419a926df', name: 'الأردن', nameEn: 'Jordan', phoneCode: '+962', flag: '🇯🇴' },
     { id: '6a2d618a65f1cb3419a9275d', name: 'الإمارات', nameEn: 'UAE', phoneCode: '+971', flag: '🇦🇪' },
-    { id: '6a2d618a65f1cb3419a92680', name: 'البحرين', nameEn: 'Bahrain', phoneCode: '+973', flag: '🇧🇭' },
     { id: '6a2d618a65f1cb3419a92732', name: 'السعودية', nameEn: 'Saudi Arabia', phoneCode: '+966', flag: '🇸🇦' },
+    { id: '6a2d618a65f1cb3419a926df', name: 'الأردن', nameEn: 'Jordan', phoneCode: '+962', flag: '🇯🇴' },
+    { id: '6a2d618a65f1cb3419a92680', name: 'البحرين', nameEn: 'Bahrain', phoneCode: '+973', flag: '🇧🇭' },
     { id: '6a2d618a65f1cb3419a926e5', name: 'الكويت', nameEn: 'Kuwait', phoneCode: '+965', flag: '🇰🇼' },
     { id: '6a2d618a65f1cb3419a92715', name: 'عمان', nameEn: 'Oman', phoneCode: '+968', flag: '🇴🇲' },
     { id: '6a2d618a65f1cb3419a92722', name: 'قطر', nameEn: 'Qatar', phoneCode: '+974', flag: '🇶🇦' },
@@ -42,7 +42,7 @@ export default function Register() {
 
     // Countries management
     const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
-    const [selectedCountry, setSelectedCountry] = useState(null)
+    const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRIES[0])
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
     const [countrySearch, setCountrySearch] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
@@ -60,9 +60,9 @@ export default function Register() {
                     const sorted = [...list].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
                     setCountriesList(sorted)
                     setSelectedCountry((prev) => {
-                        if (!prev) return null
-                        const matched = sorted.find(c => c.id === prev?.id || c._id === prev?.id)
-                        return matched || prev
+                        const targetId = prev?.id || prev?._id || DEFAULT_COUNTRIES[0].id
+                        const matched = sorted.find(c => (c.id === targetId || c._id === targetId || c.phoneCode === (prev?.phoneCode || '+971')))
+                        return matched || prev || DEFAULT_COUNTRIES[0]
                     })
                 }
             } catch (err) {

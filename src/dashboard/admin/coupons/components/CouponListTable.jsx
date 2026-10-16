@@ -110,7 +110,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                 <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-350">
                                     {coupon.savedAmount && Number(coupon.savedAmount) > 0 ? (
                                         <span className="text-emerald-600 dark:text-emerald-400">
-                                            {coupon.savedAmount} {isRtl ? 'ريال' : 'SAR'}
+                                            {coupon.savedAmount} $
                                         </span>
                                     ) : (
                                         <span className="text-slate-400 dark:text-slate-600">-</span>

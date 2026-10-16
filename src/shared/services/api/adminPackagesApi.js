@@ -20,7 +20,7 @@ const mapPackageData = (item) => ({
   subtitle: typeof item.subtitle === 'object' ? (item.subtitle.ar || item.subtitle.en || '') : (item.subtitleAr || item.subtitle || ''),
   subtitle_en: typeof item.subtitle === 'object' ? (item.subtitle.en || item.subtitle.ar || '') : (item.subtitleEn || item.subtitle_en || ''),
   price: item.price,
-  currency: item.currency || 'SAR',
+  currency: item.currency || '$',
   sessions_per_month: item.sessionsCount || item.sessions_per_month,
   sessions_language: typeof item.language === 'object' ? item.language?.id || item.language?._id : item.language,
   color: item.icon === 'star' ? '#d97706' : '#0f7a6c',

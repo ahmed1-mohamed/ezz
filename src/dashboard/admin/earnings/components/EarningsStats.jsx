@@ -1,4 +1,4 @@
-import { TrendingUp, GraduationCap, Landmark, Coins } from 'lucide-react'
+﻿import { TrendingUp, GraduationCap, Landmark, Coins } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function EarningsStats({ stats }) {
@@ -8,28 +8,28 @@ export default function EarningsStats({ stats }) {
   const items = [
     {
       title: p('totalRevenue'),
-      value: `${stats.totalRevenue || '0'} ر.س`,
+      value: `${stats.totalRevenue || '0'} $`,
       icon: Coins,
       bgColor: 'bg-emerald-50 dark:bg-emerald-950/20',
       iconColor: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       title: p('netProfit'),
-      value: `${stats.netProfit || '0'} ر.س`,
+      value: `${stats.netProfit || '0'} $`,
       icon: TrendingUp,
       bgColor: 'bg-teal-50 dark:bg-teal-950/20',
       iconColor: 'text-[#0f7a6c] dark:text-emerald-400',
     },
     {
       title: p('teacherPayments'),
-      value: `${stats.teacherPayments || '0'} ر.س`,
+      value: `${stats.teacherPayments || '0'} $`,
       icon: GraduationCap,
       bgColor: 'bg-amber-50/50 dark:bg-amber-950/10',
       iconColor: 'text-amber-600 dark:text-amber-400',
     },
     {
       title: p('platformEarnings'),
-      value: `${stats.platformEarnings || '0'} ر.س`,
+      value: `${stats.platformEarnings || '0'} $`,
       icon: Landmark,
       bgColor: 'bg-blue-50 dark:bg-blue-950/10',
       iconColor: 'text-blue-600 dark:text-blue-400',

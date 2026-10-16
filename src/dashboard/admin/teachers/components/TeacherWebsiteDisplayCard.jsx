@@ -1,4 +1,4 @@
-export default function TeacherWebsiteDisplayCard({
+﻿export default function TeacherWebsiteDisplayCard({
   formData,
   onChange,
   isRtl = true,
@@ -85,7 +85,7 @@ export default function TeacherWebsiteDisplayCard({
 
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'سعر المعلم بالساعة (ر.س)' : 'Hourly Rate (SAR)'}
+            {isRtl ? 'سعر المعلم بالساعة ($)' : 'Hourly Rate ($)'}
           </label>
           <input
             type="number"

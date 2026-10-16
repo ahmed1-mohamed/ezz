@@ -7,9 +7,7 @@ import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import TeacherSecurityCard from './TeacherSecurityCard'
-import TeacherWebsiteDisplayCard from './TeacherWebsiteDisplayCard'
 import TeacherPersonalInfoMetaCard from './TeacherPersonalInfoMetaCard'
-import TeacherDocumentsUploadCard from './TeacherDocumentsUploadCard'
 
 export default function AddEditTeacherScreen({
   teacher = null,
@@ -215,18 +213,6 @@ export default function AddEditTeacherScreen({
           onChange={handleFieldChange}
           isRtl={isRtl}
           isEdit={!!teacher}
-        />
-
-         <TeacherWebsiteDisplayCard
-          formData={formData}
-          onChange={handleFieldChange}
-          isRtl={isRtl}
-        />
-
-         <TeacherDocumentsUploadCard
-          formData={formData}
-          onChange={handleFieldChange}
-          isRtl={isRtl}
         />
       </div>
 

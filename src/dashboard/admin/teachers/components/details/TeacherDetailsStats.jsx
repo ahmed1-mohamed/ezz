@@ -33,7 +33,7 @@ export default function TeacherDetailsStats({ teacher, isRtl, onOpenHourlyRateMo
     {
       key: 'hourlyRate',
       label: isRtl ? 'سعر الساعة' : 'Hourly Rate',
-      value: `${teacher?.hourlyRate ?? 0} ${isRtl ? 'ر.س' : 'SAR'}`,
+      value: `${teacher?.hourlyRate ?? 0} $`,
       colorClass: 'text-teal-600 dark:text-teal-400',
       icon: DollarSign,
       action: onOpenHourlyRateModal ? {
@@ -44,14 +44,14 @@ export default function TeacherDetailsStats({ teacher, isRtl, onOpenHourlyRateMo
     {
       key: 'totalEarnings',
       label: isRtl ? 'إجمالي الأرباح' : 'Total Earnings',
-      value: `${teacher?.totalEarnings ?? 0} ${isRtl ? 'ر.س' : 'SAR'}`,
+      value: `${teacher?.totalEarnings ?? 0} $`,
       colorClass: 'text-emerald-600 dark:text-emerald-400',
       icon: DollarSign
     },
     {
       key: 'dueEarnings',
       label: isRtl ? 'الأرباح المستحقة' : 'Due Earnings',
-      value: `${teacher?.dueEarnings ?? 0} ${isRtl ? 'ر.س' : 'SAR'}`,
+      value: `${teacher?.dueEarnings ?? 0} $`,
       colorClass: 'text-blue-600 dark:text-blue-400',
       icon: DollarSign
     },

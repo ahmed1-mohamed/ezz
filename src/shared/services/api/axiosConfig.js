@@ -43,8 +43,38 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Check if server sent a new access token via header (DB-managed server-side refresh token)
+    let newToken =
+      response.headers?.['x-new-access-token'] ||
+      response.headers?.['X-New-Access-Token'] ||
+      response.headers?.['x-access-token'] ||
+      response.headers?.['X-Access-Token'];
+
+    const exposeHeader =
+      response.headers?.['access-control-expose-headers'] ||
+      response.headers?.['Access-Control-Expose-Headers'];
+    if (!newToken && exposeHeader && typeof exposeHeader === 'string' && exposeHeader.length > 20 && !exposeHeader.includes(',')) {
+      newToken = exposeHeader.trim();
+    }
+
+    if (newToken) {
+      setCookie('access_token', newToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    }
+    return response;
+  },
   async (error) => {
+    // If error response carries a refreshed token
+    const errToken =
+      error.response?.headers?.['x-new-access-token'] ||
+      error.response?.headers?.['X-New-Access-Token'] ||
+      error.response?.headers?.['x-access-token'];
+    if (errToken) {
+      setCookie('access_token', errToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${errToken}`;
+    }
+
     const originalRequest = error.config;
 
     if (error.response?.status === 401) {

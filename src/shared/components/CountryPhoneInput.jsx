@@ -7,22 +7,19 @@ import { landingApi } from '@/shared/services/api/landingApi'
 export default function CountryPhoneInput({ value = '', onChange, error, label }) {
     const { t, i18n } = useTranslation()
 
-    const DEFAULT_COUNTRIES = useMemo(() => {
-        const list = [
-            { phoneCode: '+962', name: i18n.language === 'en' ? 'Jordan' : 'الأردن', flag: '🇯🇴' },
-            { phoneCode: '+971', name: i18n.language === 'en' ? 'UAE' : 'الإمارات', flag: '🇦🇪' },
-            { phoneCode: '+973', name: i18n.language === 'en' ? 'Bahrain' : 'البحرين', flag: '🇧🇭' },
-            { phoneCode: '+966', name: i18n.language === 'en' ? 'Saudi Arabia' : 'السعودية', flag: '🇸🇦' },
-            { phoneCode: '+965', name: i18n.language === 'en' ? 'Kuwait' : 'الكويت', flag: '🇰🇼' },
-            { phoneCode: '+968', name: i18n.language === 'en' ? 'Oman' : 'عمان', flag: '🇴🇲' },
-            { phoneCode: '+974', name: i18n.language === 'en' ? 'Qatar' : 'قطر', flag: '🇶🇦' },
-            { phoneCode: '+20', name: i18n.language === 'en' ? 'Egypt' : 'مصر', flag: '🇪🇬' },
-        ]
-        return list.sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
-    }, [i18n.language])
+    const DEFAULT_COUNTRIES = useMemo(() => [
+        { phoneCode: '+971', name: i18n.language === 'en' ? 'UAE' : 'الإمارات', flag: '🇦🇪' },
+        { phoneCode: '+966', name: i18n.language === 'en' ? 'Saudi Arabia' : 'السعودية', flag: '🇸🇦' },
+        { phoneCode: '+962', name: i18n.language === 'en' ? 'Jordan' : 'الأردن', flag: '🇯🇴' },
+        { phoneCode: '+973', name: i18n.language === 'en' ? 'Bahrain' : 'البحرين', flag: '🇧🇭' },
+        { phoneCode: '+965', name: i18n.language === 'en' ? 'Kuwait' : 'الكويت', flag: '🇰🇼' },
+        { phoneCode: '+968', name: i18n.language === 'en' ? 'Oman' : 'عمان', flag: '🇴🇲' },
+        { phoneCode: '+974', name: i18n.language === 'en' ? 'Qatar' : 'قطر', flag: '🇶🇦' },
+        { phoneCode: '+20', name: i18n.language === 'en' ? 'Egypt' : 'مصر', flag: '🇪🇬' },
+    ], [i18n.language])
 
     const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
-    const [countryCode, setCountryCode] = useState('')
+    const [countryCode, setCountryCode] = useState('+971')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
@@ -142,7 +139,7 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                     >
                         <span className="text-lg sm:text-xl shrink-0">
                             {countriesList.find(c => c.phoneCode === countryCode)?.flag ||
-                                DEFAULT_COUNTRIES.find(c => c.phoneCode === countryCode)?.flag || '🌍'}
+                                DEFAULT_COUNTRIES.find(c => c.phoneCode === countryCode)?.flag || '🇦🇪'}
                         </span>
                         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                     </button>

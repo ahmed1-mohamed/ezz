@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Check, X, Upload, Eye, FileUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
@@ -76,7 +76,7 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
                     </div>
 
                     <div className="font-extrabold text-[#0f7a6c] dark:text-emerald-400">
-                      {req.amount} ر.س
+                      {req.amount} $
                     </div>
 
                     <div className="text-slate-700 dark:text-slate-300 font-medium">

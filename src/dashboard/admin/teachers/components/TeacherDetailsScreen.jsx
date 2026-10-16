@@ -7,13 +7,8 @@ import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import TeacherDetailsHeaderCard from './details/TeacherDetailsHeaderCard'
 import TeacherDetailsPersonalInfoCard from './details/TeacherDetailsPersonalInfoCard'
 import TeacherDetailsAcademicCard from './details/TeacherDetailsAcademicCard'
-import TeacherDetailsContactCard from './details/TeacherDetailsContactCard'
-import TeacherDetailsSecurityCard from './details/TeacherDetailsSecurityCard'
-import TeacherDetailsCertificatesCard from './details/TeacherDetailsCertificatesCard'
+ import TeacherDetailsCertificatesCard from './details/TeacherDetailsCertificatesCard'
 import TeacherDetailsWebsiteCard from './details/TeacherDetailsWebsiteCard'
-import TeacherDetailsPerformanceCard from './details/TeacherDetailsPerformanceCard'
-import TeacherDetailsGroupsCard from './details/TeacherDetailsGroupsCard'
-import TeacherDetailsRecentLessonsCard from './details/TeacherDetailsRecentLessonsCard'
 import UpdateHourlyRateModal from './details/UpdateHourlyRateModal'
 import ChangeTeacherPasswordModal from './details/ChangeTeacherPasswordModal'
 import AddCertificateModal from './details/AddCertificateModal'
@@ -164,16 +159,6 @@ export default function TeacherDetailsScreen({
         }}
       />
 
-       <TeacherDetailsContactCard
-        teacher={currentTeacher}
-        isRtl={isRtl}
-      />
-
-       <TeacherDetailsSecurityCard
-        teacher={currentTeacher}
-        isRtl={isRtl}
-      />
-
        <TeacherDetailsCertificatesCard
         teacher={currentTeacher}
         isRtl={isRtl}
@@ -185,24 +170,9 @@ export default function TeacherDetailsScreen({
        <TeacherDetailsWebsiteCard
         teacher={currentTeacher}
         isRtl={isRtl}
+        onSuccess={handleRefetchTeacher}
       />
 
-       <TeacherDetailsPerformanceCard
-        teacher={currentTeacher}
-        isRtl={isRtl}
-      />
-
-       <TeacherDetailsGroupsCard
-        teacher={currentTeacher}
-        isRtl={isRtl}
-      />
-
-       <TeacherDetailsRecentLessonsCard
-        teacher={currentTeacher}
-        isRtl={isRtl}
-      />
-
-       
       <UpdateHourlyRateModal
         isOpen={isHourlyRateModalOpen}
         onClose={() => setIsHourlyRateModalOpen(false)}

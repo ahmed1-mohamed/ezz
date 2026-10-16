@@ -64,7 +64,7 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
             {pkg.price}
           </span>
           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-            {isRtl ? 'ريال سعودي' : 'SAR'} {p('perMonth')}
+            {isRtl ? 'دولار' : '$'} {p('perMonth')}
           </p>
           <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
             {pkg.sessions_per_month} {p('sessions')} · {languageLabel}

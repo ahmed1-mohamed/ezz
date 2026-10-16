@@ -18,6 +18,9 @@ import {
   File as FileIcon,
   Download,
   Eye,
+  EyeOff,
+  Globe,
+  Loader2,
   Link as LinkIcon,
   ExternalLink
 } from 'lucide-react'
@@ -130,6 +133,51 @@ export default function AdminCurriculumDetails() {
   const curriculum = responseData?.data || responseData
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-curriculum-details', id] })
+
+  const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false)
+
+  const showOnWebsite = curriculum?.showOnWebsite !== undefined
+    ? Boolean(curriculum.showOnWebsite)
+    : (curriculum?.isActive !== undefined ? Boolean(curriculum.isActive) : true)
+
+  const handleToggleWebsiteVisibility = async () => {
+    if (isUpdatingVisibility || !id) return
+    const newValue = !showOnWebsite
+    setIsUpdatingVisibility(true)
+    try {
+      await adminCurriculaApi.updateCurriculum(id, {
+        showOnWebsite: newValue,
+        isActive: newValue,
+        is_active: newValue
+      })
+      toast.success(
+        isRtl
+          ? (newValue ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح' : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح')
+          : (newValue ? 'Curriculum is now visible on website' : 'Curriculum is now hidden from website')
+      )
+      invalidate()
+    } catch (err) {
+      console.warn('JSON patch failed, retrying with FormData:', err)
+      try {
+        const fd = new FormData()
+        fd.append('showOnWebsite', String(newValue))
+        fd.append('isActive', String(newValue))
+        await adminCurriculaApi.updateCurriculum(id, fd)
+        toast.success(
+          isRtl
+            ? (newValue ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح' : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح')
+            : (newValue ? 'Curriculum is now visible on website' : 'Curriculum is now hidden from website')
+        )
+        invalidate()
+      } catch (fallbackErr) {
+        console.error('Failed to toggle curriculum visibility:', fallbackErr)
+        const errMsg = fallbackErr.response?.data?.message || err.response?.data?.message
+        toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء تغيير حالة الظهور' : 'Failed to update visibility'))
+      }
+    } finally {
+      setIsUpdatingVisibility(false)
+    }
+  }
 
   // Mutations
   const actionMutation = useMutation({
@@ -359,10 +407,50 @@ export default function AdminCurriculumDetails() {
 
           <div className="flex-1 space-y-6 w-full">
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white mb-3 leading-tight">
-                {isRtl ? 'عن منهج ' : 'About '}
-                <span className="text-[#0f7a6c]">{curriculumName}</span>
-              </h1>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
+                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">
+                  {isRtl ? 'عن منهج ' : 'About '}
+                  <span className="text-[#0f7a6c]">{curriculumName}</span>
+                </h1>
+
+                {/* Website Visibility Toggle */}
+                <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2 sm:px-4 sm:py-2.5 rounded-2xl border border-slate-100 dark:border-slate-700/60 self-start sm:self-auto shadow-sm">
+                  <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    <Globe size={16} className="text-[#0f7a6c]" />
+                    <span>{isRtl ? 'عرض في الموقع:' : 'Show on website:'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleToggleWebsiteVisibility}
+                    disabled={isUpdatingVisibility}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer disabled:opacity-50 ${
+                      showOnWebsite ? 'bg-[#0f7a6c]' : 'bg-slate-300 dark:bg-slate-700'
+                    }`}
+                    title={isRtl
+                      ? (showOnWebsite ? 'اضغط لإخفاء المنهج من الموقع' : 'اضغط لإظهار المنهج في الموقع')
+                      : (showOnWebsite ? 'Click to hide from website' : 'Click to show on website')}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                        showOnWebsite
+                          ? (isRtl ? '-translate-x-6' : 'translate-x-6')
+                          : (isRtl ? '-translate-x-1' : 'translate-x-1')
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                    showOnWebsite
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                      : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                  }`}>
+                    {isUpdatingVisibility
+                      ? (isRtl ? '...' : '...')
+                      : showOnWebsite
+                        ? (isRtl ? 'ظاهر' : 'Visible')
+                        : (isRtl ? 'مخفي' : 'Hidden')}
+                  </span>
+                </div>
+              </div>
 
               {(() => {
                 const desc = typeof curriculum.description === 'object' ? (isRtl ? curriculum.description?.ar : curriculum.description?.en) || curriculum.description?.ar : curriculum.description;

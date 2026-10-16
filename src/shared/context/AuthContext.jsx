@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, useEffect } from 'react'
 import { AuthContext, AuthActionsContext } from './AuthContextValue.jsx'
 import api from '@/shared/services/api/axiosConfig'
+import { authApi } from '@/shared/services/api/authApi'
 import useLocalStorage from '@/shared/hooks/useLocalStorage.jsx'
 import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
 
@@ -175,7 +176,10 @@ export function AuthProvider({ children }) {
         }
     }, [refreshProfile])
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
+        // Call server to invalidate DB session first
+        await authApi.logout()
+        // Then clear local state and cookies
         setUser(null)
         deleteCookie('authUser')
         deleteCookie('access_token')

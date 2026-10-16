@@ -18,6 +18,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
   const [featuresEn, setFeaturesEn] = useState([''])
   const [benefitsAr, setBenefitsAr] = useState([''])
   const [benefitsEn, setBenefitsEn] = useState([''])
+  const [showOnWebsite, setShowOnWebsite] = useState(true)
 
   const fileInputRef = useRef(null)
 
@@ -47,6 +48,8 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       const bEn = editingItem.benefitsAfterGraduation?.en || []
       setBenefitsAr(bAr.length > 0 ? bAr : [''])
       setBenefitsEn(bEn.length > 0 ? bEn : [''])
+
+      setShowOnWebsite(editingItem.showOnWebsite !== undefined ? Boolean(editingItem.showOnWebsite) : (editingItem.isActive !== undefined ? Boolean(editingItem.isActive) : true))
     } else {
       setNameAr('')
       setNameEn('')
@@ -59,6 +62,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       setFeaturesEn([''])
       setBenefitsAr([''])
       setBenefitsEn([''])
+      setShowOnWebsite(true)
     }
   }, [editingItem])
 
@@ -102,6 +106,9 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
     }
 
     if (languageId) formData.append('language', languageId)
+
+    formData.append('showOnWebsite', String(showOnWebsite))
+    formData.append('isActive', String(showOnWebsite))
 
     const cleanFeaturesAr = featuresAr.filter(f => f.trim() !== '')
     cleanFeaturesAr.forEach((f) => {
@@ -335,6 +342,33 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Show on website toggle */}
+      <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
+        <div>
+          <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+            {isRtl ? 'عرض المنهج في الموقع الإلكتروني' : 'Show curriculum on website'}
+          </h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            {isRtl ? 'إمكانية رؤية هذا المنهج للزوار والطلاب على الموقع' : 'Allow visitors and students to view this curriculum'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowOnWebsite(prev => !prev)}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+            showOnWebsite ? 'bg-[#0f7a6c]' : 'bg-slate-300 dark:bg-slate-700'
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+              showOnWebsite
+                ? (isRtl ? '-translate-x-6' : 'translate-x-6')
+                : (isRtl ? '-translate-x-1' : 'translate-x-1')
+            }`}
+          />
+        </button>
       </div>
 
       <div className="flex justify-end gap-3 pt-2">

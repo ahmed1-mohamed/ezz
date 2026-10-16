@@ -168,7 +168,7 @@ export default function TeacherProfileCard({
               {isRtl ? 'سعر الساعة' : 'Hourly Rate'}
             </span>
             <span className="font-bold text-teal-600 dark:text-teal-400">
-              {teacher.hourlyRate} {isRtl ? 'ر.س' : 'SAR'}
+              {teacher.hourlyRate} $
             </span>
           </div>
         )}
@@ -178,7 +178,7 @@ export default function TeacherProfileCard({
             {t('adminDashboard.teachers.totalEarnings', 'إجمالي الأرباح')}
           </span>
           <span className="font-black text-emerald-600 dark:text-emerald-400">
-            {teacher.totalEarnings ?? 0} {isRtl ? 'ر.س' : 'SAR'}
+            {teacher.totalEarnings ?? 0} $
           </span>
         </div>
 
@@ -188,7 +188,7 @@ export default function TeacherProfileCard({
               {isRtl ? 'الأرباح المستحقة' : 'Due Earnings'}
             </span>
             <span className="font-black text-blue-600 dark:text-blue-400">
-              {teacher.dueEarnings} {isRtl ? 'ر.س' : 'SAR'}
+              {teacher.dueEarnings} $
             </span>
           </div>
         )}

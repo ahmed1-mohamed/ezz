@@ -32,8 +32,8 @@ export default function UpdateHourlyRateModal({
       await teachersApi.updateTeacherHourlyRate(teacherId, rateNumber)
       toast.success(
         isRtl
-          ? `تم تحديث سعر الساعة بنجاح إلى ${rateNumber} ر.س`
-          : `Hourly rate updated successfully to ${rateNumber} SAR`
+          ? `تم تحديث سعر الساعة بنجاح إلى ${rateNumber} $`
+          : `Hourly rate updated successfully to ${rateNumber} $`
       )
       if (onSuccess) onSuccess(rateNumber)
       onClose()
@@ -59,7 +59,7 @@ export default function UpdateHourlyRateModal({
         className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all text-start"
         onClick={(e) => e.stopPropagation()}
       >
-         <div className="bg-[#005953] px-6 py-4 flex items-center justify-between text-white">
+        <div className="bg-[#005953] px-6 py-4 flex items-center justify-between text-white">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-white/10 rounded-xl">
               <DollarSign size={18} />
@@ -82,10 +82,10 @@ export default function UpdateHourlyRateModal({
           </button>
         </div>
 
-         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              {isRtl ? 'سعر الساعة الجديد (ر.س / ساعة)' : 'New Hourly Rate (SAR / hr)'}
+              {isRtl ? 'سعر الساعة الجديد ($ / ساعة)' : 'New Hourly Rate ($ / hr)'}
             </label>
             <div className="relative">
               <input
@@ -99,17 +99,17 @@ export default function UpdateHourlyRateModal({
                 className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-extrabold text-lg focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
               />
               <span className="absolute end-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                {isRtl ? 'ر.س' : 'SAR'}
+                $
               </span>
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
               {isRtl
-                ? `سعر الساعة الحالي: ${teacher.hourlyRate ?? 0} ر.س`
-                : `Current rate: ${teacher.hourlyRate ?? 0} SAR`}
+                ? `سعر الساعة الحالي: ${teacher.hourlyRate ?? 0} $`
+                : `Current rate: ${teacher.hourlyRate ?? 0} $`}
             </p>
           </div>
 
-           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}

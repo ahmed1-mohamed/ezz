@@ -19,9 +19,9 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true }) {
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
-       <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-           {teacher?.image ? (
+          {teacher?.image ? (
             <img
               src={teacher.image}
               alt={teacher.name}
@@ -59,20 +59,19 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true }) {
           </div>
         </div>
 
-         <span
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-            isSuspended
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${isSuspended
               ? 'bg-rose-50 text-rose-600 border border-rose-100'
               : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-          }`}
+            }`}
         >
           <span className={`w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-rose-500' : 'bg-emerald-500'}`} />
           <span>{isSuspended ? (isRtl ? 'موقوف' : 'Suspended') : (isRtl ? 'نشط' : 'Active')}</span>
         </span>
       </div>
 
-       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
-         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
+        <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <Users size={18} />
           </div>
@@ -86,7 +85,7 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true }) {
           </div>
         </div>
 
-         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
+        <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <DollarSign size={18} />
           </div>
@@ -95,12 +94,12 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true }) {
               {isRtl ? 'إجمالي الأرباح' : 'Total Earnings'}
             </span>
             <span className="text-lg font-extrabold text-slate-800 dark:text-white block mt-0.5">
-              {totalEarnings} {isRtl ? 'ر.س' : 'SAR'}
+              {totalEarnings} $
             </span>
           </div>
         </div>
 
-         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
+        <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <DollarSign size={18} />
           </div>
@@ -109,12 +108,12 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true }) {
               {isRtl ? 'الأرباح المستحقة' : 'Due Earnings'}
             </span>
             <span className="text-lg font-extrabold text-slate-800 dark:text-white block mt-0.5">
-              {dueEarnings} {isRtl ? 'ر.س' : 'SAR'}
+              {dueEarnings} $
             </span>
           </div>
         </div>
 
-         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
+        <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <BookOpen size={18} />
           </div>
@@ -128,7 +127,7 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true }) {
           </div>
         </div>
 
-         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between col-span-2 sm:col-span-1">
+        <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between col-span-2 sm:col-span-1">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <Award size={18} />
           </div>

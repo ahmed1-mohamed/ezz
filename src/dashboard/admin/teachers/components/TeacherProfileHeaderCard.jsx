@@ -92,7 +92,7 @@ export default function TeacherProfileHeaderCard({
               {isRtl ? 'الأرباح المستحقة' : 'Due Earnings'}
             </p>
             <p className="text-sm font-black text-slate-700 dark:text-slate-300 mt-1">
-              {formData.dueEarnings} {isRtl ? 'ر.س' : 'SAR'}
+              {formData.dueEarnings} $
             </p>
           </div>
 
@@ -104,7 +104,7 @@ export default function TeacherProfileHeaderCard({
               {isRtl ? 'إجمالي الأرباح' : 'Total Earnings'}
             </p>
             <p className="text-sm font-black text-slate-700 dark:text-slate-300 mt-1">
-              {formData.totalEarnings} {isRtl ? 'ر.س' : 'SAR'}
+              {formData.totalEarnings} $
             </p>
           </div>
 

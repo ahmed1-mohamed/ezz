@@ -13,10 +13,24 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
     ? (isRtl ? curriculum.description.ar : curriculum.description.en) || curriculum.description.ar || curriculum.description.en
     : curriculum.description;
 
+  const isShown = curriculum.showOnWebsite !== undefined
+    ? Boolean(curriculum.showOnWebsite)
+    : (curriculum.isActive !== undefined ? Boolean(curriculum.isActive) : true);
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 flex flex-col h-full overflow-hidden group">
 
-      <div className="p-6 flex-1 flex flex-col items-center text-center">
+      <div className="p-6 flex-1 flex flex-col items-center text-center relative">
+        <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4">
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+            isShown
+              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800'
+              : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isShown ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+            {isShown ? (isRtl ? 'معروض' : 'Visible') : (isRtl ? 'مخفي' : 'Hidden')}
+          </span>
+        </div>
          <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 rounded-[20px] overflow-hidden flex items-center justify-center shrink-0">
           {curriculum.image && curriculum.image.trim() !== '' ? (
             <img

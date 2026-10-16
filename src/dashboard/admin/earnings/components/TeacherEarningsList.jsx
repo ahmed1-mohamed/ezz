@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+﻿import { useTranslation } from 'react-i18next'
 
 export default function TeacherEarningsList({ teachers }) {
   const { t } = useTranslation()
@@ -36,7 +36,7 @@ export default function TeacherEarningsList({ teachers }) {
 
               <div className="text-start shrink-0 min-w-[80px]">
                 <span className="text-sm font-bold text-[#0f7a6c] dark:text-emerald-400">
-                  {item.amount} ر.س
+                  {item.amount} $
                 </span>
               </div>
             </div>

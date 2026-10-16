@@ -61,6 +61,15 @@ export const authApi = {
     }
   },
 
+  logout: async () => {
+    try {
+      await api.post('/api/v1/auth/logout');
+    } catch (error) {
+      // Silently ignore logout API errors — local cleanup still happens
+      console.warn('Logout API call failed (session may already be expired):', error?.response?.status);
+    }
+  },
+
   fetchCountries: async (params) => {
     try {
       const response = await api.get('/api/v1/countries', { params });

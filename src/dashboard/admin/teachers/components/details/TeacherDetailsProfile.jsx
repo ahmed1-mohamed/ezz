@@ -1,4 +1,4 @@
-import { Globe, Award, MapPin, Calendar, Mail, Phone } from 'lucide-react'
+﻿import { Globe, Award, MapPin, Calendar, Mail, Phone } from 'lucide-react'
 
 export default function TeacherDetailsProfile({ teacher, isRtl }) {
   const isSuspended = !teacher?.active
@@ -64,7 +64,7 @@ export default function TeacherDetailsProfile({ teacher, isRtl }) {
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">
                 {teacher?.degreeAr || (typeof teacher?.degree === 'object' ? teacher?.degree?.ar : teacher?.degree) || teacher?.qualification || (isRtl ? 'معلم متخصص' : 'Specialized Teacher')}
                 {teacher?.yearsOfExperience > 0 && ` · ${teacher.yearsOfExperience} ${isRtl ? 'سنوات خبرة' : 'years of experience'}`}
-                {teacher?.hourlyRate > 0 && ` · ${teacher.hourlyRate} ${isRtl ? 'ر.س/ساعة' : 'SAR/hr'}`}
+                {teacher?.hourlyRate > 0 && ` · ${teacher.hourlyRate} ${isRtl ? '$/ساعة' : '$/hr'}`}
               </p>
             </div>
           </div>

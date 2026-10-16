@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react'
 import { Image as ImageIcon, ChevronDown } from 'lucide-react'
 
 const defaultCountries = [
-  { code: '+20', flag: '🇪🇬', name: 'مصر', nameEn: 'Egypt' },
-  { code: '+966', flag: '🇸🇦', name: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia' },
   { code: '+971', flag: '🇦🇪', name: 'الإمارات', nameEn: 'UAE' },
+  { code: '+966', flag: '🇸🇦', name: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia' },
   { code: '+965', flag: '🇰🇼', name: 'الكويت', nameEn: 'Kuwait' },
   { code: '+974', flag: '🇶🇦', name: 'قطر', nameEn: 'Qatar' },
   { code: '+968', flag: '🇴🇲', name: 'عمان', nameEn: 'Oman' },
   { code: '+973', flag: '🇧🇭', name: 'البحرين', nameEn: 'Bahrain' },
   { code: '+962', flag: '🇯🇴', name: 'الأردن', nameEn: 'Jordan' },
+  { code: '+20', flag: '🇪🇬', name: 'مصر', nameEn: 'Egypt' },
 ]
 
 export default function TeacherPersonalInfoCard({
@@ -22,7 +22,7 @@ export default function TeacherPersonalInfoCard({
 
   const activeCountries = (countries.length > 0
     ? countries.map(c => ({
-        code: c.phoneCode || c.code || '+20',
+        code: c.phoneCode || c.code || '+971',
         flag: c.flag || '🌐',
         name: c.name || c.nameAr || '',
         nameEn: c.nameEn || '',
@@ -30,7 +30,7 @@ export default function TeacherPersonalInfoCard({
       }))
     : defaultCountries)
 
-  const initialCode = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : '+20'
+  const initialCode = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : '+971'
   const [selectedCountry, setSelectedCountry] = useState(
     activeCountries.find((c) => c.code === initialCode) || defaultCountries[0]
   )
@@ -168,7 +168,7 @@ export default function TeacherPersonalInfoCard({
                 className="h-12 flex items-center justify-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-transparent rounded-2xl transition-all text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <ChevronDown size={14} className="text-slate-400" />
-                <span className="text-xs">{selectedCountry?.code || '+20'}</span>
+                <span className="text-xs">{selectedCountry?.code || '+971'}</span>
                 <span className="text-base">{selectedCountry?.flag || '🇪🇬'}</span>
               </button>
 

@@ -131,6 +131,28 @@ export default function TeacherAcademicInfoCard({
             placeholder={isRtl ? 'عدد سنوات الخبرة' : 'Years of experience'}
           />
         </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'سعر الساعة ($)' : 'Hourly Rate ($)'}
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.hourlyRate ?? ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? '' : Number(e.target.value)
+                onChange('hourlyRate', val)
+              }}
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              placeholder={isRtl ? 'سعر الساعة بالدولار' : 'Hourly rate in USD'}
+              dir="ltr"
+            />
+            <span className="absolute end-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
+          </div>
+        </div>
       </div>
 
        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
