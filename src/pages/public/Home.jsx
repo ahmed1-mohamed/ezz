@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '@/shared/components/Button.jsx'
-import imageSrc from '../../images/programs/NewLogo.webp'
+import heroImage from '@/images/hero/cheerful-academy-kids.webp'
 import { fetchLandingPage } from '@/store/landingSlice'
 
 const StatisticsBanner = lazy(() => import('@/shared/components/StatisticsBanner.jsx'))
@@ -146,14 +146,14 @@ export default memo(function Home() {
                                     className="relative z-10 overflow-hidden rounded-2xl sm:rounded-[36px] border border-slate-200 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.12)] w-full"
                                 >
                                     <img
-                                        src={imageSrc}
-                                        alt={t('home.logoAlt', 'أكاديمية منارة العز')}
+                                        src={heroImage}
+                                        alt={t('home.heroImageAlt', 'أكاديمية منارة العز')}
                                         loading="eager"
                                         fetchPriority="high"
                                         decoding="async"
-                                        width="512"
-                                        height="512"
-                                        className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] xl:max-h-[520px] object-contain"
+                                        width="1536"
+                                        height="1024"
+                                        className="w-full rounded-lg h-auto max-h-[340px] sm:max-h-[440px] lg:max-h-[500px] xl:max-h-[540px] object-cover aspect-[3/2]"
                                     />
                                 </motion.div>
 

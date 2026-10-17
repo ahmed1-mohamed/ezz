@@ -10,6 +10,7 @@ import { publicNavigation } from '@/shared/constants/publicNavigation.js'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
+import logoImg from '@/images/programs/NewLogo.webp'
 
 const navItems = publicNavigation.map((item) => ({
     label: item.labelKey,
@@ -86,9 +87,18 @@ export default memo(function AppNavbar() {
                     <Link
                         to="/"
                         onClick={handleLogoClick}
-                        className="flex-shrink-0 text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-200"
+                        className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 group hover:opacity-90 transition-opacity duration-200"
                     >
-                        {t('appName', 'منارة العز')}
+                        <img
+                            src={logoImg}
+                            alt={t('appName', 'منارة العز')}
+                            className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
+                            width="36"
+                            height="36"
+                        />
+                        <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent">
+                            {t('appName', 'منارة العز')}
+                        </span>
                     </Link>
 
                     <div className="hidden lg:flex items-center gap-6 xl:gap-8">

@@ -10,10 +10,12 @@ import FaqInlineForm from './components/FaqInlineForm'
 import FaqTable from './components/FaqTable'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import Spinner from '@/shared/components/Spinner'
+import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 
 export default function AdminPackages() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language.startsWith('ar')
+    const { hasPermission, isSuperAdmin } = useAdminPermissions()
     const p = (key) => t(`adminDashboard.packages.${key}`)
 
     const [packages, setPackages] = useState([])
@@ -159,84 +161,107 @@ export default function AdminPackages() {
         )
     }
 
+    const canViewPackages = hasPermission('packages.read') || hasPermission('packages_faqs.read')
+    const canCreatePackage = hasPermission('packages.create') || isSuperAdmin
+    const canViewFaqs = hasPermission('faqs.read') || hasPermission('packages_faqs.read')
+    const canCreateFaq = hasPermission('faqs.create') || isSuperAdmin
+
+    if (!canViewPackages && !canViewFaqs) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
+                <p className="text-slate-600 dark:text-slate-400 font-bold text-base">
+                    {isRtl ? 'لا تملك الصلاحيات الكافية لعرض الباقات والأسئلة الشائعة' : 'You do not have permission to view packages or FAQs'}
+                </p>
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-8">
-            <section>
-                <div className="flex items-center justify-between mb-5">
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">
-                        {packages.length} {p('available')}
-                    </p>
-                    <button
-                        onClick={() => { setEditingPkg(null); setPkgPanelOpen(true) }}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
-                    >
-                        <Plus size={16} />
-                        {p('createPackage')}
-                    </button>
-                </div>
+            {canViewPackages && (
+                <section>
+                    <div className="flex items-center justify-between mb-5">
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">
+                            {packages.length} {p('available')}
+                        </p>
+                        {canCreatePackage && (
+                            <button
+                                onClick={() => { setEditingPkg(null); setPkgPanelOpen(true) }}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
+                            >
+                                <Plus size={16} />
+                                {p('createPackage')}
+                            </button>
+                        )}
+                    </div>
 
-                {packages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
-                        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                            <Package size={28} className="text-slate-300 dark:text-slate-600" />
+                    {packages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
+                            <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                                <Package size={28} className="text-slate-300 dark:text-slate-600" />
+                            </div>
+                            <p className="text-slate-500 dark:text-slate-400 font-medium">{p('noPackages')}</p>
+                            <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{p('noPackagesHint')}</p>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium">{p('noPackages')}</p>
-                        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{p('noPackagesHint')}</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                        <AnimatePresence>
-                            {packages.map((pkg) => (
-                                <PackageCard
-                                    key={pkg.id}
-                                    pkg={pkg}
-                                    onEdit={handleEditPkgClick}
-                                    onDelete={(id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '')}
-                                />
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                )}
-            </section>
-
-            <section>
-                <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-slate-800 dark:text-white font-bold text-base">{p('faqTitle')}</h2>
-                    <button
-                        onClick={() => { setEditingFaq(null); setIsFaqFormOpen((prev) => !prev) }}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
-                    >
-                        <Plus size={16} className={`transition-transform duration-300 ${isFaqFormOpen ? 'rotate-45' : ''}`} />
-                        {isFaqFormOpen ? p('cancel') : p('createFaq')}
-                    </button>
-                </div>
-
-                <AnimatePresence initial={false}>
-                    {(isFaqFormOpen || editingFaq) && (
-                        <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="mb-5 overflow-hidden"
-                        >
-                            <FaqInlineForm
-                                onSave={handleSaveFaq}
-                                editingFaq={editingFaq}
-                                onCancelEdit={() => { setEditingFaq(null); setIsFaqFormOpen(false) }}
-                            />
-                        </motion.div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                            <AnimatePresence>
+                                {packages.map((pkg) => (
+                                    <PackageCard
+                                        key={pkg.id}
+                                        pkg={pkg}
+                                        onEdit={handleEditPkgClick}
+                                        onDelete={(id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '')}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                        </div>
                     )}
-                </AnimatePresence>
+                </section>
+            )}
 
-                <FaqTable
-                    faqs={faqs}
-                    onEdit={handleEditFaqClick}
-                    onDelete={(id) => {
-                        const faq = faqs.find(f => f.id === id);
-                        executeDelete('faq', id, faq?.question || '');
-                    }}
-                />
-            </section>
+            {canViewFaqs && (
+                <section>
+                    <div className="flex items-center justify-between mb-5">
+                        <h2 className="text-slate-800 dark:text-white font-bold text-base">{p('faqTitle')}</h2>
+                        {canCreateFaq && (
+                            <button
+                                onClick={() => { setEditingFaq(null); setIsFaqFormOpen((prev) => !prev) }}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
+                            >
+                                <Plus size={16} className={`transition-transform duration-300 ${isFaqFormOpen ? 'rotate-45' : ''}`} />
+                                {isFaqFormOpen ? p('cancel') : p('createFaq')}
+                            </button>
+                        )}
+                    </div>
+
+                    <AnimatePresence initial={false}>
+                        {(isFaqFormOpen || editingFaq) && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="mb-5 overflow-hidden"
+                            >
+                                <FaqInlineForm
+                                    onSave={handleSaveFaq}
+                                    editingFaq={editingFaq}
+                                    onCancelEdit={() => { setEditingFaq(null); setIsFaqFormOpen(false) }}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <FaqTable
+                        faqs={faqs}
+                        onEdit={handleEditFaqClick}
+                        onDelete={(id) => {
+                            const faq = faqs.find(f => f.id === id);
+                            executeDelete('faq', id, faq?.question || '');
+                        }}
+                    />
+                </section>
+            )}
 
             <PackageFormPanel
                 isOpen={pkgPanelOpen}

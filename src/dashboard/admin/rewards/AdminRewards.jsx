@@ -9,10 +9,12 @@ import { showDeleteConfirm, showSuccessToast, showErrorToast, showRewardDetails 
 import RewardForm from './components/RewardForm'
 import RewardsSuggestions from './components/RewardsSuggestions'
 import RewardsGrid from './components/RewardsGrid'
+import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 
 export default function AdminRewards() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const { hasPermission, isSuperAdmin } = useAdminPermissions()
   const p = (key) => t(`adminDashboard.rewards.${key}`, key)
 
   const [stats, setStats] = useState(null)
@@ -23,10 +25,22 @@ export default function AdminRewards() {
   const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const [activeMainTab, setActiveMainTab] = useState('rewards')
+  const canViewRewards = hasPermission('rewards.read') || hasPermission('rewards_suggestions.read')
+  const canViewSuggestions = hasPermission('suggested_rewards.read') || hasPermission('rewards_suggestions.read')
+  const canCreateReward = hasPermission('rewards.create') || isSuperAdmin
+
+  const [activeMainTab, setActiveMainTab] = useState(() => (canViewRewards ? 'rewards' : 'suggestions'))
   const [showForm, setShowForm] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    if (!canViewRewards && canViewSuggestions) {
+      setActiveMainTab('suggestions')
+    } else if (canViewRewards && !canViewSuggestions) {
+      setActiveMainTab('rewards')
+    }
+  }, [canViewRewards, canViewSuggestions])
 
   const loadSuggestionsByStatus = useCallback(async (status) => {
     setIsSuggestionsLoading(true)
@@ -168,6 +182,16 @@ export default function AdminRewards() {
     )
   }
 
+  if (!canViewRewards && !canViewSuggestions) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
+        <p className="text-slate-600 dark:text-slate-400 font-bold text-base">
+          {isRtl ? 'لا تملك الصلاحيات الكافية لعرض نظام المكافآت والمقترحات' : 'You do not have permission to view rewards or suggestions'}
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-6 shadow-sm flex items-center justify-between">
@@ -182,42 +206,48 @@ export default function AdminRewards() {
       </div>
 
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
-        <button
-          onClick={() => setActiveMainTab('rewards')}
-          className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${activeMainTab === 'rewards'
-            ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400'
-            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-            }`}
-        >
-          {isRtl ? 'المكافآت المتاحة' : 'Available Rewards'}
-        </button>
-        <button
-          onClick={() => setActiveMainTab('suggestions')}
-          className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${activeMainTab === 'suggestions'
-            ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400'
-            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-            }`}
-        >
-          {isRtl ? 'المكافآت المقترحة' : 'Suggested Rewards'}
-        </button>
+        {canViewRewards && (
+          <button
+            onClick={() => setActiveMainTab('rewards')}
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${activeMainTab === 'rewards'
+              ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400'
+              : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }`}
+          >
+            {isRtl ? 'المكافآت المتاحة' : 'Available Rewards'}
+          </button>
+        )}
+        {canViewSuggestions && (
+          <button
+            onClick={() => setActiveMainTab('suggestions')}
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${activeMainTab === 'suggestions'
+              ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400'
+              : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }`}
+          >
+            {isRtl ? 'المكافآت المقترحة' : 'Suggested Rewards'}
+          </button>
+        )}
       </div>
 
-      {activeMainTab === 'rewards' ? (
+      {activeMainTab === 'rewards' && canViewRewards ? (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-slate-800 dark:text-white font-bold text-base">
               {p('availableRewardsTitle', 'المكافآت المتاحة')}
             </h2>
-            <button
-              onClick={() => {
-                setEditingReward(null)
-                setShowForm(!showForm)
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-xs font-bold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
-            >
-              <Plus size={16} />
-              {p('createRewardBtn', 'إنشاء مكافأة')}
-            </button>
+            {canCreateReward && (
+              <button
+                onClick={() => {
+                  setEditingReward(null)
+                  setShowForm(!showForm)
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-xs font-bold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
+              >
+                <Plus size={16} />
+                {p('createRewardBtn', 'إنشاء مكافأة')}
+              </button>
+            )}
           </div>
 
           <RewardsGrid
@@ -227,7 +257,7 @@ export default function AdminRewards() {
             onDelete={handleDeleteReward}
           />
         </div>
-      ) : (
+      ) : canViewSuggestions ? (
         <RewardsSuggestions
           suggestions={suggestions}
           stats={suggestionsStats || stats || {}}
@@ -240,7 +270,7 @@ export default function AdminRewards() {
           onEdit={(item) => handleEditRewardClick(item, true)}
           onDelete={handleDeleteSuggestion}
         />
-      )}
+      ) : null}
 
       {showForm && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">

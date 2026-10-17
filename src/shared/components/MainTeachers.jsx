@@ -37,12 +37,17 @@ const teachersData = [
     },
 ]
 
-const getImageUrl = (imagePath) => {
-    if (!imagePath) return '';
-    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
-        return imagePath;
+const defaultFallbackImages = [teacher1, teacher2, teacher3, teacher4];
+
+const getImageUrl = (imagePath, fallbackIndex = 0) => {
+    if (!imagePath || typeof imagePath !== 'string' || imagePath.trim() === '') {
+        return defaultFallbackImages[fallbackIndex % defaultFallbackImages.length];
     }
-    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    const trimmed = imagePath.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+        return trimmed;
+    }
+    const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
     return `https://manaret-ezz.dramcode.top/${cleanPath}`;
 }
 
@@ -119,11 +124,15 @@ export default function TeachersSection({ eliteTeachers }) {
                                 />
 
                                 <img
-                                    src={getImageUrl(teacher.image)}
-                                    alt={teacher.nameKey ? t(teacher.nameKey) : teacher.name}
+                                    src={getImageUrl(teacher.image || teacher.avatar || teacher.photo, index)}
+                                    alt={teacher.nameKey ? t(teacher.nameKey) : (teacher.name || t('teachers.title', 'معلم'))}
                                     width="160"
                                     height="160"
                                     loading="lazy"
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = defaultFallbackImages[index % defaultFallbackImages.length];
+                                    }}
                                     className="w-full h-full rounded-full object-cover border-4 border-white shadow-[0_10px_25px_rgba(15,122,108,0.2)] relative z-10"
                                 />
                             </div>

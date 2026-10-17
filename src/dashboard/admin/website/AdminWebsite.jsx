@@ -19,10 +19,12 @@ import TestimonialFormModal from './components/TestimonialFormModal.jsx';
 
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions';
 
 export default function AdminWebsite() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
+  const { hasPermission } = useAdminPermissions();
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const showNotification = (message, type = 'success') => {
@@ -63,43 +65,68 @@ export default function AdminWebsite() {
 
   const { contactInfo, isLoading: isContactLoading, isSaving: isSavingContact, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification);
 
+  const canViewStats = hasPermission('statistics.read');
+  const canViewStars = hasPermission('featured_students.read');
+  const canViewTeachers = hasPermission('elite_teachers.read');
+  const canViewTestimonials = hasPermission('testimonials.read');
+  const canViewContact = hasPermission('contact_us.read');
+  const hasAnyWebsiteSection = canViewStats || canViewStars || canViewTeachers || canViewTestimonials || canViewContact;
+
+  if (!hasAnyWebsiteSection) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
+        <p className="text-slate-600 dark:text-slate-400 font-bold text-base">
+          {isRtl ? 'لا تملك الصلاحيات الكافية لعرض أقسام الموقع الإلكتروني' : 'You do not have permission to view website management sections'}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 lg:space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
-      <WebsiteStatsForm
-        stats={stats}
-        isLoading={isStatsLoading}
-        isSaving={isSavingStats}
-        handleStatChange={handleStatChange}
-        handleSaveStats={handleSaveStats}
-        handleCancelStats={handleCancelStats}
-      />
+      {canViewStats && (
+        <WebsiteStatsForm
+          stats={stats}
+          isLoading={isStatsLoading}
+          isSaving={isSavingStats}
+          handleStatChange={handleStatChange}
+          handleSaveStats={handleSaveStats}
+          handleCancelStats={handleCancelStats}
+        />
+      )}
 
-      <ExcellenceStarsSection
-        stars={stars}
-        handleOpenAddModal={handleOpenAddModal}
-        handleOpenEditModal={handleOpenEditModal}
-        handleOpenViewModal={handleOpenViewModal}
-        handleDeleteStar={handleDeleteStar}
-        handleCancelStarsList={handleCancelStarsList}
-        handleSaveStarsList={handleSaveStarsList}
-      />
+      {canViewStars && (
+        <ExcellenceStarsSection
+          stars={stars}
+          handleOpenAddModal={handleOpenAddModal}
+          handleOpenEditModal={handleOpenEditModal}
+          handleOpenViewModal={handleOpenViewModal}
+          handleDeleteStar={handleDeleteStar}
+          handleCancelStarsList={handleCancelStarsList}
+          handleSaveStarsList={handleSaveStarsList}
+        />
+      )}
 
-      <EliteTeachersSection
-        teachers={eliteTeachers}
-        handleOpenAddTeacher={handleOpenAddTeacher}
-        handleOpenEditTeacher={handleOpenEditTeacher}
-        handleDeleteTeacher={handleDeleteTeacher}
-        handleShowTeacherNotes={handleShowTeacherNotes}
-      />
+      {canViewTeachers && (
+        <EliteTeachersSection
+          teachers={eliteTeachers}
+          handleOpenAddTeacher={handleOpenAddTeacher}
+          handleOpenEditTeacher={handleOpenEditTeacher}
+          handleDeleteTeacher={handleDeleteTeacher}
+          handleShowTeacherNotes={handleShowTeacherNotes}
+        />
+      )}
 
-      <ParentTestimonialsSection
-        testimonials={testimonials}
-        handleOpenAddTestimonial={handleOpenAddTestimonial}
-        handleOpenEditTestimonial={handleOpenEditTestimonial}
-        handleDeleteTestimonial={handleDeleteTestimonial}
-      />
+      {canViewTestimonials && (
+        <ParentTestimonialsSection
+          testimonials={testimonials}
+          handleOpenAddTestimonial={handleOpenAddTestimonial}
+          handleOpenEditTestimonial={handleOpenEditTestimonial}
+          handleDeleteTestimonial={handleDeleteTestimonial}
+        />
+      )}
 
-      {isModalOpen && currentStar && (
+      {isModalOpen && currentStar && canViewStars && (
         <StudentStarModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -112,7 +139,7 @@ export default function AdminWebsite() {
         />
       )}
 
-      {isTeacherFormOpen && currentTeacher && (
+      {isTeacherFormOpen && currentTeacher && canViewTeachers && (
         <TeacherFormModal
           isOpen={isTeacherFormOpen}
           onClose={() => setIsTeacherFormOpen(false)}
@@ -146,13 +173,16 @@ export default function AdminWebsite() {
         onSubmit={handleSaveTestimonialSubmit}
         isSaving={isSavingTestimonial}
       />
-      <ContactUsForm
-        contactInfo={contactInfo}
-        isLoading={isContactLoading}
-        isSaving={isSavingContact}
-        onSave={handleSaveContactInfo}
-        onCancel={handleCancelContactInfo}
-      />
+
+      {canViewContact && (
+        <ContactUsForm
+          contactInfo={contactInfo}
+          isLoading={isContactLoading}
+          isSaving={isSavingContact}
+          onSave={handleSaveContactInfo}
+          onCancel={handleCancelContactInfo}
+        />
+      )}
       <AnimatePresence>
         {toast.show && (
           <div className="fixed top-5 right-5 z-[9999]">

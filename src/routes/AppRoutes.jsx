@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import RoleBasedRoute from './RoleBasedRoute.jsx'
+import PermissionRoute from './PermissionRoute.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
 import PublicLayout from '../layouts/PublicLayout.jsx'
@@ -241,27 +242,27 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/managers"
-                                        element={<AdminManagers />}
+                                        element={<PermissionRoute permission="users.read"><AdminManagers /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/students"
-                                        element={<AdminStudents />}
+                                        element={<PermissionRoute permission="students.read"><AdminStudents /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/students/:id"
-                                        element={<AdminStudentDetails />}
+                                        element={<PermissionRoute permission="students.read"><AdminStudentDetails /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/student-levels"
-                                        element={<AdminStudentLevels />}
+                                        element={<PermissionRoute permission="student_levels.read"><AdminStudentLevels /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/teachers"
-                                        element={<AdminTeachers />}
+                                        element={<PermissionRoute permission="teachers.read"><AdminTeachers /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/teachers/:id"
-                                        element={<AdminTeacherDetails />}
+                                        element={<PermissionRoute permission="teachers.read"><AdminTeacherDetails /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/reports"
@@ -273,47 +274,47 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/parents"
-                                        element={<AdminParents />}
+                                        element={<PermissionRoute permission="parents.read"><AdminParents /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/parents/:id"
-                                        element={<AdminParents />}
+                                        element={<PermissionRoute permission="parents.read"><AdminParents /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/explanation-languages"
-                                        element={<AdminExplanationLanguages />}
+                                        element={<PermissionRoute permission="explanation_languages.read"><AdminExplanationLanguages /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/groups"
-                                        element={<AdminGroups />}
+                                        element={<PermissionRoute permission="groups.read"><AdminGroups /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/private-groups"
-                                        element={<AdminPrivateGroups />}
+                                        element={<PermissionRoute permission="groups.read"><AdminPrivateGroups /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/sessions"
-                                        element={<AdminSessions />}
+                                        element={<PermissionRoute permission="sessions.read"><AdminSessions /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/messages"
-                                        element={<AdminMessages />}
+                                        element={<PermissionRoute permission="messages.read"><AdminMessages /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/complaints"
-                                        element={<AdminComplaints />}
+                                        element={<PermissionRoute permission="complaints_suggestions.read"><AdminComplaints /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/schedule"
-                                        element={<AdminSchedule />}
+                                        element={<PermissionRoute permission="timetable.read"><AdminSchedule /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/packages"
-                                        element={<AdminPackages />}
+                                        element={<PermissionRoute permissions={['packages_faqs.read', 'packages.read', 'faqs.read']}><AdminPackages /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/coupons"
-                                        element={<AdminCoupons />}
+                                        element={<PermissionRoute permission="coupons.read"><AdminCoupons /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/earnings"
@@ -325,7 +326,7 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/rewards"
-                                        element={<AdminRewards />}
+                                        element={<PermissionRoute permissions={['rewards_suggestions.read', 'rewards.read', 'suggested_rewards.read']}><AdminRewards /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/assignments"
@@ -333,19 +334,19 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/website"
-                                        element={<AdminWebsite />}
+                                        element={<PermissionRoute permissions={['contact_us.read', 'elite_teachers.read', 'featured_students.read', 'statistics.read', 'testimonials.read']}><AdminWebsite /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/curriculums"
-                                        element={<AdminCurriculums />}
+                                        element={<PermissionRoute permission="curricula.read"><AdminCurriculums /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/curriculums/:id"
-                                        element={<AdminCurriculumDetails />}
+                                        element={<PermissionRoute permission="curricula.read"><AdminCurriculumDetails /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/logs"
-                                        element={<AdminLogs />}
+                                        element={<PermissionRoute permission="logs.read"><AdminLogs /></PermissionRoute>}
                                     />
                                 </Route>
                             </Route>

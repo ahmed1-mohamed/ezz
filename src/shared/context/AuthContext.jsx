@@ -43,7 +43,10 @@ export function AuthProvider({ children }) {
                     image: data.image || data.avatar || data.photo || data.photoUrl || baseUser.image,
                     avatar: data.avatar || data.image || data.photo || data.photoUrl || baseUser.avatar,
                     email: data.email || baseUser.email,
-                    role: data.role ? normalizeRole(data.role) : baseUser.role
+                    role: data.role ? normalizeRole(data.role) : baseUser.role,
+                    permission: data.permission || baseUser.permission || null,
+                    permissionId: data.permissionId || data.permission?.id || data.permission?._id || (typeof data.permission === 'string' ? data.permission : (baseUser.permissionId || null)),
+                    permissions: data.permissions || data.permission?.permissions || data.permission?.keys || baseUser.permissions || null
                 };
                 setUser(updated);
                 setCookie('authUser', updated, cookieDays);
@@ -83,6 +86,9 @@ export function AuthProvider({ children }) {
                 role: normalizeRole(userDetails.role),
                 image: userDetails.image || userDetails.avatar || userDetails.photo || userDetails.photoUrl || null,
                 avatar: userDetails.avatar || userDetails.image || userDetails.photo || userDetails.photoUrl || null,
+                permission: userDetails.permission || null,
+                permissionId: userDetails.permissionId || userDetails.permission?.id || userDetails.permission?._id || (typeof userDetails.permission === 'string' ? userDetails.permission : null),
+                permissions: userDetails.permissions || userDetails.permission?.permissions || userDetails.permission?.keys || null,
             }
             setUser(authUser)
             setCookie('authUser', authUser, cookieDays)

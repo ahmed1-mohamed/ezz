@@ -30,30 +30,52 @@ import {
   Settings,
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
+import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 
- const NAV_ITEMS = [
+const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
-  { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers' },
-  { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers' },
-  { path: '/dashboard/admin/students', icon: Book, transKey: 'students' },
-  { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels' },
-  { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents' },
-  { path: '/dashboard/admin/explanation-languages', icon: Languages, transKey: 'explanationLanguages' },
-  { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups' },
-  { path: '/dashboard/admin/private-groups', icon: Layers, transKey: 'privateGroups' },
-  { path: '/dashboard/admin/website', icon: Globe, transKey: 'website' },
-  { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions' },
-  { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule' },
-  { path: '/dashboard/admin/packages', icon: Package, transKey: 'packages' },
+  { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers', permission: 'users.read' },
+  { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers', permission: 'teachers.read' },
+  { path: '/dashboard/admin/students', icon: Book, transKey: 'students', permission: 'students.read' },
+  { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels', permission: 'student_levels.read' },
+  { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents', permission: 'parents.read' },
+  { path: '/dashboard/admin/explanation-languages', icon: Languages, transKey: 'explanationLanguages', permission: 'explanation_languages.read' },
+  { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups', permission: 'groups.read' },
+  { path: '/dashboard/admin/private-groups', icon: Layers, transKey: 'privateGroups', permission: 'groups.read' },
+  {
+    path: '/dashboard/admin/website',
+    icon: Globe,
+    transKey: 'website',
+    permissions: [
+      'contact_us.read',
+      'elite_teachers.read',
+      'featured_students.read',
+      'statistics.read',
+      'testimonials.read',
+    ],
+  },
+  { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions', permission: 'sessions.read' },
+  { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule', permission: 'timetable.read' },
+  {
+    path: '/dashboard/admin/packages',
+    icon: Package,
+    transKey: 'packages',
+    permissions: ['packages_faqs.read', 'packages.read', 'faqs.read'],
+  },
   { path: '/dashboard/admin/payments', icon: CreditCard, transKey: 'payments' },
   { path: '/dashboard/admin/earnings', icon: TrendingUp, transKey: 'earnings' },
-  { path: '/dashboard/admin/rewards', icon: Gift, transKey: 'rewards' },
-  { path: '/dashboard/admin/curriculums', icon: BookMarked, transKey: 'curriculums' },
-  { path: '/dashboard/admin/coupons', icon: Percent, transKey: 'discountCodes' },
+  {
+    path: '/dashboard/admin/rewards',
+    icon: Gift,
+    transKey: 'rewards',
+    permissions: ['rewards_suggestions.read', 'rewards.read', 'suggested_rewards.read'],
+  },
+  { path: '/dashboard/admin/curriculums', icon: BookMarked, transKey: 'curriculums', permission: 'curricula.read' },
+  { path: '/dashboard/admin/coupons', icon: Percent, transKey: 'discountCodes', permission: 'coupons.read' },
   { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },
-  { path: '/dashboard/admin/logs', icon: Activity, transKey: 'activities' },
-  { path: '/dashboard/admin/messages', icon: MessageSquare, transKey: 'messages' },
-  { path: '/dashboard/admin/complaints', icon: MessageSquareWarning, transKey: 'complaints' },
+  { path: '/dashboard/admin/logs', icon: Activity, transKey: 'activities', permission: 'logs.read' },
+  { path: '/dashboard/admin/messages', icon: MessageSquare, transKey: 'messages', permission: 'messages.read' },
+  { path: '/dashboard/admin/complaints', icon: MessageSquareWarning, transKey: 'complaints', permission: 'complaints_suggestions.read' },
   { path: '/', icon: Globe, transKey: 'mainWebsite' },
   { path: '/dashboard/admin/settings', icon: Settings, transKey: 'settings' },
 ]
@@ -111,6 +133,18 @@ export default memo(function AdminLayout() {
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
   const toggleSidebar = useCallback(() => setIsSidebarCollapsed(prev => !prev), [])
+
+  const { isSuperAdmin, hasPermission, hasAnyPermission } = useAdminPermissions()
+
+  const accessibleNavItems = useMemo(() => {
+    if (isSuperAdmin) return NAV_ITEMS
+    return NAV_ITEMS.filter((item) => {
+      if (!item.permission && !item.permissions) return true
+      if (item.permission) return hasPermission(item.permission)
+      if (item.permissions) return hasAnyPermission(item.permissions)
+      return true
+    })
+  }, [isSuperAdmin, hasPermission, hasAnyPermission])
 
   const resolvedName = useMemo(() => getDisplayName(user, isRtl), [user, isRtl])
   const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
@@ -239,7 +273,7 @@ export default memo(function AdminLayout() {
         </div>
 
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin" aria-label={t('adminDashboard.nav.main', 'التنقل الرئيسي')}>
-          {NAV_ITEMS.map((item) => (
+          {accessibleNavItems.map((item) => (
             <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} isCollapsed={isSidebarCollapsed} />
           ))}
         </nav>
