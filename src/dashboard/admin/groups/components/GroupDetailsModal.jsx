@@ -69,7 +69,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div
-        className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl min-h-[500px] max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
         dir={isRtl ? 'rtl' : 'ltr'}
       >

@@ -1,0 +1,569 @@
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import {
+  Search,
+  Plus,
+  Layers,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
+import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
+import { showDeleteConfirm, showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
+import AddEditGroupScreen from './components/AddEditGroupScreen'
+import AddStudentsModal from './components/AddStudentsModal'
+import ChangeTeacherModal from './components/ChangeTeacherModal'
+import Spinner from '@/shared/components/Spinner'
+import { getLocalizedValue } from './utils/groupUtils'
+import GroupCard from './components/GroupCard'
+import GroupDetailsModal from './components/GroupDetailsModal'
+
+/** Map each tab key to the API fetcher that serves it */
+const TAB_API_MAP = {
+  all: (params) => adminGroupsApi.fetchLocalizedGroups(params),
+  pending: (params) => adminGroupsApi.fetchLocalizedPendingGroups(params),
+  active: (params) => adminGroupsApi.fetchLocalizedActiveGroups(params),
+  stopped: (params) => adminGroupsApi.fetchLocalizedStoppedGroups(params),
+  completed: (params) => adminGroupsApi.fetchLocalizedCompletedGroups(params),
+}
+
+const TYPE_FILTER_VALUES = ['all', 'public', 'private']
+
+export default function AdminPrivateGroups() {
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language.startsWith('ar')
+
+  /* ── view state ── */
+  const [viewMode, setViewMode] = useState('list')
+  const [selectedGroup, setSelectedGroup] = useState(null)
+  const [showStudentsModal, setShowStudentsModal] = useState(false)
+  const [showAddStudentsModal, setShowAddStudentsModal] = useState(false)
+  const [showChangeTeacherModal, setShowChangeTeacherModal] = useState(false)
+  const [groupForTeacherChange, setGroupForTeacherChange] = useState(null)
+
+  /* ── data state ── */
+  const [groups, setGroups] = useState([])
+  const [statistics, setStatistics] = useState(null)
+  const [pagination, setPagination] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  /* ── filter state ── */
+  const [activeTab, setActiveTab] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
+  /** Status tabs config */
+  const STATUS_TABS = useMemo(() => [
+    { key: 'all', label: t('adminDashboard.privateGroups.tabs.all', 'الكل') },
+    { key: 'pending', label: t('adminDashboard.privateGroups.tabs.pending', 'قيد الانتظار') },
+    { key: 'active', label: t('adminDashboard.privateGroups.tabs.active', 'نشطة') },
+    { key: 'stopped', label: t('adminDashboard.privateGroups.tabs.stopped', 'متوقفة') },
+    { key: 'completed', label: t('adminDashboard.privateGroups.tabs.completed', 'مكتملة') },
+  ], [t])
+
+  /** Type filter labels */
+  const TYPE_LABELS = useMemo(() => ({
+    all: t('adminDashboard.privateGroups.typeAll', 'الكل'),
+    public: t('adminDashboard.groups.typePublic', 'عامة'),
+    private: t('adminDashboard.groups.typePrivate', 'خاصة'),
+  }), [t])
+
+  /* ── Load groups ── */
+  const loadGroups = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const params = { page: currentPage, limit: itemsPerPage }
+      if (searchQuery.trim()) params.search = searchQuery.trim()
+      if (typeFilter !== 'all') params.type = typeFilter
+
+      const fetcher = TAB_API_MAP[activeTab] ?? TAB_API_MAP.all
+      const res = await fetcher(params)
+
+      const rawData = res?.data
+      const items = Array.isArray(rawData) ? rawData : (Array.isArray(res) ? res : [])
+      setGroups(items)
+
+      if (res?.pagination) setPagination(res.pagination)
+      else setPagination(null)
+
+      if (res?.statistics) setStatistics(res.statistics)
+    } catch (err) {
+      console.error('Failed to fetch private groups:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [activeTab, currentPage, searchQuery, typeFilter])
+
+  useEffect(() => {
+    loadGroups()
+  }, [loadGroups])
+
+  /* ── Derived values ── */
+  const totalCount = pagination?.totalCount ?? groups.length
+  const totalPages = pagination?.numberOfPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage))
+  const isPaginationDimmed = totalPages <= 1
+  const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
+  const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
+
+  const metrics = useMemo(() => ({
+    total: statistics?.total ?? totalCount,
+    pending: statistics?.pending ?? 0,
+    active: statistics?.active ?? 0,
+    stopped: statistics?.stopped ?? 0,
+    completed: statistics?.completed ?? 0,
+  }), [statistics, totalCount])
+
+  /* ── Tab / filter helpers ── */
+  const handleTabChange = useCallback((tabKey) => {
+    setActiveTab(tabKey)
+    setCurrentPage(1)
+  }, [])
+
+  const handleTypeChange = useCallback((typeVal) => {
+    setTypeFilter(typeVal)
+    setCurrentPage(1)
+  }, [])
+
+  /* ── CRUD handlers ── */
+  const handleSaveGroup = async (formData) => {
+    setIsLoading(true)
+    try {
+      if (viewMode === 'edit-group' && selectedGroup) {
+        const res = await adminGroupsApi.updateGroup(selectedGroup.id, formData)
+        const updatedItem = res?.data || res
+        if (updatedItem) {
+          setGroups((prev) => prev.map((g) => (g.id === selectedGroup.id ? { ...g, ...updatedItem } : g)))
+          setSelectedGroup(null)
+          setViewMode('list')
+          loadGroups()
+          showSuccessToast(res?.message || t('adminDashboard.groups.updateSuccess', 'تم تحديث بيانات المجموعة بنجاح'), isRtl)
+        }
+      } else {
+        const res = await adminGroupsApi.createGroup(formData)
+        const newItem = res?.data || res
+        if (newItem) {
+          setGroups((prev) => [newItem, ...prev])
+          setSelectedGroup(null)
+          setViewMode('list')
+          loadGroups()
+          showSuccessToast(res?.message || t('adminDashboard.groups.createSuccess', 'تم إنشاء المجموعة بنجاح'), isRtl)
+        }
+      }
+    } catch (error) {
+      console.error('Error saving group:', error)
+      showErrorToast(error?.response?.data?.message || t('common.errorOccurred', 'حدث خطأ، يرجى المحاولة مرة أخرى'), isRtl)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteGroup = async (group) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, getLocalizedValue(group.name, isRtl))
+    if (!isConfirmed) return
+    setIsLoading(true)
+    try {
+      const res = await adminGroupsApi.deleteGroup(group.id)
+      if (res?.success || res?.status === 200 || res) {
+        setGroups((prev) => prev.filter((g) => g.id !== group.id))
+        loadGroups()
+        showSuccessToast(res?.message || t('adminDashboard.groups.deleteSuccess', 'تم حذف المجموعة بنجاح'), isRtl)
+      }
+    } catch (error) {
+      console.error('Failed to delete group:', error)
+      showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.deleteError', 'فشل حذف المجموعة، يرجى المحاولة لاحقاً'), isRtl)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleEditGroup = async (group) => {
+    setIsLoading(true)
+    try {
+      const res = await adminGroupsApi.fetchGroupByIdRaw(group.id)
+      const data = res?.data || res
+      setSelectedGroup((data && (data.id || data.name)) ? data : group)
+    } catch (err) {
+      console.warn('Error fetching raw group for edit, using card data:', err)
+      setSelectedGroup(group)
+    } finally {
+      setIsLoading(false)
+      setViewMode('edit-group')
+    }
+  }
+
+  const handleViewStudents = async (group) => {
+    setSelectedGroup(group)
+    setShowStudentsModal(true)
+    try {
+      const res = await adminGroupsApi.fetchGroupByIdLocalized(group.id)
+      const detailedGroup = res?.data || res
+      if (detailedGroup && (detailedGroup.students || detailedGroup.id)) {
+        setSelectedGroup((prev) => ({ ...prev, ...detailedGroup }))
+      }
+    } catch (err) {
+      console.warn('Could not load detailed localized group data:', err)
+    }
+  }
+
+  const handleAddSingleStudent = async (groupId, student) => {
+    try {
+      setIsLoading(true)
+      const res = await adminGroupsApi.addStudentToGroup(groupId, student)
+      const detailRes = await adminGroupsApi.fetchGroupByIdLocalized(groupId)
+      const detailedGroup = detailRes?.data || detailRes
+      if (detailedGroup) {
+        setGroups((prev) => prev.map((g) => (g.id === groupId ? { ...g, ...detailedGroup } : g)))
+        setSelectedGroup(detailedGroup)
+      }
+      loadGroups()
+      showSuccessToast(res?.message || t('adminDashboard.groups.addStudentSuccess', 'تمت إضافة الطالب إلى المجموعة بنجاح'), isRtl)
+    } catch (error) {
+      console.error('Failed to add student to group:', error)
+      showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.addStudentError', 'فشل إضافة الطالب إلى المجموعة'), isRtl)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleAddStudents = async (students) => {
+    if (!students || students.length === 0) return
+    setIsLoading(true)
+    try {
+      for (const student of students) {
+        await adminGroupsApi.addStudentToGroup(selectedGroup.id, student)
+      }
+      const res = await adminGroupsApi.fetchGroupByIdLocalized(selectedGroup.id)
+      const detailedGroup = res?.data || res
+      if (detailedGroup) {
+        setGroups((prev) => prev.map((g) => (g.id === selectedGroup.id ? { ...g, ...detailedGroup } : g)))
+        setSelectedGroup(detailedGroup)
+      }
+      loadGroups()
+      showSuccessToast(t('adminDashboard.groups.addStudentsSuccess', 'تمت إضافة الطلاب إلى المجموعة بنجاح'), isRtl)
+      setShowAddStudentsModal(false)
+    } catch (error) {
+      console.error('Failed to add students:', error)
+      showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.addStudentsError', 'فشل إضافة الطلاب إلى المجموعة'), isRtl)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRemoveStudent = async (groupId, studentId, studentName) => {
+    const isConfirmed = await showDeleteConfirm(isRtl, studentName)
+    if (!isConfirmed) return
+    try {
+      const res = await adminGroupsApi.removeStudentFromGroup(groupId, studentId)
+      if (res?.success || res) {
+        setGroups((prev) =>
+          prev.map((g) => {
+            if (g.id === groupId) {
+              const list = (g.students || []).filter((s) => s.id !== studentId)
+              return { ...g, students: list, currentStudentsCount: list.length }
+            }
+            return g
+          })
+        )
+        if (selectedGroup?.id === groupId) {
+          setSelectedGroup((prev) => {
+            if (!prev) return prev
+            const list = (prev.students || []).filter((s) => s.id !== studentId)
+            return { ...prev, students: list, currentStudentsCount: list.length }
+          })
+        }
+        showSuccessToast(res?.message || t('adminDashboard.groups.removeStudentSuccess', 'تمت إزالة الطالب من المجموعة بنجاح'), isRtl)
+      }
+    } catch (error) {
+      console.error('Failed to remove student:', error)
+      showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.removeStudentError', 'فشل إزالة الطالب من المجموعة'), isRtl)
+    }
+  }
+
+  const handleOpenChangeTeacher = useCallback((group) => {
+    setGroupForTeacherChange(group)
+    setShowChangeTeacherModal(true)
+  }, [])
+
+  const handleChangeTeacher = async (teacherId, teacherObj) => {
+    if (!groupForTeacherChange) return
+    const groupId = groupForTeacherChange.id
+    setIsLoading(true)
+    try {
+      const teacherName = typeof teacherObj?.name === 'object'
+        ? (teacherObj.name.ar || teacherObj.name.en)
+        : (teacherObj?.name || 'المعلم الجديد')
+      const res = await adminGroupsApi.changeTeacher(groupId, {
+        teacher: teacherId,
+        teacherId,
+        name: teacherName,
+        email: teacherObj?.email,
+        phone: teacherObj?.phone,
+      })
+      const newTeacherData = { id: teacherId, name: teacherName, email: teacherObj?.email || '', phone: teacherObj?.phone || '' }
+      setGroups((prev) => prev.map((g) => (String(g.id) === String(groupId) ? { ...g, teacher: newTeacherData } : g)))
+      if (selectedGroup && String(selectedGroup.id) === String(groupId)) {
+        setSelectedGroup((prev) => (prev ? { ...prev, teacher: newTeacherData } : prev))
+      }
+      loadGroups()
+      showSuccessToast(res?.message || t('adminDashboard.groups.changeTeacherSuccess', 'تم تغيير معلم المجموعة بنجاح'), isRtl)
+    } catch (error) {
+      console.error('Failed to change group teacher:', error)
+      showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.changeTeacherError', 'فشل تغيير معلم المجموعة'), isRtl)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  /* ── Render: Add/Edit screen ── */
+  if (viewMode === 'add-group' || viewMode === 'edit-group') {
+    return (
+      <AddEditGroupScreen
+        group={viewMode === 'edit-group' ? selectedGroup : null}
+        isRtl={isRtl}
+        t={t}
+        isSaving={isLoading}
+        onSave={handleSaveGroup}
+        onCancel={() => {
+          setSelectedGroup(null)
+          setViewMode('list')
+        }}
+      />
+    )
+  }
+
+  /* ── Render: List ── */
+  return (
+    <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
+      {isLoading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
+          <Spinner />
+        </div>
+      )}
+
+      {/* Page header */}
+      <div className="text-start">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+          {t('adminDashboard.privateGroups.title', 'المجموعات الدراسية')}
+        </h1>
+        <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+          {t('adminDashboard.groups.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
+        </p>
+      </div>
+
+      {/* Statistics cards — clickable tabs */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        {[
+          { label: t('adminDashboard.privateGroups.tabs.all', 'الكل'), value: metrics.total, cls: 'text-slate-700 dark:text-slate-200', tab: 'all' },
+          { label: t('adminDashboard.privateGroups.tabs.pending', 'قيد الانتظار'), value: metrics.pending, cls: 'text-amber-500 dark:text-amber-400', tab: 'pending' },
+          { label: t('adminDashboard.privateGroups.tabs.active', 'نشطة'), value: metrics.active, cls: 'text-brand-600 dark:text-brand-400', tab: 'active' },
+          { label: t('adminDashboard.privateGroups.tabs.stopped', 'متوقفة'), value: metrics.stopped, cls: 'text-red-500 dark:text-red-400', tab: 'stopped' },
+          { label: t('adminDashboard.privateGroups.tabs.completed', 'مكتملة'), value: metrics.completed, cls: 'text-slate-500 dark:text-slate-400', tab: 'completed' },
+        ].map((m) => (
+          <button
+            key={m.tab}
+            type="button"
+            onClick={() => handleTabChange(m.tab)}
+            className={`flex flex-col items-center justify-center gap-1 p-5 rounded-3xl border shadow-soft transition-all cursor-pointer ${
+              activeTab === m.tab
+                ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700'
+                : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/60 hover:border-brand-200 dark:hover:border-brand-800'
+            }`}
+          >
+            <span className={`text-3xl font-extrabold ${m.cls}`}>{m.value}</span>
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center">{m.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
+        {/* Row 1: Add + type filter + search */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Add group */}
+            <button
+              onClick={() => {
+                setSelectedGroup(null)
+                setViewMode('add-group')
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/20 active:scale-[0.98] cursor-pointer"
+            >
+              <Plus size={18} />
+              <span>{t('adminDashboard.groups.addGroup', 'إضافة مجموعة')}</span>
+            </button>
+
+            {/* Type filter: الكل / عامة / خاصة */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {TYPE_FILTER_VALUES.map((typeVal) => (
+                <button
+                  key={typeVal}
+                  onClick={() => handleTypeChange(typeVal)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    typeFilter === typeVal
+                      ? 'bg-brand-500 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {TYPE_LABELS[typeVal]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="relative w-full sm:w-64">
+            <Search
+              size={16}
+              className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`}
+            />
+            <input
+              type="text"
+              placeholder={t('adminDashboard.groups.searchPlaceholder', 'بحث في المجموعات...')}
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
+              className={`w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-2xl py-2.5 ${isRtl ? 'pr-9 pl-4' : 'pl-9 pr-4'} text-sm text-slate-700 dark:text-slate-200 outline-none border border-transparent focus:border-brand-400 transition-colors placeholder-slate-400`}
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Status tabs */}
+        <div className="flex items-center gap-1.5 flex-wrap border-t border-slate-100 dark:border-slate-800 pt-3">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => handleTabChange(tab.key)}
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === tab.key
+                  ? 'bg-brand-500 text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Group cards grid */}
+      {groups.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60">
+          <Layers size={48} strokeWidth={1.5} />
+          <p className="text-sm font-medium">{t('adminDashboard.groups.noGroupsFound', 'لا توجد مجموعات مطابقة')}</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {groups.map((group) => (
+            <GroupCard
+              key={group.id}
+              group={group}
+              onEdit={handleEditGroup}
+              onViewStudents={handleViewStudents}
+              onDelete={handleDeleteGroup}
+              onChangeTeacher={handleOpenChangeTeacher}
+              t={t}
+              isRtl={isRtl}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      <div
+        className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${
+          isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
+        }`}
+      >
+        <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
+          {isRtl ? (
+            <>
+              {t('adminDashboard.students.pagination.showing', 'عرض')}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span>{' '}
+              {t('adminDashboard.students.pagination.to', 'إلى')}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
+              {t('adminDashboard.students.pagination.of', 'من أصل')}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
+              {t('adminDashboard.privateGroups.title', 'مجموعة')}
+            </>
+          ) : (
+            <>
+              {t('adminDashboard.students.pagination.showing', 'Showing')}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span>{' '}
+              {t('adminDashboard.students.pagination.to', 'to')}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
+              {t('adminDashboard.students.pagination.of', 'of')}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
+              {t('adminDashboard.privateGroups.title', 'groups')}
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1 || isPaginationDimmed}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+          >
+            {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
+          </button>
+          <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages || isPaginationDimmed}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+          >
+            {isRtl ? <ChevronLeft size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showStudentsModal && selectedGroup && (
+        <GroupDetailsModal
+          group={selectedGroup}
+          onClose={() => {
+            setShowStudentsModal(false)
+            setSelectedGroup(null)
+          }}
+          onRemoveStudent={handleRemoveStudent}
+          onOpenAddStudents={() => {
+            setShowStudentsModal(false)
+            setShowAddStudentsModal(true)
+          }}
+          onAddStudent={handleAddSingleStudent}
+          onChangeTeacher={handleOpenChangeTeacher}
+          t={t}
+          isRtl={isRtl}
+        />
+      )}
+
+      {showAddStudentsModal && selectedGroup && (
+        <AddStudentsModal
+          group={selectedGroup}
+          isRtl={isRtl}
+          onAdd={handleAddStudents}
+          onCancel={() => setShowAddStudentsModal(false)}
+        />
+      )}
+
+      {showChangeTeacherModal && groupForTeacherChange && (
+        <ChangeTeacherModal
+          group={groupForTeacherChange}
+          onClose={() => {
+            setShowChangeTeacherModal(false)
+            setGroupForTeacherChange(null)
+          }}
+          onConfirm={handleChangeTeacher}
+          isRtl={isRtl}
+        />
+      )}
+    </div>
+  )
+}

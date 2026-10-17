@@ -234,7 +234,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
       })),
       startDate: formData.startDate,
       endDate: formData.endDate,
-      status: formData.status || 'active',
+      ...(group && { status: formData.status || 'active' }),
     }
 
     onSave(payload)

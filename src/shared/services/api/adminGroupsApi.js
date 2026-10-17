@@ -6,6 +6,31 @@ export const adminGroupsApi = {
     return response.data;
   },
 
+  fetchLocalizedGroups: async (params = {}) => {
+    const response = await api.get('/api/v1/groups/private/localized/all', { params });
+    return response.data;
+  },
+
+  fetchLocalizedPendingGroups: async (params = {}) => {
+    const response = await api.get('/api/v1/groups/private/localized/pending', { params });
+    return response.data;
+  },
+
+  fetchLocalizedActiveGroups: async (params = {}) => {
+    const response = await api.get('/api/v1/groups/private/localized/active', { params });
+    return response.data;
+  },
+
+  fetchLocalizedStoppedGroups: async (params = {}) => {
+    const response = await api.get('/api/v1/groups/private/localized/stopped', { params });
+    return response.data;
+  },
+
+  fetchLocalizedCompletedGroups: async (params = {}) => {
+    const response = await api.get('/api/v1/groups/private/localized/completed', { params });
+    return response.data;
+  },
+
   fetchGroupByIdLocalized: async (id, params = {}) => {
     try {
       const response = await api.get(`/api/v1/groups/private/localized/${id}`, { params });

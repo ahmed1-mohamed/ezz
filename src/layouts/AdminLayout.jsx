@@ -40,6 +40,7 @@ import { useAuth } from '@/shared/context/useAuth'
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents' },
   { path: '/dashboard/admin/explanation-languages', icon: Languages, transKey: 'explanationLanguages' },
   { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups' },
+  { path: '/dashboard/admin/private-groups', icon: Layers, transKey: 'privateGroups' },
   { path: '/dashboard/admin/website', icon: Globe, transKey: 'website' },
   { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions' },
   { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule' },
@@ -306,6 +307,16 @@ export default memo(function AdminLayout() {
                   );
                 })()}
               </div>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                title={t('dashboard.logout', 'تسجيل الخروج')}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-all cursor-pointer shadow-sm"
+              >
+                <LogOut size={16} aria-hidden="true" />
+                <span className="hidden sm:inline">{t('dashboard.logout', 'تسجيل الخروج')}</span>
+              </button>
             </div>
           </div>
 

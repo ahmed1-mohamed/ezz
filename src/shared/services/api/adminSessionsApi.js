@@ -1,149 +1,203 @@
 import api from './axiosConfig';
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const mapSessionData = (item) => {
+  if (!item) return null;
+  const id = item.id || item._id;
 
-let mockSessions = [
-  {
-    id: 1,
-    groupName: 'مجموعة القرآن أ',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'live',
-  },
-  {
-    id: 2,
-    groupName: 'مجموعة القرآن أ',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'upcoming',
-  },
-  {
-    id: 3,
-    groupName: 'مجموعة القرآن ب',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'upcoming',
-  },
-  {
-    id: 4,
-    groupName: 'مجموعة القرآن ب',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'completed',
-  },
-  {
-    id: 5,
-    groupName: 'مجموعة القرآن ب',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'completed',
-  },
-  {
-    id: 6,
-    groupName: 'مجموعة القرآن ب',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'upcoming',
-  },
-  {
-    id: 7,
-    groupName: 'مجموعة القرآن ب',
-    teacher: 'فاطمة الزهراء',
-    teacherId: 3,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'cancelled',
-  },
-  {
-    id: 8,
-    groupName: 'مجموعة العربية ب',
-    teacher: 'محمد أحمد علي',
-    teacherId: 4,
-    date: '2024-04-23',
-    time: '10:00',
-    duration: 60,
-    studentsCount: 4,
-    status: 'completed',
-  },
-];
+  let groupName = '';
+  let groupId = null;
+  if (item.group && typeof item.group === 'object') {
+    groupId = item.group.id || item.group._id;
+    if (typeof item.group.name === 'object' && item.group.name !== null) {
+      groupName = item.group.name.ar || item.group.name.en || '';
+    } else {
+      groupName = item.group.name || '';
+    }
+  } else if (item.groupName) {
+    groupName = typeof item.groupName === 'object' && item.groupName !== null
+      ? (item.groupName.ar || item.groupName.en || '')
+      : String(item.groupName);
+  } else if (typeof item.group === 'string') {
+    groupName = item.group;
+  }
+
+  let teacherName = '';
+  let teacherId = null;
+  let teacherEmail = '';
+  let teacherPhone = '';
+  if (item.teacher && typeof item.teacher === 'object') {
+    teacherId = item.teacher.id || item.teacher._id;
+    teacherEmail = item.teacher.email || '';
+    teacherPhone = item.teacher.phone || '';
+    if (typeof item.teacher.name === 'object' && item.teacher.name !== null) {
+      teacherName = item.teacher.name.ar || item.teacher.name.en || '';
+    } else {
+      teacherName = item.teacher.name || '';
+    }
+  } else if (typeof item.teacher === 'string') {
+    teacherName = item.teacher;
+  }
+
+  const startTime = item.startTime || item.time || '';
+  const endTime = item.endTime || '';
+  const time = (startTime && endTime) ? `${startTime} - ${endTime}` : startTime;
+  const durationMinutes = Number(item.durationMinutes ?? item.duration ?? 60);
+
+  const attendance = Array.isArray(item.attendance) ? item.attendance : [];
+  const studentsCount = attendance.length > 0 
+    ? attendance.length 
+    : Number(item.studentsCount ?? item.students?.length ?? 0);
+
+  // Normalize status
+  let status = (item.status || 'scheduled').toLowerCase();
+  if (status === 'upcoming') status = 'scheduled';
+
+  return {
+    ...item,
+    id,
+    _id: id,
+    title: item.title || '',
+    sessionNumber: item.sessionNumber ?? '',
+    group: item.group,
+    groupId,
+    groupName: groupName || 'مجموعة دراسية',
+    teacher: teacherName || 'غير محدد',
+    teacherId,
+    teacherEmail,
+    teacherPhone,
+    date: item.date || '',
+    day: item.day || '',
+    rawDay: item.rawDay || '',
+    startTime,
+    endTime,
+    time,
+    duration: durationMinutes,
+    durationMinutes,
+    studentsCount,
+    status,
+    type: item.type || 'regular',
+    zoomJoinUrl: item.zoomJoinUrl || '',
+    attendance,
+    teacherAttendance: item.teacherAttendance || null,
+  };
+};
 
 export const adminSessionsApi = {
-  fetchSessions: async () => {
-    try {
-      const response = await api.get('/api/v1/admin/sessions');
-      return response.data;
-    } catch (error) {
-      console.warn('API fetchSessions failed, using mock data:', error);
-      await delay(400);
-      return { success: true, data: [...mockSessions] };
+  fetchSessions: async (params = {}) => {
+    const { page = 1, limit = 10, status, search, ...rest } = params;
+    const queryParams = { page, limit, ...rest };
+
+    if (search && typeof search === 'string' && search.trim()) {
+      queryParams.search = search.trim();
     }
+    if (status && status !== 'all') {
+      queryParams.status = status;
+    }
+
+    const endpoints = [
+      '/api/v1/sessions/private',
+      '/api/v1/sessions',
+      '/api/v1/admin/sessions',
+    ];
+
+    let lastError = null;
+    for (const ep of endpoints) {
+      try {
+        const response = await api.get(ep, { params: queryParams });
+        const resData = response.data || {};
+        const rawList = resData.data || (Array.isArray(resData) ? resData : []);
+        const items = Array.isArray(rawList) ? rawList.map(mapSessionData).filter(Boolean) : [];
+
+        const totalCount = resData.pagination?.totalCount ?? resData.pagination?.total ?? items.length;
+        const pagination = resData.pagination || {
+          currentPage: page,
+          limit,
+          numberOfPages: Math.max(1, Math.ceil(totalCount / limit)),
+          totalCount,
+        };
+
+        return {
+          ...resData,
+          success: true,
+          data: items,
+          pagination,
+          totalCount,
+        };
+      } catch (err) {
+        lastError = err;
+        // Continue to fallback endpoint if 404
+        if (err.response?.status !== 404) {
+          break;
+        }
+      }
+    }
+
+    console.warn('API fetchSessions failed:', lastError);
+    return {
+      success: false,
+      data: [],
+      pagination: { currentPage: page, limit, numberOfPages: 1, totalCount: 0 },
+      error: lastError,
+    };
   },
 
   rescheduleSession: async (id, newDate, newTime) => {
     try {
-      const response = await api.put(`/api/v1/admin/sessions/${id}/reschedule`, { date: newDate, time: newTime });
-      return response.data;
+      const response = await api.put(`/api/v1/sessions/private/${id}/reschedule`, {
+        date: newDate,
+        startTime: newTime,
+        time: newTime,
+      });
+      return { success: true, data: response.data };
     } catch (error) {
-      console.warn('API rescheduleSession failed, using mock:', error);
-      await delay(400);
-      mockSessions = mockSessions.map((s) =>
-        s.id === id ? { ...s, date: newDate, time: newTime } : s
-      );
-      return { success: true, data: { id, date: newDate, time: newTime } };
+      try {
+        const fallbackRes = await api.patch(`/api/v1/sessions/${id}`, {
+          date: newDate,
+          startTime: newTime,
+        });
+        return { success: true, data: fallbackRes.data };
+      } catch (err2) {
+        console.warn('rescheduleSession failed:', error);
+        return { success: false, error: err2 };
+      }
     }
   },
 
   changeTeacher: async (id, teacherId, teacherName) => {
     try {
-      const response = await api.put(`/api/v1/admin/sessions/${id}/teacher`, { teacherId, teacherName });
-      return response.data;
+      const response = await api.put(`/api/v1/sessions/private/${id}/teacher`, {
+        teacher: teacherId,
+        teacherId,
+        teacherName,
+      });
+      return { success: true, data: response.data };
     } catch (error) {
-      console.warn('API changeTeacher failed, using mock:', error);
-      await delay(400);
-      mockSessions = mockSessions.map((s) =>
-        s.id === id ? { ...s, teacher: teacherName, teacherId } : s
-      );
-      return { success: true, data: { id, teacher: teacherName, teacherId } };
+      try {
+        const fallbackRes = await api.patch(`/api/v1/sessions/${id}`, {
+          teacher: teacherId,
+        });
+        return { success: true, data: fallbackRes.data };
+      } catch (err2) {
+        console.warn('changeTeacher failed:', error);
+        return { success: false, error: err2 };
+      }
     }
   },
 
   cancelSession: async (id) => {
     try {
-      const response = await api.put(`/api/v1/admin/sessions/${id}/cancel`);
-      return response.data;
+      const response = await api.put(`/api/v1/sessions/private/${id}/cancel`);
+      return { success: true, data: response.data, message: 'Session cancelled' };
     } catch (error) {
-      console.warn('API cancelSession failed, using mock:', error);
-      await delay(400);
-      mockSessions = mockSessions.map((s) =>
-        s.id === id ? { ...s, status: 'cancelled' } : s
-      );
-      return { success: true, message: 'Session cancelled' };
+      try {
+        const fallbackRes = await api.patch(`/api/v1/sessions/${id}`, { status: 'cancelled' });
+        return { success: true, data: fallbackRes.data, message: 'Session cancelled' };
+      } catch (err2) {
+        console.warn('cancelSession failed:', error);
+        return { success: false, error: err2 };
+      }
     }
   },
 };
+
+export default adminSessionsApi;

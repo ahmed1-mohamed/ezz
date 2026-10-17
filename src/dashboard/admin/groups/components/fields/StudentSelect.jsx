@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { ChevronDown, Search, X, Check, User } from 'lucide-react'
+import { ChevronDown, Search, X, Check, User, Loader2 } from 'lucide-react'
+import { studentsApi } from '@/shared/services/api/studentsApi'
 
 export default function StudentSelect({
   students = [],
@@ -12,27 +13,56 @@ export default function StudentSelect({
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [backendStudents, setBackendStudents] = useState(null)
   const containerRef = useRef(null)
   const searchInputRef = useRef(null)
 
   const excludedSet = useMemo(() => new Set(excludeIds.map(String)), [excludeIds])
 
-  const availableStudents = useMemo(() => {
-    return students.filter((s) => !excludedSet.has(String(s.id || s._id)))
-  }, [students, excludedSet])
+  // Effective list of students: backend results if a search was performed, otherwise the initial prop list
+  const currentPool = useMemo(() => {
+    const list = backendStudents !== null ? backendStudents : students
+    return Array.isArray(list) ? list : []
+  }, [backendStudents, students])
 
-  const filteredStudents = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return availableStudents
-    return availableStudents.filter((s) => {
-      const name = typeof s.name === 'object' && s.name !== null
-        ? `${s.name.ar || ''} ${s.name.en || ''}`
-        : (s.name || '')
-      const email = s.email || ''
-      const phone = s.phone || ''
-      return name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || phone.includes(q)
-    })
-  }, [availableStudents, searchQuery])
+  const availableStudents = useMemo(() => {
+    return currentPool.filter((s) => !excludedSet.has(String(s.id || s._id)))
+  }, [currentPool, excludedSet])
+
+  // Backend search with 350ms debounce
+  useEffect(() => {
+    if (!isOpen) return
+
+    const trimmed = searchQuery.trim()
+    if (!trimmed) {
+      setBackendStudents(null)
+      setIsSearching(false)
+      return
+    }
+
+    let active = true
+    setIsSearching(true)
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await studentsApi.fetchStudents({ search: trimmed, limit: 50 })
+        if (!active) return
+        const list = res?.data || (Array.isArray(res) ? res : [])
+        setBackendStudents(Array.isArray(list) ? list : [])
+      } catch (err) {
+        console.warn('Backend student search failed:', err)
+        if (active) setBackendStudents([])
+      } finally {
+        if (active) setIsSearching(false)
+      }
+    }, 350)
+
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [searchQuery, isOpen])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -62,7 +92,7 @@ export default function StudentSelect({
 
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>
-       <button
+      <button
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -98,16 +128,20 @@ export default function StudentSelect({
         </div>
       </button>
 
-       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-3 space-y-2 max-h-72 flex flex-col animate-fadeIn">
-           <div className="relative shrink-0">
-            <Search size={14} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
+      {isOpen && (
+        <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-3 space-y-2 max-h-80 flex flex-col animate-fadeIn">
+          <div className="relative shrink-0">
+            {isSearching ? (
+              <Loader2 size={14} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-brand-500 animate-spin pointer-events-none`} />
+            ) : (
+              <Search size={14} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
+            )}
             <input
               ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isRtl ? 'ابحث بالاسم أو البريد...' : 'Search student...'}
+              placeholder={isRtl ? 'ابحث في الطلاب (بحث من السيرفر)...' : 'Search students (server search)...'}
               className={`w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-xl py-2 ${
                 isRtl ? 'pr-9 pl-8' : 'pl-9 pr-8'
               } text-xs text-slate-800 dark:text-slate-100 outline-none border border-transparent focus:border-brand-400 transition-colors`}
@@ -115,7 +149,10 @@ export default function StudentSelect({
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('')
+                  setBackendStudents(null)
+                }}
                 className={`absolute ${isRtl ? 'left-2.5' : 'right-2.5'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer`}
               >
                 <X size={12} />
@@ -123,13 +160,18 @@ export default function StudentSelect({
             )}
           </div>
 
-           <div className="overflow-y-auto space-y-1 pr-0.5 max-h-52">
-            {filteredStudents.length === 0 ? (
+          <div className="overflow-y-auto space-y-1 pr-0.5 max-h-56 pb-6 overscroll-contain">
+            {isSearching ? (
+              <div className="py-6 flex flex-col items-center justify-center gap-2 text-xs text-slate-400">
+                <Loader2 size={16} className="animate-spin text-brand-500" />
+                <span>{isRtl ? 'جاري البحث في قاعدة البيانات...' : 'Searching database...'}</span>
+              </div>
+            ) : availableStudents.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 {isRtl ? 'لا يوجد طلاب متاحون' : 'No students found'}
               </div>
             ) : (
-              filteredStudents.map((student) => {
+              availableStudents.map((student) => {
                 const sId = student.id || student._id
                 const sName = getStudentName(student)
                 const isSelected = selectedStudent && String(selectedStudent.id || selectedStudent._id) === String(sId)
@@ -142,8 +184,9 @@ export default function StudentSelect({
                       onSelect(student)
                       setIsOpen(false)
                       setSearchQuery('')
+                      setBackendStudents(null)
                     }}
-                    className={`w-full flex items-center justify-between p-2 rounded-2xl text-start transition-all cursor-pointer ${
+                    className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-start transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-brand-500 text-white font-semibold shadow-sm'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-700 dark:text-slate-200'

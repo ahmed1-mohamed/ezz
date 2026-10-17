@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { GraduationCap, ArrowRight, ArrowLeft, Loader2, Check, UserCheck, AlertCircle } from 'lucide-react'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import TeacherSelect from './fields/TeacherSelect'
+import { getLocalizedValue } from '../utils/groupUtils'
 
 export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: propIsRtl }) {
   const { t, i18n } = useTranslation()
@@ -16,7 +17,8 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const currentTeacherId = group?.teacher?.id || (typeof group?.teacher === 'string' ? group?.teacher : null)
-  const currentTeacherName = group?.teacher?.name || (typeof group?.teacher === 'string' ? group?.teacher : t('adminDashboard.groups.unassigned', 'غير محدد'))
+  const rawTeacherName = group?.teacher?.name || (typeof group?.teacher === 'string' ? group?.teacher : t('adminDashboard.groups.unassigned', 'غير محدد'))
+  const currentTeacherName = getLocalizedValue(rawTeacherName, isRtl) || String(rawTeacherName || t('adminDashboard.groups.unassigned', 'غير محدد'))
 
   useEffect(() => {
     let isMounted = true
@@ -94,8 +96,8 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
               <h2 className="text-base font-bold text-slate-800 dark:text-white">
                 {t('adminDashboard.groups.changeTeacherTitle', 'تغيير معلم المجموعة')}
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs" title={group?.name}>
-                {group?.name}
+              <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs" title={getLocalizedValue(group?.name, isRtl)}>
+                {getLocalizedValue(group?.name, isRtl)}
               </p>
             </div>
           </div>

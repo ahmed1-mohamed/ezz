@@ -174,12 +174,34 @@ export function AuthProvider({ children }) {
         }
     }, [refreshProfile])
 
-    const logout = useCallback(async () => {
-        await authApi.logout()
-        setUser(null)
-        deleteCookie('authUser')
-        deleteCookie('access_token')
-        deleteCookie('refresh_token')
+    const logout = useCallback(async (options = {}) => {
+        const redirectPath = (typeof options === 'string')
+            ? options
+            : (options && typeof options.redirectPath === 'string' ? options.redirectPath : '/login')
+
+        try {
+            await authApi.logout()
+        } catch (err) {
+            console.warn('API logout error:', err)
+        } finally {
+            setUser(null)
+            deleteCookie('authUser')
+            deleteCookie('access_token')
+            deleteCookie('refresh_token')
+            if (api?.defaults?.headers?.common) {
+                delete api.defaults.headers.common['Authorization']
+            }
+            try {
+                localStorage.removeItem('access_token')
+                localStorage.removeItem('refresh_token')
+                localStorage.removeItem('authUser')
+            } catch {
+                // Ignore
+            }
+            if (redirectPath && typeof redirectPath === 'string') {
+                window.location.href = redirectPath
+            }
+        }
     }, [])
 
     const updateUser = useCallback((newData) => {

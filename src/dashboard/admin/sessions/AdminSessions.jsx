@@ -1,24 +1,18 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Calendar, ChevronLeft, ChevronRight, Loader2, X } from 'lucide-react'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
+import { teachersApi } from '@/shared/services/api/teachersApi'
 import Spinner from '@/shared/components/Spinner'
 import StatCard from './components/StatCard'
 import SessionRow from './components/SessionRow'
 
 const STATUS_TABS = [
   { key: 'all', label: 'الكل' },
+  { key: 'scheduled', label: 'مجدولة' },
   { key: 'live', label: 'مباشرة الآن' },
-  { key: 'upcoming', label: 'قادمة' },
   { key: 'completed', label: 'مكتملة' },
   { key: 'cancelled', label: 'ملغاة' },
-]
-
-const MOCK_TEACHERS = [
-  { id: 1, name: 'أحمد علي محمد' },
-  { id: 2, name: 'عائشة محمود' },
-  { id: 3, name: 'فاطمة الزهراء' },
-  { id: 4, name: 'محمد أحمد علي' },
 ]
 
 export default function AdminSessions() {
@@ -26,59 +20,94 @@ export default function AdminSessions() {
   const isRtl = i18n.language.startsWith('ar')
 
   const [sessions, setSessions] = useState([])
+  const [teachers, setTeachers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [activeTab, setActiveTab] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [expandedRow, setExpandedRow] = useState(null)
   const [expandedPanel, setExpandedPanel] = useState(null)
 
-  const itemsPerPage = 5
+  const itemsPerPage = 10
 
+  // Search debounce
   useEffect(() => {
-    async function loadSessions() {
-      setIsLoading(true)
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery)
+      setCurrentPage(1)
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  // Load teachers for the ChangeTeacherPanel
+  useEffect(() => {
+    let active = true
+    const loadTeachers = async () => {
       try {
-        const res = await adminSessionsApi.fetchSessions()
-        if (res.success) setSessions(res.data)
+        const res = await teachersApi.fetchTeachers({ limit: 100 })
+        if (!active) return
+        const list = res?.data || (Array.isArray(res) ? res : [])
+        const formatted = (Array.isArray(list) ? list : []).map((tch) => ({
+          id: tch.id || tch._id || tch.teacher_id,
+          name: tch.displayName || tch.name || (typeof tch.name === 'object' ? (tch.name.ar || tch.name.en) : 'معلم'),
+        }))
+        setTeachers(formatted)
       } catch (err) {
-        console.error('Failed to fetch sessions:', err)
-      } finally {
-        setIsLoading(false)
+        console.warn('Failed to fetch teachers for sessions dropdown:', err)
       }
     }
-    loadSessions()
+    loadTeachers()
+    return () => { active = false }
   }, [])
 
+  // Load sessions from API /api/v1/sessions/private
+  const loadSessions = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await adminSessionsApi.fetchSessions({
+        page: currentPage,
+        limit: itemsPerPage,
+        status: activeTab === 'all' ? undefined : activeTab,
+        search: debouncedSearch,
+      })
+      if (res && res.success) {
+        setSessions(res.data || [])
+        if (res.pagination) {
+          setTotalPages(res.pagination.numberOfPages || Math.max(1, Math.ceil((res.pagination.totalCount || res.data.length) / itemsPerPage)))
+          setTotalCount(res.pagination.totalCount ?? res.data.length)
+        } else {
+          setTotalCount(res.data.length)
+          setTotalPages(Math.max(1, Math.ceil(res.data.length / itemsPerPage)))
+        }
+      } else {
+        setSessions([])
+        setTotalCount(0)
+        setTotalPages(1)
+      }
+    } catch (err) {
+      console.error('Failed to fetch sessions:', err)
+      setSessions([])
+      setTotalCount(0)
+      setTotalPages(1)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage, itemsPerPage, activeTab, debouncedSearch])
+
+  useEffect(() => {
+    loadSessions()
+  }, [loadSessions])
+
+  // Statistics calculation
   const stats = useMemo(() => ({
     live: sessions.filter((s) => s.status === 'live').length,
-    upcoming: sessions.filter((s) => s.status === 'upcoming').length,
+    scheduled: sessions.filter((s) => s.status === 'scheduled').length,
     completed: sessions.filter((s) => s.status === 'completed').length,
     cancelled: sessions.filter((s) => s.status === 'cancelled').length,
   }), [sessions])
-
-  const filtered = useMemo(() => {
-    let result = sessions
-    if (activeTab !== 'all') result = result.filter((s) => s.status === activeTab)
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      result = result.filter(
-        (s) =>
-          (s.groupName || '').toLowerCase().includes(q) ||
-          (s.teacher || '').toLowerCase().includes(q)
-      )
-    }
-    return result
-  }, [sessions, activeTab, searchQuery])
-
-  const totalCount = filtered.length
-  const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage))
-  const isPaginationDimmed = totalPages <= 1
-
-  const paged = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage
-    return filtered.slice(start, start + itemsPerPage)
-  }, [filtered, currentPage])
 
   const handleTogglePanel = (sessionId, panel) => {
     if (expandedRow === sessionId && expandedPanel === panel) {
@@ -94,7 +123,7 @@ export default function AdminSessions() {
     const res = await adminSessionsApi.rescheduleSession(sessionId, newDate, newTime)
     if (res.success) {
       setSessions((prev) =>
-        prev.map((s) => (s.id === sessionId ? { ...s, date: newDate, time: newTime } : s))
+        prev.map((s) => (s.id === sessionId ? { ...s, date: newDate, time: newTime, startTime: newTime } : s))
       )
       setExpandedRow(null)
       setExpandedPanel(null)
@@ -126,8 +155,8 @@ export default function AdminSessions() {
   const getTabLabel = (key, defaultLabel) => {
     const map = {
       'all': t('adminDashboard.sessions.tabs.all', 'الكل'),
+      'scheduled': t('adminDashboard.sessions.tabs.scheduled', 'مجدولة'),
       'live': t('adminDashboard.sessions.tabs.live', 'مباشرة الآن'),
-      'upcoming': t('adminDashboard.sessions.tabs.upcoming', 'قادمة'),
       'completed': t('adminDashboard.sessions.tabs.completed', 'مكتملة'),
       'cancelled': t('adminDashboard.sessions.tabs.cancelled', 'ملغاة'),
     }
@@ -136,6 +165,7 @@ export default function AdminSessions() {
 
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
+  const isPaginationDimmed = totalPages <= 1
 
   return (
     <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -146,7 +176,7 @@ export default function AdminSessions() {
       )}
       <div className="text-start">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-          {t('adminDashboard.sessions.title', 'إدارة الحصص')}
+          {t('adminDashboard.sessions.title', 'إدارة الحصص الدراسية')}
         </h1>
         <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
           {t('adminDashboard.sessions.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
@@ -154,59 +184,89 @@ export default function AdminSessions() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label={t('adminDashboard.sessions.liveNow', 'مباشر الآن')} value={stats.live} color="red" />
-        <StatCard label={t('adminDashboard.sessions.upcoming', 'حصص قادمة')} value={stats.upcoming} color="blue" />
-        <StatCard label={t('adminDashboard.sessions.completed', 'حصص مكتملة')} value={stats.completed} color="green" />
-        <StatCard label={t('adminDashboard.sessions.cancelled', 'ملغاة')} value={stats.cancelled} color="amber" />
+        <StatCard
+          label={t('adminDashboard.sessions.scheduled', 'حصص مجدولة')}
+          value={stats.scheduled}
+          color="blue"
+        />
+        <StatCard
+          label={t('adminDashboard.sessions.liveNow', 'مباشر الآن')}
+          value={stats.live}
+          color="red"
+        />
+        <StatCard
+          label={t('adminDashboard.sessions.completed', 'حصص مكتملة')}
+          value={stats.completed}
+          color="green"
+        />
+        <StatCard
+          label={t('adminDashboard.sessions.cancelled', 'ملغاة')}
+          value={stats.cancelled}
+          color="amber"
+        />
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft overflow-hidden">
+        {/* Search Bar */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="relative max-w-sm mx-auto">
+          <div className="relative max-w-md mx-auto">
             <Search size={16} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
             <input
               type="text"
-              placeholder={t('adminDashboard.sessions.searchPlaceholder', 'بحث باسم المجموعة أو المعلم...')}
+              placeholder={t('adminDashboard.sessions.searchPlaceholder', 'بحث باسم المجموعة أو المعلم أو عنوان الحصة...')}
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-              className={`w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-2xl py-2.5 ${isRtl ? 'pr-9 pl-4' : 'pl-9 pr-4'} text-sm text-slate-700 dark:text-slate-200 outline-none border border-transparent focus:border-brand-400 transition-colors placeholder-slate-400`}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full bg-[#f3f7f6] dark:bg-slate-800 rounded-2xl py-2.5 ${isRtl ? 'pr-9 pl-9' : 'pl-9 pr-9'} text-sm text-slate-700 dark:text-slate-200 outline-none border border-transparent focus:border-brand-400 transition-colors placeholder-slate-400`}
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className={`absolute ${isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer`}
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 
+        {/* Status Tabs */}
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => { setActiveTab(tab.key); setCurrentPage(1) }}
-              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === tab.key
+              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                activeTab === tab.key
                   ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
                   : 'bg-[#f3f7f6] dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
+              }`}
             >
               {getTabLabel(tab.key, tab.label)}
             </button>
           ))}
         </div>
 
-        <div className="hidden md:grid grid-cols-[2fr_2fr_1.2fr_1.2fr_0.8fr_1.2fr_1.5fr] gap-2 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-xs font-bold text-slate-500 dark:text-slate-400 text-end">
-          <span>{t('adminDashboard.sessions.headers.actions', 'الإجراءات')}</span>
-          <span>{t('adminDashboard.sessions.headers.status', 'الحالة')}</span>
-          <span>{t('adminDashboard.sessions.headers.count', 'العدد')}</span>
-          <span>{t('adminDashboard.sessions.headers.time', 'الوقت')}</span>
-          <span>{t('adminDashboard.sessions.headers.date', 'التاريخ')}</span>
-          <span>{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
-          <span>{t('adminDashboard.sessions.headers.group', 'المجموعة')}</span>
+        {/* Correctly Ordered Table Headers */}
+        <div className="hidden md:grid grid-cols-[2.5fr_1.8fr_1.3fr_1.4fr_0.9fr_1.1fr_2.2fr] gap-3 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-xs font-bold text-slate-500 dark:text-slate-400">
+          <span className="text-start">{t('adminDashboard.sessions.headers.group', 'المجموعة والحصة')}</span>
+          <span className="text-start">{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
+          <span className="text-start">{t('adminDashboard.sessions.headers.date', 'التاريخ واليوم')}</span>
+          <span className="text-start">{t('adminDashboard.sessions.headers.time', 'الوقت والمدة')}</span>
+          <span className="text-center">{t('adminDashboard.sessions.headers.count', 'عدد الطلاب')}</span>
+          <span className="text-center">{t('adminDashboard.sessions.headers.status', 'الحالة')}</span>
+          <span className="text-end">{t('adminDashboard.sessions.headers.actions', 'الإجراءات')}</span>
         </div>
 
+        {/* Sessions List */}
         <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
-          {paged.length === 0 ? (
+          {sessions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
               <Calendar size={40} strokeWidth={1.5} />
               <p className="text-sm font-medium">{t('adminDashboard.sessions.noSessionsFound', 'لا توجد حصص مطابقة')}</p>
             </div>
           ) : (
-            paged.map((session) => (
+            sessions.map((session) => (
               <SessionRow
                 key={session.id}
                 session={session}
@@ -216,15 +276,18 @@ export default function AdminSessions() {
                 handleReschedule={handleReschedule}
                 handleChangeTeacher={handleChangeTeacher}
                 handleCancelSession={handleCancelSession}
-                mockTeachers={MOCK_TEACHERS}
+                mockTeachers={teachers}
                 t={t}
               />
             ))
           )}
         </div>
 
-         <div
-          className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
+        {/* Pagination Footer */}
+        <div
+          className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${
+            isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
+          }`}
         >
           <div className="text-sm text-slate-400 dark:text-slate-500 font-medium">
             {isRtl ? (

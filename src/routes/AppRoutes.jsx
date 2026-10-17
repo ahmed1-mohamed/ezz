@@ -34,6 +34,7 @@ const AdminReports = lazy(() => import('../dashboard/admin/reports/AdminReports.
 const AdminSettings = lazy(() => import('../dashboard/admin/settings/AdminSettings.jsx'))
 const AdminParents = lazy(() => import('../dashboard/admin/parents/AdminParents.jsx'))
 const AdminGroups = lazy(() => import('../dashboard/admin/groups/AdminGroups.jsx'))
+const AdminPrivateGroups = lazy(() => import('../dashboard/admin/groups/AdminPrivateGroups.jsx'))
 const AdminSessions = lazy(() => import('../dashboard/admin/sessions/AdminSessions.jsx'))
 const AdminSchedule = lazy(() => import('../dashboard/admin/schedule/AdminSchedule.jsx'))
 const AdminPackages = lazy(() => import('../dashboard/admin/packages/AdminPackages.jsx'))
@@ -285,6 +286,10 @@ export default function AppRoutes() {
                                     <Route
                                         path="/dashboard/admin/groups"
                                         element={<AdminGroups />}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/private-groups"
+                                        element={<AdminPrivateGroups />}
                                     />
                                     <Route
                                         path="/dashboard/admin/sessions"

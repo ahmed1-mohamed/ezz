@@ -7,31 +7,35 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
   const nameAr = teacher?.nameAr || (typeof teacher?.name === 'object' ? teacher?.name?.ar : teacher?.name) || '-'
   const nameEn = teacher?.nameEn || (typeof teacher?.name === 'object' ? teacher?.name?.en : '') || '-'
   const email = teacher?.email || '-'
-
   const rawPhone = teacher?.phone ? String(teacher.phone).trim() : ''
   const countryObj = typeof teacher?.country === 'object' && teacher?.country !== null ? teacher.country : null
   const rawCountry = countryObj
-    ? (isRtl ? countryObj.name || countryObj.nameAr : countryObj.nameEn || countryObj.name) || ''
+    ? (isRtl
+        ? (typeof countryObj.name === 'object' ? (countryObj.name?.ar || countryObj.name?.en) : (countryObj.name || countryObj.nameAr))
+        : (typeof countryObj.name === 'object' ? (countryObj.name?.en || countryObj.name?.ar) : (countryObj.nameEn || countryObj.name))
+      ) || ''
     : (teacher?.country ? String(teacher.country).trim() : '')
-
   const { data: countriesRes, isLoading: isLoadingCountries } = useQuery({
     queryKey: ['countries'],
     queryFn: () => teachersApi.fetchCountries(),
     staleTime: 5 * 60 * 1000
   })
-
   const countries = useMemo(() => {
     const rawList = countriesRes?.data || (Array.isArray(countriesRes) ? countriesRes : [])
-
-    return rawList.map((c) => ({
-      id: c.id || c._id,
-      code: c.phoneCode || c.code || '',
-      flag: c.flag || '🌐',
-      nameAr: typeof c.name === 'object' ? (c.name.ar || c.name.en || '') : (c.name || c.nameAr || ''),
-      nameEn: typeof c.name === 'object' ? (c.name.en || c.name.ar || '') : (c.nameEn || c.name || '')
-    }))
+    return rawList.map((c) => {
+      let code = c.phoneCode || c.code || ''
+      if (code && !code.startsWith('+') && !code.startsWith('00')) {
+        code = `+${code}`
+      }
+      return {
+        id: c.id || c._id,
+        code,
+        flag: c.flag || '🌐',
+        nameAr: typeof c.name === 'object' ? (c.name.ar || c.name.en || '') : (c.name || c.nameAr || ''),
+        nameEn: typeof c.name === 'object' ? (c.name.en || c.name.ar || '') : (c.nameEn || c.name || '')
+      }
+    })
   }, [countriesRes])
-
   let countryFlag = countryObj?.flag || ''
   if (!countryFlag && rawCountry) {
     const flagMatch = rawCountry.match(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/u)
@@ -39,9 +43,9 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
       countryFlag = flagMatch[0]
     }
   }
-
   const matchedCountry = countries.find((c) =>
     (countryObj?._id && (c.id === countryObj._id || c.id === countryObj.id)) ||
+    (countryObj?.id && (c.id === countryObj.id || c.id === countryObj._id)) ||
     (rawCountry && c.id && c.id === rawCountry) ||
     (countryFlag && countryFlag === c.flag) ||
     (rawCountry && (
@@ -50,17 +54,14 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
       (c.code && rawCountry.includes(c.code))
     ))
   )
-
   const sortedByCode = useMemo(() => {
     return [...countries]
       .filter((c) => c.code && String(c.code).startsWith('+'))
       .sort((a, b) => b.code.length - a.code.length)
   }, [countries])
-
   let phoneCode = matchedCountry?.code || ''
   let flag = countryFlag || matchedCountry?.flag || ''
   let localNumber = '-'
-
   if (rawPhone && rawPhone !== '-') {
     if (rawPhone.includes(' ')) {
       const parts = rawPhone.split(/\s+/)
@@ -82,26 +83,20 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
       localNumber = rawPhone
     }
   }
-
   if (!localNumber || localNumber.trim() === '') {
     localNumber = '-'
   }
-
   const countryDisplayName = matchedCountry
     ? (isRtl ? matchedCountry.nameAr || matchedCountry.nameEn : matchedCountry.nameEn || matchedCountry.nameAr)
     : rawCountry
-
   const countryDisplay = matchedCountry
     ? `${matchedCountry.flag || ''} ${countryDisplayName}`.trim()
     : (rawCountry || '-')
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <h2 className="text-xl font-bold text-slate-800 dark:text-white">
         {isRtl ? 'البيانات الشخصية' : 'Personal Information'}
       </h2>
-
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -111,7 +106,6 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
             {nameAr}
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             Full Name
@@ -121,8 +115,6 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
           </div>
         </div>
       </div>
-
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -132,7 +124,6 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
             {email}
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'البلد' : 'Country'}
@@ -149,15 +140,13 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
           </div>
         </div>
       </div>
-
-
       <div>
         <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
           {isRtl ? 'رقم الهاتف' : 'Phone Number'}
         </label>
         <div className="flex gap-2.5" dir="ltr">
           <div className="h-12 flex items-center justify-center gap-2 px-3.5 bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 shrink-0 border border-slate-100/50 dark:border-slate-800/40 shadow-xs min-w-[70px]">
-            {isLoadingCountries && !rawPhone ? (
+            {isLoadingCountries && (!phoneCode && !flag) ? (
               <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
             ) : (
               <>
