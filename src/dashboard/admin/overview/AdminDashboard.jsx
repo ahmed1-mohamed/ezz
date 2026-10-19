@@ -14,46 +14,57 @@ export default function AdminDashboard() {
         staleTime: 5 * 60 * 1000,
     });
 
+    const statsData =
+        statsRes?.data?.statistics ??
+        statsRes?.statistics ??
+        statsRes?.data?.data?.statistics ??
+        statsRes?.data?.data ??
+        statsRes?.data ??
+        statsRes ??
+        {};
+
     const dashboardStats = {
-        students: statsRes?.data?.statistics?.students ?? '...',
-        teachers: statsRes?.data?.statistics?.teachers ?? '...',
-        parents: statsRes?.data?.statistics?.parents ?? '...',
-        classes: statsRes?.data?.statistics?.classes ?? '...'
+        students: statsData.students ?? statsData.totalStudents ?? '...',
+        teachers: statsData.teachers ?? statsData.totalTeachers ?? '...',
+        parents: statsData.parents ?? statsData.totalParents ?? '...',
+        groups: statsData.groups ?? statsData.totalGroups ?? statsData.classes ?? '...',
+        todayActiveSessions: statsData.todayActiveSessions ?? statsData.activeSessionsToday ?? statsData.activeSessions ?? '...',
+        platformRating: statsData.platformRating ?? statsData.rating ?? '4.8',
     };
 
     const stats = [
         {
             title: t('admin.totalStudents'),
             value: dashboardStats.students,
-
+            to: '/dashboard/admin/students',
             icon: <BookOpen className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.totalTeachers'),
             value: dashboardStats.teachers,
-
+            to: '/dashboard/admin/teachers',
             icon: <GraduationCap className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.parents'),
             value: dashboardStats.parents,
-
+            to: '/dashboard/admin/parents',
             icon: <Users className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.activeSessionsToday'),
-            value: '7',
-
+            value: dashboardStats.todayActiveSessions,
+            to: '/dashboard/admin/sessions',
             icon: <Calendar className="w-5 h-5" />,
             accent: 'bg-[#FFEBEE] text-[#D32F2F] dark:bg-[#C62828]/20 dark:text-[#EF5350]'
         },
         {
             title: t('admin.totalGroups'),
-            value: dashboardStats.classes,
-
+            value: dashboardStats.groups,
+            to: '/dashboard/admin/groups',
             icon: <Layers className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
@@ -61,11 +72,10 @@ export default function AdminDashboard() {
             title: t('admin.platformRating'),
             value: (
                 <span className="flex items-center gap-1.5">
-                    <span>4.8</span>
+                    <span>{dashboardStats.platformRating}</span>
                     <span className="text-amber-500 text-lg sm:text-xl">★</span>
                 </span>
             ),
-
             icon: <Activity className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         }
@@ -137,16 +147,28 @@ export default function AdminDashboard() {
     return (
         <>
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {stats.map((stat, i) => (
-                    <StatsCard
-                        key={i}
-                        title={stat.title}
-                        value={stat.value}
-                        change={stat.change}
-                        icon={stat.icon}
-                        accent={stat.accent}
-                    />
-                ))}
+                {stats.map((stat, i) => {
+                    const cardElement = (
+                        <StatsCard
+                            title={stat.title}
+                            value={stat.value}
+                            change={stat.change}
+                            icon={stat.icon}
+                            accent={stat.accent}
+                        />
+                    );
+                    return stat.to ? (
+                        <Link
+                            key={i}
+                            to={stat.to}
+                            className="block transition-transform duration-200 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#00796B]/30 rounded-2xl sm:rounded-3xl"
+                        >
+                            {cardElement}
+                        </Link>
+                    ) : (
+                        <div key={i}>{cardElement}</div>
+                    );
+                })}
             </section>
 
             <div className="space-y-4 sm:space-y-6 pt-6">

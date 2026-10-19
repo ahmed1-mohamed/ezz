@@ -41,8 +41,7 @@ const NAV_ITEMS = [
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents', permission: 'parents.read' },
   { path: '/dashboard/admin/explanation-languages', icon: Languages, transKey: 'explanationLanguages', permission: 'explanation_languages.read' },
   { path: '/dashboard/admin/groups', icon: Layers, transKey: 'groups', permission: 'groups.read' },
-  { path: '/dashboard/admin/private-groups', icon: Layers, transKey: 'privateGroups', permission: 'groups.read' },
-  {
+   {
     path: '/dashboard/admin/website',
     icon: Globe,
     transKey: 'website',
@@ -303,54 +302,32 @@ export default memo(function AdminLayout() {
             </p>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link
-              to="/"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#f3f7f6] dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 hover:bg-[#0f7a6c] hover:text-white dark:hover:bg-emerald-500 dark:hover:text-slate-950 transition-all hover:scale-105 active:scale-95 duration-200"
+          <div className="flex items-center gap-3">
+            <div className="text-end hidden xl:block">
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+              </h4>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                {displayRole}
+              </p>
+            </div>
+            <div
+              className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
+              aria-label={resolvedName || 'المستخدم'}
             >
-              <span>{t('adminDashboard.nav.mainWebsite', 'الموقع الرئيسي')}</span>
-              <Globe size={16} aria-hidden="true" />
-            </Link>
-
-            <div className="w-[1px] h-8 bg-slate-200 dark:bg-slate-800" aria-hidden="true" />
-
-            <div className="flex items-center gap-3">
-              <div className="text-end hidden xl:block">
-                <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
-                </h4>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                  {displayRole}
-                </p>
-              </div>
-              <div
-                className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
-                aria-label={resolvedName || 'المستخدم'}
-              >
-                {(() => {
-                  const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-                  const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-                  return cleanImg ? (
-                    <img
-                      src={cleanImg}
-                      alt={resolvedName || 'User profile'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    userInitial
-                  );
-                })()}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleLogout}
-                title={t('dashboard.logout', 'تسجيل الخروج')}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-all cursor-pointer shadow-sm"
-              >
-                <LogOut size={16} aria-hidden="true" />
-                <span className="hidden sm:inline">{t('dashboard.logout', 'تسجيل الخروج')}</span>
-              </button>
+              {(() => {
+                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                return cleanImg ? (
+                  <img
+                    src={cleanImg}
+                    alt={resolvedName || 'User profile'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userInitial
+                );
+              })()}
             </div>
           </div>
 

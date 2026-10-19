@@ -288,10 +288,7 @@ export default function AppRoutes() {
                                         path="/dashboard/admin/groups"
                                         element={<PermissionRoute permission="groups.read"><AdminGroups /></PermissionRoute>}
                                     />
-                                    <Route
-                                        path="/dashboard/admin/private-groups"
-                                        element={<PermissionRoute permission="groups.read"><AdminPrivateGroups /></PermissionRoute>}
-                                    />
+                                   
                                     <Route
                                         path="/dashboard/admin/sessions"
                                         element={<PermissionRoute permission="sessions.read"><AdminSessions /></PermissionRoute>}
@@ -451,4 +448,4 @@ export default function AppRoutes() {
             </Suspense>
         </div>
     )
-}
+}
