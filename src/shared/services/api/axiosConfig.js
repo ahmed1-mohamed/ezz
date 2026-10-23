@@ -140,7 +140,8 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 400) {
-      const msgs = error.response.data?.message;
+      const data = error.response.data;
+      const msgs = data?.message || data?.error || (typeof data === 'string' ? data : null);
 
       const focusInputByError = (msg) => {
         if (typeof msg !== 'string') return;
@@ -189,6 +190,9 @@ api.interceptors.response.use(
       } else if (typeof msgs === 'string') {
         toast.error(formatErrorMsg(msgs), { duration: 5000 });
         focusInputByError(msgs);
+      } else if (typeof msgs === 'object' && msgs !== null) {
+        const text = msgs.ar || msgs.en || JSON.stringify(msgs);
+        toast.error(formatErrorMsg(text), { duration: 5000 });
       } else {
         toast.error('حدث خطأ في البيانات المدخلة', { duration: 5000 });
       }

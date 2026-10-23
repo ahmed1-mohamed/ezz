@@ -23,18 +23,33 @@ export const dashboardApi = {
 
   fetchPendingEvaluation: async () => {
     try {
-      const response = await api.get('/api/v1/teacher/sessions/completed/pending-evaluations');
-      const resData = response.data?.data || response.data || {};
+      const response = await api.get('/api/v1/teacher/sessions/completed/pending-evaluations', {
+        skipLang: true,
+        skipToast: true,
+        validateStatus: (status) => status < 500,
+      });
+      const root = response.data || {};
+      const session = root.data && typeof root.data === 'object' && root.data.id ? root.data : null;
+      const pendingStudentIds = Array.isArray(root.pendingEvaluationStudentIds)
+        ? root.pendingEvaluationStudentIds
+        : [];
       return {
-        success: true,
-        session: resData.data || resData,
-        pendingStudentIds: Array.isArray(response.data?.pendingEvaluationStudentIds)
-          ? response.data.pendingEvaluationStudentIds
-          : [],
+        success: Boolean(session),
+        session,
+        pendingStudentIds,
       };
     } catch (error) {
-      console.error('API fetchPendingEvaluation failed:', error);
-      return { success: false, session: null, pendingStudentIds: [] };
+      console.warn('API fetchPendingEvaluation handled:', error);
+      const root = error?.response?.data || {};
+      const session = root.data && typeof root.data === 'object' && root.data.id ? root.data : null;
+      const pendingStudentIds = Array.isArray(root.pendingEvaluationStudentIds)
+        ? root.pendingEvaluationStudentIds
+        : [];
+      return {
+        success: Boolean(session),
+        session,
+        pendingStudentIds,
+      };
     }
   },
 

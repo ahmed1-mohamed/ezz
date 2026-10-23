@@ -107,12 +107,8 @@ export default function TeacherGroupDetails() {
   };
 
   return (
-    <DashboardLayout
-      title={group?.name || t('teacher.groupsTitle', 'تفاصيل المجموعة')}
-      role={t('auth.teacher', 'معلم')}
-      links={roleNavigation.Teacher}
-    >
-      <div className="space-y-6 pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="space-y-6">
         {/* Navigation Bar */}
         <div className="flex items-center justify-between">
           <Link
@@ -360,6 +356,11 @@ export default function TeacherGroupDetails() {
                         const attendancePercent =
                           completed > 0 ? Math.min(100, Math.round((attended / completed) * 100)) : 0;
 
+                        const studentName =
+                          typeof student.name === 'object' && student.name !== null
+                            ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
+                            : (student.name || 'طالب');
+
                         return (
                           <div
                             key={student.student_id || idx}
@@ -369,7 +370,7 @@ export default function TeacherGroupDetails() {
                               {student.image ? (
                                 <img
                                   src={student.image}
-                                  alt={student.name}
+                                  alt={studentName}
                                   className="w-13 h-13 rounded-2xl object-cover border-2 border-emerald-500/20 shadow-xs shrink-0"
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
@@ -377,13 +378,13 @@ export default function TeacherGroupDetails() {
                                 />
                               ) : (
                                 <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
-                                  {student.name ? student.name.charAt(0) : <User size={20} />}
+                                  {studentName ? studentName.charAt(0) : <User size={20} />}
                                 </div>
                               )}
 
                               <div className="min-w-0 flex-1">
                                 <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
-                                  {student.name}
+                                  {studentName}
                                 </h4>
                                 {student.student_id && (
                                   <div className="text-[11px] font-mono text-slate-400 truncate">
@@ -525,6 +526,6 @@ export default function TeacherGroupDetails() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

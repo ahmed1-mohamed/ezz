@@ -57,12 +57,14 @@ const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCo
 const ManagerSchedule = lazy(() => import('../dashboard/manager/schedules/ManagerSchedule.jsx'))
 const ManagerReports = lazy(() => import('../dashboard/manager/reports/ManagerReports.jsx'))
 
+const TeacherLayout = lazy(() => import('../layouts/TeacherLayout.jsx'))
 const TeacherDashboard = lazy(() => import('../dashboard/teacher/overview/TeacherDashboard.jsx'))
 const TeacherSchedule = lazy(() => import('../dashboard/teacher/schedules/TeacherSchedule.jsx'))
  const TeacherCourses = lazy(() => import('../dashboard/teacher/students/TeacherCourses.jsx'))
 const TeacherGroups = lazy(() => import('../dashboard/teacher/groups/TeacherGroups.jsx'))
 const TeacherGroupDetails = lazy(() => import('../dashboard/teacher/groups/TeacherGroupDetails.jsx'))
 const TeacherComplaints = lazy(() => import('../dashboard/teacher/complaints/TeacherComplaints.jsx'))
+const TeacherRewards = lazy(() => import('../dashboard/teacher/rewards/TeacherRewards.jsx'))
 
 const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
@@ -374,38 +376,44 @@ export default function AppRoutes() {
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Teacher']} />}>
-                                <Route
-                                    path="/dashboard/teacher"
-                                    element={<TeacherDashboard />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/groups"
-                                    element={<TeacherGroups />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/groups/:id"
-                                    element={<TeacherGroupDetails />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/schedule"
-                                    element={<TeacherSchedule />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/classes"
-                                    element={<TeacherGroups />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/classes/:id"
-                                    element={<TeacherGroupDetails />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/courses"
-                                    element={<TeacherCourses />}
-                                />
-                                <Route
-                                    path="/dashboard/teacher/complaints"
-                                    element={<TeacherComplaints />}
-                                />
+                                <Route element={<TeacherLayout />}>
+                                    <Route
+                                        path="/dashboard/teacher"
+                                        element={<TeacherDashboard />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/groups"
+                                        element={<TeacherGroups />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/groups/:id"
+                                        element={<TeacherGroupDetails />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/schedule"
+                                        element={<TeacherSchedule />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/classes"
+                                        element={<TeacherGroups />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/classes/:id"
+                                        element={<TeacherGroupDetails />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/courses"
+                                        element={<TeacherCourses />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/complaints"
+                                        element={<TeacherComplaints />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/rewards"
+                                        element={<TeacherRewards />}
+                                    />
+                                </Route>
                             </Route>
 
                             <Route element={<RoleBasedRoute allowedRoles={['Student']} />}>

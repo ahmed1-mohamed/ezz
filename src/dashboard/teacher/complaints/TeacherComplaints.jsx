@@ -190,12 +190,8 @@ export default function TeacherComplaints() {
   };
 
   return (
-    <DashboardLayout
-      title={t('teacher.complaintsTitle', 'الشكاوى والمقترحات')}
-      role={t('auth.teacher', 'معلم')}
-      links={roleNavigation.Teacher}
-    >
-      <div className="space-y-6 pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="space-y-6">
         {/* Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
           <div>
@@ -492,6 +488,6 @@ export default function TeacherComplaints() {
           />
         )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
