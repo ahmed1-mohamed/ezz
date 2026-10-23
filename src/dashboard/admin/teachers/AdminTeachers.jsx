@@ -107,7 +107,9 @@ export default function AdminTeachers() {
   const handleDeleteTeacher = async (teacher) => {
     if (!teacher) return
     const id = teacher.teacher_id || teacher.id || teacher._id
-    const teacherName = teacher.name || 'المعلم'
+    const teacherName = typeof teacher.name === 'object' && teacher.name !== null
+      ? ((isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || 'المعلم')
+      : (teacher.name || 'المعلم')
 
     const isConfirmed = await showDeleteConfirm(isRtl, teacherName)
     if (!isConfirmed) return

@@ -1,5 +1,6 @@
 import { Upload, ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function ParentPersonalInfo({
   formData,
@@ -14,23 +15,31 @@ export default function ParentPersonalInfo({
   setPhoneVal,
   isCountryDropdownOpen,
   setIsCountryDropdownOpen,
-  dynamicCountryCodes,
-  countries,
+  dynamicCountryCodes = [],
+  countries = [],
   setSelectedCountryCode,
   initial
 }) {
   const [phoneSearch, setPhoneSearch] = useState('')
   const [countrySearch, setCountrySearch] = useState('')
 
-  const filteredPhoneCodes = (dynamicCountryCodes || []).filter(c =>
-    c.name?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
-    c.code?.includes(phoneSearch)
-  )
+  const filteredPhoneCodes = useMemo(() => {
+    const list = (dynamicCountryCodes || []).filter(c =>
+      c.name?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
+      c.nameEn?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
+      c.code?.includes(phoneSearch) ||
+      c.dialCode?.includes(phoneSearch)
+    )
+    return sortCountryCodes(list, isRtl)
+  }, [dynamicCountryCodes, phoneSearch, isRtl])
 
-  const filteredCountries = (countries || []).filter(c =>
-    c.name?.toLowerCase().includes(countrySearch.toLowerCase()) ||
-    c.nameEn?.toLowerCase().includes(countrySearch.toLowerCase())
-  )
+  const filteredCountries = useMemo(() => {
+    const list = (countries || []).filter(c =>
+      c.name?.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      c.nameEn?.toLowerCase().includes(countrySearch.toLowerCase())
+    )
+    return sortCountries(list, isRtl)
+  }, [countries, countrySearch, isRtl])
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
@@ -104,7 +113,7 @@ export default function ParentPersonalInfo({
                 className="h-12 flex items-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
               >
                 <span>{selectedCountryCode?.flag || '🌍'}</span>
-                <span className="text-xs">{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
+                <span className="text-xs">{(selectedCountryCode?.dialCode || selectedCountryCode?.code) ? `(${selectedCountryCode.dialCode || selectedCountryCode.code})` : ''}</span>
                 <ChevronDown size={12} className="text-slate-400" />
               </button>
               {isPhoneDropdownOpen && (
@@ -121,13 +130,16 @@ export default function ParentPersonalInfo({
                   </div>
                   {filteredPhoneCodes.map((c) => (
                     <button
-                      key={c.name}
+                      key={(c.dialCode || c.code) + (c.name || c.nameEn || '')}
                       type="button"
                       onClick={() => { setSelectedCountryCode(c); setIsPhoneDropdownOpen(false) }}
-                      className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-left"
+                      className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-start"
                     >
-                      <span>{c.flag}</span>
-                      <span className="font-semibold">{c.code}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{c.flag}</span>
+                        <span className="text-xs">{getCountryName(c, isRtl)}</span>
+                      </div>
+                      <span className="font-semibold text-xs font-mono">{c.dialCode || c.code}</span>
                     </button>
                   ))}
                 </div>
@@ -169,7 +181,7 @@ export default function ParentPersonalInfo({
           <ChevronDown size={16} className="text-slate-400" />
           <span>
             {formData.country 
-              ? (countries.find(c => c._id === formData.country || c.id === formData.country || c.name === formData.country || formData.country.includes(c.name))?.name || formData.country)
+              ? (getCountryName(countries.find(c => c._id === formData.country || c.id === formData.country || c.name === formData.country || (c.name && formData.country.includes(c.name))), isRtl) || formData.country)
               : (isRtl ? 'اختر الدولة' : 'Select Country')}
           </span>
         </button>
@@ -178,7 +190,7 @@ export default function ParentPersonalInfo({
             <div className="px-2 mb-2">
               <input
                 type="text"
-                placeholder="البحث عن دولة / Search country..."
+                placeholder={isRtl ? "البحث عن دولة..." : "Search country..."}
                 value={countrySearch}
                 onChange={(e) => setCountrySearch(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
@@ -191,11 +203,12 @@ export default function ParentPersonalInfo({
                 key={c._id || c.id || c.name}
                 type="button"
                 onClick={() => { handleChange('country', c._id || c.id || c.name); setIsCountryDropdownOpen(false) }}
-                className="w-full px-4 py-2.5 flex items-center justify-end hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors"
+                className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-start"
               >
-                <span className="flex items-center gap-2">
-                  <span>{c.name}</span>
-                </span>
+                <div className="flex items-center gap-2">
+                  {c.flag && <span>{c.flag}</span>}
+                  <span>{getCountryName(c, isRtl)}</span>
+                </div>
               </button>
             ))}
           </div>

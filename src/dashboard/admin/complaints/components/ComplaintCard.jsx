@@ -1,6 +1,20 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Eye, EyeOff, Calendar, Trash2, CheckCircle2, XCircle, Paperclip, StickyNote } from 'lucide-react'
+import {
+  Eye,
+  EyeOff,
+  Calendar,
+  Trash2,
+  CheckCircle2,
+  XCircle,
+  Paperclip,
+  StickyNote,
+  Clock,
+  Layers,
+  BookOpen,
+  CalendarDays,
+  GraduationCap
+} from 'lucide-react'
 import { complaintsApi } from '@/shared/services/api/complaintsApi'
 import { COMPLAINT_TYPES } from './complaintTypes'
 
@@ -27,9 +41,10 @@ const getAttachmentUrl = (attachment) => (typeof attachment === 'string' ? attac
 export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onReject }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const itemId = item.id || item._id
+  const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'delay'
   const isSuggestion = item.type === 'suggestion'
   const isPending = item.status === 'pending'
-  const typeMeta = COMPLAINT_TYPES[item.type] || COMPLAINT_TYPES.complaint
+  const typeMeta = COMPLAINT_TYPES[item.type] || (isPostpone ? COMPLAINT_TYPES.postpone : COMPLAINT_TYPES.complaint)
   const statusMeta = STATUS_STYLES[item.status] || STATUS_STYLES.pending
   const TypeIcon = typeMeta.icon
 
@@ -44,6 +59,25 @@ export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onR
   const attachments = (full.attachments || []).map(getAttachmentUrl).filter(Boolean)
   const notes = full.notes || full.resolutionNotes || ''
 
+  const groupName =
+    full.groupName ||
+    (typeof full.group === 'object' ? (full.group?.name || full.group?.title) : full.group) ||
+    ''
+  const sessionName =
+    full.sessionName ||
+    full.sessionTitle ||
+    (typeof full.session === 'object' ? (full.session?.title || full.session?.name) : full.session) ||
+    (full.sessionNumber ? `حصة ${full.sessionNumber}` : '') ||
+    ''
+  const proposedDate = full.proposedDate || full.suggestedDate || full.rescheduleDate || full.newDate || full.date || ''
+  const proposedStartTime = full.proposedStartTime || full.suggestedStartTime || full.newStartTime || full.startTime || ''
+  const proposedEndTime = full.proposedEndTime || full.suggestedEndTime || full.newEndTime || full.endTime || ''
+  const teacherName =
+    full.teacherName ||
+    (typeof full.teacher === 'object' ? (full.teacher?.name || full.teacher?.displayName) : full.teacher) ||
+    (typeof full.sender === 'object' ? full.sender?.name : full.sender) ||
+    ''
+
   const formatDate = (isoString) => {
     if (!isoString) return ''
     const date = new Date(isoString)
@@ -53,9 +87,15 @@ export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onR
     })
   }
 
-  const resolveLabel = isSuggestion
+  const resolveLabel = isPostpone
+    ? t('adminDashboard.complaints.approveReschedule', 'قبول وإعادة الجدولة')
+    : isSuggestion
     ? t('adminDashboard.complaints.accept', 'قبول المقترح')
     : t('adminDashboard.complaints.markResolved', 'تحديد كمحلولة')
+
+  const statusLabel = (item.status === 'resolved' && isPostpone)
+    ? t('adminDashboard.complaints.rescheduled', 'تمت إعادة الجدولة')
+    : t(statusMeta.labelKey, statusMeta.defaultLabel)
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft overflow-hidden transition-all duration-300 hover:shadow-md text-start">
@@ -71,7 +111,7 @@ export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onR
               {t(typeMeta.labelKey, typeMeta.defaultLabel)}
             </span>
             <span className={`px-3 py-1 text-xs font-bold rounded-lg ${statusMeta.className}`}>
-              {t(statusMeta.labelKey, statusMeta.defaultLabel)}
+              {statusLabel}
             </span>
           </div>
 
@@ -79,6 +119,48 @@ export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onR
             <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 dark:text-slate-400">
               <Calendar size={14} className="shrink-0" />
               <span dir="ltr">{formatDate(item.createdAt)}</span>
+            </div>
+          )}
+
+          {isPostpone && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 p-3.5 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-800/40 rounded-2xl text-xs">
+              {teacherName && (
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                  <GraduationCap size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('adminDashboard.complaints.teacher', 'المعلم')}:</span>
+                  <span className="font-bold">{teacherName}</span>
+                </div>
+              )}
+              {groupName && (
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                  <Layers size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('adminDashboard.complaints.group', 'المجموعة')}:</span>
+                  <span className="font-bold">{groupName}</span>
+                </div>
+              )}
+              {sessionName && (
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                  <BookOpen size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('adminDashboard.complaints.session', 'الحصة')}:</span>
+                  <span className="font-bold">{sessionName}</span>
+                </div>
+              )}
+              {proposedDate && (
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                  <CalendarDays size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('adminDashboard.complaints.proposedDate', 'اليوم المقترح')}:</span>
+                  <span className="font-bold font-mono" dir="ltr">{proposedDate}</span>
+                </div>
+              )}
+              {(proposedStartTime || proposedEndTime) && (
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 sm:col-span-2 lg:col-span-1">
+                  <Clock size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('adminDashboard.complaints.proposedTime', 'الوقت المقترح')}:</span>
+                  <span className="font-bold font-mono" dir="ltr">
+                    {proposedStartTime}{proposedEndTime ? ` - ${proposedEndTime}` : ''}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 

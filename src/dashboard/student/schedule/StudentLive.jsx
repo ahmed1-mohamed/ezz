@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Maximize2,
@@ -10,27 +11,13 @@ import {
   MessageSquare,
   Clock,
   Users,
+  ArrowRight
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-
-const mockSession = {
-  title: 'حصة التجويد - سورة البقرة',
-  titleEn: 'Tajweed - Surah Al-Baqarah',
-  teacher: 'الشيخ أحمد السيد',
-  teacherEn: 'Sheikh Ahmed Al-Sayed',
-  subject: 'أحكام النون الساكنة والتنوين',
-  subjectEn: 'Rules of Noon Sakinah and Tanween',
-  startTime: '4:00 م',
-  endTime: '5:00 م',
-  durationMinutes: 60,
-  studentsPresent: 4,
-  raisedHands: 2,
-  messages: 4,
-  liveUrl: null,
-};
+import api from '@/shared/services/api/axiosConfig';
 
 function SessionTimer() {
-  const [seconds, setSeconds] = useState(45 * 60 + 23);
+  const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,14 +51,82 @@ function StatCard({ value, label, icon: Icon, bgColor, iconColor }) {
 
 export default function StudentLive() {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isRtl = i18n.language.startsWith('ar');
   const [isMicOn, setIsMicOn] = useState(true);
   const [isHandRaised, setIsHandRaised] = useState(false);
+  const [session, setSession] = useState(location.state?.session || null);
+  const [isLoading, setIsLoading] = useState(!location.state?.session);
 
-  const session = mockSession;
-  const title = isRtl ? session.title : session.titleEn;
-  const teacher = isRtl ? session.teacher : session.teacherEn;
-  const subject = isRtl ? session.subject : session.subjectEn;
+  useEffect(() => {
+    if (session) return;
+    let isMounted = true;
+    const fetchLiveSession = async () => {
+      try {
+        setIsLoading(true);
+        const res = await api.get('/api/v1/sessions/private', { params: { status: 'live' } });
+        const list = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+        if (isMounted) {
+          if (list.length > 0) {
+            setSession(list[0]);
+          } else {
+            setSession(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch live session:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchLiveSession();
+    return () => { isMounted = false; };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-6 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f7a6c]" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-6 flex flex-col justify-center items-center text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-md w-full shadow-sm border border-slate-100 dark:border-slate-700">
+          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-[#0f7a6c]">
+            <Video size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+            {t('studentDashboard.live.noActiveSession', 'لا توجد حصة مباشرة نشطة حالياً')}
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            {t('studentDashboard.live.checkSchedule', 'يرجى مراجعة جدول الحصص لمعرفة مواعيد البث القادمة')}
+          </p>
+          <button
+            onClick={() => navigate('/dashboard/student/schedule')}
+            className="w-full py-3 bg-[#0f7a6c] hover:bg-[#0c6156] text-white rounded-xl font-bold transition-colors text-sm flex items-center justify-center gap-2"
+          >
+            <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
+            <span>{t('studentDashboard.live.goToSchedule', 'الذهاب إلى الجدول')}</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const title = typeof session.title === 'object'
+    ? (isRtl ? session.title.ar : session.title.en)
+    : (session.title || session.className || t('studentDashboard.schedule.liveSession', 'حصة مباشرة'));
+  const teacher = typeof session.teacher === 'object'
+    ? (isRtl ? session.teacher.name?.ar || session.teacher.name : session.teacher.name?.en || session.teacher.name)
+    : (session.teacherName || session.teacher || '-');
+  const subject = typeof session.subject === 'object'
+    ? (isRtl ? session.subject.ar : session.subject.en)
+    : (session.subject || '-');
 
   return (
     <div
@@ -84,7 +139,6 @@ export default function StudentLive() {
         transition={{ duration: 0.4 }}
         className="max-w-7xl mx-auto space-y-4"
       >
-
         <div className="bg-white dark:bg-slate-800 rounded-2xl px-5 py-3.5 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3">
           <div className="text-end">
             <h1 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">
@@ -96,13 +150,12 @@ export default function StudentLive() {
             <SessionTimer />
             <span className="flex items-center gap-1.5 bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              {t('studentDashboard.schedule.liveNow')}
+              {t('studentDashboard.schedule.liveNow', 'مباشر الآن')}
             </span>
           </div>
         </div>
 
         <div className="relative bg-[#0d1f2d] rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: '16/9' }}>
-
           <button className="absolute top-3 start-3 z-10 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors">
             <Maximize2 size={16} className="text-white" />
           </button>
@@ -110,12 +163,11 @@ export default function StudentLive() {
           <div className="absolute top-3 end-3 z-10">
             <span className="flex items-center gap-1.5 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              {t('studentDashboard.schedule.liveNow')}
+              {t('studentDashboard.schedule.liveNow', 'مباشر الآن')}
             </span>
           </div>
 
           {session.liveUrl ? (
-
             <iframe
               src={session.liveUrl}
               title="live-stream"
@@ -131,7 +183,7 @@ export default function StudentLive() {
               <div className="text-center">
                 <p className="text-white font-bold text-base">{teacher}</p>
                 <p className="text-slate-400 text-xs mt-1">
-                  {t('studentDashboard.live.liveVideoStream')}
+                  {t('studentDashboard.live.liveVideoStream', 'البث المباشر للمعلم')}
                 </p>
               </div>
             </div>
@@ -140,17 +192,20 @@ export default function StudentLive() {
           <div className="absolute bottom-14 start-3 flex flex-col items-center gap-1">
             <div className="w-16 h-12 bg-slate-700/80 rounded-xl flex items-center justify-center border border-slate-600/50">
               <div className="w-8 h-8 bg-[#0f7a6c] rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">أ</span>
+                <span className="text-white text-sm font-bold">ط</span>
               </div>
             </div>
             <span className="text-white text-[10px] font-medium">
-              {t('studentDashboard.live.you')}
+              {t('studentDashboard.live.you', 'أنت')}
             </span>
           </div>
 
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button className="w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors shadow-md">
+              <button
+                onClick={() => navigate('/dashboard/student/schedule')}
+                className="w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors shadow-md"
+              >
                 <X size={16} className="text-white" />
               </button>
             </div>
@@ -183,29 +238,29 @@ export default function StudentLive() {
 
         <div className="grid grid-cols-4 gap-3">
           <StatCard
-            value={session.messages}
-            label={t('studentDashboard.live.messages')}
+            value={session.messagesCount || session.messages || 0}
+            label={t('studentDashboard.live.messages', 'الرسائل')}
             icon={MessageSquare}
             bgColor="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
             iconColor="text-slate-400"
           />
           <StatCard
-            value={session.raisedHands}
-            label={t('studentDashboard.live.raiseHand')}
+            value={session.raisedHands || 0}
+            label={t('studentDashboard.live.raiseHand', 'رفع اليد')}
             icon={Hand}
             bgColor="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/40"
             iconColor="text-amber-500"
           />
           <StatCard
-            value={session.durationMinutes}
-            label={t('studentDashboard.recorded.duration')}
+            value={session.durationMinutes || session.duration || 60}
+            label={t('studentDashboard.recorded.duration', 'المدة')}
             icon={Clock}
             bgColor="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40"
             iconColor="text-blue-500"
           />
           <StatCard
-            value={session.studentsPresent}
-            label={t('studentDashboard.teachers.students')}
+            value={session.studentsCount || session.studentsPresent || 1}
+            label={t('studentDashboard.teachers.students', 'الطلاب')}
             icon={Users}
             bgColor="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
             iconColor="text-slate-400"
@@ -217,24 +272,31 @@ export default function StudentLive() {
             <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <span className="w-2 h-2 rounded-full bg-[#0f7a6c] shrink-0" />
               <span className="font-medium text-slate-500 dark:text-slate-400">
-                {t('studentDashboard.live.topic')}
+                {t('studentDashboard.live.topic', 'الموضوع')}:
               </span>
               <span className="font-bold text-slate-800 dark:text-slate-100">{subject}</span>
             </div>
-            <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-              <span>
-                {t('studentDashboard.live.started')}{' '}
-                <span className="font-bold text-slate-700 dark:text-slate-200">{session.startTime}</span>
-              </span>
-              <span className="text-slate-300 dark:text-slate-600">|</span>
-              <span>
-                {t('studentDashboard.live.ends')}{' '}
-                <span className="font-bold text-slate-700 dark:text-slate-200">{session.endTime}</span>
-              </span>
-            </div>
+            {(session.startTime || session.endTime) && (
+              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                {session.startTime && (
+                  <span>
+                    {t('studentDashboard.live.started', 'بدأت')}{' '}
+                    <span className="font-bold text-slate-700 dark:text-slate-200">{session.startTime}</span>
+                  </span>
+                )}
+                {session.startTime && session.endTime && (
+                  <span className="text-slate-300 dark:text-slate-600">|</span>
+                )}
+                {session.endTime && (
+                  <span>
+                    {t('studentDashboard.live.ends', 'تنتهي')}{' '}
+                    <span className="font-bold text-slate-700 dark:text-slate-200">{session.endTime}</span>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
-
       </motion.div>
     </div>
   );

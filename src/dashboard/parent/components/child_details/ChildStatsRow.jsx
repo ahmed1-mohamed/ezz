@@ -1,12 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { BookOpen, TrendingUp, Award } from 'lucide-react';
 
-export default function ChildStatsRow() {
+export default function ChildStatsRow({ child }) {
   const { t } = useTranslation();
+
+  const totalClasses = child?.totalClasses ?? child?.sessionsTotal ?? child?.sessionsBalance ?? 0;
+  const attendanceRate = child?.attendanceRate !== undefined && child?.attendanceRate !== null
+    ? `${child.attendanceRate}%`
+    : '0%';
+  const averageRating = child?.averageRating !== undefined && child?.averageRating !== null
+    ? child.averageRating
+    : '-';
+
   const stats = [
-    { label: t('parentDashboard.childrenDetails.totalClasses'), value: '24', icon: BookOpen, color: 'text-[#0f7a6c]' },
-    { label: t('parentDashboard.childrenDetails.attendanceRate'), value: '96%', icon: TrendingUp, color: 'text-emerald-500' },
-    { label: t('parentDashboard.childrenDetails.averageRating'), value: '92', icon: Award, color: 'text-amber-500' }
+    { label: t('parentDashboard.childrenDetails.totalClasses', 'إجمالي الحصص'), value: totalClasses, icon: BookOpen, color: 'text-[#0f7a6c]' },
+    { label: t('parentDashboard.childrenDetails.attendanceRate', 'نسبة الحضور'), value: attendanceRate, icon: TrendingUp, color: 'text-emerald-500' },
+    { label: t('parentDashboard.childrenDetails.averageRating', 'متوسط التقييم'), value: averageRating, icon: Award, color: 'text-amber-500' }
   ];
 
   return (

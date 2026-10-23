@@ -13,9 +13,7 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
     ? (isRtl ? curriculum.description.ar : curriculum.description.en) || curriculum.description.ar || curriculum.description.en
     : curriculum.description;
 
-  const isShown = curriculum.showOnWebsite !== undefined
-    ? Boolean(curriculum.showOnWebsite)
-    : (curriculum.isActive !== undefined ? Boolean(curriculum.isActive) : true);
+  const isShown = Boolean(curriculum?.showOnWebsite);
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 flex flex-col h-full overflow-hidden group">

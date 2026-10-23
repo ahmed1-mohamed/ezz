@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { managersApi } from '@/shared/services/api/managersApi';
 import { landingApi } from '@/shared/services/api/landingApi';
+import { normalizeCountries } from '@/shared/utils/countryUtils';
 
 export function useManagers() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -108,6 +109,6 @@ export function useManagers() {
     supervisors: supervisorsList,
     isLoadingSupervisors,
     permissionsList: permissionsData?.data || [],
-    countries: countriesData?.data || []
+    countries: normalizeCountries(countriesData?.data || (Array.isArray(countriesData) ? countriesData : []))
   };
 }

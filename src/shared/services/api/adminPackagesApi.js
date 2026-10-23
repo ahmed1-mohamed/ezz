@@ -23,6 +23,10 @@ const mapPackageData = (item) => ({
   currency: item.currency || '$',
   sessions_per_month: item.sessionsCount || item.sessions_per_month,
   sessions_language: typeof item.language === 'object' ? item.language?.id || item.language?._id : item.language,
+  country: typeof item.country === 'object' && item.country !== null
+    ? (item.country.id || item.country._id || item.country.name || item.country.code || '')
+    : (item.country || item.countryId || ''),
+  countryRaw: item.country || null,
   color: item.icon === 'star' ? '#d97706' : '#0f7a6c',
   features: Array.isArray(item.features) ? item.features : (item.features?.ar || []),
   features_en: Array.isArray(item.features_en) ? item.features_en : (item.features?.en || []),
@@ -96,6 +100,9 @@ export const adminPackagesApi = {
         if (packageData.sessions_language) {
           fd.append('language', packageData.sessions_language);
         }
+        if (packageData.country) {
+          fd.append('country', packageData.country);
+        }
         arFeatures.forEach((feat) => {
           fd.append('features[ar][]', feat);
         });
@@ -116,6 +123,7 @@ export const adminPackagesApi = {
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
         language: packageData.sessions_language || undefined,
+        country: packageData.country || undefined,
         features: {
           ar: arFeatures,
           en: enFeatures
@@ -165,6 +173,9 @@ export const adminPackagesApi = {
         if (packageData.sessions_language) {
           fd.append('language', packageData.sessions_language);
         }
+        if (packageData.country) {
+          fd.append('country', packageData.country);
+        }
         arFeatures.forEach((feat) => {
           fd.append('features[ar][]', feat);
         });
@@ -185,6 +196,7 @@ export const adminPackagesApi = {
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
         language: packageData.sessions_language || undefined,
+        country: packageData.country || undefined,
         features: {
           ar: arFeatures,
           en: enFeatures
@@ -202,6 +214,20 @@ export const adminPackagesApi = {
       console.error('API updatePackage failed:', error);
       const errMsg = error.response?.data?.message || error.message;
       return { success: false, error: errMsg };
+    }
+  },
+
+  fetchCountries: async () => {
+    try {
+      const response = await api.get('/api/v1/countries', { skipLang: false });
+      return { success: true, data: response.data?.data || response.data || [] };
+    } catch {
+      try {
+        const fallback = await api.get('/api/v1/landing/countries');
+        return { success: true, data: fallback.data?.data || fallback.data || [] };
+      } catch {
+        return { success: false, data: [] };
+      }
     }
   },
 
@@ -311,6 +337,17 @@ export const adminPackagesApi = {
     } catch (error) {
       console.error(`API fetchPackageById failed for ${id}:`, error);
       throw error;
+    }
+  },
+
+  fetchCountries: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/countries', { params });
+      const raw = response.data?.data || (Array.isArray(response.data) ? response.data : []);
+      return { success: true, data: raw };
+    } catch (error) {
+      console.error('API fetchCountries failed:', error);
+      return { success: false, data: [] };
     }
   }
 };

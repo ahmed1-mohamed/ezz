@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
 import { Camera, Image as ImageIcon } from 'lucide-react'
+import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function IdentityInfoCard({
   formData,
@@ -15,28 +16,28 @@ export default function IdentityInfoCard({
   const [countrySearch, setCountrySearch] = useState('')
 
   const sortedCountries = useMemo(() => {
-    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }))
-  }, [countries])
+    return sortCountries(countries, isRtl)
+  }, [countries, isRtl])
 
   const filteredCountries = useMemo(() => {
     if (!countrySearch.trim()) return sortedCountries;
     const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
     return sortedCountries.filter(c => {
-      const cName = (c.name || '').toLowerCase();
+      const cName = getCountryName(c, isRtl).toLowerCase();
       const cCode = (c.code || '').toLowerCase();
-      const cPhone = String(c.phoneCode || '').replace(/\+/g, '').trim();
+      const cPhone = String(c.dialCode || c.phoneCode || '').replace(/\+/g, '').trim();
       return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
     });
-  }, [sortedCountries, countrySearch])
+  }, [sortedCountries, countrySearch, isRtl])
 
   const selectedPhoneCountry = useMemo(() => {
     const pfxNorm = String(formData.phonePrefix || '').replace(/\+/g, '').trim()
     if (!pfxNorm) return null
     const found = sortedCountries.find(c => {
-      const cPhoneNorm = String(c.phoneCode || c.code || '').replace(/\+/g, '').trim()
+      const cPhoneNorm = String(c.dialCode || c.phoneCode || '').replace(/\+/g, '').trim()
       return cPhoneNorm && cPhoneNorm === pfxNorm
     })
-    return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, flag: '🌐' } : null)
+    return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, dialCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
 
   const handlePhotoClick = () => {
@@ -55,7 +56,7 @@ export default function IdentityInfoCard({
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
     setCountrySearch('')
-    const pfx = String(country.phoneCode || country.code || '');
+    const pfx = String(country.dialCode || country.phoneCode || country.code || '');
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     onChange('phonePrefix', prefixWithPlus)
   }
@@ -174,12 +175,12 @@ export default function IdentityInfoCard({
               }}
               className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
-              <span aria-hidden="true">{selectedPhoneCountry?.flag || '🌍'}</span>
-              <span aria-hidden="true">{selectedPhoneCountry?.phoneCode ? `(${selectedPhoneCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
+              <span aria-hidden="true">{selectedPhoneCountry?.flag || '🌐'}</span>
+              <span aria-hidden="true">{(selectedPhoneCountry?.dialCode || selectedPhoneCountry?.phoneCode) ? `(${selectedPhoneCountry.dialCode || selectedPhoneCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
             </button>
 
             {isDropdownOpen && (
-              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
                 <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
                   <label htmlFor="countrySearchInput" className="sr-only">
                     {isRtl ? 'بحث...' : 'Search...'}
@@ -200,9 +201,9 @@ export default function IdentityInfoCard({
                     onClick={() => selectCountryCode(country)}
                     className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold cursor-pointer"
                   >
-                    <span>{country.name}</span>
+                    <span>{getCountryName(country, isRtl)}</span>
                     <span className="flex items-center gap-2">
-                      <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.phoneCode}</span>
+                      <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
                       <span className="text-lg">{country.flag}</span>
                     </span>
                   </button>
@@ -237,7 +238,7 @@ export default function IdentityInfoCard({
           <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
           {sortedCountries.map((country) => (
             <option key={country.id || country._id} value={country.id || country._id}>
-              {country.name} {country.flag}
+              {getCountryName(country, isRtl)} {country.flag}
             </option>
           ))}
         </select>

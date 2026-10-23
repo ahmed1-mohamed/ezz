@@ -7,6 +7,7 @@ import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi'
+import { normalizeCountries } from '@/shared/utils/countryUtils'
 import GroupInfoCard from './GroupInfoCard'
 import GroupScheduleCard from './GroupScheduleCard'
 
@@ -86,7 +87,8 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
         if (!isMounted) return
 
         if (cRes.status === 'fulfilled' && cRes.value) {
-          const list = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
+          const rawList = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
+          const list = normalizeCountries(rawList)
           if (Array.isArray(list) && list.length > 0) setCountries(list)
         }
         if (curRes.status === 'fulfilled' && curRes.value) {

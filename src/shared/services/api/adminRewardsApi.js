@@ -2,39 +2,24 @@ import api from './axiosConfig';
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-let mockAchievements = [
-  { id: 1, title: 'متقن التجويد', titleEn: 'Tajweed Master', description: 'إتِمام 20 حصة تجويد بتقييم ممتاز', descriptionEn: 'Completed 20 Tajweed sessions with excellent rating', studentName: 'عمر السعيد', date: '18 أبريل 2024', emoji: '🏆', bgColor: 'bg-amber-400 dark:bg-amber-600' },
-  { id: 2, title: 'حافظ متميز', titleEn: 'Excellent Memorizer', description: 'حفظ 5 سور بدون أخطاء', descriptionEn: 'Memorized 5 Surahs without mistakes', studentName: 'عبد الله محمد', date: '5 ديسمبر 2025', emoji: '⭐', bgColor: 'bg-slate-300 dark:bg-slate-600' },
-  { id: 3, title: 'طالب مجتهد', titleEn: 'Diligent Student', description: 'حضور 30 حصة متتالية بدون غياب', descriptionEn: 'Attended 30 consecutive sessions without absence', studentName: 'خالد فهد', date: '10 أغسطس 2024', emoji: '📖', bgColor: 'bg-emerald-200 dark:bg-emerald-700' },
-  { id: 4, title: 'نجم الأسبوع', titleEn: 'Weekly Star', description: 'أفضل أداء في الأسبوع الثاني من مارس', descriptionEn: 'Best performance in second week of March', studentName: 'سالم العبدلي', date: '22 نوفمبر 2025', emoji: '✨', bgColor: 'bg-amber-700 dark:bg-amber-900' },
-  { id: 5, title: 'منجز الواجبات', titleEn: 'Homework Achiever', description: 'إكمال 50 واجب بتقييم ممتاز', descriptionEn: 'Completed 50 assignments with excellent rating', studentName: 'أحمد الناصر', date: '30 سبتمبر 2026', emoji: '🎯', bgColor: 'bg-purple-600 dark:bg-purple-800' },
-  { id: 6, title: 'قارئ متميز', titleEn: 'Distinguished Reciter', description: 'قراءة متقنة بأحكام التجويد الصحيحة', descriptionEn: 'Fluent reading with correct Tajweed rules', studentName: 'فهد العتيبي', date: '14 يونيو 2024', emoji: '💎', bgColor: 'bg-blue-600 dark:bg-blue-800' },
-  { id: 7, title: 'الطالب المثالي', titleEn: 'Ideal Student', description: 'التزام وأدب وحسن خلق', descriptionEn: 'Commitment, discipline and good character', studentName: 'سعود الهاشم', date: '9 يناير 2025', emoji: '⭐', bgColor: 'bg-teal-700 dark:bg-teal-900' },
-  { id: 8, title: 'محب العلم', titleEn: 'Science Lover', description: 'المشاركة الفعالة في جميع الحصص', descriptionEn: 'Active participation in all sessions', studentName: 'يزيد البدر', date: '2 يوليو 2026', emoji: '📚', bgColor: 'bg-rose-600 dark:bg-rose-800' },
-  { id: 9, title: 'متقن التجويد', titleEn: 'Tajweed Master', description: 'إتِمام 20 حصة تجويد بتقييم ممتاز', descriptionEn: 'Completed 20 Tajweed sessions with excellent rating', studentName: 'طلال منصور', date: '1 ديسمبر 2024', emoji: '🏆', bgColor: 'bg-amber-400 dark:bg-amber-600' },
-  { id: 10, title: 'منجز الواجبات', titleEn: 'Homework Achiever', description: 'إكمال 50 واجب بتقييم ممتاز', descriptionEn: 'Completed 50 assignments with excellent rating', studentName: 'عبد العزيز صالح', date: '25 يوليو 2026', emoji: '🎯', bgColor: 'bg-purple-600 dark:bg-purple-800' },
-  { id: 11, title: 'متقن التجويد', titleEn: 'Tajweed Master', description: 'إتِمام 20 حصة تجويد بتقييم ممتاز', descriptionEn: 'Completed 20 Tajweed sessions with excellent rating', studentName: 'عبد الرحمن ابراهيم', date: '7 مارس 2025', emoji: '🏆', bgColor: 'bg-amber-400 dark:bg-amber-600' },
-  { id: 12, title: 'الطالب المثالي', titleEn: 'Ideal Student', description: 'التزام وأدب وحسن خلق', descriptionEn: 'Commitment, discipline and good character', studentName: 'ماجد عبد الله', date: '12 فبراير 2025', emoji: '⭐', bgColor: 'bg-teal-700 dark:bg-teal-900' },
-];
-
-let mockStats = {
-  totalRewards: 4,
-  totalSuggestions: 4,
-  approvedCount: 1,
-  pendingCount: 2,
-  rejectedCount: 1,
-  totalAchievements: 12,
-};
-
 export const adminRewardsApi = {
   fetchStats: async () => {
     try {
       const response = await api.get('/api/v1/admin/rewards/stats');
       return response.data;
     } catch (error) {
-      console.warn('API fetchStats failed, using mock:', error);
-      await delay(200);
-      return { success: true, data: mockStats };
+      console.error('API fetchStats failed:', error);
+      return {
+        success: false,
+        data: {
+          totalRewards: 0,
+          totalSuggestions: 0,
+          approvedCount: 0,
+          pendingCount: 0,
+          rejectedCount: 0,
+          totalAchievements: 0,
+        }
+      };
     }
   },
 
@@ -221,9 +206,8 @@ export const adminRewardsApi = {
       const response = await api.get('/api/v1/admin/rewards/achievements');
       return response.data;
     } catch (error) {
-      console.warn('API fetchAchievements failed, using mock:', error);
-      await delay(200);
-      return { success: true, data: [...mockAchievements] };
+      console.error('API fetchAchievements failed:', error);
+      return { success: false, data: [] };
     }
   },
 };

@@ -29,83 +29,39 @@ export default function TeacherProfile() {
 
                 const fallbackImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&h=600&auto=format&fit=crop"
 
-                const mockData = {
+                const teacherData = {
                     id: realData?.teacher_id || realData?.id || id,
-                    name: realData?.name || t('teacherProfile.mock.name', "الشيخ أحمد منصور"),
-                    title: realData?.degree || realData?.title || t('teacherProfile.mock.title', "حاصل على إجازة في القراءات العشر"),
+                    name: realData?.name || '',
+                    title: realData?.degree || realData?.title || '',
                     image: realData?.image || fallbackImage,
-                    rating: realData?.rating && Number(realData.rating) > 0 ? Number(realData.rating).toFixed(1) : 4.9,
-                    reviewsCount: 128,
-                    experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : t('teacherProfile.mock.experience', "15 سنة خبرة"),
-                    location: realData?.country || t('teacherProfile.mock.location', "مصر"),
-                    sessionsCount: realData?.totalLessons ? `+${realData.totalLessons}` : "+1,250",
+                    rating: realData?.rating && Number(realData.rating) > 0 ? Number(realData.rating).toFixed(1) : '5.0',
+                    reviewsCount: realData?.reviewsCount || realData?.ratingsCount || 0,
+                    experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : '',
+                    location: realData?.country || '',
+                    sessionsCount: realData?.totalLessons ? `+${realData.totalLessons}` : "0",
                     tags: Array.isArray(realData?.specializations) && realData.specializations.length > 0
                         ? realData.specializations.map(s => typeof s === 'object' ? s.name : s).concat(realData.country ? [realData.country] : [])
-                        : [
-                            t('teacherProfile.mock.tags.tajweed', "التجويد"),
-                            t('teacherProfile.mock.tags.quran', "القرآن الكريم"),
-                            t('teacherProfile.mock.tags.exp', "15 سنة خبرة")
-                        ],
-                    about: realData?.bio || realData?.aboutAr || t('teacherProfile.mock.about', "أستاذ القراءات وعلوم القرآن بخبرة تزيد عن 15 عاماً في التدريس الأكاديمي والخاص. حصلت على إجازة في القراءات العشر المتواترة من طريق الشاطبية والدرة، وأسعى دائماً لتبسيط العلوم الشرعية لجيل الشباب بأسلوب معاصر يجمع بين الأصالة والحداثة."),
-                    philosophy: realData?.philosophy || t('teacherProfile.mock.philosophy', "التدريس ليس مجرد نقل للمعلومات، بل هو غرس للقيم وبناء للشخصية القرآنية المتوازنة. أؤمن بأن كل طالب لديه رحلة فريدة مع القرآن، ودوري هو إنارة هذا الطريق."),
-                    credentials: Array.isArray(realData?.achievements) && realData.achievements.length > 0
-                        ? realData.achievements
-                        : [
-                            realData?.degree || t('teacherProfile.mock.credentials.phd', "دكتوراه في الدراسات الإسلامية"),
-                            t('teacherProfile.mock.credentials.ijaza', "إجازة بالسند المتصل للنبي")
-                        ],
+                        : (realData?.country ? [realData.country] : []),
+                    about: realData?.bio || realData?.aboutAr || realData?.aboutEn || '',
+                    philosophy: realData?.philosophy || '',
+                    credentials: Array.isArray(realData?.achievements) ? realData.achievements : (realData?.degree ? [realData.degree] : []),
                     stats: {
-                        studentsCount: realData?.totalStudents ? `${realData.totalStudents}+` : "300+",
-                        sessionsCount: realData?.totalLessons ? `${realData.totalLessons}+` : "1,250+",
-                        experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : t('teacherProfile.mock.experience', "15 سنة خبرة")
+                        studentsCount: realData?.totalStudents ? `${realData.totalStudents}+` : "0",
+                        sessionsCount: realData?.totalLessons ? `${realData.totalLessons}+` : "0",
+                        experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : ''
                     },
                     subjects: Array.isArray(realData?.specializations) && realData.specializations.length > 0
                         ? realData.specializations.map((s, idx) => ({
                             id: s.id || idx + 1,
                             name: typeof s === 'object' ? s.name : s,
-                            description: t('teacherProfile.specDescription', 'تدريس متميز وشامل وفق أعلى معايير الجودة الأكاديمية.')
+                            description: typeof s === 'object' && s.description ? s.description : ''
                         }))
-                        : [
-                            { id: 1, name: t('teacherProfile.mock.subjects.sub1.name', "تحفيظ القرآن"), description: t('teacherProfile.mock.subjects.sub1.desc', "تحفيظ ميسر مع مراعاة أحكام التجويد الأساسية.") },
-                            { id: 2, name: t('teacherProfile.mock.subjects.sub2.name', "علوم التجويد"), description: t('teacherProfile.mock.subjects.sub2.desc', "شرح مفصل لمخارج الحروف وصفاتها والمدود.") },
-                            { id: 3, name: t('teacherProfile.mock.subjects.sub3.name', "تفسير القرآن"), description: t('teacherProfile.mock.subjects.sub3.desc', "ربط الآيات بالواقع المعاصر وفهم المقاصد.") }
-                        ],
-                    levels: [
-                        {
-                            id: 1,
-                            title: t('levels.level1.title', "المستوى الأول التجويد"),
-                            unitsCount: 8,
-                            modules: [
-                                { title: t('levels.level1.mod1', "مقدمة في التجويد") },
-                                { title: t('levels.level1.mod2', "مخارج الحروف") }
-                            ]
-                        },
-                        {
-                            id: 2,
-                            title: t('levels.level2.title', "المستوى الثاني القرآن"),
-                            unitsCount: 8,
-                            modules: [
-                                { title: t('levels.level2.mod1', "القاعدة النورانية") },
-                                { title: t('levels.level2.mod2', "أحكام التجويد الأساسية") }
-                            ]
-                        },
-                        {
-                            id: 3,
-                            title: t('levels.level3.title', "المستوى الثالث التلاوة"),
-                            unitsCount: 8,
-                            modules: [
-                                { title: t('levels.level3.mod1', "تلاوة سورة البقرة") },
-                                { title: t('levels.level3.mod2', "تلاوة سورة آل عمران") }
-                            ]
-                        }
-                    ],
-                    schedule: [
-                        { status: t('teacherProfile.mock.schedule.finished', "انتهت الحصة"), title: t('teacherProfile.mock.schedule.title1', "حفظ وتجويد سورة البقرة"), group: t('teacherProfile.mock.schedule.group1', "مجموعة الأمل (أطفال)"), duration: t('teacherProfile.mock.schedule.duration1', "45 دقيقة"), time: "09:00", period: t('teacherProfile.mock.schedule.period.am', "صباحاً") },
-                        { status: t('teacherProfile.mock.schedule.started', "بدأت"), title: t('teacherProfile.mock.schedule.title1', "حفظ وتجويد سورة البقرة"), group: t('teacherProfile.mock.schedule.group1', "مجموعة الأمل (أطفال)"), duration: t('teacherProfile.mock.schedule.duration1', "45 دقيقة"), time: "01:00", period: t('teacherProfile.mock.schedule.period.pm', "مساءا") }
-                    ]
+                        : [],
+                    levels: Array.isArray(realData?.levels) ? realData.levels : [],
+                    schedule: Array.isArray(realData?.schedule) ? realData.schedule : []
                 }
 
-                setTeacher(mockData)
+                setTeacher(teacherData)
                 setLoading(false)
             } catch (err) {
                 setError(err.message)

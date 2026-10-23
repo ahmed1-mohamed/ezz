@@ -49,7 +49,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       setBenefitsAr(bAr.length > 0 ? bAr : [''])
       setBenefitsEn(bEn.length > 0 ? bEn : [''])
 
-      setShowOnWebsite(editingItem.showOnWebsite !== undefined ? Boolean(editingItem.showOnWebsite) : (editingItem.isActive !== undefined ? Boolean(editingItem.isActive) : true))
+      setShowOnWebsite(Boolean(editingItem.showOnWebsite))
     } else {
       setNameAr('')
       setNameEn('')
@@ -108,7 +108,6 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
     if (languageId) formData.append('language', languageId)
 
     formData.append('showOnWebsite', String(showOnWebsite))
-    formData.append('isActive', String(showOnWebsite))
 
     const cleanFeaturesAr = featuresAr.filter(f => f.trim() !== '')
     cleanFeaturesAr.forEach((f) => {

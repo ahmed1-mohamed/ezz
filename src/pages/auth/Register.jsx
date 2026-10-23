@@ -5,19 +5,8 @@ import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search,
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
-import { landingApi } from '@/shared/services/api/landingApi'
+import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
 import { motion, AnimatePresence } from 'framer-motion'
-
-const DEFAULT_COUNTRIES = [
-    { id: '6a2d618a65f1cb3419a9275d', name: 'الإمارات', nameEn: 'UAE', phoneCode: '+971', flag: '🇦🇪' },
-    { id: '6a2d618a65f1cb3419a92732', name: 'السعودية', nameEn: 'Saudi Arabia', phoneCode: '+966', flag: '🇸🇦' },
-    { id: '6a2d618a65f1cb3419a926df', name: 'الأردن', nameEn: 'Jordan', phoneCode: '+962', flag: '🇯🇴' },
-    { id: '6a2d618a65f1cb3419a92680', name: 'البحرين', nameEn: 'Bahrain', phoneCode: '+973', flag: '🇧🇭' },
-    { id: '6a2d618a65f1cb3419a926e5', name: 'الكويت', nameEn: 'Kuwait', phoneCode: '+965', flag: '🇰🇼' },
-    { id: '6a2d618a65f1cb3419a92715', name: 'عمان', nameEn: 'Oman', phoneCode: '+968', flag: '🇴🇲' },
-    { id: '6a2d618a65f1cb3419a92722', name: 'قطر', nameEn: 'Qatar', phoneCode: '+974', flag: '🇶🇦' },
-    { id: '6a2d618a65f1cb3419a926b0', name: 'مصر', nameEn: 'Egypt', phoneCode: '+20', flag: '🇪🇬' },
-]
 
 export default function Register() {
     const { t, i18n } = useTranslation()
@@ -40,8 +29,8 @@ export default function Register() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-    const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
-    const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRIES[0])
+    const [countriesList, setCountriesList] = useState([])
+    const [selectedCountry, setSelectedCountry] = useState(null)
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
     const [countrySearch, setCountrySearch] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
@@ -52,15 +41,15 @@ export default function Register() {
         const fetchCountriesData = async () => {
             setLoadingCountries(true)
             try {
-                const res = await landingApi.fetchCountries({ lang: i18n.language, sort: 'name' })
-                const list = Array.isArray(res) ? res : (res?.data || [])
+                const list = await fetchCountries({ lang: i18n.language, sort: 'name' })
                 if (isMounted && list.length > 0) {
-                    const sorted = [...list].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
+                    const sorted = sortCountries(list, isRtl)
                     setCountriesList(sorted)
                     setSelectedCountry((prev) => {
-                        const targetId = prev?.id || prev?._id || DEFAULT_COUNTRIES[0].id
-                        const matched = sorted.find(c => (c.id === targetId || c._id === targetId || c.phoneCode === (prev?.phoneCode || '+971')))
-                        return matched || prev || DEFAULT_COUNTRIES[0]
+                        if (!prev) return sorted[0]
+                        const targetId = prev.id || prev._id
+                        const matched = sorted.find(c => (c.id === targetId || c._id === targetId || c.dialCode === (prev.dialCode || prev.phoneCode)))
+                        return matched || sorted[0]
                     })
                 }
             } catch (err) {
@@ -100,14 +89,17 @@ export default function Register() {
     }, [toast.show])
 
     const filteredCountries = useMemo(() => {
-        if (!countrySearch.trim()) return countriesList
+        const sorted = sortCountries(countriesList, isRtl)
+        if (!countrySearch.trim()) return sorted
         const q = countrySearch.toLowerCase().trim()
-        return countriesList.filter(c =>
+        return sorted.filter(c =>
             (c.name && c.name.toLowerCase().includes(q)) ||
             (c.nameEn && c.nameEn.toLowerCase().includes(q)) ||
-            (c.phoneCode && c.phoneCode.includes(q))
+            (c.dialCode && c.dialCode.includes(q)) ||
+            (c.phoneCode && c.phoneCode.includes(q)) ||
+            (c.code && c.code.toLowerCase().includes(q))
         )
-    }, [countriesList, countrySearch])
+    }, [countriesList, countrySearch, isRtl])
 
     const validate = () => {
         const nextErrors = {}
@@ -162,7 +154,7 @@ export default function Register() {
         if (localDigits.startsWith('0')) {
             localDigits = localDigits.substring(1)
         }
-        const countryCode = selectedCountry?.phoneCode || ''
+        const countryCode = selectedCountry?.dialCode || selectedCountry?.phoneCode || ''
         const fullPhone = `${countryCode}${localDigits}`
 
         const countryId = selectedCountry?.id || selectedCountry?._id
@@ -299,7 +291,7 @@ export default function Register() {
                                         <div className="flex items-center gap-2 min-w-0">
                                             <span className="text-xl shrink-0">{selectedCountry?.flag || '🌍'}</span>
                                             <span className="truncate font-medium text-xs sm:text-sm">
-                                                {selectedCountry?.name || selectedCountry?.nameEn || t('register.countryPlaceholder', 'اختر الدولة')}
+                                                {getCountryName(selectedCountry, isRtl) || t('register.countryPlaceholder', 'اختر الدولة')}
                                             </span>
                                         </div>
                                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${countryDropdownOpen ? 'rotate-180' : ''}`} />
@@ -346,11 +338,11 @@ export default function Register() {
                                                                 >
                                                                     <div className="flex items-center gap-2.5 min-w-0">
                                                                         <span className="text-lg shrink-0">{c.flag || '🌍'}</span>
-                                                                        <span className="truncate">{c.name || c.nameEn}</span>
+                                                                        <span className="truncate">{getCountryName(c, isRtl)}</span>
                                                                     </div>
                                                                     <div className="flex items-center gap-1.5 shrink-0">
                                                                         <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-600 dir-ltr">
-                                                                            {c.phoneCode}
+                                                                            {c.dialCode || c.phoneCode}
                                                                         </span>
                                                                         {isSelected && <Check className="w-4 h-4 text-[#00695C] shrink-0" />}
                                                                     </div>
@@ -377,7 +369,7 @@ export default function Register() {
                                 <div className="flex rounded-2xl bg-[#F5F8F7] border border-transparent focus-within:border-[#00695C] transition-all overflow-hidden">
                                     <div className="flex items-center gap-1 px-3 bg-slate-100/80 text-slate-600 font-bold text-xs sm:text-sm dir-ltr shrink-0 select-none">
                                         <span>{selectedCountry?.flag || '🌍'}</span>
-                                        <span>{selectedCountry?.phoneCode || ''}</span>
+                                        <span>{selectedCountry?.dialCode || selectedCountry?.phoneCode || ''}</span>
                                     </div>
                                     <input
                                         type="tel"

@@ -9,6 +9,7 @@ import {
 import SendMessageModal from './SendMessageModal'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
 import { landingApi } from '@/shared/services/api/landingApi'
+import { sortCountries, sortCountryCodes, normalizeCountries } from '@/shared/utils/countryUtils'
 import ParentProfileSummary from './ParentProfileSummary'
 import ParentEditForm from './ParentEditForm'
 import ParentChildrenList from './ParentChildrenList'
@@ -52,21 +53,16 @@ export default function ParentDetailsScreen({
     const fetchCountries = async () => {
       try {
         const res = await landingApi.fetchCountries();
-        let fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        let rawCountries = Array.isArray(res) ? res : (res?.data || []);
+        let fetchedCountries = normalizeCountries(rawCountries);
         if (fetchedCountries.length > 0) {
-          fetchedCountries = [...fetchedCountries].sort((a, b) =>
-            (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' })
-          );
-          const formattedCountries = fetchedCountries.map(c => ({
-            id: c.id,
-            name: c.name || '',
-            nameEn: c.nameEn || c.name || ''
-          }));
-          const formattedCodes = fetchedCountries.map(c => ({
-            code: c.phoneCode || '',
+          const formattedCountries = sortCountries(fetchedCountries, isRtl);
+          const formattedCodes = sortCountryCodes(fetchedCountries.map(c => ({
+            code: c.dialCode || c.phoneCode || '',
             flag: c.flag || '🌍',
-            name: c.name || ''
-          })).filter(c => c.code);
+            name: c.name || '',
+            nameEn: c.nameEn || ''
+          })).filter(c => c.code), isRtl);
 
           setCountriesList(formattedCountries);
           setCountryCodesList(formattedCodes);
@@ -75,9 +71,9 @@ export default function ParentDetailsScreen({
           let phonePart = parent.phone || '';
 
           if (parent.phone && !parent.phonePrefix) {
-            const matchedCode = fetchedCountries.find(c => c.phoneCode && parent.phone.startsWith(c.phoneCode));
+            const matchedCode = fetchedCountries.find(c => (c.dialCode || c.phoneCode) && parent.phone.startsWith(c.dialCode || c.phoneCode));
             if (matchedCode) {
-              prefix = matchedCode.phoneCode;
+              prefix = matchedCode.dialCode || matchedCode.phoneCode;
               phonePart = parent.phone.substring(prefix.length);
             }
           } else if (prefix && phonePart) {

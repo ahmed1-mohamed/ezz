@@ -83,7 +83,7 @@ export default function ChangeTeacherPasswordModal({
                 {isRtl ? 'تغيير كلمة المرور للمعلم' : 'Change Teacher Password'}
               </h3>
               <p className="text-xs text-emerald-100 font-medium">
-                {teacher.name} ({teacher.email || teacher.phone || 'حساب المعلم'})
+                {(typeof teacher?.name === 'object' && teacher?.name !== null ? ((isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en) : teacher?.name) || 'المعلم'} ({teacher?.email || teacher?.phone || 'حساب المعلم'})
               </p>
             </div>
           </div>

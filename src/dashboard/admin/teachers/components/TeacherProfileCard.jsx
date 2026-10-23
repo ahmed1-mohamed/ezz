@@ -9,9 +9,18 @@ export default function TeacherProfileCard({
   onDelete,
   onViewDetails
 }) {
+  const teacherDisplayName = useMemo(() => {
+    if (!teacher?.name) return ''
+    if (typeof teacher.name === 'object' && teacher.name !== null) {
+      return (isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || ''
+    }
+    return String(teacher.name)
+  }, [teacher?.name, isRtl])
+
   const avatarLetter = useMemo(() => {
-    return teacher?.name ? teacher?.name?.trim()?.charAt(0) : 'م'
-  }, [teacher])
+    const trimmed = teacherDisplayName.trim()
+    return trimmed ? trimmed.charAt(0) : 'م'
+  }, [teacherDisplayName])
 
   if (!teacher) {
     return (
@@ -29,7 +38,7 @@ export default function TeacherProfileCard({
         {teacher.image ? (
           <img
             src={teacher.image}
-            alt={teacher.name}
+            alt={teacherDisplayName}
             className="w-24 h-24 rounded-3xl object-cover border-2 border-slate-100 dark:border-slate-800 shadow-md"
             onError={(e) => {
               e.target.style.display = 'none'
@@ -55,8 +64,8 @@ export default function TeacherProfileCard({
       </div>
 
        <div className="space-y-1 w-full">
-        <h3 className="text-lg font-extrabold text-slate-800 dark:text-white">
-          {teacher.name}
+        <h3 className="text-lg font-extrabold text-slate-850 dark:text-white">
+          {teacherDisplayName}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
           {teacher.degree || teacher.subject || (isRtl ? 'معلم معتمد' : 'Certified Teacher')}

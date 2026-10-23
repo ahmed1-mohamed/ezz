@@ -10,6 +10,7 @@ import {
 import EditProfileCard from './EditProfileCard'
 import EditSecurityPasswordCard from './EditSecurityPasswordCard'
 import EditGrantedPermissionsCard from './EditGrantedPermissionsCard'
+import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function EditSupervisorScreen({
   roles,
@@ -42,10 +43,10 @@ export default function EditSupervisorScreen({
 
     if (phone.startsWith('+') && countries && countries.length > 0) {
       const sorted = [...countries].sort(
-        (a, b) => String(b.phoneCode || '').replace(/\+/g, '').length - String(a.phoneCode || '').replace(/\+/g, '').length
+        (a, b) => String(b.dialCode || b.phoneCode || '').replace(/\+/g, '').length - String(a.dialCode || a.phoneCode || '').replace(/\+/g, '').length
       )
       for (const country of sorted) {
-        const code = String(country.phoneCode || '').trim()
+        const code = String(country.dialCode || country.phoneCode || '').trim()
         if (code && phone.startsWith(code)) {
           return { initialPrefix: code, initialPhone: phone.slice(code.length).trim() }
         }
@@ -85,8 +86,8 @@ export default function EditSupervisorScreen({
   })
 
   const sortedCountries = useMemo(() => {
-    return [...countries].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }))
-  }, [countries])
+    return sortCountries(countries, isRtl)
+  }, [countries, isRtl])
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
@@ -95,12 +96,12 @@ export default function EditSupervisorScreen({
     if (!countrySearch.trim()) return sortedCountries;
     const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
     return sortedCountries.filter(c => {
-      const cName = (c.name || '').toLowerCase();
+      const cName = getCountryName(c, isRtl).toLowerCase();
       const cCode = (c.code || '').toLowerCase();
-      const cPhone = String(c.phoneCode || '').replace(/\+/g, '').trim();
+      const cPhone = String(c.dialCode || c.phoneCode || '').replace(/\+/g, '').trim();
       return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
     });
-  }, [sortedCountries, countrySearch])
+  }, [sortedCountries, countrySearch, isRtl])
 
   const normalizePhoneCode = (code) => {
     if (!code) return ''
@@ -110,8 +111,8 @@ export default function EditSupervisorScreen({
   const matchedCountry = useMemo(() => {
     const prefixNorm = normalizePhoneCode(formData.phonePrefix)
     if (!prefixNorm) return null
-    const found = sortedCountries.find(c => normalizePhoneCode(c.phoneCode) === prefixNorm || normalizePhoneCode(c.code) === prefixNorm)
-    return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, flag: '🌐' } : null)
+    const found = sortedCountries.find(c => normalizePhoneCode(c.dialCode || c.phoneCode) === prefixNorm || normalizePhoneCode(c.code) === prefixNorm)
+    return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, dialCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
 
   const handleFieldChange = (key, value) => {
@@ -121,7 +122,7 @@ export default function EditSupervisorScreen({
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
     setCountrySearch('')
-    const pfx = String(country.phoneCode || country.code || '');
+    const pfx = String(country.dialCode || country.phoneCode || country.code || '');
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     handleFieldChange('phonePrefix', prefixWithPlus)
   }
@@ -136,7 +137,7 @@ export default function EditSupervisorScreen({
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const foundCountry = countries.find(c => c.phoneCode === formData.phonePrefix) || countries[0];
+    const foundCountry = countries.find(c => (c.dialCode || c.phoneCode) === formData.phonePrefix) || countries[0];
     const countryId = formData.countryId || foundCountry?.id || foundCountry?._id || null;
 
     let rawPhone = formData.phone || '';
@@ -158,7 +159,9 @@ export default function EditSupervisorScreen({
     })
   }
 
-  const mockJoinDate = supervisor.joinDate || '20/10/2025'
+  const joinDate = supervisor.createdAt
+    ? new Date(supervisor.createdAt).toLocaleDateString()
+    : (supervisor.joinDate || '-')
   const isSuspended = supervisor.user?.active !== undefined ? !supervisor.user.active : (supervisor.active !== undefined ? !supervisor.active : formData.status !== 'Active')
 
   return (
@@ -234,7 +237,7 @@ export default function EditSupervisorScreen({
             phone: initialPhone,
             phonePrefix: initialPrefix,
           }}
-          mockJoinDate={mockJoinDate}
+          joinDate={joinDate}
           isRtl={isRtl}
           t={t}
           countryFlag={matchedCountry?.flag}
@@ -298,12 +301,12 @@ export default function EditSupervisorScreen({
                         className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
                       >
                         <span aria-hidden="true">{matchedCountry?.flag || '🌍'}</span>
-                        <span aria-hidden="true">{matchedCountry?.phoneCode || matchedCountry?.code ? `(${matchedCountry.phoneCode || matchedCountry.code})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
+                        <span aria-hidden="true">{(matchedCountry?.dialCode || matchedCountry?.phoneCode) ? `(${matchedCountry.dialCode || matchedCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
                       </button>
 
                       {isDropdownOpen && (
                         <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
-                          <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-950 z-10">
+                          <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
                             <label htmlFor="editCountrySearchInput" className="sr-only">
                               {isRtl ? 'بحث...' : 'Search...'}
                             </label>
@@ -323,9 +326,9 @@ export default function EditSupervisorScreen({
                               onClick={() => selectCountryCode(country)}
                               className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm transition-colors"
                             >
-                              <span>{country.name}</span>
+                              <span>{getCountryName(country, isRtl)}</span>
                               <span className="flex items-center gap-2">
-                                <span className="text-slate-450 dark:text-slate-500 font-medium" dir="ltr">{country.phoneCode}</span>
+                                <span className="text-slate-450 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
                                 <span className="text-lg">{country.flag}</span>
                               </span>
                             </button>
@@ -343,13 +346,16 @@ export default function EditSupervisorScreen({
                         if (val.startsWith('+')) {
                           const normalizedInput = val.replace(/\+/g, '').trim();
                           const matched = countries
-                            .map(c => ({ ...c, normCode: String(c.phoneCode || c.code || '').replace(/\+/g, '').trim() }))
+                            .map(c => {
+                              const dial = c.dialCode || c.phoneCode || '';
+                              return { ...c, dial, normCode: dial.replace(/\+/g, '').trim() };
+                            })
                             .filter(c => c.normCode)
                             .sort((a, b) => b.normCode.length - a.normCode.length)
                             .find(c => normalizedInput.startsWith(c.normCode));
 
                           if (matched) {
-                            handleFieldChange('phonePrefix', matched.phoneCode || matched.code);
+                            handleFieldChange('phonePrefix', matched.dial);
                             if (matched.id || matched._id) {
                               handleFieldChange('countryId', matched.id || matched._id);
                             }
@@ -380,7 +386,7 @@ export default function EditSupervisorScreen({
                     <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
                     {sortedCountries.map((country) => (
                       <option key={country.id || country._id} value={country.id || country._id}>
-                        {country.name} {country.flag}
+                        {getCountryName(country, isRtl)} {country.flag}
                       </option>
                     ))}
                   </select>

@@ -6,6 +6,7 @@ import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi'
+import { sortCountries, getCountryName, normalizeCountries } from '@/shared/utils/countryUtils'
 
 const GROUP_TYPES = [
   { value: 'group', ar: 'مجموعة', en: 'Group' },
@@ -65,7 +66,8 @@ export default function GroupInfoCard({
         if (!isMounted) return
 
         if (cRes.status === 'fulfilled' && cRes.value) {
-          const list = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
+          const rawList = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
+          const list = normalizeCountries(rawList)
           if (Array.isArray(list) && list.length > 0) setInternalCountries(list)
         }
         if (curRes.status === 'fulfilled' && curRes.value) {
@@ -104,11 +106,10 @@ export default function GroupInfoCard({
   const resolvedLanguages = (languages && languages.length > 0) ? languages : internalLanguages
 
   const countryOptions = useMemo(() => {
-    return resolvedCountries.map((c) => {
+    const sorted = sortCountries(resolvedCountries, isRtl)
+    return sorted.map((c) => {
       const id = c.id || c._id
-      const name = typeof c.name === 'object'
-        ? (isRtl ? (c.name.ar || c.name.en) : (c.name.en || c.name.ar))
-        : (isRtl ? (c.name || c.nameAr) : (c.nameEn || c.name))
+      const name = getCountryName(c, isRtl)
       const flag = c.flag ? `${c.flag} ` : ''
       return {
         value: id,

@@ -1,4 +1,4 @@
-import { Layers, AlertTriangle, Lightbulb } from 'lucide-react'
+import { Layers, AlertTriangle, Lightbulb, CalendarClock } from 'lucide-react'
 
 export const COMPLAINT_TYPES = {
   all: {
@@ -28,4 +28,14 @@ export const COMPLAINT_TYPES = {
     bg: 'bg-sky-50 dark:bg-sky-900/20',
     activeBorder: 'border-sky-500 ring-2 ring-sky-500/20 bg-sky-50/40 dark:bg-sky-900/10',
   },
+  postpone: {
+    id: 'postpone',
+    icon: CalendarClock,
+    labelKey: 'adminDashboard.complaints.typePostpone',
+    defaultLabel: 'طلبات التأجيل',
+    color: 'text-amber-600 dark:text-amber-400',
+    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    activeBorder: 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/40 dark:bg-amber-900/10',
+  },
 }
+

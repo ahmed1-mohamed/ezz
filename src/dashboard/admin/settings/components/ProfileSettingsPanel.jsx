@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
+import { sortCountries, sortCountryCodes, getCountryName, normalizeCountries } from '@/shared/utils/countryUtils.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
 import { Loader2 } from 'lucide-react';
@@ -37,13 +38,9 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 landingApi.fetchCountries().catch(() => [])
             ]);
 
-            const fetchedCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes?.data || []);
-            const sortedCountries = [...fetchedCountries].sort((a, b) => {
-                const nameA = (a.name || a.nameEn || '').toLowerCase();
-                const nameB = (b.name || b.nameEn || '').toLowerCase();
-                return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
-            });
-            setApiCountries(sortedCountries);
+            const rawCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes?.data || []);
+            const fetchedCountries = normalizeCountries(rawCountries);
+            setApiCountries(sortCountries(fetchedCountries, isRtl));
 
             if (res?.success && res.data) {
                 const nameData = res.data.name;
@@ -78,13 +75,16 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
                 const phoneData = res.data.phone || '';
 
-                const phoneCountries = [...fetchedCountries].filter(c => c.phoneCode).sort((a, b) => b.phoneCode.length - a.phoneCode.length);
+                const phoneCountries = [...fetchedCountries]
+                    .filter(c => c.dialCode || c.phoneCode)
+                    .sort((a, b) => (b.dialCode || b.phoneCode).length - (a.dialCode || a.phoneCode).length);
                 let matchedPrefix = '';
                 let matchedCountry = null;
 
                 for (const c of phoneCountries) {
-                    if (phoneData.startsWith(c.phoneCode)) {
-                        matchedPrefix = c.phoneCode;
+                    const code = c.dialCode || c.phoneCode;
+                    if (phoneData.startsWith(code)) {
+                        matchedPrefix = code;
                         matchedCountry = c;
                         break;
                     }
@@ -100,7 +100,10 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 setPhoneVal(phoneValueOnly);
 
                 if (matchedCountry) {
-                    setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name });
+                    setSelectedCountryCode({ code: matchedCountry.dialCode || matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name, nameEn: matchedCountry.nameEn });
+                } else if (fetchedCountries.length > 0) {
+                    const first = fetchedCountries[0];
+                    setSelectedCountryCode({ code: first.dialCode || first.phoneCode, flag: first.flag, name: first.name, nameEn: first.nameEn });
                 }
 
                 if (onProfileLoaded) {
@@ -265,7 +268,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
                         {apiCountries.map(c => (
                             <option key={c.id || c._id} value={c.id || c._id}>
-                                {c.flag ? `${c.flag} ` : ''}{c.name}
+                                {c.flag ? `${c.flag} ` : ''}{getCountryName(c, isRtl)}
                             </option>
                         ))}
                     </select>
@@ -283,21 +286,27 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                                 <span>{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
                             </button>
                             {isDropdownOpen && (
-                                <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden animate-fadeIn">
-                                    {apiCountries.map((country) => (
-                                        <button
-                                            key={country.id || country._id}
-                                            type="button"
-                                            onClick={() => {
-                                                setSelectedCountryCode({ code: country.phoneCode, flag: country.flag, name: country.name });
-                                                setIsDropdownOpen(false);
-                                            }}
-                                            className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-left"
-                                        >
-                                            <span>{country.flag}</span>
-                                            <span className="font-semibold">{country.phoneCode}</span>
-                                        </button>
-                                    ))}
+                                <div className="absolute left-0 mt-2 z-10 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+                                    {sortCountryCodes(apiCountries.filter(c => c.dialCode || c.phoneCode), isRtl).map((country) => {
+                                        const code = country.dialCode || country.phoneCode;
+                                        return (
+                                            <button
+                                                key={country.id || country._id || code}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedCountryCode({ code, flag: country.flag, name: country.name, nameEn: country.nameEn });
+                                                    setIsDropdownOpen(false);
+                                                }}
+                                                className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors text-start"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <span>{country.flag}</span>
+                                                    <span className="text-xs">{getCountryName(country, isRtl)}</span>
+                                                </div>
+                                                <span className="font-semibold text-xs font-mono">{code}</span>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -309,13 +318,16 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                                 if (val.startsWith('+')) {
                                     const normalizedInput = val.replace(/\+/g, '').trim();
                                     const matched = apiCountries
-                                        .map(c => ({ ...c, normCode: String(c.phoneCode || c.code || '').replace(/\+/g, '').trim() }))
+                                        .map(c => {
+                                            const dial = c.dialCode || c.phoneCode || '';
+                                            return { ...c, dial, normCode: dial.replace(/\+/g, '').trim() };
+                                        })
                                         .filter(c => c.normCode)
                                         .sort((a, b) => b.normCode.length - a.normCode.length)
                                         .find(c => normalizedInput.startsWith(c.normCode));
 
                                     if (matched) {
-                                        setSelectedCountryCode({ code: matched.phoneCode, flag: matched.flag, name: matched.name });
+                                        setSelectedCountryCode({ code: matched.dial, flag: matched.flag, name: matched.name, nameEn: matched.nameEn });
                                         let remaining = val.substring(1).substring(matched.normCode.length).trim();
                                         setPhoneVal(remaining);
                                         return;

@@ -3,6 +3,7 @@ import { Calendar, Phone, Mail } from 'lucide-react'
 
 export default function EditProfileCard({
   formData,
+  joinDate,
   mockJoinDate,
   isRtl,
   roleName
@@ -51,7 +52,7 @@ export default function EditProfileCard({
                 {isRtl ? 'تاريخ الانضمام' : 'Join Date'}
               </p>
               <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">
-                {mockJoinDate}
+                {joinDate || mockJoinDate || '-'}
               </p>
             </div>
           </div>

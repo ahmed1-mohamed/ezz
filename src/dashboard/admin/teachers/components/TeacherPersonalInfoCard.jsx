@@ -1,16 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Image as ImageIcon, ChevronDown } from 'lucide-react'
-
-const defaultCountries = [
-  { code: '+971', flag: '🇦🇪', name: 'الإمارات', nameEn: 'UAE' },
-  { code: '+966', flag: '🇸🇦', name: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia' },
-  { code: '+965', flag: '🇰🇼', name: 'الكويت', nameEn: 'Kuwait' },
-  { code: '+974', flag: '🇶🇦', name: 'قطر', nameEn: 'Qatar' },
-  { code: '+968', flag: '🇴🇲', name: 'عمان', nameEn: 'Oman' },
-  { code: '+973', flag: '🇧🇭', name: 'البحرين', nameEn: 'Bahrain' },
-  { code: '+962', flag: '🇯🇴', name: 'الأردن', nameEn: 'Jordan' },
-  { code: '+20', flag: '🇪🇬', name: 'مصر', nameEn: 'Egypt' },
-]
+import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
 
 export default function TeacherPersonalInfoCard({
   formData,
@@ -19,27 +9,54 @@ export default function TeacherPersonalInfoCard({
   countries = []
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [fetchedCountries, setFetchedCountries] = useState([])
 
-  const activeCountries = (countries.length > 0
-    ? countries.map(c => ({
-        code: c.phoneCode || c.code || '+971',
-        flag: c.flag || '🌐',
+  useEffect(() => {
+    let isMounted = true
+    if (!countries || countries.length === 0) {
+      fetchCountries()
+        .then((list) => {
+          if (isMounted && list.length > 0) {
+            setFetchedCountries(list)
+          }
+        })
+        .catch((err) => console.error('TeacherPersonalInfoCard fetchCountries error:', err))
+    }
+    return () => {
+      isMounted = false
+    }
+  }, [countries])
+
+  const sourceCountries = countries && countries.length > 0 ? countries : fetchedCountries
+
+  const activeCountries = useMemo(() => {
+    const rawList = sourceCountries.map(c => {
+      const dialCode = c.dialCode || c.phoneCode || (typeof c.code === 'string' && c.code.startsWith('+') ? c.code : '') || ''
+      return {
+        code: dialCode,
+        dialCode,
+        flag: c.flag || '🌍',
         name: c.name || c.nameAr || '',
         nameEn: c.nameEn || '',
         id: c.id || c._id
-      }))
-    : defaultCountries)
+      }
+    })
+    return sortCountries(rawList, isRtl)
+  }, [sourceCountries, isRtl])
 
-  const initialCode = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : '+971'
-  const [selectedCountry, setSelectedCountry] = useState(
-    activeCountries.find((c) => c.code === initialCode) || defaultCountries[0]
-  )
+  const initialCode = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : ''
+  const [selectedCountry, setSelectedCountry] = useState(null)
 
   useEffect(() => {
-    if (!formData.country && selectedCountry?.name) {
-      onChange('country', selectedCountry.name)
+    if (activeCountries.length > 0) {
+      const matched = initialCode ? activeCountries.find((c) => c.code === initialCode) : null
+      const selected = matched || selectedCountry || activeCountries[0]
+      setSelectedCountry(selected)
+      if (!formData.country && selected?.name) {
+        onChange('country', getCountryName(selected, isRtl))
+      }
     }
-  }, [])
+  }, [activeCountries, initialCode])
 
   const rawPhone = formData.phone || ''
   const phoneNumberOnly = rawPhone.includes(' ')
@@ -58,7 +75,7 @@ export default function TeacherPersonalInfoCard({
   const selectCountryCode = (country) => {
     setSelectedCountry(country)
     setIsDropdownOpen(false)
-    onChange('country', country.name || country.nameEn)
+    onChange('country', getCountryName(country, isRtl))
     onChange('phone', `${country.code} ${phoneNumberOnly}`.trim())
   }
 
@@ -168,8 +185,8 @@ export default function TeacherPersonalInfoCard({
                 className="h-12 flex items-center justify-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-transparent rounded-2xl transition-all text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <ChevronDown size={14} className="text-slate-400" />
-                <span className="text-xs">{selectedCountry?.code || '+971'}</span>
-                <span className="text-base">{selectedCountry?.flag || '🇪🇬'}</span>
+                <span className="text-xs">{selectedCountry?.code || ''}</span>
+                <span className="text-base">{selectedCountry?.flag || '🌍'}</span>
               </button>
 
               {isDropdownOpen && (
@@ -183,7 +200,7 @@ export default function TeacherPersonalInfoCard({
                     >
                       <div className="flex items-center gap-2">
                         <span>{country.flag}</span>
-                        <span className="font-semibold text-xs">{country.name || country.nameEn}</span>
+                        <span className="font-semibold text-xs">{getCountryName(country, isRtl)}</span>
                       </div>
                       <span className="text-xs text-slate-400 font-mono">{country.code}</span>
                     </button>

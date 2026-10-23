@@ -3,13 +3,21 @@ import { X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
 
+const resolveTeacherName = (t, isRtl) => {
+  if (!t?.name) return ''
+  if (typeof t.name === 'object' && t.name !== null) {
+    return (isRtl ? t.name.ar : t.name.en) || t.name.ar || t.name.en || ''
+  }
+  return String(t.name)
+}
+
 export default function SendMessageModal({
   isOpen,
   onClose,
   teacher,
   isRtl
 }) {
-  const [teacherName, setTeacherName] = useState(teacher?.name || '')
+  const [teacherName, setTeacherName] = useState(() => resolveTeacherName(teacher, isRtl))
   const [email, setEmail] = useState(teacher?.email || '')
   const [phone, setPhone] = useState(teacher?.phone || '')
   const [message, setMessage] = useState('')
@@ -17,7 +25,7 @@ export default function SendMessageModal({
 
   if (teacher !== prevTeacher) {
     setPrevTeacher(teacher)
-    setTeacherName(teacher?.name || '')
+    setTeacherName(resolveTeacherName(teacher, isRtl))
     setEmail(teacher?.email || '')
     setPhone(teacher?.phone || '')
   }

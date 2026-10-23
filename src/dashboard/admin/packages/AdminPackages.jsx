@@ -11,6 +11,7 @@ import FaqTable from './components/FaqTable'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import Spinner from '@/shared/components/Spinner'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
+import { normalizeCountries } from '@/shared/utils/countryUtils'
 
 export default function AdminPackages() {
     const { t, i18n } = useTranslation()
@@ -21,6 +22,7 @@ export default function AdminPackages() {
     const [packages, setPackages] = useState([])
     const [faqs, setFaqs] = useState([])
     const [explanationLanguages, setExplanationLanguages] = useState([])
+    const [countries, setCountries] = useState([])
     const [isLoading, setIsLoading] = useState(true)
 
     const [pkgPanelOpen, setPkgPanelOpen] = useState(false)
@@ -31,13 +33,15 @@ export default function AdminPackages() {
     const loadAll = useCallback(async () => {
         setIsLoading(true)
         try {
-            const [res, langRes] = await Promise.all([
+            const [res, langRes, countriesRes] = await Promise.all([
                 adminPackagesApi.fetchPackagesAndFaqs(),
-                adminPackagesApi.fetchExplanationLanguages()
+                adminPackagesApi.fetchExplanationLanguages(),
+                adminPackagesApi.fetchCountries(),
             ])
             if (res?.packages) setPackages(res.packages)
             if (res?.faqs) setFaqs(res.faqs)
             if (langRes?.success) setExplanationLanguages(langRes.data)
+            if (countriesRes?.success) setCountries(normalizeCountries(countriesRes.data))
         } finally {
             setIsLoading(false)
         }
@@ -114,6 +118,7 @@ export default function AdminPackages() {
                 price: pkgData.price,
                 sessions_per_month: pkgData.sessionsCount,
                 sessions_language: langId,
+                country: typeof pkgData.country === 'object' && pkgData.country !== null ? (pkgData.country.id || pkgData.country._id || pkgData.country.name) : (pkgData.country || pkg.country || ''),
                 features: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.ar || []),
                 features_en: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.en || []),
                 image: pkgData.image || pkg.image || null,
@@ -212,6 +217,8 @@ export default function AdminPackages() {
                                         pkg={pkg}
                                         onEdit={handleEditPkgClick}
                                         onDelete={(id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '')}
+                                        explanationLanguages={explanationLanguages}
+                                        countries={countries}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -269,6 +276,7 @@ export default function AdminPackages() {
                 onSave={handleSavePkg}
                 editingPackage={editingPkg}
                 explanationLanguages={explanationLanguages}
+                countries={countries}
             />
         </div>
     )

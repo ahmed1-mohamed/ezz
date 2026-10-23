@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { teachersApi } from '@/shared/services/api/teachersApi'
+import { normalizeCountries } from '@/shared/utils/countryUtils'
 
 export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }) {
   const nameAr = teacher?.nameAr || (typeof teacher?.name === 'object' ? teacher?.name?.ar : teacher?.name) || '-'
@@ -22,14 +23,16 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
   })
   const countries = useMemo(() => {
     const rawList = countriesRes?.data || (Array.isArray(countriesRes) ? countriesRes : [])
-    return rawList.map((c) => {
-      let code = c.phoneCode || c.code || ''
-      if (code && !code.startsWith('+') && !code.startsWith('00')) {
+    const normalized = normalizeCountries(rawList)
+    return normalized.map((c) => {
+      let code = c.dialCode || c.phoneCode || ''
+      if (code && !code.startsWith('+') && !code.startsWith('00') && /^\d+$/.test(code)) {
         code = `+${code}`
       }
       return {
         id: c.id || c._id,
         code,
+        isoCode: c.code || '',
         flag: c.flag || '🌐',
         nameAr: typeof c.name === 'object' ? (c.name.ar || c.name.en || '') : (c.name || c.nameAr || ''),
         nameEn: typeof c.name === 'object' ? (c.name.en || c.name.ar || '') : (c.nameEn || c.name || '')

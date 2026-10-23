@@ -80,9 +80,8 @@ export const adminParentsApi = {
       const response = await api.post(`/api/v1/parents/${parentId}/message`, { message });
       return response.data;
     } catch (error) {
-      console.warn('API sendMessage failed, using mock:', error);
-      await delay(600);
-      return { success: true, message: 'Message sent successfully' };
+      console.error('API sendMessage failed:', error);
+      throw error;
     }
   },
 
@@ -91,9 +90,8 @@ export const adminParentsApi = {
       const response = await api.post(`/api/v1/parents/${parentId}/suspend`);
       return response.data;
     } catch (error) {
-      console.warn('API suspendParent failed, using mock:', error);
-      await delay(400);
-      return { success: true, message: 'Account suspended' };
+      console.error('API suspendParent failed:', error);
+      throw error;
     }
   },
 };

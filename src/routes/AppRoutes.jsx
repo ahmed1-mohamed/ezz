@@ -59,8 +59,10 @@ const ManagerReports = lazy(() => import('../dashboard/manager/reports/ManagerRe
 
 const TeacherDashboard = lazy(() => import('../dashboard/teacher/overview/TeacherDashboard.jsx'))
 const TeacherSchedule = lazy(() => import('../dashboard/teacher/schedules/TeacherSchedule.jsx'))
-const TeacherClasses = lazy(() => import('../dashboard/teacher/students/TeacherClasses.jsx'))
-const TeacherCourses = lazy(() => import('../dashboard/teacher/students/TeacherCourses.jsx'))
+ const TeacherCourses = lazy(() => import('../dashboard/teacher/students/TeacherCourses.jsx'))
+const TeacherGroups = lazy(() => import('../dashboard/teacher/groups/TeacherGroups.jsx'))
+const TeacherGroupDetails = lazy(() => import('../dashboard/teacher/groups/TeacherGroupDetails.jsx'))
+const TeacherComplaints = lazy(() => import('../dashboard/teacher/complaints/TeacherComplaints.jsx'))
 
 const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
@@ -288,6 +290,10 @@ export default function AppRoutes() {
                                         path="/dashboard/admin/groups"
                                         element={<PermissionRoute permission="groups.read"><AdminGroups /></PermissionRoute>}
                                     />
+                                    <Route
+                                        path="/dashboard/admin/private-groups"
+                                        element={<PermissionRoute permission="groups.read"><AdminPrivateGroups /></PermissionRoute>}
+                                    />
                                    
                                     <Route
                                         path="/dashboard/admin/sessions"
@@ -373,16 +379,32 @@ export default function AppRoutes() {
                                     element={<TeacherDashboard />}
                                 />
                                 <Route
+                                    path="/dashboard/teacher/groups"
+                                    element={<TeacherGroups />}
+                                />
+                                <Route
+                                    path="/dashboard/teacher/groups/:id"
+                                    element={<TeacherGroupDetails />}
+                                />
+                                <Route
                                     path="/dashboard/teacher/schedule"
                                     element={<TeacherSchedule />}
                                 />
                                 <Route
                                     path="/dashboard/teacher/classes"
-                                    element={<TeacherClasses />}
+                                    element={<TeacherGroups />}
+                                />
+                                <Route
+                                    path="/dashboard/teacher/classes/:id"
+                                    element={<TeacherGroupDetails />}
                                 />
                                 <Route
                                     path="/dashboard/teacher/courses"
                                     element={<TeacherCourses />}
+                                />
+                                <Route
+                                    path="/dashboard/teacher/complaints"
+                                    element={<TeacherComplaints />}
                                 />
                             </Route>
 

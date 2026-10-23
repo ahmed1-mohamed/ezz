@@ -1,7 +1,17 @@
-import { RefreshCw, UserX, X, Users, Clock, Video, Calendar } from 'lucide-react'
+import { RefreshCw, UserX, X, Users, Clock, Video } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import ReschedulePanel from './ReschedulePanel'
 import ChangeTeacherPanel from './ChangeTeacherPanel'
+
+const safeText = (val, fallback = '') => {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    return val.ar || val.en || val.name || val.title || fallback;
+  }
+  return String(val);
+};
 
 export default function SessionRow({
   session,
@@ -11,11 +21,21 @@ export default function SessionRow({
   handleReschedule,
   handleChangeTeacher,
   handleCancelSession,
-  mockTeachers,
+  teachers,
   t,
 }) {
   const isCancelled = session.status === 'cancelled'
   const isCompleted = session.status === 'completed'
+
+  const groupName = safeText(session.groupName, 'مجموعة دراسية')
+  const sessionTitle = safeText(session.title)
+  const sessionNum = safeText(session.sessionNumber)
+  const teacher = safeText(session.teacher, 'غير محدد')
+  const teacherContact = safeText(session.teacherPhone || session.teacherEmail)
+  const date = safeText(session.date, '-')
+  const day = safeText(session.day)
+  const time = safeText(session.time, '-')
+  const studentsCount = Number(session.studentsCount) || 0
 
   return (
     <div className="group">
@@ -27,20 +47,20 @@ export default function SessionRow({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-800 dark:text-white truncate">
-                {session.groupName}
+                {groupName}
               </span>
-              {session.sessionNumber !== '' && session.sessionNumber !== undefined && (
+              {sessionNum !== '' && (
                 <span className="px-1.5 py-0.5 rounded-md bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-[10px] font-bold shrink-0">
-                  #{session.sessionNumber}
+                  #{sessionNum}
                 </span>
               )}
             </div>
-            {session.title && (
+            {sessionTitle && (
               <p
                 className="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5"
-                title={session.title}
+                title={sessionTitle}
               >
-                {session.title}
+                {sessionTitle}
               </p>
             )}
           </div>
@@ -49,11 +69,11 @@ export default function SessionRow({
         {/* 2. Teacher */}
         <div className="text-start min-w-0">
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
-            {session.teacher}
+            {teacher}
           </p>
-          {(session.teacherPhone || session.teacherEmail) && (
+          {teacherContact && (
             <p className="text-[11px] text-slate-400 truncate mt-0.5">
-              {session.teacherPhone || session.teacherEmail}
+              {teacherContact}
             </p>
           )}
         </div>
@@ -61,11 +81,11 @@ export default function SessionRow({
         {/* 3. Date & Day */}
         <div className="text-start">
           <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            {session.date || '-'}
+            {date}
           </p>
-          {session.day && (
+          {day && (
             <p className="text-xs text-slate-400 mt-0.5">
-              {session.day}
+              {day}
             </p>
           )}
         </div>
@@ -74,7 +94,7 @@ export default function SessionRow({
         <div className="text-start">
           <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
             <Clock size={13} className="text-slate-400 shrink-0" />
-            <span>{session.time || '-'}</span>
+            <span>{time}</span>
           </div>
           {session.durationMinutes > 0 && (
             <p className="text-xs text-slate-400 mt-0.5">
@@ -89,7 +109,7 @@ export default function SessionRow({
         {/* 5. Students Count */}
         <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <Users size={14} className="text-slate-400" />
-          <span>{session.studentsCount}</span>
+          <span>{studentsCount}</span>
         </div>
 
         {/* 6. Status */}
@@ -160,39 +180,39 @@ export default function SessionRow({
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-2.5 h-2.5 rounded-full bg-brand-500 shrink-0" />
             <span className="text-sm font-bold text-slate-800 dark:text-white truncate">
-              {session.groupName}
+              {groupName}
             </span>
-            {session.sessionNumber !== '' && session.sessionNumber !== undefined && (
+            {sessionNum !== '' && (
               <span className="px-1.5 py-0.5 rounded-md bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-[10px] font-bold shrink-0">
-                #{session.sessionNumber}
+                #{sessionNum}
               </span>
             )}
           </div>
           <StatusBadge status={session.status} />
         </div>
 
-        {session.title && (
+        {sessionTitle && (
           <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {session.title}
+            {sessionTitle}
           </p>
         )}
 
         <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl">
           <div>
             <span className="text-slate-400 text-[11px] block">{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-200">{session.teacher}</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">{teacher}</span>
           </div>
           <div>
             <span className="text-slate-400 text-[11px] block">{t('adminDashboard.sessions.headers.count', 'عدد الطلاب')}</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-200">{session.studentsCount}</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">{studentsCount}</span>
           </div>
           <div>
             <span className="text-slate-400 text-[11px] block">{t('adminDashboard.sessions.headers.date', 'التاريخ واليوم')}</span>
-            <span className="font-medium text-slate-700 dark:text-slate-300">{session.date} {session.day ? `(${session.day})` : ''}</span>
+            <span className="font-medium text-slate-700 dark:text-slate-300">{date} {day ? `(${day})` : ''}</span>
           </div>
           <div>
             <span className="text-slate-400 text-[11px] block">{t('adminDashboard.sessions.headers.time', 'الوقت')}</span>
-            <span className="font-medium text-slate-700 dark:text-slate-300">{session.time}</span>
+            <span className="font-medium text-slate-700 dark:text-slate-300">{time}</span>
           </div>
         </div>
 
@@ -243,7 +263,7 @@ export default function SessionRow({
       {isExpanded && expandedPanel === 'reschedule' && (
         <ReschedulePanel
           session={session}
-          onConfirm={(date, time) => handleReschedule(session.id, date, time)}
+          onConfirm={(rescheduleData) => handleReschedule(session.id, rescheduleData)}
           onCancel={() => handleTogglePanel(session.id, 'reschedule')}
         />
       )}
@@ -252,7 +272,7 @@ export default function SessionRow({
           session={session}
           onConfirm={(tid, tname) => handleChangeTeacher(session.id, tid, tname)}
           onCancel={() => handleTogglePanel(session.id, 'teacher')}
-          teachers={mockTeachers}
+          teachers={teachers}
         />
       )}
     </div>

@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Upload, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { adminParentsApi } from '@/shared/services/api/adminParentsApi'
+import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function ParentEditForm({
   parent = null,
@@ -14,8 +15,8 @@ export default function ParentEditForm({
   setSelectedCountryCode,
   isPhoneDropdownOpen,
   setIsPhoneDropdownOpen,
-  countryCodesList,
-  countriesList,
+  countryCodesList = [],
+  countriesList = [],
   phoneVal,
   setPhoneVal,
   showPassword,
@@ -23,6 +24,14 @@ export default function ParentEditForm({
   showConfirmPassword,
   setShowConfirmPassword
 }) {
+  const sortedCountryCodes = useMemo(
+    () => sortCountryCodes(countryCodesList, isRtl),
+    [countryCodesList, isRtl]
+  )
+  const sortedCountries = useMemo(
+    () => sortCountries(countriesList, isRtl),
+    [countriesList, isRtl]
+  )
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
   const handleUpdatePassword = async () => {
@@ -132,10 +141,14 @@ export default function ParentEditForm({
                 </button>
                 {isPhoneDropdownOpen && (
                   <div className="absolute left-0 mt-2 z-10 w-44 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden animate-fadeIn">
-                    {countryCodesList.map((c) => (
+                    {sortedCountryCodes.map((c) => (
                       <button key={c.code} type="button" onClick={() => { setSelectedCountryCode(c); setIsPhoneDropdownOpen(false) }}
-                        className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-750 dark:text-slate-300 text-sm transition-colors text-left">
-                        <span>{c.flag}</span><span className="font-semibold">{c.code}</span>
+                        className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-750 dark:text-slate-300 text-sm transition-colors text-start">
+                        <div className="flex items-center gap-2">
+                          <span>{c.flag}</span>
+                          <span className="text-xs">{getCountryName(c, isRtl)}</span>
+                        </div>
+                        <span className="font-semibold text-xs font-mono">{c.code}</span>
                       </button>
                     ))}
                   </div>
@@ -160,9 +173,9 @@ export default function ParentEditForm({
             onChange={(e) => handleChange('country', e.target.value)}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
           >
-            {countriesList.map((c) => (
-              <option key={c.id || c.name} value={c.id || c.name}>
-                {isRtl ? c.name : c.nameEn}
+            {sortedCountries.map((c) => (
+              <option key={c.id || c._id || c.name} value={c.id || c._id || c.name}>
+                {c.flag ? `${c.flag} ` : ''}{getCountryName(c, isRtl)}
               </option>
             ))}
           </select>

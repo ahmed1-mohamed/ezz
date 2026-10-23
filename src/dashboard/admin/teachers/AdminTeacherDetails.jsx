@@ -59,7 +59,9 @@ export default function AdminTeacherDetails() {
     const target = targetTeacher || teacher
     if (!target) return
     const targetId = target.teacher_id || target.id || id
-    const teacherName = target.name || 'المعلم'
+    const teacherName = typeof target.name === 'object' && target.name !== null
+      ? ((isRtl ? target.name.ar : target.name.en) || target.name.ar || target.name.en || 'المعلم')
+      : (target.name || 'المعلم')
 
     const isConfirmed = await showDeleteConfirm(isRtl, teacherName)
     if (!isConfirmed) return

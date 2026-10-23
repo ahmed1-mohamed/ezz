@@ -97,7 +97,7 @@ export default function AdminComplaints() {
   })
 
   const statusMutation = useMutation({
-    mutationFn: ({ action, id, notes }) => complaintsApi[action]({ id, notes }),
+    mutationFn: ({ action, id, notes, ...extra }) => complaintsApi[action]({ id, notes, ...extra }),
     onSuccess: () => {
       refreshData()
       showSuccessToast(t('adminDashboard.complaints.updateSuccess', 'تم تحديث الحالة بنجاح'), isRtl)
@@ -112,7 +112,35 @@ export default function AdminComplaints() {
   }
 
   const handleResolve = async (item) => {
+    const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'delay'
     const isSuggestion = item.type === 'suggestion'
+
+    if (isPostpone) {
+      const sessionId = item.sessionId || item.session?.id || item.session?._id || (typeof item.session === 'string' ? item.session : null)
+      const proposedDate = item.proposedDate || item.suggestedDate || item.rescheduleDate || item.newDate || item.date || ''
+      const proposedStartTime = item.proposedStartTime || item.suggestedStartTime || item.newStartTime || item.startTime || ''
+      const proposedEndTime = item.proposedEndTime || item.suggestedEndTime || item.newEndTime || item.endTime || ''
+
+      const notes = await showNotesPrompt({
+        isRtl,
+        title: t('adminDashboard.complaints.approvePostponeTitle', 'الموافقة على طلب التأجيل وإعادة جدولة الحصة'),
+        confirmText: t('adminDashboard.complaints.approveReschedule', 'قبول وإعادة الجدولة'),
+        confirmColor: CONFIRM_GREEN,
+      })
+      if (!notes) return
+
+      statusMutation.mutate({
+        action: 'approvePostpone',
+        id: item.id || item._id,
+        notes,
+        sessionId,
+        date: proposedDate,
+        startTime: proposedStartTime,
+        endTime: proposedEndTime,
+      })
+      return
+    }
+
     const notes = await showNotesPrompt({
       isRtl,
       title: isSuggestion

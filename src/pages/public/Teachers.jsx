@@ -7,6 +7,7 @@ import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight, Refre
 import imageSrc from '../../images/programs/6.webp'
 import { teachersApi } from '../../shared/services/api/teachersApi'
 import { landingApi } from '../../shared/services/api/landingApi'
+import { sortCountries, getCountryName } from '../../shared/utils/countryUtils'
 
 const normalizeCountryStr = (str) => {
     if (!str) return ''
@@ -281,6 +282,7 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
 
 export default function Teachers() {
     const { t, i18n } = useTranslation()
+    const isRtl = i18n.language === 'ar'
     const gridRef = useRef(null)
 
     const [searchInput, setSearchInput] = useState('')
@@ -356,8 +358,8 @@ export default function Teachers() {
                 list.push(dc)
             }
         })
-        return list.sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
-    }, [countriesResponse, distinctTeacherCountries, i18n.language])
+        return sortCountries(list, isRtl)
+    }, [countriesResponse, distinctTeacherCountries, isRtl])
 
     const filteredTeachers = useMemo(() => {
         return rawTeachers.filter((teacher) => {
@@ -409,7 +411,6 @@ export default function Teachers() {
         }
     }
 
-    const isRtl = i18n.language === 'ar'
     const ArrowNext = isRtl ? ChevronLeft : ChevronRight
     const ArrowPrev = isRtl ? ChevronRight : ChevronLeft
 
@@ -528,7 +529,7 @@ export default function Teachers() {
                                         const cId = country.id || country._id
                                         return (
                                             <option key={cId} value={cId}>
-                                                {country.flag ? `${country.flag} ` : ''}{country.name}
+                                                {country.flag ? `${country.flag} ` : ''}{getCountryName(country, isRtl)}
                                             </option>
                                         )
                                     })}

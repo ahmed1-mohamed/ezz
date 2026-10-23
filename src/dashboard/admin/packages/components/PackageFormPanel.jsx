@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { createPortal } from 'react-dom'
@@ -8,14 +8,19 @@ import toast from 'react-hot-toast'
 import SelectField from './SelectField'
 import PackageImageUpload from './PackageImageUpload'
 import PackageFeaturesField from './PackageFeaturesField'
+import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 import {
   EMPTY_PACKAGE,
 } from './packages_constants'
 
-export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage, explanationLanguages = [] }) {
+export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage, explanationLanguages = [], countries = [] }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const p = (key) => t(`adminDashboard.packages.${key}`)
+
+  const sortedCountries = useMemo(() => {
+    return sortCountries(countries, isRtl)
+  }, [countries, isRtl])
 
   const [form, setForm] = useState(EMPTY_PACKAGE)
   const [saving, setSaving] = useState(false)
@@ -31,6 +36,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
         setForm({
           ...EMPTY_PACKAGE,
           ...editingPackage,
+          country: editingPackage.country || editingPackage.countryId || '',
           sessions_language: validLanguage,
           features: editingPackage.features?.length ? [...editingPackage.features] : [''],
           features_en: editingPackage.features_en?.length ? [...editingPackage.features_en] : [''],
@@ -40,6 +46,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
       } else {
         setForm({
           ...EMPTY_PACKAGE,
+          country: '',
           sessions_language: explanationLanguages?.[0]?.id || ''
         })
         setImagePreview(null)
@@ -189,35 +196,21 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
-                <input
-                  id="price"
-                  name="price"
-                  type="number"
-                  value={form.price}
-                  onChange={(e) => setField('price', e.target.value)}
-                  placeholder={p('pricePlaceholder')}
-                  required
-                  dir="ltr"
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
-                />
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
-                <SelectField
-                  id="sessions_language"
-                  label={p('language')}
-                  value={form.sessions_language}
-                  onChange={(v) => setField('sessions_language', v)}
-                  options={explanationLanguages.map(lang => ({
-                    value: lang.id || lang._id,
-                    label: typeof lang.name === 'object' && lang.name !== null
-                      ? (isRtl ? lang.name.ar || lang.name.en : lang.name.en || lang.name.ar)
-                      : lang.name
-                  }))}
-                  placeholder={p('language')}
-                />
+                <div>
+                  <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
+                  <input
+                    id="price"
+                    name="price"
+                    type="number"
+                    value={form.price}
+                    onChange={(e) => setField('price', e.target.value)}
+                    placeholder={p('pricePlaceholder')}
+                    required
+                    dir="ltr"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
+                  />
+                </div>
                 <div>
                   <label htmlFor="sessions_per_month" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('sessionsCount')}</label>
                   <input
@@ -233,6 +226,41 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                     className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <SelectField
+                  id="country"
+                  label={t('adminDashboard.packages.country', 'الدولة')}
+                  value={form.country || ''}
+                  onChange={(v) => setField('country', v)}
+                  options={[
+                    { value: '', label: t('adminDashboard.packages.allCountries', 'جميع الدول (عام)') },
+                    ...sortedCountries.map((c) => {
+                      const cid = c.id || c._id
+                      const name = getCountryName(c, isRtl)
+                      const flag = c.flag ? `${c.flag} ` : ''
+                      return {
+                        value: cid || name,
+                        label: `${flag}${name}`,
+                      }
+                    }),
+                  ]}
+                  placeholder={t('adminDashboard.packages.selectCountry', 'اختر الدولة')}
+                />
+                <SelectField
+                  id="sessions_language"
+                  label={p('language')}
+                  value={form.sessions_language}
+                  onChange={(v) => setField('sessions_language', v)}
+                  options={explanationLanguages.map((lang) => ({
+                    value: lang.id || lang._id,
+                    label: typeof lang.name === 'object' && lang.name !== null
+                      ? (isRtl ? lang.name.ar || lang.name.en : lang.name.en || lang.name.ar)
+                      : lang.name,
+                  }))}
+                  placeholder={p('language')}
+                />
               </div>
 
               <div id="features" tabIndex={-1} className="outline-none">

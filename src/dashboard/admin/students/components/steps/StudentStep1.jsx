@@ -1,4 +1,6 @@
+import { useMemo } from 'react'
 import { Upload, Calendar } from 'lucide-react'
+import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function StudentStep1({
   formData,
@@ -9,11 +11,20 @@ export default function StudentStep1({
   setIsDropdownOpen,
   phoneVal,
   setPhoneVal,
-  countryCodes,
+  countryCodes = [],
   countries = [],
   levels = [],
   selectCountryCode
 }) {
+  const sortedCountryCodes = useMemo(
+    () => sortCountryCodes(countryCodes, isRtl),
+    [countryCodes, isRtl]
+  )
+
+  const sortedCountries = useMemo(
+    () => sortCountries(countries, isRtl),
+    [countries, isRtl]
+  )
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 max-w-4xl mx-auto">
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -100,20 +111,20 @@ export default function StudentStep1({
                 className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
               >
                 <span>{selectedCountryCode?.flag || '🌍'}</span>
-                <span>{selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}</span>
+                <span>{(selectedCountryCode?.dialCode || selectedCountryCode?.code) ? `(${selectedCountryCode.dialCode || selectedCountryCode.code})` : ''}</span>
               </button>
               {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 animate-fadeIn">
-                  {countryCodes.map((country) => (
+                <div className="absolute left-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 animate-fadeIn">
+                  {sortedCountryCodes.map((country) => (
                     <button
-                      key={country.code + (country.name || '')}
+                      key={(country.dialCode || country.code) + (country.name || country.nameEn || '')}
                       type="button"
                       onClick={() => selectCountryCode(country)}
                       className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-750 dark:text-slate-350 text-sm transition-colors text-left"
                     >
                       <span>{country.flag}</span>
-                      <span className="font-semibold">{country.code}</span>
-                      <span className="text-xs text-slate-400 truncate">{country.name}</span>
+                      <span className="font-semibold">{country.dialCode || country.code}</span>
+                      <span className="text-xs text-slate-400 truncate">{getCountryName(country, isRtl)}</span>
                     </button>
                   ))}
                 </div>
@@ -158,11 +169,11 @@ export default function StudentStep1({
             className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
           >
             <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
-            {countries.map((c) => {
+            {sortedCountries.map((c) => {
               const cid = c.id || c._id
               return (
                 <option key={cid} value={cid}>
-                  {c.flag ? `${c.flag} ` : ''}{c.name}
+                  {c.flag ? `${c.flag} ` : ''}{getCountryName(c, isRtl)}
                 </option>
               )
             })}

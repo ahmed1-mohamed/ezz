@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import AssignmentsHeader from '../components/assignments/AssignmentsHeader';
 import AssignmentsStatsBar from '../components/assignments/AssignmentsStatsBar';
 import AssignmentCard from '../components/assignments/AssignmentCard';
+import { parentApi } from '@/shared/services/api/parentApi';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -24,29 +25,78 @@ export default function ParentAssignments() {
     const [assignmentsData, setAssignmentsData] = useState(null);
 
     useEffect(() => {
+        let isMounted = true;
         const fetchAssignments = async () => {
             setIsLoading(true);
             try {
-                await new Promise(resolve => setTimeout(resolve, 800));
-                setAssignmentsData({
-                    stats: { total: 5, evaluated: 2, underReview: 1, notSubmitted: 1 },
-                    list: [
-                        { id: 1, title: t('parent.assignments.mock1Title'), student: t('parent.assignments.mock1Student'), subject: t('parent.assignments.mock1Subject'), teacher: t('parent.assignments.mock1Teacher'), date: '12-04-2026', status: t('parent.assignments.statusUnderReview'), icon: Clock },
-                        { id: 2, title: t('parent.assignments.mock2Title'), student: t('parent.assignments.mock2Student'), subject: t('parent.assignments.mock2Subject'), teacher: t('parent.assignments.mock2Teacher'), date: '15-05-2026', status: t('parent.assignments.statusCompleted'), icon: CheckCircle2 },
-                        { id: 3, title: t('parent.assignments.mock3Title'), student: t('parent.assignments.mock3Student'), subject: t('parent.assignments.mock3Subject'), teacher: t('parent.assignments.mock3Teacher'), date: '20-06-2026', status: t('parent.assignments.statusInProgress'), icon: Clock },
-                        { id: 4, title: t('parent.assignments.mock4Title'), student: t('parent.assignments.mock4Student'), subject: t('parent.assignments.mock4Subject'), teacher: t('parent.assignments.mock4Teacher'), date: '30-07-2026', status: t('parent.assignments.statusPostponed'), icon: Clock },
-                        { id: 5, title: t('parent.assignments.mock5Title'), student: t('parent.assignments.mock5Student'), subject: t('parent.assignments.mock5Subject'), teacher: t('parent.assignments.mock5Teacher'), date: '25-08-2026', status: t('parent.assignments.statusCompleted'), icon: CheckCircle2 },
-                    ]
-                });
+                const params = selectedStudent !== 'all' ? { studentId: selectedStudent } : {};
+                const res = await parentApi.fetchAssignments(params);
+
+                if (isMounted) {
+                    const rawList = res?.success && Array.isArray(res.data)
+                        ? res.data
+                        : (res?.data?.list || (Array.isArray(res?.data) ? res.data : []));
+
+                    const formattedList = rawList.map((item, idx) => {
+                        const id = item.id || item._id || idx;
+                        const title = typeof item.title === 'object'
+                            ? (isRtl ? item.title.ar : item.title.en)
+                            : (item.title || item.name || t('parent.assignments.defaultTitle', 'واجب دراسي'));
+                        const student = typeof item.student === 'object'
+                            ? (isRtl ? item.student.name?.ar || item.student.name : item.student.name?.en || item.student.name)
+                            : (item.studentName || item.student || '-');
+                        const subject = typeof item.subject === 'object'
+                            ? (isRtl ? item.subject.ar : item.subject.en)
+                            : (item.subject || '-');
+                        const teacher = typeof item.teacher === 'object'
+                            ? (isRtl ? item.teacher.name?.ar || item.teacher.name : item.teacher.name?.en || item.teacher.name)
+                            : (item.teacherName || item.teacher || '-');
+                        const date = item.dueDate || item.date || item.createdAt?.slice(0, 10) || '-';
+                        const isDone = item.status === 'completed' || item.status === 'evaluated';
+                        const status = isDone
+                            ? t('parent.assignments.statusCompleted', 'مكتمل')
+                            : (item.status === 'in_progress' ? t('parent.assignments.statusInProgress', 'قيد التنفيذ') : t('parent.assignments.statusUnderReview', 'قيد المراجعة'));
+
+                        return {
+                            id,
+                            title,
+                            student,
+                            subject,
+                            teacher,
+                            date,
+                            status,
+                            icon: isDone ? CheckCircle2 : Clock
+                        };
+                    });
+
+                    const stats = res?.data?.stats || {
+                        total: formattedList.length,
+                        evaluated: formattedList.filter(a => a.status === t('parent.assignments.statusCompleted', 'مكتمل')).length,
+                        underReview: formattedList.filter(a => a.status === t('parent.assignments.statusUnderReview', 'قيد المراجعة')).length,
+                        notSubmitted: 0
+                    };
+
+                    setAssignmentsData({
+                        stats,
+                        list: formattedList
+                    });
+                }
             } catch (error) {
                 console.error('Failed to fetch assignments', error);
+                if (isMounted) {
+                    setAssignmentsData({
+                        stats: { total: 0, evaluated: 0, underReview: 0, notSubmitted: 0 },
+                        list: []
+                    });
+                }
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
 
         fetchAssignments();
-    }, [selectedStudent, i18n.language]);
+        return () => { isMounted = false; };
+    }, [selectedStudent, i18n.language, isRtl, t]);
 
     return (
         <motion.div
@@ -63,10 +113,10 @@ export default function ParentAssignments() {
             />
 
             {isLoading ? (
-                <div className="absolute inset-0 flex justify-center items-center bg-white/50 z-10 rounded-2xl mt-32 min-h-[500px]">
+                <div className="flex justify-center items-center py-24">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0f7a6c]" />
                 </div>
-            ) : assignmentsData ? (
+            ) : assignmentsData && assignmentsData.list.length > 0 ? (
                 <>
                     <AssignmentsStatsBar stats={assignmentsData.stats} variants={itemVariants} />
 
@@ -80,7 +130,13 @@ export default function ParentAssignments() {
                         ))}
                     </div>
                 </>
-            ) : null}
+            ) : (
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                        {t('parent.assignments.empty', 'لا توجد واجبات مسجلة حالياً.')}
+                    </p>
+                </div>
+            )}
         </motion.div>
     );
 }

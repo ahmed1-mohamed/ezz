@@ -6,6 +6,7 @@ import ParentStudentLinkage from './steps/ParentStudentLinkage'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
+import { sortCountries, sortCountryCodes, normalizeCountries } from '@/shared/utils/countryUtils'
 
 export default function AddEditParentScreen({ parent = null, isRtl, isSaving = false, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
@@ -48,20 +49,19 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
     const loadCountries = async () => {
       try {
         const res = await landingApi.fetchCountries();
-        let fetchedCountries = Array.isArray(res) ? res : (res?.data || []);
+        let rawCountries = Array.isArray(res) ? res : (res?.data || []);
+        let fetchedCountries = normalizeCountries(rawCountries);
         if (fetchedCountries.length > 0) {
-          fetchedCountries = [...fetchedCountries].sort((a, b) =>
-            (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' })
-          );
+          fetchedCountries = sortCountries(fetchedCountries, isRtl);
           setApiCountries(fetchedCountries);
 
           let prefix = parent?.phonePrefix || '';
           let phonePart = parent?.phone || '';
 
           if (parent?.phone && !prefix) {
-            const matchedCode = fetchedCountries.find(c => c.phoneCode && parent.phone.startsWith(c.phoneCode));
+            const matchedCode = fetchedCountries.find(c => (c.dialCode || c.phoneCode) && parent.phone.startsWith(c.dialCode || c.phoneCode));
             if (matchedCode) {
-              prefix = matchedCode.phoneCode;
+              prefix = matchedCode.dialCode || matchedCode.phoneCode;
               phonePart = parent.phone.substring(prefix.length);
             }
           } else if (prefix && phonePart) {
@@ -213,10 +213,10 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
           setPhoneVal={setPhoneVal}
           isCountryDropdownOpen={isCountryDropdownOpen}
           setIsCountryDropdownOpen={setIsCountryDropdownOpen}
-          countryCodes={apiCountries.map(c => ({ code: c.phoneCode, flag: c.flag, name: c.name }))}
+          countryCodes={sortCountryCodes(apiCountries.map(c => ({ code: c.dialCode || c.phoneCode, flag: c.flag, name: c.name, nameEn: c.nameEn })), isRtl)}
           countries={apiCountries}
           setSelectedCountryCode={setSelectedCountryCode}
-          dynamicCountryCodes={apiCountries.map(c => ({ code: c.phoneCode, flag: c.flag, name: c.name }))}
+          dynamicCountryCodes={sortCountryCodes(apiCountries.map(c => ({ code: c.dialCode || c.phoneCode, flag: c.flag, name: c.name, nameEn: c.nameEn })), isRtl)}
           initial={initial}
         />
 

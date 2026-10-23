@@ -2,67 +2,63 @@ import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Search, Check, Loader2 } from 'lucide-react'
-import { landingApi } from '@/shared/services/api/landingApi'
+import { fetchCountries, sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function CountryPhoneInput({ value = '', onChange, error, label }) {
     const { t, i18n } = useTranslation()
+    const isRtl = i18n.language.startsWith('ar')
 
-    const DEFAULT_COUNTRIES = useMemo(() => [
-        { phoneCode: '+971', name: i18n.language === 'en' ? 'UAE' : 'الإمارات', flag: '🇦🇪' },
-        { phoneCode: '+966', name: i18n.language === 'en' ? 'Saudi Arabia' : 'السعودية', flag: '🇸🇦' },
-        { phoneCode: '+962', name: i18n.language === 'en' ? 'Jordan' : 'الأردن', flag: '🇯🇴' },
-        { phoneCode: '+973', name: i18n.language === 'en' ? 'Bahrain' : 'البحرين', flag: '🇧🇭' },
-        { phoneCode: '+965', name: i18n.language === 'en' ? 'Kuwait' : 'الكويت', flag: '🇰🇼' },
-        { phoneCode: '+968', name: i18n.language === 'en' ? 'Oman' : 'عمان', flag: '🇴🇲' },
-        { phoneCode: '+974', name: i18n.language === 'en' ? 'Qatar' : 'قطر', flag: '🇶🇦' },
-        { phoneCode: '+20', name: i18n.language === 'en' ? 'Egypt' : 'مصر', flag: '🇪🇬' },
-    ], [i18n.language])
-
-    const [countriesList, setCountriesList] = useState(DEFAULT_COUNTRIES)
-    const [countryCode, setCountryCode] = useState('+971')
+    const [rawCountries, setRawCountries] = useState([])
+    const [countryCode, setCountryCode] = useState('')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
 
     useEffect(() => {
-        const allCountries = [...countriesList, ...DEFAULT_COUNTRIES]
-        const sortedCountries = [...allCountries].sort((a, b) => b.phoneCode.length - a.phoneCode.length)
-        const matchedCountry = sortedCountries.find(c => value.trim().startsWith(c.phoneCode))
-        if (matchedCountry && matchedCountry.phoneCode !== countryCode) {
-            setCountryCode(matchedCountry.phoneCode)
-        }
-    }, [value, countriesList, DEFAULT_COUNTRIES, countryCode])
-
-    useEffect(() => {
         let isMounted = true
-        const delayDebounceFn = setTimeout(async () => {
-            setLoadingCountries(true)
-            try {
-                const response = await landingApi.fetchCountries({
-                    lang: i18n.language,
-                    sort: 'name',
-                    search: searchTerm.trim() || undefined
-                })
-                if (isMounted && response?.data) {
-                    const rawData = Array.isArray(response.data) ? response.data : []
-                    const sorted = [...rawData].sort((a, b) => (a.name || '').localeCompare(b.name || '', i18n.language))
-                    setCountriesList(sorted)
+        setLoadingCountries(true)
+        fetchCountries({ lang: i18n.language, sort: 'name' })
+            .then((list) => {
+                if (!isMounted) return
+                const sorted = sortCountries(list, isRtl)
+                setRawCountries(sorted)
+                if (sorted.length > 0 && !countryCode) {
+                    const matched = [...sorted]
+                        .sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
+                        .find(c => c.dialCode && value.trim().startsWith(c.dialCode))
+                    setCountryCode(matched?.dialCode || sorted[0].dialCode || '+20')
                 }
-            } catch (err) {
-                console.error("Failed to fetch countries:", err)
-                if (isMounted && !searchTerm) {
-                    setCountriesList(DEFAULT_COUNTRIES)
-                }
-            } finally {
+            })
+            .catch((err) => console.error('CountryPhoneInput fetchCountries error:', err))
+            .finally(() => {
                 if (isMounted) setLoadingCountries(false)
-            }
-        }, searchTerm ? 300 : 0)
+            })
 
         return () => {
             isMounted = false
-            clearTimeout(delayDebounceFn)
         }
-    }, [searchTerm, i18n.language, DEFAULT_COUNTRIES])
+    }, [i18n.language, isRtl])
+
+    const countriesList = useMemo(() => {
+        const sorted = sortCountries(rawCountries, isRtl)
+        if (!searchTerm.trim()) return sorted
+        const q = searchTerm.toLowerCase().trim()
+        return sorted.filter(c =>
+            (c.name && c.name.toLowerCase().includes(q)) ||
+            (c.nameEn && c.nameEn.toLowerCase().includes(q)) ||
+            (c.dialCode && c.dialCode.includes(q)) ||
+            (c.code && c.code.toLowerCase().includes(q))
+        )
+    }, [rawCountries, searchTerm, isRtl])
+
+    useEffect(() => {
+        if (!value || rawCountries.length === 0) return
+        const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
+        const matched = sorted.find(c => c.dialCode && value.trim().startsWith(c.dialCode))
+        if (matched && matched.dialCode !== countryCode) {
+            setCountryCode(matched.dialCode)
+        }
+    }, [value, rawCountries, countryCode])
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -82,19 +78,16 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
         const inputVal = e.target.value
         let finalValue = inputVal
 
-        const allCountries = [...countriesList, ...DEFAULT_COUNTRIES]
-        const sortedCountries = [...allCountries].sort((a, b) => b.phoneCode.length - a.phoneCode.length)
-        const matchedCountry = sortedCountries.find(c => inputVal.trim().startsWith(c.phoneCode))
+        const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
+        const matched = sorted.find(c => c.dialCode && inputVal.trim().startsWith(c.dialCode))
 
-        if (matchedCountry) {
-            setCountryCode(matchedCountry.phoneCode)
-            const prefix = matchedCountry.phoneCode
+        if (matched) {
+            setCountryCode(matched.dialCode)
+            const prefix = matched.dialCode
             let rest = inputVal.substring(prefix.length)
-
             if (rest.trim().startsWith('0')) {
                 rest = rest.replace('0', '')
             }
-
             finalValue = `${prefix}${rest}`
         }
 
@@ -103,27 +96,30 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
         }
     }
 
-    const handleCountryChange = (code) => {
-        setCountryCode(code)
+    const handleCountryChange = (dialCode) => {
+        setCountryCode(dialCode)
 
         let currentPhone = value.trim()
-        const allCountries = [...countriesList, ...DEFAULT_COUNTRIES]
-        const sortedCountries = [...allCountries].sort((a, b) => b.phoneCode.length - a.phoneCode.length)
-        const existingCountry = sortedCountries.find(c => currentPhone.startsWith(c.phoneCode))
+        const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
+        const existingCountry = sorted.find(c => c.dialCode && currentPhone.startsWith(c.dialCode))
 
         if (existingCountry) {
-            currentPhone = currentPhone.substring(existingCountry.phoneCode.length).trim()
+            currentPhone = currentPhone.substring(existingCountry.dialCode.length).trim()
         }
 
         if (currentPhone.startsWith('0')) {
             currentPhone = currentPhone.substring(1)
         }
 
-        const newPhone = `${code} ${currentPhone}`
+        const newPhone = `${dialCode} ${currentPhone}`.trim()
         if (onChange) {
             onChange(newPhone)
         }
     }
+
+    const selectedCountryObj = useMemo(() => {
+        return rawCountries.find(c => c.dialCode === countryCode) || rawCountries[0] || null
+    }, [rawCountries, countryCode])
 
     return (
         <div className="space-y-2 text-start">
@@ -138,8 +134,7 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                         className="w-full h-full bg-[#F5F5F2] border border-transparent hover:border-[#00695C]/35 text-slate-700 rounded-2xl focus:ring-2 focus:ring-[#00695C] p-3 flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-[0.98] outline-none"
                     >
                         <span className="text-lg sm:text-xl shrink-0">
-                            {countriesList.find(c => c.phoneCode === countryCode)?.flag ||
-                                DEFAULT_COUNTRIES.find(c => c.phoneCode === countryCode)?.flag || '🇦🇪'}
+                            {selectedCountryObj?.flag || '🌍'}
                         </span>
                         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -171,13 +166,13 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                                 <div className="max-h-60 overflow-y-auto py-1 divide-y divide-slate-50 dark:divide-slate-800/40 animate-none">
                                     {countriesList.length > 0 ? (
                                         countriesList.map((country) => {
-                                            const isSelected = country.phoneCode === countryCode;
+                                            const isSelected = country.dialCode === countryCode;
                                             return (
                                                 <button
-                                                    key={`${country.id || country.name}-${country.phoneCode}`}
+                                                    key={`${country.id || country._id || country.name}-${country.dialCode}`}
                                                     type="button"
                                                     onClick={() => {
-                                                        handleCountryChange(country.phoneCode)
+                                                        handleCountryChange(country.dialCode)
                                                         setDropdownOpen(false)
                                                         setSearchTerm('')
                                                     }}
@@ -188,14 +183,14 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                                                         <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform shrink-0" role="img" aria-label={country.name}>
                                                             {country.flag}
                                                         </span>
-                                                        <span className="truncate pr-1.5 font-medium">{country.name}</span>
+                                                        <span className="truncate pr-1.5 font-medium">{getCountryName(country, isRtl)}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5 shrink-0">
                                                         <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-semibold border ${isSelected
                                                             ? 'bg-[#00695C] text-white border-transparent'
                                                             : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-700/50'
                                                             }`}>
-                                                            {country.phoneCode}
+                                                            {country.dialCode}
                                                         </span>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-[#00695C] dark:text-emerald-400 shrink-0" />}
                                                     </div>
@@ -204,7 +199,9 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                                         })
                                     ) : (
                                         <div className="p-4 text-center text-xs text-slate-400">
-                                            {i18n.language === 'en' ? 'No countries found' : 'لم يتم العثور على نتائج'}
+                                            {loadingCountries
+                                                ? (i18n.language === 'en' ? 'Loading countries...' : 'جاري التحميل...')
+                                                : (i18n.language === 'en' ? 'No countries found' : 'لم يتم العثور على نتائج')}
                                         </div>
                                     )}
                                 </div>

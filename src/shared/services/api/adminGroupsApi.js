@@ -73,11 +73,10 @@ export const adminGroupsApi = {
   addStudentToGroup: async (groupId, payload) => {
     const studentId = typeof payload === 'string'
       ? payload
-      : (payload?.studentId || payload?.student || payload?.id || payload?._id);
+      : (payload?.student || payload?.studentId || payload?.id || payload?._id);
 
     const body = {
       student: studentId,
-      studentId: studentId,
     };
 
     const response = await api.post(`/api/v1/groups/private/${groupId}/students`, body);
@@ -92,11 +91,10 @@ export const adminGroupsApi = {
   changeTeacher: async (groupId, payload) => {
     const teacherId = typeof payload === 'string'
       ? payload
-      : (payload?.teacherId || payload?.teacher || payload?.id || payload?._id);
+      : (payload?.teacher || payload?.teacherId || payload?.id || payload?._id);
 
     const body = {
       teacher: teacherId,
-      teacherId: teacherId,
     };
 
     const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, body);

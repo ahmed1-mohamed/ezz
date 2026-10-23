@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TeacherDropdown from './TeacherDropdown'
 
-export default function ChangeTeacherPanel({ session, onConfirm, onCancel, teachers }) {
+export default function ChangeTeacherPanel({ session, onConfirm, onCancel, teachers = [] }) {
   const { t } = useTranslation()
   const [selectedTeacherId, setSelectedTeacherId] = useState(session.teacherId || null)
+  const safeTeachers = Array.isArray(teachers) ? teachers : []
 
   return (
     <div className="bg-[#f3f7f6] dark:bg-slate-900/60 rounded-2xl p-4 space-y-3 border border-amber-100 dark:border-amber-900/30 mt-2 mx-2">
@@ -18,14 +19,15 @@ export default function ChangeTeacherPanel({ session, onConfirm, onCancel, teach
         <TeacherDropdown
           value={selectedTeacherId}
           onChange={setSelectedTeacherId}
-          teachers={teachers}
+          teachers={safeTeachers}
         />
       </div>
       <div className="flex items-center gap-3 justify-start pt-1">
         <button
           onClick={() => {
-            const teacher = teachers.find((t) => t.id === selectedTeacherId)
-            if (teacher) onConfirm(teacher.id, teacher.name)
+            const teacher = safeTeachers.find((t) => (t.id || t._id) === selectedTeacherId)
+            const teacherName = typeof teacher?.name === 'string' ? teacher.name : (teacher?.name?.ar || teacher?.name?.en || '')
+            if (teacher) onConfirm(teacher.id || teacher._id, teacherName)
           }}
           disabled={!selectedTeacherId}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-sm cursor-pointer"

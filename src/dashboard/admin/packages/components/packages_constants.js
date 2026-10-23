@@ -5,6 +5,7 @@ export const EMPTY_PACKAGE = {
   name: '', name_en: '',
   price: '',
   sessions_per_month: '', sessions_language: '',
+  country: '',
   features: [''],
   features_en: [''],
 }

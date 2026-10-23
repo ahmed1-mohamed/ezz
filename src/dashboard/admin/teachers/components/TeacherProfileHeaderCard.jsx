@@ -6,9 +6,18 @@ export default function TeacherProfileHeaderCard({
   isRtl,
   t
 }) {
+  const displayName = useMemo(() => {
+    if (!formData?.name) return ''
+    if (typeof formData.name === 'object' && formData.name !== null) {
+      return (isRtl ? formData.name.ar : formData.name.en) || formData.name.ar || formData.name.en || ''
+    }
+    return String(formData.name)
+  }, [formData?.name, isRtl])
+
   const avatarLetter = useMemo(() => {
-    return formData.name ? formData.name.trim().charAt(0) : 'ف'
-  }, [formData.name])
+    const trimmed = displayName.trim()
+    return trimmed ? trimmed.charAt(0) : 'ف'
+  }, [displayName])
 
   const isSuspended = formData.status !== 'Active'
 
@@ -26,7 +35,7 @@ export default function TeacherProfileHeaderCard({
 
             <div className="space-y-1.5">
               <h2 className="text-xl font-bold text-slate-850 dark:text-white">
-                {formData.name}
+                {displayName}
               </h2>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold">

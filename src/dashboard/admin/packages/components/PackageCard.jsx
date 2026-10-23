@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { Pencil, Trash2, Package, Check } from 'lucide-react'
+import { Pencil, Trash2, Package, Check, Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { getCountryName } from '@/shared/utils/countryUtils'
 
-export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguages = [] }) {
+export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguages = [], countries = [] }) {
   const { t, i18n } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
 
@@ -14,6 +15,12 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
   const languageLabel = langObj 
     ? (isRtl ? (langObj.name?.ar || langObj.name?.en) : (langObj.name?.en || langObj.name?.ar))
     : pkg.sessions_language
+
+  const countryObj = countries.find(c => (c.id || c._id) === pkg.country || c.name === pkg.country || c.nameEn === pkg.country)
+  const countryName = countryObj
+    ? getCountryName(countryObj, isRtl)
+    : (pkg.country || '')
+  const countryFlag = countryObj?.flag || ''
 
   const displayName = isRtl ? (pkg.name || pkg.name_en) : (pkg.name_en || pkg.name)
   const displayFeatures = isRtl
@@ -66,8 +73,19 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
             {isRtl ? 'دولار' : '$'} {p('perMonth')}
           </p>
-          <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
-            {pkg.sessions_per_month} {p('sessions')} · {languageLabel}
+          <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5 flex items-center justify-center flex-wrap gap-1">
+            <span>{pkg.sessions_per_month} {p('sessions')}</span>
+            <span>·</span>
+            <span>{languageLabel}</span>
+            {countryName && (
+              <>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300">
+                  {countryFlag ? <span>{countryFlag}</span> : <Globe size={11} className="text-[#005953]" />}
+                  <span>{countryName}</span>
+                </span>
+              </>
+            )}
           </p>
         </div>
 

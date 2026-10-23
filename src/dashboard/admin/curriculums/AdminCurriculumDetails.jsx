@@ -126,42 +126,60 @@ export default function AdminCurriculumDetails() {
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-curriculum-details', id] })
 
+  const [localVisibility, setLocalVisibility] = useState(null)
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false)
 
-  const showOnWebsite = curriculum?.showOnWebsite !== undefined
-    ? Boolean(curriculum.showOnWebsite)
-    : (curriculum?.isActive !== undefined ? Boolean(curriculum.isActive) : true)
+  const showOnWebsite = localVisibility !== null ? localVisibility : Boolean(curriculum?.showOnWebsite)
+
+  useEffect(() => {
+    if (curriculum?.showOnWebsite !== undefined) {
+      setLocalVisibility(null)
+    }
+  }, [curriculum?.showOnWebsite])
 
   const handleToggleWebsiteVisibility = async () => {
     if (isUpdatingVisibility || !id) return
     const newValue = !showOnWebsite
     setIsUpdatingVisibility(true)
+    setLocalVisibility(newValue)
     try {
       await adminCurriculaApi.updateCurriculum(id, {
         showOnWebsite: newValue,
-        isActive: newValue,
-        is_active: newValue
       })
       toast.success(
         isRtl
           ? (newValue ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح' : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح')
           : (newValue ? 'Curriculum is now visible on website' : 'Curriculum is now hidden from website')
       )
+      queryClient.setQueryData(['admin-curriculum-details', id], (old) => {
+        if (!old) return old
+        if (old.data) {
+          return { ...old, data: { ...old.data, showOnWebsite: newValue } }
+        }
+        return { ...old, showOnWebsite: newValue }
+      })
       invalidate()
     } catch (err) {
       console.warn('JSON patch failed, retrying with FormData:', err)
       try {
         const fd = new FormData()
         fd.append('showOnWebsite', String(newValue))
-        fd.append('isActive', String(newValue))
         await adminCurriculaApi.updateCurriculum(id, fd)
         toast.success(
           isRtl
             ? (newValue ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح' : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح')
             : (newValue ? 'Curriculum is now visible on website' : 'Curriculum is now hidden from website')
         )
+        queryClient.setQueryData(['admin-curriculum-details', id], (old) => {
+          if (!old) return old
+          if (old.data) {
+            return { ...old, data: { ...old.data, showOnWebsite: newValue } }
+          }
+          return { ...old, showOnWebsite: newValue }
+        })
         invalidate()
       } catch (fallbackErr) {
+        setLocalVisibility(null)
         console.error('Failed to toggle curriculum visibility:', fallbackErr)
         const errMsg = fallbackErr.response?.data?.message || err.response?.data?.message
         toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء تغيير حالة الظهور' : 'Failed to update visibility'))

@@ -23,12 +23,9 @@ export const roleNavigation = {
   ],
   [ROLE_TEACHER]: [
     { label: "dashboard.overview", path: "/dashboard/teacher" },
+    { label: "dashboard.groups", path: "/dashboard/teacher/groups" },
     { label: "dashboard.schedule", path: "/dashboard/teacher/schedule" },
-    { label: "dashboard.classes", path: "/dashboard/teacher/classes" },
-    {
-      label: "dashboard.courses",
-      path: "/dashboard/teacher/courses?status=active",
-    },
+    { label: "dashboard.complaints", path: "/dashboard/teacher/complaints" },
   ],
   [ROLE_STUDENT]: [
     { label: "dashboard.overview", path: "/dashboard/student" },

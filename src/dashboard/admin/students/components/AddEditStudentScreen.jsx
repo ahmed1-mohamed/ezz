@@ -4,6 +4,7 @@ import { showErrorToast } from '@/shared/utils/sweetAlert'
 import api from '@/shared/services/api/axiosConfig'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
+import { sortCountries, sortCountryCodes, normalizeCountries } from '@/shared/utils/countryUtils'
 import StudentStep1 from './steps/StudentStep1'
 import StudentStep2 from './steps/StudentStep2'
 
@@ -98,14 +99,15 @@ export default function AddEditStudentScreen({
       .then((res) => {
         const raw = res.data?.data || res.data || []
         if (Array.isArray(raw) && raw.length > 0) {
-          setCountriesList(raw)
-          const codes = raw.map((c) => ({
-            code: c.phoneCode || '',
+          const normalized = normalizeCountries(raw)
+          setCountriesList(sortCountries(normalized, isRtl))
+          const codes = normalized.map((c) => ({
+            code: c.dialCode || c.phoneCode || '',
             flag: c.flag || '🌍',
-            name: c.name || ''
+            name: c.name || '',
+            nameEn: c.nameEn || ''
           })).filter((c) => c.code)
-          codes.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }))
-          setCountryCodesList(codes)
+          setCountryCodesList(sortCountryCodes(codes, isRtl))
         }
       })
       .catch((err) => console.error('Error fetching countries:', err))

@@ -1,15 +1,24 @@
 import api from './axiosConfig'
+import { adminSessionsApi } from './adminSessionsApi'
 
 const BASE_URL = '/api/v1/complaints-suggestions/private'
 
- const cleanParams = (params = {}) =>
+const cleanParams = (params = {}) =>
   Object.fromEntries(
     Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '')
   )
 
+const matchesType = (itemType, filterType) => {
+  if (!filterType || filterType === 'all') return true
+  if (filterType === 'postpone') {
+    return itemType === 'postpone' || itemType === 'postponement' || itemType === 'reschedule' || itemType === 'delay'
+  }
+  return itemType === filterType
+}
+
 export const complaintsApi = {
   fetchComplaints: async ({ status = 'all', type, page = 1, limit = 10, ...otherParams } = {}) => {
-     const applyInMemoryFilters = (allItems, rawStats) => {
+    const applyInMemoryFilters = (allItems, rawStats) => {
       let filtered = [...allItems]
       const totalCount = filtered.length
       const pendingCount = filtered.filter((i) => i.status === 'pending').length
@@ -21,7 +30,7 @@ export const complaintsApi = {
       }
 
       if (type && type !== 'all') {
-        filtered = filtered.filter((i) => i.type === type)
+        filtered = filtered.filter((i) => matchesType(i.type, type))
       }
 
       const pageNum = Number(page || 1)
@@ -75,8 +84,8 @@ export const complaintsApi = {
           ? resData
           : []
 
-         if (type && type !== 'all') {
-          const typeFiltered = items.filter((i) => i.type === type)
+        if (type && type !== 'all') {
+          const typeFiltered = items.filter((i) => matchesType(i.type, type))
           return {
             ...resData,
             data: typeFiltered,
@@ -133,6 +142,26 @@ export const complaintsApi = {
   acceptSuggestion: async ({ id, notes }) => {
     const response = await api.patch(`${BASE_URL}/accept/${id}`, { notes }, { skipLang: true })
     return response.data
+  },
+
+  approvePostpone: async ({ id, notes, sessionId, date, startTime, endTime }) => {
+    if (sessionId && date && startTime && endTime) {
+      try {
+        await adminSessionsApi.rescheduleSession(sessionId, { date, startTime, endTime })
+      } catch (err) {
+        console.warn('Direct session reschedule failed, delegating to complaint approval:', err)
+      }
+    }
+    try {
+      const response = await api.patch(`${BASE_URL}/accept/${id}`, { notes, date, startTime, endTime }, { skipLang: true })
+      return response.data
+    } catch (err) {
+      if (err.response?.status === 404 || err.response?.status === 400) {
+        const fallbackRes = await api.patch(`${BASE_URL}/resolve/${id}`, { notes, date, startTime, endTime }, { skipLang: true })
+        return fallbackRes.data
+      }
+      throw err
+    }
   },
 
   rejectComplaint: async ({ id, notes }) => {

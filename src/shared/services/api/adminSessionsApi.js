@@ -1,5 +1,19 @@
 import api from './axiosConfig';
 
+export const extractSafeString = (val, preferredLang = 'ar', fallback = '') => {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === 'string') return val.trim();
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    const langVal = val[preferredLang] || val.ar || val.en || val.name || val.title || val.label;
+    if (langVal !== undefined && langVal !== null) {
+      return extractSafeString(langVal, preferredLang, fallback);
+    }
+    return fallback;
+  }
+  return String(val).trim();
+};
+
 export const mapSessionData = (item) => {
   if (!item) return null;
   const id = item.id || item._id;
@@ -8,17 +22,11 @@ export const mapSessionData = (item) => {
   let groupId = null;
   if (item.group && typeof item.group === 'object') {
     groupId = item.group.id || item.group._id;
-    if (typeof item.group.name === 'object' && item.group.name !== null) {
-      groupName = item.group.name.ar || item.group.name.en || '';
-    } else {
-      groupName = item.group.name || '';
-    }
+    groupName = extractSafeString(item.group.name) || extractSafeString(item.group.title) || '';
   } else if (item.groupName) {
-    groupName = typeof item.groupName === 'object' && item.groupName !== null
-      ? (item.groupName.ar || item.groupName.en || '')
-      : String(item.groupName);
+    groupName = extractSafeString(item.groupName);
   } else if (typeof item.group === 'string') {
-    groupName = item.group;
+    groupName = item.group.trim();
   }
 
   let teacherName = '';
@@ -27,37 +35,49 @@ export const mapSessionData = (item) => {
   let teacherPhone = '';
   if (item.teacher && typeof item.teacher === 'object') {
     teacherId = item.teacher.id || item.teacher._id;
-    teacherEmail = item.teacher.email || '';
-    teacherPhone = item.teacher.phone || '';
-    if (typeof item.teacher.name === 'object' && item.teacher.name !== null) {
-      teacherName = item.teacher.name.ar || item.teacher.name.en || '';
-    } else {
-      teacherName = item.teacher.name || '';
-    }
+    teacherEmail = extractSafeString(item.teacher.email);
+    teacherPhone = extractSafeString(item.teacher.phone);
+    teacherName = extractSafeString(item.teacher.displayName) || extractSafeString(item.teacher.name) || '';
+  } else if (item.teacherName) {
+    teacherName = extractSafeString(item.teacherName);
   } else if (typeof item.teacher === 'string') {
-    teacherName = item.teacher;
+    teacherName = item.teacher.trim();
   }
 
-  const startTime = item.startTime || item.time || '';
-  const endTime = item.endTime || '';
+  const title = extractSafeString(item.title);
+  const sessionNumber = item.sessionNumber !== undefined && item.sessionNumber !== null
+    ? (typeof item.sessionNumber === 'object' ? extractSafeString(item.sessionNumber) : item.sessionNumber)
+    : '';
+
+  const startTime = extractSafeString(item.startTime || item.time);
+  const endTime = extractSafeString(item.endTime);
   const time = (startTime && endTime) ? `${startTime} - ${endTime}` : startTime;
-  const durationMinutes = Number(item.durationMinutes ?? item.duration ?? 60);
+  const durationMinutes = Number(item.durationMinutes ?? item.duration ?? 60) || 60;
+
+  const date = extractSafeString(item.date);
+  const day = extractSafeString(item.day);
+  const rawDay = extractSafeString(item.rawDay);
 
   const attendance = Array.isArray(item.attendance) ? item.attendance : [];
   const studentsCount = attendance.length > 0 
     ? attendance.length 
-    : Number(item.studentsCount ?? item.students?.length ?? 0);
+    : (Number(item.studentsCount ?? item.students?.length ?? 0) || 0);
 
   // Normalize status
-  let status = (item.status || 'scheduled').toLowerCase();
-  if (status === 'upcoming') status = 'scheduled';
+  const rawStatus = extractSafeString(item.status || 'scheduled').toLowerCase();
+  let status = rawStatus;
+  if (rawStatus === 'in_progress' || rawStatus === 'in-progress' || rawStatus === 'live') {
+    status = 'live';
+  } else if (rawStatus === 'upcoming') {
+    status = 'scheduled';
+  }
 
   return {
     ...item,
     id,
     _id: id,
-    title: item.title || '',
-    sessionNumber: item.sessionNumber ?? '',
+    title,
+    sessionNumber,
     group: item.group,
     groupId,
     groupName: groupName || 'مجموعة دراسية',
@@ -65,9 +85,9 @@ export const mapSessionData = (item) => {
     teacherId,
     teacherEmail,
     teacherPhone,
-    date: item.date || '',
-    day: item.day || '',
-    rawDay: item.rawDay || '',
+    date,
+    day,
+    rawDay,
     startTime,
     endTime,
     time,
@@ -75,8 +95,9 @@ export const mapSessionData = (item) => {
     durationMinutes,
     studentsCount,
     status,
-    type: item.type || 'regular',
-    zoomJoinUrl: item.zoomJoinUrl || '',
+    rawStatus,
+    type: extractSafeString(item.type) || 'regular',
+    zoomJoinUrl: extractSafeString(item.zoomJoinUrl),
     attendance,
     teacherAttendance: item.teacherAttendance || null,
   };
@@ -91,7 +112,7 @@ export const adminSessionsApi = {
       queryParams.search = search.trim();
     }
     if (status && status !== 'all') {
-      queryParams.status = status;
+      queryParams.status = status === 'live' ? 'in_progress' : status;
     }
 
     const endpoints = [
@@ -122,6 +143,7 @@ export const adminSessionsApi = {
           data: items,
           pagination,
           totalCount,
+          statistics: resData.statistics || null,
         };
       } catch (err) {
         lastError = err;
@@ -141,46 +163,51 @@ export const adminSessionsApi = {
     };
   },
 
-  rescheduleSession: async (id, newDate, newTime) => {
+  rescheduleSession: async (id, dateOrPayload, startTimeArg, endTimeArg) => {
+    let payload;
+    if (typeof dateOrPayload === 'object' && dateOrPayload !== null) {
+      payload = {
+        date: dateOrPayload.date,
+        startTime: dateOrPayload.startTime,
+        endTime: dateOrPayload.endTime,
+      };
+    } else {
+      payload = {
+        date: dateOrPayload,
+        startTime: startTimeArg,
+        endTime: endTimeArg,
+      };
+    }
+
     try {
-      const response = await api.put(`/api/v1/sessions/private/${id}/reschedule`, {
-        date: newDate,
-        startTime: newTime,
-        time: newTime,
-      });
-      return { success: true, data: response.data };
+      const response = await api.patch(`/api/v1/sessions/private/${id}/reschedule`, payload);
+      return { success: true, data: response.data?.data || response.data };
     } catch (error) {
-      try {
-        const fallbackRes = await api.patch(`/api/v1/sessions/${id}`, {
-          date: newDate,
-          startTime: newTime,
-        });
-        return { success: true, data: fallbackRes.data };
-      } catch (err2) {
-        console.warn('rescheduleSession failed:', error);
-        return { success: false, error: err2 };
-      }
+      const message = error.response?.data?.message || error.message || 'فشلت عملية إعادة الجدولة';
+      console.warn('API rescheduleSession failed:', error);
+      return { success: false, error, message };
     }
   },
 
   changeTeacher: async (id, teacherId, teacherName) => {
     try {
-      const response = await api.put(`/api/v1/sessions/private/${id}/teacher`, {
+      const payload = {
         teacher: teacherId,
         teacherId,
-        teacherName,
-      });
-      return { success: true, data: response.data };
-    } catch (error) {
-      try {
-        const fallbackRes = await api.patch(`/api/v1/sessions/${id}`, {
-          teacher: teacherId,
-        });
-        return { success: true, data: fallbackRes.data };
-      } catch (err2) {
-        console.warn('changeTeacher failed:', error);
-        return { success: false, error: err2 };
+      };
+      if (teacherName) {
+        payload.teacherName = teacherName;
       }
+      const response = await api.patch(`/api/v1/sessions/private/${id}/change-teacher`, payload);
+      return {
+        success: true,
+        data: response.data?.data || response.data,
+        message: response.data?.message,
+      };
+    } catch (error) {
+      console.warn('API changeTeacher failed:', error);
+      const message = error.response?.data?.message || error.message || 'فشلت عملية تغيير المعلم';
+      return { success: false, error, message };
     }
   },
 

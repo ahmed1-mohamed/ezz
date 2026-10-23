@@ -4,6 +4,7 @@ import { Search, Calendar, ChevronLeft, ChevronRight, Loader2, X } from 'lucide-
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import Spinner from '@/shared/components/Spinner'
+import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import StatCard from './components/StatCard'
 import SessionRow from './components/SessionRow'
 
@@ -17,8 +18,9 @@ const STATUS_TABS = [
 
 export default function AdminSessions() {
   const { t, i18n } = useTranslation()
-  const isRtl = i18n.language.startsWith('ar')
+  const isRtl = i18n?.language?.startsWith('ar') ?? true
 
+  const [apiStats, setApiStats] = useState(null)
   const [sessions, setSessions] = useState([])
   const [teachers, setTeachers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -50,10 +52,20 @@ export default function AdminSessions() {
         const res = await teachersApi.fetchTeachers({ limit: 100 })
         if (!active) return
         const list = res?.data || (Array.isArray(res) ? res : [])
-        const formatted = (Array.isArray(list) ? list : []).map((tch) => ({
-          id: tch.id || tch._id || tch.teacher_id,
-          name: tch.displayName || tch.name || (typeof tch.name === 'object' ? (tch.name.ar || tch.name.en) : 'معلم'),
-        }))
+        const formatted = (Array.isArray(list) ? list : []).map((tch) => {
+          let nameStr = ''
+          if (typeof tch.displayName === 'string' && tch.displayName.trim()) {
+            nameStr = tch.displayName.trim()
+          } else if (typeof tch.name === 'string' && tch.name.trim()) {
+            nameStr = tch.name.trim()
+          } else if (typeof tch.name === 'object' && tch.name !== null) {
+            nameStr = (isRtl ? tch.name.ar || tch.name.en : tch.name.en || tch.name.ar) || ''
+          }
+          return {
+            id: tch.id || tch._id || tch.teacher_id,
+            name: nameStr || (isRtl ? 'معلم' : 'Teacher'),
+          }
+        })
         setTeachers(formatted)
       } catch (err) {
         console.warn('Failed to fetch teachers for sessions dropdown:', err)
@@ -61,7 +73,7 @@ export default function AdminSessions() {
     }
     loadTeachers()
     return () => { active = false }
-  }, [])
+  }, [isRtl])
 
   // Load sessions from API /api/v1/sessions/private
   const loadSessions = useCallback(async () => {
@@ -75,6 +87,9 @@ export default function AdminSessions() {
       })
       if (res && res.success) {
         setSessions(res.data || [])
+        if (res.statistics) {
+          setApiStats(res.statistics)
+        }
         if (res.pagination) {
           setTotalPages(res.pagination.numberOfPages || Math.max(1, Math.ceil((res.pagination.totalCount || res.data.length) / itemsPerPage)))
           setTotalCount(res.pagination.totalCount ?? res.data.length)
@@ -102,12 +117,15 @@ export default function AdminSessions() {
   }, [loadSessions])
 
   // Statistics calculation
-  const stats = useMemo(() => ({
-    live: sessions.filter((s) => s.status === 'live').length,
-    scheduled: sessions.filter((s) => s.status === 'scheduled').length,
-    completed: sessions.filter((s) => s.status === 'completed').length,
-    cancelled: sessions.filter((s) => s.status === 'cancelled').length,
-  }), [sessions])
+  const stats = useMemo(() => {
+    const list = Array.isArray(sessions) ? sessions : []
+    return {
+      live: Number(apiStats?.in_progress ?? list.filter((s) => s.status === 'live').length) || 0,
+      scheduled: Number(apiStats?.scheduled ?? list.filter((s) => s.status === 'scheduled').length) || 0,
+      completed: Number(apiStats?.completed ?? list.filter((s) => s.status === 'completed').length) || 0,
+      cancelled: Number(apiStats?.cancelled ?? list.filter((s) => s.status === 'cancelled').length) || 0,
+    }
+  }, [apiStats, sessions])
 
   const handleTogglePanel = (sessionId, panel) => {
     if (expandedRow === sessionId && expandedPanel === panel) {
@@ -119,36 +137,77 @@ export default function AdminSessions() {
     }
   }
 
-  const handleReschedule = async (sessionId, newDate, newTime) => {
-    const res = await adminSessionsApi.rescheduleSession(sessionId, newDate, newTime)
-    if (res.success) {
+  const handleReschedule = async (sessionId, payloadOrDate, maybeStartTime, maybeEndTime) => {
+    const payload =
+      typeof payloadOrDate === 'object' && payloadOrDate !== null
+        ? payloadOrDate
+        : { date: payloadOrDate, startTime: maybeStartTime, endTime: maybeEndTime }
+
+    const res = await adminSessionsApi.rescheduleSession(sessionId, payload)
+    if (res && res.success) {
+      showSuccessToast(t('adminDashboard.sessions.rescheduleSuccess', 'تمت إعادة جدولة الحصة بنجاح'), isRtl)
       setSessions((prev) =>
-        prev.map((s) => (s.id === sessionId ? { ...s, date: newDate, time: newTime, startTime: newTime } : s))
+        prev.map((s) => {
+          if (s.id !== sessionId) return s
+          const timeDisplay = payload.endTime ? `${payload.startTime} - ${payload.endTime}` : payload.startTime
+          return {
+            ...s,
+            date: payload.date,
+            startTime: payload.startTime,
+            endTime: payload.endTime,
+            time: timeDisplay,
+          }
+        })
       )
       setExpandedRow(null)
       setExpandedPanel(null)
+      return true
+    } else {
+      showErrorToast(
+        res?.message || t('adminDashboard.sessions.rescheduleError', 'فشلت عملية إعادة الجدولة'),
+        isRtl
+      )
+      return false
     }
   }
 
   const handleChangeTeacher = async (sessionId, teacherId, teacherName) => {
     const res = await adminSessionsApi.changeTeacher(sessionId, teacherId, teacherName)
     if (res.success) {
+      showSuccessToast(
+        res?.message || (isRtl ? 'تم تغيير المعلم بنجاح' : 'Teacher changed successfully'),
+        isRtl
+      )
       setSessions((prev) =>
         prev.map((s) => (s.id === sessionId ? { ...s, teacher: teacherName, teacherId } : s))
       )
       setExpandedRow(null)
       setExpandedPanel(null)
+    } else {
+      showErrorToast(
+        res?.message || (isRtl ? 'فشلت عملية تغيير المعلم' : 'Failed to change teacher'),
+        isRtl
+      )
     }
   }
 
   const handleCancelSession = async (sessionId) => {
     const res = await adminSessionsApi.cancelSession(sessionId)
     if (res.success) {
+      showSuccessToast(
+        res?.message || (isRtl ? 'تم إلغاء الحصة بنجاح' : 'Session cancelled successfully'),
+        isRtl
+      )
       setSessions((prev) =>
         prev.map((s) => (s.id === sessionId ? { ...s, status: 'cancelled' } : s))
       )
       setExpandedRow(null)
       setExpandedPanel(null)
+    } else {
+      showErrorToast(
+        res?.message || (isRtl ? 'فشلت عملية إلغاء الحصة' : 'Failed to cancel session'),
+        isRtl
+      )
     }
   }
 
@@ -276,7 +335,7 @@ export default function AdminSessions() {
                 handleReschedule={handleReschedule}
                 handleChangeTeacher={handleChangeTeacher}
                 handleCancelSession={handleCancelSession}
-                mockTeachers={teachers}
+                teachers={teachers}
                 t={t}
               />
             ))

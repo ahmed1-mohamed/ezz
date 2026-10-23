@@ -10,7 +10,11 @@ export default function TeachersListItem({
   isRtl,
   t
 }) {
-  const initial = teacher?.name?.trim()?.charAt(0) || 'م'
+  const teacherDisplayName = typeof teacher?.name === 'object' && teacher?.name !== null
+    ? ((isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || '')
+    : String(teacher?.name || teacher?.displayName || '')
+
+  const initial = teacherDisplayName.trim().charAt(0) || 'م'
   const isSuspended = !teacher.active
 
   return (
@@ -28,7 +32,7 @@ export default function TeachersListItem({
             {teacher.image ? (
               <img
                 src={teacher.image}
-                alt={teacher.name}
+                alt={teacherDisplayName}
                 className="w-12 h-12 rounded-2xl object-cover border border-slate-100 dark:border-slate-800 shadow-xs"
                 onError={(e) => {
                   e.target.style.display = 'none'
@@ -55,7 +59,7 @@ export default function TeachersListItem({
           <div className="space-y-1 text-start flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-extrabold text-slate-800 dark:text-white text-sm sm:text-base truncate max-w-[180px] sm:max-w-xs">
-                {teacher.name}
+                {teacherDisplayName}
               </span>
 
               <span

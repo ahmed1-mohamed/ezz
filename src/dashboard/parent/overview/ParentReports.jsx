@@ -6,87 +6,126 @@ import AssignmentsStats from '../components/ratings/AssignmentsStats';
 import ClassesStats from '../components/ratings/ClassesStats';
 import ProgressAchievements from '../components/ratings/ProgressAchievements';
 import StrengthsWeaknesses from '../components/ratings/StrengthsWeaknesses';
-
 import { useTranslation } from 'react-i18next';
+import { parentApi } from '@/shared/services/api/parentApi';
 
 export default function ParentReports() {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedStudent, setSelectedStudent] = useState('c1');
+    const [studentsList, setStudentsList] = useState([]);
+    const [selectedStudent, setSelectedStudent] = useState('');
     const [reportData, setReportData] = useState(null);
 
     useEffect(() => {
+        let isMounted = true;
+        const loadStudents = async () => {
+            try {
+                const res = await parentApi.fetchChildren();
+                if (isMounted && res?.success && Array.isArray(res.data)) {
+                    setStudentsList(res.data);
+                    if (res.data.length > 0 && !selectedStudent) {
+                        const first = res.data[0];
+                        setSelectedStudent(first.id || first._id || first.student_id);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load students for reports", err);
+            }
+        };
+        loadStudents();
+        return () => { isMounted = false; };
+    }, []);
+
+    useEffect(() => {
+        if (!selectedStudent) return;
+        let isMounted = true;
         const fetchReport = async () => {
             setIsLoading(true);
             try {
-                await new Promise(resolve => setTimeout(resolve, 800));
+                const res = await parentApi.fetchReports({ studentId: selectedStudent });
+                const currentStudent = studentsList.find(s => (s.id || s._id || s.student_id) === selectedStudent);
+                const studentName = currentStudent
+                    ? (typeof currentStudent.name === 'object' ? (isRtl ? currentStudent.name.ar : currentStudent.name.en) : currentStudent.name)
+                    : '-';
+                const joinDate = currentStudent?.createdAt ? new Date(currentStudent.createdAt).toLocaleDateString() : (currentStudent?.joinDate || '-');
+                const currentPackage = currentStudent?.packageName || currentStudent?.package || t('parent.reports.defaultPackage', 'باقة أساسية');
 
-                setReportData({
-                    studentInfo: {
-                        name: selectedStudent === 'c1' ? (isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed') : selectedStudent === 'c2' ? (isRtl ? 'علي خالد' : 'Ali Khaled') : (isRtl ? 'سعاد عمر' : 'Soad Omar'),
-                        joinDate: '2025-01-15',
-                        currentPackage: t('parent.mockData.reports.package')
-                    },
-                    attendanceStats: {
-                        total: 24,
-                        attended: 23,
-                        absent: 1,
-                        rate: '96%',
-                        currentMonth: { attended: 6, total: 6, rate: '100%' },
-                        lastMonth: { attended: 5, total: 6, rate: '83%' }
-                    },
-                    evaluationStats: {
-                        total: 18,
-                        excellent: 12,
-                        veryGood: 5,
-                        good: 1,
-                        lastEvaluation: {
-                            subject: t('parent.mockData.reports.subjectBaqarah'),
-                            teacher: t('parent.mockData.reports.teacherAhmed'),
-                            score: 97,
-                            date: '2026-04-08',
-                            notes: t('parent.mockData.reports.notes')
+                if (isMounted) {
+                    const data = res?.data || {};
+                    const totalClasses = currentStudent?.totalClasses || currentStudent?.sessionsTotal || data.attendanceStats?.total || 0;
+                    const attended = currentStudent?.usedClasses || currentStudent?.sessionsUsed || data.attendanceStats?.attended || 0;
+                    const absent = data.attendanceStats?.absent || 0;
+                    const attRate = totalClasses > 0 ? `${Math.round((attended / totalClasses) * 100)}%` : (data.attendanceStats?.rate || '0%');
+
+                    setReportData({
+                        studentInfo: {
+                            name: data.studentInfo?.name || studentName,
+                            joinDate: data.studentInfo?.joinDate || joinDate,
+                            currentPackage: data.studentInfo?.currentPackage || currentPackage
+                        },
+                        attendanceStats: {
+                            total: totalClasses,
+                            attended,
+                            absent,
+                            rate: attRate,
+                            currentMonth: data.attendanceStats?.currentMonth || { attended, total: totalClasses, rate: attRate },
+                            lastMonth: data.attendanceStats?.lastMonth || { attended: 0, total: 0, rate: '0%' }
+                        },
+                        evaluationStats: data.evaluationStats || {
+                            total: currentStudent?.evaluations?.length || 0,
+                            excellent: 0,
+                            veryGood: 0,
+                            good: 0,
+                            lastEvaluation: {
+                                subject: currentStudent?.subject || '-',
+                                teacher: currentStudent?.teacherName || '-',
+                                score: currentStudent?.averageRating || 0,
+                                date: '-',
+                                notes: '-'
+                            }
+                        },
+                        academic: data.academic || {
+                            overallAverage: currentStudent?.averageRating || 0,
+                            currentMonthAverage: currentStudent?.averageRating || 0,
+                            lastMonthAverage: 0,
+                            subjects: currentStudent?.subject ? [{ name: currentStudent.subject, average: currentStudent.averageRating || 0, lastRating: currentStudent.averageRating || 0, trend: 'up' }] : []
+                        },
+                        assignments: data.assignments || {
+                            total: 0,
+                            completed: 0,
+                            pending: 0,
+                            completionRate: '0%',
+                            delivery: { onTime: 0, late: 0 },
+                            currentMonth: { completed: 0, total: 0, rate: '0%' }
+                        },
+                        classes: data.classes || {
+                            total: totalClasses,
+                            used: attended,
+                            remaining: Math.max(0, totalClasses - attended),
+                            thisMonth: attended
+                        },
+                        progress: data.progress || {
+                            currentMemorization: currentStudent?.levelName || currentStudent?.level || '-',
+                            nextGoal: '-',
+                            achievements: []
+                        },
+                        strengthsWeaknesses: data.strengthsWeaknesses || {
+                            strengths: [],
+                            weaknesses: []
                         }
-                    },
-                    academic: {
-                        overallAverage: 92,
-                        currentMonthAverage: 94,
-                        lastMonthAverage: 90,
-                        subjects: [
-                            { name: t('parent.mockData.reports.subjectQuran'), average: 95, lastRating: 97, trend: 'up' },
-                            { name: t('parent.mockData.reports.subjectQuran'), average: 95, lastRating: 97, trend: 'up' },
-                            { name: t('parent.mockData.reports.subjectQuran'), average: 95, lastRating: 97, trend: 'down' }
-                        ]
-                    },
-                    assignments: {
-                        total: 45,
-                        completed: 42,
-                        pending: 3,
-                        completionRate: '93%',
-                        delivery: { onTime: 38, late: 4 },
-                        currentMonth: { completed: 9, total: 9, rate: '100%' }
-                    },
-                    classes: { total: 24, used: 6, remaining: 18, thisMonth: 6 },
-                    progress: {
-                        currentMemorization: t('parent.mockData.reports.currentMem'),
-                        nextGoal: t('parent.mockData.reports.nextGoal'),
-                        achievements: t('parent.mockData.reports.achievements', { returnObjects: true })
-                    },
-                    strengthsWeaknesses: {
-                        strengths: t('parent.mockData.reports.strengths', { returnObjects: true }),
-                        weaknesses: t('parent.mockData.reports.weaknesses', { returnObjects: true })
-                    }
-                });
+                    });
+                }
             } catch (error) {
                 console.error("Failed to fetch report", error);
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
 
         fetchReport();
-    }, [selectedStudent]);
+        return () => { isMounted = false; };
+    }, [selectedStudent, studentsList, isRtl, t]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -104,27 +143,32 @@ export default function ParentReports() {
     return (
         <motion.div
             variants={containerVariants}
-            whileInView="show" viewport={{ once: true, amount: 0.1 }}
+            initial="hidden"
+            animate="show"
             className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans bg-transparent min-h-screen relative"
             dir={isRtl ? 'rtl' : 'ltr'}
         >
-            <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+            <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="text-center md:text-start">
-                    <h1 className="text-2xl font-extrabold text-slate-800">{t('parent.reports.title')}</h1>
-                    <p className="text-sm text-slate-500 mt-1">{t('parent.reports.subtitle')}</p>
+                    <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{t('parent.reports.title', 'التقارير الأكاديمية')}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('parent.reports.subtitle', 'تقرير شامل عن أداء ومستوى الأبناء')}</p>
                 </div>
 
                 <div className="flex flex-col items-center md:items-start gap-1 w-full sm:w-64">
-                    <label className="text-xs text-slate-500 font-medium text-center md:text-start w-full">{t('parent.schedule.selectStudent')}</label>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 font-medium text-center md:text-start w-full">
+                        {t('parent.schedule.selectStudent', 'اختر الابن')}
+                    </label>
                     <div className="relative w-full">
                         <select
                             value={selectedStudent}
                             onChange={(e) => setSelectedStudent(e.target.value)}
-                            className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-600 rounded-xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-bold"
+                            className="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-bold"
                         >
-                            <option value="c1">{isRtl ? 'فاطمة أحمد' : 'Fatima Ahmed'}</option>
-                            <option value="c2">{isRtl ? 'علي خالد' : 'Ali Khaled'}</option>
-                            <option value="c3">{isRtl ? 'سعاد عمر' : 'Soad Omar'}</option>
+                            {studentsList.map((s) => {
+                                const id = s.id || s._id || s.student_id;
+                                const name = typeof s.name === 'object' ? (isRtl ? s.name.ar : s.name.en) : s.name;
+                                return <option key={id} value={id}>{name}</option>;
+                            })}
                         </select>
                         <div className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none">
                             <ChevronDown className="w-4 h-4" />
@@ -134,142 +178,55 @@ export default function ParentReports() {
             </motion.div>
 
             {isLoading ? (
-                <div className="absolute inset-0 flex justify-center items-center bg-white/50 z-10 rounded-2xl mt-32 min-h-[500px]">
+                <div className="flex justify-center items-center py-20">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0f7a6c]"></div>
                 </div>
             ) : reportData ? (
                 <>
-                    <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-800 mb-6 relative inline-block">
-                            {t('parent.reports.studentInfo')}
+                    <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 relative inline-block">
+                            {t('parent.reports.studentInfo', 'بيانات الطالب')}
                             <span className="absolute -bottom-2 start-0 w-1/2 h-1 bg-[#0f7a6c] rounded-full"></span>
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="flex flex-col items-start p-4 bg-slate-50 rounded-xl border border-slate-100 w-full">
-                                <span className="text-xs text-slate-500 mb-1 font-medium">{t('parent.reports.name')}</span>
-                                <span className="font-bold text-slate-800">{reportData.studentInfo.name}</span>
+                            <div className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 w-full">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-1 font-medium">{t('parent.reports.name', 'الاسم')}</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-100">{reportData.studentInfo.name}</span>
                             </div>
-                            <div className="flex flex-col items-start p-4 bg-slate-50 rounded-xl border border-slate-100 w-full">
-                                <span className="text-xs text-slate-500 mb-1 font-medium">{t('parent.reports.joinDate')}</span>
-                                <span className="font-bold text-slate-800">{reportData.studentInfo.joinDate}</span>
+                            <div className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 w-full">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-1 font-medium">{t('parent.reports.joinDate', 'تاريخ الانضمام')}</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-100">{reportData.studentInfo.joinDate}</span>
                             </div>
-                            <div className="flex flex-col items-start p-4 bg-slate-50 rounded-xl border border-slate-100 w-full">
-                                <span className="text-xs text-slate-500 mb-1 font-medium">{t('parent.reports.currentPackage')}</span>
-                                <span className="font-bold text-slate-800">{reportData.studentInfo.currentPackage}</span>
+                            <div className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 w-full">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-1 font-medium">{t('parent.reports.currentPackage', 'الباقة')}</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-100">{reportData.studentInfo.currentPackage}</span>
                             </div>
                         </div>
                     </motion.div>
 
-                    <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-800 mb-6 relative inline-block">
-                            {t('parent.reports.attendance')}
+                    <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 relative inline-block">
+                            {t('parent.reports.attendance', 'الحضور')}
                             <span className="absolute -bottom-2 start-0 w-1/2 h-1 bg-red-500 rounded-full"></span>
                         </h2>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div className="bg-sky-50 rounded-xl p-5 flex flex-col items-center justify-center border border-sky-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.totalClasses')}</span>
-                                <span className="text-3xl font-bold text-sky-600">{reportData.attendanceStats.total}</span>
+                            <div className="bg-sky-50 dark:bg-sky-950/20 rounded-xl p-5 flex flex-col items-center justify-center border border-sky-100 dark:border-sky-900/40">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">{t('parent.reports.totalClasses', 'إجمالي الحصص')}</span>
+                                <span className="text-3xl font-bold text-sky-600 dark:text-sky-400">{reportData.attendanceStats.total}</span>
                             </div>
-                            <div className="bg-emerald-50 rounded-xl p-5 flex flex-col items-center justify-center border border-emerald-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.attended')}</span>
+                            <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl p-5 flex flex-col items-center justify-center border border-emerald-100 dark:border-emerald-900/40">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">{t('parent.reports.attended', 'حضور')}</span>
                                 <span className="text-3xl font-bold text-emerald-500">{reportData.attendanceStats.attended}</span>
                             </div>
-                            <div className="bg-red-50 rounded-xl p-5 flex flex-col items-center justify-center border border-red-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.absent')}</span>
+                            <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-5 flex flex-col items-center justify-center border border-red-100 dark:border-red-900/40">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">{t('parent.reports.absent', 'غياب')}</span>
                                 <span className="text-3xl font-bold text-red-500">{reportData.attendanceStats.absent}</span>
                             </div>
-                            <div className="bg-amber-50 rounded-xl p-5 flex flex-col items-center justify-center border border-amber-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.attendance.rate')}</span>
+                            <div className="bg-amber-50 dark:bg-amber-950/20 rounded-xl p-5 flex flex-col items-center justify-center border border-amber-100 dark:border-amber-900/40">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">{t('parent.attendance.rate', 'النسبة')}</span>
                                 <span className="text-3xl font-bold text-amber-500">{reportData.attendanceStats.rate}</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-bold text-slate-800 mb-2">{t('parent.reports.currentMonth')}</h3>
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-slate-500">{t('parent.reports.attended')}</span>
-                                            <span className="font-bold text-slate-700">{reportData.attendanceStats.currentMonth.attended} {t('parent.reports.from')} {reportData.attendanceStats.currentMonth.total}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-slate-500">{t('parent.reports.rate')}</span>
-                                            <span className="font-bold text-emerald-500">{reportData.attendanceStats.currentMonth.rate}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-bold text-slate-800 mb-2">{t('parent.reports.lastMonth')}</h3>
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-slate-500">{t('parent.reports.attended')}</span>
-                                            <span className="font-bold text-slate-700">{reportData.attendanceStats.lastMonth.attended} {t('parent.reports.from')} {reportData.attendanceStats.lastMonth.total}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-slate-500">{t('parent.reports.rate')}</span>
-                                            <span className="font-bold text-emerald-500">{reportData.attendanceStats.lastMonth.rate}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-800 mb-6 relative inline-block">
-                            {t('parent.reports.evaluations')}
-                            <span className="absolute -bottom-2 start-0 w-1/2 h-1 bg-slate-800 rounded-full"></span>
-                        </h2>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div className="bg-sky-50 rounded-xl p-5 flex flex-col items-center justify-center border border-sky-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.totalEvaluations')}</span>
-                                <span className="text-3xl font-bold text-sky-600">{reportData.evaluationStats.total}</span>
-                            </div>
-                            <div className="bg-emerald-50 rounded-xl p-5 flex flex-col items-center justify-center border border-emerald-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.excellent')}</span>
-                                <span className="text-3xl font-bold text-emerald-500">{reportData.evaluationStats.excellent}</span>
-                            </div>
-                            <div className="bg-blue-50 rounded-xl p-5 flex flex-col items-center justify-center border border-blue-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.good')}</span>
-                                <span className="text-3xl font-bold text-blue-500">{reportData.evaluationStats.veryGood}</span>
-                            </div>
-                            <div className="bg-amber-50 rounded-xl p-5 flex flex-col items-center justify-center border border-amber-100">
-                                <span className="text-xs text-slate-500 mb-2 font-medium">{t('parent.reports.good', { defaultValue: 'جيد' })}</span>
-                                <span className="text-3xl font-bold text-amber-500">{reportData.evaluationStats.good}</span>
-                            </div>
-                        </div>
-
-                        <div className="border border-emerald-200 rounded-2xl p-6 bg-white relative overflow-hidden">
-                            <h3 className="font-bold text-slate-800 mb-6">{t('parent.reports.lastEvaluation')}</h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-                                <div className="space-y-1">
-                                    <span className="text-xs text-slate-500 font-medium block">{t('parent.reports.subject')}</span>
-                                    <span className="font-bold text-slate-800 block">{reportData.evaluationStats.lastEvaluation.subject}</span>
-                                </div>
-                                <div className="space-y-1">
-                                    <span className="text-xs text-slate-500 font-medium block">{t('parent.reports.teacher')}</span>
-                                    <span className="font-bold text-slate-800 block">{reportData.evaluationStats.lastEvaluation.teacher}</span>
-                                </div>
-                                <div className="space-y-1">
-                                    <span className="text-xs text-slate-500 font-medium block">{t('parent.reports.score')}</span>
-                                    <span className="font-bold text-emerald-500 text-2xl block">{reportData.evaluationStats.lastEvaluation.score}</span>
-                                </div>
-                                <div className="space-y-1">
-                                    <span className="text-xs text-slate-500 font-medium block">{t('parent.reports.date')}</span>
-                                    <span className="font-bold text-slate-800 block text-sm">{reportData.evaluationStats.lastEvaluation.date}</span>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                <span className="text-xs text-slate-500 font-medium block mb-1">{t('parent.reports.teacherNotes')}:</span>
-                                <p className="text-sm font-bold text-slate-700">{reportData.evaluationStats.lastEvaluation.notes}</p>
                             </div>
                         </div>
                     </motion.div>
@@ -278,8 +235,9 @@ export default function ParentReports() {
                     <AssignmentsStats data={reportData.assignments} variants={itemVariants} />
                     <ClassesStats data={reportData.classes} variants={itemVariants} />
                     <ProgressAchievements data={reportData.progress} variants={itemVariants} />
-                    <StrengthsWeaknesses data={reportData.strengthsWeaknesses} variants={itemVariants} />
-
+                    {reportData.strengthsWeaknesses?.strengths?.length > 0 && (
+                        <StrengthsWeaknesses data={reportData.strengthsWeaknesses} variants={itemVariants} />
+                    )}
                 </>
             ) : null}
         </motion.div>
