@@ -59,7 +59,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
   const handleStartTimeChange = (newStart) => {
     setStartTime(newStart)
     setError('')
-    // Automatically suggest end time based on session duration
     if (newStart) {
       setEndTime(calculateEndTime(newStart, session.durationMinutes || 90))
     }
@@ -129,7 +128,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {/* 1. Date */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -146,7 +144,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
           />
         </div>
 
-        {/* 2. Start Time */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -160,7 +157,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
           />
         </div>
 
-        {/* 3. End Time */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-slate-400" />

@@ -41,9 +41,10 @@ export default function AdminGroups() {
 
   const STATUS_FILTER_KEYS = useMemo(() => [
     { key: 'all', label: t('adminDashboard.groups.filterAll', 'الكل'), matchVal: 'الكل' },
-    { key: 'active', label: t('adminDashboard.groups.filterActive', 'نشط'), matchVal: 'نشط' },
-    { key: 'suspended', label: t('adminDashboard.groups.filterSuspended', 'متوقف'), matchVal: 'متوقف' },
-    { key: 'completed', label: t('adminDashboard.groups.filterCompleted', 'مكتمل'), matchVal: 'مكتمل' },
+    { key: 'pending', label: t('adminDashboard.groups.pendingGroups', 'قيد الانتظار'), matchVal: 'قيد الانتظار' },
+    { key: 'active', label: t('adminDashboard.groups.activeGroups', 'النشطة'), matchVal: 'نشط' },
+    { key: 'suspended', label: t('adminDashboard.groups.suspendedGroups', 'المتوقفة مؤقتاً'), matchVal: 'متوقف' },
+    { key: 'completed', label: t('adminDashboard.groups.completedGroups', 'المكتملة'), matchVal: 'مكتمل' },
   ], [t])
 
   const loadGroups = useCallback(async () => {
@@ -62,7 +63,12 @@ export default function AdminGroups() {
 
       const res = await adminGroupsApi.fetchGroups(params)
       const data = res?.data || res
-      const items = Array.isArray(data) ? data : (Array.isArray(res) ? res : [])
+      const rawList = Array.isArray(data) ? data : (Array.isArray(res) ? res : [])
+      const items = rawList.map((g) => ({
+        ...g,
+        id: g.id || g._id,
+        _id: g._id || g.id,
+      }))
 
       setGroups(items)
 
@@ -86,9 +92,14 @@ export default function AdminGroups() {
     let result = groups
 
     if (statusFilter !== 'all' && !pagination) {
-      const activeObj = STATUS_FILTER_KEYS.find((f) => f.key === statusFilter)
-      const targetVal = activeObj ? activeObj.matchVal : statusFilter
-      result = result.filter((g) => g.status === targetVal || g.status === statusFilter)
+      result = result.filter((g) => {
+        const s = String(g.status || '').toLowerCase()
+        if (statusFilter === 'pending') return s.includes('انتظار') || s === 'pending' || s === 'waiting'
+        if (statusFilter === 'active') return s.includes('نشط') || s === 'active'
+        if (statusFilter === 'suspended') return s.includes('توقف') || s === 'suspended' || s === 'paused'
+        if (statusFilter === 'completed') return s.includes('مكتمل') || s === 'completed'
+        return g.status === statusFilter
+      })
     }
 
     if (searchQuery.trim() && !pagination) {
@@ -103,15 +114,28 @@ export default function AdminGroups() {
     }
 
     return result
-  }, [groups, statusFilter, searchQuery, pagination, STATUS_FILTER_KEYS, isRtl])
+  }, [groups, statusFilter, searchQuery, pagination, isRtl])
 
   const metrics = useMemo(() => {
     const total = pagination?.totalCount ?? groups.length
-    const active = groups.filter((g) => g.status === 'نشط' || g.status === 'active').length
-    const suspended = groups.filter((g) => g.status === 'متوقف' || g.status === 'suspended').length
-    const students = groups.reduce((acc, g) => acc + (g.currentStudentsCount ?? g.students?.length ?? 0), 0)
+    const pending = groups.filter((g) => {
+      const s = String(g.status || '').toLowerCase()
+      return s.includes('انتظار') || s === 'pending' || s === 'waiting'
+    }).length
+    const active = groups.filter((g) => {
+      const s = String(g.status || '').toLowerCase()
+      return s.includes('نشط') || s === 'active'
+    }).length
+    const suspended = groups.filter((g) => {
+      const s = String(g.status || '').toLowerCase()
+      return s.includes('توقف') || s === 'suspended' || s === 'paused'
+    }).length
+    const completed = groups.filter((g) => {
+      const s = String(g.status || '').toLowerCase()
+      return s.includes('مكتمل') || s === 'completed'
+    }).length
 
-    return { total, active, suspended, students }
+    return { total, pending, active, suspended, completed }
   }, [groups, pagination])
 
   const totalCount = pagination?.totalCount ?? filtered.length
@@ -130,10 +154,13 @@ export default function AdminGroups() {
     setIsLoading(true)
     try {
       if (viewMode === 'edit-group' && selectedGroup) {
-        const res = await adminGroupsApi.updateGroup(selectedGroup.id, formData)
+        const targetId = selectedGroup.id || selectedGroup._id
+        const res = await adminGroupsApi.updateGroup(targetId, formData)
         const updatedItem = res?.data || res
         if (updatedItem) {
-          setGroups((prev) => prev.map((g) => (g.id === selectedGroup.id ? { ...g, ...updatedItem } : g)))
+          setGroups((prev) =>
+            prev.map((g) => (g.id === targetId || g._id === targetId ? { ...g, ...updatedItem, id: targetId, _id: targetId } : g))
+          )
           setSelectedGroup(null)
           setViewMode('list')
           loadGroups()
@@ -143,7 +170,8 @@ export default function AdminGroups() {
         const res = await adminGroupsApi.createGroup(formData)
         const newItem = res?.data || res
         if (newItem) {
-          setGroups((prev) => [newItem, ...prev])
+          const normalizedNew = { ...newItem, id: newItem.id || newItem._id, _id: newItem._id || newItem.id }
+          setGroups((prev) => [normalizedNew, ...prev])
           setSelectedGroup(null)
           setViewMode('list')
           loadGroups()
@@ -162,10 +190,11 @@ export default function AdminGroups() {
     const isConfirmed = await showDeleteConfirm(isRtl, getLocalizedValue(group.name, isRtl))
     if (!isConfirmed) return
     setIsLoading(true)
+    const targetId = group.id || group._id
     try {
-      const res = await adminGroupsApi.deleteGroup(group.id)
+      const res = await adminGroupsApi.deleteGroup(targetId)
       if (res?.success || res?.status === 200 || res) {
-        setGroups((prev) => prev.filter((g) => g.id !== group.id))
+        setGroups((prev) => prev.filter((g) => g.id !== targetId && g._id !== targetId))
         loadGroups()
         showSuccessToast(res?.message || t('adminDashboard.groups.deleteSuccess', 'تم حذف المجموعة بنجاح'), isRtl)
       }
@@ -186,17 +215,23 @@ export default function AdminGroups() {
       if (res?.success || res) {
         setGroups((prev) =>
           prev.map((g) => {
-            if (g.id === groupId) {
-              const list = (g.students || []).filter((s) => s.id !== studentId)
+            if (g.id === groupId || g._id === groupId) {
+              const list = (g.students || []).filter((s) => {
+                const sId = typeof s === 'string' ? s : (s?.id || s?._id || s?.student?._id || s?.student?.id || s?.student)
+                return String(sId) !== String(studentId)
+              })
               return { ...g, students: list, currentStudentsCount: list.length }
             }
             return g
           })
         )
-        if (selectedGroup?.id === groupId) {
+        if (selectedGroup?.id === groupId || selectedGroup?._id === groupId) {
           setSelectedGroup((prev) => {
             if (!prev) return prev
-            const list = (prev.students || []).filter((s) => s.id !== studentId)
+            const list = (prev.students || []).filter((s) => {
+              const sId = typeof s === 'string' ? s : (s?.id || s?._id || s?.student?._id || s?.student?.id || s?.student)
+              return String(sId) !== String(studentId)
+            })
             return { ...prev, students: list, currentStudentsCount: list.length }
           })
         }
@@ -210,17 +245,23 @@ export default function AdminGroups() {
 
   const handleEditGroup = async (group) => {
     setIsLoading(true)
+    const groupId = group.id || group._id
     try {
-      const res = await adminGroupsApi.fetchGroupByIdRaw(group.id)
+      const res = await adminGroupsApi.fetchGroupByIdRaw(groupId)
       const data = res?.data || res
-      if (data && (data.id || data.name)) {
-        setSelectedGroup(data)
+      if (data && (data.id || data._id || data.name)) {
+        setSelectedGroup({
+          ...group,
+          ...data,
+          id: data.id || data._id || groupId,
+          _id: data._id || data.id || groupId,
+        })
       } else {
-        setSelectedGroup(group)
+        setSelectedGroup({ ...group, id: groupId, _id: groupId })
       }
     } catch (err) {
       console.warn('Error fetching raw group for edit, using card data:', err)
-      setSelectedGroup(group)
+      setSelectedGroup({ ...group, id: groupId, _id: groupId })
     } finally {
       setIsLoading(false)
       setViewMode('edit-group')
@@ -228,13 +269,20 @@ export default function AdminGroups() {
   }
 
   const handleViewStudents = async (group) => {
-    setSelectedGroup(group)
+    const groupId = group.id || group._id
+    const normalizedGroup = { ...group, id: groupId, _id: groupId }
+    setSelectedGroup(normalizedGroup)
     setShowStudentsModal(true)
     try {
-      const res = await adminGroupsApi.fetchGroupByIdLocalized(group.id)
+      const res = await adminGroupsApi.fetchGroupByIdLocalized(groupId)
       const detailedGroup = res?.data || res
-      if (detailedGroup && (detailedGroup.students || detailedGroup.id)) {
-        setSelectedGroup((prev) => ({ ...prev, ...detailedGroup }))
+      if (detailedGroup && (detailedGroup.students || detailedGroup.id || detailedGroup._id)) {
+        setSelectedGroup((prev) => ({
+          ...prev,
+          ...detailedGroup,
+          id: detailedGroup.id || detailedGroup._id || groupId,
+          _id: detailedGroup._id || detailedGroup.id || groupId,
+        }))
       }
     } catch (err) {
       console.warn('Could not load detailed localized group data:', err)
@@ -373,12 +421,13 @@ export default function AdminGroups() {
         </p>
       </div>
 
-       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { label: t('adminDashboard.groups.totalGroups', 'إجمالي المجموعات'), value: metrics.total, cls: 'text-slate-700 dark:text-slate-200' },
-          { label: t('adminDashboard.groups.activeGroups', 'المجموعات النشطة'), value: metrics.active, cls: 'text-brand-600 dark:text-brand-400' },
-          { label: t('adminDashboard.groups.suspendedGroups', 'المتوقفة'), value: metrics.suspended, cls: 'text-amber-600 dark:text-amber-400' },
-          { label: t('adminDashboard.groups.totalStudents', 'إجمالي الطلاب'), value: metrics.students, cls: 'text-blue-600 dark:text-blue-400' },
+          { label: t('adminDashboard.groups.pendingGroups', 'قيد الانتظار'), value: metrics.pending, cls: 'text-blue-600 dark:text-blue-400' },
+          { label: t('adminDashboard.groups.activeGroups', 'النشطة'), value: metrics.active, cls: 'text-emerald-600 dark:text-emerald-400' },
+          { label: t('adminDashboard.groups.suspendedGroups', 'المتوقفة مؤقتاً'), value: metrics.suspended, cls: 'text-amber-600 dark:text-amber-400' },
+          { label: t('adminDashboard.groups.completedGroups', 'المكتملة'), value: metrics.completed, cls: 'text-purple-600 dark:text-purple-400' },
         ].map((m) => (
           <div
             key={m.label}

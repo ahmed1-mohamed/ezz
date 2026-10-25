@@ -1,6 +1,5 @@
 import {
   Trash2,
-  Pencil,
   Award,
   Eye,
   Check,
@@ -44,7 +43,6 @@ export default function RewardsSuggestions({
   isLoading = false,
   onApprove,
   onReject,
-  onEdit,
   onDelete,
   onView,
 }) {
@@ -242,44 +240,40 @@ export default function RewardsSuggestions({
                         <Eye size={16} />
                       </button>
                     )}
-                    {onEdit && (
+                    {onDelete && (
                       <button
                         type="button"
-                        onClick={() => onEdit(sug)}
-                        className="p-2 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/30 rounded-xl transition-colors cursor-pointer"
-                        title={isRtl ? 'تعديل' : 'Edit'}
+                        onClick={() => onDelete(sug)}
+                        className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-xl transition-colors cursor-pointer"
+                        title={isRtl ? 'حذف' : 'Delete'}
                       >
-                        <Pencil size={16} />
+                        <Trash2 size={16} />
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => onDelete(sug)}
-                      className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-xl transition-colors cursor-pointer"
-                      title={isRtl ? 'حذف' : 'Delete'}
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
 
-                  {sug.status === 'pending' && (
+                  {sug.status === 'pending' && (onReject || onApprove) && (
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => onReject(sugId)}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors cursor-pointer"
-                      >
-                        <X size={14} />
-                        {p('rejectBtn', 'رفض')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onApprove(sugId)}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
-                      >
-                        <Check size={14} />
-                        {p('approveBtn', 'موافقة')}
-                      </button>
+                      {onReject && (
+                        <button
+                          type="button"
+                          onClick={() => onReject(sugId)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          <X size={14} />
+                          {p('rejectBtn', 'رفض')}
+                        </button>
+                      )}
+                      {onApprove && (
+                        <button
+                          type="button"
+                          onClick={() => onApprove(sugId)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
+                        >
+                          <Check size={14} />
+                          {p('approveBtn', 'موافقة')}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

@@ -22,9 +22,6 @@ import { teacherComplaintsApi } from '@/shared/services/api/teacherComplaintsApi
 import TeacherNewComplaintModal from './TeacherNewComplaintModal.jsx';
 import TeacherComplaintDetailsModal from './TeacherComplaintDetailsModal.jsx';
 
-/**
- * Format local date
- */
 function formatDate(isoString, isRtl) {
   if (!isoString) return '—';
   const d = new Date(isoString);
@@ -56,26 +53,12 @@ export default function TeacherComplaints() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
-  // Filters
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'resolved' | 'rejected'
-  const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'complaint' | 'suggestion' | 'reschedule'
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modals state
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [selectedItemForDetails, setSelectedItemForDetails] = useState(null);
-
-  // Fetch complaints
-  // The API supports:
-  // /api/v1/teacher/complaints-suggestions (all)
-  // /api/v1/teacher/complaints-suggestions/resolved (resolved)
-  // /api/v1/teacher/complaints-suggestions/rejected (rejected)
-  const apiStatusParam =
-    statusFilter === 'resolved'
-      ? 'resolved'
-      : statusFilter === 'rejected'
-      ? 'rejected'
-      : 'all';
 
   const {
     data: responseData,
@@ -84,42 +67,59 @@ export default function TeacherComplaints() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['teacherComplaints', apiStatusParam],
-    queryFn: () => teacherComplaintsApi.fetchComplaints(apiStatusParam),
+    queryKey: ['teacherComplaints'],
+    queryFn: () => teacherComplaintsApi.fetchComplaints(),
   });
 
-  // Extract raw list
   const rawList = useMemo(() => {
-    const list = responseData?.data || [];
+    const list = responseData?.data || (Array.isArray(responseData) ? responseData : []);
     return Array.isArray(list) ? list : [];
   }, [responseData]);
 
-  // Client-side filtering by pending status, type, and search
   const filteredList = useMemo(() => {
     return rawList.filter((item) => {
-      // Pending status filter
+      const itemStatus = (item.status || '').toLowerCase();
       if (statusFilter === 'pending') {
         const isPending =
-          item.status === 'pending' ||
-          item.status === 'قيد المراجعة' ||
-          item.status === 'معلقة';
+          itemStatus === 'pending' ||
+          itemStatus.includes('انتظار') ||
+          itemStatus.includes('مراجعة') ||
+          itemStatus.includes('معلقة');
         if (!isPending) return false;
+      } else if (statusFilter === 'resolved') {
+        const isResolved =
+          itemStatus === 'resolved' ||
+          itemStatus.includes('محلول') ||
+          itemStatus.includes('تم الحل') ||
+          itemStatus.includes('مكتمل');
+        if (!isResolved) return false;
+      } else if (statusFilter === 'rejected') {
+        const isRejected =
+          itemStatus === 'rejected' ||
+          itemStatus.includes('مرفوض');
+        if (!isRejected) return false;
       }
 
-      // Type filter
       if (typeFilter !== 'all') {
+        const itemType = (item.type || '').toLowerCase();
         if (typeFilter === 'reschedule') {
           const isResched =
-            item.type === 'reschedule_request' ||
-            item.type === 'reschedule' ||
-            item.type === 'postpone';
+            itemType === 'reschedule_request' ||
+            itemType === 'reschedule' ||
+            itemType === 'postpone' ||
+            itemType.includes('تأجيل');
           if (!isResched) return false;
+        } else if (typeFilter === 'complaint') {
+          const isComplaint = itemType === 'complaint' || itemType.includes('شكوى');
+          if (!isComplaint) return false;
+        } else if (typeFilter === 'suggestion') {
+          const isSuggestion = itemType === 'suggestion' || itemType.includes('مقترح');
+          if (!isSuggestion) return false;
         } else if (item.type !== typeFilter) {
           return false;
         }
       }
 
-      // Search query filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const titleMatch = item.title?.toLowerCase().includes(q);
@@ -134,7 +134,6 @@ export default function TeacherComplaints() {
     });
   }, [rawList, statusFilter, typeFilter, searchQuery]);
 
-  // Helpers for type metadata
   const getTypeBadge = (type) => {
     if (type === 'reschedule_request' || type === 'reschedule' || type === 'postpone') {
       return (
@@ -192,7 +191,6 @@ export default function TeacherComplaints() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="space-y-6">
-        {/* Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
           <div>
             <div className="flex items-center gap-2">
@@ -228,7 +226,6 @@ export default function TeacherComplaints() {
           </div>
         </div>
 
-        {/* Status Tabs (الكل - قيد المراجعة - محلولة - مرفوضة) */}
         <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-slate-800 pb-2 overflow-x-auto">
           {[
             { id: 'all', label: t('teacher.statusAll', 'الكل') },
@@ -254,9 +251,7 @@ export default function TeacherComplaints() {
           })}
         </div>
 
-        {/* Toolbar: Search & Type Filter Buttons ("وتقدر في ال get تفلتر بقى على حسب النوع (شكوى - مقترح - طلبات تأجيل)") */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200/80 bg-white/95 dark:border-slate-800 dark:bg-slate-900/90 shadow-soft">
-          {/* Search Box */}
           <div className="relative flex-1 max-w-md">
             <Search
               size={18}
@@ -285,7 +280,6 @@ export default function TeacherComplaints() {
             )}
           </div>
 
-          {/* Type Filter Pills (الكل - شكوى - مقترح - طلبات تأجيل) */}
           <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 shrink-0 self-start md:self-auto overflow-x-auto max-w-full">
             <button
               onClick={() => setTypeFilter('all')}
@@ -334,7 +328,6 @@ export default function TeacherComplaints() {
           </div>
         </div>
 
-        {/* Complaints List Cards */}
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -420,12 +413,10 @@ export default function TeacherComplaints() {
                     </button>
                   </div>
 
-                  {/* Details snippet */}
                   <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                     {item.details}
                   </p>
 
-                  {/* Reschedule Extra Info Banner */}
                   {isReschedule && (
                     <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                       {item.group && (
@@ -462,7 +453,6 @@ export default function TeacherComplaints() {
                     </div>
                   )}
 
-                  {/* Admin notes preview if present */}
                   {item.notes && (
                     <div className="p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/50 dark:border-indigo-900/30 text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
                       <span className="font-bold shrink-0">رد الإدارة:</span>
@@ -475,12 +465,10 @@ export default function TeacherComplaints() {
           </div>
         )}
 
-        {/* New Submission Modal */}
         {isNewModalOpen && (
           <TeacherNewComplaintModal onClose={() => setIsNewModalOpen(false)} />
         )}
 
-        {/* View Details Modal */}
         {selectedItemForDetails && (
           <TeacherComplaintDetailsModal
             item={selectedItemForDetails}

@@ -1,22 +1,17 @@
-import { useState, useEffect, useMemo } from 'react'
+import {  useMemo } from 'react'
 import { Upload } from 'lucide-react'
 import SelectField from './fields/SelectField'
-import { landingApi } from '@/shared/services/api/landingApi'
-import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
-import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
-import { teachersApi } from '@/shared/services/api/teachersApi'
-import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi'
-import { sortCountries, getCountryName, normalizeCountries } from '@/shared/utils/countryUtils'
+ import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 const GROUP_TYPES = [
-  { value: 'group', ar: 'مجموعة', en: 'Group' },
+  { value: 'group', ar: 'عامة', en: 'General' },
   { value: 'private', ar: 'خاصة', en: 'Private' },
 ]
 
-const MAX_STUDENTS = [3, 4, 5, 6, 7, 8, 10, 12, 15]
+const MAX_STUDENTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30]
 
 export default function GroupInfoCard({
-  formData,
+  formData = {},
   handleChange,
   handleImageSelect,
   fileInputRef,
@@ -30,80 +25,19 @@ export default function GroupInfoCard({
   isEditing,
   errors = {},
 }) {
-  const initial = formData.name ? formData.name.trim().charAt(0) : 'م'
+  const initial = (
+    typeof formData.name === 'string'
+      ? formData.name.trim()
+      : (typeof formData.nameAr === 'string'
+          ? formData.nameAr.trim()
+          : (typeof formData.name?.ar === 'string' ? formData.name.ar.trim() : 'م'))
+  ).charAt(0) || 'م'
 
-  const [internalCountries, setInternalCountries] = useState([])
-  const [internalCurricula, setInternalCurricula] = useState([])
-  const [internalLevels, setInternalLevels] = useState([])
-  const [internalTeachers, setInternalTeachers] = useState([])
-  const [internalLanguages, setInternalLanguages] = useState([])
-  const [isLoadingEndpoints, setIsLoadingEndpoints] = useState(false)
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadMissingOptions = async () => {
-      const needCountries = !countries || countries.length === 0
-      const needCurricula = !curricula || curricula.length === 0
-      const needLevels = !levels || levels.length === 0
-      const needTeachers = !teachers || teachers.length === 0
-      const needLanguages = !languages || languages.length === 0
-
-      if (!needCountries && !needCurricula && !needLevels && !needTeachers && !needLanguages) {
-        return
-      }
-
-      setIsLoadingEndpoints(true)
-      try {
-        const [cRes, curRes, lvlRes, tRes, langRes] = await Promise.allSettled([
-          needCountries ? landingApi.fetchCountries() : Promise.resolve(null),
-          needCurricula ? adminCurriculaApi.fetchCurricula() : Promise.resolve(null),
-          needLevels ? adminLevelsApi.fetchLevels() : Promise.resolve(null),
-          needTeachers ? teachersApi.fetchTeachers({ limit: 100 }) : Promise.resolve(null),
-          needLanguages ? explanationLanguagesApi.fetchLanguages() : Promise.resolve(null),
-        ])
-
-        if (!isMounted) return
-
-        if (cRes.status === 'fulfilled' && cRes.value) {
-          const rawList = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
-          const list = normalizeCountries(rawList)
-          if (Array.isArray(list) && list.length > 0) setInternalCountries(list)
-        }
-        if (curRes.status === 'fulfilled' && curRes.value) {
-          const list = curRes.value?.data || (Array.isArray(curRes.value) ? curRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setInternalCurricula(list)
-        }
-        if (lvlRes.status === 'fulfilled' && lvlRes.value) {
-          const list = lvlRes.value?.data || (Array.isArray(lvlRes.value) ? lvlRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setInternalLevels(list)
-        }
-        if (tRes.status === 'fulfilled' && tRes.value) {
-          const list = tRes.value?.data || (Array.isArray(tRes.value) ? tRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setInternalTeachers(list)
-        }
-        if (langRes.status === 'fulfilled' && langRes.value) {
-          const list = langRes.value?.data || (Array.isArray(langRes.value) ? langRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setInternalLanguages(list)
-        }
-      } catch (err) {
-        console.warn('GroupInfoCard: error fetching endpoint options', err)
-      } finally {
-        if (isMounted) setIsLoadingEndpoints(false)
-      }
-    }
-
-    loadMissingOptions()
-    return () => {
-      isMounted = false
-    }
-  }, [countries, curricula, levels, teachers, languages])
-
-  const resolvedCountries = (countries && countries.length > 0) ? countries : internalCountries
-  const resolvedCurricula = (curricula && curricula.length > 0) ? curricula : internalCurricula
-  const resolvedLevels = (levels && levels.length > 0) ? levels : internalLevels
-  const resolvedTeachers = (teachers && teachers.length > 0) ? teachers : internalTeachers
-  const resolvedLanguages = (languages && languages.length > 0) ? languages : internalLanguages
+  const resolvedCountries = Array.isArray(countries) ? countries : []
+  const resolvedCurricula = Array.isArray(curricula) ? curricula : []
+  const resolvedLevels = Array.isArray(levels) ? levels : []
+  const resolvedTeachers = Array.isArray(teachers) ? teachers : []
+  const resolvedLanguages = Array.isArray(languages) ? languages : []
 
   const countryOptions = useMemo(() => {
     const sorted = sortCountries(resolvedCountries, isRtl)
@@ -118,8 +52,56 @@ export default function GroupInfoCard({
     })
   }, [resolvedCountries, isRtl])
 
+  const filteredCurricula = useMemo(() => {
+    if (!formData.country) return resolvedCurricula
+    const selectedCountryId = String(formData.country).trim()
+    const selectedCountryObj = resolvedCountries.find(
+      (c) => String(c.id || c._id || c.code) === selectedCountryId
+    )
+    const selectedCode = selectedCountryObj?.code ? String(selectedCountryObj.code).toLowerCase() : ''
+    const selectedNameAr = selectedCountryObj?.name?.ar || (typeof selectedCountryObj?.name === 'string' ? selectedCountryObj.name : '')
+    const selectedNameEn = selectedCountryObj?.name?.en || ''
+
+    const matched = resolvedCurricula.filter((cur) => {
+      if (!cur) return false
+      const cCountry = cur.country || cur.countryId || cur.country_id
+      if (!cCountry && (!cur.countries || cur.countries.length === 0)) {
+        return false
+      }
+      if (typeof cCountry === 'string' || typeof cCountry === 'number') {
+        const valStr = String(cCountry).trim()
+        if (valStr === selectedCountryId) return true
+        if (selectedCode && valStr.toLowerCase() === selectedCode) return true
+        if (selectedNameAr && valStr === selectedNameAr) return true
+        if (selectedNameEn && valStr.toLowerCase() === selectedNameEn.toLowerCase()) return true
+      }
+      if (typeof cCountry === 'object' && cCountry !== null) {
+        const cId = String(cCountry.id || cCountry._id || '').trim()
+        const cCode = String(cCountry.code || '').toLowerCase()
+        if (cId && cId === selectedCountryId) return true
+        if (selectedCode && cCode === selectedCode) return true
+        const cNameAr = cCountry.name?.ar || (typeof cCountry.name === 'string' ? cCountry.name : '')
+        if (selectedNameAr && cNameAr && cNameAr === selectedNameAr) return true
+      }
+      if (Array.isArray(cur.countries)) {
+        return cur.countries.some((cnt) => {
+          if (!cnt) return false
+          if (typeof cnt === 'string' || typeof cnt === 'number') {
+            const valStr = String(cnt).trim()
+            return valStr === selectedCountryId || (selectedCode && valStr.toLowerCase() === selectedCode)
+          }
+          const cntId = String(cnt.id || cnt._id || cnt.code || '').trim()
+          return cntId === selectedCountryId || (selectedCode && cntId.toLowerCase() === selectedCode)
+        })
+      }
+      return false
+    })
+
+    return matched.length > 0 ? matched : resolvedCurricula
+  }, [resolvedCurricula, formData.country, resolvedCountries])
+
   const curriculumOptions = useMemo(() => {
-    return resolvedCurricula.map((c) => {
+    return filteredCurricula.map((c) => {
       const id = c.id || c._id
       const name = typeof c.name === 'object'
         ? (isRtl ? (c.name.ar || c.name.en) : (c.name.en || c.name.ar))
@@ -129,7 +111,7 @@ export default function GroupInfoCard({
         label: name || id,
       }
     })
-  }, [resolvedCurricula, isRtl])
+  }, [filteredCurricula, isRtl])
 
   const selectedCurriculumObj = useMemo(() => {
     if (!formData.curriculum) return null
@@ -153,18 +135,67 @@ export default function GroupInfoCard({
     })
   }, [selectedCurriculumObj, resolvedLevels, isRtl])
 
+  const filteredTeachers = useMemo(() => {
+    const activeTeachers = resolvedTeachers.filter((tch) => {
+      if (!tch) return false
+      const isActive = tch.active !== false &&
+        String(tch.status || '').toLowerCase() !== 'suspended' &&
+        String(tch.status || '').toLowerCase() !== 'inactive'
+      return isActive
+    })
+
+    if (!formData.curriculum) {
+      return activeTeachers
+    }
+
+    const targetCurriculumId = String(formData.curriculum).trim()
+    const targetCurriculumObj = resolvedCurricula.find((c) => String(c.id || c._id) === targetCurriculumId)
+    const curNameAr = typeof targetCurriculumObj?.name === 'object' ? targetCurriculumObj?.name?.ar : targetCurriculumObj?.name
+    const curNameEn = typeof targetCurriculumObj?.name === 'object' ? targetCurriculumObj?.name?.en : targetCurriculumObj?.name
+
+    const teachingThisCurriculum = activeTeachers.filter((tch) => {
+      const specs = Array.isArray(tch.specializations) ? tch.specializations : []
+      const currs = Array.isArray(tch.curricula) ? tch.curricula : (tch.curriculum ? [tch.curriculum] : [])
+      const subjects = Array.isArray(tch.subjects) ? tch.subjects : (tch.subject ? [tch.subject] : [])
+
+      const matchesItem = (item) => {
+        if (!item) return false
+        if (typeof item === 'string' || typeof item === 'number') {
+          const s = String(item).trim()
+          if (s === targetCurriculumId) return true
+          if (curNameAr && s === curNameAr) return true
+          if (curNameEn && s.toLowerCase() === String(curNameEn).toLowerCase()) return true
+          return false
+        }
+        if (typeof item === 'object') {
+          const itemId = String(item.id || item._id || '').trim()
+          if (itemId && itemId === targetCurriculumId) return true
+          const itemNameAr = item.name?.ar || (typeof item.name === 'string' ? item.name : '')
+          const itemNameEn = item.name?.en || ''
+          if (curNameAr && itemNameAr && curNameAr === itemNameAr) return true
+          if (curNameEn && itemNameEn && curNameEn.toLowerCase() === itemNameEn.toLowerCase()) return true
+        }
+        return false
+      }
+
+      return specs.some(matchesItem) || currs.some(matchesItem) || subjects.some(matchesItem)
+    })
+
+    return teachingThisCurriculum.length > 0 ? teachingThisCurriculum : activeTeachers
+  }, [resolvedTeachers, formData.curriculum, resolvedCurricula])
+
   const teacherOptions = useMemo(() => {
-    return resolvedTeachers.map((tch) => {
+    return filteredTeachers.map((tch) => {
       const id = tch.id || tch.teacher_id || tch._id
       const name = typeof tch.name === 'object'
         ? (isRtl ? (tch.name.ar || tch.name.en) : (tch.name.en || tch.name.ar))
-        : (tch.name || '')
+        : (tch.displayName || tch.name || '')
       return {
         value: id,
         label: name || id,
       }
     })
-  }, [resolvedTeachers, isRtl])
+  }, [filteredTeachers, isRtl])
 
   const languageOptions = useMemo(() => {
     if (resolvedLanguages.length > 0) {
@@ -194,11 +225,21 @@ export default function GroupInfoCard({
   }, [isRtl])
 
   const maxStudentOptions = useMemo(() => {
-    return MAX_STUDENTS.map((num) => ({
-      value: num,
-      label: `${num} ${t('adminDashboard.groups.students', 'طلاب')}`,
-    }))
-  }, [t])
+    return MAX_STUDENTS.map((num) => {
+      let label = `${num} ${t('adminDashboard.groups.students', 'طلاب')}`
+      if (num === 1) {
+        label = isRtl ? 'طالب واحد' : '1 Student'
+      } else if (num === 2) {
+        label = isRtl ? 'طالبان' : '2 Students'
+      } else if (num > 10) {
+        label = `${num} ${t('adminDashboard.groups.studentsCount', 'طالباً')}`
+      }
+      return {
+        value: num,
+        label,
+      }
+    })
+  }, [t, isRtl])
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
@@ -247,7 +288,13 @@ export default function GroupInfoCard({
           <input
             type="text"
             required
-            value={formData.nameAr || formData.name || ''}
+            value={
+              typeof formData.nameAr === 'string'
+                ? formData.nameAr
+                : (typeof formData.name === 'string'
+                    ? formData.name
+                    : (formData.name?.ar || ''))
+            }
             onChange={(e) => {
               handleChange('nameAr', e.target.value)
               handleChange('name', e.target.value)
@@ -268,7 +315,11 @@ export default function GroupInfoCard({
           </label>
           <input
             type="text"
-            value={formData.nameEn || ''}
+            value={
+              typeof formData.nameEn === 'string'
+                ? formData.nameEn
+                : (typeof formData.name?.en === 'string' ? formData.name.en : '')
+            }
             onChange={(e) => handleChange('nameEn', e.target.value)}
             placeholder="Al-Itqan Group - Level 2 (Boys)"
             dir="ltr"
@@ -284,7 +335,19 @@ export default function GroupInfoCard({
         <SelectField
           label={t('adminDashboard.groups.country', 'الدولة')}
           value={formData.country}
-          onChange={(val) => handleChange('country', val)}
+          onChange={(val) => {
+            handleChange('country', val)
+            const countryMatches = resolvedCurricula.filter((cur) => {
+              const cCountry = cur.country || cur.countryId
+              if (!cCountry) return true
+              return String(cCountry.id || cCountry._id || cCountry) === String(val)
+            })
+            const currentCurStillValid = countryMatches.some((c) => String(c.id || c._id) === String(formData.curriculum))
+            if (!currentCurStillValid) {
+              handleChange('curriculum', '')
+              handleChange('studentLevel', '')
+            }
+          }}
           options={countryOptions}
           placeholder={isLoadingEndpoints && countryOptions.length === 0 ? t('common.loading', 'جاري التحميل...') : t('adminDashboard.groups.countryPlaceholder', 'اختر الدولة')}
           isRtl={isRtl}
@@ -337,14 +400,13 @@ export default function GroupInfoCard({
         />
       </div>
 
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <SelectField
           label={t('adminDashboard.groups.groupType', 'نوع المجموعة')}
-          value={formData.type}
+          value={formData.type || 'group'}
           onChange={(val) => handleChange('type', val)}
           options={typeOptions}
-          placeholder={t('adminDashboard.groups.typePlaceholder', 'مجموعة')}
+          placeholder={t('adminDashboard.groups.typePlaceholder', 'عامة')}
           isRtl={isRtl}
           error={errors.type}
           required
@@ -352,7 +414,7 @@ export default function GroupInfoCard({
 
         <SelectField
           label={t('adminDashboard.groups.language', 'اللغة')}
-          value={formData.language}
+          value={formData.language || 'العربية'}
           onChange={(val) => handleChange('language', val)}
           options={languageOptions}
           placeholder={isLoadingEndpoints && languageOptions.length === 0 ? t('common.loading', 'جاري التحميل...') : t('adminDashboard.groups.language', 'اللغة')}
@@ -362,11 +424,10 @@ export default function GroupInfoCard({
         />
       </div>
 
-      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <SelectField
           label={t('adminDashboard.groups.maxStudents', 'الحد الأقصى للطلاب')}
-          value={formData.maxStudents}
+          value={formData.maxStudents || 5}
           onChange={(val) => handleChange('maxStudents', Number(val))}
           options={maxStudentOptions}
           placeholder="5 طلاب"
@@ -378,11 +439,10 @@ export default function GroupInfoCard({
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.startDate', 'تاريخ البدء')}
-            <span className="text-red-500 ms-0.5">*</span>
           </label>
           <input
             type="date"
-            value={formData.startDate || ''}
+            value={typeof formData.startDate === 'string' ? formData.startDate : ''}
             onChange={(e) => handleChange('startDate', e.target.value)}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border ${
               errors.startDate ? 'border-red-500 bg-red-50/20' : 'border-transparent focus:border-brand-500/20'
@@ -394,11 +454,10 @@ export default function GroupInfoCard({
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.endDate', 'تاريخ الانتهاء')}
-            <span className="text-red-500 ms-0.5">*</span>
           </label>
           <input
             type="date"
-            value={formData.endDate || ''}
+            value={typeof formData.endDate === 'string' ? formData.endDate : ''}
             onChange={(e) => handleChange('endDate', e.target.value)}
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border ${
               errors.endDate ? 'border-red-500 bg-red-50/20' : 'border-transparent focus:border-brand-500/20'

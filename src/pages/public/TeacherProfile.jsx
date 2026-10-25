@@ -74,24 +74,24 @@ export default function TeacherProfile() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#EEF2F0]/80 flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-[#00695C] border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-[#00695C] dark:border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
         )
     }
 
     if (error || !teacher) {
         return (
-            <div className="min-h-screen bg-[#EEF2F0]/80 flex items-center justify-center">
-                <p className="text-xl font-bold text-red-600">{t('teacherProfile.error', 'حدث خطأ في تحميل بيانات المعلم')}</p>
+            <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 flex items-center justify-center">
+                <p className="text-xl font-bold text-red-600 dark:text-red-400">{t('teacherProfile.error', 'حدث خطأ في تحميل بيانات المعلم')}</p>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#EEF2F0]/80 pt-12 font-sans pb-10">
+        <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 pt-12 font-sans pb-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                <Link to="/teachers" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#00695C] transition-colors font-bold">
+                <Link to="/teachers" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors font-bold">
                     <ArrowBack className="w-5 h-5" />
                     <span>{t('teacherProfile.back', 'العودة للمعلمين')}</span>
                 </Link>

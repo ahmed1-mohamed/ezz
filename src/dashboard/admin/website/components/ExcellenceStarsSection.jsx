@@ -16,13 +16,15 @@ export default function ExcellenceStarsSection({
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           {t('adminDashboard.website.starsTitle', isRtl ? 'نجوم التميّز الأكاديمي' : 'Featured Students')}
         </h2>
-        <Button
-          onClick={handleOpenAddModal}
-          className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
-        >
-          <Plus size={16} />
-          <span>{t('adminDashboard.website.addStar', isRtl ? 'إضافة طالب' : 'Add Student')}</span>
-        </Button>
+        {handleOpenAddModal && (
+          <Button
+            onClick={handleOpenAddModal}
+            className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
+          >
+            <Plus size={16} />
+            <span>{t('adminDashboard.website.addStar', isRtl ? 'إضافة طالب' : 'Add Student')}</span>
+          </Button>
+        )}
       </div>
 
       <div className="overflow-x-auto w-full pb-2">
@@ -56,15 +58,17 @@ export default function ExcellenceStarsSection({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleDeleteStar(star)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title={t('common.delete', isRtl ? 'إزالة' : 'Delete')}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                    {handleDeleteStar && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDeleteStar(star)}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                          title={t('common.delete', isRtl ? 'إزالة' : 'Delete')}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })

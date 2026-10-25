@@ -22,7 +22,7 @@ export default function StarsSection({ featuredStudents }) {
     useEffect(() => {
         const loadStudentsList = async () => {
             try {
-                const res = await landingApi.fetchPublicFeaturedStudents({ lang: i18n.language })
+                const res = await landingApi.fetchPublicFeaturedStudents()
                 const data = res?.data || res || []
                 if (Array.isArray(data)) {
                     setStudentsList(data)
@@ -45,13 +45,13 @@ export default function StarsSection({ featuredStudents }) {
     }
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-white dark:bg-slate-950">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">
                         {t('stars.title', 'نجوم التميز الأكاديمي')}
                     </h2>
-                    <p className="text-slate-700 text-lg">
+                    <p className="text-slate-700 dark:text-slate-300 text-lg">
                         {t('stars.description', 'نحتفي بطلابنا المتميزين الذين حققوا نتائج استثنائية وكانوا مثالاً للجد والاجتهاد')}
                     </p>
                 </div>
@@ -78,7 +78,7 @@ export default function StarsSection({ featuredStudents }) {
                                 <div className="relative mb-6 group">
                                     <div className="absolute inset-0 rounded-full bg-[#EAB308] opacity-50 blur-md group-hover:blur-2xl transition-all duration-300 transform scale-110"></div>
                                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FDE047] to-[#CA8A04] p-1.5">
-                                        <div className="bg-white rounded-full w-full h-full p-1">
+                                        <div className="bg-white dark:bg-slate-900 rounded-full w-full h-full p-1">
                                             {studentImage ? (
                                                 <img
                                                     src={getImageUrl(studentImage)}
@@ -99,13 +99,13 @@ export default function StarsSection({ featuredStudents }) {
                                     <div className="w-40 h-40 sm:w-48 sm:h-48 invisible"></div>
                                 </div>
 
-                                <h3 className="text-xl font-bold text-slate-900 mb-2">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                                     {studentName}
                                 </h3>
 
                                 <div className="flex items-center gap-1">
                                     {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className="w-5 h-5 fill-[#735C00] text-[#735C00]" />
+                                        <Star key={i} className="w-5 h-5 fill-[#735C00] text-[#735C00] dark:fill-amber-400 dark:text-amber-400" />
                                     ))}
                                 </div>
                             </motion.div>

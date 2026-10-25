@@ -16,13 +16,15 @@ export default function EliteTeachersSection({
         <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
           {t('adminDashboard.website.eliteTeachersTitle', isRtl ? 'افضل المعلمين' : 'Elite Teachers')}
         </h2>
-        <Button
-          onClick={handleOpenAddTeacher}
-          className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
-        >
-          <Plus size={16} />
-          <span>{t('adminDashboard.website.addTeacher', isRtl ? 'إضافة معلم' : 'Add Teacher')}</span>
-        </Button>
+        {handleOpenAddTeacher && (
+          <Button
+            onClick={handleOpenAddTeacher}
+            className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm"
+          >
+            <Plus size={16} />
+            <span>{t('adminDashboard.website.addTeacher', isRtl ? 'إضافة معلم' : 'Add Teacher')}</span>
+          </Button>
+        )}
       </div>
 
       <div className="space-y-4 sm:space-y-6">
@@ -67,15 +69,17 @@ export default function EliteTeachersSection({
 
                   </div>
 
-                  <div className="flex items-center gap-2 mt-4 xl:mt-0 w-full xl:w-auto justify-center sm:justify-end border-t xl:border-t-0 border-slate-100 dark:border-slate-800 pt-4 xl:pt-0">
-                    <button
-                      onClick={() => handleDeleteTeacher(teacher)}
-                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
+                  {handleDeleteTeacher && (
+                    <div className="flex items-center gap-2 mt-4 xl:mt-0 w-full xl:w-auto justify-center sm:justify-end border-t xl:border-t-0 border-slate-100 dark:border-slate-800 pt-4 xl:pt-0">
+                      <button
+                        onClick={() => handleDeleteTeacher(teacher)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                        title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

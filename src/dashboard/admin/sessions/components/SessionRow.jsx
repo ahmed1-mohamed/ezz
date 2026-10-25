@@ -2,6 +2,7 @@ import { RefreshCw, UserX, X, Users, Clock, Video } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import ReschedulePanel from './ReschedulePanel'
 import ChangeTeacherPanel from './ChangeTeacherPanel'
+import { formatTime12h } from '@/shared/services/api/adminSessionsApi'
 
 const safeText = (val, fallback = '') => {
   if (val === null || val === undefined) return fallback;
@@ -34,14 +35,12 @@ export default function SessionRow({
   const teacherContact = safeText(session.teacherPhone || session.teacherEmail)
   const date = safeText(session.date, '-')
   const day = safeText(session.day)
-  const time = safeText(session.time, '-')
+  const time = formatTime12h(session.time || session.startTime, true)
   const studentsCount = Number(session.studentsCount) || 0
 
   return (
     <div className="group">
-      {/* Desktop Table Row */}
       <div className="hidden md:grid grid-cols-[2.5fr_1.8fr_1.3fr_1.4fr_0.9fr_1.1fr_2.2fr] gap-3 items-center px-5 py-4 hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
-        {/* 1. Group & Session Title */}
         <div className="flex items-start gap-2.5 min-w-0 text-start">
           <span className="w-2.5 h-2.5 rounded-full bg-brand-500 shrink-0 mt-1.5" />
           <div className="min-w-0">
@@ -66,7 +65,6 @@ export default function SessionRow({
           </div>
         </div>
 
-        {/* 2. Teacher */}
         <div className="text-start min-w-0">
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
             {teacher}
@@ -78,7 +76,6 @@ export default function SessionRow({
           )}
         </div>
 
-        {/* 3. Date & Day */}
         <div className="text-start">
           <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {date}
@@ -90,7 +87,6 @@ export default function SessionRow({
           )}
         </div>
 
-        {/* 4. Time & Duration */}
         <div className="text-start">
           <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
             <Clock size={13} className="text-slate-400 shrink-0" />
@@ -106,18 +102,15 @@ export default function SessionRow({
           )}
         </div>
 
-        {/* 5. Students Count */}
         <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <Users size={14} className="text-slate-400" />
           <span>{studentsCount}</span>
         </div>
 
-        {/* 6. Status */}
         <div className="flex justify-center">
           <StatusBadge status={session.status} />
         </div>
 
-        {/* 7. Actions */}
         <div className="flex items-center justify-end gap-1.5 flex-wrap">
           {session.zoomJoinUrl && !isCancelled && (
             <a
@@ -174,7 +167,6 @@ export default function SessionRow({
         </div>
       </div>
 
-      {/* Mobile Card View */}
       <div className="md:hidden flex flex-col gap-3 px-4 py-4 border-b border-slate-100 dark:border-slate-800 text-start">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
@@ -259,7 +251,6 @@ export default function SessionRow({
         </div>
       </div>
 
-      {/* Expandable Panels */}
       {isExpanded && expandedPanel === 'reschedule' && (
         <ReschedulePanel
           session={session}

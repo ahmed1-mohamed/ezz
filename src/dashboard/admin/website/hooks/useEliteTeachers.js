@@ -105,7 +105,7 @@ export const collectAllTeacherIds = (obj) => {
   return ids;
 };
 
-export default function useEliteTeachers(showNotification) {
+export default function useEliteTeachers(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
@@ -122,15 +122,19 @@ export default function useEliteTeachers(showNotification) {
     image: ''
   });
   const [systemTeachers, setSystemTeachers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const [eliteRes, sysRes] = await Promise.all([
         landingApi.fetchEliteTeachers().catch(() => []),
-        landingApi.fetchSystemTeachers().catch(() => [])
+        landingApi.fetchSystemTeachers().catch(() => teachersApi.fetchTeachers({ limit: 100 }).catch(() => []))
       ]);
 
       const eliteData = eliteRes?.data || eliteRes;
@@ -138,25 +142,39 @@ export default function useEliteTeachers(showNotification) {
       const mappedList = eliteList.map(mapEliteTeacher).filter(Boolean);
       setEliteTeachers(mappedList);
 
-      const sysData = sysRes?.data || sysRes;
-      const sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      let sysData = sysRes?.data || sysRes;
+      let sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      if (sysList.length === 0) {
+        const fb = await teachersApi.fetchTeachers({ limit: 100 }).catch(() => []);
+        sysData = fb?.data || fb;
+        sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      }
       setSystemTeachers(sysList);
     } catch (err) {
       console.warn('Failed to fetch elite teachers data:', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (enabled) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [loadData, enabled]);
 
   const handleOpenAddTeacher = async () => {
     try {
-      const sysRes = await landingApi.fetchSystemTeachers().catch(() => []);
-      const sysData = sysRes?.data || sysRes;
-      const sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      let sysRes = await landingApi.fetchSystemTeachers().catch(() => []);
+      let sysData = sysRes?.data || sysRes;
+      let sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      if (sysList.length === 0) {
+        const fb = await teachersApi.fetchTeachers({ limit: 100 }).catch(() => []);
+        sysData = fb?.data || fb;
+        sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
+      }
       if (sysList.length > 0) setSystemTeachers(sysList);
     } catch (e) {
       console.warn(e);

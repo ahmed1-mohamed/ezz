@@ -24,6 +24,10 @@ export default defineConfig(({ mode }) => ({
       drop: mode === 'production' ? ['console', 'debugger'] : [],
     },
     rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'INVALID_ANNOTATION' || warning.code === 'UNUSED_EXTERNAL_IMPORT') return
+        warn(warning)
+      },
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {

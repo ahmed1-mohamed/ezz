@@ -12,15 +12,8 @@ const WEEK_DAYS = [
   { key: 'saturday', ar: 'السبت', en: 'Saturday' },
 ]
 
-const TIME_OPTIONS = [
-  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-  '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-  '20:00', '20:30', '21:00', '21:30', '22:00',
-]
-
 export default function GroupScheduleCard({
-  schedule,
+  schedule = [],
   newDay,
   setNewDay,
   newTimeFrom,
@@ -35,12 +28,17 @@ export default function GroupScheduleCard({
 }) {
   const getDayLabel = (dayKey) => {
     if (!dayKey) return ''
-    const normalized = dayKey.toString().trim().toLowerCase()
+    if (typeof dayKey === 'object') {
+      const loc = isRtl ? (dayKey.ar || dayKey.en) : (dayKey.en || dayKey.ar)
+      if (loc) return loc
+      dayKey = dayKey.key || dayKey.value || ''
+    }
+    const normalized = String(dayKey).trim().toLowerCase()
     const found = WEEK_DAYS.find((d) => d.key === normalized || d.ar === dayKey || d.en.toLowerCase() === normalized)
     if (found) {
       return t ? t(`schedule.${found.key}`, isRtl ? found.ar : found.en) : (isRtl ? found.ar : found.en)
     }
-    return dayKey
+    return String(dayKey)
   }
 
   const localizedWeekDays = useMemo(() => {
@@ -49,6 +47,8 @@ export default function GroupScheduleCard({
       label: t ? t(`schedule.${d.key}`, isRtl ? d.ar : d.en) : (isRtl ? d.ar : d.en),
     }))
   }, [t, isRtl])
+
+  const safeSchedule = Array.isArray(schedule) ? schedule.filter(Boolean) : []
 
   return (
     <div className={`bg-white dark:bg-slate-900 rounded-3xl border ${error ? 'border-red-300 dark:border-red-900/60 ring-2 ring-red-500/10' : 'border-slate-100 dark:border-slate-800/80'} p-6 shadow-soft space-y-5`}>
@@ -80,10 +80,11 @@ export default function GroupScheduleCard({
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.timeFromLabel', 'أختر الساعة من')}
           </label>
-          <DaySelect
-            value={newTimeFrom}
-            onChange={setNewTimeFrom}
-            options={TIME_OPTIONS}
+          <input
+            type="time"
+            value={newTimeFrom || '16:00'}
+            onChange={(e) => setNewTimeFrom(e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 rounded-2xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 outline-none transition-all text-start"
           />
         </div>
 
@@ -91,10 +92,11 @@ export default function GroupScheduleCard({
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.timeToLabel', 'أختر الساعة إلى')}
           </label>
-          <DaySelect
-            value={newTimeTo}
-            onChange={setNewTimeTo}
-            options={TIME_OPTIONS}
+          <input
+            type="time"
+            value={newTimeTo || '17:30'}
+            onChange={(e) => setNewTimeTo(e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 rounded-2xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 outline-none transition-all text-start"
           />
         </div>
       </div>
@@ -110,7 +112,7 @@ export default function GroupScheduleCard({
         </button>
       </div>
 
-      {schedule.length > 0 && (
+      {safeSchedule.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
           <table className="w-full text-sm">
             <thead className="bg-brand-600 text-white">
@@ -121,12 +123,15 @@ export default function GroupScheduleCard({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {schedule.map((slot, index) => {
-                const startTime = slot.startTime || slot.timeFrom || ''
-                const endTime = slot.endTime || slot.timeTo || ''
+              {safeSchedule.map((slot, index) => {
+                const startTime = typeof slot.startTime === 'string' ? slot.startTime : (slot.timeFrom || '')
+                const endTime = typeof slot.endTime === 'string' ? slot.endTime : (slot.timeTo || '')
+                const slotKey = typeof slot.day === 'object' && slot.day !== null
+                  ? (slot.day.key || slot.day.en || slot.day.ar || index)
+                  : String(slot.day || index)
 
                 return (
-                  <tr key={`${slot.day}-${index}`} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
+                  <tr key={`${slotKey}-${index}`} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
                     <td className="px-5 py-3 text-start font-medium text-slate-700 dark:text-slate-300">
                       {getDayLabel(slot.day)}
                     </td>
@@ -151,7 +156,7 @@ export default function GroupScheduleCard({
         </div>
       )}
 
-      {schedule.length === 0 && (
+      {safeSchedule.length === 0 && (
         <div className="flex flex-col items-center justify-center py-8 text-slate-400 dark:text-slate-500 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
           <Calendar size={28} className="mb-2 opacity-40" />
           <p className="text-sm font-medium">{t('adminDashboard.groups.noScheduleMessage', 'لم يتم إضافة أي مواعيد بعد')}</p>

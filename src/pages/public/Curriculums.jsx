@@ -26,10 +26,10 @@ export default React.memo(function Curriculums() {
     const isRtl = i18n.language === 'ar'
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-20">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
 
-                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
+                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white dark:bg-slate-900/90 dark:border-slate-800 p-6 sm:p-12 lg:p-16 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
                         <motion.div
                             variants={containerVariants}
@@ -42,13 +42,13 @@ export default React.memo(function Curriculums() {
                             </motion.div>
 
                             <motion.div variants={itemVariants} className="space-y-4">
-                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.4] py-2 text-transparent overflow-visible">
+                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] dark:from-emerald-400 dark:to-emerald-600 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.4] py-2 text-transparent overflow-visible">
                                     <span className="block">{t('curriculum.titleLine1', 'مناهج تعليمية')}</span>
                                     <span className="block pt-2">{t('curriculum.titleLine2', 'تنير البصيرة وتسمو بالروح')}</span>
                                 </h1>
                             </motion.div>
 
-                            <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl font-medium">
+                            <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl font-medium">
                                 {t('curriculum.description', 'نقدم محتوى تعليمي متخصص مصمم بأحدث الأساليب التربوية لغرس القيم وبناء جيل متسلح بالعلم والإيمان')}
                             </motion.p>
                         </motion.div>
@@ -60,11 +60,11 @@ export default React.memo(function Curriculums() {
                             className="order-1 lg:order-2 flex justify-center flex-1"
                         >
                             <div className="relative w-full max-w-lg">
-                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-[#FEF6E0] blur-3xl mix-blend-multiply" />
+                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-[#FEF6E0] dark:bg-[#00695C]/20 blur-3xl mix-blend-multiply dark:mix-blend-screen" />
                                 <motion.div
                                     animate={{ y: [0, -15, 0] }}
                                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl"
+                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white dark:border-slate-800 dark:bg-slate-900 shadow-2xl"
                                 >
                                     <img src={imageSrc} alt="Curriculums" className="w-full h-64 sm:h-80 lg:h-[400px] object-cover" />
                                 </motion.div>

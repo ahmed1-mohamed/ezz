@@ -60,11 +60,16 @@ const ManagerReports = lazy(() => import('../dashboard/manager/reports/ManagerRe
 const TeacherLayout = lazy(() => import('../layouts/TeacherLayout.jsx'))
 const TeacherDashboard = lazy(() => import('../dashboard/teacher/overview/TeacherDashboard.jsx'))
 const TeacherSchedule = lazy(() => import('../dashboard/teacher/schedules/TeacherSchedule.jsx'))
+const TeacherSessions = lazy(() => import('../dashboard/teacher/sessions/TeacherSessions.jsx'))
  const TeacherCourses = lazy(() => import('../dashboard/teacher/students/TeacherCourses.jsx'))
 const TeacherGroups = lazy(() => import('../dashboard/teacher/groups/TeacherGroups.jsx'))
 const TeacherGroupDetails = lazy(() => import('../dashboard/teacher/groups/TeacherGroupDetails.jsx'))
 const TeacherComplaints = lazy(() => import('../dashboard/teacher/complaints/TeacherComplaints.jsx'))
 const TeacherRewards = lazy(() => import('../dashboard/teacher/rewards/TeacherRewards.jsx'))
+const TeacherEvaluations = lazy(() => import('../dashboard/teacher/student_evaluations/TeacherEvaluations.jsx'))
+const CreateHomework = lazy(() => import('../dashboard/teacher/homework/CreateHomework.jsx'))
+const HomeworkSubmissions = lazy(() => import('../dashboard/teacher/homework/HomeworkSubmissions.jsx'))
+const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 
 const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
@@ -270,7 +275,7 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/reports"
-                                        element={<AdminReports />}
+                                        element={<PermissionRoute superAdminOnly><AdminReports /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/settings"
@@ -323,11 +328,11 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/earnings"
-                                        element={<AdminEarnings />}
+                                        element={<PermissionRoute superAdminOnly><AdminEarnings /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/payments"
-                                        element={<AdminPayments />}
+                                        element={<PermissionRoute superAdminOnly><AdminPayments /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/rewards"
@@ -394,6 +399,10 @@ export default function AppRoutes() {
                                         element={<TeacherSchedule />}
                                     />
                                     <Route
+                                        path="/dashboard/teacher/sessions"
+                                        element={<TeacherSessions />}
+                                    />
+                                    <Route
                                         path="/dashboard/teacher/classes"
                                         element={<TeacherGroups />}
                                     />
@@ -413,6 +422,38 @@ export default function AppRoutes() {
                                         path="/dashboard/teacher/rewards"
                                         element={<TeacherRewards />}
                                     />
+                                    <Route
+                                         path="/dashboard/teacher/evaluations"
+                                         element={<TeacherEvaluations />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/student-evaluations"
+                                         element={<TeacherEvaluations />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/assignments/create"
+                                         element={<CreateHomework />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/assignments/submissions"
+                                         element={<HomeworkSubmissions />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/homework/create"
+                                         element={<CreateHomework />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/homework/submissions"
+                                         element={<HomeworkSubmissions />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/profile"
+                                         element={<TeacherProfileSettings />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/settings"
+                                         element={<TeacherProfileSettings />}
+                                     />
                                 </Route>
                             </Route>
 

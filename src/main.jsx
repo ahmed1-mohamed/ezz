@@ -16,7 +16,13 @@ const queryClient = new QueryClient({
       gcTime: 15 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      retry: 1,
+      retry: (failureCount, error) => {
+        const status = error?.response?.status;
+        if (status === 429 || status === 401 || status === 403 || status === 404) {
+          return false;
+        }
+        return failureCount < 1;
+      },
     },
   },
 })

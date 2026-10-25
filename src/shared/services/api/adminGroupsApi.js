@@ -91,14 +91,34 @@ export const adminGroupsApi = {
   changeTeacher: async (groupId, payload) => {
     const teacherId = typeof payload === 'string'
       ? payload
-      : (payload?.teacher || payload?.teacherId || payload?.id || payload?._id);
+      : (payload?.teacher || payload?.teacherId || payload?.newTeacherId || payload?.newTeacher || payload?.id || payload?._id);
+
+    const teacherName = typeof payload === 'object' && payload !== null
+      ? (payload.name || payload.teacherName || '')
+      : '';
 
     const body = {
       teacher: teacherId,
+      teacherId,
+      newTeacher: teacherId,
+      newTeacherId: teacherId,
+      ...(teacherName ? { name: teacherName, teacherName } : {}),
+      ...(payload?.email ? { email: payload.email } : {}),
+      ...(payload?.phone ? { phone: payload.phone } : {}),
     };
 
-    const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, body);
-    return response.data;
+    try {
+      const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, body);
+      return response.data;
+    } catch {
+      try {
+        const putRes = await api.put(`/api/v1/groups/private/${groupId}/change-teacher`, body);
+        return putRes.data;
+      } catch {
+        const directRes = await api.patch(`/api/v1/groups/private/${groupId}`, body);
+        return directRes.data;
+      }
+    }
   },
 
   updateGroupSchedule: async (groupId, payload) => {
@@ -125,11 +145,6 @@ export const adminGroupsApi = {
     }
   },
 
-  /**
-   * PATCH /api/v1/groups/private/{id}/status
-   * Updates group status (active, suspended, completed).
-   * Body: { "status": "active" }
-   */
   updateGroupStatus: async (groupId, statusOrPayload) => {
     let rawStatus = typeof statusOrPayload === 'string'
       ? statusOrPayload
@@ -152,12 +167,6 @@ export const adminGroupsApi = {
     }
   },
 
-  /**
-   * POST /api/v1/groups/private/{id}/students/transfer
-   * PATCH /api/v1/groups/private/{id}/students/transfer
-   * Transfers a student from one group to a target group.
-   * Body: { "student": "...", "targetGroup": "..." }
-   */
   transferStudent: async (groupId, payload) => {
     const studentId = typeof payload === 'string'
       ? payload

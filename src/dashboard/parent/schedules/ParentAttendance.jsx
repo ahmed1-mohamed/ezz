@@ -57,7 +57,6 @@ export default function ParentAttendance() {
                     const daysInMonth = new Date(year, month, 0).getDate();
                     const rawRecords = res?.success && Array.isArray(res.data) ? res.data : [];
 
-                    // Map days 1..35
                     const mappedDays = Array(35).fill('none').map((_, idx) => {
                         const dayNum = idx + 1;
                         if (dayNum > daysInMonth) return 'none';

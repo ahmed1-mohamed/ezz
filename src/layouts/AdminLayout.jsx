@@ -61,8 +61,8 @@ const NAV_ITEMS = [
     transKey: 'packages',
     permissions: ['packages_faqs.read', 'packages.read', 'faqs.read'],
   },
-  { path: '/dashboard/admin/payments', icon: CreditCard, transKey: 'payments' },
-  { path: '/dashboard/admin/earnings', icon: TrendingUp, transKey: 'earnings' },
+  { path: '/dashboard/admin/payments', icon: CreditCard, transKey: 'payments', superAdminOnly: true },
+  { path: '/dashboard/admin/earnings', icon: TrendingUp, transKey: 'earnings', superAdminOnly: true },
   {
     path: '/dashboard/admin/rewards',
     icon: Gift,
@@ -71,7 +71,7 @@ const NAV_ITEMS = [
   },
   { path: '/dashboard/admin/curriculums', icon: BookMarked, transKey: 'curriculums', permission: 'curricula.read' },
   { path: '/dashboard/admin/coupons', icon: Percent, transKey: 'discountCodes', permission: 'coupons.read' },
-  { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports' },
+  { path: '/dashboard/admin/reports', icon: BarChart2, transKey: 'reports', superAdminOnly: true },
   { path: '/dashboard/admin/logs', icon: Activity, transKey: 'activities', permission: 'logs.read' },
   { path: '/dashboard/admin/messages', icon: MessageSquare, transKey: 'messages', permission: 'messages.read' },
   { path: '/dashboard/admin/complaints', icon: MessageSquareWarning, transKey: 'complaints', permission: 'complaints_suggestions.read' },
@@ -138,6 +138,7 @@ export default memo(function AdminLayout() {
   const accessibleNavItems = useMemo(() => {
     if (isSuperAdmin) return NAV_ITEMS
     return NAV_ITEMS.filter((item) => {
+      if (item.superAdminOnly) return false
       if (!item.permission && !item.permissions) return true
       if (item.permission) return hasPermission(item.permission)
       if (item.permissions) return hasAnyPermission(item.permissions)

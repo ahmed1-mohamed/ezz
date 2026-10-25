@@ -11,9 +11,9 @@ export default React.memo(function AboutFeatures() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
             <div className="text-center mb-16">
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] inline-block relative">
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] dark:text-white inline-block relative">
                     {t('about.features.title', 'لماذا يختارنا الأهالي ؟')}
-                    <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-1.5 bg-[#735C00] rounded-full"></span>
+                    <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-1.5 bg-[#735C00] dark:bg-amber-500 rounded-full"></span>
                 </h2>
             </div>
 
@@ -24,17 +24,17 @@ export default React.memo(function AboutFeatures() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4 }}
-                    className="lg:col-span-8 bg-white rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-8 shadow-sm border border-slate-100/50"
+                    className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-8 shadow-sm border border-slate-100/50 dark:border-slate-800"
                 >
                     <div className="flex-1 space-y-4 text-start">
-                        <h3 className="text-2xl font-bold text-[#00695C]">
+                        <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400">
                             {t('about.features.f1.title', 'تمكين المتعلمين')}
                         </h3>
-                        <p className="text-slate-600 font-medium leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
                             {t('about.features.f1.desc', 'هدفنا ليس مجرد التلقين، بل تمكين كل متعلم من الأدوات التي تساعده على فهم معاني القرآن وتذوق جماله، ليصبح قادراً على التعبير عن هذه اللغة العظيمة ونشر رسالتها في مختلف أنحاء العالم، ونسعى إلى غرس حب التعلم والتدبر ليكون القرآن نوراً يهديه في حياته اليومية.')}
                         </p>
                     </div>
-                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0">
+                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800">
                         <img
                             src={imagesrc}
                             alt="Students"
@@ -72,9 +72,9 @@ export default React.memo(function AboutFeatures() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4 }}
-                    className="lg:col-span-8 bg-white rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-8 shadow-sm border border-slate-100/50"
+                    className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-8 shadow-sm border border-slate-100/50 dark:border-slate-800"
                 >
-                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0">
+                    <div className="w-full sm:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800">
                         <img
                             src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=400&auto=format&fit=crop"
                             alt="Books"
@@ -86,10 +86,10 @@ export default React.memo(function AboutFeatures() {
                         />
                     </div>
                     <div className="flex-1 space-y-4 text-start">
-                        <h3 className="text-2xl font-bold text-[#00695C]">
+                        <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400">
                             {t('about.features.f4.title', 'التميز الأكاديمي')}
                         </h3>
-                        <p className="text-slate-600 font-medium leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
                             {t('about.features.f4.desc', 'تعتمد أكاديميتنا على مناهج تم اختيارها بعناية من كبار العلماء والتربويين، لضمان توازن دقيق بين الحفظ والفهم، وبين القواعد والتطبيق العملي، مما يخلق بيئة تعليمية متكاملة.')}
                         </p>
                     </div>
@@ -100,7 +100,7 @@ export default React.memo(function AboutFeatures() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: 0.1 }}
-                    className="lg:col-span-4 bg-[#00695C] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-sm"
+                    className="lg:col-span-4 bg-[#00695C] dark:bg-[#005247] rounded-[2rem] p-8 flex flex-col justify-center space-y-6 shadow-sm border border-transparent dark:border-emerald-700/30"
                 >
                     <div className="w-14 h-14 border-2 border-white/20 flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm text-white">
                         <BookOpen className="w-7 h-7" />
@@ -117,4 +117,4 @@ export default React.memo(function AboutFeatures() {
             </div>
         </section>
     )
-})
+})

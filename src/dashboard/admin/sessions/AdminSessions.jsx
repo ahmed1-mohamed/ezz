@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Calendar, ChevronLeft, ChevronRight, Loader2, X } from 'lucide-react'
+import { Search, Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import Spinner from '@/shared/components/Spinner'
@@ -35,7 +35,6 @@ export default function AdminSessions() {
 
   const itemsPerPage = 10
 
-  // Search debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery)
@@ -44,7 +43,6 @@ export default function AdminSessions() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  // Load teachers for the ChangeTeacherPanel
   useEffect(() => {
     let active = true
     const loadTeachers = async () => {
@@ -75,7 +73,6 @@ export default function AdminSessions() {
     return () => { active = false }
   }, [isRtl])
 
-  // Load sessions from API /api/v1/sessions/private
   const loadSessions = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -116,7 +113,6 @@ export default function AdminSessions() {
     loadSessions()
   }, [loadSessions])
 
-  // Statistics calculation
   const stats = useMemo(() => {
     const list = Array.isArray(sessions) ? sessions : []
     return {
@@ -266,7 +262,6 @@ export default function AdminSessions() {
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft overflow-hidden">
-        {/* Search Bar */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
           <div className="relative max-w-md mx-auto">
             <Search size={16} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
@@ -289,7 +284,6 @@ export default function AdminSessions() {
           </div>
         </div>
 
-        {/* Status Tabs */}
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
           {STATUS_TABS.map((tab) => (
             <button
@@ -306,7 +300,6 @@ export default function AdminSessions() {
           ))}
         </div>
 
-        {/* Correctly Ordered Table Headers */}
         <div className="hidden md:grid grid-cols-[2.5fr_1.8fr_1.3fr_1.4fr_0.9fr_1.1fr_2.2fr] gap-3 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-xs font-bold text-slate-500 dark:text-slate-400">
           <span className="text-start">{t('adminDashboard.sessions.headers.group', 'المجموعة والحصة')}</span>
           <span className="text-start">{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
@@ -317,7 +310,6 @@ export default function AdminSessions() {
           <span className="text-end">{t('adminDashboard.sessions.headers.actions', 'الإجراءات')}</span>
         </div>
 
-        {/* Sessions List */}
         <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
           {sessions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
@@ -342,7 +334,6 @@ export default function AdminSessions() {
           )}
         </div>
 
-        {/* Pagination Footer */}
         <div
           className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${
             isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''

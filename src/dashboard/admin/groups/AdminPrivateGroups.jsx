@@ -17,7 +17,6 @@ import { getLocalizedValue } from './utils/groupUtils'
 import GroupCard from './components/GroupCard'
 import GroupDetailsModal from './components/GroupDetailsModal'
 
-/** Map each tab key to the API fetcher that serves it */
 const TAB_API_MAP = {
   all: (params) => adminGroupsApi.fetchLocalizedGroups(params),
   pending: (params) => adminGroupsApi.fetchLocalizedPendingGroups(params),
@@ -32,7 +31,6 @@ export default function AdminPrivateGroups() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
-  /* ── view state ── */
   const [viewMode, setViewMode] = useState('list')
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [showStudentsModal, setShowStudentsModal] = useState(false)
@@ -40,20 +38,17 @@ export default function AdminPrivateGroups() {
   const [showChangeTeacherModal, setShowChangeTeacherModal] = useState(false)
   const [groupForTeacherChange, setGroupForTeacherChange] = useState(null)
 
-  /* ── data state ── */
   const [groups, setGroups] = useState([])
   const [statistics, setStatistics] = useState(null)
   const [pagination, setPagination] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  /* ── filter state ── */
   const [activeTab, setActiveTab] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  /** Status tabs config */
   const STATUS_TABS = useMemo(() => [
     { key: 'all', label: t('adminDashboard.privateGroups.tabs.all', 'الكل') },
     { key: 'pending', label: t('adminDashboard.privateGroups.tabs.pending', 'قيد الانتظار') },
@@ -62,14 +57,12 @@ export default function AdminPrivateGroups() {
     { key: 'completed', label: t('adminDashboard.privateGroups.tabs.completed', 'مكتملة') },
   ], [t])
 
-  /** Type filter labels */
   const TYPE_LABELS = useMemo(() => ({
     all: t('adminDashboard.privateGroups.typeAll', 'الكل'),
     public: t('adminDashboard.groups.typePublic', 'عامة'),
     private: t('adminDashboard.groups.typePrivate', 'خاصة'),
   }), [t])
 
-  /* ── Load groups ── */
   const loadGroups = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -99,7 +92,6 @@ export default function AdminPrivateGroups() {
     loadGroups()
   }, [loadGroups])
 
-  /* ── Derived values ── */
   const totalCount = pagination?.totalCount ?? groups.length
   const totalPages = pagination?.numberOfPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage))
   const isPaginationDimmed = totalPages <= 1
@@ -114,7 +106,6 @@ export default function AdminPrivateGroups() {
     completed: statistics?.completed ?? 0,
   }), [statistics, totalCount])
 
-  /* ── Tab / filter helpers ── */
   const handleTabChange = useCallback((tabKey) => {
     setActiveTab(tabKey)
     setCurrentPage(1)
@@ -125,7 +116,6 @@ export default function AdminPrivateGroups() {
     setCurrentPage(1)
   }, [])
 
-  /* ── CRUD handlers ── */
   const handleSaveGroup = async (formData) => {
     setIsLoading(true)
     try {
@@ -179,13 +169,23 @@ export default function AdminPrivateGroups() {
 
   const handleEditGroup = async (group) => {
     setIsLoading(true)
+    const groupId = group.id || group._id
     try {
-      const res = await adminGroupsApi.fetchGroupByIdRaw(group.id)
+      const res = await adminGroupsApi.fetchGroupByIdRaw(groupId)
       const data = res?.data || res
-      setSelectedGroup((data && (data.id || data.name)) ? data : group)
+      if (data && (data.id || data._id || data.name)) {
+        setSelectedGroup({
+          ...group,
+          ...data,
+          id: data.id || data._id || groupId,
+          _id: data._id || data.id || groupId,
+        })
+      } else {
+        setSelectedGroup({ ...group, id: groupId, _id: groupId })
+      }
     } catch (err) {
       console.warn('Error fetching raw group for edit, using card data:', err)
-      setSelectedGroup(group)
+      setSelectedGroup({ ...group, id: groupId, _id: groupId })
     } finally {
       setIsLoading(false)
       setViewMode('edit-group')
@@ -315,7 +315,6 @@ export default function AdminPrivateGroups() {
     }
   }
 
-  /* ── Render: Add/Edit screen ── */
   if (viewMode === 'add-group' || viewMode === 'edit-group') {
     return (
       <AddEditGroupScreen
@@ -332,7 +331,6 @@ export default function AdminPrivateGroups() {
     )
   }
 
-  /* ── Render: List ── */
   return (
     <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && (
@@ -341,7 +339,6 @@ export default function AdminPrivateGroups() {
         </div>
       )}
 
-      {/* Page header */}
       <div className="text-start">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
           {t('adminDashboard.privateGroups.title', 'المجموعات الدراسية')}
@@ -351,7 +348,6 @@ export default function AdminPrivateGroups() {
         </p>
       </div>
 
-      {/* Statistics cards — clickable tabs */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
           { label: t('adminDashboard.privateGroups.tabs.all', 'الكل'), value: metrics.total, cls: 'text-slate-700 dark:text-slate-200', tab: 'all' },
@@ -376,12 +372,9 @@ export default function AdminPrivateGroups() {
         ))}
       </div>
 
-      {/* Toolbar */}
       <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
-        {/* Row 1: Add + type filter + search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Add group */}
             <button
               onClick={() => {
                 setSelectedGroup(null)
@@ -393,7 +386,6 @@ export default function AdminPrivateGroups() {
               <span>{t('adminDashboard.groups.addGroup', 'إضافة مجموعة')}</span>
             </button>
 
-            {/* Type filter: الكل / عامة / خاصة */}
             <div className="flex items-center gap-1.5 flex-wrap">
               {TYPE_FILTER_VALUES.map((typeVal) => (
                 <button
@@ -411,7 +403,6 @@ export default function AdminPrivateGroups() {
             </div>
           </div>
 
-          {/* Search */}
           <div className="relative w-full sm:w-64">
             <Search
               size={16}
@@ -430,7 +421,6 @@ export default function AdminPrivateGroups() {
           </div>
         </div>
 
-        {/* Row 2: Status tabs */}
         <div className="flex items-center gap-1.5 flex-wrap border-t border-slate-100 dark:border-slate-800 pt-3">
           {STATUS_TABS.map((tab) => (
             <button
@@ -448,7 +438,6 @@ export default function AdminPrivateGroups() {
         </div>
       </div>
 
-      {/* Group cards grid */}
       {groups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60">
           <Layers size={48} strokeWidth={1.5} />
@@ -471,7 +460,6 @@ export default function AdminPrivateGroups() {
         </div>
       )}
 
-      {/* Pagination */}
       <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${
           isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
@@ -524,7 +512,6 @@ export default function AdminPrivateGroups() {
         </div>
       </div>
 
-      {/* Modals */}
       {showStudentsModal && selectedGroup && (
         <GroupDetailsModal
           group={selectedGroup}

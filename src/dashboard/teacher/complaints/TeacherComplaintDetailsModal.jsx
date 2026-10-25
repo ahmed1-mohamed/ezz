@@ -14,7 +14,6 @@ import {
   MessageSquare,
 } from 'lucide-react';
 
-
 function formatDate(isoString, isRtl) {
   if (!isoString) return '—';
   const d = new Date(isoString);
@@ -124,7 +123,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
         className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200"
         dir={isRtl ? 'rtl' : 'ltr'}
       >
-        {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-2xl border ${typeMeta.bg} ${typeMeta.color}`}>
@@ -154,9 +152,7 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
           </button>
         </div>
 
-        {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6">
-          {/* Title & Created At */}
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               {item.title}
@@ -169,7 +165,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             )}
           </div>
 
-          {/* Details Content */}
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 space-y-2">
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
               {t('teacher.complaintDetails', 'التفاصيل')}:
@@ -179,7 +174,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             </p>
           </div>
 
-          {/* Reschedule Details Card */}
           {isReschedule && (
             <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 space-y-3">
               <div className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
@@ -213,7 +207,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                 )}
               </div>
 
-              {/* Proposed Timing */}
               <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 space-y-1 text-xs">
                 <div className="font-bold text-amber-900 dark:text-amber-200">
                   الموعد الجديد المقترح:
@@ -236,7 +229,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             </div>
           )}
 
-          {/* Admin Response / Notes */}
           {item.notes && (
             <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-900/40 space-y-2">
               <div className="text-xs font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5">
@@ -249,7 +241,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             </div>
           )}
 
-          {/* Attachments */}
           {attachments.length > 0 && (
             <div className="space-y-2">
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
@@ -277,7 +268,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
           )}
         </div>
 
-        {/* Modal Footer */}
         <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button
             onClick={onClose}

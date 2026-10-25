@@ -31,7 +31,7 @@ export default React.memo(function JourneySteps() {
     ];
 
     return (
-        <section className="relative overflow-hidden bg-[#F4FAF8] py-24">
+        <section className="relative overflow-hidden bg-[#F4FAF8] dark:bg-slate-900/40 py-24">
             <div className="relative max-w-7xl mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 35 }}
@@ -40,15 +40,15 @@ export default React.memo(function JourneySteps() {
                     viewport={{ once: true }}
                     className="text-center mb-24"
                 >
-                    <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 text-[#0F7A6C] text-sm font-bold mb-5">
+                    <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 dark:bg-[#0F7A6C]/25 text-[#0F7A6C] dark:text-emerald-400 text-sm font-bold mb-5">
                         {t('journey.badge', 'كيف نبدأ؟')}
                     </span>
 
-                    <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] leading-tight">
+                    <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] dark:text-white leading-tight">
                         {t('journey.title', 'خطوات بسيطة لبدء رحلتك التعليمية')}
                     </h2>
 
-                    <p className="mt-5 text-[#6B7280] text-lg max-w-2xl mx-auto">
+                    <p className="mt-5 text-[#6B7280] dark:text-slate-300 text-lg max-w-2xl mx-auto">
                         {t('journey.description', 'نرافقك خطوة بخطوة في رحلتك التعليمية معنا.')}
                     </p>
                 </motion.div>
@@ -74,7 +74,7 @@ export default React.memo(function JourneySteps() {
                                 strokeDasharray="10 12"
                                 strokeLinecap="round"
                                 fill="none"
-                                className="animate-pulse"
+                                className="animate-pulse opacity-60 dark:opacity-80"
                             />
                         </svg>
                     </div>
@@ -107,26 +107,26 @@ export default React.memo(function JourneySteps() {
                                     }}
                                     className="absolute -top-5 end-[35%] md:end-[30%] z-20"
                                 >
-                                    <div className="w-14 h-14 rounded-full bg-[#8B6B00] shadow-md flex items-center justify-center border-4 border-white">
+                                    <div className="w-14 h-14 rounded-full bg-[#8B6B00] shadow-md flex items-center justify-center border-4 border-white dark:border-slate-800">
                                         <Icon className="w-6 h-6 text-white" />
                                     </div>
                                 </motion.div>
 
                                 <motion.div
                                     whileHover={{ scale: 1.08 }}
-                                    className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] shadow-sm flex items-center justify-center"
+                                    className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] dark:bg-slate-800 shadow-sm flex items-center justify-center"
                                 >
-                                    <span className="text-4xl font-black text-[#005F54]">
+                                    <span className="text-4xl font-black text-[#005F54] dark:text-emerald-400">
                                         {step.id}
                                     </span>
                                 </motion.div>
 
                                 <div className="mt-10">
-                                    <h3 className="text-2xl font-extrabold text-[#00695C]">
+                                    <h3 className="text-2xl font-extrabold text-[#00695C] dark:text-emerald-400">
                                         {step.title}
                                     </h3>
 
-                                    <p className="mt-4 text-[#6B7280] leading-8 text-base max-w-sm">
+                                    <p className="mt-4 text-[#6B7280] dark:text-slate-300 leading-8 text-base max-w-sm">
                                         {step.description}
                                     </p>
                                 </div>

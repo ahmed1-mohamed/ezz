@@ -28,7 +28,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
   const [showAddUrlInput, setShowAddUrlInput] = useState(false);
 
-  // Reschedule Request Specific Fields
   const [teacherGroups, setTeacherGroups] = useState([]);
   const [isLoadingGroups, setIsLoadingGroups] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState('');
@@ -62,7 +61,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
     };
   }, [submissionType, teacherGroups.length]);
 
-  // When selectedGroupId changes, fetch that group's details to populate its sessions
   useEffect(() => {
     let isMounted = true;
     if (!selectedGroupId) {
@@ -93,7 +91,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
     };
   }, [selectedGroupId]);
 
-  // Handle Add Attachment URL
   const handleAddAttachment = () => {
     if (newAttachmentUrl.trim()) {
       setAttachments([...attachments, newAttachmentUrl.trim()]);
@@ -106,7 +103,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
     setAttachments(attachments.filter((_, i) => i !== idx));
   };
 
-  // Submit Mutation
   const mutation = useMutation({
     mutationFn: async () => {
       if (submissionType === 'reschedule_request') {
@@ -123,7 +119,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
         return teacherComplaintsApi.requestRescheduleSession(payload);
       } else {
         const payload = {
-          type: submissionType, // 'complaint' | 'suggestion'
+          type: submissionType,
           title: title.trim(),
           details: details.trim(),
           attachments,
@@ -183,7 +179,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
         className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
         dir={isRtl ? 'rtl' : 'ltr'}
       >
-        {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
           <div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -202,9 +197,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
           </button>
         </div>
 
-        {/* Modal Form */}
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5">
-          {/* 3 Submission Type Selector Tabs */}
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
               نوع التقديم
@@ -251,7 +244,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             </div>
           </div>
 
-          {/* Title */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {t('teacher.complaintTitle', 'عنوان الطلب')} <span className="text-rose-500">*</span>
@@ -266,7 +258,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             />
           </div>
 
-          {/* Details */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {t('teacher.complaintDetails', 'التفاصيل')} <span className="text-rose-500">*</span>
@@ -281,7 +272,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             />
           </div>
 
-          {/* Reschedule Request Extra Fields (Only when Reschedule Request is selected) */}
           {submissionType === 'reschedule_request' && (
             <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-4">
               <div className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
@@ -289,7 +279,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 <span>{t('teacher.rescheduleDetails', 'بيانات الحصة والموعد المقترح')}</span>
               </div>
 
-              {/* Group Select */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('teacher.selectGroup', 'اختر المجموعة')} <span className="text-rose-500">*</span>
@@ -312,7 +301,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 </div>
               </div>
 
-              {/* Session Select */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('teacher.selectSession', 'اختر الحصة المراد تأجيلها')} <span className="text-rose-500">*</span>
@@ -341,7 +329,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 </select>
               </div>
 
-              {/* Proposed New Date */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('teacher.proposedDate', 'التاريخ الجديد المقترح')} <span className="text-rose-500">*</span>
@@ -357,7 +344,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 </div>
               </div>
 
-              {/* Proposed Start & End Times */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -388,7 +374,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             </div>
           )}
 
-          {/* Attachments Section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -454,7 +439,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             )}
           </div>
 
-          {/* Modal Footer */}
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
             <button
               type="button"

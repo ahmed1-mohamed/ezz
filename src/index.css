@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,12 +42,22 @@
   }
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 .frosted-glass {
   background: rgba(15, 23, 42, 0.72);
   backdrop-filter: blur(16px);
 }
 
- div[data-toaster-container],
+div[data-toaster-container],
 div:has(> [data-hot-toast]) {
   z-index: 99999999 !important;
 }

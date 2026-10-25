@@ -20,7 +20,7 @@ export default function AdminStudentLevels() {
 
   const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
     queryKey: ['student-levels', i18n.language],
-    queryFn: () => adminLevelsApi.fetchLevels({ lang: i18n.language }),
+    queryFn: () => adminLevelsApi.fetchLevels(),
     staleTime: 5 * 60 * 1000,
   })
 

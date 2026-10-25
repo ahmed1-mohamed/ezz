@@ -338,16 +338,5 @@ export const adminPackagesApi = {
       console.error(`API fetchPackageById failed for ${id}:`, error);
       throw error;
     }
-  },
-
-  fetchCountries: async (params = {}) => {
-    try {
-      const response = await api.get('/api/v1/countries', { params });
-      const raw = response.data?.data || (Array.isArray(response.data) ? response.data : []);
-      return { success: true, data: raw };
-    } catch (error) {
-      console.error('API fetchCountries failed:', error);
-      return { success: false, data: [] };
-    }
   }
 };

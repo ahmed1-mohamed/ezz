@@ -2,6 +2,45 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js';
 
+const inFlightRequests = new Map();
+const shortTermCache = new Map();
+
+function generateRequestKey(config = {}) {
+  const url = config.url || '';
+  const lang = localStorage.getItem('appLanguage') || 'ar';
+  const effectiveParams = { ...(config.params || {}) };
+  const sortedParamKeys = Object.keys(effectiveParams).sort();
+  const serializedParams = sortedParamKeys.map((k) => {
+    const val = effectiveParams[k];
+    return `${k}=${typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}`;
+  }).join('&');
+  const token = getCookie('access_token') || '';
+  return `${url}?${serializedParams}#token=${token}#lang=${lang}`;
+}
+
+function cloneResponse(res) {
+  if (!res) return res;
+  let clonedData = res.data;
+  try {
+    if (typeof structuredClone === 'function') {
+      clonedData = structuredClone(res.data);
+    } else if (res.data !== undefined) {
+      clonedData = JSON.parse(JSON.stringify(res.data));
+    }
+  } catch (_) {
+    clonedData = res.data;
+  }
+  return {
+    ...res,
+    data: clonedData,
+  };
+}
+
+export function clearApiCache() {
+  shortTermCache.clear();
+  inFlightRequests.clear();
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://manaret-ezz.dramcode.top',
   headers: {
@@ -13,13 +52,6 @@ api.interceptors.request.use(
   async (config) => {
     const lang = localStorage.getItem('appLanguage') || 'ar';
     config.headers['Accept-Language'] = lang;
-
-    if (!config.skipLang) {
-      config.params = {
-        ...config.params,
-        lang,
-      };
-    }
 
     const token = getCookie('access_token');
     if (token) {
@@ -33,6 +65,10 @@ api.interceptors.request.use(
     const secret = localStorage.getItem('secret');
     if (secret) {
       config.headers['Secret'] = secret;
+    }
+
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
     }
 
     return config;
@@ -114,6 +150,7 @@ api.interceptors.response.use(
               return api(originalRequest);
             }
           } catch (refreshError) {
+            clearApiCache();
             deleteCookie('access_token');
             deleteCookie('refresh_token');
             deleteCookie('authUser');
@@ -125,6 +162,7 @@ api.interceptors.response.use(
         }
       }
 
+      clearApiCache();
       deleteCookie('access_token');
       deleteCookie('refresh_token');
       deleteCookie('authUser');
@@ -135,7 +173,26 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 403) {
-      window.location.href = '/unauthorized?status=403';
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
+      if (originalRequest && (!originalRequest._gatewayRetryCount || originalRequest._gatewayRetryCount < 3)) {
+        originalRequest._gatewayRetryCount = (originalRequest._gatewayRetryCount || 0) + 1;
+        const delayMs = originalRequest._gatewayRetryCount * 1000;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        return api(originalRequest);
+      }
+    }
+
+    if (error.response?.status === 429) {
+      if (originalRequest && (!originalRequest._rateLimitRetryCount || originalRequest._rateLimitRetryCount < 2)) {
+        originalRequest._rateLimitRetryCount = (originalRequest._rateLimitRetryCount || 0) + 1;
+        const delayMs = originalRequest._rateLimitRetryCount * 1200;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        return api(originalRequest);
+      }
+      toast.error('تم تجاوز الحد المسموح من الطلبات، يرجى الانتظار قليلاً والمحاولة لاحقاً', { id: 'rate-limit-error', duration: 4000 });
       return Promise.reject(error);
     }
 
@@ -201,5 +258,110 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const originalGet = api.get.bind(api);
+const originalRequest = api.request.bind(api);
+const originalPost = api.post.bind(api);
+const originalPut = api.put.bind(api);
+const originalPatch = api.patch.bind(api);
+const originalDelete = api.delete.bind(api);
+
+api.get = function (url, config = {}) {
+  if (config.skipCache || config.forceRefresh) {
+    return originalGet(url, config);
+  }
+
+  const key = generateRequestKey({ ...config, url, method: 'get' });
+
+  const cached = shortTermCache.get(key);
+  if (cached && Date.now() < cached.expiresAt) {
+    return Promise.resolve(cloneResponse(cached.response));
+  }
+
+  if (inFlightRequests.has(key)) {
+    return inFlightRequests.get(key).then((res) => cloneResponse(res));
+  }
+
+  const promise = originalGet(url, config)
+    .then((res) => {
+      shortTermCache.set(key, {
+        response: res,
+        expiresAt: Date.now() + 2500,
+      });
+      return res;
+    })
+    .finally(() => {
+      inFlightRequests.delete(key);
+    });
+
+  inFlightRequests.set(key, promise);
+  return promise.then((res) => cloneResponse(res));
+};
+
+api.request = function (urlOrConfig, maybeConfig) {
+  let config;
+  if (typeof urlOrConfig === 'string') {
+    config = { ...(maybeConfig || {}), url: urlOrConfig };
+  } else {
+    config = { ...(urlOrConfig || {}) };
+  }
+
+  const method = (config.method || 'get').toLowerCase();
+
+  if (method !== 'get') {
+    shortTermCache.clear();
+    return originalRequest(urlOrConfig, maybeConfig);
+  }
+
+  if (config.skipCache || config.forceRefresh) {
+    return originalRequest(urlOrConfig, maybeConfig);
+  }
+
+  const key = generateRequestKey(config);
+
+  const cached = shortTermCache.get(key);
+  if (cached && Date.now() < cached.expiresAt) {
+    return Promise.resolve(cloneResponse(cached.response));
+  }
+
+  if (inFlightRequests.has(key)) {
+    return inFlightRequests.get(key).then((res) => cloneResponse(res));
+  }
+
+  const promise = originalRequest(urlOrConfig, maybeConfig)
+    .then((res) => {
+      shortTermCache.set(key, {
+        response: res,
+        expiresAt: Date.now() + 2500,
+      });
+      return res;
+    })
+    .finally(() => {
+      inFlightRequests.delete(key);
+    });
+
+  inFlightRequests.set(key, promise);
+  return promise.then((res) => cloneResponse(res));
+};
+
+api.post = function (...args) {
+  shortTermCache.clear();
+  return originalPost(...args);
+};
+
+api.put = function (...args) {
+  shortTermCache.clear();
+  return originalPut(...args);
+};
+
+api.patch = function (...args) {
+  shortTermCache.clear();
+  return originalPatch(...args);
+};
+
+api.delete = function (...args) {
+  shortTermCache.clear();
+  return originalDelete(...args);
+};
 
 export default api;

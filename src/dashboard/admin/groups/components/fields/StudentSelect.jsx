@@ -20,7 +20,6 @@ export default function StudentSelect({
 
   const excludedSet = useMemo(() => new Set(excludeIds.map(String)), [excludeIds])
 
-  // Effective list of students: backend results if a search was performed, otherwise the initial prop list
   const currentPool = useMemo(() => {
     const list = backendStudents !== null ? backendStudents : students
     return Array.isArray(list) ? list : []
@@ -30,7 +29,6 @@ export default function StudentSelect({
     return currentPool.filter((s) => !excludedSet.has(String(s.id || s._id)))
   }, [currentPool, excludedSet])
 
-  // Backend search with 350ms debounce
   useEffect(() => {
     if (!isOpen) return
 

@@ -189,12 +189,12 @@ export default function ContactForm() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-lg border border-slate-100/50"
+                className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-12 shadow-lg border border-slate-100/50 dark:border-slate-800"
             >
                 <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                         <div className="space-y-2 text-start">
-                            <label className="block text-sm font-bold text-slate-700 px-1">
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                                 {t('contact.form.name', 'الاسم الكامل')}
                             </label>
                             <input
@@ -203,13 +203,13 @@ export default function ContactForm() {
                                 value={formData.name}
                                 onChange={handleInputChange}
                                 placeholder={t('contact.form.namePlaceholder', 'أدخل اسمك هنا')}
-                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
+                                className={`w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-4 transition-all ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'}`}
                             />
                             {errors.name && <span className="text-xs text-red-500 font-bold px-1 block">{errors.name}</span>}
                         </div>
 
                         <div className="space-y-2 text-start">
-                            <label className="block text-sm font-bold text-slate-700 px-1">
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                                 {t('contact.form.email', 'البريد الإلكتروني')}
                             </label>
                             <input
@@ -219,13 +219,13 @@ export default function ContactForm() {
                                 onChange={handleInputChange}
                                 dir="ltr"
                                 placeholder={t('contact.form.emailPlaceholder', 'example@mail.com')}
-                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all text-start ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
+                                className={`w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-4 transition-all text-start ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'}`}
                             />
                             {errors.email && <span className="text-xs text-red-500 font-bold px-1 block">{errors.email}</span>}
                         </div>
 
                         <div className="space-y-2 text-start">
-                            <label className="block text-sm font-bold text-slate-700 px-1">
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                                 {t('contact.form.subject', 'موضوع الرسالة')}
                             </label>
                             <input
@@ -234,7 +234,7 @@ export default function ContactForm() {
                                 value={formData.title}
                                 onChange={handleInputChange}
                                 placeholder={t('contact.form.subjectPlaceholder', 'أدخل الموضوع')}
-                                className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all ${errors.title ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
+                                className={`w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-4 transition-all ${errors.title ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'}`}
                             />
                             {errors.title && <span className="text-xs text-red-500 font-bold px-1 block">{errors.title}</span>}
                         </div>
@@ -247,7 +247,7 @@ export default function ContactForm() {
                     </div>
 
                     <div className="space-y-2 text-start">
-                        <label className="block text-sm font-bold text-slate-700 px-1">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                             {t('contact.form.message', 'رسالتك')}
                         </label>
                         <textarea
@@ -256,7 +256,7 @@ export default function ContactForm() {
                             value={formData.message}
                             onChange={handleInputChange}
                             placeholder={t('contact.form.messagePlaceholder', 'كيف يمكننا مساعدتك اليوم؟')}
-                            className={`w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-5 transition-all resize-none ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
+                            className={`w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-5 transition-all resize-none ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'}`}
                         ></textarea>
                         {errors.message && <span className="text-xs text-red-500 font-bold px-1 block">{errors.message}</span>}
                     </div>
@@ -265,7 +265,7 @@ export default function ContactForm() {
                         <button
                             type="submit"
                             disabled={messageSubmitStatus === 'loading'}
-                            className="bg-[#00695C] hover:bg-[#005247] disabled:bg-[#00695C]/50 text-white font-bold py-4 px-10 rounded-2xl transition-all duration-300 ease-out shadow-md hover:shadow-lg text-lg active:scale-95 hover:-translate-y-1 flex items-center gap-3 cursor-pointer"
+                            className="bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 disabled:bg-[#00695C]/50 text-white font-bold py-4 px-10 rounded-2xl transition-all duration-300 ease-out shadow-md hover:shadow-lg text-lg active:scale-95 hover:-translate-y-1 flex items-center gap-3 cursor-pointer"
                         >
                             <Send className="w-5 h-5 rtl:rotate-180" />
                             {messageSubmitStatus === 'loading' ? t('contact.form.submitting', 'جاري الإرسال...') : t('contact.form.submit', 'إرسال الرسالة')}

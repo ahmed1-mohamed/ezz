@@ -22,9 +22,6 @@ import DashboardLayout from '../../../layouts/DashboardLayout.jsx';
 import { roleNavigation } from '@/shared/constants/navigation.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
 
-/**
- * Formats time string to local HH:MM
- */
 function formatTime(val) {
   if (!val) return '—';
   if (typeof val === 'string') {
@@ -44,7 +41,7 @@ export default function TeacherGroupDetails() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
-  const [activeTab, setActiveTab] = useState('students'); // 'students' | 'sessions'
+  const [activeTab, setActiveTab] = useState('students');
 
   const {
     data: responseData,
@@ -109,7 +106,6 @@ export default function TeacherGroupDetails() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="space-y-6">
-        {/* Navigation Bar */}
         <div className="flex items-center justify-between">
           <Link
             to="/dashboard/teacher/groups"
@@ -129,7 +125,6 @@ export default function TeacherGroupDetails() {
           </button>
         </div>
 
-        {/* Loading State */}
         {isLoading ? (
           <div className="space-y-6 animate-pulse">
             <div className="h-48 rounded-3xl bg-slate-200 dark:bg-slate-800" />
@@ -154,7 +149,6 @@ export default function TeacherGroupDetails() {
           </div>
         ) : (
           <>
-            {/* Top Group Overview Banner */}
             <div className="rounded-3xl border border-slate-200/80 bg-white/95 dark:border-slate-800 dark:bg-slate-900 shadow-soft p-6 sm:p-8 space-y-6">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div className="space-y-2">
@@ -180,7 +174,6 @@ export default function TeacherGroupDetails() {
                   </h1>
                 </div>
 
-                {/* Capacity Counter */}
                 <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/60 dark:bg-emerald-950/30 dark:border-emerald-900/40 shrink-0">
                   <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                     {t('teacher.capacity', 'السعة الحالية')}
@@ -192,7 +185,6 @@ export default function TeacherGroupDetails() {
                 </div>
               </div>
 
-              {/* Meta Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {group.curriculum && (
                   <div className="flex items-center gap-3">
@@ -259,7 +251,6 @@ export default function TeacherGroupDetails() {
                 )}
               </div>
 
-              {/* Weekly Schedule Row */}
               {group.weeklySchedule?.length > 0 && (
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
                   <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -284,9 +275,7 @@ export default function TeacherGroupDetails() {
               )}
             </div>
 
-            {/* The 2 Tabs ("مقسمهالك ل 2 tab جوا") */}
             <div className="space-y-4">
-              {/* Tab Selector Buttons */}
               <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 w-fit">
                 <button
                   type="button"
@@ -333,7 +322,6 @@ export default function TeacherGroupDetails() {
                 </button>
               </div>
 
-              {/* Tab 1 Content: الطلاب (Students) */}
               {activeTab === 'students' && (
                 <div className="space-y-4">
                   {studentsList.length === 0 ? (
@@ -403,7 +391,6 @@ export default function TeacherGroupDetails() {
                               )}
                             </div>
 
-                            {/* Attendance Rate */}
                             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
                               <div className="flex items-center justify-between text-xs">
                                 <span className="font-semibold text-slate-600 dark:text-slate-400">
@@ -434,7 +421,6 @@ export default function TeacherGroupDetails() {
                 </div>
               )}
 
-              {/* Tab 2 Content: سجل الحصص (Sessions History) */}
               {activeTab === 'sessions' && (
                 <div className="space-y-4">
                   {sessionsList.length === 0 ? (

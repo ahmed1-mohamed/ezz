@@ -202,7 +202,6 @@ export function AuthProvider({ children }) {
                 localStorage.removeItem('refresh_token')
                 localStorage.removeItem('authUser')
             } catch {
-                // Ignore
             }
             if (redirectPath && typeof redirectPath === 'string') {
                 window.location.href = redirectPath

@@ -112,7 +112,7 @@ export default function AdminComplaints() {
   }
 
   const handleResolve = async (item) => {
-    const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'delay'
+    const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'reschedule_request' || item.type === 'delay'
     const isSuggestion = item.type === 'suggestion'
 
     if (isPostpone) {

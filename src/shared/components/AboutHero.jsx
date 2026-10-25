@@ -16,11 +16,11 @@ export default React.memo(function AboutHero() {
                     alt="Background Pattern"
                     width="1280"
                     height="700"
-                    className="w-full h-full object-cover object-center opacity-30"
+                    className="w-full h-full object-cover object-center opacity-30 dark:opacity-10"
                     loading="lazy"
                 />
-                <div className="absolute inset-0 " />
-                <div className={`absolute inset-0 bg-gradient-to-${isRtl ? 'l' : 'r'} from-white/95 via-white/80 to-transparent`} />
+                <div className="absolute inset-0" />
+                <div className={`absolute inset-0 bg-gradient-to-${isRtl ? 'l' : 'r'} from-white/95 via-white/80 to-transparent dark:from-slate-950/95 dark:via-slate-950/80`} />
             </div>
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
@@ -29,18 +29,18 @@ export default React.memo(function AboutHero() {
                     initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, ease: 'easeOut' }}
-                    className="w-full lg:w-1/2 space-y-8 flex  flex-col items-center lg:items-start text-center lg:text-start"
+                    className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start text-center lg:text-start"
                 >
-                    <div className="inline-flex items-center rounded-full bg-[#735C00] px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
+                    <div className="inline-flex items-center rounded-full bg-[#735C00] dark:bg-amber-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
                         {t('about.hero.badge', 'أكاديمية تعليمية متكاملة')}
                     </div>
 
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pb-2">
-                        <span className="text-[#00695C] block pb-3">{t('about.hero.title1', 'حيث يلتقي')}</span>
-                        <span className="text-[#735C00] block">{t('about.hero.title2', 'نور العلم بصفاء الروح')}</span>
+                        <span className="text-[#00695C] dark:text-emerald-400 block pb-3">{t('about.hero.title1', 'حيث يلتقي')}</span>
+                        <span className="text-[#735C00] dark:text-amber-400 block">{t('about.hero.title2', 'نور العلم بصفاء الروح')}</span>
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-slate-700 font-medium leading-relaxed max-w-xl">
+                    <p className="text-lg sm:text-xl text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-xl">
                         {t('about.hero.subtitle', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة، صُممت لتكون ملاذاً رقمياً يجمع بين أصالة التراث وحداثة التكنولوجيا.')}
                     </p>
                 </motion.div>
@@ -61,16 +61,16 @@ export default React.memo(function AboutHero() {
                         <motion.div
                             animate={{ rotate: [0, 3, 0] }}
                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute inset-0 rounded-2xl transform translate-y-5 -translate-x-5 scale-[1.03] backdrop-blur-sm border border-white/20"
+                            className="absolute inset-0 rounded-2xl transform translate-y-5 -translate-x-5 scale-[1.03] backdrop-blur-sm border border-white/20 dark:border-slate-800"
                         />
                         <motion.div
                             animate={{ rotate: [0, -3, 0] }}
                             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            className="absolute inset-0  rounded-2xl transform -translate-y-4 translate-x-4 scale-[1.03] backdrop-blur-sm border border-white/20"
+                            className="absolute inset-0 rounded-2xl transform -translate-y-4 translate-x-4 scale-[1.03] backdrop-blur-sm border border-white/20 dark:border-slate-800"
                         />
 
-                        <div className="relative group p-2.5  rounded-2xl shadow-2xl">
-                            <div className="relative overflow-hidden rounded-xl bg-slate-100">
+                        <div className="relative group p-2.5 rounded-2xl shadow-2xl">
+                            <div className="relative overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
                                 <motion.img
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ duration: 0.5, ease: "easeOut" }}

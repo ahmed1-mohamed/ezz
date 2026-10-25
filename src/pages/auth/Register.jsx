@@ -41,7 +41,7 @@ export default function Register() {
         const fetchCountriesData = async () => {
             setLoadingCountries(true)
             try {
-                const list = await fetchCountries({ lang: i18n.language, sort: 'name' })
+                const list = await fetchCountries({ sort: 'name' })
                 if (isMounted && list.length > 0) {
                     const sorted = sortCountries(list, isRtl)
                     setCountriesList(sorted)
@@ -190,47 +190,47 @@ export default function Register() {
     }
 
     return (
-        <div className="min-h-screen bg-[#EEF4F2] flex flex-col relative font-sans py-6">
-             <div className="absolute top-6 start-6 z-10">
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans py-6">
+            <div className="absolute top-6 start-6 z-10">
                 <Link
                     to="/"
-                    className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold transition-colors bg-white/70 hover:bg-white px-4 py-2 rounded-full shadow-sm backdrop-blur-sm"
+                    className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm backdrop-blur-sm border border-transparent dark:border-slate-800"
                 >
                     <ArrowIcon className="w-5 h-5" />
                     <span>{t('register.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
             </div>
 
-             <div className="absolute top-6 end-6 z-10">
+            <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 my-auto pt-14 pb-8">
-                 <div className="text-center mb-6">
-                    <div className="bg-white w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
-                        <BookOpen className="w-9 h-9 sm:w-10 sm:h-10 text-[#00695C]" />
+                <div className="text-center mb-6">
+                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
+                        <BookOpen className="w-9 h-9 sm:w-10 sm:h-10 text-[#00695C] dark:text-emerald-400" />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-[#00695C] mb-1.5">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-1.5">
                         {t('register.academyName', 'أكاديمية منارة العز')}
                     </h1>
-                    <p className="text-slate-500 font-medium text-xs sm:text-sm">
+                    <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">
                         {t('register.academySubtitle', 'أكاديمية تعليمية روحية ومعاصرة')}
                     </p>
                 </div>
 
-                 <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-sm p-6 sm:p-9 border border-slate-100">
+                <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2rem] shadow-sm p-6 sm:p-9 border border-slate-100 dark:border-slate-800">
                     <div className="mb-6 text-center sm:text-start">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-1">
+                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
                             {t('register.title', 'إنشاء حساب جديد')}
                         </h2>
-                        <p className="text-xs sm:text-sm text-slate-500">
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                             {t('register.description', 'سجل الآن للوصول إلى لوحة التحكم المخصصة لك والبدء في رحلتك التعليمية.')}
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                         <div className="space-y-1.5">
-                            <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1 text-start">
+                        <div className="space-y-1.5">
+                            <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1 text-start">
                                 {t('register.name', 'الاسم الكامل')}
                             </label>
                             <div className="relative">
@@ -245,14 +245,14 @@ export default function Register() {
                                         if (errors.name) setErrors(prev => ({ ...prev, name: null }))
                                     }}
                                     placeholder={t('register.namePlaceholder', 'أدخل اسمك الكامل')}
-                                    className={`w-full bg-[#F5F8F7] border ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3 ps-11 pe-4 outline-none transition-all placeholder-slate-400 text-sm`}
+                                    className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3 ps-11 pe-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500 text-sm`}
                                 />
                             </div>
                             {errors.name && <p className="text-xs text-red-500 px-1 text-start">{errors.name}</p>}
                         </div>
 
-                         <div className="space-y-1.5">
-                            <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1 text-start">
+                        <div className="space-y-1.5">
+                            <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1 text-start">
                                 {t('register.email', 'البريد الإلكتروني')}
                             </label>
                             <div className="relative">
@@ -268,15 +268,15 @@ export default function Register() {
                                     }}
                                     dir="ltr"
                                     placeholder={t('register.emailPlaceholder', 'example@mail.com')}
-                                    className={`w-full bg-[#F5F8F7] border ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3 ps-11 pe-4 outline-none transition-all placeholder-slate-400 text-sm text-start`}
+                                    className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3 ps-11 pe-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500 text-sm text-start`}
                                 />
                             </div>
                             {errors.email && <p className="text-xs text-red-500 px-1 text-start">{errors.email}</p>}
                         </div>
 
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                             <div className="space-y-1.5 text-start" ref={dropdownRef}>
-                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div className="space-y-1.5 text-start" ref={dropdownRef}>
+                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.country', 'الدولة')}
                                 </label>
                                 <div className="relative">
@@ -286,7 +286,7 @@ export default function Register() {
                                             setCountryDropdownOpen(!countryDropdownOpen)
                                             setCountrySearch('')
                                         }}
-                                        className={`w-full bg-[#F5F8F7] border ${errors.country ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3 px-3.5 flex items-center justify-between gap-2 transition-all cursor-pointer text-sm outline-none`}
+                                        className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.country ? 'border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3 px-3.5 flex items-center justify-between gap-2 transition-all cursor-pointer text-sm outline-none`}
                                     >
                                         <div className="flex items-center gap-2 min-w-0">
                                             <span className="text-xl shrink-0">{selectedCountry?.flag || '🌍'}</span>
@@ -297,31 +297,31 @@ export default function Register() {
                                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${countryDropdownOpen ? 'rotate-180' : ''}`} />
                                     </button>
 
-                                     <AnimatePresence>
+                                    <AnimatePresence>
                                         {countryDropdownOpen && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 8, scale: 0.98 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 8, scale: 0.98 }}
                                                 transition={{ duration: 0.15 }}
-                                                className="absolute top-full mt-1.5 start-0 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 text-start"
+                                                className="absolute top-full mt-1.5 start-0 w-72 sm:w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50 text-start"
                                             >
-                                                <div className="p-2.5 border-b border-slate-100 flex items-center gap-2 bg-slate-50/70">
+                                                <div className="p-2.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/70 dark:bg-slate-800/80">
                                                     <Search className="w-4 h-4 text-slate-400 shrink-0" />
                                                     <input
                                                         type="text"
                                                         value={countrySearch}
                                                         onChange={(e) => setCountrySearch(e.target.value)}
                                                         placeholder={t('register.searchCountry', 'ابحث عن دولة أو رمز...')}
-                                                        className="w-full bg-transparent border-none text-slate-800 text-xs sm:text-sm outline-none placeholder-slate-400"
+                                                        className="w-full bg-transparent border-none text-slate-800 dark:text-white text-xs sm:text-sm outline-none placeholder-slate-400 dark:placeholder-slate-500"
                                                         autoFocus
                                                     />
                                                     {loadingCountries && (
-                                                        <Loader2 className="w-3.5 h-3.5 text-[#00695C] animate-spin shrink-0" />
+                                                        <Loader2 className="w-3.5 h-3.5 text-[#00695C] dark:text-emerald-400 animate-spin shrink-0" />
                                                     )}
                                                 </div>
 
-                                                <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50">
+                                                <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50 dark:divide-slate-800">
                                                     {filteredCountries.length > 0 ? (
                                                         filteredCountries.map((c) => {
                                                             const isSelected = (c.id === selectedCountry?.id) || (c._id && c._id === selectedCountry?._id)
@@ -334,23 +334,23 @@ export default function Register() {
                                                                         setCountryDropdownOpen(false)
                                                                         if (errors.country) setErrors(prev => ({ ...prev, country: null }))
                                                                     }}
-                                                                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs sm:text-sm transition-all hover:bg-emerald-50/50 text-start group cursor-pointer ${isSelected ? 'bg-emerald-50/80 font-bold text-[#00695C]' : 'text-slate-700'}`}
+                                                                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs sm:text-sm transition-all hover:bg-emerald-50/50 dark:hover:bg-slate-800 text-start group cursor-pointer ${isSelected ? 'bg-emerald-50/80 dark:bg-emerald-950/60 font-bold text-[#00695C] dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}
                                                                 >
                                                                     <div className="flex items-center gap-2.5 min-w-0">
                                                                         <span className="text-lg shrink-0">{c.flag || '🌍'}</span>
                                                                         <span className="truncate">{getCountryName(c, isRtl)}</span>
                                                                     </div>
                                                                     <div className="flex items-center gap-1.5 shrink-0">
-                                                                        <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-600 dir-ltr">
+                                                                        <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 dir-ltr">
                                                                             {c.dialCode || c.phoneCode}
                                                                         </span>
-                                                                        {isSelected && <Check className="w-4 h-4 text-[#00695C] shrink-0" />}
+                                                                        {isSelected && <Check className="w-4 h-4 text-[#00695C] dark:text-emerald-400 shrink-0" />}
                                                                     </div>
                                                                 </button>
                                                             )
                                                         })
                                                     ) : (
-                                                        <div className="p-4 text-center text-xs text-slate-400">
+                                                        <div className="p-4 text-center text-xs text-slate-400 dark:text-slate-500">
                                                             {t('register.noCountries', 'لم يتم العثور على دول')}
                                                         </div>
                                                     )}
@@ -362,12 +362,12 @@ export default function Register() {
                                 {errors.country && <p className="text-xs text-red-500 px-1">{errors.country}</p>}
                             </div>
 
-                             <div className="space-y-1.5 text-start">
-                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
+                            <div className="space-y-1.5 text-start">
+                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.phone', 'رقم الهاتف')}
                                 </label>
-                                <div className="flex rounded-2xl bg-[#F5F8F7] border border-transparent focus-within:border-[#00695C] transition-all overflow-hidden">
-                                    <div className="flex items-center gap-1 px-3 bg-slate-100/80 text-slate-600 font-bold text-xs sm:text-sm dir-ltr shrink-0 select-none">
+                                <div className="flex rounded-2xl bg-[#F5F8F7] dark:bg-slate-800 border border-transparent focus-within:border-[#00695C] dark:focus-within:border-emerald-500 transition-all overflow-hidden">
+                                    <div className="flex items-center gap-1 px-3 bg-slate-100/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-200 font-bold text-xs sm:text-sm dir-ltr shrink-0 select-none">
                                         <span>{selectedCountry?.flag || '🌍'}</span>
                                         <span>{selectedCountry?.dialCode || selectedCountry?.phoneCode || ''}</span>
                                     </div>
@@ -381,16 +381,16 @@ export default function Register() {
                                         }}
                                         dir="ltr"
                                         placeholder={t('register.phonePlaceholder', '1012345678')}
-                                        className={`w-full bg-transparent py-3 px-3 outline-none text-slate-800 text-sm placeholder-slate-400 text-start ${errors.phone ? 'border-red-500' : ''}`}
+                                        className={`w-full bg-transparent py-3 px-3 outline-none text-slate-800 dark:text-white text-sm placeholder-slate-400 dark:placeholder-slate-500 text-start ${errors.phone ? 'border-red-500' : ''}`}
                                     />
                                 </div>
                                 {errors.phone && <p className="text-xs text-red-500 px-1">{errors.phone}</p>}
                             </div>
                         </div>
 
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                             <div className="space-y-1.5 text-start">
-                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div className="space-y-1.5 text-start">
+                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.password', 'كلمة المرور')}
                                 </label>
                                 <div className="relative">
@@ -406,12 +406,12 @@ export default function Register() {
                                         }}
                                         dir="ltr"
                                         placeholder="••••••••"
-                                        className={`w-full bg-[#F5F8F7] border ${errors.password ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3 ps-11 pe-11 outline-none transition-all placeholder-slate-400 text-sm`}
+                                        className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.password ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3 ps-11 pe-11 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500 text-sm`}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                                     >
                                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
@@ -419,8 +419,8 @@ export default function Register() {
                                 {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                             </div>
 
-                             <div className="space-y-1.5 text-start">
-                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 px-1">
+                            <div className="space-y-1.5 text-start">
+                                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.confirmPassword', 'تأكيد كلمة المرور')}
                                 </label>
                                 <div className="relative">
@@ -436,12 +436,12 @@ export default function Register() {
                                         }}
                                         dir="ltr"
                                         placeholder="••••••••"
-                                        className={`w-full bg-[#F5F8F7] border ${errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3 ps-11 pe-11 outline-none transition-all placeholder-slate-400 text-sm`}
+                                        className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3 ps-11 pe-11 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500 text-sm`}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                                     >
                                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
@@ -450,20 +450,20 @@ export default function Register() {
                             </div>
                         </div>
 
-                         {serverError && (
+                        {serverError && (
                             <motion.div
                                 initial={{ opacity: 0, y: -8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm text-center font-medium"
+                                className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-xs sm:text-sm text-center font-medium"
                             >
                                 {serverError}
                             </motion.div>
                         )}
 
-                         <button
+                        <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-3.5 transition-all shadow-md active:scale-[0.98] mt-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+                            className="w-full bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-2xl py-3.5 transition-all shadow-md active:scale-[0.98] mt-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <>
@@ -476,13 +476,13 @@ export default function Register() {
                         </button>
                     </form>
 
-                     <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-sm border-t border-slate-100 pt-5">
-                        <span className="text-slate-500 font-medium">
+                    <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-sm border-t border-slate-100 dark:border-slate-800 pt-5">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">
                             {t('register.haveAccount', 'هل لديك حساب بالفعل؟')}
                         </span>
                         <Link
                             to="/login"
-                            className="font-bold text-[#00695C] hover:text-[#004D40] hover:underline transition-colors"
+                            className="font-bold text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 hover:underline transition-colors"
                         >
                             {t('register.login', 'تسجيل الدخول')}
                         </Link>
@@ -490,7 +490,7 @@ export default function Register() {
                 </div>
             </div>
 
-             <AnimatePresence>
+            <AnimatePresence>
                 {toast.show && (
                     <motion.div
                         initial={{ opacity: 0, y: -40, x: 40, scale: 0.95 }}

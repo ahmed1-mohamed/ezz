@@ -14,6 +14,39 @@ export const extractSafeString = (val, preferredLang = 'ar', fallback = '') => {
   return String(val).trim();
 };
 
+export const formatTime12h = (timeStr, isRtl = true) => {
+  if (!timeStr) return '-';
+  const cleanStr = String(timeStr).trim();
+  if (!cleanStr) return '-';
+
+  if (cleanStr.includes('-')) {
+    const parts = cleanStr.split('-').map((s) => s.trim());
+    return `${formatTime12h(parts[0], isRtl)} - ${formatTime12h(parts[1], isRtl)}`;
+  }
+
+  if (cleanStr.includes('T')) {
+    const d = new Date(cleanStr);
+    if (!isNaN(d.getTime())) {
+      let hours = d.getHours();
+      const minutes = d.getMinutes().toString().padStart(2, '0');
+      const period = hours >= 12 ? (isRtl ? 'م' : 'PM') : (isRtl ? 'ص' : 'AM');
+      hours = hours % 12 || 12;
+      return `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
+    }
+  }
+
+  const match = cleanStr.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (match) {
+    let hours = parseInt(match[1], 10);
+    const minutes = match[2];
+    const period = hours >= 12 ? (isRtl ? 'م' : 'PM') : (isRtl ? 'ص' : 'AM');
+    hours = hours % 12 || 12;
+    return `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
+  }
+
+  return cleanStr;
+};
+
 export const mapSessionData = (item) => {
   if (!item) return null;
   const id = item.id || item._id;
@@ -63,13 +96,52 @@ export const mapSessionData = (item) => {
     ? attendance.length 
     : (Number(item.studentsCount ?? item.students?.length ?? 0) || 0);
 
-  // Normalize status
-  const rawStatus = extractSafeString(item.status || 'scheduled').toLowerCase();
-  let status = rawStatus;
-  if (rawStatus === 'in_progress' || rawStatus === 'in-progress' || rawStatus === 'live') {
+  const rawStatus = extractSafeString(item.status || '').toLowerCase();
+  let status = 'scheduled';
+
+  if (rawStatus === 'completed' || rawStatus === 'done' || rawStatus === 'finished' || rawStatus === 'مكتملة' || rawStatus === 'مكتمل' || item.isCompleted) {
+    status = 'completed';
+  } else if (rawStatus === 'cancelled' || rawStatus === 'canceled' || rawStatus === 'ملغاة' || rawStatus === 'ملغية' || item.isCancelled) {
+    status = 'cancelled';
+  } else if (rawStatus === 'live' || rawStatus === 'in_progress' || rawStatus === 'in-progress' || rawStatus === 'مباشر' || rawStatus === 'مباشرة' || rawStatus === 'جارية') {
     status = 'live';
-  } else if (rawStatus === 'upcoming') {
+  } else if (rawStatus === 'scheduled' || rawStatus === 'upcoming' || rawStatus === 'مجدولة' || rawStatus === 'قادمة') {
     status = 'scheduled';
+  } else if (rawStatus) {
+    status = rawStatus;
+  }
+
+  if (status === 'scheduled' && date) {
+    try {
+      const sessionDateStr = date.includes('T') ? date.split('T')[0] : date;
+      const sessionEndTimeStr = endTime || startTime || '23:59';
+      const cleanEndMatch = sessionEndTimeStr.match(/^(\d{1,2}):(\d{2})/);
+      const cleanStartMatch = startTime ? startTime.match(/^(\d{1,2}):(\d{2})/) : null;
+
+      if (cleanEndMatch) {
+        const sessionEndDateTime = new Date(`${sessionDateStr}T${cleanEndMatch[1].padStart(2, '0')}:${cleanEndMatch[2]}:00`);
+        const now = new Date();
+
+        if (!isNaN(sessionEndDateTime.getTime())) {
+          if (now > sessionEndDateTime) {
+            status = 'completed';
+          } else if (cleanStartMatch) {
+            const sessionStartDateTime = new Date(`${sessionDateStr}T${cleanStartMatch[1].padStart(2, '0')}:${cleanStartMatch[2]}:00`);
+            if (!isNaN(sessionStartDateTime.getTime()) && now >= sessionStartDateTime && now <= sessionEndDateTime) {
+              status = 'live';
+            }
+          }
+        }
+      } else {
+        const sDate = new Date(sessionDateStr);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (!isNaN(sDate.getTime()) && sDate < today) {
+          status = 'completed';
+        }
+      }
+    } catch {
+    }
   }
 
   return {
@@ -147,7 +219,6 @@ export const adminSessionsApi = {
         };
       } catch (err) {
         lastError = err;
-        // Continue to fallback endpoint if 404
         if (err.response?.status !== 404) {
           break;
         }
@@ -190,25 +261,48 @@ export const adminSessionsApi = {
   },
 
   changeTeacher: async (id, teacherId, teacherName) => {
-    try {
-      const payload = {
-        teacher: teacherId,
-        teacherId,
-      };
-      if (teacherName) {
-        payload.teacherName = teacherName;
+    const cleanTeacherId = typeof teacherId === 'object' && teacherId !== null
+      ? (teacherId.teacherId || teacherId.teacher || teacherId.newTeacherId || teacherId.newTeacher || teacherId.id || teacherId._id)
+      : teacherId;
+
+    const cleanTeacherName = typeof teacherId === 'object' && teacherId !== null && (teacherId.teacherName || teacherId.name)
+      ? (teacherId.teacherName || teacherId.name)
+      : (typeof teacherName === 'object' && teacherName !== null ? (teacherName.ar || teacherName.en || teacherName.name || '') : (teacherName || ''));
+
+    const body = {
+      teacher: cleanTeacherId,
+      teacherId: cleanTeacherId,
+      newTeacher: cleanTeacherId,
+      newTeacherId: cleanTeacherId,
+      ...(cleanTeacherName ? { teacherName: cleanTeacherName, name: cleanTeacherName } : {}),
+    };
+
+    const endpoints = [
+      { method: 'patch', url: `/api/v1/sessions/private/${id}/change-teacher` },
+      { method: 'put', url: `/api/v1/sessions/private/${id}/change-teacher` },
+      { method: 'put', url: `/api/v1/sessions/private/${id}/teacher` },
+      { method: 'patch', url: `/api/v1/sessions/private/${id}/teacher` },
+      { method: 'patch', url: `/api/v1/sessions/private/${id}` },
+      { method: 'patch', url: `/api/v1/sessions/${id}/change-teacher` },
+      { method: 'patch', url: `/api/v1/sessions/${id}` },
+    ];
+
+    let lastError = null;
+    for (const ep of endpoints) {
+      try {
+        const response = await api[ep.method](ep.url, body);
+        return {
+          success: true,
+          data: response.data?.data || response.data,
+          message: response.data?.message,
+        };
+      } catch (err) {
+        lastError = err;
       }
-      const response = await api.patch(`/api/v1/sessions/private/${id}/change-teacher`, payload);
-      return {
-        success: true,
-        data: response.data?.data || response.data,
-        message: response.data?.message,
-      };
-    } catch (error) {
-      console.warn('API changeTeacher failed:', error);
-      const message = error.response?.data?.message || error.message || 'فشلت عملية تغيير المعلم';
-      return { success: false, error, message };
     }
+
+    const message = lastError?.response?.data?.message || lastError?.message || 'فشلت عملية تغيير المعلم';
+    return { success: false, error: lastError, message };
   },
 
   cancelSession: async (id) => {

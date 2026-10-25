@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
+import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Home,
@@ -9,6 +9,7 @@ import {
   FileCheck,
   Star,
   Award,
+  Calendar,
   History,
   DollarSign,
   CreditCard,
@@ -25,8 +26,7 @@ export default function TeacherLayout() {
   const { user, logout } = useAuth();
   const { i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-  const location = useLocation();
-
+ 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const teacherName = (() => {
@@ -78,6 +78,11 @@ export default function TeacherLayout() {
     },
     {
       path: '/dashboard/teacher/schedule',
+      icon: Calendar,
+      label: 'الجدول الأسبوعي',
+    },
+    {
+      path: '/dashboard/teacher/sessions',
       icon: History,
       label: 'سجل الجلسات',
     },
@@ -108,7 +113,6 @@ export default function TeacherLayout() {
       className="flex min-h-screen bg-[#edf4f2] dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Mobile Backdrop */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-xs"
@@ -116,7 +120,6 @@ export default function TeacherLayout() {
         />
       )}
 
-      {/* ── Sidebar (منارة العز - منصة المعلم) ── */}
       <aside
         className={`fixed lg:sticky top-0 h-screen z-50 w-64 bg-white dark:bg-slate-900 border-e border-slate-200/80 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
           isMobileMenuOpen
@@ -127,7 +130,6 @@ export default function TeacherLayout() {
         }`}
       >
         <div className="flex flex-col h-full overflow-hidden">
-          {/* Logo / Header */}
           <div className="p-6 flex items-center justify-between">
             <Link to="/dashboard/teacher" className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-[#00594C] text-white flex items-center justify-center shadow-xs shrink-0">
@@ -149,7 +151,6 @@ export default function TeacherLayout() {
             </button>
           </div>
 
-          {/* Navigation Links */}
           <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800">
             {navItems.map((item) => (
               <NavLink
@@ -172,16 +173,22 @@ export default function TeacherLayout() {
             ))}
           </nav>
 
-          {/* Teacher Profile & Logout at Bottom */}
           <div className="p-4 space-y-3 shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex items-center justify-end gap-3 px-1">
+            <Link
+              to="/dashboard/teacher/profile"
+              className="flex items-center justify-end gap-3 px-1 hover:opacity-80 transition-opacity"
+            >
               <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 truncate">
                 {teacherName}
               </span>
-              <div className="w-9 h-9 rounded-full bg-[#00594C] text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0">
-                {teacherInitial}
+              <div className="w-9 h-9 rounded-full bg-[#00594C] text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0 overflow-hidden">
+                {user?.image ? (
+                  <img src={user.image} alt={teacherName} className="w-full h-full object-cover" />
+                ) : (
+                  teacherInitial
+                )}
               </div>
-            </div>
+            </Link>
 
             <button
               onClick={logout}
@@ -194,9 +201,7 @@ export default function TeacherLayout() {
         </div>
       </aside>
 
-      {/* ── Main Canvas ── */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header Bar (Screen < lg) */}
         <header className="lg:hidden sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-4 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <button
@@ -210,12 +215,18 @@ export default function TeacherLayout() {
             </span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs">
-            {teacherInitial}
-          </div>
+          <Link
+            to="/dashboard/teacher/profile"
+            className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs overflow-hidden shadow-xs shrink-0"
+          >
+            {user?.image ? (
+              <img src={user.image} alt={teacherName} className="w-full h-full object-cover" />
+            ) : (
+              teacherInitial
+            )}
+          </Link>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
           <Outlet />
         </main>

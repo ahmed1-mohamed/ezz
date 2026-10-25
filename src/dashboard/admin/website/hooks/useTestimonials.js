@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
-export default function useTestimonials(showNotification) {
+export default function useTestimonials(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
 
   const [testimonials, setTestimonials] = useState([]);
@@ -20,6 +20,7 @@ export default function useTestimonials(showNotification) {
   });
 
   useEffect(() => {
+    if (!enabled) return;
     async function loadTestimonials() {
       try {
         const res = await landingApi.fetchPrivateTestimonials();
@@ -34,7 +35,7 @@ export default function useTestimonials(showNotification) {
       }
     }
     loadTestimonials();
-  }, []);
+  }, [enabled]);
 
   const handleOpenAddTestimonial = () => {
     setCurrentTestimonial({

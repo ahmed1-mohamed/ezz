@@ -74,9 +74,9 @@ export default function TeachersSection({ eliteTeachers }) {
     const displayTeachers = eliteTeachers && eliteTeachers.length > 0 ? eliteTeachers : teachersData;
 
     return (
-        <section className="bg-gradient-to-b from-slate-50 to-white py-24 px-4 relative overflow-hidden">
-            <div className="absolute top-0 start-0 w-[500px] h-[500px] bg-[#0F7A6C]/5 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 end-0 w-[400px] h-[400px] bg-[#D4AF37]/5 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3" />
+        <section className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-24 px-4 relative overflow-hidden">
+            <div className="absolute top-0 start-0 w-[500px] h-[500px] bg-[#0F7A6C]/5 dark:bg-[#0F7A6C]/15 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 end-0 w-[400px] h-[400px] bg-[#D4AF37]/5 dark:bg-[#D4AF37]/15 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3" />
 
             <div className="max-w-7xl mx-auto relative z-10">
 
@@ -87,11 +87,11 @@ export default function TeachersSection({ eliteTeachers }) {
                     transition={{ duration: 0.7 }}
                     className="text-center mb-16"
                 >
-                    <h2 className="text-4xl md:text-5xl font-black text-[#1B1B1B] mb-5">
+                    <h2 className="text-4xl md:text-5xl font-black text-[#1B1B1B] dark:text-white mb-5">
                         {t("teachers.title", "نخبة من معلمينا")}
                     </h2>
                     <div className="mx-auto mt-4 mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
-                    <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+                    <p className="text-[#6B7280] dark:text-slate-300 text-lg max-w-2xl mx-auto">
                         {t("teachers.desc", "نفخر بكوادرنا التعليمية المؤهلة والمتميزة، من ذوي الخبرة الواسعة في مجالاتهم")}
                     </p>
                 </motion.div>
@@ -109,7 +109,7 @@ export default function TeachersSection({ eliteTeachers }) {
                                 ease: "easeOut",
                             }}
                             whileHover={{ y: -10, scale: 1.02 }}
-                            className="flex flex-col items-center text-center bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_20px_40px_rgba(15,122,108,0.1)] hover:border-[#0F7A6C]/20 transition-all duration-300"
+                            className="flex flex-col items-center text-center bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] border border-slate-100 dark:border-slate-800 hover:shadow-[0_20px_40px_rgba(15,122,108,0.1)] hover:border-[#0F7A6C]/20 transition-all duration-300"
                         >
 
                             <div className="relative w-32 h-32 md:w-40 md:h-40 mb-6">
@@ -133,18 +133,18 @@ export default function TeachersSection({ eliteTeachers }) {
                                         e.currentTarget.onerror = null;
                                         e.currentTarget.src = defaultFallbackImages[index % defaultFallbackImages.length];
                                     }}
-                                    className="w-full h-full rounded-full object-cover border-4 border-white shadow-[0_10px_25px_rgba(15,122,108,0.2)] relative z-10"
+                                    className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-[0_10px_25px_rgba(15,122,108,0.2)] relative z-10"
                                 />
                             </div>
 
-                            <h3 className="text-xl font-extrabold text-slate-800 mb-2">
+                            <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-2">
                                 {teacher.nameKey ? t(teacher.nameKey, 'اسم المعلم') : teacher.name}
                             </h3>
-                            <p className="text-sm font-medium text-[#0F7A6C] mb-4">
+                            <p className="text-sm font-medium text-[#0F7A6C] dark:text-emerald-400 mb-4">
                                 {teacher.titleKey ? t(teacher.titleKey, 'التخصص') : (teacher.title || t('teachers.defaultTitle', 'معلم متميز'))}
                             </p>
 
-                            <div className="bg-slate-50 px-4 py-2 rounded-full border border-slate-100 mt-auto">
+                            <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700 mt-auto">
                                 <StarRating rating={teacher.rating || 5} />
                             </div>
                         </motion.div>

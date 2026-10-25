@@ -110,9 +110,9 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-[#EEF4F2] flex flex-col relative font-sans">
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
             <div className="absolute top-6 start-6 z-10">
-                <Link to="/" className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold transition-colors bg-white/50 hover:bg-white px-4 py-2 rounded-full shadow-sm">
+                <Link to="/" className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/50 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm border border-transparent dark:border-slate-800">
                     <ArrowIcon className="w-5 h-5" />
                     <span>{t('login.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
@@ -124,25 +124,25 @@ export default function Login() {
 
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
                 <div className="text-center mb-8">
-                    <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
-                        <BookOpen className="w-10 h-10 text-[#00695C]" />
+                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
+                        <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] mb-2">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-2">
                         {t('login.academyName', 'أكاديمية منارة العز')}
                     </h1>
-                    <p className="text-slate-500 font-medium">
+                    <p className="text-slate-500 dark:text-slate-400 font-medium">
                         {t('login.academySubtitle', 'أكاديمية تعليمية روحية ومعاصرة')}
                     </p>
                 </div>
 
-                <div className="bg-white w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100">
-                    <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center sm:text-start">
+                <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100 dark:border-slate-800">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-8 text-center sm:text-start">
                         {t('login.formTitle', 'تسجيل الدخول')}
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-slate-600 px-1">
+                            <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                 {t('login.emailLabel', 'البريد الإلكتروني')}
                             </label>
                             <div className="relative">
@@ -154,14 +154,14 @@ export default function Login() {
                                     value={formValues.email}
                                     onChange={(e) => setFormValues({ ...formValues, email: e.target.value })}
                                     placeholder="example@mail.com"
-                                    className={`w-full bg-[#F5F8F7] border ${errors.email ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400`}
+                                    className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.email ? 'border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500`}
                                 />
                             </div>
                             {errors.email && <p className="text-xs text-red-500 px-1">{errors.email}</p>}
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-slate-600 px-1">
+                            <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                 {t('login.passwordLabel', 'كلمة المرور')}
                             </label>
                             <div className="relative">
@@ -173,13 +173,13 @@ export default function Login() {
                                     value={formValues.password}
                                     onChange={(e) => setFormValues({ ...formValues, password: e.target.value })}
                                     placeholder="••••••••"
-                                    className={`w-full bg-[#F5F8F7] border ${errors.password ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400`}
+                                    className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${errors.password ? 'border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500`}
                                 />
                             </div>
                             {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                         </div>
                         <div className="flex justify-end pt-1">
-                            <Link to="/forgot-password" className="text-sm font-bold text-[#735C00] hover:text-[#5c4a00] transition-colors">
+                            <Link to="/forgot-password" className="text-sm font-bold text-[#735C00] dark:text-amber-400 hover:text-[#5c4a00] dark:hover:text-amber-300 transition-colors">
                                 {t('login.forgotPassword', 'نسيت كلمة المرور؟')}
                             </Link>
                         </div>
@@ -189,23 +189,23 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
+                            className="w-full bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
                         >
                             {loading ? t('login.signingIn', 'جاري الدخول...') : t('login.submitBtn', 'دخول للمنارة')}
                         </button>
 
                         <div className="relative py-6 flex items-center">
-                            <div className="flex-grow border-t border-slate-100"></div>
-                            <span className="shrink-0 px-4 text-xs font-medium text-slate-400">
+                            <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+                            <span className="shrink-0 px-4 text-xs font-medium text-slate-400 dark:text-slate-500">
                                 {t('login.orLoginWith', 'أو سجل الدخول عبر حساب جوجل')}
                             </span>
-                            <div className="flex-grow border-t border-slate-100"></div>
+                            <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                         </div>
 
                         <button
                             type="button"
                             onClick={handleGoogleClick}
-                            className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl py-3.5 flex items-center justify-center gap-3 transition-all"
+                            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-2xl py-3.5 flex items-center justify-center gap-3 transition-all"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path
@@ -229,8 +229,8 @@ export default function Login() {
                     </form>
 
                     <div className="mt-8 text-center flex items-center justify-center gap-1.5 text-sm">
-                        <span className="text-slate-500 font-medium">{t('login.noAccount', 'لا تملك حسابًا؟')}</span>
-                        <Link to="/register" className="font-bold text-[#00695C] hover:text-[#004D40] hover:underline transition-colors">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">{t('login.noAccount', 'لا تملك حسابًا؟')}</span>
+                        <Link to="/register" className="font-bold text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 hover:underline transition-colors">
                             {t('login.registerNow', 'سجل الآن')}
                         </Link>
                     </div>
@@ -282,14 +282,14 @@ export default function Login() {
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0.95, y: 20 }}
                             transition={{ type: 'spring', duration: 0.5 }}
-                            className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl border border-slate-100 p-8 relative"
+                            className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 p-8 relative"
                         >
-                            <h3 className="text-2xl font-bold text-[#00695C] mb-6 text-center sm:text-start">
+                            <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400 mb-6 text-center sm:text-start">
                                 {t('login.googleModalTitle', 'تسجيل الدخول بحساب جوجل')}
                             </h3>
                             <form onSubmit={handleGoogleModalSubmit} className="space-y-5" noValidate>
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-600 px-1">
+                                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                         {t('login.usernameLabel', 'البريد الإلكتروني أو رقم الهاتف')}
                                     </label>
                                     <input
@@ -297,12 +297,12 @@ export default function Login() {
                                         value={googleUsername}
                                         onChange={(e) => setGoogleUsername(e.target.value)}
                                         placeholder="example@mail.com"
-                                        className={`w-full bg-[#F5F8F7] border ${googleErrors.username ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 px-4 outline-none transition-all placeholder-slate-400`}
+                                        className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${googleErrors.username ? 'border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3.5 px-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500`}
                                     />
                                     {googleErrors.username && <p className="text-xs text-red-500 px-1">{googleErrors.username}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-600 px-1">
+                                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                         {t('login.passwordLabel', 'كلمة المرور')}
                                     </label>
                                     <input
@@ -310,7 +310,7 @@ export default function Login() {
                                         value={googlePassword}
                                         onChange={(e) => setGooglePassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className={`w-full bg-[#F5F8F7] border ${googleErrors.password ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 px-4 outline-none transition-all placeholder-slate-400`}
+                                        className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${googleErrors.password ? 'border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3.5 px-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500`}
                                     />
                                     {googleErrors.password && <p className="text-xs text-red-500 px-1">{googleErrors.password}</p>}
                                 </div>
@@ -318,14 +318,14 @@ export default function Login() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="flex-1 bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-3.5 transition-all shadow-md active:scale-[0.98]"
+                                        className="flex-1 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-2xl py-3.5 transition-all shadow-md active:scale-[0.98]"
                                     >
                                         {loading ? t('login.signingIn', 'جاري الدخول...') : t('login.submitBtn', 'دخول')}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowGoogleModal(false)}
-                                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl py-3.5 transition-all active:scale-[0.98]"
+                                        className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-2xl py-3.5 transition-all active:scale-[0.98]"
                                     >
                                         {t('login.cancelBtn', 'إلغاء')}
                                     </button>

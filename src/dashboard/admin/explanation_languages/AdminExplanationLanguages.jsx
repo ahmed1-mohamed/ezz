@@ -14,7 +14,7 @@ export default function AdminExplanationLanguages() {
 
     const { data: languagesData, isLoading } = useQuery({
         queryKey: [QUERY_KEY, i18n.language],
-        queryFn: () => explanationLanguagesApi.fetchLanguages({ lang: i18n.language }),
+        queryFn: () => explanationLanguagesApi.fetchLanguages(),
         staleTime: STALE_TIME_MS,
     });
 

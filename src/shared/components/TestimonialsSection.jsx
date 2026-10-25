@@ -31,7 +31,7 @@ export default React.memo(function TestimonialsSection({ testimonials: customTes
         : fallbackTestimonials;
 
     return (
-        <section className="relative overflow-hidden bg-[#EEF5F3] py-24">
+        <section className="relative overflow-hidden bg-[#EEF5F3] dark:bg-slate-900/50 py-24">
             <div className="relative max-w-7xl mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 35 }}
@@ -40,11 +40,11 @@ export default React.memo(function TestimonialsSection({ testimonials: customTes
                     viewport={{ once: true }}
                     className="text-center mb-20"
                 >
-                    <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B]">
+                    <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] dark:text-white">
                         {t('testimonials.title', 'ماذا يقول أولياء الأمور؟')}
                     </h2>
 
-                    <p className="mt-5 text-[#6B7280] text-lg">
+                    <p className="mt-5 text-[#6B7280] dark:text-slate-300 text-lg">
                         {t('testimonials.subtitle', 'آراء حقيقية من عائلات انضمت إلى رحلتنا التعليمية')}
                     </p>
                 </motion.div>
@@ -82,12 +82,12 @@ const TestimonialCard = React.memo(({ item, index }) => {
         >
             <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-[#0F7A6C]/5 to-[#17B89C]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 will-change-[opacity]" />
 
-            <div className="relative bg-white/95 rounded-[32px] p-10 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden min-h-[280px] flex flex-col justify-between">
-                <div className="absolute top-6 start-6 text-[#0F7A6C] text-7xl font-black opacity-40">
+            <div className="relative bg-white/95 dark:bg-slate-900/90 rounded-[32px] p-10 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.3)] border border-slate-100 dark:border-slate-800 overflow-hidden min-h-[280px] flex flex-col justify-between">
+                <div className="absolute top-6 start-6 text-[#0F7A6C] dark:text-emerald-400 text-7xl font-black opacity-40">
                     "
                 </div>
 
-                <p className="relative z-10 text-[#555] text-md leading-9 mt-6 text-start">
+                <p className="relative z-10 text-[#555] dark:text-slate-300 text-md leading-9 mt-6 text-start">
                     {item.text}
                 </p>
 
@@ -97,20 +97,20 @@ const TestimonialCard = React.memo(({ item, index }) => {
                         <img
                             src={avatarImage}
                             alt={item.name}
-                            className="relative w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                            className="relative w-16 h-16 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-lg"
                             loading="lazy"
                             decoding="async"
                         />
                     </div>
                     <div className="relative z-10 text-start">
-                        <h3 className="font-extrabold text-[#222] text-lg">
+                        <h3 className="font-extrabold text-[#222] dark:text-white text-lg">
                             {item.name}
                         </h3>
                     </div>
                 </div>
 
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none will-change-[opacity]">
-                    <div className="absolute -top-20 start-[-120px] rotate-12 w-40 h-[400px] bg-white/20 blur-xl" />
+                    <div className="absolute -top-20 start-[-120px] rotate-12 w-40 h-[400px] bg-white/20 dark:bg-white/10 blur-xl" />
                 </div>
             </div>
         </motion.div>

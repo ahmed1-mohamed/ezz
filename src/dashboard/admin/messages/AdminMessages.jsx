@@ -51,14 +51,14 @@ export default function AdminMessages() {
     error: tabError
   } = useQuery({
     queryKey: ['registrationRequestsTab', activeTab, i18n.language, appliedSearch, currentPage],
-    queryFn: () => fetcher({ lang: i18n.language, search: appliedSearch || undefined, page: currentPage, limit }),
+    queryFn: () => fetcher({ search: appliedSearch || undefined, page: currentPage, limit }),
     staleTime: 5 * 60 * 1000,
     keepPreviousData: true,
   })
 
   const { data: statsData } = useQuery({
     queryKey: ['registrationRequestsStats', i18n.language],
-    queryFn: () => messagesApi.fetchMessageStats({ lang: i18n.language }),
+    queryFn: () => messagesApi.fetchMessageStats(),
     staleTime: 5 * 60 * 1000,
   })
 

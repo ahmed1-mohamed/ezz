@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { ShieldCheck, BookOpen, Video } from "lucide-react";
 import { motion } from "framer-motion";
 
-
 export default React.memo(function PremiumParentsSection() {
     const { t } = useTranslation();
 
@@ -27,7 +26,7 @@ export default React.memo(function PremiumParentsSection() {
 
     return (
         <section
-            className="relative rounded-3xl border border-[#0F7A6C]/20 px-4 py-10 sm:px-6 sm:py-14 lg:px-10 lg:py-20 shadow-[0_20px_60px_rgba(15,122,108,0.08)]"
+            className="relative rounded-3xl border border-[#0F7A6C]/20 px-4 py-10 sm:px-6 sm:py-14 lg:px-10 lg:py-20 shadow-[0_20px_60px_rgba(15,122,108,0.08)] bg-white/60 dark:bg-slate-900/60 dark:border-slate-800"
         >
             <div className="mx-auto max-w-7xl flex flex-col gap-10 sm:gap-14">
 
@@ -38,13 +37,13 @@ export default React.memo(function PremiumParentsSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center max-w-3xl mx-auto"
                 >
-                    <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C]">
+                    <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C] dark:text-emerald-400">
                         {t('premiumParents.title', 'لماذا يثق بنا الآباء؟')}
                     </h2>
 
                     <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
 
-                    <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-600 leading-7">
+                    <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-7">
                         {t('premiumParents.description', 'نوفر بيئة آمنة وتقارير دورية لنضمن لك راحة البال التامة تجاه تقدم أبنائك.')}
                     </p>
                 </motion.div>
@@ -60,22 +59,22 @@ export default React.memo(function PremiumParentsSection() {
                             transition={{ duration: 0.6, delay: index * 0.15 }}
                             whileHover={{ y: -10 }}
                             style={{ willChange: 'transform, opacity' }}
-                            className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 transition-all duration-500 shadow-md hover:shadow-[0_30px_90px_rgba(15,122,108,0.12)] text-start"
+                            className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 p-8 transition-all duration-500 shadow-md hover:shadow-[0_30px_90px_rgba(15,122,108,0.12)] text-start"
                         >
                             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0F7A6C]/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
                             <div className="relative z-10 mb-7">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#0F7A6C]/10 transition group-hover:bg-[#0F7A6C] group-hover:scale-110">
-                                    <Icon className="w-8 h-8 text-[#0F7A6C] group-hover:text-white transition" />
+                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#0F7A6C]/10 dark:bg-[#0F7A6C]/20 transition group-hover:bg-[#0F7A6C] group-hover:scale-110">
+                                    <Icon className="w-8 h-8 text-[#0F7A6C] dark:text-emerald-400 group-hover:text-white transition" />
                                 </div>
                             </div>
 
                             <div className="relative z-10 flex flex-1 flex-col">
-                                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                                     {title}
                                 </h3>
 
-                                <p className="mt-4 text-slate-600 leading-7 text-sm sm:text-base">
+                                <p className="mt-4 text-slate-600 dark:text-slate-300 leading-7 text-sm sm:text-base">
                                     {description}
                                 </p>
                             </div>
@@ -88,4 +87,4 @@ export default React.memo(function PremiumParentsSection() {
             </div>
         </section>
     );
-})
+});

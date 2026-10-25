@@ -20,15 +20,15 @@ export default React.memo(function ContactTopHero() {
                     className={`w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-start space-y-6 order-2 lg:order-1`}
                 >
                     <div
-                        className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm">
+                        className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] dark:bg-amber-600 px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm">
                         {t('contact.topHero.badge', 'اترك أثراً')}
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-[#005F54]">
+                    <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-[#005F54] dark:text-emerald-400">
                         {t('contact.topHero.title', 'تواصلوا معنا للاستفسار والتسجيل')}
                     </h1>
 
-                    <p className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600">
+                    <p className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600 dark:text-slate-300">
                         {t('contact.topHero.desc', 'فريق منارة العز معكم دائماً لدعم أبنائكم تعليمياً والرد على جميع الاستفسارات و الشكاوي الخاصة بالدورات والتسجيل والمتابعة.')}
                     </p>
                 </motion.div>
@@ -49,16 +49,16 @@ export default React.memo(function ContactTopHero() {
                         <motion.div
                             animate={{ rotate: [0, 3, 0] }}
                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute inset-0 rounded-2xl transform translate-y-5 -translate-x-5 scale-[1.03] backdrop-blur-sm border border-white/20"
+                            className="absolute inset-0 rounded-2xl transform translate-y-5 -translate-x-5 scale-[1.03] backdrop-blur-sm border border-white/20 dark:border-slate-800"
                         />
                         <motion.div
                             animate={{ rotate: [0, -3, 0] }}
                             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            className="absolute inset-0  rounded-2xl transform -translate-y-4 translate-x-4 scale-[1.03] backdrop-blur-sm border border-white/20"
+                            className="absolute inset-0 rounded-2xl transform -translate-y-4 translate-x-4 scale-[1.03] backdrop-blur-sm border border-white/20 dark:border-slate-800"
                         />
 
-                        <div className="relative group p-2.5  rounded-2xl shadow-2xl">
-                            <div className="relative overflow-hidden rounded-xl bg-slate-100">
+                        <div className="relative group p-2.5 rounded-2xl shadow-2xl">
+                            <div className="relative overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
                                 <motion.img
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ duration: 0.5, ease: "easeOut" }}
@@ -79,3 +79,4 @@ export default React.memo(function ContactTopHero() {
         </section>
     )
 })
+

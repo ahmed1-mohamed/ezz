@@ -1,10 +1,13 @@
 import api from './axiosConfig';
 
+let cachedLandingCountries = null;
+let landingCountriesPromise = null;
+
 export const landingApi = {
   fetchLandingPageData: async (lang) => {
     try {
       const response = await api.get('/api/v1/landing-page', {
-        params: { lang }
+        params: lang ? { lang } : undefined
       });
       return response.data;
     } catch (error) {
@@ -16,7 +19,7 @@ export const landingApi = {
   fetchPackagesAndFaqs: async (lang) => {
     try {
       const response = await api.get('/api/v1/packages-faqs/public', {
-        params: { lang }
+        params: lang ? { lang } : undefined
       });
       return response.data;
     } catch (error) {
@@ -46,13 +49,28 @@ export const landingApi = {
   },
 
   fetchCountries: async (params) => {
-    try {
-      const response = await api.get('/api/v1/countries', { params });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching countries:', error);
-      throw error;
+    const hasNoCustomParams = !params || Object.keys(params).length === 0;
+    if (cachedLandingCountries && hasNoCustomParams) {
+      return cachedLandingCountries;
     }
+    if (landingCountriesPromise) {
+      return landingCountriesPromise;
+    }
+    landingCountriesPromise = (async () => {
+      try {
+        const response = await api.get('/api/v1/countries', { params });
+        if (response?.data) {
+          cachedLandingCountries = response.data;
+        }
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching countries:', error);
+        throw error;
+      } finally {
+        landingCountriesPromise = null;
+      }
+    })();
+    return landingCountriesPromise;
   },
 
   fetchPublicFeaturedStudents: async (params) => {
@@ -127,13 +145,27 @@ export const landingApi = {
 
   fetchSystemTeachers: async () => {
     try {
-      const response = await api.get('/api/v1/teachers/localized/all', {
+      const response = await api.get('/api/v1/teachers/private/localized/all', {
         params: { limit: 1000 }
       });
       return response.data;
-    } catch (error) {
-      console.error('Error fetching system teachers:', error);
-      throw error;
+    } catch {
+      try {
+        const response2 = await api.get('/api/v1/teachers/localized/all', {
+          params: { limit: 1000 }
+        });
+        return response2.data;
+      } catch {
+        try {
+          const response3 = await api.get('/api/v1/teachers/public', {
+            params: { limit: 1000 }
+          });
+          return response3.data;
+        } catch (error) {
+          console.error('Error fetching system teachers across endpoints:', error);
+          throw error;
+        }
+      }
     }
   },
 
@@ -143,9 +175,16 @@ export const landingApi = {
         params: { limit: 1000 }
       });
       return response.data;
-    } catch (error) {
-      console.error('Error fetching system students:', error);
-      throw error;
+    } catch {
+      try {
+        const response2 = await api.get('/api/v1/students/private/localized/all', {
+          params: { limit: 1000 }
+        });
+        return response2.data;
+      } catch (error) {
+        console.error('Error fetching system students:', error);
+        throw error;
+      }
     }
   },
 

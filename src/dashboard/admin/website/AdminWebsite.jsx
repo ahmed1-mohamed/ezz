@@ -40,14 +40,30 @@ export default function AdminWebsite() {
     }
   }, [toast.show]);
 
-  const { stats, isLoading: isStatsLoading, isSaving: isSavingStats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification);
+  const canViewStats = hasPermission('statistics.read');
+  const canUpdateStats = hasPermission('statistics.update');
+  const canViewStars = hasPermission('featured_students.read');
+  const canCreateStar = hasPermission('featured_students.create');
+  const canDeleteStar = hasPermission('featured_students.delete');
+  const canViewTeachers = hasPermission('elite_teachers.read');
+  const canCreateTeacher = hasPermission('elite_teachers.create');
+  const canDeleteTeacher = hasPermission('elite_teachers.delete');
+  const canViewTestimonials = hasPermission('testimonials.read');
+  const canCreateTestimonial = hasPermission('testimonials.create');
+  const canEditTestimonial = hasPermission('testimonials.update');
+  const canDeleteTestimonial = hasPermission('testimonials.delete');
+  const canViewContact = hasPermission('contact_us.read');
+  const canUpdateContact = hasPermission('contact_us.update');
+  const hasAnyWebsiteSection = canViewStats || canViewStars || canViewTeachers || canViewTestimonials || canViewContact;
+
+  const { stats, isLoading: isStatsLoading, isSaving: isSavingStats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification, canViewStats);
   
   const {
     stars, isModalOpen, setIsModalOpen, isViewModalOpen, setIsViewModalOpen,
     currentStar, setCurrentStar, systemStudents, isSaving: isSavingStar,
     handleOpenAddModal, handleOpenEditModal, handleOpenViewModal,
     handleDeleteStar, handleSaveModal, handleSaveStarsList, handleCancelStarsList
-  } = useFeaturedStudents(showNotification);
+  } = useFeaturedStudents(showNotification, canViewStars);
 
   const {
     eliteTeachers, isTeacherModalOpen, setIsTeacherModalOpen, selectedTeacher,
@@ -55,22 +71,15 @@ export default function AdminWebsite() {
     setCurrentTeacher, systemTeachers, isSaving: isSavingTeacher,
     handleOpenAddTeacher, handleOpenEditTeacher,
     handleShowTeacherNotes, handleDeleteTeacher, handleSaveTeacherSubmit
-  } = useEliteTeachers(showNotification);
+  } = useEliteTeachers(showNotification, canViewTeachers);
 
   const {
     testimonials, isTestimonialModalOpen, setIsTestimonialModalOpen, currentTestimonial,
     setCurrentTestimonial, isSaving: isSavingTestimonial, handleOpenAddTestimonial, handleOpenEditTestimonial,
     handleDeleteTestimonial, handleSaveTestimonialSubmit
-  } = useTestimonials(showNotification);
+  } = useTestimonials(showNotification, canViewTestimonials);
 
-  const { contactInfo, isLoading: isContactLoading, isSaving: isSavingContact, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification);
-
-  const canViewStats = hasPermission('statistics.read');
-  const canViewStars = hasPermission('featured_students.read');
-  const canViewTeachers = hasPermission('elite_teachers.read');
-  const canViewTestimonials = hasPermission('testimonials.read');
-  const canViewContact = hasPermission('contact_us.read');
-  const hasAnyWebsiteSection = canViewStats || canViewStars || canViewTeachers || canViewTestimonials || canViewContact;
+  const { contactInfo, isLoading: isContactLoading, isSaving: isSavingContact, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification, canViewContact);
 
   if (!hasAnyWebsiteSection) {
     return (
@@ -89,6 +98,7 @@ export default function AdminWebsite() {
           stats={stats}
           isLoading={isStatsLoading}
           isSaving={isSavingStats}
+          canUpdate={canUpdateStats}
           handleStatChange={handleStatChange}
           handleSaveStats={handleSaveStats}
           handleCancelStats={handleCancelStats}
@@ -98,10 +108,10 @@ export default function AdminWebsite() {
       {canViewStars && (
         <ExcellenceStarsSection
           stars={stars}
-          handleOpenAddModal={handleOpenAddModal}
+          handleOpenAddModal={canCreateStar ? handleOpenAddModal : null}
           handleOpenEditModal={handleOpenEditModal}
           handleOpenViewModal={handleOpenViewModal}
-          handleDeleteStar={handleDeleteStar}
+          handleDeleteStar={canDeleteStar ? handleDeleteStar : null}
           handleCancelStarsList={handleCancelStarsList}
           handleSaveStarsList={handleSaveStarsList}
         />
@@ -110,9 +120,9 @@ export default function AdminWebsite() {
       {canViewTeachers && (
         <EliteTeachersSection
           teachers={eliteTeachers}
-          handleOpenAddTeacher={handleOpenAddTeacher}
+          handleOpenAddTeacher={canCreateTeacher ? handleOpenAddTeacher : null}
           handleOpenEditTeacher={handleOpenEditTeacher}
-          handleDeleteTeacher={handleDeleteTeacher}
+          handleDeleteTeacher={canDeleteTeacher ? handleDeleteTeacher : null}
           handleShowTeacherNotes={handleShowTeacherNotes}
         />
       )}
@@ -120,9 +130,9 @@ export default function AdminWebsite() {
       {canViewTestimonials && (
         <ParentTestimonialsSection
           testimonials={testimonials}
-          handleOpenAddTestimonial={handleOpenAddTestimonial}
-          handleOpenEditTestimonial={handleOpenEditTestimonial}
-          handleDeleteTestimonial={handleDeleteTestimonial}
+          handleOpenAddTestimonial={canCreateTestimonial ? handleOpenAddTestimonial : null}
+          handleOpenEditTestimonial={canEditTestimonial ? handleOpenEditTestimonial : null}
+          handleDeleteTestimonial={canDeleteTestimonial ? handleDeleteTestimonial : null}
         />
       )}
 
@@ -179,6 +189,7 @@ export default function AdminWebsite() {
           contactInfo={contactInfo}
           isLoading={isContactLoading}
           isSaving={isSavingContact}
+          canUpdate={canUpdateContact}
           onSave={handleSaveContactInfo}
           onCancel={handleCancelContactInfo}
         />

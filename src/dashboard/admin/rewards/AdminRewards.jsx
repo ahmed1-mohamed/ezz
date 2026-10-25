@@ -25,9 +25,14 @@ export default function AdminRewards() {
   const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const canViewRewards = hasPermission('rewards.read') || hasPermission('rewards_suggestions.read')
-  const canViewSuggestions = hasPermission('suggested_rewards.read') || hasPermission('rewards_suggestions.read')
+  const canViewRewards = hasPermission('rewards.read') || hasPermission('rewards_suggestions.read') || isSuperAdmin
+  const canViewSuggestions = hasPermission('suggested_rewards.read') || hasPermission('rewards_suggestions.read') || isSuperAdmin
   const canCreateReward = hasPermission('rewards.create') || isSuperAdmin
+  const canEditReward = hasPermission('rewards.update') || isSuperAdmin
+  const canDeleteReward = hasPermission('rewards.delete') || isSuperAdmin
+  const canDeleteSuggestion = hasPermission('suggested_rewards.delete') || isSuperAdmin
+  const canApproveSuggestion = hasPermission('suggested_rewards.accept') || isSuperAdmin
+  const canRejectSuggestion = hasPermission('suggested_rewards.reject') || isSuperAdmin
 
   const [activeMainTab, setActiveMainTab] = useState(() => (canViewRewards ? 'rewards' : 'suggestions'))
   const [showForm, setShowForm] = useState(false)
@@ -253,8 +258,8 @@ export default function AdminRewards() {
           <RewardsGrid
             rewards={rewards}
             onView={(item) => showRewardDetails(item, isRtl)}
-            onEdit={handleEditRewardClick}
-            onDelete={handleDeleteReward}
+            onEdit={canEditReward ? handleEditRewardClick : null}
+            onDelete={canDeleteReward ? handleDeleteReward : null}
           />
         </div>
       ) : canViewSuggestions ? (
@@ -265,10 +270,9 @@ export default function AdminRewards() {
           onFilterChange={loadSuggestionsByStatus}
           isLoading={isSuggestionsLoading}
           onView={(item) => showRewardDetails(item, isRtl)}
-          onApprove={handleApproveSuggestion}
-          onReject={handleRejectSuggestion}
-          onEdit={(item) => handleEditRewardClick(item, true)}
-          onDelete={handleDeleteSuggestion}
+          onApprove={canApproveSuggestion ? handleApproveSuggestion : null}
+          onReject={canRejectSuggestion ? handleRejectSuggestion : null}
+          onDelete={canDeleteSuggestion ? handleDeleteSuggestion : null}
         />
       ) : null}
 

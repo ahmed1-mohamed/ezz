@@ -12,8 +12,87 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
   const [isAdding, setIsAdding] = useState(false)
   const [isLoadingStudents, setIsLoadingStudents] = useState(false)
 
-  const studentsList = group.students || []
-  const count = group.currentStudentsCount ?? studentsList.length
+  const extractStudentName = (obj) => {
+    if (!obj) return ''
+    if (typeof obj === 'string') return obj
+    if (typeof obj === 'object') {
+      const loc = getLocalizedValue(obj.name, isRtl)
+      if (loc) return loc
+      if (obj.displayName) return typeof obj.displayName === 'object' ? getLocalizedValue(obj.displayName, isRtl) : obj.displayName
+      if (obj.nameAr || obj.nameEn) return isRtl ? (obj.nameAr || obj.nameEn) : (obj.nameEn || obj.nameAr)
+      if (obj.fullName) return typeof obj.fullName === 'object' ? getLocalizedValue(obj.fullName, isRtl) : obj.fullName
+      if (obj.studentName) return typeof obj.studentName === 'object' ? getLocalizedValue(obj.studentName, isRtl) : obj.studentName
+      if (obj.username) return obj.username
+      if (obj.email) return obj.email
+    }
+    return ''
+  }
+
+  const normalizedStudentsList = useMemo(() => {
+    const rawList = Array.isArray(group?.students) ? group.students : []
+    return rawList.map((raw, idx) => {
+      const rawId = typeof raw === 'string'
+        ? raw
+        : (raw?.id || raw?._id || raw?.student?._id || raw?.student?.id || (typeof raw?.student === 'string' ? raw.student : ''))
+
+      const matched = availableStudents.find((s) => {
+        const sId = String(s.id || s._id || s.student_id || s.user_id || '')
+        return sId && sId === String(rawId)
+      })
+
+      let rawName = ''
+      let email = ''
+      let avatar = ''
+      let joinDate = ''
+
+      if (matched) {
+        rawName = extractStudentName(matched)
+        email = matched.email || matched.user?.email || ''
+        avatar = matched.avatar || matched.profileImage || matched.image || ''
+      }
+
+      if (!rawName && raw && typeof raw === 'object') {
+        rawName = extractStudentName(raw.student) ||
+          extractStudentName(raw.user) ||
+          extractStudentName(raw)
+        email = raw.email || raw.student?.email || raw.user?.email || email
+        avatar = raw.avatar || raw.profileImage || raw.student?.avatar || raw.student?.profileImage || avatar
+      }
+
+      const displayName = rawName || (rawId ? `${t('adminDashboard.groups.student', 'طالب')} (${String(rawId).slice(-4)})` : t('adminDashboard.groups.student', 'طالب'))
+
+      if (raw && typeof raw === 'object') {
+        if (raw.createdAt) {
+          try {
+            joinDate = new Date(raw.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')
+          } catch {
+            joinDate = String(raw.createdAt)
+          }
+        } else if (raw.joinDate) {
+          joinDate = String(raw.joinDate)
+        } else if (raw.joinedAt) {
+          try {
+            joinDate = new Date(raw.joinedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')
+          } catch {
+            joinDate = String(raw.joinedAt)
+          }
+        }
+      }
+
+      const id = String(rawId || `std_${idx}`)
+
+      return {
+        id,
+        _id: id,
+        name: displayName,
+        email,
+        avatar,
+        joinDate,
+      }
+    })
+  }, [group, availableStudents, isRtl, t])
+
+  const count = group.currentStudentsCount ?? normalizedStudentsList.length
 
   const getDayName = (rawDay) => {
     if (!rawDay) return ''
@@ -35,10 +114,17 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
     const load = async () => {
       setIsLoadingStudents(true)
       try {
-        const res = await studentsApi.fetchAllLocalizedStudents()
+        const res = await studentsApi.fetchStudents({ limit: 1000 })
         if (!active) return
-        const data = res?.data || res || []
-        setAvailableStudents(Array.isArray(data) ? data : [])
+        const list = res?.data || (Array.isArray(res) ? res : [])
+        if (Array.isArray(list) && list.length > 0) {
+          setAvailableStudents(list)
+        } else {
+          const fallbackRes = await studentsApi.fetchAllLocalizedStudents()
+          if (!active) return
+          const raw = fallbackRes?.data || fallbackRes || []
+          setAvailableStudents(Array.isArray(raw) ? raw : [])
+        }
       } catch (err) {
         console.warn('Could not load students for select:', err)
       } finally {
@@ -49,13 +135,13 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
     return () => { active = false }
   }, [])
 
-  const existingIds = useMemo(() => studentsList.map((s) => s.id || s._id), [studentsList])
+  const existingIds = useMemo(() => normalizedStudentsList.map((s) => s.id || s._id), [normalizedStudentsList])
 
   const handleAddClick = async () => {
     if (!selectedStudent || !onAddStudent) return
     setIsAdding(true)
     try {
-      await onAddStudent(group.id, selectedStudent)
+      await onAddStudent(group.id || group._id, selectedStudent)
       setSelectedStudent(null)
     } finally {
       setIsAdding(false)
@@ -194,27 +280,32 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
         </div>
 
         <div className="p-5 space-y-3 overflow-y-auto flex-1">
-          {studentsList.length === 0 ? (
+          {normalizedStudentsList.length === 0 ? (
             <p className="text-center text-slate-400 text-sm py-8">
               {t('adminDashboard.groups.noStudentsInGroup', 'لا يوجد طلاب مسجلون في هذه المجموعة')}
             </p>
           ) : (
-            studentsList.map((student) => (
+            normalizedStudentsList.map((student) => (
               <div
-                key={student.id || student._id}
+                key={student.id}
                 className="flex items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group/std"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-sm shrink-0">
-                    {getLocalizedValue(student.name, isRtl).charAt(0)}
+                  <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden">
+                    {student.avatar ? (
+                      <img src={student.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{student.name.charAt(0)}</span>
+                    )}
                   </div>
                   <div className="text-start">
-                    <p className="text-sm font-bold text-slate-800 dark:text-white">{getLocalizedValue(student.name, isRtl)}</p>
-                    {student.joinDate && <p className="text-xs text-slate-400">{student.joinDate}</p>}
+                    <p className="text-sm font-bold text-slate-800 dark:text-white">{student.name}</p>
+                    {student.email && <p className="text-xs text-slate-400">{student.email}</p>}
+                    {student.joinDate && <p className="text-[11px] text-slate-400">{student.joinDate}</p>}
                   </div>
                 </div>
                 <button
-                  onClick={() => onRemoveStudent(group.id, student.id || student._id, getLocalizedValue(student.name, isRtl))}
+                  onClick={() => onRemoveStudent(group.id || group._id, student.id, student.name)}
                   className="flex items-center gap-1.5 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-200 dark:border-red-800 cursor-pointer opacity-100 sm:opacity-0 group-hover/std:opacity-100"
                   title={t('adminDashboard.groups.removeStudent', 'إزالة')}
                 >

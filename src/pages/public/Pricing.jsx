@@ -80,7 +80,7 @@ export default function Pricing() {
         if (!icon) {
             const fallbacks = [BookOpen, Award, Gem];
             const FallbackIcon = fallbacks[index % 3];
-            return <FallbackIcon className="w-10 h-10 text-[#00695C]" />;
+            return <FallbackIcon className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />;
         }
         if (typeof icon === 'string' && (icon.startsWith('http') || icon.startsWith('/') || icon.startsWith('data:'))) {
             const getImageUrl = (imagePath) => {
@@ -94,11 +94,11 @@ export default function Pricing() {
         }
         if (typeof icon === 'function' || typeof icon === 'object') {
             const IconComp = icon;
-            return <IconComp className="w-10 h-10 text-[#00695C]" />;
+            return <IconComp className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />;
         }
         const fallbacks = [BookOpen, Award, Gem];
         const FallbackIcon = fallbacks[index % 3];
-        return <FallbackIcon className="w-10 h-10 text-[#00695C]" />;
+        return <FallbackIcon className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />;
     }
 
     const apiPackages = packagesData?.packages?.data;
@@ -122,24 +122,24 @@ export default function Pricing() {
         : faqs;
 
     return (
-        <div className="min-h-screen bg-[#EEF4F2]/50 py-16 sm:py-24 overflow-hidden font-sans">
+        <div className="min-h-screen bg-[#EEF4F2]/50 dark:bg-slate-950 py-16 sm:py-24 overflow-hidden font-sans">
             
-             <motion.div 
+            <motion.div 
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
                 className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
             >
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#00695C] leading-tight">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#00695C] dark:text-emerald-400 leading-tight">
                     {t('pricing.header.title', 'استثمر في رحلة طفلك الروحية')}
                 </h1>
-                <p className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed max-w-2xl mx-auto">
+                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto">
                     {t('pricing.header.subtitle', 'خطط مرنة مصممة لتناسب احتياجات كل عائلة، مع نخبة من المعلمين المعتمدين في بيئة تعليمية آمنة وملهمة.')}
                 </p>
             </motion.div>
 
-             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                     {displayPlans.map((plan, index) => (
                         <motion.div 
@@ -148,33 +148,33 @@ export default function Pricing() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.4, delay: index * 0.1 }}
                             key={plan.id}
-                            className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full ${
+                            className={`relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full border border-slate-100 dark:border-slate-800 ${
                                 plan.popular 
-                                ? 'shadow-lg z-10' 
+                                ? 'shadow-lg z-10 ring-2 ring-[#00695C]/30 dark:ring-emerald-500/30' 
                                 : 'shadow-sm'
                             }`}
                         >
                             
-                            <div className="bg-[#E6F0ED] w-20 h-20 rounded-full flex items-center justify-center mb-6">
+                            <div className="bg-[#E6F0ED] dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mb-6">
                                 {renderIcon(plan.icon, index)}
                             </div>
 
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">{plan.name}</h2>
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">{plan.name}</h2>
                             
                             <div className="flex items-baseline justify-center gap-1.5 mb-10">
-                                <span className="text-5xl sm:text-6xl font-black text-[#00695C]">${plan.price}</span>
-                                <span className="text-slate-500 font-medium text-base">{t('pricing.monthly', '/شهرياً')}</span>
+                                <span className="text-5xl sm:text-6xl font-black text-[#00695C] dark:text-emerald-400">${plan.price}</span>
+                                <span className="text-slate-500 dark:text-slate-400 font-medium text-base">{t('pricing.monthly', '/شهرياً')}</span>
                             </div>
 
                             <ul className="space-y-5 w-full mb-10 flex-1 text-start px-2">
                                 {plan.features.map((feat, idx) => (
                                     <li key={idx} className="flex items-center gap-4">
                                         {feat.active ? (
-                                            <CheckCircle2 className="w-6 h-6 text-[#00695C] shrink-0" />
+                                            <CheckCircle2 className="w-6 h-6 text-[#00695C] dark:text-emerald-400 shrink-0" />
                                         ) : (
-                                            <XCircle className="w-6 h-6 text-slate-300 shrink-0" />
+                                            <XCircle className="w-6 h-6 text-slate-300 dark:text-slate-600 shrink-0" />
                                         )}
-                                        <span className={`text-base sm:text-lg font-medium ${feat.active ? 'text-slate-700' : 'text-slate-400 line-through'}`}>
+                                        <span className={`text-base sm:text-lg font-medium ${feat.active ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500 line-through'}`}>
                                             {feat.text}
                                         </span>
                                     </li>
@@ -183,7 +183,7 @@ export default function Pricing() {
 
                             <button 
                                 aria-label={`${t('pricing.btn', 'ابدأ الآن')} - ${plan.name}`}
-                                className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] text-white hover:bg-[#005247]"
+                                className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white transition-all shadow-md active:scale-95 cursor-pointer"
                             >
                                 {t('pricing.btn', 'ابدأ الآن')}
                             </button>
@@ -192,12 +192,12 @@ export default function Pricing() {
                 </div>
             </div>
 
-             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10 w-full">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10 w-full">
                 <motion.h2 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl sm:text-4xl font-extrabold text-[#00695C] text-center mb-12"
+                    className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-12"
                 >
                     {t('pricing.faq.title', 'الأسئلة الشائعة')}
                 </motion.h2>
@@ -210,10 +210,10 @@ export default function Pricing() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.4, delay: idx * 0.1 }}
                             key={idx} 
-                            className="bg-white rounded-[1.5rem] p-6 sm:p-8 shadow-sm border border-slate-100"
+                            className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800"
                         >
-                            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">{faq.q}</h3>
-                            <p className="text-slate-600 font-medium text-base sm:text-lg leading-relaxed">{faq.a}</p>
+                            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4">{faq.q}</h3>
+                            <p className="text-slate-600 dark:text-slate-300 font-medium text-base sm:text-lg leading-relaxed">{faq.a}</p>
                         </motion.div>
                     ))}
                 </div>
@@ -222,3 +222,4 @@ export default function Pricing() {
         </div>
     )
 }
+

@@ -1,21 +1,34 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
+const toSafeString = (val, isRtl) => {
+  if (val === null || val === undefined) return ''
+  if (typeof val === 'string') return val
+  if (typeof val === 'number') return String(val)
+  if (typeof val === 'object') {
+    if (isRtl) {
+      return val.ar || val.name?.ar || val.label || val.en || val.name?.en || val.name || ''
+    }
+    return val.en || val.name?.en || val.label || val.ar || val.name?.ar || val.name || ''
+  }
+  return String(val)
+}
+
 export default function SelectField({ label, value, onChange, options = [], placeholder, isRtl, error, required }) {
   const [open, setOpen] = useState(false)
 
   const displayLabel = (() => {
-    if (!value) return placeholder
+    if (value === null || value === undefined || value === '') return toSafeString(placeholder, isRtl)
     const found = options.find((opt) => {
       if (typeof opt === 'object' && opt !== null) {
-        return opt.value === value || opt.id === value || opt.label === value || opt.name === value
+        return opt.value === value || opt.id === value || opt._id === value || opt.label === value || opt.name === value
       }
       return opt === value
     })
     if (found && typeof found === 'object') {
-      return found.label || found.name || found.value
+      return toSafeString(found.label ?? found.name ?? found.value, isRtl)
     }
-    return value
+    return toSafeString(value, isRtl)
   })()
 
   return (
@@ -46,7 +59,7 @@ export default function SelectField({ label, value, onChange, options = [], plac
           ) : (
             options.map((opt, idx) => {
               const optValue = typeof opt === 'object' && opt !== null ? (opt.value ?? opt.id ?? opt) : opt
-              const optLabel = typeof opt === 'object' && opt !== null ? (opt.label ?? opt.name ?? opt.value) : opt
+              const optLabel = toSafeString(typeof opt === 'object' && opt !== null ? (opt.label ?? opt.name ?? opt.value) : opt, isRtl)
               const isSelected = value === optValue || value === optLabel
 
               return (

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
@@ -11,22 +11,112 @@ import { normalizeCountries } from '@/shared/utils/countryUtils'
 import GroupInfoCard from './GroupInfoCard'
 import GroupScheduleCard from './GroupScheduleCard'
 
-const resolveEntityId = (val) => {
-  if (!val) return ''
-  if (typeof val === 'string') return val
-  return val.id || val._id || val.teacher_id || ''
+class SafeErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('SafeErrorBoundary caught group error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-rose-200 dark:border-rose-900/40 text-center space-y-4">
+          <p className="text-sm font-bold text-rose-600 dark:text-rose-400">
+            حدث خطأ أثناء عرض بيانات المجموعة
+          </p>
+          <button
+            type="button"
+            onClick={this.props.onCancel}
+            className="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-2xl transition-all cursor-pointer shadow-md shadow-brand-500/20"
+          >
+            العودة إلى قائمة المجموعات
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }
 
-export default function AddEditGroupScreen({ group = null, isRtl, isSaving = false, onSave, onCancel }) {
+const resolveEntityId = (val) => {
+  if (val === null || val === undefined) return ''
+  if (typeof val === 'string' || typeof val === 'number') return String(val)
+  if (typeof val === 'object') {
+    return String(val.id || val._id || val.teacher_id || val.user_id || val.code || val.value || '')
+  }
+  return ''
+}
+
+const safeExtractDateString = (val) => {
+  if (!val) return ''
+  if (typeof val === 'string') {
+    const clean = val.includes('T') ? val.split('T')[0] : val.trim()
+    return clean.length >= 8 ? clean : ''
+  }
+  if (typeof val === 'number' || val instanceof Date) {
+    try {
+      return new Date(val).toISOString().split('T')[0]
+    } catch {
+      return ''
+    }
+  }
+  return ''
+}
+
+const safeExtractName = (nameVal, lang = 'ar') => {
+  if (!nameVal) return ''
+  if (typeof nameVal === 'string') return nameVal
+  if (typeof nameVal === 'object') {
+    return nameVal[lang] || nameVal.ar || nameVal.en || ''
+  }
+  return String(nameVal)
+}
+
+const normalizeScheduleList = (rawList) => {
+  if (!Array.isArray(rawList) || rawList.length === 0) {
+    return [
+      { day: 'sunday', startTime: '16:00', endTime: '17:30' },
+      { day: 'tuesday', startTime: '16:00', endTime: '17:30' },
+    ]
+  }
+
+  const result = rawList.map((s) => {
+    if (!s) return null
+    let day = 'sunday'
+    if (typeof s.day === 'object' && s.day !== null) {
+      day = (s.day.key || s.day.en || s.day.ar || 'sunday').toString().toLowerCase()
+    } else if (typeof s.day === 'string' && s.day.trim()) {
+      day = s.day.trim().toLowerCase()
+    }
+    const startTime = typeof s.startTime === 'string' ? s.startTime : (s.timeFrom || '16:00')
+    const endTime = typeof s.endTime === 'string' ? s.endTime : (s.timeTo || '17:30')
+    return { day, startTime, endTime }
+  }).filter(Boolean)
+
+  return result.length > 0 ? result : [
+    { day: 'sunday', startTime: '16:00', endTime: '17:30' },
+    { day: 'tuesday', startTime: '16:00', endTime: '17:30' },
+  ]
+}
+
+function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSave, onCancel }) {
   const { t, i18n } = useTranslation()
   const isRtlResolved = isRtl !== undefined ? isRtl : i18n.language.startsWith('ar')
   const BackArrow = isRtlResolved ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
 
   const [formData, setFormData] = useState({
-    name: typeof group?.name === 'object' ? (group.name.ar || '') : (group?.name || ''),
-    nameAr: typeof group?.name === 'object' ? (group.name.ar || '') : (group?.name || ''),
-    nameEn: typeof group?.name === 'object' ? (group.name.en || '') : (group?.nameEn || ''),
+    name: safeExtractName(group?.name, 'ar'),
+    nameAr: safeExtractName(group?.name, 'ar') || safeExtractName(group?.nameAr, 'ar'),
+    nameEn: safeExtractName(group?.name, 'en') || safeExtractName(group?.nameEn, 'en'),
     country: resolveEntityId(group?.country),
     curriculum: resolveEntityId(group?.curriculum),
     studentLevel: resolveEntityId(group?.studentLevel),
@@ -35,31 +125,36 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
     language: group?.language || 'العربية',
     maxStudents: group?.maxStudents || 5,
     status: group?.status || 'active',
-    startDate: group?.startDate ? group.startDate.split('T')[0] : '',
-    endDate: group?.endDate ? group.endDate.split('T')[0] : '',
+    startDate: safeExtractDateString(group?.startDate),
+    endDate: safeExtractDateString(group?.endDate),
     image: group?.image || null,
   })
 
   const [schedule, setSchedule] = useState(() => {
-    if (Array.isArray(group?.weeklySchedule) && group.weeklySchedule.length > 0) {
-      return group.weeklySchedule.map((s) => ({
-        day: s.day,
-        startTime: s.startTime || s.timeFrom || '16:00',
-        endTime: s.endTime || s.timeTo || '17:30',
-      }))
-    }
-    if (Array.isArray(group?.schedule) && group.schedule.length > 0) {
-      return group.schedule.map((s) => ({
-        day: s.day,
-        startTime: s.startTime || s.timeFrom || '16:00',
-        endTime: s.endTime || s.timeTo || '17:30',
-      }))
-    }
-    return [
-      { day: 'sunday', startTime: '16:00', endTime: '17:30' },
-      { day: 'tuesday', startTime: '16:00', endTime: '17:30' },
-    ]
+    return normalizeScheduleList(group?.weeklySchedule || group?.schedule)
   })
+
+  useEffect(() => {
+    if (group) {
+      setFormData({
+        name: safeExtractName(group.name, 'ar'),
+        nameAr: safeExtractName(group.name, 'ar') || safeExtractName(group.nameAr, 'ar'),
+        nameEn: safeExtractName(group.name, 'en') || safeExtractName(group.nameEn, 'en'),
+        country: resolveEntityId(group.country),
+        curriculum: resolveEntityId(group.curriculum),
+        studentLevel: resolveEntityId(group.studentLevel),
+        teacher: resolveEntityId(group.teacher),
+        type: group.type || 'group',
+        language: group.language || 'العربية',
+        maxStudents: group.maxStudents || 5,
+        status: group.status || 'active',
+        startDate: safeExtractDateString(group.startDate),
+        endDate: safeExtractDateString(group.endDate),
+        image: group.image || null,
+      })
+      setSchedule(normalizeScheduleList(group.weeklySchedule || group.schedule))
+    }
+  }, [group])
 
   const [newDay, setNewDay] = useState('sunday')
   const [newTimeFrom, setNewTimeFrom] = useState('16:00')
@@ -185,13 +280,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
       newErrors.maxStudents = t('adminDashboard.groups.maxStudentsError', 'الحد الأقصى للطلاب يجب أن يكون 1 على الأقل!')
     }
 
-    if (!formData.startDate) {
-      newErrors.startDate = t('adminDashboard.groups.selectStartDateError', 'الرجاء تحديد تاريخ بدء المجموعة!')
-    }
-    if (!formData.endDate) {
-      newErrors.endDate = t('adminDashboard.groups.selectEndDateError', 'الرجاء تحديد تاريخ انتهاء المجموعة!')
-    }
-    if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
+    if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
       newErrors.endDate = t('adminDashboard.groups.dateOrderError', 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء!')
     }
 
@@ -227,15 +316,15 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
       studentLevel: formData.studentLevel,
       type: formData.type || 'group',
       language: formData.language || 'العربية',
-      maxStudents: maxStudentsNum || 5,
+      maxStudents: maxStudentsNum || 1,
       teacher: formData.teacher,
       weeklySchedule: schedule.map((s) => ({
         day: (s.day || '').toLowerCase(),
         startTime: s.startTime || s.timeFrom || '16:00',
         endTime: s.endTime || s.timeTo || '17:30',
       })),
-      startDate: formData.startDate,
-      endDate: formData.endDate,
+      ...(formData.startDate ? { startDate: formData.startDate } : {}),
+      ...(formData.endDate ? { endDate: formData.endDate } : {}),
       ...(group && { status: formData.status || 'active' }),
     }
 
@@ -244,7 +333,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
 
   return (
     <div className="space-y-6" dir={isRtlResolved ? 'rtl' : 'ltr'}>
-       <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onCancel}
@@ -295,7 +384,7 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
           error={errors.schedule}
         />
 
-         <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="button"
             onClick={onCancel}
@@ -317,5 +406,13 @@ export default function AddEditGroupScreen({ group = null, isRtl, isSaving = fal
         </div>
       </form>
     </div>
+  )
+}
+
+export default function AddEditGroupScreen(props) {
+  return (
+    <SafeErrorBoundary onCancel={props.onCancel}>
+      <AddEditGroupScreenContent {...props} />
+    </SafeErrorBoundary>
   )
 }

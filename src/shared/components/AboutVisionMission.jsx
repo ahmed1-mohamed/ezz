@@ -14,16 +14,16 @@ export default React.memo(function AboutVisionMission() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4 }}
-                    className="bg-white rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center gap-6"
+                    className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 dark:border-slate-800 flex flex-col items-center gap-6"
                 >
-                    <div className="w-16 h-16 rounded-full bg-[#00695C]/10 flex items-center justify-center">
-                        <Eye className="w-8 h-8 text-[#00695C]" />
+                    <div className="w-16 h-16 rounded-full bg-[#00695C]/10 dark:bg-[#00695C]/20 flex items-center justify-center">
+                        <Eye className="w-8 h-8 text-[#00695C] dark:text-emerald-400" />
                     </div>
                     <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-[#00695C]">
+                        <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400">
                             {t('about.vision.title', 'رؤيتنا')}
                         </h3>
-                        <p className="text-slate-600 font-medium leading-relaxed max-w-sm mx-auto">
+                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-sm mx-auto">
                             {t('about.vision.desc', 'توفير تعليم قرآني وعربي متميز ومتاح للجميع في كل مكان، نؤمن بأن العلم حق مشاع، وأن جمال لغتنا وديننا يجب أن يصل لكل قلب بوضوح ويسر.')}
                         </p>
                     </div>
@@ -34,16 +34,16 @@ export default React.memo(function AboutVisionMission() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: 0.1 }}
-                    className="bg-white rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 flex flex-col items-center gap-6"
+                    className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 sm:p-12 text-center shadow-sm border border-slate-100/50 dark:border-slate-800 flex flex-col items-center gap-6"
                 >
-                    <div className="w-16 h-16 rounded-full bg-[#735C00]/10 flex items-center justify-center">
-                        <Target className="w-8 h-8 text-[#735C00]" />
+                    <div className="w-16 h-16 rounded-full bg-[#735C00]/10 dark:bg-amber-950/40 flex items-center justify-center">
+                        <Target className="w-8 h-8 text-[#735C00] dark:text-amber-400" />
                     </div>
                     <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-[#00695C]">
+                        <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400">
                             {t('about.mission.title', 'رسالتنا')}
                         </h3>
-                        <p className="text-slate-600 font-medium leading-relaxed max-w-sm mx-auto">
+                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-sm mx-auto">
                             {t('about.mission.desc', 'تمكين المسلمين حول العالم من تعلم لغتهم ودينهم من خلال تقنيات التعليم الحديثة والمعلمين المتخصصين، مع الحفاظ على القدوة والسمت الإسلامي.')}
                         </p>
                     </div>
@@ -53,4 +53,5 @@ export default React.memo(function AboutVisionMission() {
         </section>
     )
 })
+
 

@@ -94,7 +94,7 @@ const serializeStudentReview = (star) => {
   return `Age: ${star.age} | Level: ${star.level} | Group: ${star.groupName} | Parent: ${star.parentName}`;
 };
 
-export default function useFeaturedStudents(showNotification) {
+export default function useFeaturedStudents(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
 
   const [stars, setStars] = useState([]);
@@ -102,10 +102,14 @@ export default function useFeaturedStudents(showNotification) {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentStar, setCurrentStar] = useState(null);
   const [systemStudents, setSystemStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const [featRes, sysRes] = await Promise.all([
@@ -126,11 +130,15 @@ export default function useFeaturedStudents(showNotification) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (enabled) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [loadData, enabled]);
 
   const handleOpenAddModal = async () => {
     try {

@@ -1,12 +1,6 @@
 import api from '@/shared/services/api/axiosConfig'
 
-/**
- * Normalizes a country object from `/api/v1/countries`
- * API format: { id, name, dialCode, flag, code }
- *
- * @param {Object} country
- * @returns {Object}
- */
+
 export const normalizeCountry = (country) => {
   if (!country || typeof country !== 'object') return country
   const id = country.id || country._id || ''
@@ -27,59 +21,52 @@ export const normalizeCountry = (country) => {
   }
 }
 
-/**
- * Normalizes an array of country objects.
- *
- * @param {Array} list
- * @returns {Array}
- */
+
 export const normalizeCountries = (list = []) => {
   if (!Array.isArray(list)) return []
   return list.map(normalizeCountry)
 }
 
-/**
- * Safely extracts the phone dial code (e.g. "+20").
- *
- * @param {Object} country
- * @returns {string}
- */
+
 export const getCountryDialCode = (country) => {
   if (!country) return ''
   return country.dialCode || country.phoneCode || (typeof country.code === 'string' && country.code.startsWith('+') ? country.code : '') || ''
 }
 
-let cachedCountriesPromise = null
 let cachedCountriesList = null
+let inFlightCountriesPromise = null
 
-/**
- * Fetches countries from `/api/v1/countries`, normalizes them, and caches the result.
- *
- * @param {Object} params
- * @returns {Promise<Array>}
- */
 export const fetchCountries = async (params = {}) => {
-  try {
-    const res = await api.get('/api/v1/countries', { params })
-    const raw = res?.data?.data || (Array.isArray(res?.data) ? res.data : [])
-    const normalized = normalizeCountries(raw)
-    if (normalized.length > 0) {
-      cachedCountriesList = normalized
-    }
-    return normalized
-  } catch (error) {
-    console.error('countryUtils.fetchCountries error:', error)
-    return cachedCountriesList || []
+  const hasNoCustomParams = !params || Object.keys(params).length === 0 || (Object.keys(params).length === 1 && params.sort)
+  if (cachedCountriesList && hasNoCustomParams) {
+    return cachedCountriesList
   }
+
+  if (inFlightCountriesPromise) {
+    return inFlightCountriesPromise
+  }
+
+  inFlightCountriesPromise = (async () => {
+    try {
+      const res = await api.get('/api/v1/countries', { params })
+      const raw = res?.data?.data || (Array.isArray(res?.data) ? res.data : [])
+      const normalized = normalizeCountries(raw)
+      if (normalized.length > 0) {
+        cachedCountriesList = normalized
+      }
+      return normalized
+    } catch (error) {
+      console.error('countryUtils.fetchCountries error:', error)
+      return cachedCountriesList || []
+    } finally {
+      inFlightCountriesPromise = null
+    }
+  })()
+
+  return inFlightCountriesPromise
 }
 
-/**
- * Safely extracts the display name of a country based on the language/isRtl.
- *
- * @param {Object|string} country
- * @param {boolean} isRtl
- * @returns {string}
- */
+
 export const getCountryName = (country, isRtl = true) => {
   if (!country) return ''
   if (typeof country === 'string') return country
@@ -93,13 +80,7 @@ export const getCountryName = (country, isRtl = true) => {
     : (country.nameEn || country.name || country.nameAr || '')
 }
 
-/**
- * Sorts a list of countries alphabetically by country name in the active language (Arabic or English).
- *
- * @param {Array} countries
- * @param {boolean} isRtl
- * @returns {Array}
- */
+
 export const sortCountries = (countries = [], isRtl = true) => {
   if (!Array.isArray(countries)) return []
   const lang = isRtl ? 'ar' : 'en'
@@ -110,13 +91,6 @@ export const sortCountries = (countries = [], isRtl = true) => {
   })
 }
 
-/**
- * Sorts phone country codes alphabetically by country name in the active language (Arabic or English).
- *
- * @param {Array} countryCodes
- * @param {boolean} isRtl
- * @returns {Array}
- */
 export const sortCountryCodes = (countryCodes = [], isRtl = true) => {
   if (!Array.isArray(countryCodes)) return []
   const lang = isRtl ? 'ar' : 'en'

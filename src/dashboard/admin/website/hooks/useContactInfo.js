@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 
-export default function useContactInfo(showNotification) {
+export default function useContactInfo(showNotification, enabled = true) {
   const { t } = useTranslation();
 
   const [contactInfo, setContactInfo] = useState({
@@ -11,10 +11,14 @@ export default function useContactInfo(showNotification) {
     email: ''
   });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (!enabled) {
+      setIsLoading(false);
+      return;
+    }
     async function loadContactInfo() {
       setIsLoading(true);
       try {
@@ -34,7 +38,7 @@ export default function useContactInfo(showNotification) {
       }
     }
     loadContactInfo();
-  }, []);
+  }, [enabled]);
 
   const handleSaveContactInfo = async (updatedInfo) => {
     setIsSaving(true);

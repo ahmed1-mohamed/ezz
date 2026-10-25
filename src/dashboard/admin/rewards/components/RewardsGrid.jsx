@@ -43,26 +43,30 @@ export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
             {onView && (
               <button
                 onClick={() => onView(reward)}
-                className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm hover:shadow"
+                className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm hover:shadow cursor-pointer"
                 title={isRtl ? 'عرض' : 'View'}
               >
                 <Eye size={18} />
               </button>
             )}
-            <button
-              onClick={() => onEdit(reward)}
-              className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-all shadow-sm hover:shadow"
-              title={isRtl ? 'تعديل' : 'Edit'}
-            >
-              <Edit3 size={18} />
-            </button>
-            <button
-              onClick={() => onDelete(reward)}
-              className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 transition-all shadow-sm hover:shadow"
-              title={isRtl ? 'حذف' : 'Delete'}
-            >
-              <Trash2 size={18} />
-            </button>
+            {onEdit && (
+              <button
+                onClick={() => onEdit(reward)}
+                className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-all shadow-sm hover:shadow cursor-pointer"
+                title={isRtl ? 'تعديل' : 'Edit'}
+              >
+                <Edit3 size={18} />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(reward)}
+                className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 transition-all shadow-sm hover:shadow cursor-pointer"
+                title={isRtl ? 'حذف' : 'Delete'}
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
           </div>
         </div>
       ))}

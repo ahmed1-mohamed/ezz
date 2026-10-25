@@ -14,6 +14,7 @@ export default function WebsiteStatsForm({
   stats,
   isLoading = false,
   isSaving = false,
+  canUpdate = true,
   handleStatChange,
   handleSaveStats,
   handleCancelStats
@@ -50,13 +51,14 @@ export default function WebsiteStatsForm({
           <input
             type="number"
             min="0"
+            disabled={!canUpdate || isLoading || isSaving}
             value={stats.classes}
             onChange={(e) => {
               handleStatChange('classes', e.target.value);
               if (errors.classes) setErrors({ ...errors, classes: null });
             }}
             placeholder={t('adminDashboard.website.classesPlaceholder', isRtl ? 'عدد الحلقات' : 'Classes Count')}
-            className={`w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border rounded-2xl focus:bg-white focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.classes ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'}`}
+            className={`w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border rounded-2xl focus:bg-white focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.classes ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'} disabled:opacity-60 disabled:cursor-not-allowed`}
           />
           {errors.classes && <p className="text-xs text-red-500 font-medium">{errors.classes}</p>}
         </div>
@@ -68,13 +70,14 @@ export default function WebsiteStatsForm({
           <input
             type="number"
             min="0"
+            disabled={!canUpdate || isLoading || isSaving}
             value={stats.teachers}
             onChange={(e) => {
               handleStatChange('teachers', e.target.value);
               if (errors.teachers) setErrors({ ...errors, teachers: null });
             }}
             placeholder={t('adminDashboard.website.teachersPlaceholder', isRtl ? 'عدد المعلمين' : 'Teachers Count')}
-            className={`w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border rounded-2xl focus:bg-white focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.teachers ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'}`}
+            className={`w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border rounded-2xl focus:bg-white focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.teachers ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'} disabled:opacity-60 disabled:cursor-not-allowed`}
           />
           {errors.teachers && <p className="text-xs text-red-500 font-medium">{errors.teachers}</p>}
         </div>
@@ -86,35 +89,38 @@ export default function WebsiteStatsForm({
           <input
             type="number"
             min="0"
+            disabled={!canUpdate || isLoading || isSaving}
             value={stats.students}
             onChange={(e) => {
               handleStatChange('students', e.target.value);
               if (errors.students) setErrors({ ...errors, students: null });
             }}
             placeholder={t('adminDashboard.website.studentsPlaceholder', isRtl ? 'عدد الطلاب' : 'Students Count')}
-            className={`w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border rounded-2xl focus:bg-white focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.students ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'}`}
+            className={`w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border rounded-2xl focus:bg-white focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.students ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'} disabled:opacity-60 disabled:cursor-not-allowed`}
           />
           {errors.students && <p className="text-xs text-red-500 font-medium">{errors.students}</p>}
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
-        <Button
-          onClick={onSave}
-          disabled={isSaving || isLoading}
-          className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={handleCancelStats}
-          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
-        >
-          {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
-        </Button>
-      </div>
+      {canUpdate && (
+        <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
+          <Button
+            onClick={onSave}
+            disabled={isSaving || isLoading}
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            <span>{t('common.save', isRtl ? 'حفظ' : 'Save')}</span>
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleCancelStats}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-300 font-semibold"
+          >
+            {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,14 +9,12 @@ import {
   Globe,
   MoreVertical,
   BookOpen,
-  Bell,
   Calendar,
   AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
 
-// Fallback sample groups matching the user screenshot exactly if API returns empty
 const DEFAULT_PREVIEW_GROUPS = [
   {
     id: 'g-preview-1',
@@ -33,22 +31,22 @@ const DEFAULT_PREVIEW_GROUPS = [
   },
   {
     id: 'g-preview-2',
-    name: 'مجموعة التجويد الأولى',
+    name: 'مجموعة القراءات والتجويد',
     curriculum: 'تجويد القرآن الكريم',
-    status: 'متوقف مؤقتاً',
+    status: 'قيد الانتظار',
     language: 'العربية',
-    currentStudentsCount: 5,
+    currentStudentsCount: 4,
     maxStudents: 5,
-    type: 'خاص',
+    type: 'عام',
     level: 'متوسط',
-    progress: 65,
+    progress: 40,
     schedule: 'الأحد، الثلاثاء، الخميس - 4:00 م',
   },
   {
     id: 'g-preview-3',
     name: 'مجموعة التجويد الثالثة',
     curriculum: 'تجويد القرآن الكريم',
-    status: 'نشط',
+    status: 'موقوف',
     language: 'الإنجليزية',
     currentStudentsCount: 4,
     maxStudents: 5,
@@ -59,22 +57,19 @@ const DEFAULT_PREVIEW_GROUPS = [
   },
   {
     id: 'g-preview-4',
-    name: 'مجموعة التجويد الثانية',
+    name: 'مجموعة التجويد المتقدمة',
     curriculum: 'تجويد القرآن الكريم',
-    status: 'متوقف مؤقتاً',
+    status: 'مكتمل',
     language: 'العربية',
-    currentStudentsCount: 3,
+    currentStudentsCount: 5,
     maxStudents: 5,
-    type: 'عادي',
+    type: 'عام',
     level: 'متقدم',
-    progress: 80,
+    progress: 100,
     schedule: 'السبت، الاثنين، الأربعاء - 5:00 م',
   },
 ];
 
-/**
- * Formats time string to local HH:MM (e.g. 4:00 م)
- */
 function formatTimeAr(val, isRtl = true) {
   if (!val) return '';
   if (typeof val === 'string') {
@@ -109,21 +104,20 @@ export default function TeacherGroups() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
-  // Filter state
-  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'private' | 'public' | 'active'
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  // Live ticking clock & Hijri date
-  const [currentTimeStr, setCurrentTimeStr] = useState('١:٥٣:٠٤ ص');
-  const [currentDateStr, setCurrentDateStr] = useState('الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ');
+  const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
+  const [currentDateStr, setCurrentDateStr] = useState('');
 
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+        const timeFormatted = new Intl.DateTimeFormat('en-US', {
           hour: 'numeric',
           minute: '2-digit',
           second: '2-digit',
@@ -131,11 +125,11 @@ export default function TeacherGroups() {
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString());
+        setCurrentTimeStr(now.toLocaleTimeString('en-US'));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
           weekday: 'long',
           day: 'numeric',
           month: 'long',
@@ -143,7 +137,7 @@ export default function TeacherGroups() {
         }).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr('الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'));
       }
     };
 
@@ -152,7 +146,6 @@ export default function TeacherGroups() {
     return () => clearInterval(interval);
   }, [isRtl]);
 
-  // Query groups from API
   const {
     data: responseData,
     isLoading,
@@ -169,71 +162,69 @@ export default function TeacherGroups() {
     return Array.isArray(list) ? list : [];
   }, [responseData]);
 
-  // Use API groups if present, otherwise fallback to the preview groups from screenshot
   const rawGroups = useMemo(() => {
     if (apiGroups.length > 0) return apiGroups;
     return DEFAULT_PREVIEW_GROUPS;
   }, [apiGroups]);
 
-  const statistics = responseData?.statistics || {};
+  const statusCounts = useMemo(() => {
+    let pending = 0;
+    let active = 0;
+    let stopped = 0;
+    let completed = 0;
 
-  // Exact numbers shown in the screenshot: 6, 2, 4, 22
-  const totalGroupsCount = statistics.total ?? (apiGroups.length > 0 ? apiGroups.length : 6);
+    rawGroups.forEach((g) => {
+      const st = (g.status || '').toLowerCase();
+      if (st === 'pending' || st.includes('انتظار')) {
+        pending++;
+      } else if (st === 'stopped' || st.includes('موقوف') || st.includes('متوقف')) {
+        stopped++;
+      } else if (st === 'completed' || st.includes('مكتمل')) {
+        completed++;
+      } else {
+        active++;
+      }
+    });
 
-  const privateGroupsCount = useMemo(() => {
-    if (apiGroups.length > 0) {
-      return apiGroups.filter((g) => {
-        const t = (g.type || '').toLowerCase();
-        return t.includes('خاص') || t === 'private';
-      }).length;
-    }
-    return 2;
-  }, [apiGroups]);
+    return { pending, active, stopped, completed };
+  }, [rawGroups]);
 
-  const publicGroupsCount = useMemo(() => {
-    if (apiGroups.length > 0) {
-      return apiGroups.filter((g) => {
-        const t = (g.type || '').toLowerCase();
-        return t.includes('عام') || t.includes('جماع') || t === 'public' || t === 'general';
-      }).length;
-    }
-    return 4;
-  }, [apiGroups]);
+  const totalGroupsCount = rawGroups.length;
 
-  const totalStudentsCount = useMemo(() => {
-    if (statistics.totalStudents !== undefined) return statistics.totalStudents;
-    if (apiGroups.length > 0) {
-      return apiGroups.reduce(
-        (acc, g) => acc + (g.currentStudentsCount ?? g.students?.length ?? 0),
-        0
-      );
-    }
-    return 22;
-  }, [apiGroups, statistics]);
-
-  // Filter groups
   const filteredGroups = useMemo(() => {
     return rawGroups.filter((group) => {
       const gType = (group.type || '').toLowerCase();
       const gStatus = (group.status || '').toLowerCase();
 
-      // Filter Tab
-      if (activeFilter === 'private') {
-        if (!gType.includes('خاص') && gType !== 'private') return false;
-      } else if (activeFilter === 'public') {
-        if (
-          !gType.includes('عام') &&
-          !gType.includes('جماع') &&
-          gType !== 'public' &&
-          gType !== 'general' &&
-          !gType.includes('عادي')
-        )
-          return false;
-      } else if (activeFilter === 'active') {
-        if (!gStatus.includes('نشط') && gStatus !== 'active') return false;
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'pending') {
+          const isPending = gStatus === 'pending' || gStatus.includes('انتظار');
+          if (!isPending) return false;
+        } else if (statusFilter === 'active') {
+          const isActive = gStatus === 'active' || gStatus.includes('نشط');
+          if (!isActive) return false;
+        } else if (statusFilter === 'stopped') {
+          const isStopped = gStatus === 'stopped' || gStatus.includes('موقوف') || gStatus.includes('متوقف');
+          if (!isStopped) return false;
+        } else if (statusFilter === 'completed') {
+          const isCompleted = gStatus === 'completed' || gStatus.includes('مكتمل');
+          if (!isCompleted) return false;
+        }
       }
 
-      // Search Query
+      if (typeFilter === 'private') {
+        const isPrivate = gType.includes('خاص') || gType === 'private';
+        if (!isPrivate) return false;
+      } else if (typeFilter === 'public') {
+        const isPublic =
+          gType.includes('عام') ||
+          gType.includes('جماع') ||
+          gType === 'public' ||
+          gType === 'general' ||
+          gType.includes('عادي');
+        if (!isPublic) return false;
+      }
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const nameMatch = group.name?.toLowerCase().includes(q);
@@ -244,13 +235,11 @@ export default function TeacherGroups() {
 
       return true;
     });
-  }, [rawGroups, activeFilter, searchQuery]);
+  }, [rawGroups, statusFilter, typeFilter, searchQuery]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir="rtl">
-      {/* ── 1. Top White Header Banner (طابق للأصل في الصورة) ── */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Right side in RTL: Title & Subtitle */}
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
             مجموعاتي
@@ -260,80 +249,89 @@ export default function TeacherGroups() {
           </p>
         </div>
 
-        {/* Left side in RTL: Ticking Time, Date, Bell, Avatar */}
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-          {/* Ticking Time Pill */}
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
 
-          {/* Hijri Date with Calendar Icon */}
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />
             <span>{currentDateStr}</span>
           </div>
-
-          {/* Notification Bell with Badge 3 */}
-          <div className="relative p-1.5 text-slate-600 dark:text-slate-300">
-            <Bell size={18} />
-            <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-[#00594C] text-white text-[10px] font-bold flex items-center justify-center">
-              3
-            </span>
-          </div>
-
-          {/* Mustard / Yellow Avatar Circle */}
-          <div className="w-8 h-8 rounded-full bg-[#cca332] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
-            أ
-          </div>
         </div>
       </div>
 
-      {/* ── 2. The 4 Top Stat Cards (المربعات الأربعة كما في الصورة) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        {/* 1. إجمالي المجموعات (Teal) */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-          <div className="text-3xl sm:text-4xl font-black text-[#00594C] dark:text-emerald-400">
-            {totalGroupsCount}
-          </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
-            إجمالي المجموعات
-          </div>
-        </div>
-
-        {/* 2. مجموعات خاصة (Purple) */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-          <div className="text-3xl sm:text-4xl font-black text-[#8b5cf6]">
-            {privateGroupsCount}
-          </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
-            مجموعات خاصة
-          </div>
-        </div>
-
-        {/* 3. مجموعات جماعية (Sky/Blue) */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-          <div className="text-3xl sm:text-4xl font-black text-[#0ea5e9]">
-            {publicGroupsCount}
-          </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
-            مجموعات جماعية
-          </div>
-        </div>
-
-        {/* 4. إجمالي الطلاب (Orange/Amber) */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
+        <button
+          type="button"
+          onClick={() => setStatusFilter((prev) => prev === 'pending' ? 'all' : 'pending')}
+          className={`bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border transition-all cursor-pointer ${
+            statusFilter === 'pending'
+              ? 'border-[#f59e0b] ring-2 ring-[#f59e0b]/30 bg-amber-50/20'
+              : 'border-slate-100 dark:border-slate-800 hover:shadow-md'
+          }`}
+        >
           <div className="text-3xl sm:text-4xl font-black text-[#f59e0b]">
-            {totalStudentsCount}
+            {statusCounts.pending}
           </div>
           <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
-            إجمالي الطلاب
+            قيد الانتظار
           </div>
-        </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusFilter((prev) => prev === 'active' ? 'all' : 'active')}
+          className={`bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border transition-all cursor-pointer ${
+            statusFilter === 'active'
+              ? 'border-[#00594C] ring-2 ring-[#00594C]/30 bg-emerald-50/20'
+              : 'border-slate-100 dark:border-slate-800 hover:shadow-md'
+          }`}
+        >
+          <div className="text-3xl sm:text-4xl font-black text-[#00594C] dark:text-emerald-400">
+            {statusCounts.active}
+          </div>
+          <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
+            نشط
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusFilter((prev) => prev === 'stopped' ? 'all' : 'stopped')}
+          className={`bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border transition-all cursor-pointer ${
+            statusFilter === 'stopped'
+              ? 'border-[#ef4444] ring-2 ring-[#ef4444]/30 bg-red-50/20'
+              : 'border-slate-100 dark:border-slate-800 hover:shadow-md'
+          }`}
+        >
+          <div className="text-3xl sm:text-4xl font-black text-[#ef4444]">
+            {statusCounts.stopped}
+          </div>
+          <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
+            موقوف
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusFilter((prev) => prev === 'completed' ? 'all' : 'completed')}
+          className={`bg-white dark:bg-slate-900 rounded-3xl p-6 text-center shadow-xs border transition-all cursor-pointer ${
+            statusFilter === 'completed'
+              ? 'border-[#3b82f6] ring-2 ring-[#3b82f6]/30 bg-blue-50/20'
+              : 'border-slate-100 dark:border-slate-800 hover:shadow-md'
+          }`}
+        >
+          <div className="text-3xl sm:text-4xl font-black text-[#3b82f6]">
+            {statusCounts.completed}
+          </div>
+          <div className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
+            مكتمل
+          </div>
+        </button>
       </div>
 
-      {/* ── 3. Search Bar & Filter Buttons (شريط البحث والأزرار) ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Search Input on Right (in RTL) */}
         <div className="relative flex-1 max-w-md">
           <input
             type="text"
@@ -348,19 +346,17 @@ export default function TeacherGroups() {
           />
         </div>
 
-        {/* Filter Pills on Left (in RTL) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
           {[
             { id: 'all', label: 'الكل' },
+            { id: 'public', label: 'عام' },
             { id: 'private', label: 'خاص' },
-            { id: 'public', label: 'جماعي' },
-            { id: 'active', label: 'نشط' },
           ].map((btn) => {
-            const isSelected = activeFilter === btn.id;
+            const isSelected = typeFilter === btn.id;
             return (
               <button
                 key={btn.id}
-                onClick={() => setActiveFilter(btn.id)}
+                onClick={() => setTypeFilter(btn.id)}
                 type="button"
                 className={`px-7 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-xs ${
                   isSelected
@@ -375,7 +371,6 @@ export default function TeacherGroups() {
         </div>
       </div>
 
-      {/* ── 4. 2-Column Group Cards Grid (كروت المجموعات كما في الصورة) ── */}
       {isLoading ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -425,7 +420,6 @@ export default function TeacherGroups() {
               group.status === 'معلقة' ||
               group.status === 'pending';
 
-            // Schedule string formatting
             let scheduleStr = group.schedule || 'الأحد، الثلاثاء، الخميس - 4:00 م';
             if (group.weeklySchedule && group.weeklySchedule.length > 0) {
               const daysStr = group.weeklySchedule.map((s) => s.day).join('، ');
@@ -440,7 +434,6 @@ export default function TeacherGroups() {
                 key={group.id || idx}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow flex flex-col justify-between space-y-4 text-start"
               >
-                {/* 1. Card Top Row: Name, Curriculum, Status Badge, More Button */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-0.5">
                     <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
@@ -472,9 +465,7 @@ export default function TeacherGroups() {
                   </div>
                 </div>
 
-                {/* 2. Middle Row: 4 Capsule Pills (اللغة - الطلاب - النوع - المستوى) */}
                 <div className="grid grid-cols-4 gap-2.5 text-center">
-                  {/* اللغة */}
                   <div className="bg-[#f8faf9] dark:bg-slate-800/60 rounded-2xl p-2.5">
                     <span className="text-[11px] text-slate-400 block mb-0.5 font-medium">
                       اللغة
@@ -485,7 +476,6 @@ export default function TeacherGroups() {
                     </span>
                   </div>
 
-                  {/* الطلاب */}
                   <div className="bg-[#f8faf9] dark:bg-slate-800/60 rounded-2xl p-2.5">
                     <span className="text-[11px] text-slate-400 block mb-0.5 font-medium">
                       الطلاب
@@ -498,7 +488,6 @@ export default function TeacherGroups() {
                     </span>
                   </div>
 
-                  {/* النوع */}
                   <div className="bg-[#f8faf9] dark:bg-slate-800/60 rounded-2xl p-2.5">
                     <span className="text-[11px] text-slate-400 block mb-0.5 font-medium">
                       النوع
@@ -508,7 +497,6 @@ export default function TeacherGroups() {
                     </span>
                   </div>
 
-                  {/* المستوى */}
                   <div className="bg-[#f8faf9] dark:bg-slate-800/60 rounded-2xl p-2.5">
                     <span className="text-[11px] text-slate-400 block mb-0.5 font-medium">
                       المستوى
@@ -519,7 +507,6 @@ export default function TeacherGroups() {
                   </div>
                 </div>
 
-                {/* 3. Curriculum Progress Bar (تقدم المنهج) */}
                 <div className="space-y-1.5 pt-1">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-slate-400">تقدم المنهج</span>
@@ -535,13 +522,11 @@ export default function TeacherGroups() {
                   </div>
                 </div>
 
-                {/* 4. Schedule Row (Centered with clock icon) */}
                 <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold py-1">
                   <Clock size={13} className="text-slate-400 shrink-0" />
                   <span>{scheduleStr}</span>
                 </div>
 
-                {/* 5. Bottom Action Buttons: عرض التفاصيل + جلسة */}
                 <div className="flex items-center gap-2.5 pt-1">
                   <Link
                     to={`/dashboard/teacher/groups/${group.id}`}

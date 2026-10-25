@@ -77,7 +77,7 @@ export default memo(function Home() {
     return (
         <div>
             <div className="space-y-8 sm:space-y-12 lg:space-y-16">
-                <section id="hero-section" className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm">
+                <section id="hero-section" className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white dark:bg-slate-900/90 dark:border-slate-800 px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
 
                         <motion.div
@@ -92,18 +92,18 @@ export default memo(function Home() {
                             </motion.div>
 
                             <motion.div variants={itemVariants} className="space-y-2 sm:space-y-4">
-                                <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900">
+                                <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 dark:text-white">
                                     <span className="block">{t('home.titleLine1', 'حيث يلتقي')}</span>
-                                    <span className="block bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible">
+                                    <span className="block bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible dark:from-emerald-400 dark:to-emerald-600">
                                         {t('home.titleLine2', 'نور العلم بصفاء الروح')}
                                     </span>
-                                    <span className="block text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 mt-2">
+                                    <span className="block text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 dark:text-white mt-2">
                                         {t('home.titleLine3', 'وتتحقق طموحاتك')}
                                     </span>
                                 </h1>
                             </motion.div>
 
-                            <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600">
+                            <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600 dark:text-slate-300">
                                 {t('home.description', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة.')}
                             </motion.p>
 
@@ -143,7 +143,7 @@ export default memo(function Home() {
                                 <motion.div
                                     animate={heroImageAnimation.animate}
                                     transition={heroImageAnimation.transition}
-                                    className="relative z-10 overflow-hidden rounded-2xl sm:rounded-[36px] border border-slate-200 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.12)] w-full"
+                                    className="relative z-10 overflow-hidden rounded-2xl sm:rounded-[36px] border border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-700 shadow-[0_25px_60px_rgba(0,0,0,0.12)] w-full"
                                 >
                                     <img
                                         src={heroImage}

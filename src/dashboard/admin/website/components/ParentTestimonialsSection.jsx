@@ -17,13 +17,15 @@ export default function ParentTestimonialsSection({
         <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
           {t('adminDashboard.website.parentTestimonialsTitle', isRtl ? 'آراء أولياء الأمور' : 'Parents Testimonials')}
         </h2>
-        <Button
-          onClick={handleOpenAddTestimonial}
-          className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm w-full sm:w-auto justify-center"
-        >
-          <Plus size={16} />
-          <span>{t('adminDashboard.website.addTestimonial', isRtl ? 'إضافة رأي' : 'Add Testimonial')}</span>
-        </Button>
+        {handleOpenAddTestimonial && (
+          <Button
+            onClick={handleOpenAddTestimonial}
+            className="px-5 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-sm w-full sm:w-auto justify-center"
+          >
+            <Plus size={16} />
+            <span>{t('adminDashboard.website.addTestimonial', isRtl ? 'إضافة رأي' : 'Add Testimonial')}</span>
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -82,22 +84,28 @@ export default function ParentTestimonialsSection({
                   </p>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <button
-                    onClick={() => handleOpenEditTestimonial(testimonial)}
-                    className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-[#0f7a6c]/5 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
-                  >
-                    <Pencil size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTestimonial(testimonial)}
-                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+                {(handleOpenEditTestimonial || handleDeleteTestimonial) && (
+                  <div className="flex items-center justify-end gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                    {handleOpenEditTestimonial && (
+                      <button
+                        onClick={() => handleOpenEditTestimonial(testimonial)}
+                        className="p-2 text-slate-400 hover:text-[#0f7a6c] hover:bg-[#0f7a6c]/5 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                        title={t('common.edit', isRtl ? 'تعديل' : 'Edit')}
+                      >
+                        <Pencil size={18} />
+                      </button>
+                    )}
+                    {handleDeleteTestimonial && (
+                      <button
+                        onClick={() => handleDeleteTestimonial(testimonial)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                        title={t('common.delete', isRtl ? 'حذف' : 'Delete')}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })

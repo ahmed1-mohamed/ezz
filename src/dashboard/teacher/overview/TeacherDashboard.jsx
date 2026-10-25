@@ -14,7 +14,6 @@ import {
   BookOpen,
   Star,
   ChevronLeft,
-  Bell,
   Calendar,
   CheckCircle2,
   Layers,
@@ -24,7 +23,6 @@ import { useAuth } from '@/shared/context/useAuth.jsx';
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
 
-// Fallback preview upcoming sessions matching the screenshot
 const DEFAULT_PREVIEW_UPCOMING_SESSIONS = [
   {
     id: 's-preview-1',
@@ -65,15 +63,14 @@ export default function TeacherDashboard() {
   const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
 
-  // Live ticking clock & Hijri date
-  const [currentTimeStr, setCurrentTimeStr] = useState('١:٥٣:٠٤ ص');
-  const [currentDateStr, setCurrentDateStr] = useState('الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ');
+  const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
+  const [currentDateStr, setCurrentDateStr] = useState('');
 
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+        const timeFormatted = new Intl.DateTimeFormat('en-US', {
           hour: 'numeric',
           minute: '2-digit',
           second: '2-digit',
@@ -81,11 +78,11 @@ export default function TeacherDashboard() {
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString());
+        setCurrentTimeStr(now.toLocaleTimeString('en-US'));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
           weekday: 'long',
           day: 'numeric',
           month: 'long',
@@ -93,7 +90,7 @@ export default function TeacherDashboard() {
         }).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr('الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'));
       }
     };
 
@@ -102,7 +99,6 @@ export default function TeacherDashboard() {
     return () => clearInterval(interval);
   }, [isRtl]);
 
-  // Teacher name
   const teacherName = (() => {
     if (!user) return 'أ. محمد العتيبي';
     if (typeof user.name === 'object' && user.name !== null) {
@@ -111,14 +107,12 @@ export default function TeacherDashboard() {
     return user.name || 'أ. محمد العتيبي';
   })();
 
-  // ── Fetch statistics from /api/v1/teacher/dashboard/statistics ──
   const { data: statsRes, isLoading: isLoadingStats } = useQuery({
     queryKey: ['teacher-dashboard-statistics'],
     queryFn: () => dashboardApi.fetchTeacherStatistics(),
     staleTime: 3 * 60 * 1000,
   });
 
-  // ── Fetch pending evaluations ──
   const { data: pendingRes } = useQuery({
     queryKey: ['teacher-pending-evaluation'],
     queryFn: () => dashboardApi.fetchPendingEvaluation(),
@@ -137,7 +131,6 @@ export default function TeacherDashboard() {
       .map((att) => att.student);
   }, [pendingSession, pendingStudentIds]);
 
-  // ── Fetch teacher groups for bottom overview section ──
   const { data: groupsRes } = useQuery({
     queryKey: ['teacher-dashboard-groups-overview'],
     queryFn: () => teacherGroupsApi.fetchGroups({ limit: 4 }),
@@ -147,19 +140,17 @@ export default function TeacherDashboard() {
   const apiData = statsRes?.data?.data ?? statsRes?.data ?? {};
   const stats = apiData.statistics || {};
 
-  // Stat Card Numbers with fallbacks matching screenshot: 47, 8, 124, 93, 2850, 450
   const totalStudents = stats.totalStudents ?? 47;
   const totalGroups = stats.totalGroups ?? 8;
   const totalSessions = stats.totalSessions ?? 124;
   const totalTeachingHours = stats.totalTeachingHours ?? 93;
   const totalEarnings = stats.totalEarnings !== undefined
-    ? `${Number(stats.totalEarnings).toLocaleString('ar-SA')} ر.س`
-    : '٢.٨٥٠ ر.س';
+    ? `$${Number(stats.totalEarnings).toLocaleString('en-US')}`
+    : '$2,850';
   const dueEarnings = stats.dueEarnings !== undefined
-    ? `${Number(stats.dueEarnings).toLocaleString('ar-SA')} ر.س`
-    : '٤٥٠ ر.س';
+    ? `$${Number(stats.dueEarnings).toLocaleString('en-US')}`
+    : '$450';
 
-  // Upcoming sessions: use API if present and non-empty, otherwise use screenshot preview
   const upcomingSessions = useMemo(() => {
     const list = apiData.upcomingSessions;
     if (Array.isArray(list) && list.length > 0) {
@@ -175,14 +166,8 @@ export default function TeacherDashboard() {
     return DEFAULT_PREVIEW_UPCOMING_SESSIONS;
   }, [apiData]);
 
-  // Next session
-  const nextSession = apiData.nextSession || {
-    title: 'تلاوة سورة البقرة',
-    countdown: '٢:٠٠',
-    countdownUnit: 'ساعة',
-  };
+  const nextSession = apiData.nextSession || null;
 
-// Fallback groups table data matching the user's screenshot exactly
 const DEFAULT_PREVIEW_GROUPS_TABLE = [
   {
     id: 'g-preview-1',
@@ -191,8 +176,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
     level: 'مرتفع',
     studentsCount: 4,
     maxStudents: 5,
-    progress: 78,
-    nextSessionTime: 'اليوم 6:30 م',
   },
   {
     id: 'g-preview-2',
@@ -201,8 +184,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
     level: 'منخفض',
     studentsCount: 3,
     maxStudents: 5,
-    progress: 82,
-    nextSessionTime: 'غداً 2:00 م',
   },
   {
     id: 'g-preview-3',
@@ -211,8 +192,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
     level: 'مرتفع',
     studentsCount: 5,
     maxStudents: 5,
-    progress: 90,
-    nextSessionTime: 'غداً 1:00 م',
   },
   {
     id: 'g-preview-4',
@@ -221,8 +200,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
     level: 'متوسط',
     studentsCount: 4,
     maxStudents: 5,
-    progress: 70,
-    nextSessionTime: 'اليوم 3:00 م',
   },
 ];
 
@@ -235,14 +212,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
         const studentsCount = Array.isArray(g.students)
           ? g.students.length
           : (g.currentStudentsCount ?? 4);
-        const progress = g.progress ?? (70 + ((idx * 6) % 25));
-
-        let nextSessionTime = 'اليوم 6:30 م';
-        if (g.weeklySchedule && g.weeklySchedule[0]?.startTime) {
-          nextSessionTime = `${g.weeklySchedule[0].day || 'اليوم'} 4:00 م`;
-        } else if (idx === 1) nextSessionTime = 'غداً 2:00 م';
-        else if (idx === 2) nextSessionTime = 'غداً 1:00 م';
-        else if (idx === 3) nextSessionTime = 'اليوم 3:00 م';
 
         return {
           id: g.id || `g-${idx}`,
@@ -251,15 +220,12 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
           level: g.level || (idx % 2 === 0 ? 'مرتفع' : 'متوسط'),
           studentsCount,
           maxStudents: g.maxStudents || 5,
-          progress,
-          nextSessionTime,
         };
       });
     }
     return DEFAULT_PREVIEW_GROUPS_TABLE;
   }, [groupsRes]);
 
-  // 6 Stat Cards configured exactly as in the screenshot:
   const statCards = [
     {
       id: 'students',
@@ -307,9 +273,7 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir="rtl">
-      {/* ── 1. Top White Header Banner (مطابق للصورة) ── */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Right side in RTL: Title & Greeting Subtitle */}
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
             لوحة التحكم
@@ -319,35 +283,18 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
           </p>
         </div>
 
-        {/* Left side in RTL: Ticking Time, Hijri Date, Bell, Avatar */}
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-          {/* Ticking Time Pill */}
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
 
-          {/* Hijri Date with Calendar Icon */}
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />
             <span>{currentDateStr}</span>
           </div>
-
-          {/* Notification Bell with Badge 3 */}
-          <div className="relative p-1.5 text-slate-600 dark:text-slate-300">
-            <Bell size={18} />
-            <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-[#00594C] text-white text-[10px] font-bold flex items-center justify-center">
-              3
-            </span>
-          </div>
-
-          {/* Mustard / Yellow Avatar Circle */}
-          <div className="w-8 h-8 rounded-full bg-[#cca332] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
-            أ
-          </div>
         </div>
       </div>
 
-      {/* ── Pending Evaluation Alert Banner (إذا وُجدت حصة مكتملة بانتظار التقييم) ── */}
       {pendingSession && (
         <div className="bg-gradient-to-r from-amber-50 to-orange-50/60 dark:from-amber-950/40 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/60 rounded-3xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-3.5">
@@ -397,7 +344,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
         </div>
       )}
 
-      {/* ── 2. Section: نظرة عامة (6 Stat Cards) ── */}
       <section className="space-y-3">
         <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 text-start">
           نظرة عامة
@@ -411,7 +357,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                 key={card.id}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 shadow-xs border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow flex flex-col justify-between text-center"
               >
-                {/* Top row: Icon Badge on Right, Trend Arrow on Left */}
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 ${card.iconBg}`}
@@ -423,12 +368,10 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                   </div>
                 </div>
 
-                {/* Big Value */}
                 <div className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">
                   {card.value}
                 </div>
 
-                {/* Label */}
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1 truncate">
                   {card.label}
                 </div>
@@ -438,9 +381,7 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
         </div>
       </section>
 
-      {/* ── 3. Middle Section: الجلسات القادمة (Right) + الإجراءات السريعة والجلسة التالية (Left) ── */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* ── Right Column (Wider): الجلسات القادمة ── */}
         <div className="lg:col-span-8 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
@@ -455,14 +396,12 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
             </Link>
           </div>
 
-          {/* Stack of 4 Upcoming Sessions */}
           <div className="space-y-3">
             {upcomingSessions.map((session) => (
               <div
                 key={session.id}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 hover:shadow-md transition-shadow"
               >
-                {/* Right cluster: Video Icon + Name */}
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-11 h-11 rounded-2xl bg-[#e8f7f3] text-[#00594C] flex items-center justify-center shrink-0">
                     <Video size={20} />
@@ -474,7 +413,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                   </div>
                 </div>
 
-                {/* Middle details: Time & Students & Relative Pill */}
                 <div className="hidden sm:flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                   <div className="flex items-center gap-1.5">
                     <Clock size={13} className="text-slate-400" />
@@ -497,7 +435,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                   )}
                 </div>
 
-                {/* Left Action Button: ابدأ ▷ */}
                 <Link
                   to="/dashboard/teacher/live"
                   className="px-5 py-2.5 rounded-2xl bg-[#00594C] hover:bg-[#00473d] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs hover:shadow-md transition-all cursor-pointer shrink-0"
@@ -510,16 +447,13 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
           </div>
         </div>
 
-        {/* ── Left Column (Narrower): الإجراءات السريعة + الجلسة التالية ── */}
         <div className="lg:col-span-4 space-y-5">
-          {/* Box 1: الإجراءات السريعة */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 text-start">
               الإجراءات السريعة
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
-              {/* 1. ابدأ جلسة */}
               <Link
                 to="/dashboard/teacher/live"
                 className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#00594C]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -532,7 +466,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                 </span>
               </Link>
 
-              {/* 2. واجب جديد */}
               <Link
                 to="/dashboard/teacher/assignments/create"
                 className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#0284c7]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -545,7 +478,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                 </span>
               </Link>
 
-              {/* 3. تقييم طالب */}
               <Link
                 to="/dashboard/teacher/evaluations"
                 className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#f59e0b]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -558,7 +490,6 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                 </span>
               </Link>
 
-              {/* 4. تسجيل حضور */}
               <Link
                 to="/dashboard/teacher/schedule"
                 className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#8b5cf6]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -573,14 +504,13 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
             </div>
           </div>
 
-          {/* Box 2: الجلسة التالية (Deep Teal Card) */}
           <div className="bg-[#00594C] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4">
             <div className="text-start space-y-1">
               <h3 className="font-black text-base text-white">
                 الجلسة التالية
               </h3>
               <p className="text-xs text-emerald-100 font-semibold">
-                {nextSession.title || 'تلاوة سورة البقرة'}
+                {nextSession?.title || 'لا توجد جلسات قادمة مجدولة'}
               </p>
             </div>
 
@@ -593,25 +523,26 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                 <Play size={13} className="fill-[#00594C]" />
               </Link>
 
-              <div className="text-end">
-                <span className="text-[11px] text-emerald-200 block font-medium">
-                  تبدأ بعد
-                </span>
-                <div className="flex items-baseline gap-1 justify-end">
-                  <span className="text-2xl sm:text-3xl font-black font-mono text-white">
-                    {nextSession.countdown || '٢:٠٠'}
+              {nextSession?.countdown ? (
+                <div className="text-end">
+                  <span className="text-[11px] text-emerald-200 block font-medium">
+                    تبدأ بعد
                   </span>
-                  <span className="text-xs text-emerald-200 font-bold">
-                    {nextSession.countdownUnit || 'ساعة'}
-                  </span>
+                  <div className="flex items-baseline gap-1 justify-end">
+                    <span className="text-2xl sm:text-3xl font-black font-mono text-white">
+                      {nextSession.countdown}
+                    </span>
+                    <span className="text-xs text-emerald-200 font-bold">
+                      {nextSession.countdownUnit || 'دقيقة'}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. Bottom Section: نظرة عامة على المجموعات (Table View) ── */}
       <section className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
           <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
@@ -627,28 +558,25 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 overflow-x-auto">
-          <table className="w-full text-start border-collapse min-w-[700px]">
+          <table className="w-full text-start border-collapse min-w-[600px]">
             <thead>
               <tr className="text-xs font-semibold text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">
                 <th className="text-start pb-4 font-semibold pe-4">اسم المجموعة</th>
                 <th className="text-center pb-4 font-semibold px-4">النوع</th>
                 <th className="text-center pb-4 font-semibold px-4">المستوى</th>
                 <th className="text-center pb-4 font-semibold px-4">الطلاب</th>
-                <th className="text-center pb-4 font-semibold px-4">التقدم</th>
-                <th className="text-start pb-4 font-semibold ps-4">الجلسة القادمة</th>
+                <th className="text-center pb-4 font-semibold ps-4">الإجراء</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {groupsOverviewTable.map((row) => (
                 <tr key={row.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
-                  {/* 1. اسم المجموعة */}
                   <td className="py-5 text-start pe-4">
                     <span className="font-bold text-sm text-slate-900 dark:text-white">
                       {row.name}
                     </span>
                   </td>
 
-                  {/* 2. النوع */}
                   <td className="py-5 text-center px-4">
                     {row.type === 'خاص' ? (
                       <span className="inline-block px-7 py-2 rounded-full text-xs font-bold bg-[#eff6ff] text-[#2563eb] dark:bg-blue-950/40 dark:text-blue-300">
@@ -661,14 +589,12 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                     )}
                   </td>
 
-                  {/* 3. المستوى */}
                   <td className="py-5 text-center px-4">
                     <span className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                       {row.level}
                     </span>
                   </td>
 
-                  {/* 4. الطلاب */}
                   <td className="py-5 text-center px-4">
                     <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
                       <span>{row.studentsCount}/{row.maxStudents}</span>
@@ -676,34 +602,13 @@ const DEFAULT_PREVIEW_GROUPS_TABLE = [
                     </div>
                   </td>
 
-                  {/* 5. التقدم */}
-                  <td className="py-5 text-center px-4">
-                    <div className="flex items-center justify-center gap-2.5">
-                      <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 w-8 text-end">
-                        {row.progress}%
-                      </span>
-                      <div className="w-20 sm:w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#00594C] rounded-full transition-all duration-500"
-                          style={{ width: `${row.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* 6. الجلسة القادمة */}
-                  <td className="py-5 text-start ps-4">
-                    <div className="flex items-center justify-between gap-3 text-xs">
-                      <span className="text-slate-500 dark:text-slate-400 font-semibold whitespace-nowrap">
-                        {row.nextSessionTime}
-                      </span>
-                      <Link
-                        to={`/dashboard/teacher/groups/${row.id}`}
-                        className="text-[#00594C] dark:text-emerald-400 font-bold hover:underline whitespace-nowrap cursor-pointer"
-                      >
-                        التفاصيل
-                      </Link>
-                    </div>
+                  <td className="py-5 text-center ps-4">
+                    <Link
+                      to={`/dashboard/teacher/groups/${row.id}`}
+                      className="px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-[#00594C] hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 transition-colors inline-block cursor-pointer"
+                    >
+                      التفاصيل
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -25,7 +25,7 @@ export default function AdminTeachers() {
   const [currentPage, setCurrentPage] = useState(1)
   const [searchVal, setSearchVal] = useState('')
   const [committedSearch, setCommittedSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'stopped'
+  const [statusFilter, setStatusFilter] = useState('all')
 
   useEffect(() => {
     setCurrentPage(1)

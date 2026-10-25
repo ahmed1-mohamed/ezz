@@ -1,0 +1,539 @@
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Video,
+  FileText,
+  HelpCircle,
+  Upload,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  Trash2,
+  Loader2,
+  FileCheck,
+  Film,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import { teacherHomeworkApi } from '@/shared/services/api/teacherHomeworkApi.js';
+import QuestionBuilder from './components/QuestionBuilder.jsx';
+
+export default function CreateHomework() {
+  const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
+
+  const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
+  const [currentDateStr, setCurrentDateStr] = useState('');
+
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+      try {
+        const timeFormatted = new Intl.DateTimeFormat('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }).format(now);
+        setCurrentTimeStr(timeFormatted);
+      } catch {
+        setCurrentTimeStr(now.toLocaleTimeString('en-US'));
+      }
+
+      try {
+        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(now);
+        setCurrentDateStr(dateFormatted);
+      } catch {
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'));
+      }
+    };
+
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 1000);
+    return () => clearInterval(interval);
+  }, [isRtl]);
+
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+
+  const [activeTab, setActiveTab] = useState('video');
+
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState('');
+  const [documentFiles, setDocumentFiles] = useState([]);
+  const [questions, setQuestions] = useState([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const videoInputRef = useRef(null);
+  const documentInputRef = useRef(null);
+
+  const { data: activeGroupsRes, isLoading: isLoadingGroups } = useQuery({
+    queryKey: ['teacher-active-groups-homework'],
+    queryFn: () => teacherHomeworkApi.fetchActiveGroups(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const activeGroups = useMemo(() => {
+    const list = activeGroupsRes?.data;
+    if (Array.isArray(list) && list.length > 0) {
+      return list.map((g) => ({
+        id: g.id || g._id,
+        name: typeof g.name === 'object' ? g.name.ar || g.name.en : g.name,
+      }));
+    }
+    return [
+      { id: 'grp-active-1', name: 'مجموعة التجويد الأولى (نشطة)' },
+      { id: 'grp-active-2', name: 'مجموعة إتقان الحفظ (نشطة)' },
+      { id: 'grp-active-3', name: 'مجموعة الفجر القرآنية (نشطة)' },
+    ];
+  }, [activeGroupsRes]);
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 500 * 1024 * 1024) {
+      toast.error('حجم الفيديو يجب ألا يتجاوز 500 ميغابايت');
+      return;
+    }
+
+    setMediaFile(file);
+    try {
+      const url = URL.createObjectURL(file);
+      setMediaPreviewUrl(url);
+    } catch {
+      setMediaPreviewUrl('');
+    }
+  };
+
+  const handleRemoveVideo = () => {
+    setMediaFile(null);
+    if (mediaPreviewUrl) {
+      URL.revokeObjectURL(mediaPreviewUrl);
+      setMediaPreviewUrl('');
+    }
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
+    }
+  };
+
+  const handleDocumentsChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setDocumentFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveDocument = (idx) => {
+    setDocumentFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handlePublishHomework = async (isDraft = false) => {
+    if (!title.trim()) {
+      toast.error('يرجى كتابة عنوان الواجب');
+      return;
+    }
+
+    if (!selectedGroupId) {
+      toast.error('يرجى اختيار المجموعة الدراسية النشطة');
+      return;
+    }
+
+    if (!deadline) {
+      toast.error('يرجى تحديد الموعد النهائي لتسليم الواجب');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('description', description.trim());
+      formData.append('deadline', deadline);
+      formData.append('group', selectedGroupId);
+      formData.append('isDraft', String(isDraft));
+
+      if (mediaFile) {
+        formData.append('media', mediaFile);
+      }
+
+      documentFiles.forEach((doc) => {
+        formData.append('documents', doc);
+      });
+
+      if (questions.length > 0) {
+        formData.append('questions', JSON.stringify(questions));
+      }
+
+      const res = await teacherHomeworkApi.createHomework(formData);
+      setIsSubmitting(false);
+
+      if (res.success) {
+        toast.success(
+          isDraft
+            ? 'تم حفظ الواجب كمسودة بنجاح'
+            : 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'
+        );
+        navigate('/dashboard/teacher/assignments/submissions');
+      } else {
+        toast.error(res.message || 'فشل نشر الواجب');
+      }
+    } catch (err) {
+      setIsSubmitting(false);
+      toast.error('حدث خطأ أثناء رفع ونشر الواجب');
+    }
+  };
+
+  return (
+    <div className="space-y-6 max-w-7xl mx-auto pb-16" dir="rtl">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="text-start">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
+            إنشاء واجب جديد
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-0.5">
+            أضف واجباً للطلاب بعد الجلسة
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
+          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
+            {currentTimeStr}
+          </span>
+
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+            <Calendar size={14} className="text-slate-400" />
+            <span>{currentDateStr}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start">
+        <h3 className="text-sm font-black text-slate-800 dark:text-white">
+          ملخص الواجب
+        </h3>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 border-b border-slate-50 dark:border-slate-800/80 pb-2.5">
+            <div className="flex items-center gap-2">
+              <Video size={16} className="text-slate-400" />
+              <span>الفيديو</span>
+            </div>
+            <span className={mediaFile ? 'text-emerald-600 font-black' : 'text-slate-400'}>
+              {mediaFile ? mediaFile.name : 'لم يتم الإرفاق'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 border-b border-slate-50 dark:border-slate-800 pb-2.5">
+            <div className="flex items-center gap-2">
+              <CheckCircle2
+                size={16}
+                className={questions.length > 0 ? 'text-emerald-500' : 'text-slate-400'}
+              />
+              <span>الاختبار ({questions.length} أسئلة)</span>
+            </div>
+            <span className={questions.length > 0 ? 'text-emerald-600 font-black' : 'text-slate-400'}>
+              {questions.length > 0 ? `${questions.length} سؤال مضاف` : '0 أسئلة'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-2">
+              <FileText size={16} className="text-slate-400" />
+              <span>ملف الواجب</span>
+            </div>
+            <span
+              className={documentFiles.length > 0 ? 'text-emerald-600 font-black' : 'text-slate-400'}
+            >
+              {documentFiles.length > 0 ? `${documentFiles.length} ملفات مرفقة` : 'لم يتم الإرفاق'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
+        <h3 className="text-sm font-black text-slate-800 dark:text-white">
+          معلومات الواجب
+        </h3>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+            عنوان الواجب
+          </label>
+          <input
+            type="text"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="مثال : واجب أحكام المد والقصر"
+            className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+            وصف الواجب
+          </label>
+          <textarea
+            rows={5}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="اكتب تعليمات تفصيلية للطلاب..."
+            className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+              الموعد النهائي
+            </label>
+            <div className="relative">
+              <input
+                type="date"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                placeholder="DD/MM/YY"
+                className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+              المجموعة (النشطة فقط)
+            </label>
+            <div className="relative">
+              <select
+                value={selectedGroupId}
+                onChange={(e) => setSelectedGroupId(e.target.value)}
+                className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] appearance-none cursor-pointer"
+              >
+                <option value="" disabled>
+                  اختر المجموعة
+                </option>
+                {activeGroups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={18}
+                className="absolute end-4 top-4 text-slate-400 pointer-events-none"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="flex items-center justify-end border-b border-slate-100 dark:border-slate-800 px-6 pt-3 gap-6">
+          <button
+            type="button"
+            onClick={() => setActiveTab('documents')}
+            className={`pb-3 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer relative ${activeTab === 'documents'
+                ? 'text-[#00594C] dark:text-emerald-400'
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+          >
+            <FileText size={16} />
+            <span>ملف الواجب</span>
+            {activeTab === 'documents' && (
+              <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('quiz')}
+            className={`pb-3 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer relative ${activeTab === 'quiz'
+                ? 'text-[#00594C] dark:text-emerald-400'
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+          >
+            <HelpCircle size={16} />
+            <span>اختبار قصير</span>
+            {activeTab === 'quiz' && (
+              <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('video')}
+            className={`pb-3 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer relative ${activeTab === 'video'
+                ? 'text-[#00594C] dark:text-emerald-400'
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+          >
+            <Video size={16} />
+            <span>فيديو توضيحي</span>
+            {activeTab === 'video' && (
+              <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
+            )}
+          </button>
+        </div>
+
+        <div className="p-6 sm:p-8">
+          {activeTab === 'video' && (
+            <div className="space-y-4">
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/mp4,video/quicktime,video/webm,audio/*"
+                onChange={handleVideoChange}
+                className="hidden"
+              />
+
+              {!mediaFile ? (
+                <div
+                  onClick={() => videoInputRef.current?.click()}
+                  className="rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700/80 p-12 sm:p-16 text-center flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#00594C]/40 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                    <Upload size={26} />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+                      رفع فيديو توضيحي
+                    </h4>
+                    <p className="text-xs text-slate-400 font-semibold">
+                      حتى 500 ميغابايت - MP4, MOV
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 space-y-4 text-start">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                        <Film size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black text-slate-800 dark:text-white">
+                          {mediaFile.name}
+                        </h4>
+                        <span className="text-xs text-slate-400 font-semibold">
+                          {(mediaFile.size / (1024 * 1024)).toFixed(1)} ميغابايت
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveVideo}
+                      className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="حذف الفيديو"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+
+                  {mediaPreviewUrl && (
+                    <div className="rounded-2xl overflow-hidden bg-black/90 max-w-xl mx-auto">
+                      <video src={mediaPreviewUrl} controls className="w-full max-h-64 object-contain" />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'quiz' && (
+            <QuestionBuilder questions={questions} onChange={setQuestions} />
+          )}
+
+          {activeTab === 'documents' && (
+            <div className="space-y-5">
+              <input
+                ref={documentInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                onChange={handleDocumentsChange}
+                className="hidden"
+              />
+
+              <div
+                onClick={() => documentInputRef.current?.click()}
+                className="rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700/80 p-12 text-center flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#00594C]/40 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                  <Upload size={26} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+                    رفع ملفات ومستندات الواجب
+                  </h4>
+                  <p className="text-xs text-slate-400 font-semibold">
+                    ملفات PDF، Word أو صور توضيحية حتى 50 ميغابايت لكل ملف
+                  </p>
+                </div>
+              </div>
+
+              {documentFiles.length > 0 && (
+                <div className="space-y-2.5 text-start">
+                  <h5 className="text-xs font-bold text-slate-400">الملفات المرفقة:</h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {documentFiles.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <FileText size={18} className="text-[#00594C] shrink-0" />
+                          <span className="text-xs font-bold text-slate-800 dark:text-white truncate">
+                            {doc.name}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveDocument(idx)}
+                          className="p-1 rounded-lg text-slate-400 hover:text-rose-500 transition-colors shrink-0"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-2">
+        <button
+          type="button"
+          onClick={() => handlePublishHomework(false)}
+          disabled={isSubmitting}
+          className="w-full sm:w-auto min-w-[200px] py-3.5 px-8 rounded-2xl bg-[#00594C] hover:bg-[#00473d] text-white font-black text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md transition-all cursor-pointer disabled:opacity-60"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              <span>جاري نشر الواجب...</span>
+            </>
+          ) : (
+            <>
+              <FileCheck size={18} />
+              <span>نشر الواجب</span>
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}

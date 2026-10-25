@@ -41,7 +41,7 @@ const getAttachmentUrl = (attachment) => (typeof attachment === 'string' ? attac
 export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onReject }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const itemId = item.id || item._id
-  const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'delay'
+  const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'reschedule_request' || item.type === 'delay'
   const isSuggestion = item.type === 'suggestion'
   const isPending = item.status === 'pending'
   const typeMeta = COMPLAINT_TYPES[item.type] || (isPostpone ? COMPLAINT_TYPES.postpone : COMPLAINT_TYPES.complaint)

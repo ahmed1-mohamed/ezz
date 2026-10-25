@@ -17,7 +17,7 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
     useEffect(() => {
         let isMounted = true
         setLoadingCountries(true)
-        fetchCountries({ lang: i18n.language, sort: 'name' })
+        fetchCountries({ sort: 'name' })
             .then((list) => {
                 if (!isMounted) return
                 const sorted = sortCountries(list, isRtl)
@@ -131,7 +131,7 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                     <button
                         type="button"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="w-full h-full bg-[#F5F5F2] border border-transparent hover:border-[#00695C]/35 text-slate-700 rounded-2xl focus:ring-2 focus:ring-[#00695C] p-3 flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-[0.98] outline-none"
+                        className="w-full h-full bg-[#F5F5F2] dark:bg-slate-800 border border-transparent dark:border-slate-700 hover:border-[#00695C]/35 dark:hover:border-emerald-500/35 text-slate-700 dark:text-slate-200 rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 p-3 flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-[0.98] outline-none"
                     >
                         <span className="text-lg sm:text-xl shrink-0">
                             {selectedCountryObj?.flag || '🌍'}
@@ -216,7 +216,7 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                     onChange={handleInputChange}
                     dir="ltr"
                     placeholder={t('contact.form.phonePlaceholder', '01012345678')}
-                    className={`flex-1 w-full bg-[#F5F5F2] border text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] block p-4 transition-all text-start ${error ? 'border-red-500 focus:ring-red-500' : 'border-transparent'}`}
+                    className={`flex-1 w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-4 transition-all text-start ${error ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'}`}
                 />
             </div>
             {error && <span className="text-xs text-red-500 font-bold px-1 block">{error}</span>}

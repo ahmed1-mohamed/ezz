@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 import Spinner from '@/shared/components/Spinner'
 
-export default function PermissionRoute({ permission, permissions, children }) {
+export default function PermissionRoute({ permission, permissions, superAdminOnly = false, children }) {
   const { isSuperAdmin, hasPermission, hasAnyPermission, isLoading } = useAdminPermissions()
   const location = useLocation()
 
@@ -16,6 +16,10 @@ export default function PermissionRoute({ permission, permissions, children }) {
 
   if (isSuperAdmin) {
     return children
+  }
+
+  if (superAdminOnly) {
+    return <Navigate to="/dashboard/admin" state={{ from: location }} replace />
   }
 
   let isAllowed = true

@@ -266,7 +266,7 @@ export default function SchedulePage({ role }) {
     const [timetableData, setTimetableData] = useState(fallbackData)
     const [loading, setLoading] = useState(true)
     const [activeDayIndex, setActiveDayIndex] = useState(0)
-    const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'scheduled' | 'live' | 'completed'
+    const [statusFilter, setStatusFilter] = useState('all')
     const [copiedSessionId, setCopiedSessionId] = useState(null)
 
     useEffect(() => {
@@ -275,7 +275,7 @@ export default function SchedulePage({ role }) {
             setLoading(true)
             const fallback = getFallbackWeekData(i18n.language === 'en')
             try {
-                const res = await landingApi.fetchPublicCurrentWeekTimetable({ lang: i18n.language })
+                const res = await landingApi.fetchPublicCurrentWeekTimetable()
                 const data = res?.data || res
                 if (isMounted && data) {
                     const week = data.currentWeek || data.week || fallback.week
@@ -424,42 +424,42 @@ export default function SchedulePage({ role }) {
     }, [])
 
     return (
-        <div className="min-h-screen bg-[#EEF2F0]/80 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 font-sans">
+        <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 transition-colors duration-300 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 font-sans">
             <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
 
-                 <motion.div
+                <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     className="text-center space-y-4 max-w-3xl mx-auto"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200/60 text-[#00695C] text-xs sm:text-sm font-bold shadow-xs">
-                        <Sparkles className="w-4 h-4 text-emerald-600" />
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/70 dark:bg-[#00695C]/20 border border-emerald-200/60 dark:border-emerald-500/30 text-[#00695C] dark:text-emerald-400 text-xs sm:text-sm font-bold shadow-xs">
+                        <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         <span>{t('schedule.badge', 'الجدول الدراسي التفاعلي')}</span>
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#00695C] tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#00695C] dark:text-emerald-400 tracking-tight">
                         {timetableData.title || t('schedule.pageTitle', 'جدول الحلقات والجلسات اليومية')}
                     </h1>
 
-                    <p className="text-slate-600 font-medium text-sm sm:text-base lg:text-lg leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-300 font-medium text-sm sm:text-base lg:text-lg leading-relaxed">
                         {timetableData.subtitle || t('schedule.pageSubtitle', 'تابع رحلتك القرآنية والعلمية مع نخبة من المعلمين المعتمدين في منارة العز وانضم لحصتك بنقرة واحدة.')}
                     </p>
 
-                     <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-white shadow-sm border border-slate-200/80 text-slate-700 text-xs sm:text-sm font-semibold mt-2">
-                        <CalendarDays className="w-4 h-4 text-[#00695C]" />
+                    <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold mt-2">
+                        <CalendarDays className="w-4 h-4 text-[#00695C] dark:text-emerald-400" />
                         <span>
                             {formattedWeekRange ||
                                 `${t('schedule.weekOf', 'أسبوع')}: ${weekInfo.startDate || ''} - ${weekInfo.endDate || ''}`}
                         </span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                        <span className="text-[#00695C] font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                        <span className="text-[#00695C] dark:text-emerald-400 font-bold">
                             {totalWeeklySessions} {t('schedule.sessionsThisWeek', 'جلسة هذا الأسبوع')}
                         </span>
                     </div>
                 </motion.div>
 
-                 <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-sm border border-slate-100 flex items-center justify-center">
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center">
                     <div className="flex items-center gap-2 flex-wrap justify-center">
                         {[
                             { key: 'all', label: t('schedule.filterAll', 'جميع الجلسات') },
@@ -472,8 +472,8 @@ export default function SchedulePage({ role }) {
                                 onClick={() => setStatusFilter(flt.key)}
                                 className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                                     statusFilter === flt.key
-                                        ? 'bg-[#00695C] text-white shadow-sm'
-                                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                        ? 'bg-[#00695C] dark:bg-emerald-600 text-white shadow-sm'
+                                        : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300'
                                 }`}
                             >
                                 {flt.label}
@@ -482,7 +482,7 @@ export default function SchedulePage({ role }) {
                     </div>
                 </div>
 
-                 <div className="flex justify-center gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none">
+                <div className="flex justify-center gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none">
                     {days.map((d, idx) => {
                         const isSelected = activeDayIndex === idx
                         const sessionCount = d.sessions ? d.sessions.length : (d.sessionsCount || 0)
@@ -495,8 +495,8 @@ export default function SchedulePage({ role }) {
                                 onClick={() => setActiveDayIndex(idx)}
                                 className={`flex flex-col items-center justify-between min-w-[5.5rem] sm:min-w-[6.25rem] h-24 sm:h-28 rounded-3xl p-3 transition-all duration-300 font-bold focus:outline-none focus:ring-4 focus:ring-[#00695C]/20 shrink-0 cursor-pointer ${
                                     isSelected
-                                        ? 'bg-[#00695C] text-white shadow-lg shadow-[#00695C]/25 scale-105'
-                                        : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100 hover:-translate-y-0.5'
+                                        ? 'bg-[#00695C] dark:bg-emerald-600 text-white shadow-lg shadow-[#00695C]/25 dark:shadow-emerald-900/30 scale-105'
+                                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:-translate-y-0.5'
                                 }`}
                             >
                                 <span className="text-xs sm:text-sm font-semibold truncate w-full text-center">
@@ -510,8 +510,8 @@ export default function SchedulePage({ role }) {
                                         isSelected
                                             ? 'bg-white/20 text-white'
                                             : sessionCount > 0
-                                            ? 'bg-emerald-50 text-[#00695C]'
-                                            : 'bg-slate-100 text-slate-400'
+                                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
                                     }`}
                                 >
                                     {sessionCount}{' '}
@@ -524,32 +524,32 @@ export default function SchedulePage({ role }) {
                     })}
                 </div>
 
-                 {activeDay && (
-                    <div className="flex items-center justify-between px-2 border-b border-slate-200/60 pb-3">
-                        <div className="flex items-center gap-2.5 text-slate-800 font-bold text-lg sm:text-xl">
-                            <Calendar className="w-5 h-5 text-[#00695C]" />
+                {activeDay && (
+                    <div className="flex items-center justify-between px-2 border-b border-slate-200/60 dark:border-slate-800 pb-3">
+                        <div className="flex items-center gap-2.5 text-slate-800 dark:text-white font-bold text-lg sm:text-xl">
+                            <Calendar className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />
                             <span>
                                 {getLocalizedDay(activeDay)} - {activeDay.formattedDate || activeDay.date}
                             </span>
                             {activeDay.isToday && (
-                                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#00695C] font-bold">
+                                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-[#00695C]/30 text-[#00695C] dark:text-emerald-400 font-bold">
                                     {t('schedule.today', 'اليوم')}
                                 </span>
                             )}
                         </div>
-                        <span className="text-xs sm:text-sm text-slate-500 font-medium">
+                        <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                             {activeDaySessions.length} {t('schedule.sessionsCount', 'جلسة مجدولة')}
                         </span>
                     </div>
                 )}
 
-                 <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait">
                     {loading ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((n) => (
                                 <div
                                     key={n}
-                                    className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 animate-pulse h-36"
+                                    className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 animate-pulse h-36"
                                 />
                             ))}
                         </div>
@@ -575,18 +575,18 @@ export default function SchedulePage({ role }) {
                                         initial={{ opacity: 0, y: 15 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                                        className="bg-white rounded-[2rem] p-5 sm:p-7 shadow-sm border border-slate-100 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 hover:shadow-lg hover:border-[#00695C]/25 transition-all duration-300 group"
+                                        className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 sm:p-7 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 hover:shadow-lg hover:border-[#00695C]/25 dark:hover:border-emerald-500/40 transition-all duration-300 group"
                                     >
-                                         <div className="space-y-3.5 flex-1 min-w-0">
-                                             <div className="flex flex-wrap items-center gap-2">
+                                        <div className="space-y-3.5 flex-1 min-w-0">
+                                            <div className="flex flex-wrap items-center gap-2">
                                                 {session.sessionNumber && (
-                                                    <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#00695C] text-white">
+                                                    <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#00695C] dark:bg-emerald-600 text-white">
                                                         {t('schedule.sessionNo', 'الجلسة')} #{session.sessionNumber}
                                                     </span>
                                                 )}
                                                 {groupOrCurriculum && (
-                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#00695C] border border-emerald-100/70">
-                                                        <BookOpen className="w-3.5 h-3.5 text-[#00695C]" />
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400 border border-emerald-100/70 dark:border-emerald-900/40">
+                                                        <BookOpen className="w-3.5 h-3.5 text-[#00695C] dark:text-emerald-400" />
                                                         <span className="truncate max-w-[200px] sm:max-w-none">
                                                             {groupOrCurriculum}
                                                             {session.studentLevel?.name && ` • ${session.studentLevel.name}`}
@@ -602,34 +602,34 @@ export default function SchedulePage({ role }) {
                                                 />
                                             </div>
 
-                                             <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-[#00695C] transition-colors leading-snug">
+                                            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors leading-snug">
                                                 {session.title}
                                             </h3>
 
-                                             <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs sm:text-sm text-slate-600 font-medium">
-                                                 <div className="flex items-center gap-2 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl">
-                                                    <div className="w-7 h-7 rounded-full bg-[#00695C] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                            <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
+                                                <div className="flex items-center gap-2 bg-[#F5F8F7] dark:bg-slate-800 px-3.5 py-2 rounded-2xl">
+                                                    <div className="w-7 h-7 rounded-full bg-[#00695C] dark:bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
                                                         {teacherInitial}
                                                     </div>
-                                                    <span className="font-semibold text-slate-800">{teacherName}</span>
+                                                    <span className="font-semibold text-slate-800 dark:text-slate-200">{teacherName}</span>
                                                 </div>
 
-                                                 <div className="flex items-center gap-1.5 bg-[#F5F8F7] px-3.5 py-2 rounded-2xl text-slate-700">
-                                                    <Clock className="w-4 h-4 text-[#00695C] shrink-0" />
+                                                <div className="flex items-center gap-1.5 bg-[#F5F8F7] dark:bg-slate-800 px-3.5 py-2 rounded-2xl text-slate-700 dark:text-slate-200">
+                                                    <Clock className="w-4 h-4 text-[#00695C] dark:text-emerald-400 shrink-0" />
                                                     <span className="font-bold dir-ltr">
                                                         {formatSessionTime(session)}
                                                     </span>
                                                 </div>
 
-                                                 {(session.durationMinutes || session.duration) && (
-                                                    <div className="flex items-center gap-1 text-slate-500 text-xs px-2 py-1 bg-slate-100 rounded-xl">
+                                                {(session.durationMinutes || session.duration) && (
+                                                    <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl">
                                                         <span>{session.durationMinutes ? `${session.durationMinutes} ${t('schedule.minutes', 'دقيقة')}` : session.duration}</span>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
 
-                                         <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                                        <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800">
                                             {joinUrl ? (
                                                 <>
                                                     <a
@@ -656,26 +656,26 @@ export default function SchedulePage({ role }) {
                                                         onClick={() => handleCopyZoom(joinUrl, session.id)}
                                                         className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-2xl border text-sm font-semibold transition-all cursor-pointer ${
                                                             isCopied
-                                                                ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                                                                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+                                                                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
+                                                                : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
                                                         }`}
                                                         title={t('schedule.copyZoomLink', 'نسخ رابط الزوم')}
                                                     >
                                                         {isCopied ? (
                                                             <>
-                                                                <Check className="w-4 h-4 text-emerald-600" />
+                                                                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                                                 <span className="text-xs">{t('schedule.copied', 'تم النسخ!')}</span>
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <Copy className="w-4 h-4 text-slate-500" />
+                                                                <Copy className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                                                 <span className="text-xs hidden sm:inline">{t('schedule.copy', 'نسخ')}</span>
                                                             </>
                                                         )}
                                                     </button>
                                                 </>
                                             ) : (
-                                                <div className="px-5 py-3 rounded-2xl bg-slate-100 text-slate-500 text-xs sm:text-sm font-semibold text-center">
+                                                <div className="px-5 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold text-center border border-transparent dark:border-slate-700">
                                                     {session.status === 'completed' || session.status === 'finished'
                                                         ? t('schedule.sessionCompleted', 'انتهت الجلسة')
                                                         : (session.actionText || t('schedule.linkPending', 'سيتم تفعيل الرابط قبل البدء'))}
@@ -687,18 +687,18 @@ export default function SchedulePage({ role }) {
                             })}
                         </motion.div>
                     ) : (
-                         <motion.div
+                        <motion.div
                             initial={{ opacity: 0, scale: 0.96 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-white rounded-[2rem] p-12 text-center shadow-sm border border-slate-100 max-w-xl mx-auto space-y-4"
+                            className="bg-white dark:bg-slate-900 rounded-[2rem] p-12 text-center shadow-sm border border-slate-100 dark:border-slate-800 max-w-xl mx-auto space-y-4"
                         >
-                            <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                            <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 flex items-center justify-center mx-auto mb-2">
                                 <CalendarDays className="w-8 h-8" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800">
+                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">
                                 {t('schedule.noSessionsTitle', 'لا توجد جلسات مجدولة في هذا اليوم')}
                             </h3>
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                 {statusFilter !== 'all'
                                     ? t('schedule.noSearchResults', 'لا توجد جلسات تطابق الفلتر المحدد.')
                                     : t('schedule.enjoyRest', 'يمكنك الاستفادة من وقتك في مراجعة الأوراد السابقة والاستعداد للجلسات القادمة.')}
@@ -708,7 +708,7 @@ export default function SchedulePage({ role }) {
                                     onClick={() => {
                                         setStatusFilter('all')
                                     }}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00695C] text-white text-xs sm:text-sm font-semibold hover:bg-[#005247] transition-all cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00695C] dark:bg-emerald-600 text-white text-xs sm:text-sm font-semibold hover:bg-[#005247] dark:hover:bg-emerald-700 transition-all cursor-pointer"
                                 >
                                     <RotateCcw className="w-4 h-4" />
                                     <span>{t('schedule.resetFilters', 'إعادة تعيين الفلاتر')}</span>
@@ -718,7 +718,7 @@ export default function SchedulePage({ role }) {
                     )}
                 </AnimatePresence>
 
-                 {!role && <CTASection />}
+                {!role && <CTASection />}
 
             </div>
         </div>
@@ -732,7 +732,7 @@ const StatusBadge = React.memo(({ status, badge, badgeType, isLive: propIsLive, 
 
     if (isLive) {
         return (
-            <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-200">
+            <span className="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-200 dark:border-red-900/40">
                 <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
                 <span className="w-2 h-2 rounded-full bg-red-600" />
                 {t('schedule.status.live', 'مباشر الآن')}
@@ -741,7 +741,7 @@ const StatusBadge = React.memo(({ status, badge, badgeType, isLive: propIsLive, 
     }
     if (isScheduled) {
         return (
-            <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-bold border border-amber-200/80">
+            <span className="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-bold border border-amber-200/80 dark:border-amber-900/40">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                 {t('schedule.status.scheduled', t('schedule.status.upcoming', 'مجدولة'))}
             </span>
@@ -749,14 +749,14 @@ const StatusBadge = React.memo(({ status, badge, badgeType, isLive: propIsLive, 
     }
     if (isCompleted) {
         return (
-            <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
+            <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700">
+                <CheckCircle2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                 {t('schedule.status.completed', t('schedule.status.finished', 'مكتملة'))}
             </span>
         )
     }
     return (
-        <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">
+        <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-3 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700">
             {badge || status}
         </span>
     )

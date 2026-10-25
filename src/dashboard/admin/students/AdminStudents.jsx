@@ -22,7 +22,7 @@ export default function AdminStudents() {
   const [sessionModalStudent, setSessionModalStudent] = useState(null)
   const [isAddingSessions, setIsAddingSessions] = useState(false)
   const [isSavingStudent, setIsSavingStudent] = useState(false)
-  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'stopped'
+  const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 400)

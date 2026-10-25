@@ -9,14 +9,15 @@ export default function ContactBanner() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white rounded-[2rem] p-8 sm:p-10 mb-8 shadow-sm border border-slate-100 text-center space-y-3"
+            className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 sm:p-10 mb-8 shadow-sm border border-slate-100 dark:border-slate-800 text-center space-y-3"
         >
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
                 {t('contact.banner.title', 'تواصل معنا للتسجيل والاشتراك')}
             </h2>
-            <p className="text-slate-500 font-medium text-base sm:text-lg">
+            <p className="text-slate-500 dark:text-slate-300 font-medium text-base sm:text-lg">
                 {t('contact.banner.desc', 'امنح أطفالك فرصة للتعلم والتطور من خلال دوراتنا التعليمية المصممة لتنمية المهارات وبناء الثقة بطريقة ممتعة وآمنة.')}
             </p>
         </motion.div>
     )
 }
+

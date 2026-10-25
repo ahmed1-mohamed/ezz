@@ -68,7 +68,8 @@ export default function AdminCurriculums() {
     },
     onError: (err) => {
       console.error('Failed to update curriculum', err)
-      toast.error(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update curriculum')
+      const errMsg = err.response?.data?.message || err.response?.data?.error || (isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update curriculum')
+      toast.error(Array.isArray(errMsg) ? errMsg.join(', ') : errMsg)
     }
   })
 
@@ -84,24 +85,34 @@ export default function AdminCurriculums() {
     }
   })
 
-  const handleSave = async (payloadFormData) => {
+  const handleSave = async (payload) => {
     if (editingItem) {
-      await updateMutation.mutateAsync({ id: editingItem.id || editingItem._id, payload: payloadFormData })
+      const targetId = editingItem.id || editingItem._id || editingItem.data?.id || editingItem.data?._id
+      await updateMutation.mutateAsync({ id: targetId, payload })
     } else {
-      await createMutation.mutateAsync(payloadFormData)
+      await createMutation.mutateAsync(payload)
     }
   }
 
   const handleEditClick = async (item) => {
+    const targetId = item.id || item._id
     try {
-      const res = await adminCurriculaApi.fetchCurriculumByIdRaw(item.id || item._id)
-      const data = res?.data || res || item
+      const res = await adminCurriculaApi.fetchCurriculumByIdRaw(targetId)
+      const data = res?.data?.data || res?.data || res || item
       setEditingItem(data)
       setShowForm(true)
     } catch (error) {
-      console.error('Failed to fetch full curriculum data for edit:', error)
-      setEditingItem(item)
-      setShowForm(true)
+      console.warn('fetchCurriculumByIdRaw failed, trying fetchCurriculumById:', error)
+      try {
+        const localizedRes = await adminCurriculaApi.fetchCurriculumById(targetId)
+        const localizedData = localizedRes?.data?.data || localizedRes?.data || localizedRes || item
+        setEditingItem(localizedData)
+        setShowForm(true)
+      } catch (err2) {
+        console.error('Failed to fetch full curriculum data for edit:', err2)
+        setEditingItem(item)
+        setShowForm(true)
+      }
     }
   }
 

@@ -1,20 +1,39 @@
 import api from './axiosConfig';
 
 export const teacherComplaintsApi = {
-  fetchComplaints: async (status = 'all', params = {}) => {
-    let endpoint = '/api/v1/teacher/complaints-suggestions';
-    if (status === 'resolved') {
-      endpoint = '/api/v1/teacher/complaints-suggestions/resolved';
-    } else if (status === 'rejected') {
-      endpoint = '/api/v1/teacher/complaints-suggestions/rejected';
+  fetchComplaints: async (filterOrParams) => {
+    let queryParams = {};
+    if (typeof filterOrParams === 'string' && filterOrParams !== 'all') {
+      queryParams.status = filterOrParams;
+    } else if (typeof filterOrParams === 'object' && filterOrParams !== null) {
+      if (filterOrParams.status && filterOrParams.status !== 'all') {
+        queryParams.status = filterOrParams.status;
+      }
+      if (filterOrParams.page) queryParams.page = filterOrParams.page;
+      if (filterOrParams.limit) queryParams.limit = filterOrParams.limit;
     }
 
-    const response = await api.get(endpoint, { params });
-    return response.data;
+    try {
+      const response = await api.get('/api/v1/teacher/complaints-suggestions', {
+        params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        skipLang: true,
+      });
+      return response.data;
+    } catch (error) {
+      if (Object.keys(queryParams).length > 0) {
+        const fallback = await api.get('/api/v1/teacher/complaints-suggestions', {
+          skipLang: true,
+        });
+        return fallback.data;
+      }
+      throw error;
+    }
   },
 
   fetchComplaintById: async (id) => {
-    const response = await api.get(`/api/v1/teacher/complaints-suggestions/${id}`);
+    const response = await api.get(`/api/v1/teacher/complaints-suggestions/${id}`, {
+      skipLang: true,
+    });
     return response.data?.data || response.data;
   },
 

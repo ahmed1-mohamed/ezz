@@ -5,11 +5,8 @@ import { BookOpen, GraduationCap, Users, Calendar, Layers, Activity, Clock, Radi
 import StatsCard from '@/shared/components/StatsCard.jsx'
 import DataTable from '@/shared/components/DataTable.jsx'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
+import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 
-/**
- * Converts a UTC ISO string to the user's local time string (HH:MM).
- * Works automatically for any timezone based on the device locale.
- */
 function utcToLocalTime(utcValue) {
     if (!utcValue) return '—';
     const date = new Date(utcValue);
@@ -17,12 +14,8 @@ function utcToLocalTime(utcValue) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-/**
- * Converts a UTC ISO string to the user's local date string.
- */
 function utcToLocalDate(utcValue) {
     if (!utcValue) return '—';
-    // If it's already a plain date string like "2026-11-01", treat as-is (no time component).
     if (/^\d{4}-\d{2}-\d{2}$/.test(String(utcValue))) {
         const [y, m, d] = utcValue.split('-').map(Number);
         return new Date(y, m - 1, d).toLocaleDateString([], {
@@ -36,13 +29,9 @@ function utcToLocalDate(utcValue) {
     });
 }
 
-/**
- * Returns a human-readable elapsed time since a UTC start timestamp.
- */
 function formatElapsedTime(session, t) {
     if (!session) return t('admin.statusLive', 'مباشرة الآن');
 
-    // Prefer startedAt (actual live start) over scheduled startTime
     const timestamp = session.startedAt || session.startTime;
     if (timestamp) {
         const started = new Date(timestamp);
@@ -60,19 +49,16 @@ function formatElapsedTime(session, t) {
 
 export default function AdminDashboard() {
     const { t } = useTranslation()
+    const { hasPermission } = useAdminPermissions()
 
-    // Single query — statistics endpoint returns latestSessions + liveSessions for admins
     const { data: statsRes, isLoading: isLoadingStats } = useQuery({
         queryKey: ['dashboard-stats'],
         queryFn: () => dashboardApi.fetchStatistics(),
         staleTime: 5 * 60 * 1000,
     });
 
-    // The API returns: { data: { latestSessions, liveSessions, statistics: {...} } }
-    // statsRes.data is already unwrapped by dashboardApi (response.data?.data || response.data)
     const apiData = statsRes?.data?.data ?? statsRes?.data ?? {};
 
-    // ── Sessions: siblings of statistics at data-root level ──
     const rawLatest =
         apiData?.latestSessions ??
         apiData?.recentSessions ??
@@ -92,7 +78,6 @@ export default function AdminDashboard() {
             return st === 'live' || st === 'in_progress' || st === 'in-progress';
         });
 
-    // ── Statistics numbers: nested inside data.statistics ──
     const statsData =
         apiData?.statistics ??
         apiData?.stats ??
@@ -111,35 +96,35 @@ export default function AdminDashboard() {
         {
             title: t('admin.totalStudents'),
             value: dashboardStats.students,
-            to: '/dashboard/admin/students',
+            to: hasPermission('students.read') ? '/dashboard/admin/students' : undefined,
             icon: <BookOpen className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.totalTeachers'),
             value: dashboardStats.teachers,
-            to: '/dashboard/admin/teachers',
+            to: hasPermission('teachers.read') ? '/dashboard/admin/teachers' : undefined,
             icon: <GraduationCap className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.parents'),
             value: dashboardStats.parents,
-            to: '/dashboard/admin/parents',
+            to: hasPermission('parents.read') ? '/dashboard/admin/parents' : undefined,
             icon: <Users className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
         {
             title: t('admin.activeSessionsToday'),
             value: dashboardStats.todayActiveSessions,
-            to: '/dashboard/admin/sessions',
+            to: hasPermission('sessions.read') ? '/dashboard/admin/sessions' : undefined,
             icon: <Calendar className="w-5 h-5" />,
             accent: 'bg-[#FFEBEE] text-[#D32F2F] dark:bg-[#C62828]/20 dark:text-[#EF5350]'
         },
         {
             title: t('admin.totalGroups'),
             value: dashboardStats.groups,
-            to: '/dashboard/admin/groups',
+            to: hasPermission('groups.read') ? '/dashboard/admin/groups' : undefined,
             icon: <Layers className="w-5 h-5" />,
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         },
@@ -156,7 +141,6 @@ export default function AdminDashboard() {
         }
     ];
 
-    // ── Status badge renderer ──
     const renderStatusBadge = (status) => {
         const normalized = (status || '').toLowerCase().trim();
         if (normalized === 'live' || normalized === 'in_progress' || normalized === 'in-progress' || normalized === 'مباشرة الآن') {
@@ -198,7 +182,6 @@ export default function AdminDashboard() {
         );
     };
 
-    // ── Table rows — times converted from UTC to local ──
     const rows = sessionsList.map((session, idx) => {
         const groupName =
             (typeof session.group === 'object' ? session.group?.name : session.group) ||
@@ -211,10 +194,8 @@ export default function AdminDashboard() {
             session.teacherName ||
             t('sessions.defaultTeacher', 'غير محدد');
 
-        // Date: prefer the plain date field or ISO timestamp converted to user's local timezone
         const localDate = utcToLocalDate(session.startTime || session.date);
 
-        // Time: convert UTC ISO startTime/endTime to local time
         const startStr = utcToLocalTime(session.startTime);
         const endStr = utcToLocalTime(session.endTime);
         const localTime = startStr !== '—'
@@ -232,7 +213,6 @@ export default function AdminDashboard() {
         ];
     });
 
-    // Upcoming sessions count — from statistics or count from list
     const upcomingSessionsCount =
         statsData?.upcomingSessions ??
         statsData?.scheduledSessions ??
@@ -269,19 +249,20 @@ export default function AdminDashboard() {
                 })}
             </section>
 
-            {/* ── Latest sessions table ── */}
             <div className="space-y-4 sm:space-y-6 pt-6">
                 <div>
                     <div className="flex items-center justify-between mb-4 px-1">
                         <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
                             {t('admin.latestSessions')}
                         </h2>
-                        <Link
-                            to="/dashboard/admin/sessions"
-                            className="text-[#00695C] dark:text-[#4DB6AC] hover:text-[#004D40] text-sm font-bold transition-colors"
-                        >
-                            {t('admin.viewAll')}
-                        </Link>
+                        {hasPermission('sessions.read') && (
+                            <Link
+                                to="/dashboard/admin/sessions"
+                                className="text-[#00695C] dark:text-[#4DB6AC] hover:text-[#004D40] text-sm font-bold transition-colors"
+                            >
+                                {t('admin.viewAll')}
+                            </Link>
+                        )}
                     </div>
                     <DataTable
                         headers={[
@@ -298,7 +279,6 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* ── Live sessions + upcoming count ── */}
             <div className="space-y-4 sm:space-y-6 pt-6">
                 <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/90 p-4 sm:p-6 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
                     <div className="flex items-center justify-between mb-4">
@@ -311,12 +291,14 @@ export default function AdminDashboard() {
                                 </span>
                             )}
                         </h3>
-                        <Link
-                            to="/dashboard/admin/sessions"
-                            className="text-xs text-[#00695C] dark:text-[#4DB6AC] hover:underline font-semibold"
-                        >
-                            {t('admin.viewAll', 'عرض الكل')}
-                        </Link>
+                        {hasPermission('sessions.read') && (
+                            <Link
+                                to="/dashboard/admin/sessions"
+                                className="text-xs text-[#00695C] dark:text-[#4DB6AC] hover:underline font-semibold"
+                            >
+                                {t('admin.viewAll', 'عرض الكل')}
+                            </Link>
+                        )}
                     </div>
 
                     {isLoadingStats && liveList.length === 0 ? (
@@ -345,12 +327,8 @@ export default function AdminDashboard() {
 
                                 const elapsed = formatElapsedTime(liveSession, t);
 
-                                return (
-                                    <Link
-                                        key={liveSession.id || liveSession._id || idx}
-                                        to="/dashboard/admin/sessions"
-                                        className="bg-red-50/40 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex items-center justify-between gap-4 hover:border-red-200 dark:hover:border-red-800/50 transition-all hover:shadow-sm group cursor-pointer"
-                                    >
+                                const sessionCardContent = (
+                                    <>
                                         <div className="space-y-1 min-w-0">
                                             <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base truncate group-hover:text-red-700 dark:group-hover:text-red-400 transition-colors">
                                                 {groupTitle}
@@ -368,7 +346,24 @@ export default function AdminDashboard() {
                                         <span className="text-xs text-red-500 font-bold shrink-0">
                                             {elapsed}
                                         </span>
+                                    </>
+                                );
+
+                                return hasPermission('sessions.read') ? (
+                                    <Link
+                                        key={liveSession.id || liveSession._id || idx}
+                                        to="/dashboard/admin/sessions"
+                                        className="bg-red-50/40 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex items-center justify-between gap-4 hover:border-red-200 dark:hover:border-red-800/50 transition-all hover:shadow-sm group cursor-pointer"
+                                    >
+                                        {sessionCardContent}
                                     </Link>
+                                ) : (
+                                    <div
+                                        key={liveSession.id || liveSession._id || idx}
+                                        className="bg-red-50/40 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex items-center justify-between gap-4"
+                                    >
+                                        {sessionCardContent}
+                                    </div>
                                 );
                             })}
                         </div>

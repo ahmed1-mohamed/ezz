@@ -166,10 +166,15 @@ export default function AdminPackages() {
         )
     }
 
-    const canViewPackages = hasPermission('packages.read') || hasPermission('packages_faqs.read')
+    const canViewPackages = hasPermission('packages.read') || hasPermission('packages_faqs.read') || isSuperAdmin
     const canCreatePackage = hasPermission('packages.create') || isSuperAdmin
-    const canViewFaqs = hasPermission('faqs.read') || hasPermission('packages_faqs.read')
+    const canUpdatePackage = hasPermission('packages.update') || isSuperAdmin
+    const canDeletePackage = hasPermission('packages.delete') || isSuperAdmin
+
+    const canViewFaqs = hasPermission('faqs.read') || hasPermission('packages_faqs.read') || isSuperAdmin
     const canCreateFaq = hasPermission('faqs.create') || isSuperAdmin
+    const canUpdateFaq = hasPermission('faqs.update') || isSuperAdmin
+    const canDeleteFaq = hasPermission('faqs.delete') || isSuperAdmin
 
     if (!canViewPackages && !canViewFaqs) {
         return (
@@ -215,8 +220,8 @@ export default function AdminPackages() {
                                     <PackageCard
                                         key={pkg.id}
                                         pkg={pkg}
-                                        onEdit={handleEditPkgClick}
-                                        onDelete={(id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '')}
+                                        onEdit={canUpdatePackage ? handleEditPkgClick : null}
+                                        onDelete={canDeletePackage ? (id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '') : null}
                                         explanationLanguages={explanationLanguages}
                                         countries={countries}
                                     />
@@ -261,11 +266,11 @@ export default function AdminPackages() {
 
                     <FaqTable
                         faqs={faqs}
-                        onEdit={handleEditFaqClick}
-                        onDelete={(id) => {
+                        onEdit={canUpdateFaq ? handleEditFaqClick : null}
+                        onDelete={canDeleteFaq ? (id) => {
                             const faq = faqs.find(f => f.id === id);
                             executeDelete('faq', id, faq?.question || '');
-                        }}
+                        } : null}
                     />
                 </section>
             )}

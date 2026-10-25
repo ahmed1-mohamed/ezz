@@ -13,12 +13,12 @@ const normalizeCountryStr = (str) => {
     if (!str) return ''
     return String(str)
         .toLowerCase()
-        .replace(/[\u064B-\u065F\u0670]/g, '') // remove arabic tashkeel
+        .replace(/[\u064B-\u065F\u0670]/g, '')
         .replace(/[إأآا]/g, 'ا')
         .replace(/ة/g, 'ه')
         .replace(/ى/g, 'ي')
         .replace(/(جمهورية|المملكة|سلطنة|دولة|الامارات|العربية|المتحدة|الهاشمية)/g, '')
-        .replace(/\p{Extended_Pictographic}/gu, '') // remove flags
+        .replace(/\p{Extended_Pictographic}/gu, '')
         .replace(/[^\p{L}\p{N}]/gu, '')
         .trim()
 }
@@ -151,16 +151,16 @@ const portraitImages = [
 ];
 
 const TeacherSkeleton = () => (
-    <div className="w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm p-4 animate-pulse space-y-4">
-        <div className="aspect-[4/5] w-full rounded-[24px] bg-slate-200" />
+    <div className="w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] dark:bg-slate-900 shadow-sm border border-transparent dark:border-slate-800 p-4 animate-pulse space-y-4">
+        <div className="aspect-[4/5] w-full rounded-[24px] bg-slate-200 dark:bg-slate-800" />
         <div className="space-y-2 p-2">
-            <div className="h-6 bg-slate-300 rounded-full w-3/4" />
-            <div className="h-4 bg-slate-200 rounded-full w-1/2" />
+            <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded-full w-3/4" />
+            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-full w-1/2" />
             <div className="flex gap-2 pt-2">
-                <div className="h-6 w-20 bg-slate-200 rounded-full" />
-                <div className="h-6 w-24 bg-slate-200 rounded-full" />
+                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
             </div>
-            <div className="h-11 bg-slate-300 rounded-2xl w-full mt-4" />
+            <div className="h-11 bg-slate-300 dark:bg-slate-700 rounded-2xl w-full mt-4" />
         </div>
     </div>
 );
@@ -210,7 +210,7 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
             style={{ willChange: 'transform, opacity' }}
-            className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col justify-between"
+            className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] dark:bg-slate-900 border border-transparent dark:border-slate-800 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col justify-between"
         >
             <div
                 onClick={handleProfileNavigation}
@@ -234,35 +234,35 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
                         <div className="flex flex-col flex-1 min-w-0">
                             <h3
                                 onClick={handleProfileNavigation}
-                                className="text-xl lg:text-[22px] font-extrabold leading-tight text-[#00695C] truncate cursor-pointer hover:underline"
+                                className="text-xl lg:text-[22px] font-extrabold leading-tight text-[#00695C] dark:text-emerald-400 truncate cursor-pointer hover:underline"
                                 title={teacher.name}
                             >
                                 {teacher.name}
                             </h3>
-                            <p className="mt-1.5 text-sm font-semibold text-[#8B6B15] line-clamp-1" title={teacher.degree || teacher.title}>
+                            <p className="mt-1.5 text-sm font-semibold text-[#8B6B15] dark:text-amber-400 line-clamp-1" title={teacher.degree || teacher.title}>
                                 {teacher.degree || teacher.title || t('teacher.jobTitle', 'معلم معتمد')}
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-1 text-[#9B7B16] shrink-0 mt-0.5 bg-[#F9F5E8] px-2.5 py-1 rounded-full border border-[#9B7B16]/20">
-                            <Star className="h-3.5 w-3.5 fill-[#9B7B16] text-[#9B7B16]" />
+                        <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 shrink-0 mt-0.5 bg-[#F9F5E8] dark:bg-amber-950/40 px-2.5 py-1 rounded-full border border-[#9B7B16]/20 dark:border-amber-900/40">
+                            <Star className="h-3.5 w-3.5 fill-[#9B7B16] dark:fill-amber-400 text-[#9B7B16] dark:text-amber-400" />
                             <span className="text-xs font-bold">{ratingDisplay}</span>
                         </div>
                     </div>
 
                     <div className="flex flex-wrap justify-start gap-1.5 pt-1">
                         {teacher.yearsOfExperience !== undefined && (
-                            <span className="rounded-full bg-[#E7E7E4] px-3 py-1 text-xs font-semibold text-[#555]">
+                            <span className="rounded-full bg-[#E7E7E4] dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-[#555] dark:text-slate-300">
                                 {teacher.yearsOfExperience} {t('teacher.yearsExperience', 'سنوات خبرة')}
                             </span>
                         )}
                         {teacher.subject && (
-                            <span className="rounded-full bg-[#00695C]/10 px-3 py-1 text-xs font-bold text-[#00695C]">
+                            <span className="rounded-full bg-[#00695C]/10 dark:bg-[#00695C]/20 px-3 py-1 text-xs font-bold text-[#00695C] dark:text-emerald-400">
                                 {teacher.subject}
                             </span>
                         )}
                         {tags.map((tag, i) => (
-                            <span key={i} className="rounded-full bg-[#E7E7E4] px-3 py-1 text-xs font-semibold text-[#7B7B7B]">
+                            <span key={i} className="rounded-full bg-[#E7E7E4] dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-[#7B7B7B] dark:text-slate-400">
                                 {tag}
                             </span>
                         ))}
@@ -271,7 +271,7 @@ const TeacherCard = React.memo(({ teacher, t, index }) => {
 
                 <button
                     onClick={handleProfileNavigation}
-                    className="w-full rounded-2xl bg-[#00695C] py-3.5 text-[16px] font-bold text-white transition-all duration-300 ease-out hover:bg-[#005247] hover:shadow-lg active:scale-95 hover:-translate-y-0.5"
+                    className="w-full rounded-2xl bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 py-3.5 text-[16px] font-bold text-white transition-all duration-300 ease-out hover:shadow-lg active:scale-95 hover:-translate-y-0.5 cursor-pointer"
                 >
                     {t('teacher.viewProfile', 'عرض الملف الشخصي')}
                 </button>
@@ -345,7 +345,7 @@ export default function Teachers() {
 
     const { data: countriesResponse } = useQuery({
         queryKey: ['countries', i18n.language],
-        queryFn: () => landingApi.fetchCountries({ lang: i18n.language }),
+        queryFn: () => landingApi.fetchCountries(),
         staleTime: 1000 * 60 * 10,
     })
 
@@ -415,9 +415,9 @@ export default function Teachers() {
     const ArrowPrev = isRtl ? ChevronRight : ChevronLeft
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-20">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
-                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-12 lg:p-16 shadow-sm">
+                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-12 lg:p-16 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
                         <motion.div
                             variants={containerVariants}
@@ -425,17 +425,17 @@ export default function Teachers() {
                             animate="visible"
                             className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col items-center text-center lg:items-start lg:text-start"
                         >
-                            <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
+                            <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] dark:bg-amber-600 px-4 py-2 text-sm font-bold text-white shadow-sm">
                                 {t('teacher.badge', 'معلمونا')}
                             </motion.div>
                             <motion.div variants={itemVariants} className="space-y-4">
-                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] bg-clip-text text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] text-transparent pb-2">
+                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] dark:from-emerald-400 dark:to-emerald-200 bg-clip-text text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] text-transparent pb-2">
                                     <span className="block">{t('teacher.titleLine1', 'نخبة من')}</span>
-                                    <span className="block text-[#735C00] text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pt-2">
+                                    <span className="block text-[#735C00] dark:text-amber-400 text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pt-2">
                                         {t('teacher.titleLine2', 'أفضل المعلمين المجازين')}
                                     </span>
                                 </h1>
-                                <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
+                                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
                                     {t('teacher.titleLine3', 'تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.')}
                                 </p>
                             </motion.div>
@@ -447,11 +447,11 @@ export default function Teachers() {
                             className="order-1 lg:order-2 flex justify-center flex-1"
                         >
                             <div className="relative w-full max-w-lg">
-                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-brand-100/50 blur-3xl mix-blend-multiply" />
+                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-brand-100/50 dark:bg-brand-900/20 blur-3xl mix-blend-multiply" />
                                 <motion.div
                                     animate={{ y: [0, -15, 0] }}
                                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl"
+                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white dark:border-slate-800 bg-white dark:bg-slate-800 shadow-2xl"
                                 >
                                     <img src={imageSrc} alt="Teachers" width="512" height="320" className="w-full h-64 sm:h-72 lg:h-[320px] object-cover" />
                                 </motion.div>
@@ -460,10 +460,10 @@ export default function Teachers() {
                     </div>
                 </section>
 
-                <section className="bg-white/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 w-full mx-auto transition-all duration-300">
+                <section className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 dark:border-slate-800 w-full mx-auto transition-all duration-300">
                     <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row items-end gap-5">
                         <div className="flex-1 w-full space-y-2 text-start">
-                            <label htmlFor="teacher-search" className="block text-sm font-bold text-[#00695C] mx-1">
+                            <label htmlFor="teacher-search" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
                                 {t('teacher.searchLabel', 'ابحث عن معلم')}
                             </label>
                             <div className="relative flex items-center">
@@ -476,11 +476,11 @@ export default function Teachers() {
                                     placeholder={t('teacher.searchPlaceholder', 'الاسم، التخصص، المؤهل...')}
                                     value={searchInput}
                                     onChange={(e) => setSearchInput(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block ps-12 pe-24 p-4 transition-colors shadow-sm"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white dark:placeholder-slate-400 text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block ps-12 pe-24 p-4 transition-colors shadow-sm"
                                 />
                                 <button
                                     type="submit"
-                                    className="absolute end-2 bg-[#00695C] hover:bg-[#005247] text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-all shadow-sm active:scale-95"
+                                    className="absolute end-2 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
                                 >
                                     {t('common.search', 'بحث')}
                                 </button>
@@ -488,7 +488,7 @@ export default function Teachers() {
                         </div>
 
                         <div className="w-full md:w-64 space-y-2 text-start">
-                            <label htmlFor="subject-select" className="block text-sm font-bold text-[#00695C] mx-1">
+                            <label htmlFor="subject-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
                                 {t('teacher.subjectLabel', 'التخصص / المادة')}
                             </label>
                             <div className="relative">
@@ -499,11 +499,11 @@ export default function Teachers() {
                                         setSelectedSubject(e.target.value)
                                         setCurrentPage(1)
                                     }}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
                                 >
-                                    <option value="">{t('teacher.allSubjects', 'جميع التخصصات')}</option>
+                                    <option value="" className="dark:bg-slate-850">{t('teacher.allSubjects', 'جميع التخصصات')}</option>
                                     {availableSubjects.map((subj) => (
-                                        <option key={subj} value={subj}>{subj}</option>
+                                        <option key={subj} value={subj} className="dark:bg-slate-850">{subj}</option>
                                     ))}
                                 </select>
                                 <BookOpen className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
@@ -511,7 +511,7 @@ export default function Teachers() {
                         </div>
 
                         <div className="w-full md:w-64 space-y-2 text-start">
-                            <label htmlFor="country-select" className="block text-sm font-bold text-[#00695C] mx-1">
+                            <label htmlFor="country-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
                                 {t('teacher.countryLabel', 'الدولة')}
                             </label>
                             <div className="relative">
@@ -522,13 +522,13 @@ export default function Teachers() {
                                         setSelectedCountry(e.target.value)
                                         setCurrentPage(1)
                                     }}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-[#00695C] focus:border-[#00695C] block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
                                 >
-                                    <option value="">{t('teacher.allCountries', 'جميع الدول')}</option>
+                                    <option value="" className="dark:bg-slate-850">{t('teacher.allCountries', 'جميع الدول')}</option>
                                     {countriesList.map((country) => {
                                         const cId = country.id || country._id
                                         return (
-                                            <option key={cId} value={cId}>
+                                            <option key={cId} value={cId} className="dark:bg-slate-850">
                                                 {country.flag ? `${country.flag} ` : ''}{getCountryName(country, isRtl)}
                                             </option>
                                         )
@@ -541,7 +541,7 @@ export default function Teachers() {
                         <button
                             type="button"
                             onClick={handleResetFilters}
-                            className="w-full bg-[#735C00] md:w-48 hover:bg-[#5c4a00] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 ease-out flex items-center justify-center gap-2 shadow-md hover:shadow-lg h-[58px] text-base active:scale-95"
+                            className="w-full bg-[#735C00] dark:bg-amber-600 md:w-48 hover:bg-[#5c4a00] dark:hover:bg-amber-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 ease-out flex items-center justify-center gap-2 shadow-md hover:shadow-lg h-[58px] text-base active:scale-95 cursor-pointer"
                         >
                             {t('teacher.clearFilter', 'مسح التصفية')}
                             <Filter className="h-5 w-5" />
@@ -551,16 +551,16 @@ export default function Teachers() {
 
                 <section ref={gridRef}>
                     {isError ? (
-                        <div className="text-center py-16 bg-white rounded-[32px] border border-red-100 shadow-sm p-8 space-y-4">
-                            <div className="inline-flex p-3 rounded-full bg-red-50 text-red-600">
+                        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-[32px] border border-red-100 dark:border-red-900/40 shadow-sm p-8 space-y-4">
+                            <div className="inline-flex p-3 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
                                 <AlertCircle className="w-8 h-8" />
                             </div>
-                            <p className="text-red-600 font-bold text-lg">
+                            <p className="text-red-600 dark:text-red-400 font-bold text-lg">
                                 {t('common.errorLoading', 'حدث خطأ أثناء تحميل بيانات المعلمين')}
                             </p>
                             <button
                                 onClick={() => refetch()}
-                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#00695C] text-white font-bold rounded-xl hover:bg-[#005247] transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-xl transition-all cursor-pointer"
                             >
                                 <RefreshCw className="w-4 h-4" />
                                 <span>{t('common.retry', 'إعادة المحاولة')}</span>
@@ -586,14 +586,14 @@ export default function Teachers() {
                             </AnimatePresence>
                         </div>
                     ) : (
-                        <div className="text-center py-20 bg-white rounded-[32px] border border-slate-100 shadow-sm space-y-4">
-                            <p className="text-[#00695C] font-bold text-xl">
+                        <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+                            <p className="text-[#00695C] dark:text-emerald-400 font-bold text-xl">
                                 {t('teacher.noResults', 'لا يوجد معلمين يطابقون بحثك.')}
                             </p>
                             {(searchTerm || selectedSubject || selectedCountry) && (
                                 <button
                                     onClick={handleResetFilters}
-                                    className="text-sm font-bold text-[#8B6B15] underline hover:text-[#5c4a00]"
+                                    className="text-sm font-bold text-[#8B6B15] dark:text-amber-400 underline hover:text-[#5c4a00] dark:hover:text-amber-300 cursor-pointer"
                                 >
                                     {t('teacher.clearFilter', 'مسح التصفية')}
                                 </button>
@@ -607,7 +607,7 @@ export default function Teachers() {
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center active:scale-95 shadow-sm"
+                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center active:scale-95 shadow-sm cursor-pointer"
                             aria-label={t('teacher.previous', 'السابق')}
                         >
                             <ArrowPrev className="w-5 h-5" />
@@ -620,10 +620,10 @@ export default function Teachers() {
                                     <button
                                         key={pageNum}
                                         onClick={() => handlePageChange(pageNum)}
-                                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95 hover:shadow-sm ${
+                                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95 hover:shadow-sm cursor-pointer ${
                                             currentPage === pageNum
-                                                ? 'bg-[#00695C] text-white shadow-md'
-                                                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                                ? 'bg-[#00695C] dark:bg-emerald-600 text-white shadow-md'
+                                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                                         }`}
                                     >
                                         {pageNum}
@@ -635,7 +635,7 @@ export default function Teachers() {
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center active:scale-95 shadow-sm"
+                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center active:scale-95 shadow-sm cursor-pointer"
                             aria-label={t('teacher.next', 'التالي')}
                         >
                             <ArrowNext className="w-5 h-5" />

@@ -46,9 +46,9 @@ export default function ForgotPassword() {
     }
 
     return (
-        <div className="min-h-screen bg-[#EEF4F2] flex flex-col relative font-sans">
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
             <div className="absolute top-6 start-6 z-10">
-                <Link to="/login" className="flex items-center gap-2 text-[#00695C] hover:text-[#004D40] font-bold transition-colors bg-white/50 hover:bg-white px-4 py-2 rounded-full shadow-sm">
+                <Link to="/login" className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/50 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm border border-transparent dark:border-slate-800">
                     <ArrowIcon className="w-5 h-5" />
                     <span>{t('forgotPassword.backToLogin', 'العودة لتسجيل الدخول')}</span>
                 </Link>
@@ -60,27 +60,27 @@ export default function ForgotPassword() {
 
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
                 <div className="text-center mb-8">
-                    <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
-                        <BookOpen className="w-10 h-10 text-[#00695C]" />
+                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
+                        <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] mb-2">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-2">
                         {t('login.academyName', 'أكاديمية منارة العز')}
                     </h1>
                 </div>
 
-                <div className="bg-white w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100">
+                <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100 dark:border-slate-800">
                     {!isSubmitted ? (
                         <>
-                            <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center sm:text-start">
+                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2 text-center sm:text-start">
                                 {t('forgotPassword.title', 'نسيت كلمة المرور؟')}
                             </h2>
-                            <p className="text-slate-500 mb-8 text-center sm:text-start text-sm leading-relaxed">
+                            <p className="text-slate-500 dark:text-slate-400 mb-8 text-center sm:text-start text-sm leading-relaxed">
                                 {t('forgotPassword.subtitle', 'أدخل بريدك الإلكتروني أدناه وسنرسل لك رابطاً لإعادة تعيين كلمة المرور الخاصة بك.')}
                             </p>
 
                             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-600 px-1">
+                                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                         {t('login.emailLabel', 'البريد الإلكتروني')}
                                     </label>
                                     <div className="relative">
@@ -92,7 +92,7 @@ export default function ForgotPassword() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="example@mail.com"
-                                            className={`w-full bg-[#F5F8F7] border ${error ? 'border-red-500' : 'border-transparent focus:border-[#00695C]'} text-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400`}
+                                            className={`w-full bg-[#F5F8F7] dark:bg-slate-800 border ${error ? 'border-red-500' : 'border-transparent focus:border-[#00695C] dark:focus:border-emerald-500'} text-slate-800 dark:text-white rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500`}
                                         />
                                     </div>
                                     {error && <p className="text-xs text-red-500 px-1">{error}</p>}
@@ -101,7 +101,7 @@ export default function ForgotPassword() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
+                                    className="w-full bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] mt-4"
                                 >
                                     {loading ? t('forgotPassword.sending', 'جاري الإرسال...') : t('forgotPassword.submitBtn', 'إرسال رابط الاستعادة')}
                                 </button>
@@ -109,25 +109,25 @@ export default function ForgotPassword() {
                         </>
                     ) : (
                         <div className="text-center space-y-6">
-                            <div className="bg-emerald-100 text-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle2 className="w-10 h-10" />
                             </div>
-                            <h2 className="text-2xl font-bold text-slate-800">
+                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
                                 {t('forgotPassword.successTitle', 'تم الإرسال بنجاح')}
                             </h2>
-                            <p className="text-slate-500 text-sm leading-relaxed">
+                            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
                                 {t('forgotPassword.successMessage', 'لقد أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد الخاص بك.')}
                             </p>
                             <Link
                                 to="/reset-password"
                                 state={{ token: resetToken }}
-                                className="block w-full bg-[#00695C] hover:bg-[#005247] text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] text-center"
+                                className="block w-full bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-2xl py-4 transition-all shadow-md active:scale-[0.98] text-center"
                             >
                                 {t('resetPassword.title', 'إعادة تعيين كلمة المرور')}
                             </Link>
                             <Link
                                 to="/login"
-                                className="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl py-4 transition-all text-center"
+                                className="block w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-2xl py-4 transition-all text-center"
                             >
                                 {t('forgotPassword.backToLogin', 'العودة لتسجيل الدخول')}
                             </Link>

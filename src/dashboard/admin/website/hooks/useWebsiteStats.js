@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 
-export default function useWebsiteStats(showNotification) {
+export default function useWebsiteStats(showNotification, enabled = true) {
   const { t } = useTranslation();
   
   const [stats, setStats] = useState({
@@ -10,10 +10,14 @@ export default function useWebsiteStats(showNotification) {
     teachers: 85,
     students: 1250
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (!enabled) {
+      setIsLoading(false);
+      return;
+    }
     async function loadStats() {
       setIsLoading(true);
       try {
@@ -41,7 +45,7 @@ export default function useWebsiteStats(showNotification) {
       }
     }
     loadStats();
-  }, []);
+  }, [enabled]);
 
   const handleStatChange = (field, val) => {
     const numericVal = parseInt(val, 10);

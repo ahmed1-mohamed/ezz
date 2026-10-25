@@ -6,7 +6,7 @@ export default function TeacherCard({ teacher, t, isRtl }) {
         <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full flex flex-col items-center bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100"
+            className="w-full flex flex-col items-center bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800"
         >
             <div className="relative w-full max-w-[250px] sm:max-w-[370px] aspect-[4/5] mb-6">
                 <div className={`absolute inset-0 bg-[#FECD31] rounded-[32px] translate-y-3 sm:translate-y-4 ${isRtl ? '-translate-x-3 sm:-translate-x-4' : 'translate-x-3 sm:translate-x-4'}`} />
@@ -17,22 +17,22 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                 />
             </div>
 
-            <h1 className="text-2xl sm:text-[28px] font-extrabold text-[#00695C] text-center mb-1">
+            <h1 className="text-2xl sm:text-[28px] font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-1">
                 {teacher.name}
             </h1>
-            <p className="text-slate-600 font-semibold text-center mb-6 text-sm sm:text-base">
+            <p className="text-slate-600 dark:text-slate-300 font-semibold text-center mb-6 text-sm sm:text-base">
                 {teacher.title}
             </p>
 
             <div className="flex items-center gap-4 mb-8 w-full">
-                <div className="flex items-center gap-1 text-[#9B7B16] font-bold">
+                <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 font-bold">
                     <span className="text-lg">{teacher.rating}</span>
-                    <Star className="w-5 h-5 fill-[#9B7B16]" />
+                    <Star className="w-5 h-5 fill-[#9B7B16] dark:fill-amber-400" />
                 </div>
 
                 <div className="flex-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
                     {(teacher.tags || []).map((tag, i) => (
-                        <span key={i} className="whitespace-nowrap bg-[#F2F2F2] text-slate-700 px-4 py-2 rounded-full text-sm font-bold">
+                        <span key={i} className="whitespace-nowrap bg-[#F2F2F2] dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-full text-sm font-bold">
                             {tag}
                         </span>
                     ))}
@@ -40,13 +40,14 @@ export default function TeacherCard({ teacher, t, isRtl }) {
             </div>
 
             <div className="w-full space-y-3">
-                <button className="w-full bg-[#00695C] hover:bg-[#004D40] text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-md active:scale-95 text-lg">
+                <button className="w-full bg-[#00695C] hover:bg-[#004D40] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-md active:scale-95 text-lg cursor-pointer">
                     {t('teacherProfile.bookTrial', 'احجز حصة تجريبية')}
                 </button>
-                <button className="w-full bg-black hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 text-lg">
+                <button className="w-full bg-black hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 text-lg cursor-pointer">
                     {t('teacherProfile.subscribeNow', 'اشترك الآن')}
                 </button>
             </div>
         </motion.div>
     )
 }
+

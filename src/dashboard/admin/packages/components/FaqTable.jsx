@@ -27,22 +27,28 @@ export default function FaqTable({ faqs, onDelete, onEdit }) {
               exit={{ opacity: 0, y: 6 }}
               className="grid grid-cols-[auto_1fr_1fr] items-center border-b border-slate-100 dark:border-slate-800/60 last:border-0 group hover:bg-slate-50/60 dark:hover:bg-slate-900/40 transition-colors"
             >
-              <div className="flex items-center gap-1 px-3 py-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => onEdit && onEdit(faq)}
-                  aria-label={p('editConfirm')}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                </button>
-                <button
-                  onClick={() => onDelete(faq.id)}
-                  aria-label={p('deleteConfirm')}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
+              {(onEdit || onDelete) && (
+                <div className="flex items-center gap-1 px-3 py-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(faq)}
+                      aria-label={p('editConfirm')}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(faq.id)}
+                      aria-label={p('deleteConfirm')}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="px-4 py-4 text-slate-700 dark:text-slate-300 text-sm font-medium truncate">
                 {faq.question}
               </div>

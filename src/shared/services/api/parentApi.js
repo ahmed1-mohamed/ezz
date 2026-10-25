@@ -160,7 +160,7 @@ export const parentApi = {
     }
   },
 
-  fetchBadges: async (childId) => {
+  fetchBadges: async () => {
     try {
       const response = await api.get('/api/v1/rewards/private/localized/all');
       return { success: true, data: response.data?.data || (Array.isArray(response.data) ? response.data : []) };

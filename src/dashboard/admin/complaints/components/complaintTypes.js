@@ -28,8 +28,8 @@ export const COMPLAINT_TYPES = {
     bg: 'bg-sky-50 dark:bg-sky-900/20',
     activeBorder: 'border-sky-500 ring-2 ring-sky-500/20 bg-sky-50/40 dark:bg-sky-900/10',
   },
-  postpone: {
-    id: 'postpone',
+  reschedule_request: {
+    id: 'reschedule_request',
     icon: CalendarClock,
     labelKey: 'adminDashboard.complaints.typePostpone',
     defaultLabel: 'طلبات التأجيل',
@@ -38,4 +38,3 @@ export const COMPLAINT_TYPES = {
     activeBorder: 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/40 dark:bg-amber-900/10',
   },
 }
-

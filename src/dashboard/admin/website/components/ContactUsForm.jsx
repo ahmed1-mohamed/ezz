@@ -17,7 +17,8 @@ export default function ContactUsForm({
   onSave,
   onCancel,
   isLoading = false,
-  isSaving = false
+  isSaving = false,
+  canUpdate = true
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
@@ -84,13 +85,14 @@ export default function ContactUsForm({
               <input
                 type="email"
                 required
+                disabled={!canUpdate || isLoading || isSaving}
                 value={localContact.email}
                 onChange={(e) => {
                   setLocalContact({ ...localContact, email: e.target.value });
                   if (errors.email) setErrors({ ...errors, email: null });
                 }}
                 placeholder="ahmed@gmail.com"
-                className={`w-full px-5 py-3.5 bg-[#F5F5F2] dark:bg-slate-950 border rounded-2xl focus:bg-white dark:focus:bg-slate-900 focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-850 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'}`}
+                className={`w-full px-5 py-3.5 bg-[#F5F5F2] dark:bg-slate-950 border rounded-2xl focus:bg-white dark:focus:bg-slate-900 focus:ring-1 outline-none text-slate-800 dark:text-slate-200 text-sm font-medium transition-all ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-850 focus:border-[#0f7a6c] focus:ring-[#0f7a6c]'} disabled:opacity-60 disabled:cursor-not-allowed`}
               />
             </div>
             {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email}</p>}
@@ -99,6 +101,7 @@ export default function ContactUsForm({
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.phone}
+              disabled={!canUpdate || isLoading || isSaving}
               onChange={(val) => {
                 setLocalContact({ ...localContact, phone: val });
                 if (errors.phone) setErrors({ ...errors, phone: null });
@@ -111,6 +114,7 @@ export default function ContactUsForm({
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.whatsapp}
+              disabled={!canUpdate || isLoading || isSaving}
               onChange={(val) => {
                 setLocalContact({ ...localContact, whatsapp: val });
                 if (errors.whatsapp) setErrors({ ...errors, whatsapp: null });
@@ -121,25 +125,27 @@ export default function ContactUsForm({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
-          <Button
-            type="submit"
-            disabled={isSaving || isLoading}
-            className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-70 text-white rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-1.5"
-          >
-            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span>{t('common.modify', isRtl ? 'تعديل' : 'Modify')}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isSaving || isLoading}
-            onClick={handleCancelClick}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold disabled:opacity-50"
-          >
-            {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
-          </Button>
-        </div>
+        {canUpdate && (
+          <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
+            <Button
+              type="submit"
+              disabled={isSaving || isLoading}
+              className="w-full sm:w-auto px-8 py-2.5 bg-[#0f7a6c] hover:bg-[#0c6256] disabled:opacity-70 text-white rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-1.5"
+            >
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{t('common.modify', isRtl ? 'تعديل' : 'Modify')}</span>
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isSaving || isLoading}
+              onClick={handleCancelClick}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm text-slate-650 dark:text-slate-300 font-semibold disabled:opacity-50"
+            >
+              {t('common.cancel', isRtl ? 'إلغاء' : 'Cancel')}
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );

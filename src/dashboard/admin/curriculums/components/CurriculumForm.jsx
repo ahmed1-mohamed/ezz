@@ -24,30 +24,62 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
 
   useEffect(() => {
     if (editingItem) {
-      const arName = typeof editingItem.name === 'object' ? (editingItem.name?.ar || '') : (editingItem.name || '')
-      const enName = typeof editingItem.name === 'object' ? (editingItem.name?.en || '') : (editingItem.name || '')
+      const arName = typeof editingItem.name === 'object' ? (editingItem.name?.ar || editingItem.name?.en || '') : (editingItem.name || '')
+      const enName = typeof editingItem.name === 'object' ? (editingItem.name?.en || editingItem.name?.ar || '') : (editingItem.name || '')
       setNameAr(arName)
-      setNameEn(enName)
+      setNameEn(enName || arName)
 
-      const arDesc = typeof editingItem.description === 'object' ? (editingItem.description?.ar || '') : (editingItem.description || '')
-      const enDesc = typeof editingItem.description === 'object' ? (editingItem.description?.en || '') : (editingItem.description || '')
+      const arDesc = typeof editingItem.description === 'object' ? (editingItem.description?.ar || editingItem.description?.en || '') : (editingItem.description || '')
+      const enDesc = typeof editingItem.description === 'object' ? (editingItem.description?.en || editingItem.description?.ar || '') : (editingItem.description || '')
       setDescriptionAr(arDesc)
-      setDescriptionEn(enDesc)
+      setDescriptionEn(enDesc || arDesc)
 
       setImage(editingItem.image || null)
       setPreviewImage(editingItem.image || null)
 
-      setLanguageId(editingItem.language?._id || editingItem.language?.id || editingItem.language || '')
+      let resolvedLangId = editingItem.language?._id || editingItem.language?.id || editingItem.explanationLanguage?._id || editingItem.explanationLanguage?.id
+      if (!resolvedLangId && typeof editingItem.language === 'string') {
+        if (editingItem.language.length === 24) {
+          resolvedLangId = editingItem.language
+        } else if (Array.isArray(languages)) {
+          const found = languages.find(l => {
+            const lName = typeof l.name === 'object' ? (l.name.ar || l.name.en) : l.name
+            return lName === editingItem.language || (l.id || l._id) === editingItem.language
+          })
+          if (found) resolvedLangId = found.id || found._id
+        }
+      }
+      setLanguageId(resolvedLangId || '')
 
-      const fAr = editingItem.features?.ar || []
-      const fEn = editingItem.features?.en || []
-      setFeaturesAr(fAr.length > 0 ? fAr : [''])
-      setFeaturesEn(fEn.length > 0 ? fEn : [''])
+      const extractList = (raw, lang) => {
+        if (!raw) return ['']
+        if (typeof raw === 'object' && !Array.isArray(raw)) {
+          const arr = raw[lang] || []
+          return Array.isArray(arr) && arr.length > 0 ? arr.map(String) : ['']
+        }
+        if (Array.isArray(raw)) {
+          if (raw.length === 0) return ['']
+          const items = raw.map(item => {
+            if (typeof item === 'string') return item
+            if (typeof item === 'object' && item !== null) {
+              return item[lang] || item.ar || item.en || ''
+            }
+            return String(item)
+          }).filter(Boolean)
+          return items.length > 0 ? items : ['']
+        }
+        return ['']
+      }
 
-      const bAr = editingItem.benefitsAfterGraduation?.ar || []
-      const bEn = editingItem.benefitsAfterGraduation?.en || []
-      setBenefitsAr(bAr.length > 0 ? bAr : [''])
-      setBenefitsEn(bEn.length > 0 ? bEn : [''])
+      const fAr = extractList(editingItem.features, 'ar')
+      const fEn = extractList(editingItem.features, 'en')
+      setFeaturesAr(fAr)
+      setFeaturesEn(fEn.length > 0 && fEn[0] ? fEn : fAr)
+
+      const bAr = extractList(editingItem.benefitsAfterGraduation, 'ar')
+      const bEn = extractList(editingItem.benefitsAfterGraduation, 'en')
+      setBenefitsAr(bAr)
+      setBenefitsEn(bEn.length > 0 && bEn[0] ? bEn : bAr)
 
       setShowOnWebsite(Boolean(editingItem.showOnWebsite))
     } else {
@@ -64,7 +96,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       setBenefitsEn([''])
       setShowOnWebsite(true)
     }
-  }, [editingItem])
+  }, [editingItem, languages])
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -92,44 +124,79 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!nameAr.trim() || !nameEn.trim()) return
+    if (!nameAr.trim() && !nameEn.trim()) return
 
-    const formData = new FormData()
-    formData.append('name[ar]', nameAr.trim())
-    formData.append('name[en]', nameEn.trim())
-    
-    if (descriptionAr.trim()) formData.append('description[ar]', descriptionAr.trim())
-    if (descriptionEn.trim()) formData.append('description[en]', descriptionEn.trim())
+    const finalNameAr = nameAr.trim() || nameEn.trim()
+    const finalNameEn = nameEn.trim() || nameAr.trim()
 
-    if (image instanceof File) {
+    const cleanFeaturesAr = featuresAr.map(f => f.trim()).filter(Boolean)
+    const cleanFeaturesEn = featuresEn.map(f => f.trim()).filter(Boolean)
+    const cleanBenefitsAr = benefitsAr.map(b => b.trim()).filter(Boolean)
+    const cleanBenefitsEn = benefitsEn.map(b => b.trim()).filter(Boolean)
+
+    const hasNewImageFile = image instanceof File
+
+    if (hasNewImageFile) {
+      const formData = new FormData()
+      formData.append('name[ar]', finalNameAr)
+      formData.append('name[en]', finalNameEn)
+      
+      if (descriptionAr.trim()) formData.append('description[ar]', descriptionAr.trim())
+      if (descriptionEn.trim()) formData.append('description[en]', descriptionEn.trim() || descriptionAr.trim())
+
       formData.append('image', image)
+
+      if (languageId) formData.append('language', languageId)
+
+      formData.append('showOnWebsite', String(showOnWebsite))
+      formData.append('isActive', String(showOnWebsite))
+
+      cleanFeaturesAr.forEach((f) => {
+        formData.append('features[ar][]', f)
+      })
+
+      cleanFeaturesEn.forEach((f) => {
+        formData.append('features[en][]', f)
+      })
+
+      cleanBenefitsAr.forEach((b) => {
+        formData.append('benefitsAfterGraduation[ar][]', b)
+      })
+
+      cleanBenefitsEn.forEach((b) => {
+        formData.append('benefitsAfterGraduation[en][]', b)
+      })
+
+      onSave(formData)
+    } else {
+      const jsonPayload = {
+        name: {
+          ar: finalNameAr,
+          en: finalNameEn
+        },
+        description: {
+          ar: descriptionAr.trim(),
+          en: descriptionEn.trim() || descriptionAr.trim()
+        },
+        showOnWebsite: Boolean(showOnWebsite),
+        isActive: Boolean(showOnWebsite),
+        features: {
+          ar: cleanFeaturesAr,
+          en: cleanFeaturesEn.length > 0 ? cleanFeaturesEn : cleanFeaturesAr
+        },
+        benefitsAfterGraduation: {
+          ar: cleanBenefitsAr,
+          en: cleanBenefitsEn.length > 0 ? cleanBenefitsEn : cleanBenefitsAr
+        }
+      }
+
+      if (languageId) jsonPayload.language = languageId
+      if (image && typeof image === 'string' && !image.startsWith('blob:')) {
+        jsonPayload.image = image
+      }
+
+      onSave(jsonPayload)
     }
-
-    if (languageId) formData.append('language', languageId)
-
-    formData.append('showOnWebsite', String(showOnWebsite))
-
-    const cleanFeaturesAr = featuresAr.filter(f => f.trim() !== '')
-    cleanFeaturesAr.forEach((f) => {
-      formData.append('features[ar][]', f.trim())
-    })
-
-    const cleanFeaturesEn = featuresEn.filter(f => f.trim() !== '')
-    cleanFeaturesEn.forEach((f) => {
-      formData.append('features[en][]', f.trim())
-    })
-
-    const cleanBenefitsAr = benefitsAr.filter(b => b.trim() !== '')
-    cleanBenefitsAr.forEach((b) => {
-      formData.append('benefitsAfterGraduation[ar][]', b.trim())
-    })
-
-    const cleanBenefitsEn = benefitsEn.filter(b => b.trim() !== '')
-    cleanBenefitsEn.forEach((b) => {
-      formData.append('benefitsAfterGraduation[en][]', b.trim())
-    })
-
-    onSave(formData)
   }
 
   return (

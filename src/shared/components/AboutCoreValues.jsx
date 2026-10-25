@@ -13,19 +13,19 @@ export default React.memo(function AboutCoreValues() {
         {
             title: t('about.values.v1.title', 'الأمانة العلمية'),
             desc: t('about.values.v1.desc', 'نقل العلم بسند متصل ومنهجية رصينة تحفظ الأصالة.'),
-            icon: <Check className="w-5 h-5 text-slate-700" />,
+            icon: <Check className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.1
         },
         {
             title: t('about.values.v2.title', 'الرفق واللين'),
             desc: t('about.values.v2.desc', 'التعليم بالحب والتشجيع وفق المنهج النبوي الكريم.'),
-            icon: <Heart className="w-5 h-5 text-slate-700" />,
+            icon: <Heart className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.2
         },
         {
             title: t('about.values.v3.title', 'التيسير والشمول'),
             desc: t('about.values.v3.desc', 'جعل العلم متاحاً للجميع مهما كانت المسافات والظروف.'),
-            icon: <Globe className="w-5 h-5 text-slate-700" />,
+            icon: <Globe className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.3
         }
     ], [t])
@@ -40,7 +40,7 @@ export default React.memo(function AboutCoreValues() {
                     transition={{ duration: 0.5 }}
                     className="w-full lg:w-1/2 order-2 lg:order-1"
                 >
-                    <div className="relative rounded-[2rem] overflow-hidden shadow-lg">
+                    <div className="relative rounded-[2rem] overflow-hidden shadow-lg border border-slate-100 dark:border-slate-800">
                         <img
                             src={quranImage}
                             alt="Core Values"
@@ -60,7 +60,7 @@ export default React.memo(function AboutCoreValues() {
                     transition={{ duration: 0.5 }}
                     className="w-full lg:w-1/2 order-1 lg:order-2 space-y-10"
                 >
-                    <h2 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] text-start">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 text-start">
                         {t('about.values.mainTitle', 'قيمنا الجوهرية')}
                     </h2>
 
@@ -74,14 +74,14 @@ export default React.memo(function AboutCoreValues() {
                                 transition={{ delay: item.delay, duration: 0.4 }}
                                 className="flex items-start gap-5 group"
                             >
-                                <div className="w-12 h-12 rounded-full bg-[#E5ECEB] flex items-center justify-center shrink-0 transition-colors group-hover:bg-[#D1E0DD]">
+                                <div className="w-12 h-12 rounded-full bg-[#E5ECEB] dark:bg-slate-800 flex items-center justify-center shrink-0 transition-colors group-hover:bg-[#D1E0DD] dark:group-hover:bg-slate-700">
                                     {item.icon}
                                 </div>
                                 <div className="space-y-2 text-start pt-1">
-                                    <h4 className="text-xl font-bold text-slate-900 group-hover:text-[#00695C] transition-colors">
+                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors">
                                         {item.title}
                                     </h4>
-                                    <p className="text-slate-500 font-medium leading-relaxed">
+                                    <p className="text-slate-500 dark:text-slate-300 font-medium leading-relaxed">
                                         {item.desc}
                                     </p>
                                 </div>
@@ -94,4 +94,5 @@ export default React.memo(function AboutCoreValues() {
         </section>
     )
 })
+
 

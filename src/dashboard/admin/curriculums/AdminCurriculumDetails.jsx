@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -119,7 +119,14 @@ export default function AdminCurriculumDetails() {
 
   const { data: responseData, isLoading } = useQuery({
     queryKey: ['admin-curriculum-details', id],
-    queryFn: () => adminCurriculaApi.fetchCurriculumByIdRaw(id),
+    queryFn: async () => {
+      try {
+        return await adminCurriculaApi.fetchCurriculumByIdRaw(id);
+      } catch (err) {
+        console.warn('fetchCurriculumByIdRaw failed, falling back to fetchCurriculumById:', err);
+        return await adminCurriculaApi.fetchCurriculumById(id);
+      }
+    },
   })
 
   const curriculum = responseData?.data || responseData
@@ -471,10 +478,27 @@ export default function AdminCurriculumDetails() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800/60">
               {(() => {
-                const features = typeof curriculum.features === 'object' && !Array.isArray(curriculum.features)
-                  ? (isRtl ? curriculum.features.ar : curriculum.features.en) || curriculum.features.ar || []
-                  : (curriculum.features || []);
+                const parseLocalizedList = (raw) => {
+                  if (!raw) return []
+                  let list = raw
+                  if (typeof raw === 'object' && !Array.isArray(raw)) {
+                    list = (isRtl ? raw.ar : raw.en) || raw.ar || raw.en || []
+                  }
+                  if (!Array.isArray(list)) {
+                    if (typeof list === 'string') return [list]
+                    return []
+                  }
+                  return list.map((item) => {
+                    if (typeof item === 'string') return item
+                    if (typeof item === 'number') return String(item)
+                    if (typeof item === 'object' && item !== null) {
+                      return (isRtl ? item.ar || item.name || item.title || item.en : item.en || item.name || item.title || item.ar) || ''
+                    }
+                    return ''
+                  }).filter(Boolean)
+                }
 
+                const features = parseLocalizedList(curriculum.features);
                 if (!features || features.length === 0) return null;
                 return (
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50">
@@ -486,7 +510,7 @@ export default function AdminCurriculumDetails() {
                       {features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
                           <span className="text-[#0f7a6c] shrink-0 mt-0.5">✓</span>
-                          <span>{feature}</span>
+                          <span>{String(feature)}</span>
                         </li>
                       ))}
                     </ul>
@@ -495,10 +519,27 @@ export default function AdminCurriculumDetails() {
               })()}
 
               {(() => {
-                const benefits = typeof curriculum.benefitsAfterGraduation === 'object' && !Array.isArray(curriculum.benefitsAfterGraduation)
-                  ? (isRtl ? curriculum.benefitsAfterGraduation.ar : curriculum.benefitsAfterGraduation.en) || curriculum.benefitsAfterGraduation.ar || []
-                  : (curriculum.benefitsAfterGraduation || []);
+                const parseLocalizedList = (raw) => {
+                  if (!raw) return []
+                  let list = raw
+                  if (typeof raw === 'object' && !Array.isArray(raw)) {
+                    list = (isRtl ? raw.ar : raw.en) || raw.ar || raw.en || []
+                  }
+                  if (!Array.isArray(list)) {
+                    if (typeof list === 'string') return [list]
+                    return []
+                  }
+                  return list.map((item) => {
+                    if (typeof item === 'string') return item
+                    if (typeof item === 'number') return String(item)
+                    if (typeof item === 'object' && item !== null) {
+                      return (isRtl ? item.ar || item.name || item.title || item.en : item.en || item.name || item.title || item.ar) || ''
+                    }
+                    return ''
+                  }).filter(Boolean)
+                }
 
+                const benefits = parseLocalizedList(curriculum.benefitsAfterGraduation);
                 if (!benefits || benefits.length === 0) return null;
                 return (
                   <div className="bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-500/10">
@@ -512,7 +553,7 @@ export default function AdminCurriculumDetails() {
                           <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
                             <span className="text-xs">🏆</span>
                           </div>
-                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{benefit}</span>
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{String(benefit)}</span>
                         </li>
                       ))}
                     </ul>
