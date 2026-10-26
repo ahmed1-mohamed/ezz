@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, lazy, Suspense, useCallback } from 'react';
+import { memo, useEffect, useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -59,16 +59,11 @@ export default memo(function Home() {
     const dispatch = useDispatch()
     const { landingData } = useSelector((state) => state.landing)
 
-    const [localData, setLocalData] = useState({ stats: null, stars: null, testimonials: null })
-
-    const loadLanding = useCallback(() => {
-        dispatch(fetchLandingPage(i18n.language))
-    }, [dispatch, i18n.language])
+    const [localData] = useState(readLocalStorage)
 
     useEffect(() => {
-        loadLanding()
-        setLocalData(readLocalStorage())
-    }, [loadLanding])
+        dispatch(fetchLandingPage(i18n.language))
+    }, [dispatch, i18n.language])
 
     const heroInitial = { opacity: 0, scale: 0.92, x: isRtl ? 30 : -30 }
     const heroAnimate = { opacity: 1, scale: 1, x: 0 }

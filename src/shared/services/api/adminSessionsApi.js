@@ -140,7 +140,8 @@ export const mapSessionData = (item) => {
           status = 'completed';
         }
       }
-    } catch {
+    } catch (err) {
+      void err;
     }
   }
 

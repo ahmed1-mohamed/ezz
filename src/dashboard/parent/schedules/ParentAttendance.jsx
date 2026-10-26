@@ -27,9 +27,9 @@ export default function ParentAttendance() {
                 const res = await parentApi.fetchChildren();
                 if (isMounted && res?.success && Array.isArray(res.data)) {
                     setStudentsList(res.data);
-                    if (res.data.length > 0 && !selectedStudent) {
+                    if (res.data.length > 0) {
                         const first = res.data[0];
-                        setSelectedStudent(first.id || first._id || first.student_id);
+                        setSelectedStudent((prev) => prev || (first.id || first._id || first.student_id));
                     }
                 }
             } catch (err) {

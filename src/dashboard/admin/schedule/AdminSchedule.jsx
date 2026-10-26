@@ -57,7 +57,7 @@ export default function AdminSchedule() {
       if (datesFromDays.length === 7) return datesFromDays
     }
     return getWeekDates(weekInfo?.startDate)
-  }, [timetable])
+  }, [timetable, weekInfo?.startDate])
 
   const sessions = useMemo(
     () => (timetable?.days || []).flatMap((day) => day.sessions || []),

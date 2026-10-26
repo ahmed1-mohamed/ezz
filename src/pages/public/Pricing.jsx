@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
-import { BookOpen, Award, Gem, CheckCircle2, XCircle } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { BookOpen, Award, Gem, CheckCircle2, XCircle, Package } from 'lucide-react'
 import { fetchPackagesAndFaqs } from '@/store/landingSlice'
 
 const fadeUp = {
@@ -13,68 +14,12 @@ const fadeUp = {
 export default function Pricing() {
     const { t, i18n } = useTranslation()
     const dispatch = useDispatch()
-    const { packagesData } = useSelector((state) => state.landing)
+    const { packagesData, loading } = useSelector((state) => state.landing)
+    const isRtl = i18n.language?.startsWith('ar') ?? true
 
     useEffect(() => {
         dispatch(fetchPackagesAndFaqs(i18n.language))
     }, [dispatch, i18n.language])
-
-    const plans = [
-        {
-            id: 'basic',
-            name: t('pricing.basic.name', 'الباقة الأساسية'),
-            price: '50',
-            icon: BookOpen,
-            popular: false,
-            features: [
-                { text: t('pricing.basic.f1', '4 حصص شهرياً (حصة أسبوعياً)'), active: true },
-                { text: t('pricing.basic.f2', '30 دقيقة للحصة الواحدة'), active: true },
-                { text: t('pricing.basic.f3', 'تحفيظ وتصحيح تلاوة'), active: true },
-                { text: t('pricing.basic.f4', 'تقارير أداء شهرية'), active: false },
-            ]
-        },
-        {
-            id: 'advanced',
-            name: t('pricing.advanced.name', 'الباقة المتقدمة'),
-            price: '90',
-            icon: Award,
-            popular: true,
-            features: [
-                { text: t('pricing.advanced.f1', '8 حصص شهرياً (حصتين أسبوعياً)'), active: true },
-                { text: t('pricing.advanced.f2', '45 دقيقة للحصة الواحدة'), active: true },
-                { text: t('pricing.advanced.f3', 'تفسير مبسط وقصص الأنبياء'), active: true },
-                { text: t('pricing.advanced.f4', 'تقارير أداء شهرية مفصلة'), active: true },
-            ]
-        },
-        {
-            id: 'elite',
-            name: t('pricing.elite.name', 'باقة النخبة'),
-            price: '130',
-            icon: Gem,
-            popular: false,
-            features: [
-                { text: t('pricing.elite.f1', '12 حصة شهرياً (3 حصص أسبوعياً)'), active: true },
-                { text: t('pricing.elite.f2', '60 دقيقة للحصة الواحدة'), active: true },
-                { text: t('pricing.elite.f3', 'متابعة خاصة مع شيخ مجاز'), active: true },
-                { text: t('pricing.elite.f4', 'دورة تجويد مكثفة مجانية'), active: true },
-            ]
-        }
-    ]
-
-    const faqs = [
-        {
-            q: t('pricing.faq.q1', 'هل يمكنني تغيير الباقة لاحقاً؟'),
-            a: t('pricing.faq.a1', 'نعم بالتأكيد، يمكنك الترقية أو تغيير باقتك في أي وقت من خلال لوحة التحكم الخاصة بك، وسيتم تعديل الرسوم بدءاً من الشهر التالي.')
-        },
-        {
-            q: t('pricing.faq.q2', 'ماذا يحدث إذا فاتني موعد الحصة؟'),
-            a: t('pricing.faq.a2', 'نوفر إمكانية تعويض حصة واحدة شهرياً في حال تم الاعتذار قبل الموعد بـ 24 ساعة على الأقل لتنسيق موعد بديل مع المعلم.')
-        },
-        {
-            q: t('pricing.faq.q3', 'هل توجد خصومات للإخوة؟'),
-            a: t('pricing.faq.a3', 'نعم، نقدم خصماً بنسبة 15% للطفل الثاني و 25% للطفل الثالث وما فوق عند التسجيل في نفس الباقة.')
-        }
-    ]
 
     const renderIcon = (icon, index) => {
         if (!icon) {
@@ -101,29 +46,47 @@ export default function Pricing() {
         return <FallbackIcon className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />;
     }
 
-    const apiPackages = packagesData?.packages?.data;
-    const displayPlans = apiPackages && apiPackages.length > 0
-        ? apiPackages.map((pkg, index) => ({
-            id: pkg.id,
-            name: pkg.name,
-            price: pkg.price,
-            icon: pkg.icon,
-            popular: index === 1,
-            features: pkg.features ? pkg.features.map(f => ({ text: f, active: true })) : []
-        }))
-        : plans;
+    const displayPlans = useMemo(() => {
+        const apiPackages = packagesData?.packages?.data || packagesData?.packages || [];
+        if (!Array.isArray(apiPackages)) return [];
+        return apiPackages.map((pkg, index) => {
+            const name = typeof pkg.name === 'object' && pkg.name !== null
+                ? (isRtl ? pkg.name.ar || pkg.name.en : pkg.name.en || pkg.name.ar)
+                : pkg.name || '';
+            const features = Array.isArray(pkg.features)
+                ? pkg.features.map((f) => ({
+                    text: typeof f === 'object' && f !== null ? (isRtl ? f.ar || f.en : f.en || f.ar) : String(f),
+                    active: true,
+                }))
+                : [];
 
-    const apiFaqs = packagesData?.faqs?.data;
-    const displayFaqs = apiFaqs && apiFaqs.length > 0
-        ? apiFaqs.map(faq => ({
-            q: faq.question,
-            a: faq.answer
-        }))
-        : faqs;
+            return {
+                id: pkg.id || pkg._id || index,
+                name,
+                price: pkg.price || 0,
+                icon: pkg.icon,
+                popular: index === 1,
+                features,
+            };
+        });
+    }, [packagesData, isRtl]);
+
+    const displayFaqs = useMemo(() => {
+        const apiFaqs = packagesData?.faqs?.data || packagesData?.faqs || [];
+        if (!Array.isArray(apiFaqs)) return [];
+        return apiFaqs.map((faq) => {
+            const q = typeof faq.question === 'object' && faq.question !== null
+                ? (isRtl ? faq.question.ar || faq.question.en : faq.question.en || faq.question.ar)
+                : faq.question || '';
+            const a = typeof faq.answer === 'object' && faq.answer !== null
+                ? (isRtl ? faq.answer.ar || faq.answer.en : faq.answer.en || faq.answer.ar)
+                : faq.answer || '';
+            return { q, a };
+        });
+    }, [packagesData, isRtl]);
 
     return (
-        <div className="min-h-screen bg-[#EEF4F2]/50 dark:bg-slate-950 py-16 sm:py-24 overflow-hidden font-sans">
-            
+        <div className="min-h-screen bg-[#EEF4F2]/50 dark:bg-slate-950 py-16 sm:py-24 overflow-hidden font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <motion.div 
                 initial="hidden"
                 whileInView="visible"
@@ -140,86 +103,110 @@ export default function Pricing() {
             </motion.div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                    {displayPlans.map((plan, index) => (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: index * 0.1 }}
-                            key={plan.id}
-                            className={`relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full border border-slate-100 dark:border-slate-800 ${
-                                plan.popular 
-                                ? 'shadow-lg z-10 ring-2 ring-[#00695C]/30 dark:ring-emerald-500/30' 
-                                : 'shadow-sm'
-                            }`}
+                {loading && displayPlans.length === 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="h-96 rounded-[2.5rem] bg-slate-100 dark:bg-slate-800/60 animate-pulse border border-slate-200/50 dark:border-slate-800" />
+                        ))}
+                    </div>
+                ) : displayPlans.length === 0 ? (
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-12 text-center max-w-xl mx-auto border border-slate-100 dark:border-slate-800 space-y-4">
+                        <Package className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto" />
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+                            {t('pricing.noPackages', 'لا توجد باقات متاحة حالياً')}
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {t('pricing.contactForCustom', 'يرجى التواصل معنا للاستفسار عن الباقات والعروض الخاصة')}
+                        </p>
+                        <Link
+                            to="/contact"
+                            className="inline-block px-6 py-3 rounded-2xl bg-[#00695C] text-white font-bold text-sm shadow-md hover:bg-[#005247] transition-all cursor-pointer"
                         >
-                            
-                            <div className="bg-[#E6F0ED] dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mb-6">
-                                {renderIcon(plan.icon, index)}
-                            </div>
-
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">{plan.name}</h2>
-                            
-                            <div className="flex items-baseline justify-center gap-1.5 mb-10">
-                                <span className="text-5xl sm:text-6xl font-black text-[#00695C] dark:text-emerald-400">${plan.price}</span>
-                                <span className="text-slate-500 dark:text-slate-400 font-medium text-base">{t('pricing.monthly', '/شهرياً')}</span>
-                            </div>
-
-                            <ul className="space-y-5 w-full mb-10 flex-1 text-start px-2">
-                                {plan.features.map((feat, idx) => (
-                                    <li key={idx} className="flex items-center gap-4">
-                                        {feat.active ? (
-                                            <CheckCircle2 className="w-6 h-6 text-[#00695C] dark:text-emerald-400 shrink-0" />
-                                        ) : (
-                                            <XCircle className="w-6 h-6 text-slate-300 dark:text-slate-600 shrink-0" />
-                                        )}
-                                        <span className={`text-base sm:text-lg font-medium ${feat.active ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500 line-through'}`}>
-                                            {feat.text}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-
-                            <button 
-                                aria-label={`${t('pricing.btn', 'ابدأ الآن')} - ${plan.name}`}
-                                className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white transition-all shadow-md active:scale-95 cursor-pointer"
+                            {t('public.nav.contactUs', 'تواصل معنا')}
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                        {displayPlans.map((plan, index) => (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                                key={plan.id}
+                                className={`relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full border border-slate-100 dark:border-slate-800 ${
+                                    plan.popular 
+                                    ? 'shadow-lg z-10 ring-2 ring-[#00695C]/30 dark:ring-emerald-500/30' 
+                                    : 'shadow-sm'
+                                }`}
                             >
-                                {t('pricing.btn', 'ابدأ الآن')}
-                            </button>
-                        </motion.div>
-                    ))}
-                </div>
+                                <div className="bg-[#E6F0ED] dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mb-6">
+                                    {renderIcon(plan.icon, index)}
+                                </div>
+
+                                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">{plan.name}</h2>
+                                
+                                <div className="flex items-baseline justify-center gap-1.5 mb-10">
+                                    <span className="text-5xl sm:text-6xl font-black text-[#00695C] dark:text-emerald-400">${plan.price}</span>
+                                    <span className="text-slate-500 dark:text-slate-400 font-medium text-base">{t('pricing.monthly', '/شهرياً')}</span>
+                                </div>
+
+                                <ul className="space-y-5 w-full mb-10 flex-1 text-start px-2">
+                                    {plan.features.map((feat, idx) => (
+                                        <li key={idx} className="flex items-center gap-4">
+                                            {feat.active ? (
+                                                <CheckCircle2 className="w-6 h-6 text-[#00695C] dark:text-emerald-400 shrink-0" />
+                                            ) : (
+                                                <XCircle className="w-6 h-6 text-slate-300 dark:text-slate-600 shrink-0" />
+                                            )}
+                                            <span className={`text-base sm:text-lg font-medium ${feat.active ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500 line-through'}`}>
+                                                {feat.text}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <Link 
+                                    to="/register"
+                                    aria-label={`${t('pricing.btn', 'ابدأ الآن')} - ${plan.name}`}
+                                    className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white transition-all shadow-md active:scale-95 cursor-pointer text-center"
+                                >
+                                    {t('pricing.btn', 'ابدأ الآن')}
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10 w-full">
-                <motion.h2 
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-12"
-                >
-                    {t('pricing.faq.title', 'الأسئلة الشائعة')}
-                </motion.h2>
+            {displayFaqs.length > 0 && (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10 w-full">
+                    <motion.h2 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-12"
+                    >
+                        {t('pricing.faq.title', 'الأسئلة الشائعة')}
+                    </motion.h2>
 
-                <div className="space-y-4">
-                    {displayFaqs.map((faq, idx) => (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: idx * 0.1 }}
-                            key={idx} 
-                            className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800"
-                        >
-                            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4">{faq.q}</h3>
-                            <p className="text-slate-600 dark:text-slate-300 font-medium text-base sm:text-lg leading-relaxed">{faq.a}</p>
-                        </motion.div>
-                    ))}
+                    <div className="space-y-4">
+                        {displayFaqs.map((faq, idx) => (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                                key={idx} 
+                                className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800"
+                            >
+                                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4">{faq.q}</h3>
+                                <p className="text-slate-600 dark:text-slate-300 font-medium text-base sm:text-lg leading-relaxed">{faq.a}</p>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
-            </div>
-
+            )}
         </div>
     )
 }
-

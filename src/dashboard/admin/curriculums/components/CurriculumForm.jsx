@@ -1,6 +1,31 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import {  Plus, Image as ImageIcon, Trash2 } from 'lucide-react'
+import { Plus, Image as ImageIcon, Trash2 } from 'lucide-react'
+import toast from 'react-hot-toast'
+
+function extractList(raw, lang) {
+  if (!raw) return []
+  if (typeof raw === 'object' && !Array.isArray(raw)) {
+    const arr = raw[lang] || raw.ar || raw.en || []
+    if (Array.isArray(arr) && arr.length > 0) {
+      return arr.map(String).map(s => s.trim()).filter(Boolean)
+    }
+    return []
+  }
+  if (Array.isArray(raw)) {
+    return raw.map(item => {
+      if (typeof item === 'string') return item.trim()
+      if (typeof item === 'object' && item !== null) {
+        return (item[lang] || item.ar || item.en || '').trim()
+      }
+      return String(item).trim()
+    }).filter(Boolean)
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    return [raw.trim()]
+  }
+  return []
+}
 
 export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving, languages = [] }) {
   const { i18n } = useTranslation()
@@ -22,7 +47,10 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
 
   const fileInputRef = useRef(null)
 
-  useEffect(() => {
+  const [prevEditingItem, setPrevEditingItem] = useState(editingItem)
+
+  if (prevEditingItem !== editingItem) {
+    setPrevEditingItem(editingItem)
     if (editingItem) {
       const arName = typeof editingItem.name === 'object' ? (editingItem.name?.ar || editingItem.name?.en || '') : (editingItem.name || '')
       const enName = typeof editingItem.name === 'object' ? (editingItem.name?.en || editingItem.name?.ar || '') : (editingItem.name || '')
@@ -51,35 +79,15 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       }
       setLanguageId(resolvedLangId || '')
 
-      const extractList = (raw, lang) => {
-        if (!raw) return ['']
-        if (typeof raw === 'object' && !Array.isArray(raw)) {
-          const arr = raw[lang] || []
-          return Array.isArray(arr) && arr.length > 0 ? arr.map(String) : ['']
-        }
-        if (Array.isArray(raw)) {
-          if (raw.length === 0) return ['']
-          const items = raw.map(item => {
-            if (typeof item === 'string') return item
-            if (typeof item === 'object' && item !== null) {
-              return item[lang] || item.ar || item.en || ''
-            }
-            return String(item)
-          }).filter(Boolean)
-          return items.length > 0 ? items : ['']
-        }
-        return ['']
-      }
-
       const fAr = extractList(editingItem.features, 'ar')
       const fEn = extractList(editingItem.features, 'en')
-      setFeaturesAr(fAr)
-      setFeaturesEn(fEn.length > 0 && fEn[0] ? fEn : fAr)
+      setFeaturesAr(fAr.length > 0 ? fAr : (fEn.length > 0 ? fEn : ['']))
+      setFeaturesEn(fEn.length > 0 ? fEn : (fAr.length > 0 ? fAr : ['']))
 
       const bAr = extractList(editingItem.benefitsAfterGraduation, 'ar')
       const bEn = extractList(editingItem.benefitsAfterGraduation, 'en')
-      setBenefitsAr(bAr)
-      setBenefitsEn(bEn.length > 0 && bEn[0] ? bEn : bAr)
+      setBenefitsAr(bAr.length > 0 ? bAr : (bEn.length > 0 ? bEn : ['']))
+      setBenefitsEn(bEn.length > 0 ? bEn : (bAr.length > 0 ? bAr : ['']))
 
       setShowOnWebsite(Boolean(editingItem.showOnWebsite))
     } else {
@@ -96,7 +104,7 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       setBenefitsEn([''])
       setShowOnWebsite(true)
     }
-  }, [editingItem, languages])
+  }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -124,7 +132,10 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!nameAr.trim() && !nameEn.trim()) return
+    if (!nameAr.trim() && !nameEn.trim()) {
+      toast.error(isRtl ? 'يرجى إدخال اسم المنهج' : 'Please enter curriculum name')
+      return
+    }
 
     const finalNameAr = nameAr.trim() || nameEn.trim()
     const finalNameEn = nameEn.trim() || nameAr.trim()
@@ -133,6 +144,22 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
     const cleanFeaturesEn = featuresEn.map(f => f.trim()).filter(Boolean)
     const cleanBenefitsAr = benefitsAr.map(b => b.trim()).filter(Boolean)
     const cleanBenefitsEn = benefitsEn.map(b => b.trim()).filter(Boolean)
+
+    if (cleanFeaturesAr.length === 0 && cleanFeaturesEn.length === 0) {
+      toast.error(isRtl ? 'يجب أن تحتوي المميزات على عنصر واحد على الأقل' : 'Features must have at least one item')
+      return
+    }
+
+    if (cleanBenefitsAr.length === 0 && cleanBenefitsEn.length === 0) {
+      toast.error(isRtl ? 'يجب أن تحتوي الإستفادة على عنصر واحد على الأقل' : 'Graduation benefits must have at least one item')
+      return
+    }
+
+    const finalFeaturesAr = cleanFeaturesAr.length > 0 ? cleanFeaturesAr : cleanFeaturesEn
+    const finalFeaturesEn = cleanFeaturesEn.length > 0 ? cleanFeaturesEn : cleanFeaturesAr
+
+    const finalBenefitsAr = cleanBenefitsAr.length > 0 ? cleanBenefitsAr : cleanBenefitsEn
+    const finalBenefitsEn = cleanBenefitsEn.length > 0 ? cleanBenefitsEn : cleanBenefitsAr
 
     const hasNewImageFile = image instanceof File
 
@@ -149,21 +176,20 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
       if (languageId) formData.append('language', languageId)
 
       formData.append('showOnWebsite', String(showOnWebsite))
-      formData.append('isActive', String(showOnWebsite))
 
-      cleanFeaturesAr.forEach((f) => {
+      finalFeaturesAr.forEach((f) => {
         formData.append('features[ar][]', f)
       })
 
-      cleanFeaturesEn.forEach((f) => {
+      finalFeaturesEn.forEach((f) => {
         formData.append('features[en][]', f)
       })
 
-      cleanBenefitsAr.forEach((b) => {
+      finalBenefitsAr.forEach((b) => {
         formData.append('benefitsAfterGraduation[ar][]', b)
       })
 
-      cleanBenefitsEn.forEach((b) => {
+      finalBenefitsEn.forEach((b) => {
         formData.append('benefitsAfterGraduation[en][]', b)
       })
 
@@ -179,14 +205,13 @@ export default function CurriculumForm({ onSave, onCancel, editingItem, isSaving
           en: descriptionEn.trim() || descriptionAr.trim()
         },
         showOnWebsite: Boolean(showOnWebsite),
-        isActive: Boolean(showOnWebsite),
         features: {
-          ar: cleanFeaturesAr,
-          en: cleanFeaturesEn.length > 0 ? cleanFeaturesEn : cleanFeaturesAr
+          ar: finalFeaturesAr,
+          en: finalFeaturesEn
         },
         benefitsAfterGraduation: {
-          ar: cleanBenefitsAr,
-          en: cleanBenefitsEn.length > 0 ? cleanBenefitsEn : cleanBenefitsAr
+          ar: finalBenefitsAr,
+          en: finalBenefitsEn
         }
       }
 

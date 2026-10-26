@@ -138,11 +138,20 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
         }
     }, [alreadySelectedIds]);
 
+    const [prevOpen, setPrevOpen] = useState(isOpen);
+    if (prevOpen !== isOpen) {
+        setPrevOpen(isOpen);
+        if (isOpen) {
+            setSelectedStudents([]);
+            setSearchQuery('');
+        }
+    }
+
     useEffect(() => {
         if (!isOpen) return;
-        setSelectedStudents([]);
-        setSearchQuery('');
-        fetchStudents('', true);
+        Promise.resolve().then(() => {
+            fetchStudents('', true);
+        });
     }, [isOpen, fetchStudents]);
 
     const toggleStudent = (student) => {

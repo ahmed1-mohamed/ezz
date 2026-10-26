@@ -11,7 +11,7 @@ export default function AdminEarnings() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1))
+  const [currentDate, setCurrentDate] = useState(() => new Date())
   const [stats, setStats] = useState(null)
   const [teachers, setTeachers] = useState([])
   const [requests, setRequests] = useState([])
@@ -33,7 +33,13 @@ export default function AdminEarnings() {
   }, [currentDate])
 
   useEffect(() => {
-    loadData()
+    let isMounted = true
+    Promise.resolve().then(() => {
+      if (isMounted) loadData()
+    })
+    return () => {
+      isMounted = false
+    }
   }, [loadData])
 
   const handlePrevMonth = () => {
@@ -53,7 +59,7 @@ export default function AdminEarnings() {
     const res = await adminEarningsApi.approveWithdrawal(id, proofImage)
     if (res?.success) {
       setRequests((prev) =>
-        prev.map((req) => (req.id === id ? { ...req, status: 'paid', proofImage: proofImage || 'https://via.placeholder.com/150' } : req))
+        prev.map((req) => (req.id === id ? { ...req, status: 'paid', proofImage: proofImage || '' } : req))
       )
     }
   }

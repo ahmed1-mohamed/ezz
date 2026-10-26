@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -19,92 +19,104 @@ import {
   LogOut,
   Menu,
   X,
+  Globe,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
+import { setLanguage } from '@/i18n.js';
 
 export default function TeacherLayout() {
   const { user, logout } = useAuth();
-  const { i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
- 
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language?.startsWith('ar') ?? true;
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const teacherName = (() => {
-    if (!user) return 'أ. محمد العتيبي';
+    if (!user) return t('teacher.teacherFallback', 'معلم');
     if (typeof user.name === 'object' && user.name !== null) {
-      return user.name.ar || user.name.en || 'أ. محمد العتيبي';
+      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || t('teacher.teacherFallback', 'معلم');
     }
-    return user.name || 'أ. محمد العتيبي';
+    return user.name || t('teacher.teacherFallback', 'معلم');
   })();
 
-  const teacherInitial = teacherName ? teacherName.replace(/^أ\.\s*/, '').charAt(0) : 'م';
+  const teacherInitial = teacherName ? teacherName.trim().charAt(0) : 'م';
+
+  const handleLanguageToggle = useCallback(() => {
+    const nextLang = isRtl ? 'en' : 'ar';
+    setLanguage(nextLang);
+  }, [isRtl]);
 
   const navItems = [
     {
       path: '/dashboard/teacher',
       icon: Home,
-      label: 'الرئيسية',
+      label: t('teacher.navHome', 'الرئيسية'),
       end: true,
     },
     {
       path: '/dashboard/teacher/groups',
       icon: Users,
-      label: 'مجموعاتي',
+      label: t('teacher.navGroups', 'مجموعاتي'),
     },
     {
       path: '/dashboard/teacher/live',
       icon: Video,
-      label: 'الحصة المباشرة',
+      label: t('teacher.navLive', 'الحصة المباشرة'),
     },
     {
       path: '/dashboard/teacher/assignments/create',
       icon: FilePlus,
-      label: 'إنشاء الواجبات',
+      label: t('teacher.navCreateHomework', 'إنشاء الواجبات'),
     },
     {
       path: '/dashboard/teacher/assignments/submissions',
       icon: FileCheck,
-      label: 'تسليمات الواجبات',
+      label: t('teacher.navSubmissions', 'تسليمات الواجبات'),
     },
     {
       path: '/dashboard/teacher/evaluations',
       icon: Star,
-      label: 'التقييمات',
+      label: t('teacher.navEvaluations', 'التقييمات'),
     },
     {
       path: '/dashboard/teacher/rewards',
       icon: Award,
-      label: 'المكافآت',
+      label: t('teacher.navRewards', 'المكافآت'),
     },
     {
       path: '/dashboard/teacher/schedule',
       icon: Calendar,
-      label: 'الجدول الأسبوعي',
+      label: t('teacher.navSchedule', 'الجدول الأسبوعي'),
     },
     {
       path: '/dashboard/teacher/sessions',
       icon: History,
-      label: 'سجل الجلسات',
+      label: t('teacher.navSessions', 'سجل الجلسات'),
     },
     {
       path: '/dashboard/teacher/earnings',
       icon: DollarSign,
-      label: 'الأرباح',
+      label: t('teacher.navEarnings', 'الأرباح'),
     },
     {
       path: '/dashboard/teacher/withdrawals',
       icon: CreditCard,
-      label: 'طلبات السحب',
+      label: t('teacher.navWithdrawals', 'طلبات السحب'),
     },
     {
       path: '/dashboard/teacher/complaints',
       icon: MessageSquare,
-      label: 'الشكاوي و المقترحات',
+      label: t('teacher.navComplaints', 'الشكاوى والمقترحات'),
     },
     {
       path: '/dashboard/teacher/profile',
       icon: User,
-      label: 'الملف الشخصي',
+      label: t('teacher.navProfile', 'الملف الشخصي'),
+    },
+    {
+      path: '/',
+      icon: Globe,
+      label: t('admin.mainWebsite', 'الموقع الرئيسي'),
     },
   ];
 
@@ -130,16 +142,16 @@ export default function TeacherLayout() {
         }`}
       >
         <div className="flex flex-col h-full overflow-hidden">
-          <div className="p-6 flex items-center justify-between">
+          <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
             <Link to="/dashboard/teacher" className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-[#00594C] text-white flex items-center justify-center shadow-xs shrink-0">
                 <BookOpen size={22} />
               </div>
               <div className="text-start">
                 <h1 className="text-lg font-black text-[#00594C] dark:text-emerald-400 leading-tight">
-                  منارة العز
+                  {t('appName', 'منارة العز')}
                 </h1>
-                <p className="text-xs text-slate-400 font-bold">منصة المعلم</p>
+                <p className="text-xs text-slate-400 font-bold">{t('teacher.platformTitle', 'منصة المعلم')}</p>
               </div>
             </Link>
 
@@ -151,7 +163,7 @@ export default function TeacherLayout() {
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800">
+          <nav className="flex-1 overflow-y-auto px-4 py-3 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
@@ -174,13 +186,18 @@ export default function TeacherLayout() {
           </nav>
 
           <div className="p-4 space-y-3 shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={handleLanguageToggle}
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+            >
+              <Globe size={15} />
+              <span>{isRtl ? 'English' : 'العربية'}</span>
+            </button>
+
             <Link
               to="/dashboard/teacher/profile"
-              className="flex items-center justify-end gap-3 px-1 hover:opacity-80 transition-opacity"
+              className="flex items-center justify-start gap-3 px-1 hover:opacity-80 transition-opacity"
             >
-              <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 truncate">
-                {teacherName}
-              </span>
               <div className="w-9 h-9 rounded-full bg-[#00594C] text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0 overflow-hidden">
                 {user?.image ? (
                   <img src={user.image} alt={teacherName} className="w-full h-full object-cover" />
@@ -188,14 +205,17 @@ export default function TeacherLayout() {
                   teacherInitial
                 )}
               </div>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 truncate">
+                {teacherName}
+              </span>
             </Link>
 
             <button
               onClick={logout}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#ea3838] hover:bg-[#d62828] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-[#ea3838] hover:bg-[#d62828] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
             >
               <LogOut size={16} />
-              <span>تسجيل الخروج</span>
+              <span>{t('common.logout', 'تسجيل الخروج')}</span>
             </button>
           </div>
         </div>
@@ -211,20 +231,29 @@ export default function TeacherLayout() {
               <Menu size={20} />
             </button>
             <span className="text-sm font-black text-[#00594C] dark:text-emerald-400">
-              منارة العز · منصة المعلم
+              {t('appName', 'منارة العز')} · {t('teacher.platformTitle', 'منصة المعلم')}
             </span>
           </div>
 
-          <Link
-            to="/dashboard/teacher/profile"
-            className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs overflow-hidden shadow-xs shrink-0"
-          >
-            {user?.image ? (
-              <img src={user.image} alt={teacherName} className="w-full h-full object-cover" />
-            ) : (
-              teacherInitial
-            )}
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLanguageToggle}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold"
+            >
+              <Globe size={16} />
+            </button>
+
+            <Link
+              to="/dashboard/teacher/profile"
+              className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs overflow-hidden shadow-xs shrink-0"
+            >
+              {user?.image ? (
+                <img src={user.image} alt={teacherName} className="w-full h-full object-cover" />
+              ) : (
+                teacherInitial
+              )}
+            </Link>
+          </div>
         </header>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">

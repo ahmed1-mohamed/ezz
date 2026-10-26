@@ -78,7 +78,7 @@ export default function StudentStarModal({
       return { ar: arName || '', en: enName || '' };
     }
     return { ar: currentStar?.name || '', en: currentStar?.nameEn || '' };
-  }, [currentStar?.studentId, systemStudents]);
+  }, [currentStar, systemStudents]);
 
   if (!isOpen || !currentStar) return null;
 

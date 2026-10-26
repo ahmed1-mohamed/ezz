@@ -38,23 +38,34 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const [proposedStartTime, setProposedStartTime] = useState('');
   const [proposedEndTime, setProposedEndTime] = useState('');
 
-   useEffect(() => {
+  const [prevSelectedGroupId, setPrevSelectedGroupId] = useState(selectedGroupId);
+  if (prevSelectedGroupId !== selectedGroupId) {
+    setPrevSelectedGroupId(selectedGroupId);
+    if (!selectedGroupId) {
+      setAvailableSessions([]);
+      setSelectedSessionId('');
+    }
+  }
+
+  useEffect(() => {
     let isMounted = true;
     if (submissionType === 'reschedule_request' && teacherGroups.length === 0) {
-      setIsLoadingGroups(true);
-      teacherGroupsApi
-        .fetchGroupsByStatus('all')
-        .then((res) => {
-          if (!isMounted) return;
-          const groups = res?.data || [];
-          setTeacherGroups(Array.isArray(groups) ? groups : []);
-        })
-        .catch((err) => {
-          console.warn('Could not load teacher groups:', err);
-        })
-        .finally(() => {
-          if (isMounted) setIsLoadingGroups(false);
-        });
+      Promise.resolve().then(() => {
+        if (!isMounted) return;
+        setIsLoadingGroups(true);
+        return teacherGroupsApi.fetchGroupsByStatus('all');
+      })
+      .then((res) => {
+        if (!isMounted || !res) return;
+        const groups = res?.data || [];
+        setTeacherGroups(Array.isArray(groups) ? groups : []);
+      })
+      .catch((err) => {
+        console.warn('Could not load teacher groups:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingGroups(false);
+      });
     }
     return () => {
       isMounted = false;
@@ -64,27 +75,27 @@ export default function TeacherNewComplaintModal({ onClose }) {
   useEffect(() => {
     let isMounted = true;
     if (!selectedGroupId) {
-      setAvailableSessions([]);
-      setSelectedSessionId('');
       return;
     }
 
-    setIsLoadingSessions(true);
-    teacherGroupsApi
-      .fetchGroupDetails(selectedGroupId)
-      .then((res) => {
-        if (!isMounted) return;
-        const groupData = res?.data || res || {};
-        const sessions = groupData.sessionsHistory || [];
-        setAvailableSessions(Array.isArray(sessions) ? sessions : []);
-      })
-      .catch((err) => {
-        console.warn('Could not load group sessions:', err);
-        setAvailableSessions([]);
-      })
-      .finally(() => {
-        if (isMounted) setIsLoadingSessions(false);
-      });
+    Promise.resolve().then(() => {
+      if (!isMounted) return;
+      setIsLoadingSessions(true);
+      return teacherGroupsApi.fetchGroupDetails(selectedGroupId);
+    })
+    .then((res) => {
+      if (!isMounted || !res) return;
+      const groupData = res?.data || res || {};
+      const sessions = groupData.sessionsHistory || [];
+      setAvailableSessions(Array.isArray(sessions) ? sessions : []);
+    })
+    .catch((err) => {
+      console.warn('Could not load group sessions:', err);
+      if (isMounted) setAvailableSessions([]);
+    })
+    .finally(() => {
+      if (isMounted) setIsLoadingSessions(false);
+    });
 
     return () => {
       isMounted = false;

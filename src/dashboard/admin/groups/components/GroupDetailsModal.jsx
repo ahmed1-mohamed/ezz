@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2 } from 'lucide-react'
 import { studentsApi } from '@/shared/services/api/studentsApi'
@@ -12,7 +12,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
   const [isAdding, setIsAdding] = useState(false)
   const [isLoadingStudents, setIsLoadingStudents] = useState(false)
 
-  const extractStudentName = (obj) => {
+  const extractStudentName = useCallback((obj) => {
     if (!obj) return ''
     if (typeof obj === 'string') return obj
     if (typeof obj === 'object') {
@@ -26,7 +26,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
       if (obj.email) return obj.email
     }
     return ''
-  }
+  }, [isRtl])
 
   const normalizedStudentsList = useMemo(() => {
     const rawList = Array.isArray(group?.students) ? group.students : []
@@ -90,7 +90,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
         joinDate,
       }
     })
-  }, [group, availableStudents, isRtl, t])
+  }, [group, availableStudents, isRtl, t, extractStudentName])
 
   const count = group.currentStudentsCount ?? normalizedStudentsList.length
 

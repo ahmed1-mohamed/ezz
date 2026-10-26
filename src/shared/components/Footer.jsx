@@ -1,28 +1,22 @@
-import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { Mail, Phone } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
 import api from '@/shared/services/api/axiosConfig'
 
 export default function Footer() {
     const { t } = useTranslation()
-    const [contactData, setContactData] = useState(null)
 
-    useEffect(() => {
-        const fetchContactData = async () => {
-            try {
-                const response = await api.get('/api/v1/contact-us/public')
-                if (response.data && response.data.data) {
-                    setContactData(response.data.data)
-                } else if (response.data) {
-                    setContactData(response.data)
-                }
-            } catch (error) {
-                console.error("Failed to fetch contact data", error)
-            }
-        }
-        fetchContactData()
-    }, [])
+    const { data: contactResponse } = useQuery({
+        queryKey: ['public-contact-footer'],
+        queryFn: async () => {
+            const res = await api.get('/api/v1/contact-us/public');
+            return res.data?.data || res.data || null;
+        },
+        staleTime: 60 * 60 * 1000,
+    })
+
+    const contactData = contactResponse;
 
     const email = contactData?.email || "info@manaratezz.edu.sa"
     const phone = contactData?.phone || "+0201012345678"

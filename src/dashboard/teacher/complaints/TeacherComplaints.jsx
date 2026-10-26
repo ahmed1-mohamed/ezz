@@ -15,9 +15,9 @@ import {
   Calendar,
   Layers,
   Eye,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import DashboardLayout from '../../../layouts/DashboardLayout.jsx';
-import { roleNavigation } from '@/shared/constants/navigation.js';
 import { teacherComplaintsApi } from '@/shared/services/api/teacherComplaintsApi.js';
 import TeacherNewComplaintModal from './TeacherNewComplaintModal.jsx';
 import TeacherComplaintDetailsModal from './TeacherComplaintDetailsModal.jsx';
@@ -133,6 +133,25 @@ export default function TeacherComplaints() {
       return true;
     });
   }, [rawList, statusFilter, typeFilter, searchQuery]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const serverTotalPages =
+    responseData?.pagination?.numberOfPages ||
+    responseData?.pagination?.totalPages ||
+    responseData?.totalPages;
+
+  const totalPages = useMemo(() => {
+    if (serverTotalPages && serverTotalPages > 0) return serverTotalPages;
+    return Math.max(1, Math.ceil(filteredList.length / itemsPerPage));
+  }, [serverTotalPages, filteredList.length, itemsPerPage]);
+
+  const paginatedList = useMemo(() => {
+    if (serverTotalPages && serverTotalPages > 1) return filteredList;
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredList.slice(start, start + itemsPerPage);
+  }, [filteredList, currentPage, itemsPerPage, serverTotalPages]);
 
   const getTypeBadge = (type) => {
     if (type === 'reschedule_request' || type === 'reschedule' || type === 'postpone') {
@@ -376,7 +395,7 @@ export default function TeacherComplaints() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredList.map((item) => {
+            {paginatedList.map((item) => {
               const isReschedule =
                 item.type === 'reschedule_request' ||
                 item.type === 'reschedule' ||
@@ -462,6 +481,54 @@ export default function TeacherComplaints() {
                 </div>
               );
             })}
+
+            <div className="flex flex-col sm:flex-row items-center justify-between pt-5 border-t border-slate-200/80 dark:border-slate-800 text-xs gap-3">
+              <span className="text-slate-500 dark:text-slate-400 font-semibold">
+                عرض صفحة {currentPage} من {totalPages} (إجمالي {filteredList.length} طلب)
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 cursor-pointer"
+                  title="الصفحة السابقة"
+                >
+                  <ChevronRight size={16} />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    const pageNum = i + 1;
+                    const isCurrent = pageNum === currentPage;
+                    return (
+                      <button
+                        type="button"
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 rounded-xl font-bold text-xs transition cursor-pointer ${
+                          isCurrent
+                            ? 'bg-[#00594C] text-white shadow-xs'
+                            : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 cursor-pointer"
+                  title="الصفحة التالية"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

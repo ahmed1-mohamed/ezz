@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,6 +39,12 @@ export default function ParentLayout() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
 
+  const [prevLocationKey, setPrevLocationKey] = useState(location.key);
+  if (prevLocationKey !== location.key) {
+    setPrevLocationKey(location.key);
+    setIsMobileMenuOpen(false);
+  }
+
   const displayName = (() => {
     if (!user) return t('parentDashboard.user.name');
     if (typeof user.name === 'object' && user.name !== null) {
@@ -49,10 +55,6 @@ export default function ParentLayout() {
     }
     return user.name || t('parentDashboard.user.name');
   })();
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans">

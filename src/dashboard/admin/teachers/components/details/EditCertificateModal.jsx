@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { X, FileText, Upload, Loader2, Check, ExternalLink, RefreshCw } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -18,8 +18,11 @@ export default function EditCertificateModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef(null)
 
-  useEffect(() => {
-    if (certificate) {
+  const [prevSync, setPrevSync] = useState({ certificate, isOpen })
+
+  if (prevSync.certificate !== certificate || prevSync.isOpen !== isOpen) {
+    setPrevSync({ certificate, isOpen })
+    if (certificate && isOpen) {
       const curNameAr = certificate.nameAr || (typeof certificate.name === 'object' ? certificate.name?.ar : certificate.name) || ''
       const curNameEn = certificate.nameEn || (typeof certificate.name === 'object' ? certificate.name?.en : '') || ''
       setNameAr(curNameAr)
@@ -27,7 +30,7 @@ export default function EditCertificateModal({
       setReplacementFile(null)
       setReplacementPreview(null)
     }
-  }, [certificate, isOpen])
+  }
 
   if (!isOpen || !certificate) return null
 

@@ -12,21 +12,17 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
     const [countryCode, setCountryCode] = useState('')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
-    const [loadingCountries, setLoadingCountries] = useState(false)
+    const [loadingCountries, setLoadingCountries] = useState(true)
 
     useEffect(() => {
         let isMounted = true
-        setLoadingCountries(true)
         fetchCountries({ sort: 'name' })
             .then((list) => {
                 if (!isMounted) return
                 const sorted = sortCountries(list, isRtl)
                 setRawCountries(sorted)
-                if (sorted.length > 0 && !countryCode) {
-                    const matched = [...sorted]
-                        .sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
-                        .find(c => c.dialCode && value.trim().startsWith(c.dialCode))
-                    setCountryCode(matched?.dialCode || sorted[0].dialCode || '+20')
+                if (sorted.length > 0) {
+                    setCountryCode((prev) => prev || sorted[0].dialCode || '+20')
                 }
             })
             .catch((err) => console.error('CountryPhoneInput fetchCountries error:', err))
@@ -51,14 +47,17 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
         )
     }, [rawCountries, searchTerm, isRtl])
 
-    useEffect(() => {
-        if (!value || rawCountries.length === 0) return
-        const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
-        const matched = sorted.find(c => c.dialCode && value.trim().startsWith(c.dialCode))
-        if (matched && matched.dialCode !== countryCode) {
-            setCountryCode(matched.dialCode)
+    const [prevValue, setPrevValue] = useState(value)
+    if (prevValue !== value) {
+        setPrevValue(value)
+        if (value && rawCountries.length > 0) {
+            const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
+            const matched = sorted.find(c => c.dialCode && value.trim().startsWith(c.dialCode))
+            if (matched && matched.dialCode !== countryCode) {
+                setCountryCode(matched.dialCode)
+            }
         }
-    }, [value, rawCountries, countryCode])
+    }
 
     useEffect(() => {
         const handleClickOutside = (event) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
@@ -10,9 +10,12 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
 
   const [form, setForm] = useState(EMPTY_FAQ)
   const [saving, setSaving] = useState(false)
-  useEffect(() => {
+  const [prevEditingFaq, setPrevEditingFaq] = useState(editingFaq)
+
+  if (prevEditingFaq !== editingFaq) {
+    setPrevEditingFaq(editingFaq)
     setForm(editingFaq ? { ...EMPTY_FAQ, ...editingFaq } : EMPTY_FAQ)
-  }, [editingFaq])
+  }
 
   const setField = (k, v) => setForm((prev) => ({ ...prev, [k]: v }))
 

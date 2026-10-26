@@ -4,7 +4,6 @@ import { Calendar, Phone, Mail } from 'lucide-react'
 export default function EditProfileCard({
   formData,
   joinDate,
-  mockJoinDate,
   isRtl,
   roleName
 }) {
@@ -16,7 +15,6 @@ export default function EditProfileCard({
     if (!roleName) return ''
     return typeof roleName === 'object' ? (isRtl ? roleName.ar || roleName.en : roleName.en || roleName.ar) : roleName
   }, [roleName, isRtl])
-  console.log("formdata", formData);
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
@@ -52,7 +50,7 @@ export default function EditProfileCard({
                 {isRtl ? 'تاريخ الانضمام' : 'Join Date'}
               </p>
               <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">
-                {joinDate || mockJoinDate || '-'}
+                {joinDate || '-'}
               </p>
             </div>
           </div>

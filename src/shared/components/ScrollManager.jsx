@@ -126,7 +126,7 @@ export default function ScrollManager() {
                 window.scrollTo(0, 0)
             }
         }
-    }, [location.pathname, location.search, location.key, navType])
+    }, [location.pathname, location.search, location.key, location.state?.scrollToHero, navType])
 
     return null
 }

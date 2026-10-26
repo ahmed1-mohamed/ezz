@@ -1,13 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   Calendar,
   Search,
   Eye,
-  Star,
-  FileText,
-  Mic,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -15,10 +12,10 @@ import {
 import { teacherHomeworkApi } from '@/shared/services/api/teacherHomeworkApi.js';
 import SubmissionDetailsView from './components/SubmissionDetailsView.jsx';
 
+
 export default function HomeworkSubmissions() {
   const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const queryClient = useQueryClient();
 
   const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
   const [currentDateStr, setCurrentDateStr] = useState('');
@@ -56,154 +53,147 @@ export default function HomeworkSubmissions() {
     return () => clearInterval(interval);
   }, [isRtl]);
 
-  const [activeTab, setActiveTab] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [evaluationFilter, setEvaluationFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
   const apiStatus = useMemo(() => {
-    if (activeTab === 'pending') return 'pending';
-    if (activeTab === 'evaluated') return 'submitted';
-    if (activeTab === 'overdue') return 'overdue';
+    if (statusFilter === 'pending') return 'pending';
+    if (statusFilter === 'submitted') return 'submitted';
+    if (statusFilter === 'submitted_late') return 'submitted-late';
+    if (statusFilter === 'overdue') return 'overdue';
     return 'all';
-  }, [activeTab]);
+  }, [statusFilter]);
 
-  const {
-    data: submissionsRes,
-    isLoading,
-    isRefetching,
-    refetch,
-  } = useQuery({
+  const { data: submissionsRes, isLoading } = useQuery({
     queryKey: ['teacher-homework-submissions', apiStatus],
     queryFn: () => teacherHomeworkApi.fetchSubmissions(apiStatus),
     staleTime: 30 * 1000,
   });
 
+  const formatSubmissionTime = (rawDate) => {
+    if (!rawDate) return 'لم يتم التسليم';
+    const date = new Date(rawDate);
+    if (isNaN(date.getTime())) {
+      return String(rawDate);
+    }
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 5) return 'الآن';
+    if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+    if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+    if (diffDays === 1) return 'أمس';
+    if (diffDays < 7) return `منذ ${diffDays} أيام`;
+
+    try {
+      return new Intl.DateTimeFormat('ar-EG', {
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(date);
+    } catch {
+      return date.toLocaleDateString();
+    }
+  };
+
+  const normalizeSubmissionStatus = (item) => {
+    const st = (
+      item.submissionStatus ||
+      item.status ||
+      item.rawStatus ||
+      ''
+    ).toLowerCase();
+    const isLate = Boolean(item.isLate || item.submittedLate || st.includes('late'));
+
+    if (st === 'overdue' || st === 'late_not_submitted' || st.includes('متأخرة')) {
+      return 'overdue';
+    }
+    if (st === 'submitted_late' || st === 'submitted-late' || (st === 'submitted' && isLate)) {
+      return 'submitted_late';
+    }
+    if (st === 'submitted' || st === 'completed' || item.submittedAt) {
+      return 'submitted';
+    }
+    if (st === 'pending' || st === 'waiting') {
+      return 'pending';
+    }
+    return 'pending';
+  };
+
   const rawSubmissions = useMemo(() => {
     const apiList = submissionsRes?.data;
-    if (Array.isArray(apiList) && apiList.length > 0) {
-      return apiList.map((item, idx) => ({
-        id: item.id || item._id || `sub-${idx}`,
-        studentName:
-          typeof item.student === 'object'
-            ? item.student?.name || 'أحمد محمد علي'
-            : item.student || 'أحمد محمد علي',
-        groupName:
-          typeof item.group === 'object'
-            ? item.group?.name || 'مجموعة التجويد الأولى'
-            : item.group || 'مجموعة التجويد الأولى',
-        homeworkTitle:
-          typeof item.homework === 'object'
-            ? item.homework?.title || 'واجب أحكام المد والقصر'
-            : item.homework || 'واجب أحكام المد والقصر',
-        timeText: 'منذ ساعتين',
-        hasDoc: true,
-        hasAudio: idx !== 2,
-        rawStatus: item.rawSubmissionStatus || (idx === 3 ? 'overdue' : idx === 2 ? 'submitted' : 'pending'),
-        rawEvaluationStatus: item.rawEvaluationStatus || (idx === 2 ? 'evaluated' : 'pending'),
-        grade: item.grade ?? (idx === 2 ? 88 : null),
-        documents: item.documents || [],
-        audioRecordings: item.audioRecordings || [],
-        questions: item.questions || [],
-      }));
-    }
+    if (Array.isArray(apiList)) {
+      return apiList.map((item, idx) => {
+        const normStatus = normalizeSubmissionStatus(item);
+        const isEval =
+          item.isEvaluated ||
+          item.rawEvaluationStatus === 'evaluated' ||
+          (item.grade !== null && item.grade !== undefined);
 
-    return [
-      {
-        id: 'sub-1',
-        studentName: 'أحمد محمد علي',
-        groupName: 'مجموعة التجويد الأولى',
-        homeworkTitle: 'واجب أحكام المد والقصر',
-        timeText: 'منذ ساعتين',
-        hasDoc: true,
-        hasAudio: true,
-        rawStatus: 'pending',
-        rawEvaluationStatus: 'pending',
-        grade: null,
-      },
-      {
-        id: 'sub-2',
-        studentName: 'أحمد محمد علي',
-        groupName: 'مجموعة التجويد الأولى',
-        homeworkTitle: 'واجب أحكام المد والقصر',
-        timeText: 'منذ ساعتين',
-        hasDoc: true,
-        hasAudio: true,
-        rawStatus: 'pending',
-        rawEvaluationStatus: 'pending',
-        grade: null,
-      },
-      {
-        id: 'sub-3',
-        studentName: 'أحمد محمد علي',
-        groupName: 'مجموعة التجويد الأولى',
-        homeworkTitle: 'واجب أحكام المد والقصر',
-        timeText: 'منذ ساعتين',
-        hasDoc: true,
-        hasAudio: false,
-        rawStatus: 'submitted',
-        rawEvaluationStatus: 'evaluated',
-        grade: 88,
-      },
-      {
-        id: 'sub-4',
-        studentName: 'أحمد محمد علي',
-        groupName: 'مجموعة التجويد الأولى',
-        homeworkTitle: 'واجب أحكام المد والقصر',
-        timeText: 'منذ ساعتين',
-        hasDoc: true,
-        hasAudio: true,
-        rawStatus: 'overdue',
-        rawEvaluationStatus: 'pending',
-        grade: null,
-      },
-      {
-        id: 'sub-5',
-        studentName: 'أحمد محمد علي',
-        groupName: 'مجموعة التجويد الأولى',
-        homeworkTitle: 'واجب أحكام المد والقصر',
-        timeText: 'منذ ساعتين',
-        hasDoc: true,
-        hasAudio: true,
-        rawStatus: 'pending',
-        rawEvaluationStatus: 'pending',
-        grade: null,
-      },
-    ];
-  }, [submissionsRes]);
-
-  const stats = useMemo(() => {
-    let total = 6;
-    let pending = 3;
-    let evaluated = 2;
-    let overdue = 1;
-
-    if (rawSubmissions.length > 5) {
-      total = rawSubmissions.length;
-      pending = 0;
-      evaluated = 0;
-      overdue = 0;
-      rawSubmissions.forEach((s) => {
-        if (s.rawEvaluationStatus === 'evaluated' || s.grade !== null) {
-          evaluated += 1;
-        } else if (s.rawStatus === 'overdue') {
-          overdue += 1;
-        } else {
-          pending += 1;
-        }
+        return {
+          id: item.id || item._id || `submission-${idx + 1}`,
+          studentName:
+            typeof item.student === 'object'
+              ? item.student?.name || 'طالب'
+              : item.student || 'طالب',
+          groupName:
+            typeof item.group === 'object'
+              ? item.group?.name || 'مجموعة دراسية'
+              : item.group || 'مجموعة دراسية',
+          homeworkTitle:
+            typeof item.homework === 'object'
+              ? item.homework?.title || 'واجب مدرسي'
+              : item.homework || 'واجب مدرسي',
+          submittedAt: item.submittedAt || item.createdAt || null,
+          timeText: formatSubmissionTime(item.submittedAt || item.createdAt),
+          rawStatus: normStatus,
+          rawEvaluationStatus: isEval ? 'evaluated' : 'not_evaluated',
+          grade: item.grade ?? null,
+          documents: item.documents || (item.document ? [item.document] : []),
+          audioRecordings: item.audioRecordings || [],
+          questions: item.questions || [],
+        };
       });
     }
 
-    return { total, pending, evaluated, overdue };
+    return [];
+  }, [submissionsRes]);
+
+  const stats = useMemo(() => {
+    let all = rawSubmissions.length;
+    let pending = 0;
+    let submitted = 0;
+    let submitted_late = 0;
+    let overdue = 0;
+
+    rawSubmissions.forEach((s) => {
+      if (s.rawStatus === 'pending') pending += 1;
+      else if (s.rawStatus === 'submitted') submitted += 1;
+      else if (s.rawStatus === 'submitted_late') submitted_late += 1;
+      else if (s.rawStatus === 'overdue') overdue += 1;
+    });
+
+    return { all, pending, submitted, submitted_late, overdue };
   }, [rawSubmissions]);
 
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((item) => {
-      if (activeTab === 'pending') {
-        if (item.rawEvaluationStatus === 'evaluated' || item.rawStatus === 'overdue') return false;
-      } else if (activeTab === 'evaluated') {
-        if (item.rawEvaluationStatus !== 'evaluated' && item.grade === null) return false;
-      } else if (activeTab === 'overdue') {
-        if (item.rawStatus !== 'overdue') return false;
+      if (statusFilter !== 'all' && item.rawStatus !== statusFilter) {
+        return false;
+      }
+
+      if (evaluationFilter === 'evaluated' && item.rawEvaluationStatus !== 'evaluated') {
+        return false;
+      }
+      if (evaluationFilter === 'not_evaluated' && item.rawEvaluationStatus === 'evaluated') {
+        return false;
       }
 
       if (searchTerm.trim()) {
@@ -216,7 +206,7 @@ export default function HomeworkSubmissions() {
 
       return true;
     });
-  }, [rawSubmissions, activeTab, searchTerm]);
+  }, [rawSubmissions, statusFilter, evaluationFilter, searchTerm]);
 
   if (selectedSubmission) {
     return (
@@ -230,14 +220,15 @@ export default function HomeworkSubmissions() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16" dir="rtl">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Header */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
             تسليمات الواجبات
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-0.5">
-            راجع وقيّم إجابات الطلاب
+            تابع تسليمات الواجبات وتصحيحها لطلاب المجموعات
           </p>
         </div>
 
@@ -253,78 +244,98 @@ export default function HomeworkSubmissions() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Top 5 Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        {/* الكل */}
         <div
-          onClick={() => setActiveTab('all')}
-          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-6 border transition-all text-center space-y-1 shadow-xs hover:border-[#00594C] ${
-            activeTab === 'all'
+          onClick={() => setStatusFilter('all')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-[#00594C] ${
+            statusFilter === 'all'
               ? 'border-2 border-[#00594C] ring-2 ring-[#00594C]/10'
               : 'border-slate-100 dark:border-slate-800'
           }`}
         >
-          <div className="text-3xl sm:text-4xl font-black text-slate-800 dark:text-white">
-            {stats.total}
+          <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
+            {stats.all}
           </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-400">إجمالي التسليمات</div>
+          <div className="text-xs font-bold text-slate-400">الكل</div>
         </div>
 
+        {/* في الانتظار */}
         <div
-          onClick={() => setActiveTab('pending')}
-          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-6 border transition-all text-center space-y-1 shadow-xs hover:border-amber-500 ${
-            activeTab === 'pending'
+          onClick={() => setStatusFilter('pending')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-amber-500 ${
+            statusFilter === 'pending'
               ? 'border-2 border-amber-500 ring-2 ring-amber-500/10'
               : 'border-slate-100 dark:border-slate-800'
           }`}
         >
-          <div className="text-3xl sm:text-4xl font-black text-amber-500">
+          <div className="text-2xl sm:text-3xl font-black text-amber-500">
             {stats.pending}
           </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-400">في الانتظار</div>
+          <div className="text-xs font-bold text-slate-400">في الانتظار</div>
         </div>
 
+        {/* تم التسليم في الموعد */}
         <div
-          onClick={() => setActiveTab('evaluated')}
-          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-6 border transition-all text-center space-y-1 shadow-xs hover:border-emerald-600 ${
-            activeTab === 'evaluated'
+          onClick={() => setStatusFilter('submitted')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-emerald-600 ${
+            statusFilter === 'submitted'
               ? 'border-2 border-emerald-600 ring-2 ring-emerald-600/10'
               : 'border-slate-100 dark:border-slate-800'
           }`}
         >
-          <div className="text-3xl sm:text-4xl font-black text-emerald-600">
-            {stats.evaluated}
+          <div className="text-2xl sm:text-3xl font-black text-emerald-600">
+            {stats.submitted}
           </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-400">تم التقييم</div>
+          <div className="text-xs font-bold text-slate-400">تم التسليم في الموعد</div>
         </div>
 
+        {/* تسليم متأخر */}
         <div
-          onClick={() => setActiveTab('overdue')}
-          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-6 border transition-all text-center space-y-1 shadow-xs hover:border-rose-500 ${
-            activeTab === 'overdue'
+          onClick={() => setStatusFilter('submitted_late')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-orange-500 ${
+            statusFilter === 'submitted_late'
+              ? 'border-2 border-orange-500 ring-2 ring-orange-500/10'
+              : 'border-slate-100 dark:border-slate-800'
+          }`}
+        >
+          <div className="text-2xl sm:text-3xl font-black text-orange-500">
+            {stats.submitted_late}
+          </div>
+          <div className="text-xs font-bold text-slate-400">تسليم متأخر</div>
+        </div>
+
+        {/* متأخرة ولم يتم التسليم */}
+        <div
+          onClick={() => setStatusFilter('overdue')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-rose-500 ${
+            statusFilter === 'overdue'
               ? 'border-2 border-rose-500 ring-2 ring-rose-500/10'
               : 'border-slate-100 dark:border-slate-800'
           }`}
         >
-          <div className="text-3xl sm:text-4xl font-black text-rose-500">
+          <div className="text-2xl sm:text-3xl font-black text-rose-500">
             {stats.overdue}
           </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-400">متأخرة</div>
+          <div className="text-xs font-bold text-slate-400">متأخرة ولم يتم التسليم</div>
         </div>
       </div>
 
+      {/* Small Filter Tabs (الكل - تم التقييم - لم يتم التقييم) & Search */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {[
             { id: 'all', label: 'الكل' },
-            { id: 'pending', label: 'في الانتظار' },
             { id: 'evaluated', label: 'تم التقييم' },
-            { id: 'overdue', label: 'متأخرة' },
+            { id: 'not_evaluated', label: 'لم يتم التقييم' },
           ].map((tab) => {
-            const isActive = activeTab === tab.id;
+            const isActive = evaluationFilter === tab.id;
             return (
               <button
                 type="button"
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => setEvaluationFilter(tab.id)}
                 className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer whitespace-nowrap ${
                   isActive
                     ? 'bg-[#00594C] text-white shadow-xs'
@@ -342,7 +353,7 @@ export default function HomeworkSubmissions() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="ابحث..."
+            placeholder="ابحث عن طالب أو واجب..."
             className="w-full ps-10 pe-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00594C] transition"
           />
           <Search
@@ -352,6 +363,7 @@ export default function HomeworkSubmissions() {
         </div>
       </div>
 
+      {/* Submissions Table */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-xs border border-slate-100 dark:border-slate-800">
         <div className="overflow-x-auto">
           <table className="w-full text-start border-collapse">
@@ -359,14 +371,20 @@ export default function HomeworkSubmissions() {
               <tr className="border-b border-slate-100 dark:border-slate-800/80 text-[11px] sm:text-xs font-semibold text-slate-400">
                 <th className="py-4 px-6 text-start">الطالب</th>
                 <th className="py-4 px-4 text-start">الواجب</th>
-                <th className="py-4 px-4 text-start">الوقت</th>
-                <th className="py-4 px-4 text-start">الملفات</th>
+                <th className="py-4 px-4 text-start">وقت التسليم</th>
                 <th className="py-4 px-4 text-center">الحالة</th>
+                <th className="py-4 px-4 text-center">التقييم</th>
                 <th className="py-4 px-6 text-center">الإجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs sm:text-sm">
-              {filteredSubmissions.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400 font-bold">
+                    جاري تحميل التسليمات...
+                  </td>
+                </tr>
+              ) : filteredSubmissions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400 font-bold">
                     لا توجد تسليمات مطابقة للبحث أو الفلتر المحدد حالياً.
@@ -374,19 +392,18 @@ export default function HomeworkSubmissions() {
                 </tr>
               ) : (
                 filteredSubmissions.map((sub) => {
-                  const isEvaluated =
-                    sub.rawEvaluationStatus === 'evaluated' || sub.grade !== null;
-                  const isOverdue = sub.rawStatus === 'overdue';
+                  const isEval = sub.rawEvaluationStatus === 'evaluated';
 
                   return (
                     <tr
                       key={sub.id}
                       className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition"
                     >
+                      {/* Student */}
                       <td className="py-4 px-6 text-start">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                            {sub.studentName?.charAt(0) || 'أ'}
+                            {sub.studentName?.charAt(0) || 'ط'}
                           </div>
                           <div>
                             <div className="font-bold text-slate-800 dark:text-white">
@@ -399,70 +416,72 @@ export default function HomeworkSubmissions() {
                         </div>
                       </td>
 
+                      {/* Homework */}
                       <td className="py-4 px-4 font-bold text-slate-700 dark:text-slate-200">
                         {sub.homeworkTitle}
                       </td>
 
+                      {/* Submission Time */}
                       <td className="py-4 px-4 text-slate-400 text-xs font-semibold whitespace-nowrap">
                         {sub.timeText}
                       </td>
 
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-2">
-                          {sub.hasDoc && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200/60">
-                              <FileText size={11} />
-                              <span>ملف</span>
-                            </span>
-                          )}
-                          {sub.hasAudio && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60">
-                              <Mic size={11} />
-                              <span>صوت</span>
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
+                      {/* Submission Status (الحالة) */}
                       <td className="py-4 px-4 text-center whitespace-nowrap">
-                        {isEvaluated ? (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
-                            <CheckCircle2 size={12} />
-                            <span>تم التقييم {sub.grade}%</span>
+                        {sub.rawStatus === 'submitted' && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
+                            <CheckCircle2 size={13} />
+                            <span>تم التسليم في الموعد</span>
                           </span>
-                        ) : isOverdue ? (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300">
-                            <AlertCircle size={12} />
-                            <span>متأخر</span>
+                        )}
+                        {sub.rawStatus === 'submitted_late' && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-950/40 dark:text-orange-300">
+                            <Clock size={13} />
+                            <span>تسليم متأخر</span>
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
-                            <Clock size={12} />
+                        )}
+                        {sub.rawStatus === 'overdue' && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300">
+                            <AlertCircle size={13} />
+                            <span>متأخرة ولم يتم التسليم</span>
+                          </span>
+                        )}
+                        {sub.rawStatus === 'pending' && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
+                            <Clock size={13} />
                             <span>في الانتظار</span>
                           </span>
                         )}
                       </td>
 
-                      <td className="py-4 px-6 text-center">
-                        <div className="flex items-center justify-center gap-2.5">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSubmission(sub)}
-                            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
-                            title="معاينة تفاصيل التسليم"
-                          >
-                            <Eye size={17} />
-                          </button>
+                      {/* Evaluation Status (التقييم) */}
+                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                        {isEval ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
+                            <CheckCircle2 size={13} />
+                            <span>
+                              تم التقييم {sub.grade !== null && sub.grade !== undefined ? `(${sub.grade}%)` : ''}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
+                            <Clock size={13} />
+                            <span>في انتظار التقييم</span>
+                          </span>
+                        )}
+                      </td>
 
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSubmission(sub)}
-                            className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#d2ede6] hover:bg-[#bce4da] text-[#00594C] transition cursor-pointer shadow-xs"
-                          >
-                            <Star size={12} className="fill-[#00594C]" />
-                            <span>{isEvaluated ? 'تعديل' : 'تقييم'}</span>
-                          </button>
-                        </div>
+                      {/* Actions (عرض الواجب فقط) */}
+                      <td className="py-4 px-6 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedSubmission(sub)}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#d2ede6] hover:bg-[#bce4da] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900 transition-all cursor-pointer shadow-xs"
+                          title="عرض تفاصيل الواجب والتسليم"
+                        >
+                          <Eye size={14} />
+                          <span>عرض الواجب</span>
+                        </button>
                       </td>
                     </tr>
                   );

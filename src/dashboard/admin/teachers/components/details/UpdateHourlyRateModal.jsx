@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { X, DollarSign, Loader2, Check } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -12,12 +12,14 @@ export default function UpdateHourlyRateModal({
 }) {
   const [hourlyRate, setHourlyRate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [prevSync, setPrevSync] = useState({ teacher, isOpen })
 
-  useEffect(() => {
+  if (prevSync.teacher !== teacher || prevSync.isOpen !== isOpen) {
+    setPrevSync({ teacher, isOpen })
     if (teacher && isOpen) {
       setHourlyRate(teacher.hourlyRate !== undefined && teacher.hourlyRate !== null ? String(teacher.hourlyRate) : '0')
     }
-  }, [teacher, isOpen])
+  }
 
   if (!isOpen || !teacher) return null
 

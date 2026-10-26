@@ -1,5 +1,10 @@
 {
   "appName": "منارة العز أكاديمي",
+  "common": {
+    "search": "بحث",
+    "errorLoading": "حدث خطأ أثناء تحميل بيانات المعلمين",
+    "retry": "إعادة المحاولة"
+  },
   "home": {
     "badge": "أكاديمية تعليمية متكاملة",
     "titleLine1": "ابدأ رحلة النور",
@@ -124,6 +129,23 @@
     "report3Description": "تتبع المصروفات والميزانية."
   },
   "teacher": {
+    "viewProfile": "عرض الملف الشخصي",
+    "jobTitle": "معلم معتمد",
+    "yearsExperience": "سنوات خبرة",
+    "badge": "معلمونا",
+    "titleLine1": "نخبة من",
+    "titleLine2": "أفضل المعلمين المجازين",
+    "titleLine3": "تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.",
+    "searchLabel": "ابحث عن معلم",
+    "searchPlaceholder": "الاسم، التخصص، المؤهل...",
+    "subjectLabel": "التخصص / المادة",
+    "allSubjects": "جميع التخصصات",
+    "countryLabel": "الدولة",
+    "allCountries": "جميع الدول",
+    "clearFilter": "مسح التصفية",
+    "noResults": "لا يوجد معلمين يطابقون بحثك.",
+    "previous": "السابق",
+    "next": "التالي",
     "welcomeCardTitle": "مرحباً بك في لوحة المعلم",
     "welcomeCardDescription": "إدارة فصولك والوصول إلى الموارد التعليمية.",
     "classroomCardTitle": "إدارة الفصل",
@@ -202,19 +224,10 @@
     "noUpcomingSessions": "لا توجد حصص قادمة مجدولة حالياً",
     "noGroups": "لا توجد مجموعات مسندة حالياً",
     "hoursUnit": "ساعة",
-    "badge": "معلمين الأكاديمية",
-    "titleLine1": "نخبة المعلمين",
-    "titleLine2": "لمستقبل مشرق و تعليم متميز",
-    "titleLine3": " اكتشف نخبة من المعلمين المعتمدين المتخصصين في تعليم القرآن الكريم واللغة العربية بأساليب تعليمية حديثة وممتعة.",
-    "searchPlaceholder": "البحث باسم المعلم...",
-    "allSubjects": "كل المواد",
     "allLevels": "كل المستويات",
     "filter": "تصفية",
-    "viewProfile": "استعرض الملف الشخصي",
     "subject": "المادة",
     "level": "المستوى",
-    "next": "التالي",
-    "previous": "السابق",
     "rewardsTitle": "المكافآت",
     "rewardsSubtitle": "امنح المكافآت للطلاب وتابع أو اقترح مكافآت جديدة للاعتماد",
     "awardStudentsTab": "منح المكافآت للطلاب",
@@ -277,7 +290,68 @@
     "suggestedBy": "المقترح:",
     "noAvailableRewards": "لا توجد مكافآت معتمدة متاحة حالياً، يمكنك اقتراح مكافأة جديدة للإدارة",
     "noLeaderboardData": "لا توجد بيانات متصدرين حتى الآن",
-    "noRecentRewards": "لا توجد مكافآت ممنوحة مؤخراً"
+    "noRecentRewards": "لا توجد مكافآت ممنوحة مؤخراً",
+    "names": {
+      "1": "Dr. Ahmed Al-Mansouri",
+      "2": "Dr. Khalid Al-Shamsi",
+      "3": "Dr. Youssef Al-Harbi"
+    },
+    "subject1": "Holy Quran",
+    "subject2": "Arabic Language",
+    "level1": "Beginner",
+    "level2": "Intermediate",
+    "level3": "Advanced",
+    "tag1": "Tajweed",
+    "tag2": "Memorization",
+    "tag3": "Grammar",
+    "tag4": "Online",
+    "levelLabel": "Level"
+  },
+  "teacherEvaluations": {
+    "title": "التقييمات",
+    "subtitle": "تقييم أداء وتلاوة الطلاب في الحصص ومتابعة مستواهم الدراسي",
+    "refresh": "تحديث البيانات",
+    "selectGroupAndSession": "اختر المجموعة و الحصة",
+    "studyGroup": "المجموعة الدراسية",
+    "noGroupsAvailable": "لا توجد مجموعات متاحة حالياً",
+    "session": "الحصة",
+    "noSessionsRecorded": "لا توجد حصص مسجلة لهذه المجموعة",
+    "selectStudent": "اختر الطالب للتقييم",
+    "noStudentsInGroup": "لا يوجد طلاب مسجلين في هذه المجموعة بعد",
+    "lastGrade": "آخر درجة: {{grade}}%",
+    "evaluationForStudent": "تقييم {{name}}",
+    "defaultStudent": "الطالب",
+    "defaultGroupName": "مجموعة دراسية",
+    "defaultSessionName": "الحصة {{number}}",
+    "defaultStudentName": "طالب {{number}}",
+    "averageRating": "متوسط تقييم الطالب",
+    "fiveStars": "5 نجوم (100%)",
+    "halfStars": "2.5 نجمة (50%)",
+    "zero": "0",
+    "ratingScaleTitle": "تقييم الطالب في الحصة (من 1 إلى 5 نجوم)",
+    "selectedRating": "التقييم المحدد:",
+    "starsOutOfFive": "{{count}} من 5 نجوم",
+    "teacherNotes": "ملاحظة وتوجيهات المعلم للطالب",
+    "notesPlaceholder": "اكتب ملاحظاتك وتوجيهاتك للطالب عن أدائه في هذه الحصة...",
+    "saveEvaluation": "حفظ التقييم",
+    "savingEvaluation": "جاري حفظ التقييم...",
+    "recordedEvaluations": "تقييمات الطلاب المسجلة",
+    "totalEvaluationsCount": "إجمالي {{count}} تقييم",
+    "group": "المجموعة",
+    "defaultHistoryNotes": "أداء ممتاز وتفاعل متميز أثناء الجلسة",
+    "showingPage": "عرض صفحة {{current}} من {{total}}",
+    "previous": "السابق",
+    "next": "التالي",
+    "levelExcellent": "ممتاز",
+    "levelVeryGood": "جيد جداً",
+    "levelGood": "جيد",
+    "levelAcceptable": "مقبول",
+    "levelNeedsImprovement": "يحتاج لتحسين",
+    "invalidSessionToast": "يرجى تحديد حصة صالحة مسجلة في النظام",
+    "selectStudentToast": "يرجى اختيار طالب مسجل في الحصة",
+    "saveSuccessToast": "تم حفظ تقييم {{name}} بنجاح ({{rating}}/5 نجوم)",
+    "saveErrorToast": "تعذر حفظ التقييم",
+    "errorOccurredToast": "حدث خطأ أثناء حفظ التقييم"
   },
   "student": {
     "progressCardTitle": "تقدمك الدراسي",
@@ -361,7 +435,43 @@
     "wednesday": "الأربعاء",
     "thursday": "الخميس",
     "friday": "الجمعة",
-    "saturday": "السبت"
+    "saturday": "السبت",
+    "sat": "Saturday",
+    "sun": "Sunday",
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "wed": "Wednesday",
+    "thu": "Thursday",
+    "fri": "Friday",
+    "c1": {
+      "title": "Memorization of Surah Al-Baqarah - Advanced Level",
+      "teacher": "Sheikh Dr. Abdullah Ahmed",
+      "time": "04:00 PM - 05:30 PM (1.5 hours)"
+    },
+    "c2": {
+      "title": "Prophets' Stories for Children",
+      "teacher": "Ms. Fatima Al-Zahraa",
+      "time": "06:00 PM - 07:00 PM"
+    },
+    "c3": {
+      "title": "Explanation of Al-Ajurrumiyyah Text",
+      "teacher": "Sheikh Mohammed Mahmoud",
+      "time": "01:00 PM - 02:30 PM"
+    },
+    "tag": {
+      "tajweed": "Tajweed",
+      "level3": "Third Level"
+    },
+    "btn": {
+      "live": "Started Now",
+      "upcoming": "Set Reminder",
+      "finished": "Watch Recording"
+    },
+    "cta": {
+      "title": "Are you ready to start your journey towards the light?",
+      "desc": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
+      "btn": "Join Now and Start"
+    }
   },
   "errors": {
     "notFound": "الصفحة غير موجودة",
@@ -544,7 +654,12 @@
     "haveAccount": "هل لديك حساب بالفعل؟",
     "login": "تسجيل الدخول",
     "successMessage": "تم إنشاء الحساب بنجاح! جاري تحويلك...",
-    "errorMessage": "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى."
+    "errorMessage": "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى.",
+    "accountType": "Account Type",
+    "roleStudent": "Student",
+    "roleParent": "Parent",
+    "orRegisterWith": "Or register via",
+    "googleBtn": "Register with Google"
   },
   "heroSection": {
     "title": "هل أنت مستعد لبدء رحلتك نحو النور؟",
@@ -697,7 +812,44 @@
     "cta": "ابدأ الآن",
     "faqTitle": "لديك أسئلة؟",
     "faqText": "تواصل مع فريق الدعم للحصول على مزيد من التفاصيل حول التسعير والخيارات المتاحة.",
-    "contactCta": "تواصل مع المبيعات"
+    "contactCta": "تواصل مع المبيعات",
+    "header": {
+      "title": "Invest in your child's spiritual journey",
+      "subtitle": "Flexible plans tailored to fit every family's needs, with elite certified teachers in a safe and inspiring educational environment."
+    },
+    "popular": "Most Popular",
+    "monthly": "/monthly",
+    "btn": "Start Now",
+    "basic": {
+      "name": "Basic Plan",
+      "f1": "4 sessions/month (1 session/week)",
+      "f2": "30 minutes per session",
+      "f3": "Memorization and recitation correction",
+      "f4": "Monthly performance reports"
+    },
+    "advanced": {
+      "name": "Advanced Plan",
+      "f1": "8 sessions/month (2 sessions/week)",
+      "f2": "45 minutes per session",
+      "f3": "Simplified Tafseer and Prophets' stories",
+      "f4": "Detailed monthly performance reports"
+    },
+    "elite": {
+      "name": "Elite Plan",
+      "f1": "12 sessions/month (3 sessions/week)",
+      "f2": "60 minutes per session",
+      "f3": "Special follow-up with a certified Sheikh",
+      "f4": "Intensive free Tajweed course"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "Can I change the plan later?",
+      "a1": "Yes, absolutely. You can upgrade or change your plan at any time through your dashboard, and fees will be adjusted starting the following month.",
+      "q2": "What happens if I miss a session?",
+      "a2": "We offer the possibility of making up one session per month provided that the excuse is made at least 24 hours in advance to schedule an alternative time with the teacher.",
+      "q3": "Are there discounts for siblings?",
+      "a3": "Yes, we offer a 15% discount for the second child and 25% for the third child and above when registering in the same plan."
+    }
   },
   "curriculums": {
     "subtitle": "مسارات التعلم الخاصة بنا",
@@ -821,6 +973,11 @@
     "toast": {
       "success": "تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.",
       "error": "عذراً، حدث خطأ ما أثناء إرسال الرسالة."
+    },
+    "topHero": {
+      "badge": "Leave an impact",
+      "title": "Contact us for inquiries and registration",
+      "desc": "Manarat Al-Ezz team is always with you to support your children educationally and answer all inquiries and complaints regarding courses, registration, and follow-up."
     }
   },
   "cta": {
@@ -2716,6 +2873,308 @@
       "save": "حفظ الإعدادات",
       "cancel": "إلغاء التغييرات",
       "whatsapp": "واتساب"
+    }
+  },
+  "teacherDashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً بك، {{name}}",
+    "teacherFallback": "معلم",
+    "overview": "نظرة عامة",
+    "nextSession": "الحصة القادمة",
+    "noNextSession": "لا توجد جلسات قادمة مجدولة حالياً",
+    "joinSession": "الانضمام للحصة",
+    "upcomingSessions": "الحصص القادمة",
+    "viewAllSessions": "عرض كل الحصص",
+    "noUpcomingSessions": "لا توجد حصص قادمة مجدولة",
+    "groupsOverview": "المجموعات الدراسية",
+    "viewAllGroups": "عرض كل المجموعات",
+    "quickActions": "إجراءات سريعة",
+    "createHomework": "إنشاء واجب جديد",
+    "evaluateStudents": "تقييم الطلاب",
+    "viewSchedule": "جدول الحصص",
+    "manageRewards": "المكافآت",
+    "fileComplaint": "الشكاوى والمقترحات",
+    "editProfile": "الملف الشخصي",
+    "pendingEvaluation": "حصة مكتملة بانتظار التقييم",
+    "studentsPending": "الطلاب بانتظار التقييم: ",
+    "addEvaluations": "إضافة التقييمات ←",
+    "totalStudents": "إجمالي الطلاب",
+    "assignedGroups": "المجموعات المعيّنة",
+    "totalSessions": "إجمالي الجلسات",
+    "teachingHours": "ساعات التدريس",
+    "totalEarnings": "إجمالي الأرباح",
+    "dueEarnings": "أرباح قيد الانتظار",
+    "groupName": "المجموعة",
+    "groupType": "النوع",
+    "groupLevel": "المستوى",
+    "studentsCount": "عدد الطلاب",
+    "maxStudents": "الحد الأقصى",
+    "time": "الوقت",
+    "date": "التاريخ",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "public": "عام",
+    "private": "خاص",
+    "liveBadge": "مباشرة الآن",
+    "upcomingBadge": "قادمة",
+    "completedBadge": "مكتملة",
+    "cancelledBadge": "ملغاة"
+  },
+  "teacherSchedule": {
+    "title": "الجدول الأسبوعي",
+    "description": "إدارة ومتابعة جدول الحصص الأسبوعية والمواعيد",
+    "currentWeek": "الأسبوع الحالي",
+    "nextWeek": "الأسبوع القادم",
+    "prevWeek": "الأسبوع السابق",
+    "allWeek": "الجدول الأسبوعي",
+    "weeklySessionsTotal": "إجمالي حصص الأسبوع",
+    "noSessionsDay": "لا توجد حصص مجدولة لهذا اليوم",
+    "noSessionsWeek": "لا توجد حصص مجدولة لهذا الأسبوع",
+    "joinLive": "انضمام للحصة",
+    "sessionDetails": "تفاصيل الحصة",
+    "today": "اليوم",
+    "students": "طلاب",
+    "filterAll": "الكل",
+    "filterScheduled": "مجدولة",
+    "filterLive": "مباشرة الآن",
+    "filterCompleted": "مكتملة",
+    "from": "من",
+    "to": "إلى",
+    "zoomMeeting": "رابط زووم",
+    "refresh": "تحديث"
+  },
+  "teacherSessions": {
+    "title": "سجل الحصص",
+    "description": "إدارة ومتابعة جميع الحصص المباشرة والمجدولة والسابقة",
+    "searchPlaceholder": "ابحث باسم الحصة أو المجموعة...",
+    "sessionNumber": "رقم الحصة",
+    "sessionTitle": "الحصة",
+    "group": "المجموعة",
+    "dateTime": "التاريخ والوقت",
+    "students": "الطلاب",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "all": "الكل",
+    "scheduled": "مجدولة",
+    "live": "مباشرة الآن",
+    "completed": "مكتملة",
+    "cancelled": "ملغاة",
+    "noSessions": "لا توجد حصص تطابق معايير البحث",
+    "join": "انضمام",
+    "view": "عرض"
+  },
+  "teacherGroups": {
+    "title": "المجموعات الدراسية",
+    "description": "إدارة المجموعات المعيّنة والطلاب والمناهج الدراسية",
+    "searchPlaceholder": "ابحث باسم المجموعة أو المنهج...",
+    "all": "الكل",
+    "active": "مجموعات نشطة",
+    "pending": "قيد الانتظار",
+    "stopped": "موقوفة",
+    "completed": "مكتملة",
+    "students": "طلاب",
+    "sessions": "حصة",
+    "curriculum": "المنهج",
+    "level": "المستوى",
+    "explanationLanguage": "لغة الشرح",
+    "schedule": "المواعيد",
+    "viewDetails": "عرض تفاصيل المجموعة",
+    "noGroupsFound": "لا توجد مجموعات تطابق البحث"
+  },
+  "teacherCourses": {
+    "title": "المقررات والمجموعات التعليمية",
+    "description": "استعراض البرامج والمناهج والمجموعات المسندة إليك",
+    "activeCourses": "المقررات النشطة",
+    "allCourses": "جميع المقررات",
+    "completedCourses": "المقررات المكتملة",
+    "noCourses": "لا توجد مقررات دراسية حالياً",
+    "group": "المجموعة",
+    "curriculum": "المنهج",
+    "status": "الحالة",
+    "studentsCount": "عدد الطلاب",
+    "level": "المستوى"
+  },
+  "teacherProfilePage": {
+    "title": "الملف الشخصي والإعدادات",
+    "subtitle": "إدارة بياناتك الشخصية ومعلومات الحساب والأمان",
+    "personalInfo": "المعلومات الشخصية",
+    "security": "الأمان وكلمة المرور",
+    "stats": "إحصائيات التدريس",
+    "nameAr": "الاسم باللغة العربية",
+    "nameEn": "الاسم باللغة الإنجليزية",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الجوال",
+    "country": "الدولة",
+    "gender": "الجنس",
+    "male": "ذكر",
+    "female": "أنثى",
+    "bioAr": "النبذة التعريفية (بالعربية)",
+    "bioEn": "النبذة التعريفية (بالإنجليزية)",
+    "experience": "سنوات الخبرة",
+    "specialization": "التخصص",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "saveChanges": "حفظ التغييرات",
+    "changePassword": "تغيير كلمة المرور",
+    "saving": "جارٍ الحفظ...",
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+    "passwordUpdated": "تم تغيير كلمة المرور بنجاح",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "fillRequired": "يرجى ملء الحقول المطلوبة"
+  },
+  "publicCourses": {
+    "title": "البرامج والمناهج التعليمية",
+    "description": "اكتشف مناهجنا القرآنية واللغوية والتربوية المعتمدة المصممة لجميع المستويات والأعمار",
+    "browseAll": "استعراض كافة البرامج",
+    "levelsCount": "{{count}} مستويات",
+    "learnMore": "تفاصيل البرنامج",
+    "enrollNow": "سجل الآن",
+    "noCoursesFound": "لا توجد مناهج معروضة حالياً",
+    "ctaTitle": "هل ترغب في استشارة تربوية لاختيار المنهج المناسب؟",
+    "ctaText": "فريقنا المتخصص مستعد لمساعدتك في تحديد المستوى الأنسب لطفلك",
+    "ctaButton": "تواصل مع مستشار تعليمي"
+  },
+  "adminReports": {
+    "title": "تقارير المنصة ومؤشرات الأداء",
+    "description": "متابعة مؤشرات الأداء، وسير العملية التعليمية، والإحصائيات الشاملة",
+    "platformHealth": "أداء المنصة",
+    "activeUsers": "المستخدمون النشطون",
+    "completionRate": "نسبة اكتمال الحصص",
+    "financialOverview": "الملخص المالي",
+    "viewEarnings": "عرض الأرباح",
+    "viewPayments": "عرض المدفوعات",
+    "viewLogs": "سجل الأنشطة",
+    "totalStudents": "إجمالي الطلاب",
+    "totalTeachers": "إجمالي المعلمين",
+    "totalParents": "أولياء الأمور",
+    "totalGroups": "المجموعات الدراسية",
+    "activeSessions": "الحصص النشطة اليوم",
+    "rating": "تقييم المنصة العام"
+  },
+  "curriculum": {
+    "badge": "Journey of Knowledge",
+    "titleLine1": "Educational Curriculums",
+    "titleLine2": "Enlighten the Insight and Elevate the Soul",
+    "description": "We offer specialized educational content designed with the latest pedagogical methods to instill values and build a generation armed with knowledge and faith",
+    "cta": {
+      "title": "Are you ready to start your journey?",
+      "desc": "Join over 5,000 students enjoying a unique educational experience.",
+      "button": "Register Now for Free"
+    }
+  },
+  "curriculumUnits": {
+    "mainTitle": "Educational Units",
+    "badgeCount": "12 Study Units",
+    "tabs": {
+      "quran": "Holy Quran",
+      "arabic": "Arabic Language",
+      "islamic": "Islamic Studies"
+    },
+    "quran": {
+      "sidebar": {
+        "title": "About the Holy Quran Curriculum",
+        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
+      },
+      "feat1": {
+        "title": "Certified Certificate",
+        "desc": "Upon completing each part"
+      },
+      "feat2": {
+        "title": "Interactive Sessions",
+        "desc": "With the most skilled reciters"
+      },
+      "btn": "View Curriculum",
+      "u1": {
+        "title": "Principles of Tajweed",
+        "desc": "Learn the articulation points of letters and their basic attributes for a correct recitation.",
+        "level": "Beginner Level"
+      },
+      "u2": {
+        "title": "Juz Amma Recitation & Memorization",
+        "desc": "Memorizing and contemplating short Surahs in an enjoyable way.",
+        "level": "First Stage"
+      },
+      "u3": {
+        "title": "Maqamat of Recitation",
+        "desc": "Improving the voice with Quranic performance and learning basic Maqamat.",
+        "level": "Advanced Level"
+      },
+      "u4": {
+        "title": "Stories from the Quran",
+        "desc": "Extracting lessons and morals from the stories of the Prophets.",
+        "level": "Enrichment Curriculum"
+      }
+    },
+    "arabic": {
+      "sidebar": {
+        "title": "About the Arabic Language Curriculum",
+        "desc": "A curriculum that establishes the four language skills: listening, speaking, reading, and writing using modern methods that connect language to daily life."
+      },
+      "feat1": {
+        "title": "Continuous Evaluation",
+        "desc": "To measure skills development"
+      },
+      "feat2": {
+        "title": "Practical Practice",
+        "desc": "Through interactive activities"
+      },
+      "btn": "View Curriculum",
+      "u1": {
+        "title": "Grammar Basics",
+        "desc": "Understanding basic grammatical rules and applying them in speaking and writing.",
+        "level": "Beginner Level"
+      },
+      "u2": {
+        "title": "Expression Skills",
+        "desc": "Developing the student's ability to express their thoughts clearly and smoothly.",
+        "level": "First Stage"
+      },
+      "u3": {
+        "title": "Literature and Rhetoric",
+        "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.",
+        "level": "Advanced Level"
+      },
+      "u4": {
+        "title": "Free Reading",
+        "desc": "Encouraging reading and expanding linguistic and cognitive horizons.",
+        "level": "Enrichment Curriculum"
+      }
+    },
+    "islamic": {
+      "sidebar": {
+        "title": "About Islamic Studies Curriculum",
+        "desc": "A program aimed at instilling the correct creed, teaching simplified jurisprudence, and drawing lessons from the Prophet's biography."
+      },
+      "feat1": {
+        "title": "Certificate of Completion",
+        "desc": "After passing the exams"
+      },
+      "feat2": {
+        "title": "Meaningful Discussions",
+        "desc": "To consolidate concepts"
+      },
+      "btn": "View Curriculum",
+      "u1": {
+        "title": "Islamic Creed",
+        "desc": "Consolidating the pillars of faith and explaining the concepts of monotheism.",
+        "level": "Beginner Level"
+      },
+      "u2": {
+        "title": "Fiqh of Worship",
+        "desc": "Learning the rules of purification, prayer, and fasting practically and theoretically.",
+        "level": "First Stage"
+      },
+      "u3": {
+        "title": "Prophet's Biography",
+        "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.",
+        "level": "Advanced Level"
+      },
+      "u4": {
+        "title": "Ethics and Manners",
+        "desc": "Promoting positive behaviors and Islamic manners in daily life.",
+        "level": "Enrichment Curriculum"
+      }
     }
   }
 }

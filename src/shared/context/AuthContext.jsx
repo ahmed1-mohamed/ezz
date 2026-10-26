@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react'
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import { AuthContext, AuthActionsContext } from './AuthContextValue.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import { authApi } from '@/shared/services/api/authApi'
@@ -58,12 +58,15 @@ export function AuthProvider({ children }) {
         return baseUser;
     }, []);
 
+    const refreshedTokenRef = useRef(null);
+
     useEffect(() => {
         const token = getCookie('access_token');
-        if (token && user) {
-            refreshProfile(user);
+        if (token && user && refreshedTokenRef.current !== token) {
+            refreshedTokenRef.current = token;
+            Promise.resolve().then(() => refreshProfile(user));
         }
-    }, []);
+    }, [refreshProfile, user]);
 
     const login = useCallback(async (email, password, remember) => {
         setLoading(true)
@@ -130,7 +133,8 @@ export function AuthProvider({ children }) {
             try {
                 const fullProfile = await refreshProfile(authUser, 7)
                 if (fullProfile) authUser = fullProfile
-            } catch {
+            } catch (err) {
+                void err;
             }
 
             setLoading(false)
@@ -201,7 +205,8 @@ export function AuthProvider({ children }) {
                 localStorage.removeItem('access_token')
                 localStorage.removeItem('refresh_token')
                 localStorage.removeItem('authUser')
-            } catch {
+            } catch (err) {
+                void err;
             }
             if (redirectPath && typeof redirectPath === 'string') {
                 window.location.href = redirectPath

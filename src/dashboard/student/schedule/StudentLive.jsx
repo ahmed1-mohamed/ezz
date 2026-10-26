@@ -83,7 +83,7 @@ export default function StudentLive() {
 
     fetchLiveSession();
     return () => { isMounted = false; };
-  }, []);
+  }, [session]);
 
   if (isLoading) {
     return (

@@ -6,16 +6,22 @@ export default function ChildTimeline({ childId, initialEvents }) {
   const { t } = useTranslation();
   const [events, setEvents] = useState(initialEvents || []);
   const [isLoading, setIsLoading] = useState(!initialEvents);
+  const [prevInitialEvents, setPrevInitialEvents] = useState(initialEvents);
 
-  useEffect(() => {
+  if (prevInitialEvents !== initialEvents) {
+    setPrevInitialEvents(initialEvents);
     if (initialEvents && initialEvents.length > 0) {
       setEvents(initialEvents);
       setIsLoading(false);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (initialEvents && initialEvents.length > 0) return;
 
     let isMounted = true;
-    const loadTimeline = async () => {
+    Promise.resolve().then(async () => {
+      if (!isMounted) return;
       setIsLoading(true);
       const res = await parentApi.fetchSchedules({ studentId: childId });
       if (isMounted) {
@@ -26,9 +32,8 @@ export default function ChildTimeline({ childId, initialEvents }) {
         }
         setIsLoading(false);
       }
-    };
+    });
 
-    loadTimeline();
     return () => { isMounted = false; };
   }, [childId, initialEvents]);
 

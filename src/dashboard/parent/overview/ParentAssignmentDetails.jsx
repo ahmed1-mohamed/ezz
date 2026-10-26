@@ -40,7 +40,7 @@ export default function ParentAssignmentDetails() {
         };
 
         fetchDetails();
-    }, [id, i18n.language]);
+    }, [id, i18n.language, t]);
 
     const containerVariants = {
         hidden: { opacity: 0 },

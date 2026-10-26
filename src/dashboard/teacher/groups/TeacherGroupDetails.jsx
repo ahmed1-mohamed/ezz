@@ -18,8 +18,6 @@ import {
   Sparkles,
   CalendarDays,
 } from 'lucide-react';
-import DashboardLayout from '../../../layouts/DashboardLayout.jsx';
-import { roleNavigation } from '@/shared/constants/navigation.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
 
 function formatTime(val) {
@@ -374,11 +372,6 @@ export default function TeacherGroupDetails() {
                                 <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
                                   {studentName}
                                 </h4>
-                                {student.student_id && (
-                                  <div className="text-[11px] font-mono text-slate-400 truncate">
-                                    ID: {student.student_id}
-                                  </div>
-                                )}
                               </div>
 
                               {student.averageRating !== undefined && student.averageRating !== null && (

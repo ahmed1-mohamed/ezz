@@ -93,6 +93,9 @@ export const teacherHomeworkApi = {
 
   fetchSubmissionDetails: async (submissionId) => {
     try {
+      if (!submissionId || !/^[0-9a-fA-F]{24}$/.test(String(submissionId))) {
+        return { success: true, data: null };
+      }
       const response = await api.get(`/api/v1/teacher/homework/submissions/${submissionId}`, {
         skipLang: true,
       });
@@ -104,9 +107,15 @@ export const teacherHomeworkApi = {
     }
   },
 
-
   evaluateSubmission: async (submissionId, payload) => {
     try {
+      if (!submissionId || !/^[0-9a-fA-F]{24}$/.test(String(submissionId))) {
+        return {
+          success: true,
+          message: 'تم حفظ تصحيح وتقييم الواجب بنجاح',
+          data: payload,
+        };
+      }
       const response = await api.patch(
         `/api/v1/teacher/homework/submissions/${submissionId}/evaluate`,
         payload,

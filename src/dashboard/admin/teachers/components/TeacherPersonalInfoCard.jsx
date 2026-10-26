@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Image as ImageIcon, ChevronDown } from 'lucide-react'
 import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
 
@@ -45,18 +45,28 @@ export default function TeacherPersonalInfoCard({
   }, [sourceCountries, isRtl])
 
   const initialCode = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : ''
-  const [selectedCountry, setSelectedCountry] = useState(null)
+  const [userSelectedCountry, setUserSelectedCountry] = useState(null)
+
+  const selectedCountry = useMemo(() => {
+    if (userSelectedCountry) return userSelectedCountry
+    if (activeCountries.length === 0) return null
+    if (initialCode) {
+      const matched = activeCountries.find((c) => c.code === initialCode)
+      if (matched) return matched
+    }
+    return activeCountries[0]
+  }, [userSelectedCountry, activeCountries, initialCode])
+
+  const onChangeRef = useRef(onChange)
+  useEffect(() => {
+    onChangeRef.current = onChange
+  })
 
   useEffect(() => {
-    if (activeCountries.length > 0) {
-      const matched = initialCode ? activeCountries.find((c) => c.code === initialCode) : null
-      const selected = matched || selectedCountry || activeCountries[0]
-      setSelectedCountry(selected)
-      if (!formData.country && selected?.name) {
-        onChange('country', getCountryName(selected, isRtl))
-      }
+    if (activeCountries.length > 0 && !formData.country && selectedCountry?.name) {
+      onChangeRef.current('country', getCountryName(selectedCountry, isRtl))
     }
-  }, [activeCountries, initialCode])
+  }, [activeCountries, formData.country, selectedCountry, isRtl])
 
   const rawPhone = formData.phone || ''
   const phoneNumberOnly = rawPhone.includes(' ')
@@ -73,7 +83,7 @@ export default function TeacherPersonalInfoCard({
   }
 
   const selectCountryCode = (country) => {
-    setSelectedCountry(country)
+    setUserSelectedCountry(country)
     setIsDropdownOpen(false)
     onChange('country', getCountryName(country, isRtl))
     onChange('phone', `${country.code} ${phoneNumberOnly}`.trim())

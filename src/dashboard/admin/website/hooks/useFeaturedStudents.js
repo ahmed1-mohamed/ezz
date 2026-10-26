@@ -132,11 +132,23 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
     }
   }, [enabled]);
 
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
+  if (prevEnabled !== enabled) {
+    setPrevEnabled(enabled);
+    if (!enabled) {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (enabled) {
-      loadData();
-    } else {
-      setLoading(false);
+      let isMounted = true;
+      Promise.resolve().then(() => {
+        if (isMounted) loadData();
+      });
+      return () => {
+        isMounted = false;
+      };
     }
   }, [loadData, enabled]);
 

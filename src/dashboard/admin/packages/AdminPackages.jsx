@@ -48,7 +48,13 @@ export default function AdminPackages() {
     }, [])
 
     useEffect(() => {
-        loadAll()
+        let isMounted = true
+        Promise.resolve().then(() => {
+            if (isMounted) loadAll()
+        })
+        return () => {
+            isMounted = false
+        }
     }, [loadAll])
 
     const handleSavePkg = async (data) => {

@@ -52,9 +52,9 @@ export default function ParentDashboard() {
           }
           if (childrenRes?.success && Array.isArray(childrenRes.data)) {
             setChildrenList(childrenRes.data);
-            if (childrenRes.data.length > 0 && !selectedStudent) {
+            if (childrenRes.data.length > 0) {
               const firstChild = childrenRes.data[0];
-              setSelectedStudent(firstChild.id || firstChild._id || firstChild.student_id);
+              setSelectedStudent((prev) => prev || (firstChild.id || firstChild._id || firstChild.student_id));
             }
           }
           if (schedulesRes?.success && Array.isArray(schedulesRes.data)) {

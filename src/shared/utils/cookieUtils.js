@@ -20,7 +20,9 @@ export function getCookie(name) {
         if ((val.startsWith('{') && val.endsWith('}')) || (val.startsWith('[') && val.endsWith(']'))) {
           return JSON.parse(val);
         }
-      } catch {}
+      } catch (e) {
+        void e;
+      }
       return val;
     }
   }

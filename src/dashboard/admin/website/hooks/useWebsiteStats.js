@@ -12,18 +12,25 @@ export default function useWebsiteStats(showNotification, enabled = true) {
   });
   const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
 
-  useEffect(() => {
+  if (prevEnabled !== enabled) {
+    setPrevEnabled(enabled);
     if (!enabled) {
       setIsLoading(false);
-      return;
     }
-    async function loadStats() {
+  }
+
+  useEffect(() => {
+    if (!enabled) return;
+    let isMounted = true;
+    Promise.resolve().then(async () => {
+      if (!isMounted) return;
       setIsLoading(true);
       try {
         const res = await landingApi.fetchPrivateStatistics();
         const statsData = res?.data || res;
-        if (statsData) {
+        if (statsData && isMounted) {
           setStats({
             classes: statsData.classes ?? 320,
             teachers: statsData.teachers ?? 85,
@@ -33,7 +40,7 @@ export default function useWebsiteStats(showNotification, enabled = true) {
       } catch (err) {
         console.warn('Failed to fetch private statistics, loading from localStorage:', err);
         const savedStats = localStorage.getItem('website_stats');
-        if (savedStats) {
+        if (savedStats && isMounted) {
           try {
             setStats(JSON.parse(savedStats));
           } catch (e) {
@@ -41,10 +48,14 @@ export default function useWebsiteStats(showNotification, enabled = true) {
           }
         }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    }
-    loadStats();
+    });
+    return () => {
+      isMounted = false;
+    };
   }, [enabled]);
 
   const handleStatChange = (field, val) => {

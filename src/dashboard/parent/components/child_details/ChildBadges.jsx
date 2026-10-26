@@ -9,16 +9,22 @@ export default function ChildBadges({ childId, initialBadges }) {
   const { t, i18n } = useTranslation();
   const [badges, setBadges] = useState(initialBadges || []);
   const [isLoading, setIsLoading] = useState(!initialBadges);
+  const [prevInitialBadges, setPrevInitialBadges] = useState(initialBadges);
 
-  useEffect(() => {
+  if (prevInitialBadges !== initialBadges) {
+    setPrevInitialBadges(initialBadges);
     if (initialBadges && initialBadges.length > 0) {
       setBadges(initialBadges);
       setIsLoading(false);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (initialBadges && initialBadges.length > 0) return;
 
     let isMounted = true;
-    const loadBadges = async () => {
+    Promise.resolve().then(async () => {
+      if (!isMounted) return;
       setIsLoading(true);
       const res = await parentApi.fetchBadges(childId);
       if (isMounted) {
@@ -29,9 +35,8 @@ export default function ChildBadges({ childId, initialBadges }) {
         }
         setIsLoading(false);
       }
-    };
+    });
 
-    loadBadges();
     return () => { isMounted = false; };
   }, [childId, initialBadges]);
 

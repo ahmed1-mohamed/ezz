@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Trash2,
@@ -7,6 +8,8 @@ import {
 } from 'lucide-react';
 
 export default function QuestionBuilder({ questions = [], onChange }) {
+  const { i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [activeQuestionId, setActiveQuestionId] = useState(
     questions.length > 0 ? questions[0].id : null
   );
@@ -94,7 +97,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
   const totalPoints = questions.reduce((acc, q) => acc + (Number(q.points) || 0), 0);
 
   return (
-    <div className="space-y-6 text-start" dir="rtl">
+    <div className="space-y-6 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800">
         <div>
           <h4 className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">

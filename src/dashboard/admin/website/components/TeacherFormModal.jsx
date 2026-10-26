@@ -50,7 +50,7 @@ export default function TeacherFormModal({
       return { ar: arName || '', en: enName || '' };
     }
     return { ar: currentTeacher?.name || '', en: currentTeacher?.nameEn || '' };
-  }, [currentTeacher?.teacherId, systemTeachers]);
+  }, [currentTeacher, systemTeachers]);
 
   if (!isOpen || !currentTeacher) return null;
 

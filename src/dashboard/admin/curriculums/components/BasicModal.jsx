@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
@@ -10,7 +10,9 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
   const [nameAr, setNameAr] = useState('')
   const [nameEn, setNameEn] = useState('')
 
-  useEffect(() => {
+  const [prevKey, setPrevKey] = useState({ isOpen, editingItem })
+  if (prevKey.isOpen !== isOpen || prevKey.editingItem !== editingItem) {
+    setPrevKey({ isOpen, editingItem })
     if (isOpen) {
       if (editingItem) {
         setNameAr(typeof editingItem.name === 'object' ? (editingItem.name?.ar || '') : (editingItem.name || ''))
@@ -20,7 +22,7 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
         setNameEn('')
       }
     }
-  }, [isOpen, editingItem])
+  }
 
   if (!isOpen) return null
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { createPortal } from 'react-dom'
@@ -26,12 +26,15 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [imageFile, setImageFile] = useState(null)
-  useEffect(() => {
+  const [prevSyncKey, setPrevSyncKey] = useState({ isOpen, editingPackage })
+
+  if (prevSyncKey.isOpen !== isOpen || prevSyncKey.editingPackage !== editingPackage) {
+    setPrevSyncKey({ isOpen, editingPackage })
     if (isOpen) {
       if (editingPackage) {
         const validLanguage = explanationLanguages.some(l => l.id === editingPackage.sessions_language)
           ? editingPackage.sessions_language
-          : (explanationLanguages?.[0]?.id || '');
+          : (explanationLanguages?.[0]?.id || '')
 
         setForm({
           ...EMPTY_PACKAGE,
@@ -53,7 +56,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
         setImageFile(null)
       }
     }
-  }, [isOpen, editingPackage, explanationLanguages])
+  }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]

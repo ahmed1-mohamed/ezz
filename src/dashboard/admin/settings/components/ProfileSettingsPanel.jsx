@@ -30,6 +30,11 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [phoneVal, setPhoneVal] = useState('');
 
+    const onProfileLoadedRef = useRef(onProfileLoaded);
+    useEffect(() => {
+        onProfileLoadedRef.current = onProfileLoaded;
+    });
+
     useEffect(() => {
         const loadProfile = async () => {
             setLoadingProfile(true);
@@ -106,14 +111,14 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     setSelectedCountryCode({ code: first.dialCode || first.phoneCode, flag: first.flag, name: first.name, nameEn: first.nameEn });
                 }
 
-                if (onProfileLoaded) {
-                    onProfileLoaded({ phone: phoneData, country: mappedCountry });
+                if (onProfileLoadedRef.current) {
+                    onProfileLoadedRef.current({ phone: phoneData, country: mappedCountry });
                 }
             }
             setLoadingProfile(false);
         };
         loadProfile();
-    }, []);
+    }, [isRtl]);
 
     const handleProfileChange = (e) => {
         const val = e.target.value;

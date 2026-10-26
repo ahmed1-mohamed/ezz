@@ -108,7 +108,7 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
 
     loadCountries();
     loadStudents();
-  }, []);
+  }, [isRtl, parent?.country, parent?.phone, parent?.phonePrefix]);
 
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))

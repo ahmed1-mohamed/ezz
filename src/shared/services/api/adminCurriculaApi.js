@@ -43,6 +43,11 @@ export const adminCurriculaApi = {
 
   createCurriculum: async (payload) => {
     try {
+      if (payload && !(payload instanceof FormData)) {
+        if ('isActive' in payload) delete payload.isActive;
+      } else if (payload instanceof FormData) {
+        payload.delete('isActive');
+      }
       const response = await api.post('/api/v1/curricula/private', payload);
       return response.data;
     } catch (error) {
@@ -55,74 +60,15 @@ export const adminCurriculaApi = {
     try {
       const cId = typeof id === 'object' ? (id.id || id._id) : String(id).trim();
       const endpoint = `/api/v1/curricula/private/${cId}`;
-      const isFormData = payload instanceof FormData;
 
-      try {
-        const response = await api.patch(endpoint, payload);
-        return response.data;
-      } catch (patchError) {
-        console.warn('API updateCurriculum PATCH failed, attempting PUT:', patchError?.response?.status, patchError?.response?.data || patchError?.message);
-
-        try {
-          const putResponse = await api.put(endpoint, payload);
-          return putResponse.data;
-        } catch (putError) {
-          console.warn('API updateCurriculum PUT also failed:', putError?.response?.status, putError?.response?.data || putError?.message);
-        }
-
-        if (isFormData) {
-          try {
-            const jsonBody = {};
-            const nameAr = payload.get('name[ar]') || payload.get('nameAr');
-            const nameEn = payload.get('name[en]') || payload.get('nameEn');
-            if (nameAr || nameEn) {
-              jsonBody.name = { ar: nameAr || nameEn, en: nameEn || nameAr };
-            }
-            const descAr = payload.get('description[ar]') || payload.get('descriptionAr');
-            const descEn = payload.get('description[en]') || payload.get('descriptionEn');
-            if (descAr !== null || descEn !== null) {
-              jsonBody.description = { ar: descAr || '', en: descEn || '' };
-            }
-            const lang = payload.get('language') || payload.get('languageId');
-            if (lang) jsonBody.language = lang;
-
-            const show = payload.get('showOnWebsite');
-            if (show !== null) {
-              jsonBody.showOnWebsite = show === 'true' || show === true;
-              jsonBody.isActive = jsonBody.showOnWebsite;
-            }
-
-            const featuresAr = payload.getAll('features[ar][]');
-            const featuresEn = payload.getAll('features[en][]');
-            if (featuresAr.length > 0 || featuresEn.length > 0) {
-              jsonBody.features = {
-                ar: featuresAr,
-                en: featuresEn.length > 0 ? featuresEn : featuresAr
-              };
-            }
-
-            const benefitsAr = payload.getAll('benefitsAfterGraduation[ar][]');
-            const benefitsEn = payload.getAll('benefitsAfterGraduation[en][]');
-            if (benefitsAr.length > 0 || benefitsEn.length > 0) {
-              jsonBody.benefitsAfterGraduation = {
-                ar: benefitsAr,
-                en: benefitsEn.length > 0 ? benefitsEn : benefitsAr
-              };
-            }
-
-            try {
-              const patchJsonRes = await api.patch(endpoint, jsonBody);
-              return patchJsonRes.data;
-            } catch {
-              const putJsonRes = await api.put(endpoint, jsonBody);
-              return putJsonRes.data;
-            }
-          } catch {
-          }
-        }
-
-        throw patchError;
+      if (payload && !(payload instanceof FormData)) {
+        if ('isActive' in payload) delete payload.isActive;
+      } else if (payload instanceof FormData) {
+        payload.delete('isActive');
       }
+
+      const response = await api.patch(endpoint, payload);
+      return response.data;
     } catch (error) {
       console.error('API updateCurriculum failed:', error);
       throw error;

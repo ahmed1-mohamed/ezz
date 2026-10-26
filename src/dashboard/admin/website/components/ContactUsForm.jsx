@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
@@ -30,7 +30,9 @@ export default function ContactUsForm({
     email: ''
   });
 
-  useEffect(() => {
+  const [prevContactInfo, setPrevContactInfo] = useState(contactInfo);
+  if (prevContactInfo !== contactInfo) {
+    setPrevContactInfo(contactInfo);
     if (contactInfo) {
       setLocalContact({
         phone: contactInfo.phone || '',
@@ -38,7 +40,7 @@ export default function ContactUsForm({
         email: contactInfo.email || ''
       });
     }
-  }, [contactInfo]);
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();

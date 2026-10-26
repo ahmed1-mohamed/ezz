@@ -134,7 +134,10 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     return normalizeScheduleList(group?.weeklySchedule || group?.schedule)
   })
 
-  useEffect(() => {
+  const [prevGroup, setPrevGroup] = useState(group)
+
+  if (prevGroup !== group) {
+    setPrevGroup(group)
     if (group) {
       setFormData({
         name: safeExtractName(group.name, 'ar'),
@@ -154,7 +157,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       })
       setSchedule(normalizeScheduleList(group.weeklySchedule || group.schedule))
     }
-  }, [group])
+  }
 
   const [newDay, setNewDay] = useState('sunday')
   const [newTimeFrom, setNewTimeFrom] = useState('16:00')

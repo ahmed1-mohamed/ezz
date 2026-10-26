@@ -29,8 +29,7 @@ function renderIcon(icon) {
 }
 
 export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
-  const { t, i18n } = useTranslation();
-  const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const { t } = useTranslation();
 
   const [activeFilter, setActiveFilter] = useState('all');
 

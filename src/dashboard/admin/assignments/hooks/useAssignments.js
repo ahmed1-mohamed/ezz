@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { adminAssignmentsApi } from '@/shared/services/api/adminAssignmentsApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
@@ -11,21 +11,53 @@ export function useAssignments() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('assignments');
     const [searchValue, setSearchValue] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const debounceTimerRef = useRef(null);
 
-    const loadData = useCallback(async () => {
-        setLoading(true);
-        const [statsRes, assignmentsRes] = await Promise.all([
-            adminAssignmentsApi.fetchStats(),
-            adminAssignmentsApi.fetchAssignments(searchValue),
-        ]);
-        if (statsRes?.success) setStats(statsRes.data);
-        if (assignmentsRes?.success) setAssignments(assignmentsRes.data);
-        setLoading(false);
+    // Debounce search input by 350ms to prevent spamming the API on every keystroke
+    useEffect(() => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        debounceTimerRef.current = setTimeout(() => {
+            setDebouncedSearch(searchValue.trim());
+        }, 350);
+
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
     }, [searchValue]);
 
+    // Fetch stats only on mount
     useEffect(() => {
-        loadData();
-    }, [loadData]);
+        let isMounted = true;
+        const loadStats = async () => {
+            const statsRes = await adminAssignmentsApi.fetchStats();
+            if (isMounted && statsRes?.success) {
+                setStats(statsRes.data);
+            }
+        };
+        loadStats();
+        return () => { isMounted = false; };
+    }, []);
+
+    // Fetch assignments when debouncedSearch changes
+    useEffect(() => {
+        let isMounted = true;
+        const loadAssignments = async () => {
+            setLoading(true);
+            const assignmentsRes = await adminAssignmentsApi.fetchAssignments(debouncedSearch);
+            if (!isMounted) return;
+            if (assignmentsRes?.success) {
+                setAssignments(assignmentsRes.data || []);
+            }
+            setLoading(false);
+        };
+        loadAssignments();
+        return () => { isMounted = false; };
+    }, [debouncedSearch]);
 
     const handleDelete = useCallback(async (assignment) => {
         const isRtl = i18n.language.startsWith('ar');

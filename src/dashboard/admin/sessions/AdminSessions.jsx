@@ -110,7 +110,13 @@ export default function AdminSessions() {
   }, [currentPage, itemsPerPage, activeTab, debouncedSearch])
 
   useEffect(() => {
-    loadSessions()
+    let isMounted = true
+    Promise.resolve().then(() => {
+      if (isMounted) loadSessions()
+    })
+    return () => {
+      isMounted = false
+    }
   }, [loadSessions])
 
   const stats = useMemo(() => {

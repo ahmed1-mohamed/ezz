@@ -69,14 +69,14 @@ export default function CreateHomework() {
 
   const [mediaFile, setMediaFile] = useState(null);
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState('');
-  const [documentFiles, setDocumentFiles] = useState([]);
+  const [documentFile, setDocumentFile] = useState(null);
   const [questions, setQuestions] = useState([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const videoInputRef = useRef(null);
   const documentInputRef = useRef(null);
 
-  const { data: activeGroupsRes, isLoading: isLoadingGroups } = useQuery({
+  const { data: activeGroupsRes } = useQuery({
     queryKey: ['teacher-active-groups-homework'],
     queryFn: () => teacherHomeworkApi.fetchActiveGroups(),
     staleTime: 5 * 60 * 1000,
@@ -87,22 +87,18 @@ export default function CreateHomework() {
     if (Array.isArray(list) && list.length > 0) {
       return list.map((g) => ({
         id: g.id || g._id,
-        name: typeof g.name === 'object' ? g.name.ar || g.name.en : g.name,
+        name: typeof g.name === 'object' ? (isRtl ? g.name.ar || g.name.en : g.name.en || g.name.ar) : g.name,
       }));
     }
-    return [
-      { id: 'grp-active-1', name: 'مجموعة التجويد الأولى (نشطة)' },
-      { id: 'grp-active-2', name: 'مجموعة إتقان الحفظ (نشطة)' },
-      { id: 'grp-active-3', name: 'مجموعة الفجر القرآنية (نشطة)' },
-    ];
-  }, [activeGroupsRes]);
+    return [];
+  }, [activeGroupsRes, isRtl]);
 
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error('حجم الفيديو يجب ألا يتجاوز 500 ميغابايت');
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('حجم الفيديو يجب ألا يتجاوز 50 ميغابايت');
       return;
     }
 
@@ -126,15 +122,23 @@ export default function CreateHomework() {
     }
   };
 
-  const handleDocumentsChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  const handleDocumentChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    setDocumentFiles((prev) => [...prev, ...files]);
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('حجم ملف الواجب يجب ألا يتجاوز 50 ميغابايت');
+      return;
+    }
+
+    setDocumentFile(file);
   };
 
-  const handleRemoveDocument = (idx) => {
-    setDocumentFiles((prev) => prev.filter((_, i) => i !== idx));
+  const handleRemoveDocument = () => {
+    setDocumentFile(null);
+    if (documentInputRef.current) {
+      documentInputRef.current.value = '';
+    }
   };
 
   const handlePublishHomework = async (isDraft = false) => {
@@ -167,9 +171,9 @@ export default function CreateHomework() {
         formData.append('media', mediaFile);
       }
 
-      documentFiles.forEach((doc) => {
-        formData.append('documents', doc);
-      });
+      if (documentFile) {
+        formData.append('document', documentFile);
+      }
 
       if (questions.length > 0) {
         formData.append('questions', JSON.stringify(questions));
@@ -188,14 +192,14 @@ export default function CreateHomework() {
       } else {
         toast.error(res.message || 'فشل نشر الواجب');
       }
-    } catch (err) {
+    } catch {
       setIsSubmitting(false);
       toast.error('حدث خطأ أثناء رفع ونشر الواجب');
     }
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16" dir="rtl">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
@@ -253,9 +257,9 @@ export default function CreateHomework() {
               <span>ملف الواجب</span>
             </div>
             <span
-              className={documentFiles.length > 0 ? 'text-emerald-600 font-black' : 'text-slate-400'}
+              className={documentFile ? 'text-emerald-600 font-black' : 'text-slate-400'}
             >
-              {documentFiles.length > 0 ? `${documentFiles.length} ملفات مرفقة` : 'لم يتم الإرفاق'}
+              {documentFile ? documentFile.name : 'لم يتم الإرفاق'}
             </span>
           </div>
         </div>
@@ -409,7 +413,7 @@ export default function CreateHomework() {
                       رفع فيديو توضيحي
                     </h4>
                     <p className="text-xs text-slate-400 font-semibold">
-                      حتى 500 ميغابايت - MP4, MOV
+                      حتى 50 ميغابايت - MP4, MOV
                     </p>
                   </div>
                 </div>
@@ -455,58 +459,56 @@ export default function CreateHomework() {
           )}
 
           {activeTab === 'documents' && (
-            <div className="space-y-5">
+            <div className="space-y-4">
               <input
                 ref={documentInputRef}
                 type="file"
-                multiple
                 accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                onChange={handleDocumentsChange}
+                onChange={handleDocumentChange}
                 className="hidden"
               />
 
-              <div
-                onClick={() => documentInputRef.current?.click()}
-                className="rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700/80 p-12 text-center flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#00594C]/40 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
-                  <Upload size={26} />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-white">
-                    رفع ملفات ومستندات الواجب
-                  </h4>
-                  <p className="text-xs text-slate-400 font-semibold">
-                    ملفات PDF، Word أو صور توضيحية حتى 50 ميغابايت لكل ملف
-                  </p>
-                </div>
-              </div>
-
-              {documentFiles.length > 0 && (
-                <div className="space-y-2.5 text-start">
-                  <h5 className="text-xs font-bold text-slate-400">الملفات المرفقة:</h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {documentFiles.map((doc, idx) => (
-                      <div
-                        key={idx}
-                        className="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between gap-3"
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <FileText size={18} className="text-[#00594C] shrink-0" />
-                          <span className="text-xs font-bold text-slate-800 dark:text-white truncate">
-                            {doc.name}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveDocument(idx)}
-                          className="p-1 rounded-lg text-slate-400 hover:text-rose-500 transition-colors shrink-0"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    ))}
+              {!documentFile ? (
+                <div
+                  onClick={() => documentInputRef.current?.click()}
+                  className="rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700/80 p-12 text-center flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#00594C]/40 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                    <Upload size={26} />
                   </div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+                      رفع ملف الواجب
+                    </h4>
+                    <p className="text-xs text-slate-400 font-semibold">
+                      ملف واحد فقط (PDF، Word أو صورة) حتى 50 ميغابايت
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#d2ede6] text-[#00594C] flex items-center justify-center">
+                      <FileText size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-800 dark:text-white">
+                        {documentFile.name}
+                      </h4>
+                      <span className="text-xs text-slate-400 font-semibold">
+                        {(documentFile.size / (1024 * 1024)).toFixed(1)} ميغابايت
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleRemoveDocument}
+                    className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                    title="حذف الملف"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               )}
             </div>

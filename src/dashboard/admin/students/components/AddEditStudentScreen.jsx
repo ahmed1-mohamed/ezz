@@ -117,8 +117,8 @@ export default function AddEditStudentScreen({
         const rawLevels = res?.data || res || []
         const list = Array.isArray(rawLevels) ? rawLevels : (rawLevels.data || [])
         setLevelsList(list)
-        if (!formData.studentLevel && list.length > 0 && !student) {
-          handleChange('studentLevel', list[0].id || list[0]._id)
+        if (!student && list.length > 0) {
+          setFormData((prev) => (!prev.studentLevel ? { ...prev, studentLevel: list[0].id || list[0]._id } : prev))
         }
       })
       .catch((err) => console.error('Error fetching student levels:', err))
@@ -138,7 +138,7 @@ export default function AddEditStudentScreen({
         }
       })
       .catch((err) => console.error('Error fetching parents:', err))
-  }, [])
+  }, [isRtl, student])
 
   const handleParentSelect = (parentId, parentName) => {
     setSelectedParentId(parentId)

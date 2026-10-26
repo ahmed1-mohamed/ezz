@@ -143,11 +143,11 @@ export default function AddEditTeacherScreen({
 
   const [formData, setFormData] = useState(() => getInitialFormData(teacher))
 
-  useEffect(() => {
-    if (teacher) {
-      setFormData(getInitialFormData(teacher))
-    }
-  }, [teacher])
+  const [prevTeacher, setPrevTeacher] = useState(teacher)
+  if (prevTeacher !== teacher) {
+    setPrevTeacher(teacher)
+    setFormData(getInitialFormData(teacher))
+  }
 
   useEffect(() => {
     const loadData = async () => {
@@ -172,7 +172,7 @@ export default function AddEditTeacherScreen({
       }
     }
     loadData()
-  }, [teacher])
+  }, [teacher, isRtl])
 
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))

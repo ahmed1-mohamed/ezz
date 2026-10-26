@@ -63,7 +63,7 @@ export default function Register() {
         return () => {
             isMounted = false
         }
-    }, [i18n.language])
+    }, [i18n.language, isRtl])
 
     useEffect(() => {
         const handleClickOutside = (e) => {

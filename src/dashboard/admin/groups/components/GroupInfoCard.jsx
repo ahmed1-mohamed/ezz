@@ -24,6 +24,7 @@ export default function GroupInfoCard({
   t,
   isEditing,
   errors = {},
+  isLoadingEndpoints = false,
 }) {
   const initial = (
     typeof formData.name === 'string'
@@ -33,11 +34,11 @@ export default function GroupInfoCard({
           : (typeof formData.name?.ar === 'string' ? formData.name.ar.trim() : 'م'))
   ).charAt(0) || 'م'
 
-  const resolvedCountries = Array.isArray(countries) ? countries : []
-  const resolvedCurricula = Array.isArray(curricula) ? curricula : []
-  const resolvedLevels = Array.isArray(levels) ? levels : []
-  const resolvedTeachers = Array.isArray(teachers) ? teachers : []
-  const resolvedLanguages = Array.isArray(languages) ? languages : []
+  const resolvedCountries = useMemo(() => Array.isArray(countries) ? countries : [], [countries])
+  const resolvedCurricula = useMemo(() => Array.isArray(curricula) ? curricula : [], [curricula])
+  const resolvedLevels = useMemo(() => Array.isArray(levels) ? levels : [], [levels])
+  const resolvedTeachers = useMemo(() => Array.isArray(teachers) ? teachers : [], [teachers])
+  const resolvedLanguages = useMemo(() => Array.isArray(languages) ? languages : [], [languages])
 
   const countryOptions = useMemo(() => {
     const sorted = sortCountries(resolvedCountries, isRtl)

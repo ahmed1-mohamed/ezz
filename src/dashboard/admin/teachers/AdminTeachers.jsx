@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -27,9 +27,11 @@ export default function AdminTeachers() {
   const [committedSearch, setCommittedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  useEffect(() => {
+  const [prevSearchFilterKey, setPrevSearchFilterKey] = useState({ committedSearch, statusFilter })
+  if (prevSearchFilterKey.committedSearch !== committedSearch || prevSearchFilterKey.statusFilter !== statusFilter) {
+    setPrevSearchFilterKey({ committedSearch, statusFilter })
     setCurrentPage(1)
-  }, [committedSearch, statusFilter])
+  }
 
   const handleSearchSubmit = () => {
     setCommittedSearch(searchVal.trim())
@@ -62,11 +64,7 @@ export default function AdminTeachers() {
     stopped: teachers.filter((t) => !t.active).length
   }
 
-  useEffect(() => {
-    if (teachers.length > 0 && (!selectedTeacherId || !teachers.some((t) => t.id === selectedTeacherId))) {
-      setSelectedTeacherId(teachers[0].id)
-    }
-  }, [teachers, selectedTeacherId])
+
 
   const selectedTeacher = useMemo(() => {
     return teachers.find((t) => t.id === selectedTeacherId) || teachers[0] || null

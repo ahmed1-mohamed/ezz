@@ -256,7 +256,7 @@ export default function TeacherAwardStudentsTab() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div className="space-y-6 max-w-7xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-[#f6eedd] dark:bg-amber-950/30 border border-[#ecd9b8] dark:border-amber-800/40 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div className="space-y-1 text-start">
           <div className="flex items-center gap-2">

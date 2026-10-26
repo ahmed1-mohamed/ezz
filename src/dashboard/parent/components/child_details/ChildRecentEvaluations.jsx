@@ -6,16 +6,22 @@ export default function ChildRecentEvaluations({ childId, initialEvaluations }) 
   const { t } = useTranslation();
   const [evaluations, setEvaluations] = useState(initialEvaluations || []);
   const [isLoading, setIsLoading] = useState(!initialEvaluations);
+  const [prevInitialEvaluations, setPrevInitialEvaluations] = useState(initialEvaluations);
 
-  useEffect(() => {
+  if (prevInitialEvaluations !== initialEvaluations) {
+    setPrevInitialEvaluations(initialEvaluations);
     if (initialEvaluations && initialEvaluations.length > 0) {
       setEvaluations(initialEvaluations);
       setIsLoading(false);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (initialEvaluations && initialEvaluations.length > 0) return;
 
     let isMounted = true;
-    const loadEvaluations = async () => {
+    Promise.resolve().then(async () => {
+      if (!isMounted) return;
       setIsLoading(true);
       const res = await parentApi.fetchPastRatings({ studentId: childId });
       if (isMounted) {
@@ -26,9 +32,8 @@ export default function ChildRecentEvaluations({ childId, initialEvaluations }) 
         }
         setIsLoading(false);
       }
-    };
+    });
 
-    loadEvaluations();
     return () => { isMounted = false; };
   }, [childId, initialEvaluations]);
 

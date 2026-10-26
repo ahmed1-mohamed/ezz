@@ -1,648 +1,156 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Filter, Star, BookOpen, Award, ChevronLeft, ChevronRight, RefreshCw, AlertCircle } from 'lucide-react'
-import imageSrc from '../../images/programs/6.webp'
-import { teachersApi } from '../../shared/services/api/teachersApi'
-import { landingApi } from '../../shared/services/api/landingApi'
-import { sortCountries, getCountryName } from '../../shared/utils/countryUtils'
+import { teachersApi } from '@/shared/services/api/teachersApi'
+import { fetchCountries, sortCountries } from '@/shared/utils/countryUtils'
+import TeachersHero from './components/Teachers/TeachersHero'
+import TeachersFilterBar from './components/Teachers/TeachersFilterBar'
+import TeachersGrid from './components/Teachers/TeachersGrid'
+import TeachersPagination from './components/Teachers/TeachersPagination'
+import { extractTeacherSubjects, matchesTeacherCountry } from './components/Teachers/teachersUtils'
 
-const normalizeCountryStr = (str) => {
-    if (!str) return ''
-    return String(str)
-        .toLowerCase()
-        .replace(/[\u064B-\u065F\u0670]/g, '')
-        .replace(/[إأآا]/g, 'ا')
-        .replace(/ة/g, 'ه')
-        .replace(/ى/g, 'ي')
-        .replace(/(جمهورية|المملكة|سلطنة|دولة|الامارات|العربية|المتحدة|الهاشمية)/g, '')
-        .replace(/\p{Extended_Pictographic}/gu, '')
-        .replace(/[^\p{L}\p{N}]/gu, '')
-        .trim()
-}
-
-const extractEmoji = (str) => {
-    const match = String(str || '').match(/\p{Extended_Pictographic}+/u)
-    return match ? match[0].trim() : ''
-}
-
-const matchesTeacherCountry = (teacher, selectedCountryId, countriesList = []) => {
-    if (!selectedCountryId) return true
-    const countryObj = countriesList.find((c) => (c.id || c._id) === selectedCountryId || c.name === selectedCountryId || c.nameEn === selectedCountryId || c.phoneCode === selectedCountryId)
-
-    const teacherCountryRaw = teacher.country || teacher.countryId || ''
-    const teacherCountryStr = typeof teacherCountryRaw === 'object'
-        ? (teacherCountryRaw.name || teacherCountryRaw.ar || teacherCountryRaw.en || '')
-        : String(teacherCountryRaw).trim()
-
-    if (
-        teacher.countryId &&
-        countryObj &&
-        (teacher.countryId === countryObj.id || teacher.countryId === countryObj._id)
-    ) {
-        return true
-    }
-
-    if (teacherCountryStr && (teacherCountryStr === selectedCountryId || (countryObj && (teacherCountryStr === countryObj.name || teacherCountryStr === countryObj.nameEn)))) {
-        return true
-    }
-
-    const teacherEmoji = extractEmoji(teacherCountryStr)
-    const targetEmoji = countryObj?.flag ? extractEmoji(countryObj.flag) : extractEmoji(selectedCountryId)
-    if (teacherEmoji && targetEmoji && teacherEmoji === targetEmoji) {
-        return true
-    }
-    if (countryObj?.flag && teacherCountryStr.includes(countryObj.flag)) {
-        return true
-    }
-
-    if (countryObj?.phoneCode) {
-        if (teacher.phone && teacher.phone.startsWith(countryObj.phoneCode)) {
-            return true
-        }
-        if (teacherCountryStr.includes(countryObj.phoneCode)) {
-            return true
-        }
-    }
-
-    const normTarget = normalizeCountryStr(countryObj?.name || selectedCountryId)
-    const normTargetEn = countryObj?.nameEn ? normalizeCountryStr(countryObj.nameEn) : ''
-    const normTeacher = normalizeCountryStr(teacherCountryStr)
-
-    if (normTarget && normTeacher) {
-        if (normTeacher.includes(normTarget) || normTarget.includes(normTeacher)) {
-            return true
-        }
-    }
-    if (normTargetEn && normTeacher) {
-        if (normTeacher.includes(normTargetEn) || normTargetEn.includes(normTeacher)) {
-            return true
-        }
-    }
-
-    const aliasesMap = [
-        { keys: ['مصر', 'egypt', 'eg'], id: 'eg' },
-        { keys: ['سعود', 'saudi', 'ksa'], id: 'sa' },
-        { keys: ['امارات', 'emirates', 'uae'], id: 'ae' },
-        { keys: ['كويت', 'kuwait'], id: 'kw' },
-        { keys: ['قطر', 'qatar'], id: 'qa' },
-        { keys: ['بحرين', 'bahrain'], id: 'bh' },
-        { keys: ['عمان', 'oman'], id: 'om' },
-        { keys: ['اردن', 'jordan'], id: 'jo' },
-        { keys: ['مغرب', 'morocco'], id: 'ma' },
-        { keys: ['جزائر', 'algeria'], id: 'dz' },
-        { keys: ['تونس', 'tunisia'], id: 'tn' },
-        { keys: ['سودان', 'sudan'], id: 'sd' },
-        { keys: ['يمن', 'yemen'], id: 'ye' },
-        { keys: ['سوريا', 'syria'], id: 'sy' },
-        { keys: ['عراق', 'iraq'], id: 'iq' },
-        { keys: ['فلسطين', 'palestine'], id: 'ps' },
-        { keys: ['لبنان', 'lebanon'], id: 'lb' },
-        { keys: ['ليبيا', 'libya'], id: 'ly' },
-    ]
-
-    const targetLower = String(countryObj?.name || countryObj?.nameEn || selectedCountryId).toLowerCase()
-    const teacherLower = teacherCountryStr.toLowerCase()
-
-    for (const group of aliasesMap) {
-        const targetMatches = group.keys.some(k => targetLower.includes(k))
-        if (targetMatches) {
-            const teacherMatches = group.keys.some(k => teacherLower.includes(k))
-            if (teacherMatches) {
-                return true
-            }
-        }
-    }
-
-    return false
-}
-
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-            delayChildren: 0.1
-        }
-    }
-}
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-}
-
-const portraitImages = [
-    "1500648767791-00dcc994a43e",
-    "1506794778202-cad84cf45f1d",
-    "1504257432389-52343af06ae3",
-    "1504593811423-6dd665756598",
-    "1535713875002-d1d0cf377fde",
-    "1560250097-0b93528c311a",
-    "1507003211169-0a1dd7228f2d",
-    "1519085360753-af0119f7cbe7",
-    "1552058544-e397bfc48364",
-    "1556157382-97eda2d62296",
-    "1501196354995-cbb51c65aaea",
-    "1527980965255-d3b416303d12"
-];
-
-const TeacherSkeleton = () => (
-    <div className="w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] dark:bg-slate-900 shadow-sm border border-transparent dark:border-slate-800 p-4 animate-pulse space-y-4">
-        <div className="aspect-[4/5] w-full rounded-[24px] bg-slate-200 dark:bg-slate-800" />
-        <div className="space-y-2 p-2">
-            <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded-full w-3/4" />
-            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-full w-1/2" />
-            <div className="flex gap-2 pt-2">
-                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
-                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
-            </div>
-            <div className="h-11 bg-slate-300 dark:bg-slate-700 rounded-2xl w-full mt-4" />
-        </div>
-    </div>
-);
-
-const TeacherCard = React.memo(({ teacher, t, index }) => {
-    const navigate = useNavigate();
-    const fallbackImage = `https://images.unsplash.com/photo-${portraitImages[index % portraitImages.length]}?q=80&w=400&h=400&auto=format&fit=crop`;
-    const [imgSrc, setImgSrc] = useState(teacher.image || fallbackImage);
-
-    useEffect(() => {
-        setImgSrc(teacher.image || fallbackImage);
-    }, [teacher.image, fallbackImage]);
-
-    const teacherId = teacher.teacher_id || teacher.id || teacher.user_id;
-
-    const handleProfileNavigation = () => {
-        if (teacherId) {
-            navigate(`/teachers/${teacherId}`);
-        }
-    };
-
-    const ratingDisplay = teacher.rating && Number(teacher.rating) > 0
-        ? Number(teacher.rating).toFixed(1)
-        : '5.0';
-
-    const tags = useMemo(() => {
-        const list = [];
-        if (Array.isArray(teacher.specializations)) {
-            teacher.specializations.forEach(s => {
-                const name = typeof s === 'object' ? s.name : s;
-                if (name && name !== teacher.subject && !list.includes(name)) {
-                    list.push(name);
-                }
-            });
-        }
-        if (teacher.country && !list.includes(teacher.country)) {
-            list.push(teacher.country);
-        }
-        return list.slice(0, 2);
-    }, [teacher]);
-
-    return (
-        <motion.article
-            layout="position"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
-            style={{ willChange: 'transform, opacity' }}
-            className="group w-full max-w-[320px] mx-auto overflow-hidden rounded-[28px] bg-[#F5F5F2] dark:bg-slate-900 border border-transparent dark:border-slate-800 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col justify-between"
-        >
-            <div
-                onClick={handleProfileNavigation}
-                className="relative overflow-hidden rounded-[28px] p-3 pb-0 cursor-pointer"
-            >
-                <img
-                    src={imgSrc}
-                    onError={() => setImgSrc(fallbackImage)}
-                    alt={teacher.name}
-                    width="320"
-                    height="400"
-                    className="aspect-[4/5] w-full rounded-[24px] object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
-                />
-            </div>
-
-            <div className="space-y-5 p-6 text-start flex-1 flex flex-col justify-between">
-                <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                        <div className="flex flex-col flex-1 min-w-0">
-                            <h3
-                                onClick={handleProfileNavigation}
-                                className="text-xl lg:text-[22px] font-extrabold leading-tight text-[#00695C] dark:text-emerald-400 truncate cursor-pointer hover:underline"
-                                title={teacher.name}
-                            >
-                                {teacher.name}
-                            </h3>
-                            <p className="mt-1.5 text-sm font-semibold text-[#8B6B15] dark:text-amber-400 line-clamp-1" title={teacher.degree || teacher.title}>
-                                {teacher.degree || teacher.title || t('teacher.jobTitle', 'معلم معتمد')}
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 shrink-0 mt-0.5 bg-[#F9F5E8] dark:bg-amber-950/40 px-2.5 py-1 rounded-full border border-[#9B7B16]/20 dark:border-amber-900/40">
-                            <Star className="h-3.5 w-3.5 fill-[#9B7B16] dark:fill-amber-400 text-[#9B7B16] dark:text-amber-400" />
-                            <span className="text-xs font-bold">{ratingDisplay}</span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap justify-start gap-1.5 pt-1">
-                        {teacher.yearsOfExperience !== undefined && (
-                            <span className="rounded-full bg-[#E7E7E4] dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-[#555] dark:text-slate-300">
-                                {teacher.yearsOfExperience} {t('teacher.yearsExperience', 'سنوات خبرة')}
-                            </span>
-                        )}
-                        {teacher.subject && (
-                            <span className="rounded-full bg-[#00695C]/10 dark:bg-[#00695C]/20 px-3 py-1 text-xs font-bold text-[#00695C] dark:text-emerald-400">
-                                {teacher.subject}
-                            </span>
-                        )}
-                        {tags.map((tag, i) => (
-                            <span key={i} className="rounded-full bg-[#E7E7E4] dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-[#7B7B7B] dark:text-slate-400">
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
-                <button
-                    onClick={handleProfileNavigation}
-                    className="w-full rounded-2xl bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 py-3.5 text-[16px] font-bold text-white transition-all duration-300 ease-out hover:shadow-lg active:scale-95 hover:-translate-y-0.5 cursor-pointer"
-                >
-                    {t('teacher.viewProfile', 'عرض الملف الشخصي')}
-                </button>
-            </div>
-        </motion.article>
-    );
-});
+const ITEMS_PER_PAGE = 10
 
 export default function Teachers() {
-    const { t, i18n } = useTranslation()
-    const isRtl = i18n.language === 'ar'
-    const gridRef = useRef(null)
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language === 'ar'
+  const gridRef = useRef(null)
 
-    const [searchInput, setSearchInput] = useState('')
-    const [searchTerm, setSearchTerm] = useState('')
-    const [selectedSubject, setSelectedSubject] = useState('')
-    const [selectedCountry, setSelectedCountry] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedSubject, setSelectedSubject] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 10
+  const {
+    data: teachersResponse,
+    isLoading,
+    isError,
+    refetch
+  } = useQuery({
+    queryKey: ['publicTeachers', searchTerm],
+    queryFn: () => teachersApi.fetchPublicTeachers({
+      page: 1,
+      limit: 100,
+      search: searchTerm
+    }),
+    placeholderData: (previousData) => previousData,
+  })
 
-    const {
-        data: response,
-        isLoading,
-        isError,
-        refetch
-    } = useQuery({
-        queryKey: ['publicTeachers', searchTerm],
-        queryFn: () => teachersApi.fetchPublicTeachers({
-            page: 1,
-            limit: 100,
-            search: searchTerm
-        }),
-        placeholderData: (previousData) => previousData,
+  const { data: rawCountries = [] } = useQuery({
+    queryKey: ['countries', i18n.language],
+    queryFn: () => fetchCountries({ sort: 'name' }),
+    staleTime: 1000 * 60 * 10,
+  })
+
+  const countriesList = useMemo(() => {
+    return sortCountries(rawCountries, isRtl)
+  }, [rawCountries, isRtl])
+
+  const rawTeachers = useMemo(() => {
+    return Array.isArray(teachersResponse?.data) ? teachersResponse.data : []
+  }, [teachersResponse])
+
+  const availableSubjects = useMemo(() => {
+    return extractTeacherSubjects(rawTeachers)
+  }, [rawTeachers])
+
+  const filteredTeachers = useMemo(() => {
+    return rawTeachers.filter((teacher) => {
+      if (selectedSubject) {
+        const hasSpec = Array.isArray(teacher.specializations) &&
+          teacher.specializations.some((s) => {
+            const name = typeof s === 'object' && s !== null ? s.name : s
+            return name === selectedSubject
+          })
+        const matchesSubject = teacher.subject === selectedSubject
+        if (!hasSpec && !matchesSubject) return false
+      }
+      if (selectedCountry && !matchesTeacherCountry(teacher, selectedCountry, countriesList)) {
+        return false
+      }
+      return true
     })
+  }, [rawTeachers, selectedSubject, selectedCountry, countriesList])
 
-    const rawTeachers = useMemo(() => {
-        return Array.isArray(response?.data) ? response.data : []
-    }, [response])
+  const totalPages = Math.max(1, Math.ceil(filteredTeachers.length / ITEMS_PER_PAGE))
 
-    const availableSubjects = useMemo(() => {
-        const set = new Set()
-        rawTeachers.forEach((teacher) => {
-            if (Array.isArray(teacher.specializations)) {
-                teacher.specializations.forEach((s) => {
-                    const name = typeof s === 'object' ? s.name : s
-                    if (name && typeof name === 'string' && name.trim()) set.add(name.trim())
-                })
-            }
-            if (teacher.subject && typeof teacher.subject === 'string' && teacher.subject.trim()) {
-                set.add(teacher.subject.trim())
-            }
-        })
-        return Array.from(set)
-    }, [rawTeachers])
+  const paginatedTeachers = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredTeachers.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredTeachers, currentPage])
 
-    const distinctTeacherCountries = useMemo(() => {
-        const map = new Map()
-        rawTeachers.forEach((t) => {
-            const raw = t.country || ''
-            const name = typeof raw === 'object' ? (raw.name || raw.ar || raw.en) : String(raw)
-            if (name && name.trim()) {
-                const cleanName = name.trim()
-                if (!map.has(cleanName)) {
-                    map.set(cleanName, { id: cleanName, name: cleanName, flag: extractEmoji(cleanName) })
-                }
-            }
-        })
-        return Array.from(map.values())
-    }, [rawTeachers])
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault()
+    setSearchTerm(searchInput.trim())
+    setCurrentPage(1)
+  }
 
-    const { data: countriesResponse } = useQuery({
-        queryKey: ['countries', i18n.language],
-        queryFn: () => landingApi.fetchCountries(),
-        staleTime: 1000 * 60 * 10,
-    })
+  const handleResetFilters = () => {
+    setSearchInput('')
+    setSearchTerm('')
+    setSelectedSubject('')
+    setSelectedCountry('')
+    setCurrentPage(1)
+  }
 
-    const countriesList = useMemo(() => {
-        const raw = countriesResponse?.data || countriesResponse || []
-        const list = Array.isArray(raw) ? [...raw] : []
-        distinctTeacherCountries.forEach((dc) => {
-            const exists = list.some(c => (c.name || '').includes(dc.name) || dc.name.includes(c.name || ''))
-            if (!exists) {
-                list.push(dc)
-            }
-        })
-        return sortCountries(list, isRtl)
-    }, [countriesResponse, distinctTeacherCountries, isRtl])
-
-    const filteredTeachers = useMemo(() => {
-        return rawTeachers.filter((teacher) => {
-            if (selectedSubject) {
-                const hasSpec = Array.isArray(teacher.specializations) &&
-                    teacher.specializations.some((s) => {
-                        const name = typeof s === 'object' ? s.name : s
-                        return name === selectedSubject
-                    })
-                const matchesSubject = teacher.subject === selectedSubject
-                if (!hasSpec && !matchesSubject) return false
-            }
-
-            if (selectedCountry && !matchesTeacherCountry(teacher, selectedCountry, countriesList)) {
-                return false
-            }
-
-            return true
-        })
-    }, [rawTeachers, selectedSubject, selectedCountry, countriesList])
-
-    const totalPages = Math.max(1, Math.ceil(filteredTeachers.length / itemsPerPage))
-
-    const paginatedTeachers = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage
-        return filteredTeachers.slice(start, start + itemsPerPage)
-    }, [filteredTeachers, currentPage, itemsPerPage])
-
-    const handleSearchSubmit = (e) => {
-        if (e) e.preventDefault()
-        setSearchTerm(searchInput.trim())
-        setCurrentPage(1)
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+      setCurrentPage(newPage)
+      if (gridRef.current) {
+        gridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
     }
+  }
 
-    const handleResetFilters = () => {
-        setSearchInput('')
-        setSearchTerm('')
-        setSelectedSubject('')
-        setSelectedCountry('')
-        setCurrentPage(1)
-    }
+  const hasActiveFilters = Boolean(searchTerm || selectedSubject || selectedCountry)
 
-    const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-            setCurrentPage(newPage)
-            if (gridRef.current) {
-                gridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }
-        }
-    }
+  return (
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
+      <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
+        <TeachersHero isRtl={isRtl} />
 
-    const ArrowNext = isRtl ? ChevronLeft : ChevronRight
-    const ArrowPrev = isRtl ? ChevronRight : ChevronLeft
+        <TeachersFilterBar
+          searchInput={searchInput}
+          onSearchInputChange={setSearchInput}
+          onSearchSubmit={handleSearchSubmit}
+          selectedSubject={selectedSubject}
+          onSelectSubject={(subject) => {
+            setSelectedSubject(subject)
+            setCurrentPage(1)
+          }}
+          availableSubjects={availableSubjects}
+          selectedCountry={selectedCountry}
+          onSelectCountry={(country) => {
+            setSelectedCountry(country)
+            setCurrentPage(1)
+          }}
+          countriesList={countriesList}
+          isRtl={isRtl}
+          onResetFilters={handleResetFilters}
+        />
 
-    return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
-            <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
-                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-12 lg:p-16 shadow-sm">
-                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
-                        <motion.div
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                            className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col items-center text-center lg:items-start lg:text-start"
-                        >
-                            <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] dark:bg-amber-600 px-4 py-2 text-sm font-bold text-white shadow-sm">
-                                {t('teacher.badge', 'معلمونا')}
-                            </motion.div>
-                            <motion.div variants={itemVariants} className="space-y-4">
-                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] dark:from-emerald-400 dark:to-emerald-200 bg-clip-text text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.3] text-transparent pb-2">
-                                    <span className="block">{t('teacher.titleLine1', 'نخبة من')}</span>
-                                    <span className="block text-[#735C00] dark:text-amber-400 text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pt-2">
-                                        {t('teacher.titleLine2', 'أفضل المعلمين المجازين')}
-                                    </span>
-                                </h1>
-                                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-                                    {t('teacher.titleLine3', 'تعلم على أيدي نخبة من المعلمين المعتمدين، ذوي الخبرة الطويلة في تحفيظ القرآن الكريم وتدريس علومه واللغة العربية.')}
-                                </p>
-                            </motion.div>
-                        </motion.div>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, x: isRtl ? 40 : -40 }}
-                            animate={{ opacity: 1, scale: 1, x: 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-                            className="order-1 lg:order-2 flex justify-center flex-1"
-                        >
-                            <div className="relative w-full max-w-lg">
-                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-brand-100/50 dark:bg-brand-900/20 blur-3xl mix-blend-multiply" />
-                                <motion.div
-                                    animate={{ y: [0, -15, 0] }}
-                                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white dark:border-slate-800 bg-white dark:bg-slate-800 shadow-2xl"
-                                >
-                                    <img src={imageSrc} alt="Teachers" width="512" height="320" className="w-full h-64 sm:h-72 lg:h-[320px] object-cover" />
-                                </motion.div>
-                            </div>
-                        </motion.div>
-                    </div>
-                </section>
+        <section ref={gridRef}>
+          <TeachersGrid
+            isError={isError}
+            isLoading={isLoading}
+            filteredTeachers={filteredTeachers}
+            paginatedTeachers={paginatedTeachers}
+            onRetry={refetch}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+            t={t}
+          />
+        </section>
 
-                <section className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-[32px] p-6 md:p-8 shadow-md border border-slate-100 dark:border-slate-800 w-full mx-auto transition-all duration-300">
-                    <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row items-end gap-5">
-                        <div className="flex-1 w-full space-y-2 text-start">
-                            <label htmlFor="teacher-search" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
-                                {t('teacher.searchLabel', 'ابحث عن معلم')}
-                            </label>
-                            <div className="relative flex items-center">
-                                <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
-                                    <Search className="h-5 w-5 text-slate-400" />
-                                </div>
-                                <input
-                                    id="teacher-search"
-                                    type="text"
-                                    placeholder={t('teacher.searchPlaceholder', 'الاسم، التخصص، المؤهل...')}
-                                    value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white dark:placeholder-slate-400 text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block ps-12 pe-24 p-4 transition-colors shadow-sm"
-                                />
-                                <button
-                                    type="submit"
-                                    className="absolute end-2 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
-                                >
-                                    {t('common.search', 'بحث')}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="w-full md:w-64 space-y-2 text-start">
-                            <label htmlFor="subject-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
-                                {t('teacher.subjectLabel', 'التخصص / المادة')}
-                            </label>
-                            <div className="relative">
-                                <select
-                                    id="subject-select"
-                                    value={selectedSubject}
-                                    onChange={(e) => {
-                                        setSelectedSubject(e.target.value)
-                                        setCurrentPage(1)
-                                    }}
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
-                                >
-                                    <option value="" className="dark:bg-slate-850">{t('teacher.allSubjects', 'جميع التخصصات')}</option>
-                                    {availableSubjects.map((subj) => (
-                                        <option key={subj} value={subj} className="dark:bg-slate-850">{subj}</option>
-                                    ))}
-                                </select>
-                                <BookOpen className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-                            </div>
-                        </div>
-
-                        <div className="w-full md:w-64 space-y-2 text-start">
-                            <label htmlFor="country-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
-                                {t('teacher.countryLabel', 'الدولة')}
-                            </label>
-                            <div className="relative">
-                                <select
-                                    id="country-select"
-                                    value={selectedCountry}
-                                    onChange={(e) => {
-                                        setSelectedCountry(e.target.value)
-                                        setCurrentPage(1)
-                                    }}
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
-                                >
-                                    <option value="" className="dark:bg-slate-850">{t('teacher.allCountries', 'جميع الدول')}</option>
-                                    {countriesList.map((country) => {
-                                        const cId = country.id || country._id
-                                        return (
-                                            <option key={cId} value={cId} className="dark:bg-slate-850">
-                                                {country.flag ? `${country.flag} ` : ''}{getCountryName(country, isRtl)}
-                                            </option>
-                                        )
-                                    })}
-                                </select>
-                                <Award className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-                            </div>
-                        </div>
-
-                        <button
-                            type="button"
-                            onClick={handleResetFilters}
-                            className="w-full bg-[#735C00] dark:bg-amber-600 md:w-48 hover:bg-[#5c4a00] dark:hover:bg-amber-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 ease-out flex items-center justify-center gap-2 shadow-md hover:shadow-lg h-[58px] text-base active:scale-95 cursor-pointer"
-                        >
-                            {t('teacher.clearFilter', 'مسح التصفية')}
-                            <Filter className="h-5 w-5" />
-                        </button>
-                    </form>
-                </section>
-
-                <section ref={gridRef}>
-                    {isError ? (
-                        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-[32px] border border-red-100 dark:border-red-900/40 shadow-sm p-8 space-y-4">
-                            <div className="inline-flex p-3 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
-                                <AlertCircle className="w-8 h-8" />
-                            </div>
-                            <p className="text-red-600 dark:text-red-400 font-bold text-lg">
-                                {t('common.errorLoading', 'حدث خطأ أثناء تحميل بيانات المعلمين')}
-                            </p>
-                            <button
-                                onClick={() => refetch()}
-                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold rounded-xl transition-all cursor-pointer"
-                            >
-                                <RefreshCw className="w-4 h-4" />
-                                <span>{t('common.retry', 'إعادة المحاولة')}</span>
-                            </button>
-                        </div>
-                    ) : isLoading && filteredTeachers.length === 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
-                            {Array.from({ length: 8 }).map((_, idx) => (
-                                <TeacherSkeleton key={idx} />
-                            ))}
-                        </div>
-                    ) : filteredTeachers.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
-                            <AnimatePresence mode="popLayout">
-                                {paginatedTeachers.map((teacher, idx) => (
-                                    <TeacherCard
-                                        key={teacher.teacher_id || teacher.id || idx}
-                                        teacher={teacher}
-                                        t={t}
-                                        index={idx}
-                                    />
-                                ))}
-                            </AnimatePresence>
-                        </div>
-                    ) : (
-                        <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
-                            <p className="text-[#00695C] dark:text-emerald-400 font-bold text-xl">
-                                {t('teacher.noResults', 'لا يوجد معلمين يطابقون بحثك.')}
-                            </p>
-                            {(searchTerm || selectedSubject || selectedCountry) && (
-                                <button
-                                    onClick={handleResetFilters}
-                                    className="text-sm font-bold text-[#8B6B15] dark:text-amber-400 underline hover:text-[#5c4a00] dark:hover:text-amber-300 cursor-pointer"
-                                >
-                                    {t('teacher.clearFilter', 'مسح التصفية')}
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </section>
-
-                {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2 pt-8">
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center active:scale-95 shadow-sm cursor-pointer"
-                            aria-label={t('teacher.previous', 'السابق')}
-                        >
-                            <ArrowPrev className="w-5 h-5" />
-                        </button>
-
-                        <div className="flex gap-1">
-                            {Array.from({ length: totalPages }).map((_, i) => {
-                                const pageNum = i + 1
-                                return (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => handlePageChange(pageNum)}
-                                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95 hover:shadow-sm cursor-pointer ${
-                                            currentPage === pageNum
-                                                ? 'bg-[#00695C] dark:bg-emerald-600 text-white shadow-md'
-                                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                                        }`}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                )
-                            })}
-                        </div>
-
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center active:scale-95 shadow-sm cursor-pointer"
-                            aria-label={t('teacher.next', 'التالي')}
-                        >
-                            <ArrowNext className="w-5 h-5" />
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    )
+        <TeachersPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isRtl={isRtl}
+          t={t}
+        />
+      </div>
+    </div>
+  )
 }

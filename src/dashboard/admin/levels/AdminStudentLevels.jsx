@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
@@ -16,26 +16,22 @@ export default function AdminStudentLevels() {
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
 
-  const [levels, setLevels] = useState([])
-
   const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
     queryKey: ['student-levels', i18n.language],
     queryFn: () => adminLevelsApi.fetchLevels(),
     staleTime: 5 * 60 * 1000,
   })
 
-  useEffect(() => {
+  const levels = useMemo(() => {
     const rawData = levelsData?.data || (Array.isArray(levelsData) ? levelsData : [])
-    if (rawData) {
-      const fetchedLevels = rawData.map((item) => ({
-        id: item.id || item._id,
-        name: typeof item.name === 'object' ? (item.name.ar || item.name.en || '') : item.name,
-        nameEn: typeof item.name === 'object' ? (item.name.en || item.name.ar || '') : (item.nameEn || item.name || ''),
-        createdAt: item.createdAt,
-      }))
-      setLevels(fetchedLevels)
-    }
-  }, [levelsData, i18n.language])
+    if (!rawData) return []
+    return rawData.map((item) => ({
+      id: item.id || item._id,
+      name: typeof item.name === 'object' ? (item.name.ar || item.name.en || '') : item.name,
+      nameEn: typeof item.name === 'object' ? (item.name.en || item.name.ar || '') : (item.nameEn || item.name || ''),
+      createdAt: item.createdAt,
+    }))
+  }, [levelsData])
 
   const [showForm, setShowForm] = useState(false)
   const [editingLevelId, setEditingLevelId] = useState(null)

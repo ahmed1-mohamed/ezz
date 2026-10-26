@@ -1,6 +1,14 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { ChevronDown, Search, X, Check, GraduationCap } from 'lucide-react'
 
+function getTeacherName(t, isRtl = true) {
+  if (!t) return ''
+  if (typeof t.name === 'object' && t.name !== null) {
+    return isRtl ? (t.name.ar || t.name.en) : (t.name.en || t.name.ar)
+  }
+  return t.name || ''
+}
+
 export default function TeacherSelect({
   teachers = [],
   selectedTeacher = null,
@@ -15,19 +23,11 @@ export default function TeacherSelect({
   const containerRef = useRef(null)
   const searchInputRef = useRef(null)
 
-  const getTeacherName = (t) => {
-    if (!t) return ''
-    if (typeof t.name === 'object' && t.name !== null) {
-      return isRtl ? (t.name.ar || t.name.en) : (t.name.en || t.name.ar)
-    }
-    return t.name || ''
-  }
-
   const filteredTeachers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     if (!q) return teachers
     return teachers.filter((t) => {
-      const name = getTeacherName(t).toLowerCase()
+      const name = getTeacherName(t, isRtl).toLowerCase()
       const nameEn = (t.nameEn || '').toLowerCase()
       const email = (t.email || '').toLowerCase()
       const phone = (t.phone || '').toLowerCase()
@@ -60,7 +60,7 @@ export default function TeacherSelect({
     }
   }, [isOpen])
 
-  const selectedName = selectedTeacher ? getTeacherName(selectedTeacher) : ''
+  const selectedName = selectedTeacher ? getTeacherName(selectedTeacher, isRtl) : ''
 
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>

@@ -27,7 +27,7 @@ function cloneResponse(res) {
     } else if (res.data !== undefined) {
       clonedData = JSON.parse(JSON.stringify(res.data));
     }
-  } catch (_) {
+  } catch {
     clonedData = res.data;
   }
   return {

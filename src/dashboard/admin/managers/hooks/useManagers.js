@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { managersApi } from '@/shared/services/api/managersApi';
 import { landingApi } from '@/shared/services/api/landingApi';
@@ -10,10 +10,12 @@ export function useManagers() {
   const [committedSearch, setCommittedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [needsExtraData, setNeedsExtraData] = useState(false);
+  const [prevFilterKey, setPrevFilterKey] = useState({ statusFilter, committedSearch });
 
-  useEffect(() => {
+  if (prevFilterKey.statusFilter !== statusFilter || prevFilterKey.committedSearch !== committedSearch) {
+    setPrevFilterKey({ statusFilter, committedSearch });
     setCurrentPage(1);
-  }, [statusFilter, committedSearch]);
+  }
 
   const commitSearch = () => {
     setCommittedSearch(searchVal);

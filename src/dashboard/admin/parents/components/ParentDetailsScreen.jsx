@@ -93,7 +93,7 @@ export default function ParentDetailsScreen({
       }
     };
     fetchCountries();
-  }, [parent]);
+  }, [parent, isRtl]);
 
   const [formData, setFormData] = useState({
     name: parent.name || '',

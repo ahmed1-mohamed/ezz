@@ -4,16 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { BookMarked, Plus, X, Search } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import { createPortal } from 'react-dom'
 
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
-import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi'
-import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
-
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import CurriculumCard from './components/CurriculumCard'
-import CurriculumForm from './components/CurriculumForm'
+import AddEditCurriculumScreen from './components/add_edit/AddEditCurriculumScreen'
 
 export default function AdminCurriculums() {
   const { i18n } = useTranslation()
@@ -31,19 +27,7 @@ export default function AdminCurriculums() {
     queryFn: () => adminCurriculaApi.fetchCurricula({ search: appliedSearch || undefined }),
   })
 
-  const { data: languagesResponse } = useQuery({
-    queryKey: ['admin-explanation-languages'],
-    queryFn: () => explanationLanguagesApi.fetchLanguages(),
-  })
-
-  const { data: levelsResponse } = useQuery({
-    queryKey: ['admin-levels'],
-    queryFn: () => adminLevelsApi.fetchLevels(),
-  })
-
   const curricula = curriculaResponse?.data || []
-  const languages = languagesResponse?.data || []
-  const levels = levelsResponse?.data || []
 
   const createMutation = useMutation({
     mutationFn: adminCurriculaApi.createCurriculum,
@@ -153,6 +137,21 @@ export default function AdminCurriculums() {
     );
   });
 
+  if (showForm) {
+    return (
+      <AddEditCurriculumScreen
+        curriculum={editingItem}
+        isRtl={isRtl}
+        isSaving={createMutation.isPending || updateMutation.isPending}
+        onSave={handleSave}
+        onCancel={() => {
+          setShowForm(false)
+          setEditingItem(null)
+        }}
+      />
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -248,41 +247,6 @@ export default function AdminCurriculums() {
           </div>
         )}
       </div>
-
-      {showForm && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl my-8 relative flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between shrink-0 text-start">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                {editingItem
-                  ? (isRtl ? 'تعديل بيانات المنهج' : 'Edit Curriculum')
-                  : (isRtl ? 'إضافة منهج دراسي جديد' : 'Add New Curriculum')}
-              </h2>
-              <button
-                onClick={() => { setShowForm(false); setEditingItem(null); }}
-                className="p-2 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-300 transition-colors shrink-0"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="p-6 overflow-y-auto">
-              <CurriculumForm
-                onSave={handleSave}
-                onCancel={() => {
-                  setShowForm(false)
-                  setEditingItem(null)
-                }}
-                editingItem={editingItem}
-                isSaving={createMutation.isPending || updateMutation.isPending}
-                languages={languages}
-                levels={levels}
-              />
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </div>
   )
 }

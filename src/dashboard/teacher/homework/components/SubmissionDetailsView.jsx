@@ -32,16 +32,18 @@ export default function SubmissionDetailsView({
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
 
-  const submissionId = submission?.id;
+  const submissionId = submission?.id || submission?._id;
+  const isMongoId = Boolean(submissionId && /^[0-9a-fA-F]{24}$/.test(String(submissionId)));
 
-  const { data: detailsRes, isLoading } = useQuery({
+  const { data: detailsRes } = useQuery({
     queryKey: ['teacher-submission-details', submissionId],
     queryFn: () => teacherHomeworkApi.fetchSubmissionDetails(submissionId),
-    enabled: Boolean(submissionId),
+    enabled: isMongoId,
     staleTime: 60 * 1000,
+    retry: false,
   });
 
-  const liveData = detailsRes?.data || submission || {};
+  const liveData = useMemo(() => detailsRes?.data || submission || {}, [detailsRes?.data, submission]);
 
   const studentName =
     typeof liveData.student === 'object'
@@ -243,7 +245,7 @@ export default function SubmissionDetailsView({
   const StatusIcon = statusBadge.icon;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16" dir="rtl">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">

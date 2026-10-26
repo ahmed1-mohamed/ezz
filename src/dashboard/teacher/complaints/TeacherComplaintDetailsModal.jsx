@@ -52,7 +52,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
     item.type === 'reschedule' ||
     item.type === 'postpone';
   const isSuggestion = item.type === 'suggestion';
-  const isComplaint = item.type === 'complaint';
 
   const getTypeMeta = () => {
     if (isReschedule) {

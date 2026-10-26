@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/shared/context/useAuth.jsx';
 import {
   Gift,
   Award,
@@ -17,8 +16,6 @@ export default function TeacherRewards() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const teacherInitial = (user?.name || user?.username || 'م').replace(/^أ\.\s*/, '').trim().charAt(0) || 'م';
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tabFromUrl = searchParams.get('tab');

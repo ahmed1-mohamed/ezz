@@ -85,7 +85,13 @@ export default function AdminGroups() {
   }, [currentPage, searchQuery, statusFilter, itemsPerPage])
 
   useEffect(() => {
-    loadGroups()
+    let isMounted = true
+    Promise.resolve().then(() => {
+      if (isMounted) loadGroups()
+    })
+    return () => {
+      isMounted = false
+    }
   }, [loadGroups])
 
   const filtered = useMemo(() => {

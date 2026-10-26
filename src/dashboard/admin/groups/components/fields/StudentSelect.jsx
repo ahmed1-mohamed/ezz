@@ -29,20 +29,25 @@ export default function StudentSelect({
     return currentPool.filter((s) => !excludedSet.has(String(s.id || s._id)))
   }, [currentPool, excludedSet])
 
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
+  if (prevSearchQuery !== searchQuery) {
+    setPrevSearchQuery(searchQuery)
+    if (!searchQuery.trim()) {
+      setBackendStudents(null)
+      setIsSearching(false)
+    }
+  }
+
   useEffect(() => {
     if (!isOpen) return
 
     const trimmed = searchQuery.trim()
-    if (!trimmed) {
-      setBackendStudents(null)
-      setIsSearching(false)
-      return
-    }
+    if (!trimmed) return
 
     let active = true
-    setIsSearching(true)
 
     const timer = setTimeout(async () => {
+      setIsSearching(true)
       try {
         const res = await studentsApi.fetchStudents({ search: trimmed, limit: 50 })
         if (!active) return

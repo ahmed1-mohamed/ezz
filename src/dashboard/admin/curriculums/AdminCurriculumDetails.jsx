@@ -1,108 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  ArrowRight,
-  ArrowLeft,
-  Plus,
-  ChevronDown,
-  Pencil,
-  Trash2,
-  FileText,
-  Image as ImageIcon,
-  Video as VideoIcon,
-  Archive as ZipIcon,
-  Music as AudioIcon,
-  File as FileIcon,
-  Download,
-  Eye,
-  Globe,
-  Link as LinkIcon,
-  ExternalLink
-} from 'lucide-react'
 import { toast } from 'react-hot-toast'
-
 import axios from 'axios'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
-import BasicModal from './components/BasicModal'
-import FileModal from './components/FileModal'
-
-const buildFullFileUrl = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-  const baseUrl = 'https://manaret-ezz.dramcode.top/'
-  return `${baseUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-}
-
-const getFileMeta = (file, isRtl = false) => {
-  const rawType = (typeof file === 'object' && file?.type ? String(file.type).toLowerCase().trim() : '')
-  const fileUrl = typeof file === 'string'
-    ? file
-    : (file?.url || file?.file || file?.link || file?.path || file?.src || file?.fileUrl || '')
-
-  const cleanPath = (fileUrl.split('?')[0].split('#')[0] || '').trim()
-  const ext = (cleanPath.split('.').pop() || '').toLowerCase()
-
-  const isExplicitLink = rawType === 'link' || rawType === 'url'
-  const isExplicitFile = rawType === 'file' || rawType === 'document' || rawType === 'pdf' || rawType === 'image' || rawType === 'video' || rawType === 'audio'
-
-  const isPdf = ext === 'pdf'
-  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)
-  const isVideo = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'wmv', 'flv', 'm4v'].includes(ext)
-  const isArchive = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)
-  const isAudio = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)
-  const isDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'csv'].includes(ext)
-  const hasKnownFileExt = isPdf || isImage || isVideo || isArchive || isAudio || isDoc
-
-  let isLink = false
-  if (isExplicitLink) {
-    isLink = true
-  } else if (isExplicitFile || hasKnownFileExt) {
-    isLink = false
-  } else if (Boolean(file?.link) && !file?.file && !file?.url) {
-    isLink = true
-  } else if (typeof file === 'string' && file.startsWith('http') && !file.includes('manaret-ezz.dramcode.top') && !hasKnownFileExt) {
-    isLink = true
-  }
-
-  if (isLink) {
-    const fullUrl = fileUrl ? (fileUrl.startsWith('http://') || fileUrl.startsWith('https://') ? fileUrl : `https://${fileUrl}`) : ''
-    return {
-      icon: LinkIcon,
-      color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30',
-      type: isRtl ? 'رابط خارجي' : 'Link',
-      isLink: true,
-      fullUrl
-    }
-  }
-
-  const fullUrl = buildFullFileUrl(fileUrl)
-
-  if (isPdf) {
-    return { icon: FileText, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/30', type: isRtl ? 'ملف PDF' : 'PDF', isLink: false, isImage: false, fullUrl }
-  }
-  if (isImage) {
-    return { icon: ImageIcon, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30', type: isRtl ? 'صورة' : 'Image', isLink: false, isImage: true, fullUrl }
-  }
-  if (isVideo) {
-    return { icon: VideoIcon, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/30', type: isRtl ? 'فيديو' : 'Video', isLink: false, isImage: false, fullUrl }
-  }
-  if (isArchive) {
-    return { icon: ZipIcon, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30', type: isRtl ? 'ملف مضغوط' : 'Archive', isLink: false, isImage: false, fullUrl }
-  }
-  if (isAudio) {
-    return { icon: AudioIcon, color: 'text-pink-500 bg-pink-50 dark:bg-pink-950/30', type: isRtl ? 'ملف صوتي' : 'Audio', isLink: false, fullUrl }
-  }
-  if (isDoc) {
-    return { icon: FileText, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: isRtl ? 'مستند' : 'Document', isLink: false, fullUrl }
-  }
-
-  return { icon: FileIcon, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: isRtl ? 'ملف' : 'File', isLink: false, fullUrl }
-}
+import { getCleanId } from './utils/curriculumDetailsUtils.js'
+import CurriculumDetailsHeader from './components/CurriculumDetailsHeader.jsx'
+import CurriculumOverviewCard from './components/CurriculumOverviewCard.jsx'
+import CurriculumLevelsSection from './components/CurriculumLevelsSection.jsx'
+import AddEditCurriculumScreen from './components/add_edit/AddEditCurriculumScreen.jsx'
+import BasicModal from './components/BasicModal.jsx'
+import FileModal from './components/FileModal.jsx'
 
 export default function AdminCurriculumDetails() {
   const { id } = useParams()
@@ -110,6 +21,9 @@ export default function AdminCurriculumDetails() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
+
+  const [isEditingCurriculum, setIsEditingCurriculum] = useState(false)
+  const [isUpdatingCurriculum, setIsUpdatingCurriculum] = useState(false)
 
   const [expandedLevels, setExpandedLevels] = useState({})
   const [expandedUnits, setExpandedUnits] = useState({})
@@ -121,10 +35,10 @@ export default function AdminCurriculumDetails() {
     queryKey: ['admin-curriculum-details', id],
     queryFn: async () => {
       try {
-        return await adminCurriculaApi.fetchCurriculumByIdRaw(id);
+        return await adminCurriculaApi.fetchCurriculumByIdRaw(id)
       } catch (err) {
-        console.warn('fetchCurriculumByIdRaw failed, falling back to fetchCurriculumById:', err);
-        return await adminCurriculaApi.fetchCurriculumById(id);
+        console.warn('fetchCurriculumByIdRaw failed, falling back to fetchCurriculumById:', err)
+        return await adminCurriculaApi.fetchCurriculumById(id)
       }
     },
   })
@@ -138,11 +52,11 @@ export default function AdminCurriculumDetails() {
 
   const showOnWebsite = localVisibility !== null ? localVisibility : Boolean(curriculum?.showOnWebsite)
 
-  useEffect(() => {
-    if (curriculum?.showOnWebsite !== undefined) {
-      setLocalVisibility(null)
-    }
-  }, [curriculum?.showOnWebsite])
+  const [prevShowOnWebsite, setPrevShowOnWebsite] = useState(curriculum?.showOnWebsite)
+  if (prevShowOnWebsite !== curriculum?.showOnWebsite) {
+    setPrevShowOnWebsite(curriculum?.showOnWebsite)
+    setLocalVisibility(null)
+  }
 
   const handleToggleWebsiteVisibility = async () => {
     if (isUpdatingVisibility || !id) return
@@ -155,8 +69,12 @@ export default function AdminCurriculumDetails() {
       })
       toast.success(
         isRtl
-          ? (newValue ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح' : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح')
-          : (newValue ? 'Curriculum is now visible on website' : 'Curriculum is now hidden from website')
+          ? newValue
+            ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح'
+            : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح'
+          : newValue
+          ? 'Curriculum is now visible on website'
+          : 'Curriculum is now hidden from website'
       )
       queryClient.setQueryData(['admin-curriculum-details', id], (old) => {
         if (!old) return old
@@ -167,30 +85,10 @@ export default function AdminCurriculumDetails() {
       })
       invalidate()
     } catch (err) {
-      console.warn('JSON patch failed, retrying with FormData:', err)
-      try {
-        const fd = new FormData()
-        fd.append('showOnWebsite', String(newValue))
-        await adminCurriculaApi.updateCurriculum(id, fd)
-        toast.success(
-          isRtl
-            ? (newValue ? 'تم إظهار المنهج على الموقع الإلكتروني بنجاح' : 'تم إخفاء المنهج من الموقع الإلكتروني بنجاح')
-            : (newValue ? 'Curriculum is now visible on website' : 'Curriculum is now hidden from website')
-        )
-        queryClient.setQueryData(['admin-curriculum-details', id], (old) => {
-          if (!old) return old
-          if (old.data) {
-            return { ...old, data: { ...old.data, showOnWebsite: newValue } }
-          }
-          return { ...old, showOnWebsite: newValue }
-        })
-        invalidate()
-      } catch (fallbackErr) {
-        setLocalVisibility(null)
-        console.error('Failed to toggle curriculum visibility:', fallbackErr)
-        const errMsg = fallbackErr.response?.data?.message || err.response?.data?.message
-        toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء تغيير حالة الظهور' : 'Failed to update visibility'))
-      }
+      setLocalVisibility(null)
+      console.error('Failed to toggle curriculum visibility:', err)
+      const errMsg = err.response?.data?.message
+      toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء تغيير حالة الظهور' : 'Failed to update visibility'))
     } finally {
       setIsUpdatingVisibility(false)
     }
@@ -199,68 +97,36 @@ export default function AdminCurriculumDetails() {
   const actionMutation = useMutation({
     mutationFn: async ({ action, payload, ids }) => {
       switch (action) {
-        case 'addLevel': return adminCurriculaApi.addLevel(id, payload);
-        case 'updateLevel': return adminCurriculaApi.updateLevel(id, ids.levelId, payload);
-        case 'deleteLevel': return adminCurriculaApi.deleteLevel(id, ids.levelId);
-        case 'addUnit': return adminCurriculaApi.addUnit(id, ids.levelId, payload);
-        case 'updateUnit': return adminCurriculaApi.updateUnit(id, ids.levelId, ids.unitId, payload);
-        case 'deleteUnit': return adminCurriculaApi.deleteUnit(id, ids.levelId, ids.unitId);
-        case 'addFile': return adminCurriculaApi.addFile(id, ids.levelId, ids.unitId, payload);
-        case 'deleteFile': return adminCurriculaApi.deleteFile(id, ids.levelId, ids.unitId, ids.fileId);
-        default: throw new Error('Unknown action');
+        case 'addLevel': return adminCurriculaApi.addLevel(id, payload)
+        case 'updateLevel': return adminCurriculaApi.updateLevel(id, ids.levelId, payload)
+        case 'deleteLevel': return adminCurriculaApi.deleteLevel(id, ids.levelId)
+        case 'addUnit': return adminCurriculaApi.addUnit(id, ids.levelId, payload)
+        case 'updateUnit': return adminCurriculaApi.updateUnit(id, ids.levelId, ids.unitId, payload)
+        case 'deleteUnit': return adminCurriculaApi.deleteUnit(id, ids.levelId, ids.unitId)
+        case 'addFile': return adminCurriculaApi.addFile(id, ids.levelId, ids.unitId, payload)
+        case 'deleteFile': return adminCurriculaApi.deleteFile(id, ids.levelId, ids.unitId, ids.fileId)
+        default: throw new Error('Unknown action')
       }
     },
     onSuccess: () => {
-      invalidate();
-      closeModal();
-      toast.success(isRtl ? 'تمت العملية بنجاح' : 'Operation successful');
+      invalidate()
+      closeModal()
+      toast.success(isRtl ? 'تمت العملية بنجاح' : 'Operation successful')
     },
     onError: (err) => {
-      console.error(err);
-      const errMsg = err.response?.data?.message || err.message;
-      toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء العملية' : 'Operation failed'));
-    }
+      console.error(err)
+      const errMsg = err.response?.data?.message || err.message
+      toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء العملية' : 'Operation failed'))
+    },
   })
 
-  const toggleLevel = (levelId) => setExpandedLevels(prev => ({ ...prev, [levelId]: !prev[levelId] }))
-  const toggleUnit = (unitId) => setExpandedUnits(prev => ({ ...prev, [unitId]: !prev[unitId] }))
+  const toggleLevel = (levelId) => setExpandedLevels((prev) => ({ ...prev, [levelId]: !prev[levelId] }))
+  const toggleUnit = (unitId) => setExpandedUnits((prev) => ({ ...prev, [unitId]: !prev[unitId] }))
 
   const closeModal = () => {
     setModalConfig({ isOpen: false, type: null, parentId: null, editingItem: null })
     setFileModalConfig({ isOpen: false, levelId: null, unitId: null })
   }
-
-  const getCleanId = (item) => {
-    if (!item) return '';
-    if (typeof item === 'string') return item.trim();
-    if (typeof item === 'object') {
-      const keys = ['_id', 'id', 'unitId', 'unit_id', 'levelId', 'level_id', 'fileId', 'file_id', '$oid', 'uuid', 'key'];
-      for (const k of keys) {
-        if (item[k]) {
-          if (typeof item[k] === 'string') return item[k].trim();
-          if (typeof item[k] === 'object' && (item[k]._id || item[k].id || item[k].$oid)) {
-            return (item[k]._id || item[k].id || item[k].$oid).toString().trim();
-          }
-        }
-      }
-      const subObjects = [item.level, item.unit, item.file];
-      for (const sub of subObjects) {
-        if (sub) {
-          if (typeof sub === 'string') return sub.trim();
-          if (typeof sub === 'object') {
-            const subId = sub._id || sub.id || sub.unitId || sub.levelId || sub.fileId;
-            if (subId) return subId.toString().trim();
-          }
-        }
-      }
-      for (const val of Object.values(item)) {
-        if (typeof val === 'string' && /^[0-9a-fA-F]{24}$/.test(val.trim())) {
-          return val.trim();
-        }
-      }
-    }
-    return '';
-  };
 
   const handleBasicSubmit = (payload) => {
     const { type, parentId, editingItem } = modalConfig
@@ -269,8 +135,8 @@ export default function AdminCurriculumDetails() {
       else actionMutation.mutate({ action: 'addLevel', payload })
     } else if (type === 'unit') {
       if (!parentId) {
-        toast.error(isRtl ? 'معرّف المستوى مفقود' : 'Level ID is missing');
-        return;
+        toast.error(isRtl ? 'معرّف المستوى مفقود' : 'Level ID is missing')
+        return
       }
       if (editingItem) actionMutation.mutate({ action: 'updateUnit', ids: { levelId: getCleanId(parentId), unitId: getCleanId(editingItem) }, payload })
       else actionMutation.mutate({ action: 'addUnit', ids: { levelId: getCleanId(parentId) }, payload })
@@ -278,45 +144,45 @@ export default function AdminCurriculumDetails() {
   }
 
   const handleFileSubmit = (formData) => {
-    const lId = getCleanId(fileModalConfig.levelId);
-    const uId = getCleanId(fileModalConfig.unitId);
+    const lId = getCleanId(fileModalConfig.levelId)
+    const uId = getCleanId(fileModalConfig.unitId)
 
     if (!lId) {
-      toast.error(isRtl ? 'معرّف المستوى غير صالح أو مفقود' : 'Invalid level ID');
-      return;
+      toast.error(isRtl ? 'معرّف المستوى غير صالح أو مفقود' : 'Invalid level ID')
+      return
     }
     if (!uId) {
-      toast.error(isRtl ? 'معرّف الوحدة غير صالح أو مفقود' : 'Invalid unit ID');
-      return;
+      toast.error(isRtl ? 'معرّف الوحدة غير صالح أو مفقود' : 'Invalid unit ID')
+      return
     }
 
-    actionMutation.mutate({ action: 'addFile', ids: { levelId: lId, unitId: uId }, payload: formData });
+    actionMutation.mutate({ action: 'addFile', ids: { levelId: lId, unitId: uId }, payload: formData })
   }
 
   const handleDelete = async (type, item, ids = {}) => {
-    const itemName = typeof item?.name === 'object' ? (isRtl ? item.name?.ar : item.name?.en) : (typeof item === 'string' ? item : item?.name || '');
-    const isConfirmed = await showDeleteConfirm(isRtl, itemName);
-    if (!isConfirmed) return;
+    const itemName = typeof item?.name === 'object' ? (isRtl ? item.name?.ar : item.name?.en) : (typeof item === 'string' ? item : item?.name || '')
+    const isConfirmed = await showDeleteConfirm(isRtl, itemName)
+    if (!isConfirmed) return
 
-    const itemId = getCleanId(item);
+    const itemId = getCleanId(item)
 
     if (type === 'level') {
       if (!itemId) {
-        toast.error(isRtl ? 'معرّف المستوى غير صالح أو مفقود' : 'Invalid level ID');
-        return;
+        toast.error(isRtl ? 'معرّف المستوى غير صالح أو مفقود' : 'Invalid level ID')
+        return
       }
-      actionMutation.mutate({ action: 'deleteLevel', ids: { levelId: itemId } });
+      actionMutation.mutate({ action: 'deleteLevel', ids: { levelId: itemId } })
     } else if (type === 'unit') {
-      const parentLId = getCleanId(ids.levelId);
+      const parentLId = getCleanId(ids.levelId)
       if (!itemId) {
-        toast.error(isRtl ? 'معرّف الوحدة غير صالح أو مفقود' : 'Invalid unit ID');
-        return;
+        toast.error(isRtl ? 'معرّف الوحدة غير صالح أو مفقود' : 'Invalid unit ID')
+        return
       }
-      actionMutation.mutate({ action: 'deleteUnit', ids: { levelId: parentLId, unitId: itemId } });
+      actionMutation.mutate({ action: 'deleteUnit', ids: { levelId: parentLId, unitId: itemId } })
     } else if (type === 'file') {
-      const parentLId = getCleanId(ids.levelId);
-      const parentUId = getCleanId(ids.unitId);
-      actionMutation.mutate({ action: 'deleteFile', ids: { levelId: parentLId, unitId: parentUId, fileId: itemId } });
+      const parentLId = getCleanId(ids.levelId)
+      const parentUId = getCleanId(ids.unitId)
+      actionMutation.mutate({ action: 'deleteFile', ids: { levelId: parentLId, unitId: parentUId, fileId: itemId } })
     }
   }
 
@@ -330,49 +196,49 @@ export default function AdminCurriculumDetails() {
 
   const handleDownloadFile = async (fullUrl, fileName, isLink = false) => {
     if (!fullUrl) {
-      toast.error(isRtl ? 'رابط الملف غير متاح' : 'File URL unavailable');
-      return;
+      toast.error(isRtl ? 'رابط الملف غير متاح' : 'File URL unavailable')
+      return
     }
 
     if (isLink || (!fullUrl.includes('.') && fullUrl.startsWith('http'))) {
-      window.open(fullUrl, '_blank', 'noopener,noreferrer');
-      return;
+      window.open(fullUrl, '_blank', 'noopener,noreferrer')
+      return
     }
 
-    const toastId = toast.loading(isRtl ? 'جاري تحميل الملف...' : 'Downloading file...');
+    const toastId = toast.loading(isRtl ? 'جاري تحميل الملف...' : 'Downloading file...')
 
     try {
-      const response = await axios.get(fullUrl, { responseType: 'blob' });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
-      const blobUrl = window.URL.createObjectURL(blob);
+      const response = await axios.get(fullUrl, { responseType: 'blob' })
+      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' })
+      const blobUrl = window.URL.createObjectURL(blob)
 
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      const fallbackName = fullUrl.split('/').pop() || 'download';
+      const link = document.createElement('a')
+      link.href = blobUrl
+      const fallbackName = fullUrl.split('/').pop() || 'download'
       const cleanFileName = fileName
         ? (fileName.includes('.') ? fileName : `${fileName}.${fallbackName.split('.').pop() || 'file'}`)
-        : fallbackName;
-      link.download = cleanFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        : fallbackName
+      link.download = cleanFileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
 
       setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-      }, 1000);
+        window.URL.revokeObjectURL(blobUrl)
+      }, 1000)
 
-      toast.success(isRtl ? 'تم تحفيظ الملف على جهازك بنجاح' : 'File saved to your PC successfully', { id: toastId });
+      toast.success(isRtl ? 'تم تحفيظ الملف على جهازك بنجاح' : 'File saved to your PC successfully', { id: toastId })
     } catch (err) {
-      console.warn('Axios blob fetch failed, falling back to direct link download', err);
-      toast.dismiss(toastId);
-      const a = document.createElement('a');
-      a.href = fullUrl;
-      a.download = fileName || 'download';
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      console.warn('Axios blob fetch failed, falling back to direct link download', err)
+      toast.dismiss(toastId)
+      const a = document.createElement('a')
+      a.href = fullUrl
+      a.download = fileName || 'download'
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     }
   }
 
@@ -392,415 +258,98 @@ export default function AdminCurriculumDetails() {
     )
   }
 
-  const curriculumName = typeof curriculum.name === 'object' ? (isRtl ? curriculum.name?.ar : curriculum.name?.en) || curriculum.name?.ar : curriculum.name;
-  const levels = curriculum.levels || [];
+  const curriculumName =
+    typeof curriculum.name === 'object'
+      ? (isRtl ? curriculum.name?.ar : curriculum.name?.en) || curriculum.name?.ar
+      : curriculum.name
+  const levels = curriculum.levels || []
+
+  const totalLevels = levels.length
+  const totalUnits = levels.reduce((acc, lvl) => acc + (Array.isArray(lvl.units) ? lvl.units.length : 0), 0)
+  const totalFiles = levels.reduce((acc, lvl) => {
+    if (!Array.isArray(lvl.units)) return acc
+    return acc + lvl.units.reduce((uAcc, unit) => uAcc + (Array.isArray(unit.files) ? unit.files.length : 0), 0)
+  }, 0)
+
+  const handleSaveCurriculum = async (payload) => {
+    try {
+      setIsUpdatingCurriculum(true)
+      await adminCurriculaApi.updateCurriculum(id, payload)
+      toast.success(isRtl ? 'تم تحديث المنهج بنجاح!' : 'Curriculum updated successfully!')
+      queryClient.invalidateQueries({ queryKey: ['admin-curriculum-details', id] })
+      queryClient.invalidateQueries({ queryKey: ['admin-curricula'] })
+      setIsEditingCurriculum(false)
+    } catch (err) {
+      console.error('Failed to update curriculum from details:', err)
+      const errMsg = err.response?.data?.message || err.response?.data?.error || (isRtl ? 'حدث خطأ أثناء تحديث المنهج' : 'Failed to update curriculum')
+      toast.error(Array.isArray(errMsg) ? errMsg.join(', ') : errMsg)
+    } finally {
+      setIsUpdatingCurriculum(false)
+    }
+  }
+
+  if (isEditingCurriculum) {
+    return (
+      <AddEditCurriculumScreen
+        curriculum={curriculum}
+        isRtl={isRtl}
+        isSaving={isUpdatingCurriculum}
+        onSave={handleSaveCurriculum}
+        onCancel={() => setIsEditingCurriculum(false)}
+      />
+    )
+  }
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-6 md:p-8 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#0f7a6c]/5 to-transparent pointer-events-none" />
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#0f7a6c]/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 animate-fadeIn pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Top Header Navigation Bar */}
+      <CurriculumDetailsHeader
+        curriculumName={curriculumName}
+        showOnWebsite={showOnWebsite}
+        isUpdatingVisibility={isUpdatingVisibility}
+        onToggleWebsiteVisibility={handleToggleWebsiteVisibility}
+        onAddLevel={() => setModalConfig({ isOpen: true, type: 'level' })}
+        onEditCurriculum={() => setIsEditingCurriculum(true)}
+        onBack={() => navigate('/dashboard/admin/curriculums')}
+        isRtl={isRtl}
+      />
 
-        <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
-          <div className="flex flex-col items-center gap-4 shrink-0">
-            <button
-              onClick={() => navigate('/dashboard/admin/curriculums')}
-              className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:text-[#0f7a6c] transition-colors shadow-sm mb-2 md:self-start cursor-pointer"
-            >
-              {isRtl ? <ArrowRight size={20} /> : <ArrowLeft size={20} />}
-            </button>
-            {curriculum.image && curriculum.image.trim() !== '' ? (
-              <img src={curriculum.image} alt={curriculumName} className="w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-md border-4 border-white dark:border-slate-800" />
-            ) : (
-              <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-[#0f7a6c]/10 text-[#0f7a6c] flex items-center justify-center text-4xl font-bold border-4 border-white dark:border-slate-800 shadow-sm">
-                {curriculumName?.charAt(0)}
-              </div>
-            )}
-          </div>
+      {/* Curriculum Hero Overview Card */}
+      <CurriculumOverviewCard
+        curriculum={curriculum}
+        curriculumName={curriculumName}
+        totalLevels={totalLevels}
+        totalUnits={totalUnits}
+        totalFiles={totalFiles}
+        isRtl={isRtl}
+      />
 
-          <div className="flex-1 space-y-6 w-full">
-            <div>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">
-                  {isRtl ? 'عن منهج ' : 'About '}
-                  <span className="text-[#0f7a6c]">{curriculumName}</span>
-                </h1>
+      {/* Levels & Units Section */}
+      <CurriculumLevelsSection
+        levels={levels}
+        curriculumName={curriculumName}
+        expandedLevels={expandedLevels}
+        onToggleLevel={toggleLevel}
+        onEditLevel={(level) => setModalConfig({ isOpen: true, type: 'level', editingItem: level })}
+        onDeleteLevel={(level) => handleDelete('level', level)}
+        onAddLevel={() => setModalConfig({ isOpen: true, type: 'level' })}
+        onAddUnit={(levelId) => setModalConfig({ isOpen: true, type: 'unit', parentId: levelId })}
+        expandedUnits={expandedUnits}
+        onToggleUnit={toggleUnit}
+        onEditUnit={(unit, parentLevelId) =>
+          setModalConfig({ isOpen: true, type: 'unit', parentId: parentLevelId, editingItem: unit })
+        }
+        onDeleteUnit={(unit, parentLevelId) => handleDelete('unit', unit, { levelId: parentLevelId })}
+        onAddFile={(level, unit) => setFileModalConfig({ isOpen: true, levelId: level, unitId: unit })}
+        onPreviewFile={handlePreviewFile}
+        onDownloadFile={handleDownloadFile}
+        onDeleteFile={(file, parentLevelId, parentUnitId) =>
+          handleDelete('file', file, { levelId: parentLevelId, unitId: parentUnitId })
+        }
+        isRtl={isRtl}
+      />
 
-                
-                <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2 sm:px-4 sm:py-2.5 rounded-2xl border border-slate-100 dark:border-slate-700/60 self-start sm:self-auto shadow-sm">
-                  <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    <Globe size={16} className="text-[#0f7a6c]" />
-                    <span>{isRtl ? 'عرض في الموقع:' : 'Show on website:'}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleToggleWebsiteVisibility}
-                    disabled={isUpdatingVisibility}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer disabled:opacity-50 ${
-                      showOnWebsite ? 'bg-[#0f7a6c]' : 'bg-slate-300 dark:bg-slate-700'
-                    }`}
-                    title={isRtl
-                      ? (showOnWebsite ? 'اضغط لإخفاء المنهج من الموقع' : 'اضغط لإظهار المنهج في الموقع')
-                      : (showOnWebsite ? 'Click to hide from website' : 'Click to show on website')}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                        showOnWebsite
-                          ? (isRtl ? '-translate-x-6' : 'translate-x-6')
-                          : (isRtl ? '-translate-x-1' : 'translate-x-1')
-                      }`}
-                    />
-                  </button>
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                    showOnWebsite
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                      : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                  }`}>
-                    {isUpdatingVisibility
-                      ? (isRtl ? '...' : '...')
-                      : showOnWebsite
-                        ? (isRtl ? 'ظاهر' : 'Visible')
-                        : (isRtl ? 'مخفي' : 'Hidden')}
-                  </span>
-                </div>
-              </div>
-
-              {(() => {
-                const desc = typeof curriculum.description === 'object' ? (isRtl ? curriculum.description?.ar : curriculum.description?.en) || curriculum.description?.ar : curriculum.description;
-                if (!desc) return null;
-                return (
-                  <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 leading-relaxed max-w-3xl">
-                    {desc}
-                  </p>
-                );
-              })()}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-              {(() => {
-                const parseLocalizedList = (raw) => {
-                  if (!raw) return []
-                  let list = raw
-                  if (typeof raw === 'object' && !Array.isArray(raw)) {
-                    list = (isRtl ? raw.ar : raw.en) || raw.ar || raw.en || []
-                  }
-                  if (!Array.isArray(list)) {
-                    if (typeof list === 'string') return [list]
-                    return []
-                  }
-                  return list.map((item) => {
-                    if (typeof item === 'string') return item
-                    if (typeof item === 'number') return String(item)
-                    if (typeof item === 'object' && item !== null) {
-                      return (isRtl ? item.ar || item.name || item.title || item.en : item.en || item.name || item.title || item.ar) || ''
-                    }
-                    return ''
-                  }).filter(Boolean)
-                }
-
-                const features = parseLocalizedList(curriculum.features);
-                if (!features || features.length === 0) return null;
-                return (
-                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#0f7a6c]"></div>
-                      {isRtl ? 'مميزات المنهج' : 'Curriculum Features'}
-                    </h3>
-                    <ul className="space-y-3">
-                      {features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
-                          <span className="text-[#0f7a6c] shrink-0 mt-0.5">✓</span>
-                          <span>{String(feature)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })()}
-
-              {(() => {
-                const parseLocalizedList = (raw) => {
-                  if (!raw) return []
-                  let list = raw
-                  if (typeof raw === 'object' && !Array.isArray(raw)) {
-                    list = (isRtl ? raw.ar : raw.en) || raw.ar || raw.en || []
-                  }
-                  if (!Array.isArray(list)) {
-                    if (typeof list === 'string') return [list]
-                    return []
-                  }
-                  return list.map((item) => {
-                    if (typeof item === 'string') return item
-                    if (typeof item === 'number') return String(item)
-                    if (typeof item === 'object' && item !== null) {
-                      return (isRtl ? item.ar || item.name || item.title || item.en : item.en || item.name || item.title || item.ar) || ''
-                    }
-                    return ''
-                  }).filter(Boolean)
-                }
-
-                const benefits = parseLocalizedList(curriculum.benefitsAfterGraduation);
-                if (!benefits || benefits.length === 0) return null;
-                return (
-                  <div className="bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-500/10">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                      {isRtl ? 'شهادات واعتمادات' : 'Certifications & Benefits'}
-                    </h3>
-                    <ul className="space-y-3">
-                      {benefits.map((benefit, idx) => (
-                        <li key={idx} className="flex items-start gap-3 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                          <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
-                            <span className="text-xs">🏆</span>
-                          </div>
-                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{String(benefit)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {levels.map((level, levelIndex) => {
-          const rawLevelId = getCleanId(level);
-          const levelId = rawLevelId || `temp-${levelIndex}`;
-          const levelName = typeof level === 'object'
-            ? (typeof level.name === 'object' ? (isRtl ? level.name?.ar : level.name?.en) || level.name?.ar : level.name)
-            : `مستوى ${levelIndex + 1}`;
-          const isExpanded = Boolean(expandedLevels[levelId] || (rawLevelId && expandedLevels[rawLevelId]));
-          const units = typeof level === 'object' ? (level.units || []) : [];
-
-          return (
-            <div key={levelId} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm overflow-hidden transition-all">
-              <div
-                className="p-4 sm:p-5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
-                onClick={() => toggleLevel(rawLevelId || levelId)}
-              >
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <div className="w-10 h-10 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md shadow-[#0f7a6c]/20">
-                    {levelIndex + 1}
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                      {levelName}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">{isRtl ? `${units.length} وحدات دراسية` : `${units.length} study units`}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 ms-auto">
-                  <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-1" onClick={e => e.stopPropagation()}>
-                    <button
-                      onClick={() => setModalConfig({ isOpen: true, type: 'level', editingItem: level })}
-                      className="p-2 text-slate-400 hover:text-blue-500 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                      title={isRtl ? 'تعديل' : 'Edit'}
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete('level', level)}
-                      className="p-2 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                      title={isRtl ? 'حذف' : 'Delete'}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-[#0f7a6c] transition-colors">
-                    <ChevronDown size={18} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`} />
-                  </div>
-                </div>
-              </div>
-
-              <AnimatePresence initial={false}>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    className="border-t border-slate-50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-900/30 p-4 sm:p-6 space-y-4 overflow-hidden"
-                  >
-                    {units.map((unit, unitIndex) => {
-                      const rawUnitId = getCleanId(unit);
-                      const unitId = rawUnitId || `temp-${unitIndex}`;
-                      const unitName = typeof unit === 'object'
-                        ? (typeof unit.name === 'object' ? (isRtl ? unit.name?.ar : unit.name?.en) || unit.name?.ar : unit.name)
-                        : `وحدة ${unitIndex + 1}`;
-                      const isUnitExpanded = Boolean(expandedUnits[unitId] || (rawUnitId && expandedUnits[rawUnitId]));
-                      const files = typeof unit === 'object' ? (unit.files || []) : [];
-
-                      return (
-                        <div key={unitId} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                          <div
-                            className="p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
-                            onClick={() => toggleUnit(rawUnitId || unitId)}
-                          >
-                            <div className="flex items-center gap-3 w-full sm:w-auto">
-                              <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">
-                                {unitIndex + 1}
-                              </div>
-                              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200">{unitName}</h4>
-                            </div>
-
-                            <div className="flex items-center gap-2 ms-auto">
-                              <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                                <button
-                                  onClick={() => setModalConfig({ isOpen: true, type: 'unit', parentId: rawLevelId || levelId, editingItem: unit })}
-                                  className="p-1.5 text-slate-400 hover:text-blue-500 rounded-lg transition-colors cursor-pointer"
-                                  title={isRtl ? 'تعديل' : 'Edit'}
-                                >
-                                  <Pencil size={14} />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete('unit', unit, { levelId: rawLevelId || levelId })}
-                                  className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition-colors cursor-pointer"
-                                  title={isRtl ? 'حذف' : 'Delete'}
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </div>
-                              <div className="w-6 h-6 flex items-center justify-center text-slate-400 ml-1">
-                                <ChevronDown size={16} className={`transition-transform duration-300 ${isUnitExpanded ? 'rotate-180' : 'rotate-0'}`} />
-                              </div>
-                            </div>
-                          </div>
-
-                          <AnimatePresence initial={false}>
-                            {isUnitExpanded && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="border-t border-slate-50 dark:border-slate-800 p-4 space-y-3 bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden"
-                              >
-                                {files.length > 0 ? (
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {files.map((file, fileIdx) => {
-                                      const fileId = getCleanId(file) || `file-${fileIdx}`;
-                                      const fileName = typeof file.name === 'object' ? (isRtl ? file.name?.ar : file.name?.en) || file.name?.ar : file.name;
-                                      const meta = getFileMeta(file, isRtl)
-                                      const MetaIcon = meta.icon
-
-                                      return (
-                                        <div key={fileId}
-                                          className={`bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-3 flex items-center justify-between gap-3 group shadow-sm transition-all hover:shadow-md ${meta.isLink && meta.fullUrl ? 'cursor-pointer hover:border-blue-200 dark:hover:border-blue-800' : ''}`}
-                                          onClick={meta.isLink && meta.fullUrl ? () => window.open(meta.fullUrl, '_blank', 'noopener,noreferrer') : undefined}
-                                        >
-                                          <div className="flex items-center gap-3 overflow-hidden">
-                                            {meta.isImage && meta.fullUrl ? (
-                                              <div
-                                                onClick={(e) => { e.stopPropagation(); handlePreviewFile(meta.fullUrl); }}
-                                                className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 shadow-sm cursor-pointer relative group/thumb flex items-center justify-center"
-                                                title={isRtl ? 'اضغط لعرض الصورة بحجمها الكامل' : 'Click to view full image'}
-                                              >
-                                                <img
-                                                  src={meta.fullUrl}
-                                                  alt={fileName}
-                                                  className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300"
-                                                  onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    if (e.currentTarget.nextSibling) {
-                                                      e.currentTarget.nextSibling.style.display = 'flex';
-                                                    }
-                                                  }}
-                                                />
-                                                <div className={`w-full h-full hidden items-center justify-center ${meta.color}`}>
-                                                  <MetaIcon size={20} />
-                                                </div>
-                                              </div>
-                                            ) : (
-                                              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${meta.color}`}>
-                                                <MetaIcon size={20} />
-                                              </div>
-                                            )}
-
-                                            <div className="overflow-hidden">
-                                              <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{fileName}</p>
-                                              <span className="text-[10px] font-semibold text-slate-400">{meta.type}</span>
-                                            </div>
-                                          </div>
-
-                                          <div className="flex items-center gap-1 shrink-0">
-                                            <button
-                                              onClick={(e) => { e.stopPropagation(); handlePreviewFile(meta.fullUrl); }}
-                                              className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-all cursor-pointer"
-                                              title={meta.isLink ? (isRtl ? 'فتح الرابط في تبويب جديد' : 'Open link in new tab') : (isRtl ? 'معاينة / فتح في تبويب جديد' : 'Preview / Open in new tab')}
-                                            >
-                                              {meta.isLink ? <ExternalLink size={15} /> : <Eye size={15} />}
-                                            </button>
-
-                                            {!meta.isLink && (
-                                              <button
-                                                onClick={(e) => { e.stopPropagation(); handleDownloadFile(meta.fullUrl, fileName, meta.isLink); }}
-                                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
-                                                title={isRtl ? 'تحميل الملف' : 'Download File'}
-                                              >
-                                                <Download size={15} />
-                                              </button>
-                                            )}
-
-                                            <button
-                                              onClick={(e) => { e.stopPropagation(); handleDelete('file', file, { levelId: rawLevelId || levelId, unitId: rawUnitId || unitId }); }}
-                                              className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
-                                              title={isRtl ? 'حذف' : 'Delete'}
-                                            >
-                                              <Trash2 size={15} />
-                                            </button>
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                ) : (
-                                  <div className="text-center py-4 text-xs text-slate-400">
-                                    {isRtl ? 'لا يوجد مصادر في هذه الوحدة' : 'No resources in this unit'}
-                                  </div>
-                                )}
-
-                                <button
-                                  onClick={() => setFileModalConfig({ isOpen: true, levelId: level, unitId: unit })}
-                                  className="w-full py-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-[#0f7a6c] hover:border-[#0f7a6c] hover:bg-[#0f7a6c]/5 transition-all text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
-                                >
-                                  <Plus size={14} />
-                                  {isRtl ? 'إضافة مصادر ومحتوى للوحدة' : 'Add resources and content to unit'}
-                                </button>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      )
-                    })}
-
-                    <button
-                      onClick={() => setModalConfig({ isOpen: true, type: 'unit', parentId: rawLevelId || levelId })}
-                      className="w-full py-3.5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-slate-400 hover:text-[#0f7a6c] hover:border-[#0f7a6c] hover:bg-[#0f7a6c]/5 transition-all text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Plus size={18} />
-                      {isRtl ? 'إضافة وحدة جديدة' : 'Add new unit'}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )
-        })}
-
-        <button
-          onClick={() => setModalConfig({ isOpen: true, type: 'level' })}
-          className="w-full mt-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl text-slate-500 hover:text-[#0f7a6c] hover:border-[#0f7a6c] hover:bg-[#0f7a6c]/5 transition-all font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-        >
-          <Plus size={20} />
-          {isRtl ? `إضافة مستوى جديد لـ ${curriculumName}` : `Add new level to ${curriculumName}`}
-        </button>
-      </div>
-
+      {/* Modals */}
       <BasicModal
         isOpen={modalConfig.isOpen}
         onClose={closeModal}
@@ -808,9 +357,15 @@ export default function AdminCurriculumDetails() {
         isSaving={actionMutation.isPending}
         editingItem={modalConfig.editingItem}
         typeName={modalConfig.type === 'level' ? (isRtl ? 'مستوى' : 'Level') : (isRtl ? 'وحدة' : 'Unit')}
-        title={modalConfig.editingItem
-          ? (isRtl ? 'تعديل البيانات' : 'Edit Details')
-          : (isRtl ? 'إضافة جديد' : 'Add New')}
+        title={
+          modalConfig.editingItem
+            ? isRtl
+              ? 'تعديل البيانات'
+              : 'Edit Details'
+            : isRtl
+            ? 'إضافة جديد'
+            : 'Add New'
+        }
       />
 
       <FileModal

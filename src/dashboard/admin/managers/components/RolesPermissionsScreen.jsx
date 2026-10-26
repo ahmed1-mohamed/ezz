@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
@@ -27,23 +27,32 @@ export default function RolesPermissionsScreen({
     return adminSupervisor.permissionId || adminSupervisor.permission?._id || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? (adminSupervisor.permission._id || adminSupervisor.permission.id) : adminSupervisor.permission) || null
   }, [adminSupervisor])
 
-  const [selectedPermissionId, setSelectedPermissionId] = useState(() => {
-    if (isAdminAssignment && adminSupervisor) {
-      const initialId = adminSupervisor.permissionId || adminSupervisor.permission?._id || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? (adminSupervisor.permission._id || adminSupervisor.permission.id) : adminSupervisor.permission);
-      if (initialId) return initialId;
-    }
-    return permissionsList[0]?.id || permissionsList[0]?._id || null;
-  })
+  const [userSelectedId, setUserSelectedId] = useState(null)
+  const selectedPermissionId = useMemo(() => {
+    if (userSelectedId) return userSelectedId
+    if (isAdminAssignment && initialPermissionId) return initialPermissionId
+    return permissionsList[0]?.id || permissionsList[0]?._id || null
+  }, [userSelectedId, isAdminAssignment, initialPermissionId, permissionsList])
+  const setSelectedPermissionId = setUserSelectedId
 
-  useEffect(() => {
-    if (isAdminAssignment && initialPermissionId) {
-      setSelectedPermissionId(initialPermissionId)
-    } else if (!selectedPermissionId && permissionsList.length > 0) {
-      setSelectedPermissionId(permissionsList[0].id)
-    }
-  }, [initialPermissionId, isAdminAssignment, permissionsList])
-
+  const [prevSelectedId, setPrevSelectedId] = useState(null)
   const [activeKeys, setActiveKeys] = useState([])
+
+  if (prevSelectedId !== selectedPermissionId) {
+    setPrevSelectedId(selectedPermissionId)
+    const selected = permissionsList.find(p => (p.id || p._id) === selectedPermissionId)
+    if (selected) {
+      if (Array.isArray(selected.keys)) {
+        setActiveKeys(selected.keys)
+      } else if (Array.isArray(selected.actions)) {
+        setActiveKeys(selected.actions.map(a => typeof a === 'object' ? a.key || a.name || a : a))
+      } else {
+        setActiveKeys([])
+      }
+    } else {
+      setActiveKeys([])
+    }
+  }
 
   const [isAddRoleModalOpen, setIsAddRoleModalOpen] = useState(false)
   const [newRoleNameAr, setNewRoleNameAr] = useState('')
@@ -81,23 +90,6 @@ export default function RolesPermissionsScreen({
       }
     }
   })
-
-  useEffect(() => {
-    if (selectedPermissionId) {
-      const selected = permissionsList.find(p => p.id === selectedPermissionId)
-      if (selected) {
-        if (Array.isArray(selected.keys)) {
-          setActiveKeys(selected.keys)
-        } else if (Array.isArray(selected.actions)) {
-          setActiveKeys(selected.actions.map(a => typeof a === 'object' ? a.key || a.name || a : a))
-        } else {
-          setActiveKeys([])
-        }
-      } else {
-        setActiveKeys([])
-      }
-    }
-  }, [selectedPermissionId, permissionsList])
 
   const selectedPermission = useMemo(() =>
     permissionsList.find(p => p.id === selectedPermissionId)

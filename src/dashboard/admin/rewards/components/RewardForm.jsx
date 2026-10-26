@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 
@@ -21,7 +21,10 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
   const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0])
   const [description, setDescription] = useState('')
   const [descriptionEn, setDescriptionEn] = useState('')
-  useEffect(() => {
+  const [prevEditingReward, setPrevEditingReward] = useState(editingReward)
+
+  if (prevEditingReward !== editingReward) {
+    setPrevEditingReward(editingReward)
     if (editingReward) {
       const arName = typeof editingReward.name === 'object' ? (editingReward.name?.ar || '') : (editingReward.name || '')
       const enName = typeof editingReward.name === 'object' ? (editingReward.name?.en || '') : (editingReward.name || '')
@@ -47,7 +50,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
       setDescription('')
       setDescriptionEn('')
     }
-  }, [editingReward])
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()

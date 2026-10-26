@@ -39,13 +39,15 @@ export default function AdminRewards() {
   const [editingReward, setEditingReward] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  useEffect(() => {
+  const [prevViewPermissions, setPrevViewPermissions] = useState({ canViewRewards, canViewSuggestions })
+  if (prevViewPermissions.canViewRewards !== canViewRewards || prevViewPermissions.canViewSuggestions !== canViewSuggestions) {
+    setPrevViewPermissions({ canViewRewards, canViewSuggestions })
     if (!canViewRewards && canViewSuggestions) {
       setActiveMainTab('suggestions')
     } else if (canViewRewards && !canViewSuggestions) {
       setActiveMainTab('rewards')
     }
-  }, [canViewRewards, canViewSuggestions])
+  }
 
   const loadSuggestionsByStatus = useCallback(async (status) => {
     setIsSuggestionsLoading(true)
@@ -79,7 +81,13 @@ export default function AdminRewards() {
   }, [suggestionsFilter])
 
   useEffect(() => {
-    loadData()
+    let isMounted = true
+    Promise.resolve().then(() => {
+      if (isMounted) loadData()
+    })
+    return () => {
+      isMounted = false
+    }
   }, [loadData])
 
   const handleEditRewardClick = async (reward, switchTab = false) => {

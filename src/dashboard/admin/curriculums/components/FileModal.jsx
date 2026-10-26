@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Upload, File, Link as LinkIcon } from 'lucide-react'
@@ -15,7 +15,9 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit }) {
   const [file, setFile] = useState(null)
   const fileInputRef = useRef(null)
 
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(isOpen)
+  if (prevOpen !== isOpen) {
+    setPrevOpen(isOpen)
     if (isOpen) {
       setResourceType('file')
       setNameAr('')
@@ -23,7 +25,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit }) {
       setUrl('')
       setFile(null)
     }
-  }, [isOpen])
+  }
 
   if (!isOpen) return null
 

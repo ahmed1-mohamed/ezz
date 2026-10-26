@@ -1,24 +1,32 @@
 import { useState } from 'react';
-import { CreditCard, Smartphone, Lock, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { CreditCard, Smartphone, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ParentCheckout() {
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n?.language?.startsWith('ar') ?? true;
     const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-[#ecf0f1] p-4 sm:p-8 font-sans" dir="rtl">
+        <div className="min-h-screen bg-[#ecf0f1] p-4 sm:p-8 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto">
                 <div className="flex items-center gap-4 mb-8">
                     <button
                         onClick={() => navigate(-1)}
-                        className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                        className="p-2 hover:bg-slate-200 rounded-full transition-colors cursor-pointer"
+                        title={isRtl ? 'رجوع' : 'Back'}
                     >
-                        <ArrowRight className="w-6 h-6 text-slate-700" />
+                        {isRtl ? <ArrowRight className="w-6 h-6 text-slate-700" /> : <ArrowLeft className="w-6 h-6 text-slate-700" />}
                     </button>
                     <div>
-                        <h1 className="text-3xl font-extrabold text-slate-800">إتمام الدفع</h1>
-                        <p className="text-slate-500 mt-1 text-sm font-medium">اختر طريقة الدفع المناسبة لك</p>
+                        <h1 className="text-3xl font-extrabold text-slate-800">
+                            {t('parentPackages.checkoutTitle', 'إتمام الدفع')}
+                        </h1>
+                        <p className="text-slate-500 mt-1 text-sm font-medium">
+                            {t('parentPackages.checkoutSubtitle', 'اختر طريقة الدفع المناسبة لك')}
+                        </p>
                     </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Award, Users, ChevronDown, Book, Star } from 'lucide-react'
@@ -18,20 +18,18 @@ export default React.memo(function CurriculumUnits() {
         }
     });
 
-    const curricula = curriculaData || [];
-    const [activeTabId, setActiveTabId] = useState(null);
+    const curricula = useMemo(() => curriculaData || [], [curriculaData]);
+    const [selectedTabId, setSelectedTabId] = useState(null);
+    const activeTabId = useMemo(() => {
+        if (selectedTabId && curricula.some(c => (c.id || c._id) === selectedTabId)) {
+            return selectedTabId;
+        }
+        return curricula[0]?.id || curricula[0]?._id || null;
+    }, [selectedTabId, curricula]);
+    const setActiveTabId = setSelectedTabId;
+
     const [openLevel, setOpenLevel] = useState(null);
     const [showAllLevels, setShowAllLevels] = useState(false);
-
-    useEffect(() => {
-        setActiveTabId(null);
-    }, [i18n.language]);
-
-    useEffect(() => {
-        if (curricula.length > 0 && !activeTabId) {
-            setActiveTabId(curricula[0].id || curricula[0]._id);
-        }
-    }, [curricula, activeTabId]);
 
     const { data: activeCurriculumData } = useQuery({
         queryKey: ['public-curriculum-details', activeTabId, i18n.language],
@@ -158,13 +156,13 @@ export default React.memo(function CurriculumUnits() {
                                     </div>
                                 )}
 
-                                <div className="w-full lg:w-3/5 relative z-10 text-start space-y-8">
+                                <div className={`w-full ${currentData.image ? 'lg:w-3/5' : 'lg:w-full max-w-4xl mx-auto'} relative z-10 text-start space-y-8`}>
                                     <div className="space-y-4">
-                                        <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-4 py-1.5 rounded-full text-sm font-bold border border-amber-100 dark:border-amber-900/40">
+                                        <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-4 py-1.5 rounded-full text-sm font-bold border border-amber-200/60 dark:border-amber-900/40 shadow-xs">
                                             <Star className="w-4 h-4" />
                                             {isRtl ? 'نظرة عامة على المنهج' : 'Curriculum Overview'}
                                         </div>
-                                        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-[1.2]">
+                                        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-[1.2]">
                                             {typeof currentData.name === 'object' ? (isRtl ? currentData.name?.ar : currentData.name?.en) || currentData.name?.ar : currentData.name}
                                         </h3>
                                         <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
@@ -179,13 +177,13 @@ export default React.memo(function CurriculumUnits() {
                                                 : (currentData.features || []);
 
                                             return features.map((feat, idx) => (
-                                                <div key={`f-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-300">
-                                                    <div className="bg-[#00695C] text-white p-2.5 rounded-xl shrink-0 mt-0.5">
+                                                <div key={`f-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-[#00695C]/20 dark:hover:border-slate-700 hover:shadow-xs transition-all duration-300">
+                                                    <div className="bg-[#00695C] text-white p-2.5 rounded-xl shrink-0 mt-0.5 shadow-xs">
                                                         <Users className="w-5 h-5" />
                                                     </div>
                                                     <div>
                                                         <h4 className="font-extrabold text-slate-800 dark:text-slate-100 leading-snug">{feat}</h4>
-                                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{isRtl ? 'ميزة تفاعلية' : 'Interactive Feature'}</p>
+                                                        <p className="text-xs text-[#00695C] dark:text-emerald-400 font-bold mt-1">{isRtl ? 'ميزة تفاعلية' : 'Interactive Feature'}</p>
                                                     </div>
                                                 </div>
                                             ));
@@ -197,13 +195,13 @@ export default React.memo(function CurriculumUnits() {
                                                 : (currentData.benefitsAfterGraduation || []);
 
                                             return benefits.map((ben, idx) => (
-                                                <div key={`b-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 hover:bg-white dark:hover:bg-amber-950/40 border border-transparent hover:border-amber-100 dark:border-amber-900/30 dark:hover:border-amber-800/40 hover:shadow-sm transition-all duration-300">
-                                                    <div className="bg-amber-500 text-white p-2.5 rounded-xl shrink-0 mt-0.5">
+                                                <div key={`b-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 hover:bg-white dark:hover:bg-amber-950/40 border border-amber-100/70 dark:border-amber-900/30 hover:border-amber-200 dark:hover:border-amber-800/40 hover:shadow-xs transition-all duration-300">
+                                                    <div className="bg-amber-500 text-white p-2.5 rounded-xl shrink-0 mt-0.5 shadow-xs">
                                                         <Award className="w-5 h-5" />
                                                     </div>
                                                     <div>
                                                         <h4 className="font-extrabold text-slate-800 dark:text-slate-100 leading-snug">{ben}</h4>
-                                                        <p className="text-sm text-amber-600/80 dark:text-amber-400 font-medium mt-1">{isRtl ? 'استفادة بعد التخرج' : 'Graduation Benefit'}</p>
+                                                        <p className="text-xs text-amber-700/80 dark:text-amber-400 font-bold mt-1">{isRtl ? 'استفادة بعد التخرج' : 'Graduation Benefit'}</p>
                                                     </div>
                                                 </div>
                                             ));
@@ -223,15 +221,15 @@ export default React.memo(function CurriculumUnits() {
                                     <motion.div
                                         initial={{ opacity: 0, y: 30 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="w-full bg-[#EEF4F2] dark:bg-slate-900/60 rounded-[2.5rem] p-6 sm:p-10 shadow-inner border border-slate-200/50 dark:border-slate-800"
+                                        className="w-full bg-gradient-to-b from-slate-50/80 to-[#f0f8f5] dark:from-slate-900 dark:to-slate-900/80 rounded-[2.5rem] p-6 sm:p-10 shadow-xs border border-slate-200/70 dark:border-slate-800"
                                     >
                                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-                                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+                                            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                                                 {isRtl ? 'المستويات والوحدات الدراسية' : 'Study Levels & Units'}
                                             </h2>
-                                            <div className="bg-[#E2EBE8] dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 border border-slate-300/30 dark:border-slate-700">
-                                                <BookOpen className="w-4 h-4 text-[#00695C] dark:text-emerald-400" />
-                                                {levels.length} {isRtl ? 'مستويات' : 'Levels'}
+                                            <div className="bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300 px-5 py-2 rounded-full text-sm font-bold flex items-center gap-2 border border-emerald-200/40 dark:border-emerald-800 shadow-xs">
+                                                <BookOpen className="w-4 h-4 text-[#00594C] dark:text-emerald-400" />
+                                                <span>{levels.length} {isRtl ? 'مستويات' : 'Levels'}</span>
                                             </div>
                                         </div>
 
@@ -246,26 +244,26 @@ export default React.memo(function CurriculumUnits() {
                                                     return (
                                                         <motion.div
                                                             key={levelId}
-                                                            className="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100 dark:border-slate-800"
+                                                            className="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-xs hover:shadow-sm transition-all duration-300 border border-slate-100 dark:border-slate-800"
                                                         >
                                                             <button
                                                                 onClick={() => setOpenLevel(isOpen ? null : levelId)}
-                                                                className="w-full flex items-center justify-between p-5 sm:p-6 bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-800/60 transition-colors"
+                                                                className="w-full flex items-center justify-between p-5 sm:p-6 bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                                                             >
                                                                 <div className="flex items-center gap-5 text-start">
-                                                                    <div className="bg-[#FFFDF5] dark:bg-amber-950/40 text-[#9B7B16] dark:text-amber-400 w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border border-amber-100/50 dark:border-amber-900/40">
+                                                                    <div className="bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border border-amber-200/60 dark:border-amber-900/40 shadow-xs">
                                                                         <Book className="w-6 h-6" />
                                                                     </div>
                                                                     <div>
-                                                                        <h3 className="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl">
+                                                                        <h3 className="font-black text-slate-900 dark:text-white text-lg sm:text-xl">
                                                                             {levelName}
                                                                         </h3>
-                                                                        <p className="text-[#00695C] dark:text-emerald-400 text-sm font-bold mt-1">
+                                                                        <p className="text-[#00594C] dark:text-emerald-400 text-sm font-bold mt-1">
                                                                             {units.length} {isRtl ? 'وحدات دراسية' : 'Units'}
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                                <div className={`p-3 rounded-full transition-colors ${isOpen ? 'bg-[#00695C]/10 dark:bg-[#00695C]/30 text-[#00695C] dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
+                                                                <div className={`p-3 rounded-2xl transition-colors ${isOpen ? 'bg-[#00594C]/10 dark:bg-[#00594C]/30 text-[#00594C] dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
                                                                     <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
                                                                         <ChevronDown className="w-5 h-5" />
                                                                     </motion.div>
@@ -279,23 +277,23 @@ export default React.memo(function CurriculumUnits() {
                                                                         animate={{ height: "auto", opacity: 1 }}
                                                                         exit={{ height: 0, opacity: 0 }}
                                                                         transition={{ duration: 0.3 }}
-                                                                        className="bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800"
+                                                                        className="bg-slate-50/50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800"
                                                                     >
-                                                                        <div className="p-6 pt-2 space-y-3">
+                                                                        <div className="p-6 pt-3 space-y-3">
                                                                             {units.length === 0 ? (
-                                                                                <div className="text-center py-4 text-slate-400 font-medium">
+                                                                                <div className="text-center py-4 text-slate-400 font-medium text-sm">
                                                                                     {isRtl ? 'لا توجد وحدات مضافة بعد' : 'No units added yet'}
                                                                                 </div>
                                                                             ) : (
                                                                                 units.map((unit, uIdx) => {
                                                                                     const unitName = typeof unit.name === 'object' ? (isRtl ? unit.name?.ar : unit.name?.en) || unit.name?.ar : unit.name;
                                                                                     return (
-                                                                                        <div key={unit.unit_id || unit._id || uIdx} className="flex items-center justify-between bg-[#F9FBFB] dark:bg-slate-800/60 p-4 rounded-2xl hover:bg-[#EEF4F2] dark:hover:bg-slate-800 transition-all duration-300 border border-slate-100 dark:border-slate-800 hover:border-[#00695C]/20 dark:hover:border-emerald-500/30 group">
+                                                                                        <div key={unit.unit_id || unit._id || uIdx} className="flex items-center justify-between bg-white dark:bg-slate-800/60 p-4 rounded-2xl hover:bg-[#EEF4F2]/50 dark:hover:bg-slate-800 transition-all duration-300 border border-slate-100 dark:border-slate-800 hover:border-[#00695C]/20 dark:hover:border-emerald-500/30 group shadow-xs">
                                                                                             <div className="flex items-center gap-4">
-                                                                                                <div className="bg-[#82C3B8] text-white w-8 h-8 flex items-center justify-center rounded-xl text-sm font-bold shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                                                                                                <div className="bg-[#00695C] text-white w-9 h-9 flex items-center justify-center rounded-xl text-sm font-black shrink-0 shadow-xs group-hover:scale-105 transition-transform">
                                                                                                     {uIdx + 1}
                                                                                                 </div>
-                                                                                                <span className="text-slate-700 dark:text-slate-200 font-bold text-sm sm:text-base group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors">
+                                                                                                <span className="text-slate-800 dark:text-slate-200 font-bold text-sm sm:text-base group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors">
                                                                                                     {unitName}
                                                                                                 </span>
                                                                                             </div>

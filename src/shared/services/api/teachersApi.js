@@ -261,7 +261,8 @@ export const teachersApi = {
       if (found) {
         return { success: true, data: found };
       }
-    } catch {
+    } catch (err) {
+      void err;
     }
 
     try {
@@ -270,7 +271,8 @@ export const teachersApi = {
       if (item) {
         return { success: true, data: mapTeacherData(item) };
       }
-    } catch {
+    } catch (err) {
+      void err;
     }
 
     return { success: false, data: null };
@@ -904,7 +906,8 @@ export const teachersApi = {
               const res = await api.patch(`/api/v1/users/${actualUserId}/change-password`, payload);
               return res.data;
             }
-          } catch {
+          } catch (err2) {
+            void err2;
           }
         }
         throw err;

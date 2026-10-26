@@ -13,18 +13,25 @@ export default function useContactInfo(showNotification, enabled = true) {
 
   const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
 
-  useEffect(() => {
+  if (prevEnabled !== enabled) {
+    setPrevEnabled(enabled);
     if (!enabled) {
       setIsLoading(false);
-      return;
     }
-    async function loadContactInfo() {
+  }
+
+  useEffect(() => {
+    if (!enabled) return;
+    let isMounted = true;
+    Promise.resolve().then(async () => {
+      if (!isMounted) return;
       setIsLoading(true);
       try {
         const res = await landingApi.fetchContactUs();
         const data = res?.data || res;
-        if (data) {
+        if (data && isMounted) {
           setContactInfo({
             phone: data.phone || '',
             whatsapp: data.whatsapp || '',
@@ -34,10 +41,14 @@ export default function useContactInfo(showNotification, enabled = true) {
       } catch (err) {
         console.warn('Failed to fetch contact-us info:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    }
-    loadContactInfo();
+    });
+    return () => {
+      isMounted = false;
+    };
   }, [enabled]);
 
   const handleSaveContactInfo = async (updatedInfo) => {

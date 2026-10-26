@@ -19,6 +19,14 @@ export default function AdminPayments() {
   const [activePeriod, setActivePeriod] = useState('annual')
   const [activeStatus, setActiveStatus] = useState('all')
   const [searchValue, setSearchValue] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchValue.trim())
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [searchValue])
 
   const loadStats = useCallback(async () => {
     const res = await adminPaymentsApi.fetchPaymentsStats(activePeriod)
@@ -30,18 +38,30 @@ export default function AdminPayments() {
     const res = await adminPaymentsApi.fetchPayments({
       period: activePeriod,
       status: activeStatus,
-      search: searchValue,
+      search: debouncedSearch,
     })
     if (res?.data) setPayments(res.data)
     setLoading(false)
-  }, [activePeriod, activeStatus, searchValue])
+  }, [activePeriod, activeStatus, debouncedSearch])
 
   useEffect(() => {
-    loadStats()
+    let isMounted = true
+    Promise.resolve().then(() => {
+      if (isMounted) loadStats()
+    })
+    return () => {
+      isMounted = false
+    }
   }, [loadStats])
 
   useEffect(() => {
-    loadPayments()
+    let isMounted = true
+    Promise.resolve().then(() => {
+      if (isMounted) loadPayments()
+    })
+    return () => {
+      isMounted = false
+    }
   }, [loadPayments])
 
   const handleApprove = async (id) => {

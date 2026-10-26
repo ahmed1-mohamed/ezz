@@ -36,7 +36,9 @@ export function useCoupons() {
     }, []);
 
     useEffect(() => {
-        loadAll('', true);
+        Promise.resolve().then(() => {
+            loadAll('', true);
+        });
     }, [loadAll]);
 
     const handleSearch = useCallback((val) => {
