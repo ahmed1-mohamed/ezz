@@ -155,28 +155,28 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) {
-      showErrorToast('يرجى كتابة عنوان الطلب');
+      showErrorToast(t('teacherComplaints.errTitle', 'يرجى كتابة عنوان الطلب'));
       return;
     }
     if (!details.trim()) {
-      showErrorToast('يرجى كتابة تفاصيل الطلب');
+      showErrorToast(t('teacherComplaints.errDetails', 'يرجى كتابة تفاصيل الطلب'));
       return;
     }
     if (submissionType === 'reschedule_request') {
       if (!selectedGroupId) {
-        showErrorToast('يرجى اختيار المجموعة');
+        showErrorToast(t('teacherComplaints.errSelectGroup', 'يرجى اختيار المجموعة'));
         return;
       }
       if (!selectedSessionId) {
-        showErrorToast('يرجى اختيار الحصة المراد تأجيلها');
+        showErrorToast(t('teacherComplaints.errSelectSession', 'يرجى اختيار الحصة المراد تأجيلها'));
         return;
       }
       if (!proposedNewDate) {
-        showErrorToast('يرجى تحديد التاريخ الجديد المقترح');
+        showErrorToast(t('teacherComplaints.errProposedDate', 'يرجى تحديد التاريخ الجديد المقترح'));
         return;
       }
       if (!proposedStartTime || !proposedEndTime) {
-        showErrorToast('يرجى تحديد وقت البداية ووقت النهاية المقترحين');
+        showErrorToast(t('teacherComplaints.errProposedTimes', 'يرجى تحديد وقت البداية ووقت النهاية المقترحين'));
         return;
       }
     }
@@ -196,7 +196,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
               {t('teacher.newSubmission', 'تقديم طلب جديد')}
             </h3>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              اختر نوع الطلب واملأ البيانات المطلوبة لإرسالها للإدارة.
+              {t('teacherComplaints.newSubmissionDesc', 'اختر نوع الطلب واملأ البيانات المطلوبة لإرسالها للإدارة.')}
             </p>
           </div>
 
@@ -211,7 +211,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
-              نوع التقديم
+              {t('teacherComplaints.submissionType', 'نوع التقديم')}
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -302,10 +302,10 @@ export default function TeacherNewComplaintModal({ onClose }) {
                     disabled={isLoadingGroups}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
                   >
-                    <option value="">{isLoadingGroups ? 'جاري تحميل المجموعات...' : '-- اختر المجموعة --'}</option>
+                    <option value="">{isLoadingGroups ? t('teacherComplaints.loadingGroups', 'جاري تحميل المجموعات...') : t('teacherComplaints.selectGroupPlaceholder', '-- اختر المجموعة --')}</option>
                     {teacherGroups.map((grp) => (
                       <option key={grp.id} value={grp.id}>
-                        {grp.name} ({grp.type || 'عامة'})
+                        {grp.name} ({grp.type || t('teacherComplaints.typeGeneral', 'عامة')})
                       </option>
                     ))}
                   </select>
@@ -325,16 +325,16 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 >
                   <option value="">
                     {!selectedGroupId
-                      ? 'اختر المجموعة أولاً'
+                      ? t('teacherComplaints.selectGroupFirst', 'اختر المجموعة أولاً')
                       : isLoadingSessions
-                      ? 'جاري تحميل الحصص...'
+                      ? t('teacherComplaints.loadingSessions', 'جاري تحميل الحصص...')
                       : availableSessions.length === 0
-                      ? 'لا توجد حصص مسجلة لهذه المجموعة'
-                      : '-- اختر الحصة --'}
+                      ? t('teacherComplaints.noSessions', 'لا توجد حصص مسجلة لهذه المجموعة')
+                      : t('teacherComplaints.selectSessionPlaceholder', '-- اختر الحصة --')}
                   </option>
                   {availableSessions.map((sess) => (
                     <option key={sess.id} value={sess.id}>
-                      {sess.title || `حصة ${sess.sessionNumber || ''}`} ({sess.date || '—'})
+                      {sess.title || `${t('teacherComplaints.sessionDefault', 'حصة')} ${sess.sessionNumber || ''}`} ({sess.date || '—'})
                     </option>
                   ))}
                 </select>
@@ -397,7 +397,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
                 >
                   <Plus size={14} />
-                  <span>إضافة رابط مرفق</span>
+                  <span>{t('teacherComplaints.addAttachmentUrl', 'إضافة رابط مرفق')}</span>
                 </button>
               )}
             </div>
@@ -408,7 +408,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   type="url"
                   value={newAttachmentUrl}
                   onChange={(e) => setNewAttachmentUrl(e.target.value)}
-                  placeholder="https://example.com/file.pdf"
+                  placeholder={t('teacherComplaints.attachmentUrlPlaceholder', 'https://example.com/file.pdf')}
                   className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                 />
                 <button
@@ -416,7 +416,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   onClick={handleAddAttachment}
                   className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold cursor-pointer"
                 >
-                  إضافة
+                  {t('common.add', 'إضافة')}
                 </button>
                 <button
                   type="button"

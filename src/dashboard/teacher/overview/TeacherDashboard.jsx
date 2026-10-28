@@ -5,7 +5,6 @@ import { useAuth } from '@/shared/context/useAuth.jsx';
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi.js';
-
 import TeacherDashboardHeader from './components/TeacherDashboardHeader.jsx';
 import TeacherPendingEvaluationBanner from './components/TeacherPendingEvaluationBanner.jsx';
 import TeacherStatsGrid from './components/TeacherStatsGrid.jsx';
@@ -14,10 +13,52 @@ import TeacherUpcomingSessionsList from './components/TeacherUpcomingSessionsLis
 import TeacherGroupsOverviewTable from './components/TeacherGroupsOverviewTable.jsx';
 import TeacherQuickActions from './components/TeacherQuickActions.jsx';
 
-function formatSessionCard(s, idx, isRtl) {
+function calculateCountdown(startTime, isRtl, t) {
+  if (!startTime) return { countdown: '0:00', countdownUnit: '' };
+  const target = new Date(startTime).getTime();
+  if (isNaN(target)) return { countdown: '0:00', countdownUnit: '' };
+
+  const now = Date.now();
+  const diffMs = target - now;
+
+  if (diffMs <= 0) {
+    return {
+      countdown: isRtl ? 'الآن' : 'Now',
+      countdownUnit: '',
+    };
+  }
+
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    return {
+      countdown: `${diffDays}`,
+      countdownUnit: isRtl
+        ? (diffDays === 1 ? 'يوم' : diffDays === 2 ? 'يومان' : diffDays <= 10 ? 'أيام' : 'يوم')
+        : (diffDays === 1 ? 'day' : 'days'),
+    };
+  }
+
+  if (diffHours > 0) {
+    const remMinutes = diffMinutes % 60;
+    return {
+      countdown: `${diffHours}:${String(remMinutes).padStart(2, '0')}`,
+      countdownUnit: t ? t('teacherDashboard.hour', isRtl ? 'ساعة' : 'hour') : (isRtl ? 'ساعة' : 'hour'),
+    };
+  }
+
+  return {
+    countdown: `${diffMinutes}`,
+    countdownUnit: isRtl ? 'دقيقة' : 'min',
+  };
+}
+
+function formatSessionCard(s, idx, isRtl, t) {
   if (!s) return null;
   const id = s.id || s._id || `session-${idx}`;
-  let title;
+  let title = '';
   if (typeof s.group === 'object' && s.group !== null) {
     title = isRtl
       ? (s.group.name?.ar || s.group.name?.en || s.group.name)
@@ -25,49 +66,86 @@ function formatSessionCard(s, idx, isRtl) {
   } else if (s.group) {
     title = String(s.group);
   } else if (s.title) {
-    title = typeof s.title === 'object' ? (isRtl ? s.title.ar || s.title.en : s.title.en || s.title.ar) : s.title;
-  } else {
-    title = `جلسة ${idx + 1}`;
+    title = typeof s.title === 'object' && s.title !== null
+      ? (isRtl ? s.title.ar || s.title.en : s.title.en || s.title.ar)
+      : String(s.title);
   }
 
-  let timeStr;
-  if (s.date && s.time) {
-    timeStr = `${s.date} - ${s.time}`;
-  } else if (s.day && (s.time || s.startTime)) {
-    timeStr = `${s.day} - ${s.time || s.startTime}`;
-  } else if (s.scheduledAt || s.startDate) {
-    const d = new Date(s.scheduledAt || s.startDate);
+   let timeStr = '';
+  const dateVal = s.startTime || s.scheduledAt || s.startDate;
+  if (dateVal) {
+    const d = new Date(dateVal);
     if (!isNaN(d.getTime())) {
-      timeStr = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      }).format(d);
-    } else {
-      timeStr = String(s.scheduledAt || s.startDate);
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const isToday = new Date().toDateString() === d.toDateString();
+      const tomorrow = new Date();
+      tomorrow.setDate(new Date().getDate() + 1);
+      const isTomorrow = tomorrow.toDateString() === d.toDateString();
+      const dayLabel = isToday
+        ? (isRtl ? (t ? t('teacherDashboard.today', 'اليوم') : 'اليوم') : 'Today')
+        : (isTomorrow ? (isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow') : (s.day || ''));
+      timeStr = `${dayLabel ? `${dayLabel} ` : ''}${hours}:${minutes}`;
     }
-  } else {
-    timeStr = s.time || s.day || s.date || '';
+  }
+
+  if (!timeStr) {
+    if (s.day && (s.time || s.startTime)) {
+      timeStr = `${s.day} ${s.time || s.startTime}`;
+    } else if (s.date && s.time) {
+      timeStr = `${s.date} ${s.time}`;
+    } else if (s.date) {
+      timeStr = String(s.date);
+    }
   }
 
   let studentsCount = 0;
-  if (Array.isArray(s.students)) {
+  if (Array.isArray(s.students) && s.students.length > 0) {
     studentsCount = s.students.length;
-  } else if (Array.isArray(s.attendance)) {
+  } else if (Array.isArray(s.attendance) && s.attendance.length > 0) {
     studentsCount = s.attendance.length;
-  } else if (typeof s.studentsCount === 'number') {
+  } else if (typeof s.studentsCount === 'number' && s.studentsCount > 0) {
     studentsCount = s.studentsCount;
   } else if (s.group?.studentsCount) {
     studentsCount = s.group.studentsCount;
   }
 
+  let relativeBadge = '';
+  let badgeVariant = 'amber';
+  if (dateVal) {
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) {
+      const now = new Date();
+      const diffMs = d.getTime() - now.getTime();
+      const isToday = now.toDateString() === d.toDateString();
+      const tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+      const isTomorrow = tomorrow.toDateString() === d.toDateString();
+
+      if (isToday) {
+        const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+        if (diffHours > 0 && diffHours <= 3) {
+          relativeBadge = isRtl ? (t ? t('teacherDashboard.inTwoHours', 'بعد ساعتين') : 'بعد ساعتين') : 'In 2 hours';
+          badgeVariant = 'amber';
+        } else {
+          relativeBadge = isRtl ? (t ? t('teacherDashboard.today', 'اليوم') : 'اليوم') : 'Today';
+          badgeVariant = 'amber';
+        }
+      } else if (isTomorrow) {
+        relativeBadge = isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow';
+        badgeVariant = 'blue';
+      }
+    }
+  }
+
   return {
     id,
-    title,
+    title: title || (s.sessionNumber ? `${t ? t('teacherDashboard.sessionNumberLabel', 'الحصة رقم {{number}}', { number: s.sessionNumber }) : `الحصة #${s.sessionNumber}`}` : ''),
     timeStr,
     studentsCount,
+    relativeBadge,
+    badgeVariant,
+    joinUrl: s.zoomJoinUrl || s.joinUrl || (s.id ? `/dashboard/teacher/live?session=${s.id}` : '/dashboard/teacher/live'),
   };
 }
 
@@ -79,17 +157,17 @@ function getGroupTypeLabel(group, t) {
   return t('teacherDashboard.public', 'عام');
 }
 
-function getGroupLevelLabel(group, isRtl = true) {
+function getGroupLevelLabel(group, isRtl = true, t) {
   const levelObj = group?.studentLevel || group?.level;
-  if (!levelObj) return isRtl ? 'المستوى الأول' : 'Level 1';
+  if (!levelObj) return isRtl ? (t ? t('teacherDashboard.levelHigh', 'مرتفع') : 'مرتفع') : 'High';
   if (typeof levelObj === 'object' && levelObj !== null) {
     if (levelObj.name) {
       if (typeof levelObj.name === 'object' && levelObj.name !== null) {
-        return isRtl ? (levelObj.name.ar || levelObj.name.en || 'المستوى الأول') : (levelObj.name.en || levelObj.name.ar || 'Level 1');
+        return isRtl ? (levelObj.name.ar || levelObj.name.en || 'مرتفع') : (levelObj.name.en || levelObj.name.ar || 'High');
       }
       return levelObj.name;
     }
-    return isRtl ? (levelObj.ar || levelObj.en || 'المستوى الأول') : (levelObj.en || levelObj.ar || 'Level 1');
+    return isRtl ? (levelObj.ar || levelObj.en || 'مرتفع') : (levelObj.en || levelObj.ar || 'High');
   }
   return String(levelObj);
 }
@@ -100,41 +178,46 @@ export default function TeacherDashboard() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
 
   const teacherName = useMemo(() => {
-    if (!user) return t('teacherDashboard.teacherFallback', 'معلم');
+    if (!user) return isRtl ? 'أ. محمد العتيبي' : 'Mr. Mohamed Al-Otaibi';
     if (typeof user.name === 'object' && user.name !== null) {
-      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || t('teacherDashboard.teacherFallback', 'معلم');
+      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || (isRtl ? 'أ. محمد العتيبي' : 'Mr. Mohamed Al-Otaibi');
     }
-    return user.name || t('teacherDashboard.teacherFallback', 'معلم');
-  }, [user, isRtl, t]);
+    return user.name || (isRtl ? 'أ. محمد العتيبي' : 'Mr. Mohamed Al-Otaibi');
+  }, [user, isRtl]);
 
   const { data: statsRes } = useQuery({
     queryKey: ['teacher-dashboard-statistics'],
     queryFn: () => dashboardApi.fetchTeacherStatistics(),
-    staleTime: 3 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const { data: nextSessionRes } = useQuery({
     queryKey: ['teacher-dashboard-next-session'],
     queryFn: () => dashboardApi.fetchNextSession(),
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const { data: scheduledSessionsRes } = useQuery({
     queryKey: ['teacher-dashboard-upcoming-sessions'],
     queryFn: () => teacherSessionsApi.fetchSessionsByStatus('scheduled', { limit: 5 }),
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const { data: pendingRes } = useQuery({
     queryKey: ['teacher-pending-evaluation'],
     queryFn: () => dashboardApi.fetchPendingEvaluation(),
-    staleTime: 3 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const { data: groupsRes } = useQuery({
     queryKey: ['teacher-dashboard-groups-overview'],
     queryFn: () => teacherGroupsApi.fetchGroups({ limit: 5 }),
-    staleTime: 3 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const pendingSession = pendingRes?.session;
@@ -152,79 +235,87 @@ export default function TeacherDashboard() {
   const apiData = useMemo(() => statsRes?.data?.data ?? statsRes?.data ?? {}, [statsRes]);
   const stats = apiData.statistics || {};
 
+  const currency = t('teacherDashboard.currency', 'ر.س');
   const totalStudents = stats.totalStudents ?? 0;
   const totalGroups = stats.totalGroups ?? 0;
   const totalSessions = stats.totalSessions ?? 0;
   const totalTeachingHours = stats.totalTeachingHours ?? 0;
   const totalEarnings = stats.totalEarnings !== undefined && stats.totalEarnings !== null
-    ? `$${Number(stats.totalEarnings).toLocaleString('en-US')}`
-    : '$0';
+    ? `${Number(stats.totalEarnings).toLocaleString('en-US')} ${currency}`
+    : `0 ${currency}`;
   const dueEarnings = stats.dueEarnings !== undefined && stats.dueEarnings !== null
-    ? `$${Number(stats.dueEarnings).toLocaleString('en-US')}`
-    : '$0';
+    ? `${Number(stats.dueEarnings).toLocaleString('en-US')} ${currency}`
+    : `0 ${currency}`;
 
-  const upcomingSessions = useMemo(() => {
+   const upcomingSessions = useMemo(() => {
     const rawList = Array.isArray(apiData.upcomingSessions) && apiData.upcomingSessions.length > 0
       ? apiData.upcomingSessions
-      : (Array.isArray(scheduledSessionsRes?.data) ? scheduledSessionsRes.data : (Array.isArray(scheduledSessionsRes) ? scheduledSessionsRes : []));
+      : (Array.isArray(scheduledSessionsRes?.data) && scheduledSessionsRes.data.length > 0
+        ? scheduledSessionsRes.data
+        : (Array.isArray(scheduledSessionsRes) && scheduledSessionsRes.length > 0 ? scheduledSessionsRes : null));
 
-    return rawList.map((s, idx) => formatSessionCard(s, idx, isRtl)).filter(Boolean);
-  }, [apiData.upcomingSessions, scheduledSessionsRes, isRtl]);
-
-  const nextSession = useMemo(() => {
-    const rawNext = apiData.nextSession || nextSessionRes?.session;
-    if (rawNext) {
-      let title = typeof rawNext.title === 'object'
-        ? (isRtl ? rawNext.title.ar || rawNext.title.en : rawNext.title.en || rawNext.title.ar)
-        : (rawNext.title || '');
-      
-      let groupName = '';
-      if (typeof rawNext.group === 'object' && rawNext.group !== null) {
-        groupName = isRtl
-          ? (rawNext.group.name?.ar || rawNext.group.name?.en || rawNext.group.name)
-          : (rawNext.group.name?.en || rawNext.group.name?.ar || rawNext.group.name);
-      } else if (rawNext.group) {
-        groupName = String(rawNext.group);
-      } else if (rawNext.groupName) {
-        groupName = rawNext.groupName;
-      }
-
-      let timeStr = rawNext.timeStr || rawNext.time || '';
-      if (!timeStr && rawNext.day) {
-        timeStr = `${rawNext.day} - ${rawNext.time || rawNext.startTime || ''}`;
-      } else if (!timeStr && (rawNext.scheduledAt || rawNext.startDate)) {
-        const d = new Date(rawNext.scheduledAt || rawNext.startDate);
-        if (!isNaN(d.getTime())) {
-          timeStr = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-          }).format(d);
-        }
-      }
-
-      return {
-        ...rawNext,
-        title: title || groupName || t('teacherDashboard.teachingSession', 'جلسة تدريس'),
-        groupName: groupName || title || t('teacherDashboard.studyGroup', 'مجموعة دراسية'),
-        timeStr: timeStr || '',
-      };
+    if (!rawList || rawList.length === 0) {
+      return [];
     }
 
-    if (upcomingSessions.length > 0) {
-      return {
-        title: upcomingSessions[0].title,
-        groupName: upcomingSessions[0].title,
-        timeStr: upcomingSessions[0].timeStr,
-      };
-    }
-    return null;
-  }, [apiData.nextSession, nextSessionRes?.session, upcomingSessions, isRtl, t]);
+    return rawList.map((s, idx) => formatSessionCard(s, idx, isRtl, t)).filter(Boolean);
+  }, [apiData.upcomingSessions, scheduledSessionsRes, isRtl, t]);
 
-  const groupsOverviewTable = useMemo(() => {
-    const list = Array.isArray(groupsRes?.data) ? groupsRes.data : [];
+   const nextSession = useMemo(() => {
+    const rawNext = nextSessionRes?.session || apiData.nextSession;
+    if (!rawNext || (!rawNext.id && !rawNext.title)) {
+      return null;
+    }
+
+    let title = '';
+    if (typeof rawNext.title === 'object' && rawNext.title !== null) {
+      title = isRtl
+        ? (rawNext.title.ar || rawNext.title.en || rawNext.title.name || '')
+        : (rawNext.title.en || rawNext.title.ar || rawNext.title.name || '');
+    } else if (rawNext.title) {
+      title = String(rawNext.title);
+    }
+
+    let group = '';
+    if (typeof rawNext.group === 'object' && rawNext.group !== null) {
+      group = isRtl
+        ? (rawNext.group.name?.ar || rawNext.group.name?.en || rawNext.group.name || '')
+        : (rawNext.group.name?.en || rawNext.group.name?.ar || rawNext.group.name || '');
+    } else if (rawNext.group) {
+      group = String(rawNext.group);
+    }
+
+    const startTimeVal = rawNext.startTime || rawNext.scheduledAt || rawNext.startDate || rawNext.date;
+    const { countdown, countdownUnit } = calculateCountdown(startTimeVal, isRtl, t);
+
+    return {
+      ...rawNext,
+      id: rawNext.id || rawNext._id,
+      title: title || group || (rawNext.sessionNumber ? (isRtl ? `الحصة رقم ${rawNext.sessionNumber}` : `Session #${rawNext.sessionNumber}`) : ''),
+      group,
+      countdown: rawNext.countdown || countdown,
+      countdownUnit: rawNext.countdownUnit || countdownUnit,
+      joinUrl: rawNext.zoomJoinUrl || rawNext.joinUrl || (rawNext.id ? `/dashboard/teacher/live?session=${rawNext.id}` : '/dashboard/teacher/live'),
+    };
+  }, [nextSessionRes?.session, apiData.nextSession, isRtl, t]);
+
+   const groupsOverviewTable = useMemo(() => {
+    const raw = groupsRes?.data;
+    let list = [];
+    if (Array.isArray(groupsRes)) {
+      list = groupsRes;
+    } else if (Array.isArray(raw)) {
+      list = raw;
+    } else if (Array.isArray(raw?.data)) {
+      list = raw.data;
+    } else if (Array.isArray(raw?.groups)) {
+      list = raw.groups;
+    }
+
+    if (!list || list.length === 0) {
+      return [];
+    }
+
     return list.map((g, idx) => {
       const studentsCount = Array.isArray(g.students)
         ? g.students.length
@@ -235,27 +326,37 @@ export default function TeacherDashboard() {
           ? (isRtl ? g.name.ar || g.name.en : g.name.en || g.name.ar)
           : (g.name || `${t('teacherDashboard.groupName', 'مجموعة')} ${idx + 1}`);
 
+      const progress = g.progress ?? 0;
+      let nextTime = g.nextSessionTime || '';
+      if (!nextTime && Array.isArray(g.schedules) && g.schedules.length > 0) {
+        nextTime = g.schedules.map((sc) => sc.day || sc.dayName || sc.time).filter(Boolean).join('، ');
+      }
+
       return {
         id: g.id || g._id || `g-${idx}`,
         name: groupName,
         type: getGroupTypeLabel(g, t),
-        level: getGroupLevelLabel(g, isRtl),
+        level: getGroupLevelLabel(g, isRtl, t),
         studentsCount,
         maxStudents: g.maxStudents || 0,
+        progress,
+        nextSessionTime: nextTime,
       };
     });
   }, [groupsRes, isRtl, t]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-      <TeacherDashboardHeader teacherName={teacherName} />
+       <TeacherDashboardHeader teacherName={teacherName} />
 
-      <TeacherPendingEvaluationBanner
-        pendingSession={pendingSession}
-        pendingStudents={pendingStudents}
-      />
+       {pendingSession && (
+        <TeacherPendingEvaluationBanner
+          pendingSession={pendingSession}
+          pendingStudents={pendingStudents}
+        />
+      )}
 
-      <TeacherStatsGrid
+       <TeacherStatsGrid
         totalStudents={totalStudents}
         totalGroups={totalGroups}
         totalSessions={totalSessions}
@@ -264,18 +365,18 @@ export default function TeacherDashboard() {
         dueEarnings={dueEarnings}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-5 h-full">
-          <TeacherNextSessionCard nextSession={nextSession} />
-        </div>
-        <div className="lg:col-span-7 h-full">
+       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+         <div className="lg:col-span-8">
           <TeacherUpcomingSessionsList upcomingSessions={upcomingSessions} />
         </div>
-      </div>
 
-      <TeacherGroupsOverviewTable groups={groupsOverviewTable} />
+        <div className="lg:col-span-4 space-y-4">
+          <TeacherQuickActions />
+          <TeacherNextSessionCard nextSession={nextSession} />
+        </div>
+      </section>
 
-      <TeacherQuickActions />
+       <TeacherGroupsOverviewTable groups={groupsOverviewTable} />
     </div>
   );
 }

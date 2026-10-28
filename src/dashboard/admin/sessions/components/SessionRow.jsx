@@ -261,7 +261,7 @@ export default function SessionRow({
       {isExpanded && expandedPanel === 'teacher' && (
         <ChangeTeacherPanel
           session={session}
-          onConfirm={(tid, tname) => handleChangeTeacher(session.id, tid, tname)}
+          onConfirm={(tid, tname, reason) => handleChangeTeacher(session.id, tid, tname, reason)}
           onCancel={() => handleTogglePanel(session.id, 'teacher')}
           teachers={teachers}
         />

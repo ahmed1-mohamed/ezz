@@ -34,7 +34,6 @@ export default function CurriculumLevelCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden transition-all text-start">
-      {/* Level Card Header */}
       <div
         className="p-4 sm:p-5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
         onClick={onToggle}
@@ -85,7 +84,6 @@ export default function CurriculumLevelCard({
         </div>
       </div>
 
-      {/* Level Card Expanded Body */}
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
@@ -120,7 +118,6 @@ export default function CurriculumLevelCard({
                     key={unitId}
                     className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs"
                   >
-                    {/* Unit Header */}
                     <div
                       className="p-3.5 sm:p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
                       onClick={() => onToggleUnit(rawUnitId || unitId)}
@@ -169,7 +166,6 @@ export default function CurriculumLevelCard({
                       </div>
                     </div>
 
-                    {/* Unit Expanded Files Content */}
                     <AnimatePresence initial={false}>
                       {isUnitExpanded && (
                         <motion.div

@@ -82,13 +82,10 @@ const safeExtractName = (nameVal, lang = 'ar') => {
 
 const normalizeScheduleList = (rawList) => {
   if (!Array.isArray(rawList) || rawList.length === 0) {
-    return [
-      { day: 'sunday', startTime: '16:00', endTime: '17:30' },
-      { day: 'tuesday', startTime: '16:00', endTime: '17:30' },
-    ]
+    return []
   }
 
-  const result = rawList.map((s) => {
+  return rawList.map((s) => {
     if (!s) return null
     let day = 'sunday'
     if (typeof s.day === 'object' && s.day !== null) {
@@ -100,11 +97,6 @@ const normalizeScheduleList = (rawList) => {
     const endTime = typeof s.endTime === 'string' ? s.endTime : (s.timeTo || '17:30')
     return { day, startTime, endTime }
   }).filter(Boolean)
-
-  return result.length > 0 ? result : [
-    { day: 'sunday', startTime: '16:00', endTime: '17:30' },
-    { day: 'tuesday', startTime: '16:00', endTime: '17:30' },
-  ]
 }
 
 function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSave, onCancel }) {
@@ -119,10 +111,10 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     nameEn: safeExtractName(group?.name, 'en') || safeExtractName(group?.nameEn, 'en'),
     country: resolveEntityId(group?.country),
     curriculum: resolveEntityId(group?.curriculum),
-    studentLevel: resolveEntityId(group?.studentLevel),
+    studentLevel: resolveEntityId(group?.studentLevel) || '',
     teacher: resolveEntityId(group?.teacher),
     type: group?.type || 'group',
-    language: group?.language || 'العربية',
+    language: resolveEntityId(group?.language) || '',
     maxStudents: group?.maxStudents || 5,
     status: group?.status || 'active',
     startDate: safeExtractDateString(group?.startDate),
@@ -145,10 +137,10 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
         nameEn: safeExtractName(group.name, 'en') || safeExtractName(group.nameEn, 'en'),
         country: resolveEntityId(group.country),
         curriculum: resolveEntityId(group.curriculum),
-        studentLevel: resolveEntityId(group.studentLevel),
+        studentLevel: resolveEntityId(group.studentLevel) || '',
         teacher: resolveEntityId(group.teacher),
         type: group.type || 'group',
-        language: group.language || 'العربية',
+        language: resolveEntityId(group.language) || '',
         maxStudents: group.maxStudents || 5,
         status: group.status || 'active',
         startDate: safeExtractDateString(group.startDate),
@@ -274,6 +266,9 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     if (!formData.studentLevel) {
       newErrors.studentLevel = t('adminDashboard.groups.selectLevelError', 'الرجاء اختيار المستوى الدراسي!')
     }
+    if (!formData.language) {
+      newErrors.language = t('adminDashboard.groups.selectLanguageError', 'الرجاء اختيار لغة الشرح!')
+    }
     if (!formData.teacher) {
       newErrors.teacher = t('adminDashboard.groups.selectTeacherError', 'الرجاء اختيار المعلم!')
     }
@@ -287,9 +282,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       newErrors.endDate = t('adminDashboard.groups.dateOrderError', 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء!')
     }
 
-    if (!schedule || schedule.length === 0) {
-      newErrors.schedule = t('adminDashboard.groups.scheduleEmptyError', 'الرجاء إضافة موعد واحد على الأقل في الجدول الأسبوعي!')
-    } else {
+    if (schedule && schedule.length > 0) {
       const invalidSlot = schedule.find((s) => !s.day || !s.startTime || !s.endTime)
       if (invalidSlot) {
         newErrors.schedule = t('adminDashboard.groups.scheduleInvalidError', 'الرجاء التأكد من صحة أوقات الحصص!')
@@ -318,10 +311,10 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       curriculum: formData.curriculum,
       studentLevel: formData.studentLevel,
       type: formData.type || 'group',
-      language: formData.language || 'العربية',
+      language: formData.language,
       maxStudents: maxStudentsNum || 1,
       teacher: formData.teacher,
-      weeklySchedule: schedule.map((s) => ({
+      weeklySchedule: (schedule || []).map((s) => ({
         day: (s.day || '').toLowerCase(),
         startTime: s.startTime || s.timeFrom || '16:00',
         endTime: s.endTime || s.timeTo || '17:30',

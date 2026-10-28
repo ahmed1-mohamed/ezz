@@ -14,7 +14,6 @@ export function useAssignments() {
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const debounceTimerRef = useRef(null);
 
-    // Debounce search input by 350ms to prevent spamming the API on every keystroke
     useEffect(() => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
@@ -30,7 +29,6 @@ export function useAssignments() {
         };
     }, [searchValue]);
 
-    // Fetch stats only on mount
     useEffect(() => {
         let isMounted = true;
         const loadStats = async () => {
@@ -43,7 +41,6 @@ export function useAssignments() {
         return () => { isMounted = false; };
     }, []);
 
-    // Fetch assignments when debouncedSearch changes
     useEffect(() => {
         let isMounted = true;
         const loadAssignments = async () => {

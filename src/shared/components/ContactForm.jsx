@@ -8,21 +8,7 @@ import ContactBanner from './ContactBanner.jsx'
 import ContactInfoCards from './ContactInfoCards.jsx'
 import CountryPhoneInput from './CountryPhoneInput.jsx'
 
-const getSafeErrorMessage = (err) => {
-    if (!err) return '';
-    if (typeof err === 'string') return err;
-    if (typeof err === 'object') {
-        if (err.message && typeof err.message === 'string') return err.message;
-        if (err.error && typeof err.error === 'string') return err.error;
-        if (err.errors) {
-            if (Array.isArray(err.errors)) return err.errors.join(', ');
-            if (typeof err.errors === 'object') {
-                return Object.values(err.errors).flat().join(', ');
-            }
-        }
-    }
-    return String(err);
-}
+import { sanitizeErrorMessage } from '@/shared/utils/errorHandler.js'
 
 export default function ContactForm() {
     const { t } = useTranslation()
@@ -62,7 +48,8 @@ export default function ContactForm() {
             }, 0)
         } else if (messageSubmitStatus === 'failed') {
             setTimeout(() => {
-                const errorMsg = getSafeErrorMessage(submitError) || t('contact.toast.error', 'عذراً، حدث خطأ ما أثناء إرسال الرسالة.');
+                const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
+                const errorMsg = sanitizeErrorMessage(submitError, null, isArabic) || t('contact.toast.error', 'عذراً، حدث خطأ ما أثناء إرسال الرسالة.');
                 setToast({
                     show: true,
                     message: errorMsg,

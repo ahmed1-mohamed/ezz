@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 export default function QuestionBuilder({ questions = [], onChange }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [activeQuestionId, setActiveQuestionId] = useState(
     questions.length > 0 ? questions[0].id : null
@@ -102,20 +102,20 @@ export default function QuestionBuilder({ questions = [], onChange }) {
         <div>
           <h4 className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
             <HelpCircle size={18} className="text-[#00594C] dark:text-emerald-400" />
-            <span>بنك أسئلة الاختبار القصير</span>
+            <span>{t('teacherHomework.quizBankTitle', 'بنك أسئلة الاختبار القصير')}</span>
           </h4>
           <p className="text-xs text-slate-400 font-medium mt-0.5">
-            يمكنك إضافة حتى 20 سؤالاً (اختياري بأربعة خيارات كحد أقصى، أو مقالي) مع تحديد درجات كل سؤال
+            {t('teacherHomework.quizBankDesc', 'يمكنك إضافة حتى 20 سؤالاً (اختياري بأربعة خيارات كحد أقصى، أو مقالي) مع تحديد درجات كل سؤال')}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">
-            {questions.length} / 20 سؤال
+            {t('teacherHomework.questionsCount', '{{count}} / 20 سؤال', { count: questions.length })}
           </span>
 
           <span className="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs font-black text-amber-700 dark:text-amber-300">
-            إجمالي الدرجات: {totalPoints}
+            {t('teacherHomework.totalPoints', 'إجمالي الدرجات: {{points}}', { points: totalPoints })}
           </span>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50'
             }`}
           >
-            <span>سؤال {idx + 1}</span>
+            <span>{t('teacherHomework.questionNum', 'سؤال {{num}}', { num: idx + 1 })}</span>
             <span
               className={`text-[10px] px-1.5 py-0.5 rounded-md ${
                 activeQuestionId === q.id
@@ -140,7 +140,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
               }`}
             >
-              {q.type === 'multiple_choice' ? 'اختياري' : 'مقالي'}
+              {q.type === 'multiple_choice' ? t('teacherHomework.multipleChoice', 'اختياري') : t('teacherHomework.essay', 'مقالي')}
             </span>
           </button>
         ))}
@@ -153,7 +153,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               className="px-3 py-2 rounded-xl border border-dashed border-[#00594C]/40 text-[#00594C] dark:text-emerald-400 bg-[#00594C]/5 hover:bg-[#00594C]/10 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
             >
               <Plus size={14} />
-              <span>+ سؤال اختياري</span>
+              <span>{t('teacherHomework.addMultipleChoice', '+ سؤال اختياري')}</span>
             </button>
 
             <button
@@ -162,7 +162,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               className="px-3 py-2 rounded-xl border border-dashed border-amber-500/40 text-amber-700 dark:text-amber-400 bg-amber-500/5 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
             >
               <Plus size={14} />
-              <span>+ سؤال مقالي</span>
+              <span>{t('teacherHomework.addEssay', '+ سؤال مقالي')}</span>
             </button>
           </div>
         )}
@@ -175,10 +175,10 @@ export default function QuestionBuilder({ questions = [], onChange }) {
           </div>
           <div>
             <h4 className="text-base font-bold text-slate-800 dark:text-white">
-              لم تتم إضافة أي أسئلة للاختبار بعد
+              {t('teacherHomework.noQuestionsYet', 'لم تتم إضافة أي أسئلة للاختبار بعد')}
             </h4>
             <p className="text-xs text-slate-400 font-medium mt-1">
-              أضف أسئلة اختيار من متعدد أو أسئلة مقالية لاختبار استيعاب الطلاب لما تم شرحه
+              {t('teacherHomework.noQuestionsYetDesc', 'أضف أسئلة اختيار من متعدد أو أسئلة مقالية لاختبار استيعاب الطلاب لما تم شرحه')}
             </p>
           </div>
 
@@ -189,7 +189,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               className="px-5 py-2.5 rounded-2xl bg-[#00594C] hover:bg-[#00473d] text-white text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer"
             >
               <Plus size={16} />
-              <span>إضافة سؤال اختياري (Multiple Choice)</span>
+              <span>{t('teacherHomework.addMultipleChoiceBtn', 'إضافة سؤال اختياري (Multiple Choice)')}</span>
             </button>
 
             <button
@@ -198,7 +198,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               className="px-5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 cursor-pointer"
             >
               <Plus size={16} />
-              <span>إضافة سؤال مقالي (Essay)</span>
+              <span>{t('teacherHomework.addEssayBtn', 'إضافة سؤال مقالي (Essay)')}</span>
             </button>
           </div>
         </div>
@@ -234,7 +234,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                             : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        اختيار من متعدد
+                        {t('teacherHomework.multipleChoice', 'اختيار من متعدد')}
                       </button>
 
                       <button
@@ -246,14 +246,16 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                             : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        سؤال مقالي
+                        {t('teacherHomework.essay', 'سؤال مقالي')}
                       </button>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                      <label className="text-xs font-bold text-slate-500">درجة السؤال:</label>
+                      <label className="text-xs font-bold text-slate-500">
+                        {t('teacherHomework.questionPoints', 'درجة السؤال:')}
+                      </label>
                       <input
                         type="number"
                         min={1}
@@ -268,14 +270,16 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                         }
                         className="w-16 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-black text-center text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00594C]"
                       />
-                      <span className="text-xs text-slate-400 font-semibold">درجات</span>
+                      <span className="text-xs text-slate-400 font-semibold">
+                        {t('teacherHomework.pointsUnit', 'درجات')}
+                      </span>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => handleDeleteQuestion(currentQ.id)}
                       className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                      title="حذف هذا السؤال"
+                      title={t('teacherHomework.deleteQuestion', 'حذف هذا السؤال')}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -284,14 +288,14 @@ export default function QuestionBuilder({ questions = [], onChange }) {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    نص السؤال <span className="text-rose-500">*</span>
+                    {t('teacherHomework.questionText', 'نص السؤال')} <span className="text-rose-500">*</span>
                   </label>
                   <textarea
                     rows={2}
                     placeholder={
                       currentQ.type === 'multiple_choice'
-                        ? 'مثال: ما هو حكم النون الساكنة إذا جاء بعدها حرف الياء؟'
-                        : 'مثال: اذكر باختصار تعريف المد اللازم الكلمي المثقل مع مثال من سورة الفاتحة.'
+                        ? t('teacherHomework.mcqPlaceholder', 'مثال: ما هو حكم النون الساكنة إذا جاء بعدها حرف الياء؟')
+                        : t('teacherHomework.essayPlaceholder', 'مثال: اذكر باختصار تعريف المد اللازم الكلمي المثقل مع مثال من سورة الفاتحة.')
                     }
                     value={currentQ.question}
                     onChange={(e) => handleUpdateQuestion(currentQ.id, 'question', e.target.value)}
@@ -303,10 +307,10 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                   <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between">
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                        الخيارات (حدد الإجابة الصحيحة بالنقر على الدائرة)
+                        {t('teacherHomework.optionsLabel', 'الخيارات (حدد الإجابة الصحيحة بالنقر على الدائرة)')}
                       </label>
                       <span className="text-[11px] text-slate-400 font-semibold">
-                        {(currentQ.options || []).length} من 4 خيارات
+                        {t('teacherHomework.optionsCount', '{{count}} من 4 خيارات', { count: (currentQ.options || []).length })}
                       </span>
                     </div>
 
@@ -333,7 +337,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                                   ? 'border-emerald-600 bg-emerald-600 text-white'
                                   : 'border-slate-300 dark:border-slate-600 hover:border-emerald-500'
                               }`}
-                              title={isCorrect ? 'الإجابة الصحيحة' : 'اضغط لجعلها الإجابة الصحيحة'}
+                              title={isCorrect ? t('teacherHomework.correctAnswer', 'الإجابة الصحيحة') : t('teacherHomework.setCorrectAnswer', 'اضغط لجعلها الإجابة الصحيحة')}
                             >
                               {isCorrect && <CheckCircle2 size={14} className="text-white" />}
                             </button>
@@ -344,7 +348,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                               onChange={(e) =>
                                 handleUpdateOption(currentQ.id, optIdx, e.target.value)
                               }
-                              placeholder={`الخيار ${optIdx + 1}`}
+                              placeholder={t('teacherHomework.optionPlaceholder', 'الخيار {{num}}', { num: optIdx + 1 })}
                               className="flex-1 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none"
                             />
 
@@ -369,7 +373,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                         className="text-xs font-bold text-[#00594C] dark:text-emerald-400 hover:underline flex items-center gap-1.5 cursor-pointer mt-1"
                       >
                         <Plus size={14} />
-                        <span>إضافة خيار إضافي</span>
+                        <span>{t('teacherHomework.addOption', 'إضافة خيار إضافي')}</span>
                       </button>
                     )}
                   </div>
@@ -378,10 +382,10 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                 {currentQ.type === 'essay' && (
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-500 space-y-1">
                     <p className="font-bold text-slate-700 dark:text-slate-300">
-                      ملاحظة حول السؤال المقالي:
+                      {t('teacherHomework.essayNoteTitle', 'ملاحظة حول السؤال المقالي:')}
                     </p>
                     <p>
-                      سيقوم الطالب بكتابة إجابته في صندوق نصي عند حل الواجب، وسيتم عرض إجابته عليك لمراجعتها وتصحيحها ووضع الدرجة المناسبة في صفحة التسليمات.
+                      {t('teacherHomework.essayNoteDesc', 'سيقوم الطالب بكتابة إجابته في صندوق نصي عند حل الواجب، وسيتم عرض إجابته عليك لمراجعتها وتصحيحها ووضع الدرجة المناسبة في صفحة التسليمات.')}
                     </p>
                   </div>
                 )}

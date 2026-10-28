@@ -18,34 +18,37 @@ export default function TeacherEvaluations() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
 
-  const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
+  const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
 
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat('en-US', {
-          hour: 'numeric',
+        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString('en-US'));
+        setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now);
+        const dateFormatted = new Intl.DateTimeFormat(
+          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'));
+        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
       }
     };
 

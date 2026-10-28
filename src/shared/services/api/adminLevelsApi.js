@@ -6,8 +6,18 @@ export const adminLevelsApi = {
       const response = await api.get('/api/v1/student-levels/private/localized/all', { params });
       return response.data;
     } catch (error) {
-      console.error('API fetchLevels failed:', error);
-      throw error;
+      try {
+        const rawRes = await api.get('/api/v1/student-levels/private', { params });
+        return rawRes.data;
+      } catch (err2) {
+        try {
+          const fallbackRes = await api.get('/api/v1/student-levels', { params });
+          return fallbackRes.data;
+        } catch {
+          console.error('API fetchLevels failed:', error);
+          throw error;
+        }
+      }
     }
   },
 

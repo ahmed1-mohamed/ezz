@@ -11,7 +11,7 @@ function utcToLocalTime(utcValue) {
     if (!utcValue) return '—';
     const date = new Date(utcValue);
     if (isNaN(date.getTime())) return String(utcValue);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function utcToLocalDate(utcValue) {

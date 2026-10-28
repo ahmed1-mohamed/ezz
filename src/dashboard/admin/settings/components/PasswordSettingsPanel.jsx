@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import { setCookie } from '@/shared/utils/cookieUtils.js';
@@ -9,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function PasswordSettingsPanel({ itemVariants, profilePhone, profileCountry }) {
     const { t } = useTranslation();
+    const { user } = useAuth();
 
     const [passwordData, setPasswordData] = useState({
         current: '',
@@ -34,25 +36,28 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
 
         setSavingPassword(true);
 
-        const phone = profilePhone || '';
-        const country = profileCountry || '';
+        const userId = user?.id || user?._id || user?.user_id;
+        const payload = {
+            password: passwordData.new,
+            confirmPassword: passwordData.confirm,
+            userId,
+        };
+
+        if (passwordData.current) {
+            payload.currentPassword = passwordData.current;
+        }
+        if (profilePhone && typeof profilePhone === 'string' && profilePhone.trim()) {
+            payload.phone = profilePhone.trim();
+        }
+        if (profileCountry && typeof profileCountry === 'string' && profileCountry.trim()) {
+            payload.country = profileCountry.trim();
+        }
 
         let res;
         if (passwordData.current) {
-            res = await profileApi.changePassword({
-                currentPassword: passwordData.current,
-                password: passwordData.new,
-                confirmPassword: passwordData.confirm,
-                phone: phone,
-                country: country
-            });
+            res = await profileApi.changePassword(payload);
         } else {
-            res = await profileApi.createPassword({
-                password: passwordData.new,
-                confirmPassword: passwordData.confirm,
-                phone: phone,
-                country: country
-            });
+            res = await profileApi.createPassword(payload);
         }
 
         if (res?.success) {

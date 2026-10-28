@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -169,7 +169,15 @@ export default function ParentLayout() {
       </aside>
 
       <main className="flex-1 overflow-x-hidden min-h-screen relative">
-        <Outlet />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-24 min-h-[400px]">
+              <div className="w-8 h-8 rounded-full border-2 border-[#0f7a6c] border-t-transparent animate-spin" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

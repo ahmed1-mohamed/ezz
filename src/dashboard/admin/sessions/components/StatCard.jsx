@@ -1,6 +1,7 @@
 
 export default function StatCard({ label, value, color }) {
   const colorMap = {
+    purple: 'bg-purple-50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-800/30 text-purple-600 dark:text-purple-400',
     red: 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/30 text-red-600 dark:text-red-400',
     blue: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30 text-blue-600 dark:text-blue-400',
     green: 'bg-brand-50 dark:bg-brand-900/10 border-brand-100 dark:border-brand-800/30 text-brand-600 dark:text-brand-400',

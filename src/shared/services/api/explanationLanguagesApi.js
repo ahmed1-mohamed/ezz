@@ -6,8 +6,18 @@ export const explanationLanguagesApi = {
       const response = await api.get('/api/v1/explanation-languages/private/localized/all', { params })
       return response.data
     } catch (error) {
-      console.error('API fetchLanguages failed:', error)
-      throw error
+      try {
+        const res2 = await api.get('/api/v1/explanation-languages/private', { params })
+        return res2.data
+      } catch (err2) {
+        try {
+          const res3 = await api.get('/api/v1/explanation-languages', { params })
+          return res3.data
+        } catch {
+          console.error('API fetchLanguages failed:', error)
+          throw error
+        }
+      }
     }
   },
 

@@ -21,37 +21,40 @@ import QuestionBuilder from './components/QuestionBuilder.jsx';
 
 export default function CreateHomework() {
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
 
-  const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
+  const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
 
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat('en-US', {
-          hour: 'numeric',
+        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString('en-US'));
+        setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now);
+        const dateFormatted = new Intl.DateTimeFormat(
+          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'));
+        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
       }
     };
 
@@ -148,12 +151,12 @@ export default function CreateHomework() {
     }
 
     if (!selectedGroupId) {
-      toast.error('يرجى اختيار المجموعة الدراسية النشطة');
+      toast.error(t('teacherHomework.errSelectGroup', 'يرجى اختيار المجموعة الدراسية النشطة'));
       return;
     }
 
     if (!deadline) {
-      toast.error('يرجى تحديد الموعد النهائي لتسليم الواجب');
+      toast.error(t('teacherHomework.errSetDeadline', 'يرجى تحديد الموعد النهائي لتسليم الواجب'));
       return;
     }
 
@@ -185,16 +188,16 @@ export default function CreateHomework() {
       if (res.success) {
         toast.success(
           isDraft
-            ? 'تم حفظ الواجب كمسودة بنجاح'
-            : 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'
+            ? t('teacherHomework.draftSaved', 'تم حفظ الواجب كمسودة بنجاح')
+            : t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة')
         );
         navigate('/dashboard/teacher/assignments/submissions');
       } else {
-        toast.error(res.message || 'فشل نشر الواجب');
+        toast.error(res.message || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));
       }
     } catch {
       setIsSubmitting(false);
-      toast.error('حدث خطأ أثناء رفع ونشر الواجب');
+      toast.error(t('teacherHomework.uploadError', 'حدث خطأ أثناء رفع ونشر الواجب'));
     }
   };
 
@@ -203,10 +206,10 @@ export default function CreateHomework() {
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
-            إنشاء واجب جديد
+            {t('teacherHomework.createTitle', 'إنشاء واجب جديد')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-0.5">
-            أضف واجباً للطلاب بعد الجلسة
+            {t('teacherHomework.createSubtitle', 'أضف واجباً للطلاب بعد الجلسة')}
           </p>
         </div>
 
@@ -224,17 +227,17 @@ export default function CreateHomework() {
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start">
         <h3 className="text-sm font-black text-slate-800 dark:text-white">
-          ملخص الواجب
+          {t('teacherHomework.summaryTitle', 'ملخص الواجب')}
         </h3>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 border-b border-slate-50 dark:border-slate-800/80 pb-2.5">
             <div className="flex items-center gap-2">
               <Video size={16} className="text-slate-400" />
-              <span>الفيديو</span>
+              <span>{t('teacherHomework.video', 'الفيديو')}</span>
             </div>
             <span className={mediaFile ? 'text-emerald-600 font-black' : 'text-slate-400'}>
-              {mediaFile ? mediaFile.name : 'لم يتم الإرفاق'}
+              {mediaFile ? mediaFile.name : t('teacherHomework.notAttached', 'لم يتم الإرفاق')}
             </span>
           </div>
 
@@ -244,22 +247,22 @@ export default function CreateHomework() {
                 size={16}
                 className={questions.length > 0 ? 'text-emerald-500' : 'text-slate-400'}
               />
-              <span>الاختبار ({questions.length} أسئلة)</span>
+              <span>{t('teacherHomework.quiz', 'الاختبار')} ({questions.length} أسئلة)</span>
             </div>
             <span className={questions.length > 0 ? 'text-emerald-600 font-black' : 'text-slate-400'}>
-              {questions.length > 0 ? `${questions.length} سؤال مضاف` : '0 أسئلة'}
+              {questions.length > 0 ? t('teacherHomework.questionsAdded', { count: questions.length, defaultValue: `${questions.length} سؤال مضاف` }) : '0 أسئلة'}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2">
               <FileText size={16} className="text-slate-400" />
-              <span>ملف الواجب</span>
+              <span>{t('teacherHomework.document', 'ملف الواجب')}</span>
             </div>
             <span
               className={documentFile ? 'text-emerald-600 font-black' : 'text-slate-400'}
             >
-              {documentFile ? documentFile.name : 'لم يتم الإرفاق'}
+              {documentFile ? documentFile.name : t('teacherHomework.notAttached', 'لم يتم الإرفاق')}
             </span>
           </div>
         </div>
@@ -267,32 +270,32 @@ export default function CreateHomework() {
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
         <h3 className="text-sm font-black text-slate-800 dark:text-white">
-          معلومات الواجب
+          {t('teacherHomework.attachmentsAndContent', 'معلومات الواجب')}
         </h3>
 
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
-            عنوان الواجب
+            {t('teacherHomework.homeworkTitle', 'عنوان الواجب')}
           </label>
           <input
             type="text"
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="مثال : واجب أحكام المد والقصر"
+            placeholder={t('teacherHomework.homeworkTitlePlaceholder', 'مثال : واجب أحكام المد والقصر')}
             className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all"
           />
         </div>
 
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
-            وصف الواجب
+            {t('teacherHomework.homeworkDesc', 'وصف الواجب')}
           </label>
           <textarea
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="اكتب تعليمات تفصيلية للطلاب..."
+            placeholder={t('teacherHomework.homeworkDescPlaceholder', 'اكتب تعليمات تفصيلية للطلاب...')}
             className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
           />
         </div>
@@ -300,7 +303,7 @@ export default function CreateHomework() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
-              الموعد النهائي
+              {t('teacherHomework.submissionDeadline', 'الموعد النهائي')}
             </label>
             <div className="relative">
               <input
@@ -315,7 +318,7 @@ export default function CreateHomework() {
 
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
-              المجموعة (النشطة فقط)
+              {t('teacherHomework.studyGroup', 'المجموعة (النشطة فقط)')}
             </label>
             <div className="relative">
               <select
@@ -324,7 +327,7 @@ export default function CreateHomework() {
                 className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] appearance-none cursor-pointer"
               >
                 <option value="" disabled>
-                  اختر المجموعة
+                  {t('teacherHomework.selectActiveGroup', 'اختر المجموعة')}
                 </option>
                 {activeGroups.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -352,7 +355,7 @@ export default function CreateHomework() {
               }`}
           >
             <FileText size={16} />
-            <span>ملف الواجب</span>
+            <span>{t('teacherHomework.documentTab', 'ملف الواجب')}</span>
             {activeTab === 'documents' && (
               <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
             )}
@@ -367,7 +370,7 @@ export default function CreateHomework() {
               }`}
           >
             <HelpCircle size={16} />
-            <span>اختبار قصير</span>
+            <span>{t('teacherHomework.quizTab', 'اختبار قصير')}</span>
             {activeTab === 'quiz' && (
               <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
             )}
@@ -382,7 +385,7 @@ export default function CreateHomework() {
               }`}
           >
             <Video size={16} />
-            <span>فيديو توضيحي</span>
+            <span>{t('teacherHomework.videoTab', 'فيديو توضيحي')}</span>
             {activeTab === 'video' && (
               <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
             )}
@@ -410,10 +413,10 @@ export default function CreateHomework() {
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold text-slate-800 dark:text-white">
-                      رفع فيديو توضيحي
+                      {t('teacherHomework.uploadVideo', 'رفع فيديو توضيحي')}
                     </h4>
                     <p className="text-xs text-slate-400 font-semibold">
-                      حتى 50 ميغابايت - MP4, MOV
+                      {t('teacherHomework.maxVideoSize', 'حتى 50 ميغابايت - MP4, MOV')}
                     </p>
                   </div>
                 </div>
@@ -429,7 +432,7 @@ export default function CreateHomework() {
                           {mediaFile.name}
                         </h4>
                         <span className="text-xs text-slate-400 font-semibold">
-                          {(mediaFile.size / (1024 * 1024)).toFixed(1)} ميغابايت
+                          {(mediaFile.size / (1024 * 1024)).toFixed(1)} MB
                         </span>
                       </div>
                     </div>
@@ -438,7 +441,7 @@ export default function CreateHomework() {
                       type="button"
                       onClick={handleRemoveVideo}
                       className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="حذف الفيديو"
+                      title={t('common.delete', 'حذف')}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -478,10 +481,10 @@ export default function CreateHomework() {
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold text-slate-800 dark:text-white">
-                      رفع ملف الواجب
+                      {t('teacherHomework.uploadDoc', 'رفع ملف الواجب')}
                     </h4>
                     <p className="text-xs text-slate-400 font-semibold">
-                      ملف واحد فقط (PDF، Word أو صورة) حتى 50 ميغابايت
+                      {t('teacherHomework.maxDocSize', 'ملف واحد فقط (PDF، Word أو صورة) حتى 50 ميغابايت')}
                     </p>
                   </div>
                 </div>
@@ -496,7 +499,7 @@ export default function CreateHomework() {
                         {documentFile.name}
                       </h4>
                       <span className="text-xs text-slate-400 font-semibold">
-                        {(documentFile.size / (1024 * 1024)).toFixed(1)} ميغابايت
+                        {(documentFile.size / (1024 * 1024)).toFixed(1)} MB
                       </span>
                     </div>
                   </div>
@@ -505,7 +508,7 @@ export default function CreateHomework() {
                     type="button"
                     onClick={handleRemoveDocument}
                     className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                    title="حذف الملف"
+                    title={t('common.delete', 'حذف')}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -526,12 +529,12 @@ export default function CreateHomework() {
           {isSubmitting ? (
             <>
               <Loader2 size={18} className="animate-spin" />
-              <span>جاري نشر الواجب...</span>
+              <span>{t('teacherHomework.publishing', 'جاري نشر الواجب...')}</span>
             </>
           ) : (
             <>
               <FileCheck size={18} />
-              <span>نشر الواجب</span>
+              <span>{t('teacherHomework.publishNow', 'نشر الواجب')}</span>
             </>
           )}
         </button>

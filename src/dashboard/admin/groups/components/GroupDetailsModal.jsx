@@ -1,14 +1,29 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2 } from 'lucide-react'
+import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2, ArrowRightLeft } from 'lucide-react'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentSelect from './fields/StudentSelect'
 import StatusBadge from './StatusBadge'
+import TransferStudentModal from './TransferStudentModal'
 import { getLocalizedValue } from '../utils/groupUtils'
 
-export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onOpenAddStudents, onAddStudent, onChangeTeacher, onChangeStatus, onEditSchedule, t, isRtl }) {
+export default function GroupDetailsModal({
+  group,
+  onClose,
+  onRemoveStudent,
+  onTransferStudent,
+  allGroups = [],
+  onOpenAddStudents,
+  onAddStudent,
+  onChangeTeacher,
+  onChangeStatus,
+  onEditSchedule,
+  t,
+  isRtl,
+}) {
   const [availableStudents, setAvailableStudents] = useState([])
   const [selectedStudent, setSelectedStudent] = useState(null)
+  const [studentToTransfer, setStudentToTransfer] = useState(null)
   const [isAdding, setIsAdding] = useState(false)
   const [isLoadingStudents, setIsLoadingStudents] = useState(false)
 
@@ -33,12 +48,26 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
     return rawList.map((raw, idx) => {
       const rawId = typeof raw === 'string'
         ? raw
-        : (raw?.id || raw?._id || raw?.student?._id || raw?.student?.id || (typeof raw?.student === 'string' ? raw.student : ''))
+        : (raw?.student_id || raw?.studentId || raw?.student?._id || raw?.student?.id || raw?.id || raw?._id || (typeof raw?.student === 'string' ? raw.student : ''))
 
       const matched = availableStudents.find((s) => {
-        const sId = String(s.id || s._id || s.student_id || s.user_id || '')
+        const sId = String(s.student_id || s.studentId || s.id || s._id || s.user_id || '')
         return sId && sId === String(rawId)
       })
+
+      const actualStudentId = String(
+        raw?.student_id ||
+        raw?.studentId ||
+        raw?.student?.student_id ||
+        raw?.student?.studentId ||
+        (matched && (matched.student_id || matched.studentId)) ||
+        (raw?.student && typeof raw.student === 'object' && (raw.student.id || raw.student._id)) ||
+        (typeof raw?.student === 'string' && raw.student) ||
+        (matched && (matched.id || matched._id)) ||
+        raw?.id ||
+        raw?._id ||
+        `std_${idx}`
+      )
 
       let rawName = ''
       let email = ''
@@ -59,7 +88,7 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
         avatar = raw.avatar || raw.profileImage || raw.student?.avatar || raw.student?.profileImage || avatar
       }
 
-      const displayName = rawName || (rawId ? `${t('adminDashboard.groups.student', 'طالب')} (${String(rawId).slice(-4)})` : t('adminDashboard.groups.student', 'طالب'))
+      const displayName = rawName || (actualStudentId ? `${t('adminDashboard.groups.student', 'طالب')} (${String(actualStudentId).slice(-4)})` : t('adminDashboard.groups.student', 'طالب'))
 
       if (raw && typeof raw === 'object') {
         if (raw.createdAt) {
@@ -79,11 +108,10 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
         }
       }
 
-      const id = String(rawId || `std_${idx}`)
-
       return {
-        id,
-        _id: id,
+        id: actualStudentId,
+        _id: actualStudentId,
+        studentId: actualStudentId,
         name: displayName,
         email,
         avatar,
@@ -304,18 +332,48 @@ export default function GroupDetailsModal({ group, onClose, onRemoveStudent, onO
                     {student.joinDate && <p className="text-[11px] text-slate-400">{student.joinDate}</p>}
                   </div>
                 </div>
-                <button
-                  onClick={() => onRemoveStudent(group.id || group._id, student.id, student.name)}
-                  className="flex items-center gap-1.5 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-200 dark:border-red-800 cursor-pointer opacity-100 sm:opacity-0 group-hover/std:opacity-100"
-                  title={t('adminDashboard.groups.removeStudent', 'إزالة')}
-                >
-                  <Trash2 size={14} />
-                  <span className="hidden sm:inline">{t('adminDashboard.groups.removeStudent', 'إزالة')}</span>
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {onTransferStudent && (
+                    <button
+                      type="button"
+                      onClick={() => setStudentToTransfer(student)}
+                      className="flex items-center gap-1.5 p-2 md:px-2.5 md:py-1.5 rounded-xl text-xs font-semibold bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-all border border-brand-200 dark:border-brand-800 cursor-pointer"
+                      title={t('adminDashboard.groups.transferStudent', 'نقل لمجموعة أخرى')}
+                    >
+                      <ArrowRightLeft size={13} />
+                      <span className="hidden sm:inline">{t('adminDashboard.groups.transfer', 'نقل')}</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => onRemoveStudent(group.id || group._id, student.studentId || student.id, student.name)}
+                    className="flex items-center gap-1.5 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-200 dark:border-red-800 cursor-pointer opacity-100 sm:opacity-0 group-hover/std:opacity-100"
+                    title={t('adminDashboard.groups.removeStudent', 'إزالة')}
+                  >
+                    <Trash2 size={14} />
+                    <span className="hidden sm:inline">{t('adminDashboard.groups.removeStudent', 'إزالة')}</span>
+                  </button>
+                </div>
               </div>
             ))
           )}
         </div>
+
+        {studentToTransfer && (
+          <TransferStudentModal
+            student={studentToTransfer}
+            currentGroup={group}
+            groups={allGroups}
+            onClose={() => setStudentToTransfer(null)}
+            onConfirm={async (targetGroupId) => {
+              if (onTransferStudent) {
+                await onTransferStudent(group.id || group._id, studentToTransfer.studentId || studentToTransfer.id, targetGroupId)
+              }
+              setStudentToTransfer(null)
+            }}
+            isRtl={isRtl}
+            t={t}
+          />
+        )}
       </div>
     </div>,
     document.body

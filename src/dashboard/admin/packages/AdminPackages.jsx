@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Plus, Package } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +11,7 @@ import FaqTable from './components/FaqTable'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import Spinner from '@/shared/components/Spinner'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
-import { normalizeCountries } from '@/shared/utils/countryUtils'
+import { normalizeCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function AdminPackages() {
     const { t, i18n } = useTranslation()
@@ -29,6 +29,7 @@ export default function AdminPackages() {
     const [editingPkg, setEditingPkg] = useState(null)
     const [editingFaq, setEditingFaq] = useState(null)
     const [isFaqFormOpen, setIsFaqFormOpen] = useState(false)
+    const [selectedCountryFilter, setSelectedCountryFilter] = useState('all')
 
     const loadAll = useCallback(async () => {
         setIsLoading(true)
@@ -123,6 +124,7 @@ export default function AdminPackages() {
                 name_en: typeof pkgData.name === 'object' && pkgData.name !== null ? pkgData.name.en || '' : pkgData.name || '',
                 price: pkgData.price,
                 sessions_per_month: pkgData.sessionsCount,
+                sessionDuration: pkgData.sessionDuration || pkgData.duration || pkgData.durationMinutes || pkg.sessionDuration || 60,
                 sessions_language: langId,
                 country: typeof pkgData.country === 'object' && pkgData.country !== null ? (pkgData.country.id || pkgData.country._id || pkgData.country.name) : (pkgData.country || pkg.country || ''),
                 features: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.ar || []),
@@ -141,27 +143,28 @@ export default function AdminPackages() {
     }
 
     const handleEditFaqClick = async (faq) => {
-        const loadingToast = toast.loading(isRtl ? 'جاري تحميل بيانات السؤال...' : 'Loading FAQ details...')
+        let faqData = faq
         try {
-            const res = await adminPackagesApi.fetchFaqById(faq.id)
-            const faqData = res?.data || res
-
-            const mappedFaq = {
-                id: faqData.id || faqData._id,
-                question: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.ar || '' : faqData.question || '',
-                question_en: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.en || '' : faqData.question || '',
-                answer: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.ar || '' : faqData.answer || '',
-                answer_en: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.en || '' : faqData.answer || '',
+            const res = await adminPackagesApi.fetchFaqById(faq.id || faq._id)
+            if (res?.data) {
+                faqData = res.data
+            } else if (res && typeof res === 'object') {
+                faqData = res
             }
-
-            setEditingFaq(mappedFaq)
-            setIsFaqFormOpen(true)
         } catch (error) {
-            console.error('Failed to fetch FAQ details for edit:', error)
-            toast.error(isRtl ? 'حدث خطأ أثناء تحميل تفاصيل السؤال' : 'Failed to load FAQ details')
-        } finally {
-            toast.dismiss(loadingToast)
+            console.warn('Failed to fetch single FAQ details, falling back to table data:', error)
         }
+
+        const mappedFaq = {
+            id: faqData.id || faqData._id || faq.id || faq._id,
+            question: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.ar || faqData.question.en || '' : faqData.question || faq.question || '',
+            question_en: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.en || faqData.question.ar || '' : faqData.question_en || faq.question_en || '',
+            answer: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.ar || faqData.answer.en || '' : faqData.answer || faq.answer || '',
+            answer_en: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.en || faqData.answer.ar || '' : faqData.answer_en || faq.answer_en || '',
+        }
+
+        setEditingFaq(mappedFaq)
+        setIsFaqFormOpen(true)
     }
 
     if (isLoading) {
@@ -182,6 +185,14 @@ export default function AdminPackages() {
     const canUpdateFaq = hasPermission('faqs.update') || isSuperAdmin
     const canDeleteFaq = hasPermission('faqs.delete') || isSuperAdmin
 
+    const filteredPackages = useMemo(() => {
+        if (!selectedCountryFilter || selectedCountryFilter === 'all') return packages;
+        return packages.filter(p => {
+            const pCountry = p.countryRaw?._id || p.countryRaw?.id || p.country;
+            return String(pCountry) === String(selectedCountryFilter) || p.country === selectedCountryFilter;
+        });
+    }, [packages, selectedCountryFilter]);
+
     if (!canViewPackages && !canViewFaqs) {
         return (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
@@ -198,7 +209,7 @@ export default function AdminPackages() {
                 <section>
                     <div className="flex items-center justify-between mb-5">
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
-                            {packages.length} {p('available')}
+                            {filteredPackages.length} {p('available')}
                         </p>
                         {canCreatePackage && (
                             <button
@@ -211,7 +222,49 @@ export default function AdminPackages() {
                         )}
                     </div>
 
-                    {packages.length === 0 ? (
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-5 scrollbar-none">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedCountryFilter('all')}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                                selectedCountryFilter === 'all'
+                                    ? 'bg-[#0f7a6c] text-white shadow-sm shadow-[#0f7a6c]/20'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                            }`}
+                        >
+                            {isRtl ? 'كل الدول' : 'All Countries'} ({packages.length})
+                        </button>
+                        {countries.map((c) => {
+                            const cid = c.id || c._id;
+                            const cName = getCountryName(c, isRtl);
+                            const flag = c.flag ? `${c.flag} ` : '';
+                            const isSelected = selectedCountryFilter === cid || selectedCountryFilter === cName || selectedCountryFilter === c.name || selectedCountryFilter === c.nameEn;
+                            const count = packages.filter(p => {
+                                const pCountry = p.countryRaw?._id || p.countryRaw?.id || p.country;
+                                return String(pCountry) === String(cid) || p.country === cName || p.country === c.name || p.country === c.nameEn;
+                            }).length;
+
+                            return (
+                                <button
+                                    key={cid || cName}
+                                    type="button"
+                                    onClick={() => setSelectedCountryFilter(cid || cName)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                                        isSelected
+                                            ? 'bg-[#0f7a6c] text-white shadow-sm shadow-[#0f7a6c]/20'
+                                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                    }`}
+                                >
+                                    <span>{flag}{cName}</span>
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500'}`}>
+                                        {count}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {filteredPackages.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
                             <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                                 <Package size={28} className="text-slate-300 dark:text-slate-600" />
@@ -222,7 +275,7 @@ export default function AdminPackages() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                             <AnimatePresence>
-                                {packages.map((pkg) => (
+                                {filteredPackages.map((pkg) => (
                                     <PackageCard
                                         key={pkg.id}
                                         pkg={pkg}

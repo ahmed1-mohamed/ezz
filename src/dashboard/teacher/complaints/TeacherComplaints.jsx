@@ -32,6 +32,7 @@ function formatDate(isoString, isRtl) {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   });
 }
 
@@ -41,7 +42,7 @@ function formatTime(val) {
     if (val.includes('T')) {
       const d = new Date(val);
       if (!isNaN(d.getTime())) {
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
       }
     }
     return val.length > 5 ? val.substring(0, 5) : val;
@@ -451,9 +452,9 @@ export default function TeacherComplaints() {
                       {item.session && (
                         <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
                           <Calendar size={13} className="text-amber-600" />
-                          <span className="font-semibold text-slate-500">الحصة:</span>{' '}
+                          <span className="font-semibold text-slate-500">{t('teacher.sessionCol', 'الحصة')}:</span>{' '}
                           <span className="font-bold">
-                            {item.session.title || `حصة ${item.session.sessionNumber || ''}`}
+                            {item.session.title || `${t('teacherComplaints.sessionDefault', 'حصة')} ${item.session.sessionNumber || ''}`}
                           </span>
                         </span>
                       )}
@@ -461,7 +462,7 @@ export default function TeacherComplaints() {
                       {item.proposedNewDate && (
                         <span className="flex items-center gap-1 text-amber-800 dark:text-amber-300 font-bold">
                           <CalendarClock size={13} />
-                          <span>الموعد المقترح:</span> {item.proposedNewDate}{' '}
+                          <span>{t('teacher.proposedSchedule', 'الموعد المقترح')}:</span> {item.proposedNewDate}{' '}
                           {item.proposedStartTime && (
                             <span className="font-mono">
                               ({formatTime(item.proposedStartTime)} - {formatTime(item.proposedEndTime)})
@@ -474,7 +475,7 @@ export default function TeacherComplaints() {
 
                   {item.notes && (
                     <div className="p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/50 dark:border-indigo-900/30 text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
-                      <span className="font-bold shrink-0">رد الإدارة:</span>
+                      <span className="font-bold shrink-0">{t('teacher.adminResponse', 'رد الإدارة')}:</span>
                       <span className="truncate">{item.notes}</span>
                     </div>
                   )}
@@ -484,7 +485,11 @@ export default function TeacherComplaints() {
 
             <div className="flex flex-col sm:flex-row items-center justify-between pt-5 border-t border-slate-200/80 dark:border-slate-800 text-xs gap-3">
               <span className="text-slate-500 dark:text-slate-400 font-semibold">
-                عرض صفحة {currentPage} من {totalPages} (إجمالي {filteredList.length} طلب)
+                {t('teacher.paginationInfo', 'عرض صفحة {{currentPage}} من {{totalPages}} (إجمالي {{total}} طلب)', {
+                  currentPage,
+                  totalPages,
+                  total: filteredList.length,
+                })}
               </span>
               <div className="flex items-center gap-1.5">
                 <button
@@ -492,9 +497,9 @@ export default function TeacherComplaints() {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage <= 1}
                   className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 cursor-pointer"
-                  title="الصفحة السابقة"
+                  title={t('common.prev', 'الصفحة السابقة')}
                 >
-                  <ChevronRight size={16} />
+                  {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                 </button>
 
                 <div className="flex items-center gap-1">
@@ -523,9 +528,9 @@ export default function TeacherComplaints() {
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
                   className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 cursor-pointer"
-                  title="الصفحة التالية"
+                  title={t('common.next', 'الصفحة التالية')}
                 >
-                  <ChevronLeft size={16} />
+                  {isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
                 </button>
               </div>
             </div>

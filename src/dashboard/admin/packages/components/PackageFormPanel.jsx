@@ -123,6 +123,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
       ...form,
       price: Number(form.price),
       sessions_per_month: Number(form.sessions_per_month),
+      sessionDuration: Number(form.sessionDuration) || 60,
       features: rawFeatures,
       features_en: finalFeaturesEn,
       imageFile
@@ -199,7 +200,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
                   <input
@@ -224,6 +225,23 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                     value={form.sessions_per_month ?? ''}
                     onChange={(e) => setField('sessions_per_month', e.target.value)}
                     placeholder={p('sessionsCount')}
+                    required
+                    dir="ltr"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="sessionDuration" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">
+                    {isRtl ? 'مدة الحصة (بالدقائق)' : 'Duration (min)'}
+                  </label>
+                  <input
+                    id="sessionDuration"
+                    name="sessionDuration"
+                    type="number"
+                    min="1"
+                    value={form.sessionDuration ?? 60}
+                    onChange={(e) => setField('sessionDuration', e.target.value)}
+                    placeholder={isRtl ? '60 دقيقة' : '60 min'}
                     required
                     dir="ltr"
                     className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"

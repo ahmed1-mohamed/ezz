@@ -46,7 +46,6 @@ export default function CurriculumOverviewCard({
       <div className="absolute top-0 end-0 w-80 h-80 bg-[#00594C]/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
-        {/* Curriculum Cover Image */}
         <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden shrink-0 border-4 border-slate-100 dark:border-slate-800 shadow-md bg-slate-50 dark:bg-slate-800/80 flex items-center justify-center">
           {curriculum?.image && curriculum.image.trim() !== '' ? (
             <img
@@ -61,7 +60,6 @@ export default function CurriculumOverviewCard({
           )}
         </div>
 
-        {/* Curriculum Details */}
         <div className="flex-1 space-y-4 w-full">
           <div>
             <div className="flex items-center gap-2.5 flex-wrap mb-2">
@@ -90,7 +88,6 @@ export default function CurriculumOverviewCard({
             )}
           </div>
 
-          {/* Features & Benefits Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             {features.length > 0 && (
               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 space-y-3">

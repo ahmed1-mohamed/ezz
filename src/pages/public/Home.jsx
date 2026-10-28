@@ -88,18 +88,18 @@ export default memo(function Home() {
 
                             <motion.div variants={itemVariants} className="space-y-2 sm:space-y-4">
                                 <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 dark:text-white">
-                                    <span className="block">{t('home.titleLine1', 'حيث يلتقي')}</span>
+                                    <span className="block">{t('home.titleLine1', 'تُنير العقول،')}</span>
                                     <span className="block bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.5] py-2 text-transparent overflow-visible dark:from-emerald-400 dark:to-emerald-600">
-                                        {t('home.titleLine2', 'نور العلم بصفاء الروح')}
+                                        {t('home.titleLine2', 'ونرتقي بالمستقبل.')}
                                     </span>
                                     <span className="block text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 dark:text-white mt-2">
-                                        {t('home.titleLine3', 'وتتحقق طموحاتك')}
+                                        {t('home.titleLine3', 'مستقبل طفلك يبدأ بتعلّم يُلهمه')}
                                     </span>
                                 </h1>
                             </motion.div>
 
                             <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600 dark:text-slate-300">
-                                {t('home.description', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة.')}
+                                {t('home.description', 'القرآن الكريم، واللغة العربية، والمواد الدراسية، والمناهج الدولية... في منصة واحدة تُنمّي قدراته وتُرسّخ قيمه.')}
                             </motion.p>
 
                             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center lg:justify-start w-full">

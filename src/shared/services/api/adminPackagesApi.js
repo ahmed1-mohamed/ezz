@@ -22,6 +22,7 @@ const mapPackageData = (item) => ({
   price: item.price,
   currency: item.currency || '$',
   sessions_per_month: item.sessionsCount || item.sessions_per_month,
+  sessionDuration: item.sessionDuration || item.duration || item.durationMinutes || 60,
   sessions_language: typeof item.language === 'object' ? item.language?.id || item.language?._id : item.language,
   country: typeof item.country === 'object' && item.country !== null
     ? (item.country.id || item.country._id || item.country.name || item.country.code || '')
@@ -97,6 +98,9 @@ export const adminPackagesApi = {
         fd.append('name[en]', enTitle);
         fd.append('price', String(packageData.price));
         fd.append('sessionsCount', String(packageData.sessions_per_month));
+        if (packageData.sessionDuration) {
+          fd.append('sessionDuration', String(packageData.sessionDuration));
+        }
         if (packageData.sessions_language) {
           fd.append('language', packageData.sessions_language);
         }
@@ -122,6 +126,7 @@ export const adminPackagesApi = {
         name: { ar: arTitle, en: enTitle },
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
+        sessionDuration: Number(packageData.sessionDuration) || 60,
         language: packageData.sessions_language || undefined,
         country: packageData.country || undefined,
         features: {
@@ -170,6 +175,9 @@ export const adminPackagesApi = {
         fd.append('name[en]', enTitle);
         fd.append('price', String(packageData.price));
         fd.append('sessionsCount', String(packageData.sessions_per_month));
+        if (packageData.sessionDuration) {
+          fd.append('sessionDuration', String(packageData.sessionDuration));
+        }
         if (packageData.sessions_language) {
           fd.append('language', packageData.sessions_language);
         }
@@ -195,6 +203,7 @@ export const adminPackagesApi = {
         name: { ar: arTitle, en: enTitle },
         price: Number(packageData.price),
         sessionsCount: Number(packageData.sessions_per_month),
+        sessionDuration: Number(packageData.sessionDuration) || 60,
         language: packageData.sessions_language || undefined,
         country: packageData.country || undefined,
         features: {

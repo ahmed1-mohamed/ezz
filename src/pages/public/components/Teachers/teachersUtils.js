@@ -1,18 +1,3 @@
-export const PORTRAIT_FALLBACK_IMAGES = [
-  '1500648767791-00dcc994a43e',
-  '1506794778202-cad84cf45f1d',
-  '1504257432389-52343af06ae3',
-  '1504593811423-6dd665756598',
-  '1535713875002-d1d0cf377fde',
-  '1560250097-0b93528c311a',
-  '1507003211169-0a1dd7228f2d',
-  '1519085360753-af0119f7cbe7',
-  '1552058544-e397bfc48364',
-  '1556157382-97eda2d62296',
-  '1501196354995-cbb51c65aaea',
-  '1527980965255-d3b416303d12'
-]
-
 export const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -29,9 +14,14 @@ export const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
 }
 
-export const getTeacherFallbackImage = (index = 0) => {
-  const imageId = PORTRAIT_FALLBACK_IMAGES[index % PORTRAIT_FALLBACK_IMAGES.length]
-  return `https://images.unsplash.com/photo-${imageId}?q=80&w=400&h=400&auto=format&fit=crop`
+export const getTeacherImageUrl = (imagePath) => {
+  if (!imagePath || typeof imagePath !== 'string' || !imagePath.trim()) return null
+  const trimmed = imagePath.trim()
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+    return trimmed
+  }
+  const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed
+  return `https://manaret-ezz.dramcode.top/${cleanPath}`
 }
 
 export const extractTeacherSubjects = (teachersList = []) => {

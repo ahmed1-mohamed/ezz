@@ -57,27 +57,30 @@ export default function TeacherGroups() {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          hour: 'numeric',
+        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString());
+        setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now);
+        const dateFormatted = new Intl.DateTimeFormat(
+          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(now.toLocaleDateString());
+        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
       }
     };
 
@@ -99,13 +102,71 @@ export default function TeacherGroups() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ['teacherGroups', page],
-    queryFn: () => teacherGroupsApi.fetchGroups({ page, limit }),
-    staleTime: 2 * 60 * 1000,
+    queryKey: ['teacherGroups', page, statusFilter],
+    queryFn: async () => {
+      try {
+        if (statusFilter && statusFilter !== 'all') {
+          return await teacherGroupsApi.fetchGroupsByStatus(statusFilter, { page, limit });
+        }
+        const res = await teacherGroupsApi.fetchGroups({ page, limit });
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : (Array.isArray(res)
+            ? res
+            : (Array.isArray(res?.data?.data)
+              ? res.data.data
+              : (Array.isArray(res?.data?.groups) ? res.data.groups : [])));
+        if (list && list.length > 0) {
+          return res;
+        }
+        const activeRes = await teacherGroupsApi.fetchActiveGroups({ page, limit });
+        const activeList = Array.isArray(activeRes?.data)
+          ? activeRes.data
+          : (Array.isArray(activeRes)
+            ? activeRes
+            : (Array.isArray(activeRes?.data?.data) ? activeRes.data.data : []));
+        if (activeList && activeList.length > 0) {
+          return activeRes;
+        }
+        return res;
+      } catch (err) {
+        if (statusFilter && statusFilter !== 'all') {
+          return await teacherGroupsApi.fetchGroupsByStatus(statusFilter, { page, limit });
+        }
+        return await teacherGroupsApi.fetchActiveGroups({ page, limit });
+      }
+    },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
+  useEffect(() => {
+    refetch();
+  }, [statusFilter, refetch]);
+
   const rawGroups = useMemo(() => {
-    const list = responseData?.data || (Array.isArray(responseData) ? responseData : []);
+    let list = [];
+    if (Array.isArray(responseData)) {
+      list = responseData;
+    } else if (Array.isArray(responseData?.data)) {
+      list = responseData.data;
+    } else if (Array.isArray(responseData?.data?.data)) {
+      list = responseData.data.data;
+    } else if (Array.isArray(responseData?.data?.groups)) {
+      list = responseData.data.groups;
+    } else if (Array.isArray(responseData?.groups)) {
+      list = responseData.groups;
+    } else if (Array.isArray(responseData?.items)) {
+      list = responseData.items;
+    } else if (Array.isArray(responseData?.data?.items)) {
+      list = responseData.data.items;
+    } else if (Array.isArray(responseData?.result)) {
+      list = responseData.result;
+    } else if (Array.isArray(responseData?.data?.result)) {
+      list = responseData.data.result;
+    }
     if (!Array.isArray(list)) return [];
     return list.map((g, idx) => {
       const groupName = typeof g.name === 'object' && g.name !== null
@@ -124,7 +185,7 @@ export default function TeacherGroups() {
         id: g.id || g._id || `grp-${idx}`,
         name: groupName,
         curriculum: currName,
-        status: g.status || 'active',
+        status: g.status || (statusFilter !== 'all' ? statusFilter : 'active'),
         language: langName,
         currentStudentsCount: Array.isArray(g.students) ? g.students.length : (g.currentStudentsCount ?? 0),
         maxStudents: g.maxStudents || 0,
@@ -134,7 +195,7 @@ export default function TeacherGroups() {
         schedule: formatSchedule(g),
       };
     });
-  }, [responseData, isRtl, t]);
+  }, [responseData, statusFilter, isRtl, t]);
 
   const statusCounts = useMemo(() => {
     let all = rawGroups.length;
@@ -156,8 +217,15 @@ export default function TeacherGroups() {
       }
     });
 
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'active') active = rawGroups.length;
+      if (statusFilter === 'pending') pending = rawGroups.length;
+      if (statusFilter === 'stopped') stopped = rawGroups.length;
+      if (statusFilter === 'completed') completed = rawGroups.length;
+    }
+
     return { all, active, pending, stopped, completed };
-  }, [rawGroups]);
+  }, [rawGroups, statusFilter]);
 
   const filteredGroups = useMemo(() => {
     return rawGroups.filter((g) => {
@@ -202,7 +270,7 @@ export default function TeacherGroups() {
         statusCounts={statusCounts}
       />
 
-      {isLoading ? (
+      {isLoading || (isFetching && rawGroups.length === 0) ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="h-64 rounded-3xl bg-slate-100 dark:bg-slate-800/60 animate-pulse border border-slate-100 dark:border-slate-800" />

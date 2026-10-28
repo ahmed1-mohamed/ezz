@@ -15,37 +15,88 @@ export const teacherGroupsApi = {
       endpoint = '/api/v1/teacher/groups/completed';
     }
 
-    const response = await api.get(endpoint, { params });
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    delete cleanParams.skipCache;
+
+    const response = await api.get(endpoint, {
+      forceRefresh: true,
+      skipCache: true,
+      params: cleanParams,
+    });
     return response.data;
   },
 
   fetchGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/teacher/groups', { params });
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    delete cleanParams.skipCache;
+
+    const response = await api.get('/api/v1/teacher/groups', {
+      forceRefresh: true,
+      skipCache: true,
+      params: cleanParams,
+    });
     return response.data;
   },
 
   fetchPendingGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/teacher/groups/pending', { params });
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    delete cleanParams.skipCache;
+
+    const response = await api.get('/api/v1/teacher/groups/pending', {
+      forceRefresh: true,
+      skipCache: true,
+      params: cleanParams,
+    });
     return response.data;
   },
 
   fetchActiveGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/teacher/groups/active', { params });
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    delete cleanParams.skipCache;
+
+    const response = await api.get('/api/v1/teacher/groups/active', {
+      forceRefresh: true,
+      skipCache: true,
+      params: cleanParams,
+    });
     return response.data;
   },
 
   fetchStoppedGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/teacher/groups/stopped', { params });
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    delete cleanParams.skipCache;
+
+    const response = await api.get('/api/v1/teacher/groups/stopped', {
+      forceRefresh: true,
+      skipCache: true,
+      params: cleanParams,
+    });
     return response.data;
   },
 
   fetchCompletedGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/teacher/groups/completed', { params });
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    delete cleanParams.skipCache;
+
+    const response = await api.get('/api/v1/teacher/groups/completed', {
+      forceRefresh: true,
+      skipCache: true,
+      params: cleanParams,
+    });
     return response.data;
   },
 
   fetchGroupDetails: async (id) => {
-    const response = await api.get(`/api/v1/teacher/groups/${id}`);
+    const response = await api.get(`/api/v1/teacher/groups/${id}`, {
+      forceRefresh: true,
+      skipCache: true,
+    });
     return response.data;
   },
 };

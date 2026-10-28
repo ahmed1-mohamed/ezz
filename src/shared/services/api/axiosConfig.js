@@ -1,6 +1,6 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
 import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js';
+import { showSafeErrorToast } from '@/shared/utils/errorHandler.js';
 
 const inFlightRequests = new Map();
 const shortTermCache = new Map();
@@ -43,6 +43,7 @@ export function clearApiCache() {
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://manaret-ezz.dramcode.top',
+  timeout: 12000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -69,6 +70,15 @@ api.interceptors.request.use(
 
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
+    }
+
+    if (config.params) {
+      delete config.params.forceRefresh;
+      delete config.params.skipCache;
+    }
+    if (config.data && typeof config.data === 'object' && !(config.data instanceof FormData)) {
+      delete config.data.forceRefresh;
+      delete config.data.skipCache;
     }
 
     return config;
@@ -172,31 +182,48 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 403) {
+    const status = error.response?.status;
+    const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
+
+    if (status === 403) {
+      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
+        showSafeErrorToast(error, { status: 403, isArabic });
+      }
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
-      if (originalRequest && (!originalRequest._gatewayRetryCount || originalRequest._gatewayRetryCount < 3)) {
+    if (status === 404) {
+      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
+        showSafeErrorToast(error, { status: 404, isArabic });
+      }
+      return Promise.reject(error);
+    }
+
+    if (status === 502 || status === 503 || status === 504) {
+      if (originalRequest && (!originalRequest._gatewayRetryCount || originalRequest._gatewayRetryCount < 1)) {
         originalRequest._gatewayRetryCount = (originalRequest._gatewayRetryCount || 0) + 1;
-        const delayMs = originalRequest._gatewayRetryCount * 1000;
+        const delayMs = 400;
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         return api(originalRequest);
       }
+      // Never show server error leaks or status codes
+      error.message = isArabic
+        ? 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً'
+        : 'An unexpected error occurred. Please try again later.';
+      return Promise.reject(error);
     }
 
-    if (error.response?.status === 429) {
+    if (status === 429) {
       if (originalRequest && (!originalRequest._rateLimitRetryCount || originalRequest._rateLimitRetryCount < 2)) {
         originalRequest._rateLimitRetryCount = (originalRequest._rateLimitRetryCount || 0) + 1;
         const delayMs = originalRequest._rateLimitRetryCount * 1200;
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         return api(originalRequest);
       }
-      toast.error('تم تجاوز الحد المسموح من الطلبات، يرجى الانتظار قليلاً والمحاولة لاحقاً', { id: 'rate-limit-error', duration: 4000 });
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 400) {
+    if (status === 400) {
       const data = error.response.data;
       const msgs = data?.message || data?.error || (typeof data === 'string' ? data : null);
 
@@ -233,26 +260,23 @@ api.interceptors.response.use(
         }
       };
 
-      const formatErrorMsg = (msg) => {
-        if (typeof msg !== 'string') return 'حدث خطأ في البيانات المدخلة';
-        if (msg.includes('FEATURE_ITEM_LENGTH') || msg.includes('feature_item_length')) {
-          return 'يجب أن لا يقل طول نص كل ميزة عن 3 أحرف';
-        }
-        return msg;
-      };
-
-      if (Array.isArray(msgs)) {
-        msgs.forEach(msg => toast.error(formatErrorMsg(msg), { duration: 5000 }));
-        if (msgs.length > 0) focusInputByError(msgs[0]);
-      } else if (typeof msgs === 'string') {
-        toast.error(formatErrorMsg(msgs), { duration: 5000 });
-        focusInputByError(msgs);
-      } else if (typeof msgs === 'object' && msgs !== null) {
-        const text = msgs.ar || msgs.en || JSON.stringify(msgs);
-        toast.error(formatErrorMsg(text), { duration: 5000 });
-      } else {
-        toast.error('حدث خطأ في البيانات المدخلة', { duration: 5000 });
+      // Show ONE single sanitized toast, avoiding spamming or stacking multiple messages
+      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
+        showSafeErrorToast(msgs, { status: 400, isArabic });
       }
+
+      if (Array.isArray(msgs) && msgs.length > 0) {
+        focusInputByError(msgs[0]);
+      } else if (typeof msgs === 'string') {
+        focusInputByError(msgs);
+      }
+    }
+
+    // Sanitize any remaining technical message on the error object
+    if (error.message && /status\s*code|internal\s*server|bad\s*gateway|network\s*error/i.test(error.message)) {
+      error.message = isArabic
+        ? 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً'
+        : 'An unexpected error occurred. Please try again later.';
     }
 
     return Promise.reject(error);
@@ -267,11 +291,24 @@ const originalPatch = api.patch.bind(api);
 const originalDelete = api.delete.bind(api);
 
 api.get = function (url, config = {}) {
-  if (config.skipCache || config.forceRefresh) {
-    return originalGet(url, config);
+  const shouldSkipCache = Boolean(
+    config.skipCache ||
+    config.forceRefresh ||
+    config.params?.skipCache ||
+    config.params?.forceRefresh
+  );
+
+  let cleanConfig = config;
+  if (config.params && (config.params.forceRefresh !== undefined || config.params.skipCache !== undefined)) {
+    const { forceRefresh, skipCache, ...restParams } = config.params;
+    cleanConfig = { ...config, params: restParams };
   }
 
-  const key = generateRequestKey({ ...config, url, method: 'get' });
+  if (shouldSkipCache) {
+    return originalGet(url, cleanConfig);
+  }
+
+  const key = generateRequestKey({ ...cleanConfig, url, method: 'get' });
 
   const cached = shortTermCache.get(key);
   if (cached && Date.now() < cached.expiresAt) {
@@ -282,11 +319,11 @@ api.get = function (url, config = {}) {
     return inFlightRequests.get(key).then((res) => cloneResponse(res));
   }
 
-  const promise = originalGet(url, config)
+  const promise = originalGet(url, cleanConfig)
     .then((res) => {
       shortTermCache.set(key, {
         response: res,
-        expiresAt: Date.now() + 2500,
+        expiresAt: Date.now() + 1500,
       });
       return res;
     })
@@ -313,11 +350,27 @@ api.request = function (urlOrConfig, maybeConfig) {
     return originalRequest(urlOrConfig, maybeConfig);
   }
 
-  if (config.skipCache || config.forceRefresh) {
-    return originalRequest(urlOrConfig, maybeConfig);
+  const shouldSkipCache = Boolean(
+    config.skipCache ||
+    config.forceRefresh ||
+    config.params?.skipCache ||
+    config.params?.forceRefresh
+  );
+
+  let cleanConfig = config;
+  if (config.params && (config.params.forceRefresh !== undefined || config.params.skipCache !== undefined)) {
+    const { forceRefresh, skipCache, ...restParams } = config.params;
+    cleanConfig = { ...config, params: restParams };
   }
 
-  const key = generateRequestKey(config);
+  const targetUrlOrConfig = typeof urlOrConfig === 'string' ? urlOrConfig : cleanConfig;
+  const targetMaybeConfig = typeof urlOrConfig === 'string' ? cleanConfig : maybeConfig;
+
+  if (shouldSkipCache) {
+    return originalRequest(targetUrlOrConfig, targetMaybeConfig);
+  }
+
+  const key = generateRequestKey(cleanConfig);
 
   const cached = shortTermCache.get(key);
   if (cached && Date.now() < cached.expiresAt) {
@@ -328,11 +381,11 @@ api.request = function (urlOrConfig, maybeConfig) {
     return inFlightRequests.get(key).then((res) => cloneResponse(res));
   }
 
-  const promise = originalRequest(urlOrConfig, maybeConfig)
+  const promise = originalRequest(targetUrlOrConfig, targetMaybeConfig)
     .then((res) => {
       shortTermCache.set(key, {
         response: res,
-        expiresAt: Date.now() + 2500,
+        expiresAt: Date.now() + 1500,
       });
       return res;
     })

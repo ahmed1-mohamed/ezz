@@ -1,5 +1,6 @@
 import { Edit3, Trash2, Eye } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { formatRewardIcon } from '@/shared/services/api/adminRewardsApi'
 
 export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
   const { i18n } = useTranslation()
@@ -25,7 +26,7 @@ export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
             style={{ backgroundColor: reward.backgroundColor || '#f3f4f6' }}
           >
             <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-md transform group-hover:rotate-12 transition-transform duration-300">
-              {reward.icon || '🎁'}
+              {formatRewardIcon(reward.icon)}
             </div>
           </div>
 

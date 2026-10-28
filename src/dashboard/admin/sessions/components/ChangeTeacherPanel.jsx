@@ -5,6 +5,7 @@ import TeacherDropdown from './TeacherDropdown'
 export default function ChangeTeacherPanel({ session, onConfirm, onCancel, teachers = [] }) {
   const { t } = useTranslation()
   const [selectedTeacherId, setSelectedTeacherId] = useState(session.teacherId || null)
+  const [reason, setReason] = useState('')
   const safeTeachers = Array.isArray(teachers) ? teachers : []
 
   return (
@@ -22,12 +23,24 @@ export default function ChangeTeacherPanel({ session, onConfirm, onCancel, teach
           teachers={safeTeachers}
         />
       </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 text-start">
+          {t('adminDashboard.sessions.changeReason', 'سبب التغيير (اختياري)')}
+        </label>
+        <input
+          type="text"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder={t('adminDashboard.sessions.changeReasonPlaceholder', 'اكتب سبب التغيير إن وجد...')}
+          className="w-full bg-white dark:bg-slate-800 rounded-xl px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 outline-none text-slate-800 dark:text-slate-100"
+        />
+      </div>
       <div className="flex items-center gap-3 justify-start pt-1">
         <button
           onClick={() => {
             const teacher = safeTeachers.find((t) => (t.id || t._id) === selectedTeacherId)
             const teacherName = typeof teacher?.name === 'string' ? teacher.name : (teacher?.name?.ar || teacher?.name?.en || '')
-            if (teacher) onConfirm(teacher.id || teacher._id, teacherName)
+            if (teacher) onConfirm(teacher.id || teacher._id, teacherName, reason.trim())
           }}
           disabled={!selectedTeacherId}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-sm cursor-pointer"

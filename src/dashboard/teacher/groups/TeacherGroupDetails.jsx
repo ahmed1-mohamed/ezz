@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -26,7 +26,7 @@ function formatTime(val) {
     if (val.includes('T')) {
       const d = new Date(val);
       if (!isNaN(d.getTime())) {
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
       }
     }
     return val.length > 5 ? val.substring(0, 5) : val;
@@ -51,9 +51,18 @@ export default function TeacherGroupDetails() {
     queryKey: ['teacherGroupDetails', id],
     queryFn: () => teacherGroupsApi.fetchGroupDetails(id),
     enabled: Boolean(id),
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
-  const group = responseData?.data || null;
+  useEffect(() => {
+    if (id) {
+      refetch();
+    }
+  }, [id, refetch]);
+
+  const group = responseData?.data?.group || responseData?.data || (responseData?.id ? responseData : null);
   const studentsList = group?.students || [];
   const sessionsList = group?.sessionsHistory || [];
 
@@ -159,7 +168,7 @@ export default function TeacherGroupDetails() {
                           : 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900/40'
                       }`}
                     >
-                      {group.type || 'عامة'}
+                      {group.type || t('teacherComplaints.typeGeneral', 'عامة')}
                     </span>
                     {group.country && (
                       <span className="text-xs font-medium px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -178,7 +187,7 @@ export default function TeacherGroupDetails() {
                   </div>
                   <div className="mt-1 text-2xl font-black text-emerald-900 dark:text-emerald-200">
                     {group.currentStudentsCount ?? studentsList.length} / {group.maxStudents || 10}{' '}
-                    <span className="text-xs font-semibold">طلاب</span>
+                    <span className="text-xs font-semibold">{t('teacherDashboard.students', 'طلاب')}</span>
                   </div>
                 </div>
               </div>
@@ -239,10 +248,10 @@ export default function TeacherGroupDetails() {
                     </div>
                     <div>
                       <div className="text-[11px] font-medium text-slate-400">
-                        الفترة الزمنية
+                        {t('teacher.timeSpan', 'الفترة الزمنية')}
                       </div>
                       <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                        {group.startDate || '—'} إلى {group.endDate || '—'}
+                        {group.startDate || '—'} {t('common.to', 'إلى')} {group.endDate || '—'}
                       </div>
                     </div>
                   </div>
@@ -434,11 +443,11 @@ export default function TeacherGroupDetails() {
                         <table className="w-full text-start text-sm">
                           <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">
                             <tr>
-                              <th className="px-5 py-3.5 text-start">الحصة</th>
-                              <th className="px-5 py-3.5 text-start">اليوم والتاريخ</th>
-                              <th className="px-5 py-3.5 text-start">التوقيت</th>
-                              <th className="px-5 py-3.5 text-start">المجموعة</th>
-                              <th className="px-5 py-3.5 text-start">الحالة</th>
+                              <th className="px-5 py-3.5 text-start">{t('teacher.sessionCol', 'الحصة')}</th>
+                              <th className="px-5 py-3.5 text-start">{t('teacher.dayAndDate', 'اليوم والتاريخ')}</th>
+                              <th className="px-5 py-3.5 text-start">{t('teacher.timing', 'التوقيت')}</th>
+                              <th className="px-5 py-3.5 text-start">{t('teacher.groupCol', 'المجموعة')}</th>
+                              <th className="px-5 py-3.5 text-start">{t('teacher.statusCol', 'الحالة')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
@@ -448,7 +457,7 @@ export default function TeacherGroupDetails() {
                                 className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors"
                               >
                                 <td className="px-5 py-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                                  {session.title || `حصة ${sIdx + 1}`}
+                                  {session.title || `${t('teacher.sessionCol', 'حصة')} ${sIdx + 1}`}
                                 </td>
                                 <td className="px-5 py-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                   <div className="flex items-center gap-1.5">
@@ -489,7 +498,7 @@ export default function TeacherGroupDetails() {
                                           : 'bg-blue-500'
                                       }`}
                                     />
-                                    {session.status || 'مجدولة'}
+                                    {session.status || t('teacher.scheduled', 'مجدولة')}
                                   </span>
                                 </td>
                               </tr>

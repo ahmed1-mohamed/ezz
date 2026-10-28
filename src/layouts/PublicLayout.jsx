@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 import AppNavbar from '@/shared/components/AppNavbar.jsx'
 import Container from '@/shared/components/Container.jsx'
@@ -12,7 +12,15 @@ export default memo(function PublicLayout() {
 
             <main>
                 <Container className="py-6 sm:py-8 lg:py-10">
-                    <Outlet />
+                    <Suspense
+                        fallback={
+                            <div className="flex items-center justify-center py-28 min-h-[400px]">
+                                <div className="w-9 h-9 rounded-full border-3 border-[#00695C] border-t-transparent animate-spin" />
+                            </div>
+                        }
+                    >
+                        <Outlet />
+                    </Suspense>
                 </Container>
             </main>
 

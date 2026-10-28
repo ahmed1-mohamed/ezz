@@ -18,7 +18,7 @@ function formatTimeDisplay(timeStr) {
   if (str.includes('T')) {
     const d = new Date(str);
     if (!isNaN(d.getTime())) {
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
   }
   return str;
@@ -41,27 +41,30 @@ export default function TeacherSessions() {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          hour: 'numeric',
+        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString());
+        setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now);
+        const dateFormatted = new Intl.DateTimeFormat(
+          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(now.toLocaleDateString());
+        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
       }
     };
 

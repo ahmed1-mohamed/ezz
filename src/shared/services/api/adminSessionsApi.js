@@ -19,8 +19,8 @@ export const formatTime12h = (timeStr, isRtl = true) => {
   const cleanStr = String(timeStr).trim();
   if (!cleanStr) return '-';
 
-  if (cleanStr.includes('-')) {
-    const parts = cleanStr.split('-').map((s) => s.trim());
+  if (cleanStr.includes(' - ')) {
+    const parts = cleanStr.split(' - ').map((s) => s.trim());
     return `${formatTime12h(parts[0], isRtl)} - ${formatTime12h(parts[1], isRtl)}`;
   }
 
@@ -261,37 +261,32 @@ export const adminSessionsApi = {
     }
   },
 
-  changeTeacher: async (id, teacherId, teacherName) => {
+  changeTeacher: async (id, teacherId, reason) => {
     const cleanTeacherId = typeof teacherId === 'object' && teacherId !== null
-      ? (teacherId.teacherId || teacherId.teacher || teacherId.newTeacherId || teacherId.newTeacher || teacherId.id || teacherId._id)
+      ? (teacherId.teacherId || teacherId.teacher || teacherId.id || teacherId._id)
       : teacherId;
 
-    const cleanTeacherName = typeof teacherId === 'object' && teacherId !== null && (teacherId.teacherName || teacherId.name)
-      ? (teacherId.teacherName || teacherId.name)
-      : (typeof teacherName === 'object' && teacherName !== null ? (teacherName.ar || teacherName.en || teacherName.name || '') : (teacherName || ''));
+    const cleanReason = typeof reason === 'string' && reason.trim()
+      ? reason.trim()
+      : (typeof teacherId === 'object' && teacherId?.reason ? String(teacherId.reason).trim() : undefined);
 
     const body = {
-      teacher: cleanTeacherId,
       teacherId: cleanTeacherId,
-      newTeacher: cleanTeacherId,
-      newTeacherId: cleanTeacherId,
-      ...(cleanTeacherName ? { teacherName: cleanTeacherName, name: cleanTeacherName } : {}),
+      ...(cleanReason ? { reason: cleanReason } : {}),
     };
 
     const endpoints = [
       { method: 'patch', url: `/api/v1/sessions/private/${id}/change-teacher` },
       { method: 'put', url: `/api/v1/sessions/private/${id}/change-teacher` },
-      { method: 'put', url: `/api/v1/sessions/private/${id}/teacher` },
-      { method: 'patch', url: `/api/v1/sessions/private/${id}/teacher` },
-      { method: 'patch', url: `/api/v1/sessions/private/${id}` },
       { method: 'patch', url: `/api/v1/sessions/${id}/change-teacher` },
-      { method: 'patch', url: `/api/v1/sessions/${id}` },
+      { method: 'patch', url: `/api/v1/sessions/private/${id}`, fallbackPayload: { teacher: cleanTeacherId, ...(cleanReason ? { reason: cleanReason } : {}) } },
     ];
 
     let lastError = null;
     for (const ep of endpoints) {
       try {
-        const response = await api[ep.method](ep.url, body);
+        const payloadToSend = ep.fallbackPayload || body;
+        const response = await api[ep.method](ep.url, payloadToSend);
         return {
           success: true,
           data: response.data?.data || response.data,

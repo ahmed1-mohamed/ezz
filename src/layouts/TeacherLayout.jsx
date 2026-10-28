@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Suspense } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -257,7 +257,15 @@ export default function TeacherLayout() {
         </header>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-24 min-h-[400px]">
+                <div className="w-8 h-8 rounded-full border-2 border-[#00594C] border-t-transparent animate-spin" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

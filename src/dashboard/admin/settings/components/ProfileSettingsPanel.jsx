@@ -127,10 +127,24 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
     const handleSaveProfile = async () => {
         setSavingProfile(true);
+        const ar = profileData.nameAr.trim();
+        const en = profileData.nameEn.trim();
+
+        if (!ar && !en) {
+            showErrorToast(isRtl ? 'يرجى إدخال اسم المستخدم' : 'Please enter user name');
+            setSavingProfile(false);
+            return;
+        }
+
+        const finalAr = ar || en;
+        const finalEn = en || ar;
+
+        setProfileData(prev => ({ ...prev, nameAr: finalAr, nameEn: finalEn }));
+
         const fullPhone = phoneVal ? `${selectedCountryCode?.code || ''} ${phoneVal.trim()}`.trim() : '';
         const payload = {
-            nameAr: profileData.nameAr.trim(),
-            nameEn: profileData.nameEn.trim(),
+            nameAr: finalAr,
+            nameEn: finalEn,
         };
         
         if (profileData.country) {

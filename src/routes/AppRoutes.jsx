@@ -1,6 +1,6 @@
 import { Suspense, lazy, memo } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import RoleBasedRoute from './RoleBasedRoute.jsx'
@@ -52,12 +52,15 @@ const AdminExplanationLanguages = lazy(() => import('../dashboard/admin/explanat
 const AdminCurriculums = lazy(() => import('../dashboard/admin/curriculums/AdminCurriculums.jsx'))
 const AdminCurriculumDetails = lazy(() => import('../dashboard/admin/curriculums/AdminCurriculumDetails.jsx'))
 
+import TeacherLayout from '../layouts/TeacherLayout.jsx'
+import StudentLayout from '../layouts/StudentLayout.jsx'
+import ParentLayout from '../layouts/ParentLayout.jsx'
+
 const ManagerDashboard = lazy(() => import('../dashboard/manager/overview/ManagerDashboard.jsx'))
 const ManagerCourses = lazy(() => import('../dashboard/manager/courses/ManagerCourses.jsx'))
 const ManagerSchedule = lazy(() => import('../dashboard/manager/schedules/ManagerSchedule.jsx'))
 const ManagerReports = lazy(() => import('../dashboard/manager/reports/ManagerReports.jsx'))
 
-const TeacherLayout = lazy(() => import('../layouts/TeacherLayout.jsx'))
 const TeacherDashboard = lazy(() => import('../dashboard/teacher/overview/TeacherDashboard.jsx'))
 const TeacherSchedule = lazy(() => import('../dashboard/teacher/schedules/TeacherSchedule.jsx'))
 const TeacherSessions = lazy(() => import('../dashboard/teacher/sessions/TeacherSessions.jsx'))
@@ -71,7 +74,6 @@ const CreateHomework = lazy(() => import('../dashboard/teacher/homework/CreateHo
 const HomeworkSubmissions = lazy(() => import('../dashboard/teacher/homework/HomeworkSubmissions.jsx'))
 const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 
-const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
 const StudentSchedule = lazy(() => import('../dashboard/student/schedule/StudentSchedule.jsx'))
 const StudentLive = lazy(() => import('../dashboard/student/schedule/StudentLive.jsx'))
@@ -86,7 +88,6 @@ const StudentMaterials = lazy(() => import('../dashboard/student/courses/Student
 const StudentProfile = lazy(() => import('../dashboard/student/settings/StudentProfile.jsx'))
 const StudentSettings = lazy(() => import('../dashboard/student/settings/StudentSettings.jsx'))
 
-const ParentLayout = lazy(() => import('../layouts/ParentLayout.jsx'))
 const ParentDashboard = lazy(() => import('../dashboard/parent/overview/ParentDashboard.jsx'))
 const ParentRatings = lazy(() => import('../dashboard/parent/students/ParentRatings.jsx'))
 const ParentComplaints = lazy(() => import('../dashboard/parent/settings/ParentComplaints.jsx'))
@@ -137,8 +138,7 @@ export default function AppRoutes() {
                     </div>
                 }
             >
-                <AnimatePresence mode="wait">
-                    <Routes location={location}>
+                <Routes>
 
                         <Route
                             path="/"
@@ -296,6 +296,10 @@ export default function AppRoutes() {
                                     <Route
                                         path="/dashboard/admin/groups"
                                         element={<PermissionRoute permission="groups.read"><AdminGroups /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/groups/:id/edit"
+                                        element={<PermissionRoute permission="groups.update"><AdminGroups /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/private-groups"
@@ -515,7 +519,6 @@ export default function AppRoutes() {
                         />
 
                     </Routes>
-                </AnimatePresence>
             </Suspense>
         </div>
     )

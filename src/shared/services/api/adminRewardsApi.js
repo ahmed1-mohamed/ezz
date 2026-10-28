@@ -1,5 +1,20 @@
-import api from './axiosConfig';
-
+export const formatRewardIcon = (icon) => {
+  if (!icon) return '🎁';
+  const clean = String(icon).trim();
+  const lower = clean.toLowerCase();
+  const map = {
+    trophy: '🏆',
+    star: '⭐',
+    medal: '🥇',
+    award: '🎖️',
+    heart: '❤️',
+    crown: '👑',
+    fire: '🔥',
+    sparkles: '✨',
+    gift: '🎁',
+  };
+  return map[lower] || clean;
+};
 
 export const adminRewardsApi = {
   fetchStats: async () => {
@@ -27,14 +42,14 @@ export const adminRewardsApi = {
       const payload = {
         name: { ar: data.name, en: data.nameEn || data.name },
         description: { ar: data.description, en: data.descriptionEn || data.description },
-        icon: data.emoji,
-        backgroundColor: data.bgColor
+        icon: formatRewardIcon(data.emoji || data.icon || '⭐'),
+        backgroundColor: data.bgColor || data.backgroundColor || '#4CAF50'
       };
       const response = await api.post('/api/v1/rewards/private', payload);
       return { success: true, data: response.data };
     } catch (error) {
       console.error('API createReward failed:', error);
-      return { success: false };
+      return { success: false, error: error.response?.data?.message || error.message };
     }
   },
 
@@ -43,14 +58,14 @@ export const adminRewardsApi = {
       const payload = {
         name: { ar: data.name, en: data.nameEn || data.name },
         description: { ar: data.description, en: data.descriptionEn || data.description },
-        icon: data.emoji,
-        backgroundColor: data.bgColor
+        icon: formatRewardIcon(data.emoji || data.icon || '⭐'),
+        backgroundColor: data.bgColor || data.backgroundColor || '#4CAF50'
       };
       const response = await api.patch(`/api/v1/rewards/private/${id}`, payload);
       return { success: true, data: response.data };
     } catch (error) {
       console.error('API updateReward failed:', error);
-      return { success: false };
+      return { success: false, error: error.response?.data?.message || error.message };
     }
   },
 

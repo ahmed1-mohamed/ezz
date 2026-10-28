@@ -2,29 +2,8 @@ import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-
-import program1 from "../../images/programs/2.webp";
-import program2 from "../../images/programs/1.webp";
-import program3 from "../../images/programs/3.webp";
-
-const fallbackImages = [program3, program2, program1];
-
-const staticPrograms = [
-    {
-        image: program3,
-        key: "integrated"
-    },
-    {
-        image: program2,
-        key: "arabic"
-    },
-    {
-        image: program1,
-        key: "quran"
-    },
-];
 
 const getImageUrl = (imagePath) => {
     if (!imagePath) return '';
@@ -63,8 +42,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                 const desc = typeof prog.description === 'object'
                     ? (isRtl ? prog.description.ar || prog.description.en : prog.description.en || prog.description.ar)
                     : prog.description || '';
-                const fallbackImg = fallbackImages[index % fallbackImages.length];
-                const imgSrc = prog.image ? getImageUrl(prog.image) : fallbackImg;
+                const imgSrc = prog.image ? getImageUrl(prog.image) : '';
 
                 const badge = prog.language?.name
                     || (prog.levels && prog.levels.length > 0
@@ -89,13 +67,13 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     tags,
                     features,
                     image: imgSrc,
-                    fallbackImage: fallbackImg,
                 };
             });
         }
 
-        return staticPrograms.map((program, index) => {
-            const base = `programs.list.${program.key}`;
+        const defaultKeys = ['integrated', 'arabic', 'quran'];
+        return defaultKeys.map((key, index) => {
+            const base = `programs.list.${key}`;
             return {
                 id: index,
                 title: t(`${base}.title`),
@@ -103,8 +81,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                 badge: t(`${base}.badge`),
                 tags: Array.isArray(t(`${base}.tags`, { returnObjects: true })) ? t(`${base}.tags`, { returnObjects: true }) : [],
                 features: Array.isArray(t(`${base}.features`, { returnObjects: true })) ? t(`${base}.features`, { returnObjects: true }) : [],
-                image: program.image,
-                fallbackImage: program.image,
+                image: '',
             };
         });
     }, [hasDynamicData, rawCurricula, isRtl, t]);
@@ -293,20 +270,26 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                 className="group relative overflow-hidden rounded-[2.2rem] bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col justify-between w-[82vw] max-w-[340px] sm:w-[350px] lg:w-[380px] shrink-0 snap-start"
                             >
                                 <div className="flex-1 flex flex-col">
-                                    <div className="relative h-48 sm:h-56 overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
-                                        <img
-                                            src={prog.image}
-                                            alt={prog.title}
-                                            width="380"
-                                            height="224"
-                                            className="h-full w-full object-cover transition duration-700 group-hover:scale-105 pointer-events-none select-none"
-                                            loading="lazy"
-                                            decoding="async"
-                                            onError={(e) => {
-                                                e.currentTarget.onerror = null;
-                                                e.currentTarget.src = prog.fallbackImage;
-                                            }}
-                                        />
+                                    <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-[#0F7A6C] to-[#0A544A] shrink-0 flex items-center justify-center">
+                                        {prog.image ? (
+                                            <img
+                                                src={prog.image}
+                                                alt={prog.title}
+                                                width="380"
+                                                height="224"
+                                                className="h-full w-full object-cover transition duration-700 group-hover:scale-105 pointer-events-none select-none"
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-white/90 p-6 text-center select-none bg-gradient-to-br from-[#0F7A6C] via-[#0D6B5E] to-[#D4AF37]/40">
+                                                <BookOpen className="w-14 h-14 text-white/80 mb-2" />
+                                                <span className="text-base font-bold text-white tracking-wide">{prog.title}</span>
+                                            </div>
+                                        )}
 
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 

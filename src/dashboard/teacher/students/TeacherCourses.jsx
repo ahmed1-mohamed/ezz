@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -20,11 +20,28 @@ export default function TeacherCourses() {
     } = useQuery({
         queryKey: ['teacher-courses-groups', statusParam],
         queryFn: () => teacherGroupsApi.fetchGroupsByStatus(statusParam),
-        staleTime: 2 * 60 * 1000,
+        staleTime: 0,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: true,
     });
 
+    useEffect(() => {
+        refetch();
+    }, [statusParam, refetch]);
+
     const coursesList = useMemo(() => {
-        const list = responseData?.data || (Array.isArray(responseData) ? responseData : []);
+        let list = [];
+        if (Array.isArray(responseData)) {
+            list = responseData;
+        } else if (Array.isArray(responseData?.data)) {
+            list = responseData.data;
+        } else if (Array.isArray(responseData?.data?.data)) {
+            list = responseData.data.data;
+        } else if (Array.isArray(responseData?.data?.groups)) {
+            list = responseData.data.groups;
+        } else if (Array.isArray(responseData?.groups)) {
+            list = responseData.groups;
+        }
         if (!Array.isArray(list)) return [];
         return list.map((g, idx) => {
             const name = typeof g.name === 'object' && g.name !== null

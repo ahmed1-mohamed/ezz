@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Calendar } from 'lucide-react';
 import { landingApi } from '@/shared/services/api/landingApi';
 import CTASection from '@/shared/components/CTASection.jsx';
 import ScheduleHero from './components/Schedule/ScheduleHero.jsx';
@@ -111,15 +112,11 @@ export default function SchedulePage() {
             return t(`schedule.${key}`, { defaultValue: dayItem.dayName || dayItem.day });
         }
         if (dayItem.date) {
-            try {
-                const dateObj = new Date(dayItem.date);
-                if (!isNaN(dateObj.getTime())) {
-                    const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-                    const dayIndex = dateObj.getDay();
-                    return t(`schedule.${dayKeys[dayIndex]}`, { defaultValue: dayItem.dayName || dayItem.day });
-                }
-            } catch {
-                // Ignore parse errors
+            const dateObj = new Date(dayItem.date);
+            if (!isNaN(dateObj.getTime())) {
+                const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const dayIndex = dateObj.getDay();
+                return t(`schedule.${dayKeys[dayIndex]}`, { defaultValue: dayItem.dayName || dayItem.day });
             }
         }
         return dayItem.dayName || dayItem.day || '';
@@ -136,11 +133,13 @@ export default function SchedulePage() {
             const start = new Date(session.startTime).toLocaleTimeString(locale, {
                 hour: '2-digit',
                 minute: '2-digit',
+                hour12: false,
             });
             const end = session.endTime
                 ? new Date(session.endTime).toLocaleTimeString(locale, {
                       hour: '2-digit',
                       minute: '2-digit',
+                      hour12: false,
                   })
                 : '';
             return end ? `${start} - ${end}` : start;
@@ -216,8 +215,27 @@ export default function SchedulePage() {
                             getLocalizedDay={getLocalizedDay}
                         />
 
+                        {activeDay && (
+                            <div className="flex items-center justify-between px-2 border-b border-slate-200/60 dark:border-slate-800 pb-3">
+                                <div className="flex items-center gap-2.5 text-slate-800 dark:text-white font-bold text-lg sm:text-xl">
+                                    <Calendar className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />
+                                    <span>
+                                        {getLocalizedDay(activeDay)} - {activeDay.formattedDate || activeDay.date}
+                                    </span>
+                                    {activeDay.isToday && (
+                                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-[#00695C]/30 text-[#00695C] dark:text-emerald-400 font-bold">
+                                            {t('schedule.today', 'اليوم')}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+                                    {activeDaySessions.length} {t('schedule.sessionsCount', 'جلسة مجدولة')}
+                                </span>
+                            </div>
+                        )}
+
                         {activeDaySessions.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="space-y-5">
                                 {activeDaySessions.map((session, idx) => (
                                     <ScheduleSessionCard
                                         key={session.id || idx}

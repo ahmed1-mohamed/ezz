@@ -320,7 +320,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
           if (currentStar.name) formData.append('name[ar]', currentStar.name);
           if (currentStar.nameEn) formData.append('name[en]', currentStar.nameEn);
           if (currentStar.phone) formData.append('phone', currentStar.phone);
-          formData.append('active', currentStar.active !== false);
 
           await studentsApi.updateStudent(currentStar.studentId, formData);
         } catch (e) {
@@ -356,7 +355,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
           if (currentStar.name) formData.append('name[ar]', currentStar.name);
           if (currentStar.nameEn) formData.append('name[en]', currentStar.nameEn);
           if (currentStar.phone) formData.append('phone', currentStar.phone);
-          formData.append('active', currentStar.active !== false);
 
           await studentsApi.updateStudent(currentStar.studentId, formData);
         } catch (e) {

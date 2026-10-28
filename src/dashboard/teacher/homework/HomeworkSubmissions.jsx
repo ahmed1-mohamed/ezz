@@ -14,37 +14,40 @@ import SubmissionDetailsView from './components/SubmissionDetailsView.jsx';
 
 
 export default function HomeworkSubmissions() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
 
-  const [currentTimeStr, setCurrentTimeStr] = useState('01:53:04 AM');
+  const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
 
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
       try {
-        const timeFormatted = new Intl.DateTimeFormat('en-US', {
-          hour: 'numeric',
+        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         }).format(now);
         setCurrentTimeStr(timeFormatted);
       } catch {
-        setCurrentTimeStr(now.toLocaleTimeString('en-US'));
+        setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
 
       try {
-        const dateFormatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now);
+        const dateFormatted = new Intl.DateTimeFormat(
+          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'));
+        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
       }
     };
 
@@ -73,7 +76,7 @@ export default function HomeworkSubmissions() {
   });
 
   const formatSubmissionTime = (rawDate) => {
-    if (!rawDate) return 'لم يتم التسليم';
+    if (!rawDate) return t('teacherHomework.notSubmitted', 'لم يتم التسليم');
     const date = new Date(rawDate);
     if (isNaN(date.getTime())) {
       return String(rawDate);
@@ -84,19 +87,19 @@ export default function HomeworkSubmissions() {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 5) return 'الآن';
-    if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
-    if (diffHours < 24) return `منذ ${diffHours} ساعة`;
-    if (diffDays === 1) return 'أمس';
-    if (diffDays < 7) return `منذ ${diffDays} أيام`;
+    if (diffMins < 5) return t('teacherHomework.justNow', 'الآن');
+    if (diffMins < 60) return t('teacherHomework.minsAgo', { count: diffMins, defaultValue: `منذ ${diffMins} دقيقة` });
+    if (diffHours < 24) return t('teacherHomework.hoursAgo', { count: diffHours, defaultValue: `منذ ${diffHours} ساعة` });
+    if (diffDays === 1) return t('teacherHomework.yesterday', 'أمس');
+    if (diffDays < 7) return t('teacherHomework.daysAgo', { count: diffDays, defaultValue: `منذ ${diffDays} أيام` });
 
     try {
-      return new Intl.DateTimeFormat('ar-EG', {
+      return new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
         day: 'numeric',
         month: 'short',
-        hour: 'numeric',
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true,
+        hour12: false,
       }).format(date);
     } catch {
       return date.toLocaleDateString();
@@ -221,14 +224,13 @@ export default function HomeworkSubmissions() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Header */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
-            تسليمات الواجبات
+            {t('teacherHomework.submissionsTitle', 'تسليمات الواجبات')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-0.5">
-            تابع تسليمات الواجبات وتصحيحها لطلاب المجموعات
+            {t('teacherHomework.submissionsSubtitle', 'تابع تسليمات الواجبات وتصحيحها لطلاب المجموعات')}
           </p>
         </div>
 
@@ -244,9 +246,7 @@ export default function HomeworkSubmissions() {
         </div>
       </div>
 
-      {/* Top 5 Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        {/* الكل */}
         <div
           onClick={() => setStatusFilter('all')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-[#00594C] ${
@@ -258,10 +258,9 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
             {stats.all}
           </div>
-          <div className="text-xs font-bold text-slate-400">الكل</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.allSubmissions', 'الكل')}</div>
         </div>
 
-        {/* في الانتظار */}
         <div
           onClick={() => setStatusFilter('pending')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-amber-500 ${
@@ -273,10 +272,9 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-amber-500">
             {stats.pending}
           </div>
-          <div className="text-xs font-bold text-slate-400">في الانتظار</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.pendingReview', 'في الانتظار')}</div>
         </div>
 
-        {/* تم التسليم في الموعد */}
         <div
           onClick={() => setStatusFilter('submitted')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-emerald-600 ${
@@ -288,10 +286,9 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-emerald-600">
             {stats.submitted}
           </div>
-          <div className="text-xs font-bold text-slate-400">تم التسليم في الموعد</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.submittedOnTime', 'تم التسليم في الموعد')}</div>
         </div>
 
-        {/* تسليم متأخر */}
         <div
           onClick={() => setStatusFilter('submitted_late')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-orange-500 ${
@@ -303,10 +300,9 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-orange-500">
             {stats.submitted_late}
           </div>
-          <div className="text-xs font-bold text-slate-400">تسليم متأخر</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.submittedLate', 'تسليم متأخر')}</div>
         </div>
 
-        {/* متأخرة ولم يتم التسليم */}
         <div
           onClick={() => setStatusFilter('overdue')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-rose-500 ${
@@ -318,17 +314,16 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-rose-500">
             {stats.overdue}
           </div>
-          <div className="text-xs font-bold text-slate-400">متأخرة ولم يتم التسليم</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.overdue', 'متأخرة ولم يتم التسليم')}</div>
         </div>
       </div>
 
-      {/* Small Filter Tabs (الكل - تم التقييم - لم يتم التقييم) & Search */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {[
-            { id: 'all', label: 'الكل' },
-            { id: 'evaluated', label: 'تم التقييم' },
-            { id: 'not_evaluated', label: 'لم يتم التقييم' },
+            { id: 'all', label: t('teacherHomework.allSubmissions', 'الكل') },
+            { id: 'evaluated', label: t('teacherHomework.evaluated', 'تم التقييم') },
+            { id: 'not_evaluated', label: t('teacherHomework.notEvaluated', 'لم يتم التقييم') },
           ].map((tab) => {
             const isActive = evaluationFilter === tab.id;
             return (
@@ -353,7 +348,7 @@ export default function HomeworkSubmissions() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="ابحث عن طالب أو واجب..."
+            placeholder={t('teacherHomework.searchStudentPlaceholder', 'ابحث عن طالب أو واجب...')}
             className="w-full ps-10 pe-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00594C] transition"
           />
           <Search
@@ -363,31 +358,30 @@ export default function HomeworkSubmissions() {
         </div>
       </div>
 
-      {/* Submissions Table */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-xs border border-slate-100 dark:border-slate-800">
         <div className="overflow-x-auto">
           <table className="w-full text-start border-collapse">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800/80 text-[11px] sm:text-xs font-semibold text-slate-400">
-                <th className="py-4 px-6 text-start">الطالب</th>
-                <th className="py-4 px-4 text-start">الواجب</th>
-                <th className="py-4 px-4 text-start">وقت التسليم</th>
-                <th className="py-4 px-4 text-center">الحالة</th>
-                <th className="py-4 px-4 text-center">التقييم</th>
-                <th className="py-4 px-6 text-center">الإجراءات</th>
+                <th className="py-4 px-6 text-start">{t('teacherHomework.student', 'الطالب')}</th>
+                <th className="py-4 px-4 text-start">{t('teacherHomework.homework', 'الواجب')}</th>
+                <th className="py-4 px-4 text-start">{t('teacherHomework.submissionDate', 'وقت التسليم')}</th>
+                <th className="py-4 px-4 text-center">{t('teacherHomework.status', 'الحالة')}</th>
+                <th className="py-4 px-4 text-center">{t('teacherHomework.grade', 'التقييم')}</th>
+                <th className="py-4 px-6 text-center">{t('teacherHomework.actions', 'الإجراءات')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs sm:text-sm">
               {isLoading ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400 font-bold">
-                    جاري تحميل التسليمات...
+                    {t('common.loading', 'جاري تحميل التسليمات...')}
                   </td>
                 </tr>
               ) : filteredSubmissions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400 font-bold">
-                    لا توجد تسليمات مطابقة للبحث أو الفلتر المحدد حالياً.
+                    {t('teacherHomework.noSubmissionsFound', 'لا توجد تسليمات مطابقة للبحث أو الفلتر المحدد حالياً.')}
                   </td>
                 </tr>
               ) : (
@@ -399,7 +393,6 @@ export default function HomeworkSubmissions() {
                       key={sub.id}
                       className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition"
                     >
-                      {/* Student */}
                       <td className="py-4 px-6 text-start">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
@@ -416,71 +409,66 @@ export default function HomeworkSubmissions() {
                         </div>
                       </td>
 
-                      {/* Homework */}
                       <td className="py-4 px-4 font-bold text-slate-700 dark:text-slate-200">
                         {sub.homeworkTitle}
                       </td>
 
-                      {/* Submission Time */}
                       <td className="py-4 px-4 text-slate-400 text-xs font-semibold whitespace-nowrap">
                         {sub.timeText}
                       </td>
 
-                      {/* Submission Status (الحالة) */}
                       <td className="py-4 px-4 text-center whitespace-nowrap">
                         {sub.rawStatus === 'submitted' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
                             <CheckCircle2 size={13} />
-                            <span>تم التسليم في الموعد</span>
+                            <span>{t('teacherHomework.submittedOnTime', 'تم التسليم في الموعد')}</span>
                           </span>
                         )}
                         {sub.rawStatus === 'submitted_late' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-950/40 dark:text-orange-300">
                             <Clock size={13} />
-                            <span>تسليم متأخر</span>
+                            <span>{t('teacherHomework.submittedLate', 'تسليم متأخر')}</span>
                           </span>
                         )}
                         {sub.rawStatus === 'overdue' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300">
                             <AlertCircle size={13} />
-                            <span>متأخرة ولم يتم التسليم</span>
+                            <span>{t('teacherHomework.overdue', 'متأخرة ولم يتم التسليم')}</span>
                           </span>
                         )}
                         {sub.rawStatus === 'pending' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
                             <Clock size={13} />
-                            <span>في الانتظار</span>
+                            <span>{t('teacherHomework.pendingReview', 'في الانتظار')}</span>
                           </span>
                         )}
                       </td>
 
-                      {/* Evaluation Status (التقييم) */}
                       <td className="py-4 px-4 text-center whitespace-nowrap">
                         {isEval ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
                             <CheckCircle2 size={13} />
                             <span>
-                              تم التقييم {sub.grade !== null && sub.grade !== undefined ? `(${sub.grade}%)` : ''}
+                              {t('teacherHomework.evaluated', 'تم التقييم')} {sub.grade !== null && sub.grade !== undefined ? `(${sub.grade}%)` : ''}
                             </span>
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
                             <Clock size={13} />
-                            <span>في انتظار التقييم</span>
+                            <span>{t('teacherHomework.notEvaluated', 'في انتظار التقييم')}</span>
                           </span>
                         )}
                       </td>
 
-                      {/* Actions (عرض الواجب فقط) */}
                       <td className="py-4 px-6 text-center">
                         <button
                           type="button"
                           onClick={() => setSelectedSubmission(sub)}
                           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#d2ede6] hover:bg-[#bce4da] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900 transition-all cursor-pointer shadow-xs"
-                          title="عرض تفاصيل الواجب والتسليم"
+                          title={t('teacherHomework.viewSubmission', 'عرض تفاصيل الواجب والتسليم')}
                         >
                           <Eye size={14} />
-                          <span>عرض الواجب</span>
+                          <span>{t('teacherHomework.viewSubmission', 'عرض الواجب')}</span>
                         </button>
                       </td>
                     </tr>

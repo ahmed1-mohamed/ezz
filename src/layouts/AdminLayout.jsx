@@ -1,4 +1,4 @@
-import { memo, useState, useCallback, useMemo } from 'react'
+import { memo, useState, useCallback, useMemo, Suspense } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -335,7 +335,15 @@ export default memo(function AdminLayout() {
         </header>
 
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-24 min-h-[400px]">
+                <div className="w-8 h-8 rounded-full border-2 border-[#0f7a6c] border-t-transparent animate-spin" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
 
       </div>

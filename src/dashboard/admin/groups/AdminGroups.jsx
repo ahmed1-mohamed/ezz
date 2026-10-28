@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Search,
@@ -23,8 +24,10 @@ import GroupDetailsModal from './components/GroupDetailsModal'
 export default function AdminGroups() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const { id: routeGroupId } = useParams()
+  const navigate = useNavigate()
 
-  const [viewMode, setViewMode] = useState('list')
+  const [viewMode, setViewMode] = useState(routeGroupId ? 'edit-group' : 'list')
   const [groups, setGroups] = useState([])
   const [pagination, setPagination] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -62,8 +65,13 @@ export default function AdminGroups() {
       }
 
       const res = await adminGroupsApi.fetchGroups(params)
-      const data = res?.data || res
-      const rawList = Array.isArray(data) ? data : (Array.isArray(res) ? res : [])
+      const rawList = Array.isArray(res?.data)
+        ? res.data
+        : (Array.isArray(res)
+          ? res
+          : (Array.isArray(res?.data?.data)
+            ? res.data.data
+            : (Array.isArray(res?.data?.groups) ? res.data.groups : [])))
       const items = rawList.map((g) => ({
         ...g,
         id: g.id || g._id,
@@ -85,14 +93,46 @@ export default function AdminGroups() {
   }, [currentPage, searchQuery, statusFilter, itemsPerPage])
 
   useEffect(() => {
-    let isMounted = true
-    Promise.resolve().then(() => {
-      if (isMounted) loadGroups()
-    })
-    return () => {
-      isMounted = false
-    }
+    loadGroups()
   }, [loadGroups])
+
+  useEffect(() => {
+    let active = true
+    if (routeGroupId) {
+      if (!selectedGroup || (String(selectedGroup.id) !== String(routeGroupId) && String(selectedGroup._id) !== String(routeGroupId))) {
+        setIsLoading(true)
+        adminGroupsApi.fetchGroupByIdRaw(routeGroupId)
+          .then((res) => {
+            if (!active) return
+            const data = res?.data || res
+            if (data && (data.id || data._id || data.name)) {
+              setSelectedGroup({
+                ...data,
+                id: data.id || data._id || routeGroupId,
+                _id: data._id || data.id || routeGroupId,
+              })
+              setViewMode('edit-group')
+            }
+          })
+          .catch((err) => {
+            console.error('Failed to load group by route ID for edit:', err)
+            showErrorToast(t('adminDashboard.groups.loadError', 'فشل تحميل بيانات المجموعة'), isRtl)
+            navigate('/dashboard/admin/groups')
+          })
+          .finally(() => {
+            if (active) setIsLoading(false)
+          })
+      } else {
+        setViewMode('edit-group')
+      }
+    } else {
+      if (viewMode === 'edit-group') {
+        setViewMode('list')
+        setSelectedGroup(null)
+      }
+    }
+    return () => { active = false }
+  }, [routeGroupId, navigate, isRtl, t])
 
   const filtered = useMemo(() => {
     let result = groups
@@ -159,19 +199,57 @@ export default function AdminGroups() {
   const handleSaveGroup = async (formData) => {
     setIsLoading(true)
     try {
-      if (viewMode === 'edit-group' && selectedGroup) {
-        const targetId = selectedGroup.id || selectedGroup._id
-        const res = await adminGroupsApi.updateGroup(targetId, formData)
-        const updatedItem = res?.data || res
-        if (updatedItem) {
-          setGroups((prev) =>
-            prev.map((g) => (g.id === targetId || g._id === targetId ? { ...g, ...updatedItem, id: targetId, _id: targetId } : g))
-          )
-          setSelectedGroup(null)
-          setViewMode('list')
-          loadGroups()
-          showSuccessToast(res?.message || t('adminDashboard.groups.updateSuccess', 'تم تحديث بيانات المجموعة بنجاح'), isRtl)
+      const isEditing = (viewMode === 'edit-group' || Boolean(routeGroupId)) && selectedGroup
+      if (isEditing) {
+        const targetId = selectedGroup.id || selectedGroup._id || routeGroupId
+
+        const restrictedPayload = {
+          name: typeof formData.name === 'object' && formData.name !== null
+            ? {
+                ar: formData.name.ar || formData.nameAr || '',
+                en: formData.name.en || formData.nameEn || '',
+              }
+            : (formData.name || ''),
+          ...(formData.image ? { image: formData.image } : {}),
+          ...(formData.country ? { country: formData.country } : {}),
+          maxStudents: Number(formData.maxStudents || 1),
+          ...(formData.startDate ? { startDate: formData.startDate } : {}),
+          ...(formData.endDate ? { endDate: formData.endDate } : {}),
         }
+
+        const res = await adminGroupsApi.updateGroup(targetId, restrictedPayload)
+
+        if (formData.status && formData.status !== selectedGroup.status) {
+          try {
+            await adminGroupsApi.updateGroupStatus(targetId, formData.status)
+          } catch (statusErr) {
+            console.warn('Failed to update group status via dedicated endpoint:', statusErr)
+          }
+        }
+
+        if (Array.isArray(formData.weeklySchedule)) {
+          try {
+            await adminGroupsApi.updateGroupSchedule(targetId, formData.weeklySchedule)
+          } catch (schedErr) {
+            console.warn('Failed to update group schedule via dedicated endpoint:', schedErr)
+          }
+        }
+
+        const currentTeacherId = String(selectedGroup.teacher?.id || selectedGroup.teacher?._id || selectedGroup.teacher || '')
+        const newTeacherId = String(formData.teacher || '')
+        if (newTeacherId && newTeacherId !== currentTeacherId) {
+          try {
+            await adminGroupsApi.changeTeacher(targetId, newTeacherId)
+          } catch (tchErr) {
+            console.warn('Failed to update group teacher via dedicated endpoint:', tchErr)
+          }
+        }
+
+        setSelectedGroup(null)
+        setViewMode('list')
+        navigate('/dashboard/admin/groups')
+        loadGroups()
+        showSuccessToast(res?.message || t('adminDashboard.groups.updateSuccess', 'تم تحديث بيانات المجموعة بنجاح'), isRtl)
       } else {
         const res = await adminGroupsApi.createGroup(formData)
         const newItem = res?.data || res
@@ -249,28 +327,31 @@ export default function AdminGroups() {
     }
   }
 
-  const handleEditGroup = async (group) => {
-    setIsLoading(true)
+  const handleEditGroup = (group) => {
     const groupId = group.id || group._id
+    setSelectedGroup({ ...group, id: groupId, _id: groupId })
+    navigate(`/dashboard/admin/groups/${groupId}/edit`)
+  }
+
+  const handleTransferStudent = async (groupId, studentId, targetGroupId) => {
+    setIsLoading(true)
     try {
-      const res = await adminGroupsApi.fetchGroupByIdRaw(groupId)
-      const data = res?.data || res
-      if (data && (data.id || data._id || data.name)) {
-        setSelectedGroup({
-          ...group,
-          ...data,
-          id: data.id || data._id || groupId,
-          _id: data._id || data.id || groupId,
-        })
-      } else {
-        setSelectedGroup({ ...group, id: groupId, _id: groupId })
+      const res = await adminGroupsApi.transferStudent(groupId, {
+        student: studentId,
+        targetGroup: targetGroupId,
+      })
+      showSuccessToast(res?.message || t('adminDashboard.groups.transferSuccess', 'تم نقل الطالب بنجاح'), isRtl)
+      const detailed = await adminGroupsApi.fetchGroupByIdLocalized(groupId)
+      const data = detailed?.data || detailed
+      if (data && (data.id || data._id)) {
+        setSelectedGroup(data)
       }
+      loadGroups()
     } catch (err) {
-      console.warn('Error fetching raw group for edit, using card data:', err)
-      setSelectedGroup({ ...group, id: groupId, _id: groupId })
+      console.error('Failed to transfer student:', err)
+      showErrorToast(err?.response?.data?.message || t('adminDashboard.groups.transferError', 'فشل نقل الطالب'), isRtl)
     } finally {
       setIsLoading(false)
-      setViewMode('edit-group')
     }
   }
 
@@ -403,6 +484,9 @@ export default function AdminGroups() {
         onCancel={() => {
           setSelectedGroup(null)
           setViewMode('list')
+          if (routeGroupId) {
+            navigate('/dashboard/admin/groups')
+          }
         }}
       />
     )
@@ -573,6 +657,8 @@ export default function AdminGroups() {
             setSelectedGroup(null)
           }}
           onRemoveStudent={handleRemoveStudent}
+          onTransferStudent={handleTransferStudent}
+          allGroups={groups}
           onOpenAddStudents={() => {
             setShowStudentsModal(false)
             setShowAddStudentsModal(true)

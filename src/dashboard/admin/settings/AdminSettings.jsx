@@ -14,26 +14,48 @@ export default function AdminSettings() {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const isRtl = i18n.language === 'ar';
-    const isAdmin = user?.role === 'Admin';
+    const normalizedRole = String(user?.role || '').toLowerCase();
+    const isSuperAdmin = normalizedRole === 'super_admin' || normalizedRole === 'superadmin';
+    const isAdmin = normalizedRole === 'admin' || normalizedRole === 'manager' || (!isSuperAdmin && String(user?.role || '').includes('Admin'));
 
     const [profileDataForPassword, setProfileDataForPassword] = useState({ phone: '', country: '' });
     const [adminPermissions, setAdminPermissions] = useState(null);
     const [loadingPermissions, setLoadingPermissions] = useState(false);
 
     useEffect(() => {
-        if (isAdmin && user?.id) {
+        if (isAdmin && !isSuperAdmin) {
             const loadPermissions = async () => {
                 setLoadingPermissions(true);
                 try {
-                    const res = await managersApi.fetchPermissions();
-                    const allPermissions = res?.data || res || [];
-                    const profileRes = await profileApi.fetchProfile();
-                    const profileData = profileRes?.data;
-                    const userPermissionId = profileData?.permissionId || profileData?.permission?.id || profileData?.permission;
-                    if (userPermissionId && Array.isArray(allPermissions)) {
-                        const matched = allPermissions.find(p => (p.id || p._id) === userPermissionId);
-                        if (matched) {
-                            setAdminPermissions(matched);
+                    const [res, profileRes] = await Promise.allSettled([
+                        managersApi.fetchPermissions(),
+                        profileApi.fetchProfile()
+                    ]);
+
+                    const allPermissions = res.status === 'fulfilled' ? (res.value?.data || res.value || []) : [];
+                    const profileData = profileRes.status === 'fulfilled' ? (profileRes.value?.data || profileRes.value) : null;
+
+                    if (profileData?.permission && typeof profileData.permission === 'object' && (profileData.permission.permissions || profileData.permission.name)) {
+                        setAdminPermissions(profileData.permission);
+                    } else if (profileData?.permissions && typeof profileData.permissions === 'object') {
+                        setAdminPermissions({ name: profileData.name || 'Admin', permissions: profileData.permissions });
+                    } else {
+                        const userPermissionId = profileData?.permissionId ||
+                            profileData?.permission?.id ||
+                            profileData?.permission?._id ||
+                            (typeof profileData?.permission === 'string' ? profileData.permission : null) ||
+                            user?.permissionId ||
+                            user?.permission?.id ||
+                            user?.permission?._id ||
+                            (typeof user?.permission === 'string' ? user.permission : null);
+
+                        if (userPermissionId && Array.isArray(allPermissions)) {
+                            const matched = allPermissions.find(p => String(p.id || p._id) === String(userPermissionId));
+                            if (matched) {
+                                setAdminPermissions(matched);
+                            }
+                        } else if (Array.isArray(allPermissions) && allPermissions.length === 1) {
+                            setAdminPermissions(allPermissions[0]);
                         }
                     }
                 } catch (err) {
@@ -43,7 +65,7 @@ export default function AdminSettings() {
             };
             loadPermissions();
         }
-    }, [isAdmin, user?.id]);
+    }, [isAdmin, isSuperAdmin, user?.id]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -59,21 +81,32 @@ export default function AdminSettings() {
     };
 
     const renderPermissionsPanel = () => {
-        if (!isAdmin) return null;
+        if (!isAdmin && !isSuperAdmin) return null;
 
-        const permissionName = adminPermissions
-            ? (typeof adminPermissions.name === 'object'
-                ? (isRtl ? adminPermissions.name.ar || adminPermissions.name.en : adminPermissions.name.en || adminPermissions.name.ar)
-                : adminPermissions.name)
-            : '';
+        const permissionName = isSuperAdmin
+            ? (isRtl ? 'مدير نظام كامل الصلاحيات (Super Admin)' : 'Super Administrator (Full Access)')
+            : (adminPermissions
+                ? (typeof adminPermissions.name === 'object'
+                    ? (isRtl ? adminPermissions.name.ar || adminPermissions.name.en : adminPermissions.name.en || adminPermissions.name.ar)
+                    : adminPermissions.name)
+                : '');
 
         const grantedKeys = new Set();
-        if (adminPermissions?.permissions && typeof adminPermissions.permissions === 'object') {
-            Object.values(adminPermissions.permissions).forEach(val => {
-                if (Array.isArray(val)) {
-                    val.forEach(k => grantedKeys.add(k));
-                }
-            });
+        if (isSuperAdmin) {
+            SYSTEM_PERMISSIONS.forEach(mod => mod.actions.forEach(act => grantedKeys.add(act.key)));
+        } else if (adminPermissions) {
+            if (adminPermissions.permissions && typeof adminPermissions.permissions === 'object') {
+                Object.values(adminPermissions.permissions).forEach(val => {
+                    if (Array.isArray(val)) {
+                        val.forEach(k => grantedKeys.add(typeof k === 'object' ? (k.key || k.action) : k));
+                    } else if (typeof val === 'string') {
+                        grantedKeys.add(val);
+                    }
+                });
+            }
+            if (Array.isArray(adminPermissions.keys)) {
+                adminPermissions.keys.forEach(k => grantedKeys.add(k));
+            }
         }
 
         return (

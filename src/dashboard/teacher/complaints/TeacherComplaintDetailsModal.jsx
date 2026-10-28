@@ -24,6 +24,7 @@ function formatDate(isoString, isRtl) {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   });
 }
 
@@ -33,7 +34,7 @@ function formatTime(val) {
     if (val.includes('T')) {
       const d = new Date(val);
       if (!isNaN(d.getTime())) {
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
       }
     }
     return val.length > 5 ? val.substring(0, 5) : val;
@@ -199,7 +200,7 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                     <div>
                       <span className="text-slate-400 block">{t('teacher.selectSession', 'الحصة الأصلية')}:</span>
                       <span className="font-bold text-slate-800 dark:text-slate-200">
-                        {sessionInfo.title || `حصة ${sessionInfo.sessionNumber || ''}`} ({sessionInfo.date || '—'})
+                        {sessionInfo.title || `${t('teacherComplaints.sessionDefault', 'حصة')} ${sessionInfo.sessionNumber || ''}`} ({sessionInfo.date || '—'})
                       </span>
                     </div>
                   </div>
@@ -208,7 +209,7 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
 
               <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 space-y-1 text-xs">
                 <div className="font-bold text-amber-900 dark:text-amber-200">
-                  الموعد الجديد المقترح:
+                  {t('teacher.proposedSchedule', 'الموعد الجديد المقترح')}:
                 </div>
                 <div className="flex flex-wrap items-center gap-3 font-semibold text-slate-700 dark:text-slate-300">
                   {item.proposedNewDate && (
@@ -258,7 +259,7 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors"
                     >
                       <Paperclip size={12} />
-                      <span>مرفق {idx + 1}</span>
+                      <span>{t('teacher.attachmentNumber', 'مرفق {{num}}', { num: idx + 1 })}</span>
                     </a>
                   );
                 })}

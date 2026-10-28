@@ -75,6 +75,14 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
           </p>
           <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5 flex items-center justify-center flex-wrap gap-1">
             <span>{pkg.sessions_per_month} {p('sessions')}</span>
+            {pkg.sessionDuration && (
+              <>
+                <span>·</span>
+                <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                  {pkg.sessionDuration} {isRtl ? 'دقيقة' : 'min'}
+                </span>
+              </>
+            )}
             <span>·</span>
             <span>{languageLabel}</span>
             {countryName && (

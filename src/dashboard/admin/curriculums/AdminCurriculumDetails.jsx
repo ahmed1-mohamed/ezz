@@ -302,7 +302,6 @@ export default function AdminCurriculumDetails() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 animate-fadeIn pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Top Header Navigation Bar */}
       <CurriculumDetailsHeader
         curriculumName={curriculumName}
         showOnWebsite={showOnWebsite}
@@ -314,7 +313,6 @@ export default function AdminCurriculumDetails() {
         isRtl={isRtl}
       />
 
-      {/* Curriculum Hero Overview Card */}
       <CurriculumOverviewCard
         curriculum={curriculum}
         curriculumName={curriculumName}
@@ -324,7 +322,6 @@ export default function AdminCurriculumDetails() {
         isRtl={isRtl}
       />
 
-      {/* Levels & Units Section */}
       <CurriculumLevelsSection
         levels={levels}
         curriculumName={curriculumName}
@@ -349,7 +346,6 @@ export default function AdminCurriculumDetails() {
         isRtl={isRtl}
       />
 
-      {/* Modals */}
       <BasicModal
         isOpen={modalConfig.isOpen}
         onClose={closeModal}

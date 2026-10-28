@@ -23,7 +23,6 @@ export default function CurriculumLevelsSection({
 }) {
   return (
     <div className="space-y-4">
-      {/* Levels & Units Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-start">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
@@ -44,7 +43,6 @@ export default function CurriculumLevelsSection({
         </div>
       </div>
 
-      {/* Levels List */}
       <div className="space-y-4">
         {levels.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-slate-100 dark:border-slate-800 shadow-xs space-y-3">

@@ -4,6 +4,7 @@ import api from '@/shared/services/api/axiosConfig'
 import { authApi } from '@/shared/services/api/authApi'
 import useLocalStorage from '@/shared/hooks/useLocalStorage.jsx'
 import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
+import { sanitizeErrorMessage } from '@/shared/utils/errorHandler.js'
 
 function readStoredUser() {
     try {
@@ -103,9 +104,12 @@ export function AuthProvider({ children }) {
             return authUser
         } catch (error) {
             setLoading(false)
+            const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar'
+            const status = error.response?.status
             const data = error.response?.data
-            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Login failed'
-            throw new Error(msg, { cause: error })
+            const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message
+            const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic)
+            throw new Error(safeMsg, { cause: error })
         }
     }, [refreshProfile])
 
@@ -141,9 +145,12 @@ export function AuthProvider({ children }) {
             return authUser
         } catch (error) {
             setLoading(false)
+            const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar'
+            const status = error.response?.status
             const data = error.response?.data
-            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Signup failed'
-            throw new Error(msg, { cause: error })
+            const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message
+            const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic)
+            throw new Error(safeMsg, { cause: error })
         }
     }, [refreshProfile])
 
@@ -178,9 +185,12 @@ export function AuthProvider({ children }) {
             return authUser
         } catch (error) {
             setLoading(false)
+            const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar'
+            const status = error.response?.status
             const data = error.response?.data
-            const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || error.message || 'Google login failed'
-            throw new Error(msg, { cause: error })
+            const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message
+            const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic)
+            throw new Error(safeMsg, { cause: error })
         }
     }, [refreshProfile])
 

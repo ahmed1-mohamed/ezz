@@ -121,13 +121,19 @@ export default function AdminSessions() {
 
   const stats = useMemo(() => {
     const list = Array.isArray(sessions) ? sessions : []
+    const live = Number(apiStats?.in_progress ?? list.filter((s) => s.status === 'live').length) || 0
+    const scheduled = Number(apiStats?.scheduled ?? list.filter((s) => s.status === 'scheduled').length) || 0
+    const completed = Number(apiStats?.completed ?? list.filter((s) => s.status === 'completed').length) || 0
+    const cancelled = Number(apiStats?.cancelled ?? list.filter((s) => s.status === 'cancelled').length) || 0
+    const total = Number(apiStats?.total ?? totalCount ?? (live + scheduled + completed + cancelled)) || 0
     return {
-      live: Number(apiStats?.in_progress ?? list.filter((s) => s.status === 'live').length) || 0,
-      scheduled: Number(apiStats?.scheduled ?? list.filter((s) => s.status === 'scheduled').length) || 0,
-      completed: Number(apiStats?.completed ?? list.filter((s) => s.status === 'completed').length) || 0,
-      cancelled: Number(apiStats?.cancelled ?? list.filter((s) => s.status === 'cancelled').length) || 0,
+      total,
+      scheduled,
+      live,
+      completed,
+      cancelled,
     }
-  }, [apiStats, sessions])
+  }, [apiStats, sessions, totalCount])
 
   const handleTogglePanel = (sessionId, panel) => {
     if (expandedRow === sessionId && expandedPanel === panel) {
@@ -173,8 +179,8 @@ export default function AdminSessions() {
     }
   }
 
-  const handleChangeTeacher = async (sessionId, teacherId, teacherName) => {
-    const res = await adminSessionsApi.changeTeacher(sessionId, teacherId, teacherName)
+  const handleChangeTeacher = async (sessionId, teacherId, teacherName, reason) => {
+    const res = await adminSessionsApi.changeTeacher(sessionId, teacherId, reason)
     if (res.success) {
       showSuccessToast(
         res?.message || (isRtl ? 'تم تغيير المعلم بنجاح' : 'Teacher changed successfully'),
@@ -244,7 +250,12 @@ export default function AdminSessions() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <StatCard
+          label={t('adminDashboard.sessions.totalSessions', 'إجمالي كل الحصص')}
+          value={stats.total}
+          color="purple"
+        />
         <StatCard
           label={t('adminDashboard.sessions.scheduled', 'حصص مجدولة')}
           value={stats.scheduled}

@@ -1,77 +1,69 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FilePlus, Star, Calendar, Award, MessageSquare, User, Sparkles } from 'lucide-react';
+import { Play, BookOpen, Star, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherQuickActions() {
   const { t } = useTranslation();
 
-  const actions = [
-    {
-      to: '/dashboard/teacher/assignments/create',
-      label: t('teacherDashboard.createHomework', 'إنشاء واجب جديد'),
-      icon: FilePlus,
-      bg: 'bg-emerald-50 text-[#00594C] dark:bg-emerald-950/40 dark:text-emerald-400',
-    },
-    {
-      to: '/dashboard/teacher/evaluations',
-      label: t('teacherDashboard.evaluateStudents', 'تقييم الطلاب'),
-      icon: Star,
-      bg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
-    },
-    {
-      to: '/dashboard/teacher/schedule',
-      label: t('teacherDashboard.viewSchedule', 'جدول الحصص'),
-      icon: Calendar,
-      bg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
-    },
-    {
-      to: '/dashboard/teacher/rewards',
-      label: t('teacherDashboard.manageRewards', 'المكافآت'),
-      icon: Award,
-      bg: 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400',
-    },
-    {
-      to: '/dashboard/teacher/complaints',
-      label: t('teacherDashboard.fileComplaint', 'الشكاوى والمقترحات'),
-      icon: MessageSquare,
-      bg: 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400',
-    },
-    {
-      to: '/dashboard/teacher/profile',
-      label: t('teacherDashboard.editProfile', 'الملف الشخصي'),
-      icon: User,
-      bg: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-    },
-  ];
-
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4">
-      <div className="flex items-center gap-2 text-start">
-        <Sparkles size={18} className="text-[#00594C] dark:text-emerald-400" />
-        <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
-          {t('teacherDashboard.quickActions', 'إجراءات سريعة')}
-        </h2>
-      </div>
+    <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4">
+      <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 text-start">
+        {t('teacherDashboard.quickActions', 'الإجراءات السريعة')}
+      </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {actions.map((act) => {
-          const Icon = act.icon;
-          return (
-            <Link
-              key={act.to}
-              to={act.to}
-              className="p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 flex flex-col items-center text-center gap-2.5 transition-all hover:-translate-y-1 hover:shadow-xs group cursor-pointer"
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-110 transition-transform`}>
-                <Icon size={18} />
-              </div>
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 line-clamp-1">
-                {act.label}
-              </span>
-            </Link>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-3">
+        {/* 1. ابدأ جلسة */}
+        <Link
+          to="/dashboard/teacher/live"
+          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#00594C]/30 transition-all text-center gap-2 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Play size={18} className="fill-[#00594C] dark:fill-emerald-400" />
+          </div>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+            {t('teacherDashboard.startSession', 'ابدأ جلسة')}
+          </span>
+        </Link>
+
+        {/* 2. واجب جديد */}
+        <Link
+          to="/dashboard/teacher/homework/create"
+          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#0284c7]/30 transition-all text-center gap-2 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-[#f0f9ff] text-[#0284c7] dark:bg-blue-950/40 dark:text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <BookOpen size={18} />
+          </div>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+            {t('teacherDashboard.newHomework', 'واجب جديد')}
+          </span>
+        </Link>
+
+        {/* 3. تقييم طالب */}
+        <Link
+          to="/dashboard/teacher/evaluations"
+          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#f59e0b]/30 transition-all text-center gap-2 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-[#fffbeb] text-[#f59e0b] dark:bg-amber-950/40 dark:text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Star size={18} />
+          </div>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+            {t('teacherDashboard.studentEvaluation', 'تقييم طالب')}
+          </span>
+        </Link>
+
+        {/* 4. تسجيل حضور */}
+        <Link
+          to="/dashboard/teacher/schedule"
+          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#8b5cf6]/30 transition-all text-center gap-2 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-[#f5f3ff] text-[#8b5cf6] dark:bg-purple-950/40 dark:text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Users size={18} />
+          </div>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+            {t('teacherDashboard.takeAttendance', 'تسجيل حضور')}
+          </span>
+        </Link>
       </div>
     </div>
   );

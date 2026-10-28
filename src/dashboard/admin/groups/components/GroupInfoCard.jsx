@@ -120,21 +120,27 @@ export default function GroupInfoCard({
   }, [formData.curriculum, resolvedCurricula])
 
   const levelOptions = useMemo(() => {
-    const list = (selectedCurriculumObj?.levels && selectedCurriculumObj.levels.length > 0)
-      ? selectedCurriculumObj.levels
-      : resolvedLevels
+    const sourceLevels = (resolvedLevels && resolvedLevels.length > 0)
+      ? resolvedLevels
+      : (selectedCurriculumObj?.levels || [])
 
-    return list.map((l) => {
-      const id = l.id || l._id
-      const name = typeof l.name === 'object'
-        ? (isRtl ? (l.name.ar || l.name.en) : (l.name.en || l.name.ar))
-        : (l.name || '')
+    return sourceLevels.map((l) => {
+      if (typeof l === 'object' && l !== null) {
+        const id = l.id || l._id || l.studentLevel_id || l.level_id
+        const name = typeof l.name === 'object'
+          ? (isRtl ? (l.name.ar || l.name.en) : (l.name.en || l.name.ar))
+          : (l.name || id)
+        return {
+          value: id,
+          label: name || id,
+        }
+      }
       return {
-        value: id,
-        label: name || id,
+        value: l,
+        label: l,
       }
     })
-  }, [selectedCurriculumObj, resolvedLevels, isRtl])
+  }, [resolvedLevels, selectedCurriculumObj, isRtl])
 
   const filteredTeachers = useMemo(() => {
     const activeTeachers = resolvedTeachers.filter((tch) => {
@@ -182,7 +188,7 @@ export default function GroupInfoCard({
       return specs.some(matchesItem) || currs.some(matchesItem) || subjects.some(matchesItem)
     })
 
-    return teachingThisCurriculum.length > 0 ? teachingThisCurriculum : activeTeachers
+    return teachingThisCurriculum
   }, [resolvedTeachers, formData.curriculum, resolvedCurricula])
 
   const teacherOptions = useMemo(() => {
@@ -201,21 +207,17 @@ export default function GroupInfoCard({
   const languageOptions = useMemo(() => {
     if (resolvedLanguages.length > 0) {
       return resolvedLanguages.map((l) => {
-        const id = l.id || l._id || l.name
+        const id = l.id || l._id || l.language_id
         const name = typeof l.name === 'object'
           ? (isRtl ? (l.name.ar || l.name.en) : (l.name.en || l.name.ar))
-          : (l.name || '')
+          : (l.name || id)
         return {
-          value: name || id,
+          value: id,
           label: name || id,
         }
       })
     }
-    return [
-      { value: 'العربية', label: isRtl ? 'العربية' : 'Arabic' },
-      { value: 'English', label: isRtl ? 'الإنجليزية' : 'English' },
-      { value: 'الفرنسية', label: isRtl ? 'الفرنسية' : 'French' },
-    ]
+    return []
   }, [resolvedLanguages, isRtl])
 
   const typeOptions = useMemo(() => {

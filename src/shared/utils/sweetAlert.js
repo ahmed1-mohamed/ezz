@@ -14,6 +14,7 @@ export const showDeleteConfirm = async (isRtl = true, itemName = '') => {
     cancelButtonText: isRtl ? 'إلغاء' : 'Cancel',
     reverseButtons: isRtl,
     customClass: {
+      container: '!z-[999999]',
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 rounded-3xl shadow-2xl',
       title: 'dark:text-white',
       htmlContainer: 'dark:text-slate-400',
@@ -37,6 +38,7 @@ export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = 
     reverseButtons: isRtl,
     inputValidator: (value) => (value && value.trim() ? null : (isRtl ? 'الملاحظات مطلوبة' : 'Notes are required')),
     customClass: {
+      container: '!z-[999999]',
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 rounded-3xl shadow-2xl',
       title: 'dark:text-white',
       input: 'dark:bg-slate-800 dark:text-white',
@@ -65,12 +67,45 @@ export const showSuccessToast = (title = '', isRtl = true) => {
   });
 }
 
-export const showErrorToast = (title = '', isRtl = true) => {
+let lastSwalErrorMessage = '';
+let lastSwalErrorTime = 0;
+
+export const showErrorToast = (title = '', isRtl = true, status = null) => {
+  // If status is provided and not in allowed list (400, 401, 403, 404), do not show
+  if (status !== null && status !== undefined && ![400, 401, 403, 404].includes(Number(status))) {
+    return;
+  }
+
+  // Detect technical leak or status code leak in string
+  const rawText = typeof title === 'object' && title !== null
+    ? (title.message || title.error || title.response?.data?.message || '')
+    : String(title || '');
+
+  const isTechnical = /status\s*code|server\s*error|internal\s*server|bad\s*gateway|should\s+not\s+exist|isString|isEmail|target\.constructor|\b(sql|database|query)\b/i.test(rawText);
+
+  let cleanTitle = rawText.trim();
+  if (!cleanTitle || isTechnical) {
+    cleanTitle = isRtl
+      ? 'يرجى التأكد من صحة البيانات المدخلة'
+      : 'Please check the entered data.';
+  }
+
+  const now = Date.now();
+  if (cleanTitle === lastSwalErrorMessage && now - lastSwalErrorTime < 2500) {
+    return;
+  }
+  if (now - lastSwalErrorTime < 800) {
+    return;
+  }
+
+  lastSwalErrorMessage = cleanTitle;
+  lastSwalErrorTime = now;
+
   Swal.fire({
     toast: true,
     position: isRtl ? 'top-start' : 'top-end',
     icon: 'error',
-    title: title,
+    title: cleanTitle,
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
@@ -104,6 +139,7 @@ export const showRewardDetails = (reward, isRtl = true) => {
     confirmButtonText: isRtl ? 'إغلاق' : 'Close',
     confirmButtonColor: '#0f7a6c',
     customClass: {
+      container: '!z-[999999]',
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 rounded-3xl shadow-2xl',
       htmlContainer: 'dark:text-white',
     }

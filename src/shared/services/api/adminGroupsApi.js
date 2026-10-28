@@ -56,11 +56,21 @@ export const adminGroupsApi = {
   },
 
   updateGroup: async (id, groupData) => {
+    const cleanData = {};
+    if (groupData.name !== undefined) cleanData.name = groupData.name;
+    if (groupData.image !== undefined) cleanData.image = groupData.image;
+    if (groupData.country !== undefined) cleanData.country = groupData.country;
+    if (groupData.maxStudents !== undefined || groupData.max_students !== undefined) {
+      cleanData.maxStudents = Number(groupData.maxStudents || groupData.max_students);
+    }
+    if (groupData.startDate) cleanData.startDate = groupData.startDate;
+    if (groupData.endDate) cleanData.endDate = groupData.endDate;
+
     try {
-      const response = await api.patch(`/api/v1/groups/private/${id}`, groupData);
+      const response = await api.patch(`/api/v1/groups/private/${id}`, cleanData);
       return response.data;
     } catch {
-      const putRes = await api.put(`/api/v1/groups/private/${id}`, groupData);
+      const putRes = await api.put(`/api/v1/groups/private/${id}`, cleanData);
       return putRes.data;
     }
   },
@@ -84,39 +94,45 @@ export const adminGroupsApi = {
   },
 
   removeStudentFromGroup: async (groupId, studentId) => {
-    const response = await api.delete(`/api/v1/groups/private/${groupId}/students/${studentId}`);
-    return response.data;
+    const cleanStudentId = typeof studentId === 'object' && studentId !== null
+      ? (studentId.student_id || studentId.studentId || studentId.id || studentId._id)
+      : studentId;
+
+    try {
+      const response = await api.delete(`/api/v1/groups/private/${groupId}/students/${cleanStudentId}`);
+      return response.data;
+    } catch (err) {
+      try {
+        const res2 = await api.delete(`/api/v1/groups/private/${groupId}/students`, {
+          data: { student: cleanStudentId, student_id: cleanStudentId }
+        });
+        return res2.data;
+      } catch {
+        throw err;
+      }
+    }
   },
 
   changeTeacher: async (groupId, payload) => {
     const teacherId = typeof payload === 'string'
       ? payload
-      : (payload?.teacher || payload?.teacherId || payload?.newTeacherId || payload?.newTeacher || payload?.id || payload?._id);
-
-    const teacherName = typeof payload === 'object' && payload !== null
-      ? (payload.name || payload.teacherName || '')
-      : '';
-
-    const body = {
-      teacher: teacherId,
-      teacherId,
-      newTeacher: teacherId,
-      newTeacherId: teacherId,
-      ...(teacherName ? { name: teacherName, teacherName } : {}),
-      ...(payload?.email ? { email: payload.email } : {}),
-      ...(payload?.phone ? { phone: payload.phone } : {}),
-    };
+      : (payload?.teacherId || payload?.teacher || payload?.id || payload?._id);
 
     try {
-      const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, body);
+      const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, { teacherId });
       return response.data;
-    } catch {
+    } catch (err1) {
       try {
-        const putRes = await api.put(`/api/v1/groups/private/${groupId}/change-teacher`, body);
-        return putRes.data;
-      } catch {
-        const directRes = await api.patch(`/api/v1/groups/private/${groupId}`, body);
-        return directRes.data;
+        const res2 = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, { teacher: teacherId });
+        return res2.data;
+      } catch (err2) {
+        try {
+          const res3 = await api.put(`/api/v1/groups/private/${groupId}/change-teacher`, { teacherId });
+          return res3.data;
+        } catch (err3) {
+          const res4 = await api.put(`/api/v1/groups/private/${groupId}/change-teacher`, { teacher: teacherId });
+          return res4.data;
+        }
       }
     }
   },
@@ -170,23 +186,26 @@ export const adminGroupsApi = {
   transferStudent: async (groupId, payload) => {
     const studentId = typeof payload === 'string'
       ? payload
-      : (payload?.student || payload?.studentId || payload?.id || payload?._id);
+      : (payload?.student_id || payload?.student || payload?.studentId || payload?.id || payload?._id);
 
     const targetGroupId = payload?.targetGroup || payload?.targetGroupId || payload?.toGroup;
 
     const body = {
       student: studentId,
       targetGroup: targetGroupId,
-      studentId,
-      targetGroupId,
     };
 
     try {
       const response = await api.post(`/api/v1/groups/private/${groupId}/students/transfer`, body);
       return response.data;
     } catch {
-      const patchRes = await api.patch(`/api/v1/groups/private/${groupId}/students/transfer`, body);
-      return patchRes.data;
+      try {
+        const patchRes = await api.patch(`/api/v1/groups/private/${groupId}/students/transfer`, body);
+        return patchRes.data;
+      } catch {
+        const altRes = await api.post(`/api/v1/groups/private/${groupId}/transfer-student`, body);
+        return altRes.data;
+      }
     }
   },
 };

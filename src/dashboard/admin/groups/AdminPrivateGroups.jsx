@@ -74,7 +74,13 @@ export default function AdminPrivateGroups() {
       const res = await fetcher(params)
 
       const rawData = res?.data
-      const items = Array.isArray(rawData) ? rawData : (Array.isArray(res) ? res : [])
+      const items = Array.isArray(rawData)
+        ? rawData
+        : (Array.isArray(res)
+          ? res
+          : (Array.isArray(res?.data?.data)
+            ? res.data.data
+            : (Array.isArray(res?.data?.groups) ? res.data.groups : [])))
       setGroups(items)
 
       if (res?.pagination) setPagination(res.pagination)
@@ -89,13 +95,7 @@ export default function AdminPrivateGroups() {
   }, [activeTab, currentPage, searchQuery, typeFilter])
 
   useEffect(() => {
-    let isMounted = true
-    Promise.resolve().then(() => {
-      if (isMounted) loadGroups()
-    })
-    return () => {
-      isMounted = false
-    }
+    loadGroups()
   }, [loadGroups])
 
   const totalCount = pagination?.totalCount ?? groups.length

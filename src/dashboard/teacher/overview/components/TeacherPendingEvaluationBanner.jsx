@@ -4,7 +4,8 @@ import { Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherPendingEvaluationBanner({ pendingSession, pendingStudents }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
 
   if (!pendingSession) return null;
 
@@ -26,7 +27,7 @@ export default React.memo(function TeacherPendingEvaluationBanner({ pendingSessi
           </div>
           <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
             {pendingSession.title}{' '}
-            {pendingSession.sessionNumber ? `(الحصة رقم ${pendingSession.sessionNumber})` : ''}
+            {pendingSession.sessionNumber ? `(${t('teacherDashboard.sessionNumberLabel', 'الحصة رقم {{number}}', { number: pendingSession.sessionNumber })})` : ''}
             {pendingSession.group ? ` - ${pendingSession.group}` : ''}
           </h3>
           {pendingStudents.length > 0 && (
@@ -37,12 +38,12 @@ export default React.memo(function TeacherPendingEvaluationBanner({ pendingSessi
                   if (!s) return '';
                   if (typeof s === 'string') return s;
                   if (typeof s.name === 'object' && s.name !== null) {
-                    return s.name.ar || s.name.en || '';
+                    return (isRtl ? s.name.ar || s.name.en : s.name.en || s.name.ar) || '';
                   }
                   return s.name || '';
                 })
                 .filter(Boolean)
-                .join('، ')}
+                .join(isRtl ? '، ' : ', ')}
             </p>
           )}
         </div>
@@ -50,9 +51,10 @@ export default React.memo(function TeacherPendingEvaluationBanner({ pendingSessi
 
       <Link
         to="/dashboard/teacher/evaluations"
-        className="self-start md:self-center px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all whitespace-nowrap cursor-pointer"
+        className="self-start md:self-center px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5"
       >
-        {t('teacherDashboard.addEvaluations', 'إضافة التقييمات ←')}
+        <span>{t('teacherDashboard.addEvaluations', 'إضافة التقييمات')}</span>
+        <span>{isRtl ? '←' : '→'}</span>
       </Link>
     </div>
   );

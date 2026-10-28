@@ -3,14 +3,28 @@
   "common": {
     "search": "بحث",
     "errorLoading": "حدث خطأ أثناء تحميل بيانات المعلمين",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "refresh": "تحديث",
+    "selectCountry": "اختر الدولة",
+    "errorLoadingProfile": "حدث خطأ أثناء تحميل الملف الشخصي",
+    "errorOccurred": "حدث خطأ غير متوقع",
+    "teacher": "معلم",
+    "successMessage": "تمت العملية بنجاح!",
+    "errorMessage": "حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً",
+    "prev": "السابق",
+    "next": "التالي",
+    "add": "إضافة",
+    "to": "إلى",
+    "delete": "حذف",
+    "loading": "جاري التحميل...",
+    "logout": "تسجيل الخروج"
   },
   "home": {
     "badge": "أكاديمية تعليمية متكاملة",
-    "titleLine1": "ابدأ رحلة النور",
-    "titleLine2": "تعليم قرآني مباشر",
-    "titleLine3": "بقيم تربوية",
-    "description": "نجمع بين جودة التعليم التقني والقيم الإسلامية الراسخة لنبني جيلاً قارئاً فاهماً لكتاب الله، في بيئة تعليمية ذكية وتفاعلية.",
+    "titleLine1": "تُنير العقول،",
+    "titleLine2": "ونرتقي بالمستقبل.",
+    "titleLine3": "مستقبل طفلك يبدأ بتعلّم يُلهمه",
+    "description": "القرآن الكريم، واللغة العربية، والمواد الدراسية، والمناهج الدولية... في منصة واحدة تُنمّي قدراته وتُرسّخ قيمه.",
     "ctaPrimary": "ابدأ الآن",
     "ctaSecondary": "شاهد التجربة",
     "heroImageAlt": "أكاديمية منارة العز - تعليم قرآني وتربوي"
@@ -103,7 +117,8 @@
     "statusLive": "مباشرة الآن",
     "statusUpcoming": "قادمة",
     "statusCompleted": "مكتملة",
-    "statusCancelled": "ملغاة"
+    "statusCancelled": "ملغاة",
+    "mainWebsite": "الموقع الرئيسي"
   },
   "manager": {
     "stats": {
@@ -292,20 +307,50 @@
     "noLeaderboardData": "لا توجد بيانات متصدرين حتى الآن",
     "noRecentRewards": "لا توجد مكافآت ممنوحة مؤخراً",
     "names": {
-      "1": "Dr. Ahmed Al-Mansouri",
-      "2": "Dr. Khalid Al-Shamsi",
-      "3": "Dr. Youssef Al-Harbi"
+      "1": "د. أحمد المنصوري",
+      "2": "د. خالد الشمسي",
+      "3": "د. يوسف الحربي"
     },
-    "subject1": "Holy Quran",
-    "subject2": "Arabic Language",
-    "level1": "Beginner",
-    "level2": "Intermediate",
-    "level3": "Advanced",
-    "tag1": "Tajweed",
-    "tag2": "Memorization",
-    "tag3": "Grammar",
-    "tag4": "Online",
-    "levelLabel": "Level"
+    "subject1": "القرآن الكريم",
+    "subject2": "اللغة العربية",
+    "level1": "مبتدئ",
+    "level2": "متوسط",
+    "level3": "متقدم",
+    "tag1": "تجويد",
+    "tag2": "تحفيظ",
+    "tag3": "نحو وصرف",
+    "tag4": "عن بُعد",
+    "levelLabel": "المستوى",
+    "curriculum": "المنهج",
+    "language": "لغة الشرح",
+    "submissionType": "نوع التقديم",
+    "newSubmissionDesc": "اختر نوع الطلب واملأ البيانات المطلوبة لإرسالها للإدارة.",
+    "proposedSchedule": "الموعد الجديد المقترح",
+    "attachmentNumber": "مرفق {{num}}",
+    "sessionCol": "الحصة",
+    "adminResponse": "رد الإدارة",
+    "paginationInfo": "عرض صفحة {{currentPage}} من {{totalPages}} (إجمالي {{total}} طلب)",
+    "timeSpan": "الفترة الزمنية",
+    "dayAndDate": "اليوم والتاريخ",
+    "timing": "التوقيت",
+    "groupCol": "المجموعة",
+    "statusCol": "الحالة",
+    "scheduled": "مجدولة",
+    "teacherFallback": "معلم",
+    "navHome": "الرئيسية",
+    "navGroups": "مجموعاتي",
+    "navLive": "الحصة المباشرة",
+    "navCreateHomework": "إنشاء الواجبات",
+    "navSubmissions": "تسليمات الواجبات",
+    "navEvaluations": "التقييمات",
+    "navRewards": "المكافآت",
+    "navSchedule": "الجدول الأسبوعي",
+    "navSessions": "سجل الجلسات",
+    "navEarnings": "الأرباح",
+    "navWithdrawals": "طلبات السحب",
+    "navComplaints": "الشكاوى والمقترحات",
+    "navProfile": "الملف الشخصي",
+    "platformTitle": "منصة المعلم"
   },
   "teacherEvaluations": {
     "title": "التقييمات",
@@ -436,41 +481,41 @@
     "thursday": "الخميس",
     "friday": "الجمعة",
     "saturday": "السبت",
-    "sat": "Saturday",
-    "sun": "Sunday",
-    "mon": "Monday",
-    "tue": "Tuesday",
-    "wed": "Wednesday",
-    "thu": "Thursday",
-    "fri": "Friday",
+    "sat": "السبت",
+    "sun": "الأحد",
+    "mon": "الإثنين",
+    "tue": "الثلاثاء",
+    "wed": "الأربعاء",
+    "thu": "الخميس",
+    "fri": "الجمعة",
     "c1": {
-      "title": "Memorization of Surah Al-Baqarah - Advanced Level",
-      "teacher": "Sheikh Dr. Abdullah Ahmed",
-      "time": "04:00 PM - 05:30 PM (1.5 hours)"
+      "title": "حفظ سورة البقرة - المستوى المتقدم",
+      "teacher": "الشيخ د. عبد الله أحمد",
+      "time": "04:00 م - 05:30 م (ساعة ونصف)"
     },
     "c2": {
-      "title": "Prophets' Stories for Children",
-      "teacher": "Ms. Fatima Al-Zahraa",
-      "time": "06:00 PM - 07:00 PM"
+      "title": "قصص الأنبياء للأطفال",
+      "teacher": "أ. فاطمة الزهراء",
+      "time": "06:00 م - 07:00 م"
     },
     "c3": {
-      "title": "Explanation of Al-Ajurrumiyyah Text",
-      "teacher": "Sheikh Mohammed Mahmoud",
-      "time": "01:00 PM - 02:30 PM"
+      "title": "شرح متن الآجرومية",
+      "teacher": "الشيخ محمد محمود",
+      "time": "01:00 م - 02:30 م"
     },
     "tag": {
-      "tajweed": "Tajweed",
-      "level3": "Third Level"
+      "tajweed": "تجويد",
+      "level3": "المستوى الثالث"
     },
     "btn": {
-      "live": "Started Now",
-      "upcoming": "Set Reminder",
-      "finished": "Watch Recording"
+      "live": "بدأت الآن",
+      "upcoming": "تذكير بالحصة",
+      "finished": "مشاهدة التسجيل"
     },
     "cta": {
-      "title": "Are you ready to start your journey towards the light?",
-      "desc": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
-      "btn": "Join Now and Start"
+      "title": "هل أنت مستعد لبدء رحلتك نحو النور؟",
+      "desc": "انضم إلى آلاف الطلاب اليوم واستفد من خصم 20% للشهر الأول على جميع البرامج التعليمية.",
+      "btn": "انضم الآن وابدأ"
     }
   },
   "errors": {
@@ -655,11 +700,11 @@
     "login": "تسجيل الدخول",
     "successMessage": "تم إنشاء الحساب بنجاح! جاري تحويلك...",
     "errorMessage": "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى.",
-    "accountType": "Account Type",
-    "roleStudent": "Student",
-    "roleParent": "Parent",
-    "orRegisterWith": "Or register via",
-    "googleBtn": "Register with Google"
+    "accountType": "نوع الحساب",
+    "roleStudent": "طالب",
+    "roleParent": "ولي أمر",
+    "orRegisterWith": "أو أنشئ حسابك عبر",
+    "googleBtn": "التسجيل عبر Google"
   },
   "heroSection": {
     "title": "هل أنت مستعد لبدء رحلتك نحو النور؟",
@@ -814,41 +859,43 @@
     "faqText": "تواصل مع فريق الدعم للحصول على مزيد من التفاصيل حول التسعير والخيارات المتاحة.",
     "contactCta": "تواصل مع المبيعات",
     "header": {
-      "title": "Invest in your child's spiritual journey",
-      "subtitle": "Flexible plans tailored to fit every family's needs, with elite certified teachers in a safe and inspiring educational environment."
+      "title": "استثمر في رحلة طفلك الروحية والتعليمية",
+      "subtitle": "خطط مرنة مصممة لتناسب احتياجات كل عائلة، مع نخبة من المعلمين المعتمدين في بيئة تعليمية آمنة وملهمة."
     },
-    "popular": "Most Popular",
-    "monthly": "/monthly",
-    "btn": "Start Now",
+    "popular": "الأكثر طلباً",
+    "monthly": "/شهرياً",
+    "btn": "ابدأ الآن",
+    "noPackages": "لا توجد باقات متاحة حالياً",
+    "contactForCustom": "يرجى التواصل معنا للاستفسار عن الباقات والعروض الخاصة",
     "basic": {
-      "name": "Basic Plan",
-      "f1": "4 sessions/month (1 session/week)",
-      "f2": "30 minutes per session",
-      "f3": "Memorization and recitation correction",
-      "f4": "Monthly performance reports"
+      "name": "الخطة الأساسية",
+      "f1": "٤ حصص شهرياً (حصة واحدة أسبوعياً)",
+      "f2": "٣٠ دقيقة لكل حصة",
+      "f3": "حفظ وتصحيح التلاوة",
+      "f4": "تقارير أداء شهرية"
     },
     "advanced": {
-      "name": "Advanced Plan",
-      "f1": "8 sessions/month (2 sessions/week)",
-      "f2": "45 minutes per session",
-      "f3": "Simplified Tafseer and Prophets' stories",
-      "f4": "Detailed monthly performance reports"
+      "name": "الخطة المتقدمة",
+      "f1": "٨ حصص شهرياً (حصتان أسبوعياً)",
+      "f2": "٤٥ دقيقة لكل حصة",
+      "f3": "تفسير ميسر وقصص الأنبياء",
+      "f4": "تقارير أداء شهرية مفصلة"
     },
     "elite": {
-      "name": "Elite Plan",
-      "f1": "12 sessions/month (3 sessions/week)",
-      "f2": "60 minutes per session",
-      "f3": "Special follow-up with a certified Sheikh",
-      "f4": "Intensive free Tajweed course"
+      "name": "خطة النخبة",
+      "f1": "١٢ حصة شهرياً (٣ حصص أسبوعياً)",
+      "f2": "٦٠ دقيقة لكل حصة",
+      "f3": "متابعة خاصة مع شيخ معتمد",
+      "f4": "دورة تجويد مكثفة مجانية"
     },
     "faq": {
-      "title": "Frequently Asked Questions",
-      "q1": "Can I change the plan later?",
-      "a1": "Yes, absolutely. You can upgrade or change your plan at any time through your dashboard, and fees will be adjusted starting the following month.",
-      "q2": "What happens if I miss a session?",
-      "a2": "We offer the possibility of making up one session per month provided that the excuse is made at least 24 hours in advance to schedule an alternative time with the teacher.",
-      "q3": "Are there discounts for siblings?",
-      "a3": "Yes, we offer a 15% discount for the second child and 25% for the third child and above when registering in the same plan."
+      "title": "الأسئلة الشائعة",
+      "q1": "هل يمكنني تغيير الباقة لاحقاً؟",
+      "a1": "نعم بكل تأكيد، يمكنك ترقية أو تغيير باقتك في أي وقت من خلال لوحة التحكم الخاصة بك، وسيتم تعديل الرسوم بدءاً من الشهر التالي.",
+      "q2": "ماذا يحدث في حال تغيبت عن حصة؟",
+      "a2": "نوفر إمكانية تعويض حصة واحدة شهرياً بشرط تقديم الاعتذار قبل موعد الحصة بـ ٢٤ ساعة على الأقل ليتم تحديد موعد بديل مع المعلم.",
+      "q3": "هل توجد خصومات للإخوة؟",
+      "a3": "نعم، نقدم خصماً بنسبة ١٥٪ للطفل الثاني و٢٥٪ للطفل الثالث فما فوق عند الاشتراك في نفس الباقة."
     }
   },
   "curriculums": {
@@ -975,9 +1022,9 @@
       "error": "عذراً، حدث خطأ ما أثناء إرسال الرسالة."
     },
     "topHero": {
-      "badge": "Leave an impact",
-      "title": "Contact us for inquiries and registration",
-      "desc": "Manarat Al-Ezz team is always with you to support your children educationally and answer all inquiries and complaints regarding courses, registration, and follow-up."
+      "badge": "اترك أثراً",
+      "title": "تواصلوا معنا للاستفسار والتسجيل",
+      "desc": "فريق منارة العز معكم دائماً لدعم أبنائكم تعليمياً والرد على جميع الاستفسارات والشكاوى الخاصة بالدورات والتسجيل والمتابعة."
     }
   },
   "cta": {
@@ -1186,7 +1233,7 @@
     "languageDisplay": "اللغة والعرض",
     "preferredLanguage": "اللغة المفضلة",
     "arabic": "العربية",
-    "english": "English",
+    "english": "الإنجليزية",
     "defaultLang": "اللغة الافتراضية",
     "secondaryLang": "لغة ثانوية",
     "appearance": "المظهر",
@@ -1299,7 +1346,7 @@
       "privacy": "الخصوصية والإشعارات",
       "arabic": "العربية",
       "defaultLang": "اللغة الافتراضية",
-      "english": "English",
+      "english": "الإنجليزية",
       "secondaryLang": "لغة ثانوية",
       "light": "فاتح",
       "dark": "داكن",
@@ -1833,7 +1880,7 @@
         "preferredLanguage": "اللغة المفضلة",
         "appearanceTitle": "المظهر",
         "arabic": "العربية",
-        "english": "English",
+        "english": "الإنجليزية",
         "defaultLang": "اللغة الافتراضية",
         "secondaryLang": "لغة ثانوية",
         "light": "فاتح",
@@ -2194,7 +2241,7 @@
         "photoLabel": "صورة شخصية",
         "photoUploadText": "اضغط لرفع صورة المكافأة",
         "fullNameAr": "الإسم كامل",
-        "fullNameEn": "Full Name",
+        "fullNameEn": "الاسم الكامل بالإنجليزية",
         "email": "عنوان البريد الإلكتروني",
         "phone": "رقم الهاتف",
         "securityTitle": "الأمان وكلمة المرور",
@@ -2433,6 +2480,18 @@
       "groupStudents": "طلاب المجموعة ({{count}})",
       "noStudentsInGroup": "لا يوجد طلاب مسجلون في هذه المجموعة",
       "removeStudent": "إزالة",
+      "transfer": "نقل",
+      "transferStudent": "نقل لمجموعة أخرى",
+      "transferStudentTitle": "نقل طالب إلى مجموعة أخرى",
+      "currentGroup": "المجموعة الحالية",
+      "selectTargetGroup": "اختر المجموعة الجديدة",
+      "selectTargetGroupError": "يرجى اختيار المجموعة المراد النقل إليها",
+      "noOtherGroupsAvailable": "لا توجد مجموعات أخرى متاحة للنقل",
+      "chooseGroupPlaceholder": "-- اختر المجموعة --",
+      "transferNotice": "عند تأكيد النقل، سيتم تحديث تسجيل الطالب وإضافته للمجموعة الجديدة مباشرةً.",
+      "confirmTransfer": "تأكيد النقل",
+      "transferSuccess": "تم نقل الطالب بنجاح",
+      "transferError": "فشل نقل الطالب",
       "unassigned": "غير محدد",
       "changeTeacher": "تغيير المعلم",
       "typePublic": "عامة",
@@ -2600,14 +2659,14 @@
       "color": "لون الباقة",
       "descriptionAr": "وصف الباقة",
       "descriptionArPlaceholder": "الوصف الفعال ،",
-      "descriptionEn": "Package Brief",
-      "descriptionEnPlaceholder": "Describe",
+      "descriptionEn": "نبذة عن الباقة بالإنجليزية",
+      "descriptionEnPlaceholder": "اكتب وصف الباقة بالإنجليزية...",
       "features": "مميزات الباقة",
       "featuresAr": "المميزات",
-      "featuresEn": "Features",
+      "featuresEn": "المميزات بالإنجليزية",
       "addFeature": "إضافة الميزة",
       "featureArPlaceholder": "الميزة",
-      "featureEnPlaceholder": "Feature",
+      "featureEnPlaceholder": "أدخل الميزة بالإنجليزية...",
       "save": "حفظ الباقة",
       "cancel": "إلغاء",
       "deleteTitle": "تأكيد الحذف",
@@ -2918,7 +2977,37 @@
     "liveBadge": "مباشرة الآن",
     "upcomingBadge": "قادمة",
     "completedBadge": "مكتملة",
-    "cancelledBadge": "ملغاة"
+    "cancelledBadge": "ملغاة",
+    "manageGroups": "إدارة المجموعات",
+    "students": "الطلاب",
+    "progress": "التقدم",
+    "details": "التفاصيل",
+    "surahBaqarahFallback": "تلاوة سورة البقرة",
+    "hour": "ساعة",
+    "enterSession": "دخول الجلسة",
+    "startsIn": "تبدأ بعد",
+    "startSession": "ابدأ جلسة",
+    "newHomework": "واجب جديد",
+    "studentEvaluation": "تقييم طالب",
+    "takeAttendance": "تسجيل حضور",
+    "viewAll": "عرض الكل",
+    "start": "ابدأ",
+    "groups": "مجموعات",
+    "sessions": "جلسات",
+    "earnings": "أرباح",
+    "currency": "ر.س",
+    "previewGroup1": "مجموعة التجويد الأولى",
+    "inTwoHours": "بعد ساعتين",
+    "tomorrow": "غداً",
+    "today": "اليوم",
+    "previewGroupName1": "تفسير القرآن الكريم",
+    "previewGroupName2": "سيرة النبي محمد صلى الله عليه وسلم",
+    "previewGroupName3": "أحاديث نبوية شريفة",
+    "previewGroupName4": "قصص الأنبياء والرسل",
+    "sessionNumberLabel": "الحصة رقم {{number}}",
+    "levelHigh": "مرتفع",
+    "levelMedium": "متوسط",
+    "levelLow": "منخفض"
   },
   "teacherSchedule": {
     "title": "الجدول الأسبوعي",
@@ -2941,7 +3030,9 @@
     "from": "من",
     "to": "إلى",
     "zoomMeeting": "رابط زووم",
-    "refresh": "تحديث"
+    "refresh": "تحديث",
+    "sessionsCount": "حصص",
+    "sessionTitleFallback": "حصة دراسية"
   },
   "teacherSessions": {
     "title": "سجل الحصص",
@@ -3021,7 +3112,13 @@
     "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
     "passwordUpdated": "تم تغيير كلمة المرور بنجاح",
     "passwordMismatch": "كلمتا المرور غير متطابقتين",
-    "fillRequired": "يرجى ملء الحقول المطلوبة"
+    "fillRequired": "يرجى ملء الحقول المطلوبة",
+    "passwordRequirements": "متطلبات كلمة المرور",
+    "req1": "أن لا تقل عن 8 خانات",
+    "req2": "تحتوي على حروف وأرقام",
+    "req3": "رمز خاص واحد على الأقل",
+    "changeAvatar": "تغيير الصورة",
+    "verifiedTeacher": "معلم معتمد"
   },
   "publicCourses": {
     "title": "البرامج والمناهج التعليمية",
@@ -3053,128 +3150,238 @@
     "rating": "تقييم المنصة العام"
   },
   "curriculum": {
-    "badge": "Journey of Knowledge",
-    "titleLine1": "Educational Curriculums",
-    "titleLine2": "Enlighten the Insight and Elevate the Soul",
-    "description": "We offer specialized educational content designed with the latest pedagogical methods to instill values and build a generation armed with knowledge and faith",
+    "badge": "رحلة المعرفة",
+    "titleLine1": "مناهج تعليمية",
+    "titleLine2": "تنير البصيرة وتسمو بالروح",
+    "description": "نقدم محتوى تعليمي متخصص مصمم بأحدث الأساليب التربوية لغرس القيم وبناء جيل متسلح بالعلم والإيمان",
     "cta": {
-      "title": "Are you ready to start your journey?",
-      "desc": "Join over 5,000 students enjoying a unique educational experience.",
-      "button": "Register Now for Free"
+      "title": "هل أنت مستعد لبدء رحلتك؟",
+      "desc": "انضم إلى أكثر من ٥٠٠ طالب يستمتعون بتجربة تعليمية فريدة.",
+      "button": "سجل الآن مجاناً"
     }
   },
   "curriculumUnits": {
-    "mainTitle": "Educational Units",
-    "badgeCount": "12 Study Units",
+    "mainTitle": "اختر منهجك التعليمي",
+    "badgeCount": "رحلة المعرفة والإيمان",
     "tabs": {
-      "quran": "Holy Quran",
-      "arabic": "Arabic Language",
-      "islamic": "Islamic Studies"
+      "quran": "القرآن الكريم",
+      "arabic": "اللغة العربية",
+      "islamic": "الدراسات الإسلامية"
     },
     "quran": {
       "sidebar": {
-        "title": "About the Holy Quran Curriculum",
-        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
+        "title": "عن منهج القرآن الكريم",
+        "desc": "منهج متكامل يجمع بين التلاوة الصحيحة، الحفظ المتقن، وفهم معاني الآيات. نعتمد منهجية متدرجة تراعي الفروق الفردية مع التركيز على أحكام التجويد الأساسية."
       },
       "feat1": {
-        "title": "Certified Certificate",
-        "desc": "Upon completing each part"
+        "title": "شهادة معتمدة",
+        "desc": "عند إتمام كل جزء"
       },
       "feat2": {
-        "title": "Interactive Sessions",
-        "desc": "With the most skilled reciters"
+        "title": "جلسات تفاعلية",
+        "desc": "مع أمهر المقرئين"
       },
-      "btn": "View Curriculum",
+      "btn": "عرض المنهج",
       "u1": {
-        "title": "Principles of Tajweed",
-        "desc": "Learn the articulation points of letters and their basic attributes for a correct recitation.",
-        "level": "Beginner Level"
+        "title": "مبادئ علم التجويد",
+        "desc": "تعلم مخارج الحروف وصفاتها الأساسية لتلاوة صحيحة.",
+        "level": "مستوى المبتدئين"
       },
       "u2": {
-        "title": "Juz Amma Recitation & Memorization",
-        "desc": "Memorizing and contemplating short Surahs in an enjoyable way.",
-        "level": "First Stage"
+        "title": "تلاوة وحفظ جزء عم",
+        "desc": "حفظ السور القصيرة وتدبرها بطريقة ممتعة.",
+        "level": "المرحلة الأولى"
       },
       "u3": {
-        "title": "Maqamat of Recitation",
-        "desc": "Improving the voice with Quranic performance and learning basic Maqamat.",
-        "level": "Advanced Level"
+        "title": "مقامات التلاوة",
+        "desc": "تحسين الصوت بالأداء القرآني وتعلم المقامات الأساسية.",
+        "level": "مستوى متقدم"
       },
       "u4": {
-        "title": "Stories from the Quran",
-        "desc": "Extracting lessons and morals from the stories of the Prophets.",
-        "level": "Enrichment Curriculum"
+        "title": "قصص من القرآن",
+        "desc": "استخلاص العبر والدروس من قصص الأنبياء.",
+        "level": "منهج إثرائي"
       }
     },
     "arabic": {
       "sidebar": {
-        "title": "About the Arabic Language Curriculum",
-        "desc": "A curriculum that establishes the four language skills: listening, speaking, reading, and writing using modern methods that connect language to daily life."
+        "title": "عن منهج اللغة العربية",
+        "desc": "منهج يؤسس للمهارات اللغوية الأربع: الاستماع، التحدث، القراءة، والكتابة بأساليب حديثة تربط اللغة بالحياة اليومية."
       },
       "feat1": {
-        "title": "Continuous Evaluation",
-        "desc": "To measure skills development"
+        "title": "تقييم مستمر",
+        "desc": "لقياس تطور المهارات"
       },
       "feat2": {
-        "title": "Practical Practice",
-        "desc": "Through interactive activities"
+        "title": "ممارسة عملية",
+        "desc": "من خلال أنشطة تفاعلية"
       },
-      "btn": "View Curriculum",
+      "btn": "عرض المنهج",
       "u1": {
-        "title": "Grammar Basics",
-        "desc": "Understanding basic grammatical rules and applying them in speaking and writing.",
-        "level": "Beginner Level"
+        "title": "أساسيات النحو",
+        "desc": "فهم القواعد النحوية الأساسية وتطبيقها في التحدث والكتابة.",
+        "level": "مستوى المبتدئين"
       },
       "u2": {
-        "title": "Expression Skills",
-        "desc": "Developing the student's ability to express their thoughts clearly and smoothly.",
-        "level": "First Stage"
+        "title": "مهارات التعبير",
+        "desc": "تنمية قدرة الطالب على التعبير عن أفكاره بوضوح وسلاسة.",
+        "level": "المرحلة الأولى"
       },
       "u3": {
-        "title": "Literature and Rhetoric",
-        "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.",
-        "level": "Advanced Level"
+        "title": "الأدب والبلاغة",
+        "desc": "تذوق جماليات اللغة العربية من خلال دراسة النصوص الأدبية.",
+        "level": "مستوى متقدم"
       },
       "u4": {
-        "title": "Free Reading",
-        "desc": "Encouraging reading and expanding linguistic and cognitive horizons.",
-        "level": "Enrichment Curriculum"
+        "title": "القراءة الحرة",
+        "desc": "تشجيع القراءة وتوسيع الآفاق اللغوية والمعرفية.",
+        "level": "منهج إثرائي"
       }
     },
     "islamic": {
       "sidebar": {
-        "title": "About Islamic Studies Curriculum",
-        "desc": "A program aimed at instilling the correct creed, teaching simplified jurisprudence, and drawing lessons from the Prophet's biography."
+        "title": "عن منهج الدراسات الإسلامية",
+        "desc": "برنامج يهدف إلى غرس العقيدة الصحيحة، تعليم الفقه الميسر، واستلهام الدروس من السيرة النبوية العطرة."
       },
       "feat1": {
-        "title": "Certificate of Completion",
-        "desc": "After passing the exams"
+        "title": "شهادة إتمام",
+        "desc": "بعد اجتياز الاختبارات"
       },
       "feat2": {
-        "title": "Meaningful Discussions",
-        "desc": "To consolidate concepts"
+        "title": "حوارات هادفة",
+        "desc": "لترسيخ المفاهيم والقيم"
       },
-      "btn": "View Curriculum",
+      "btn": "عرض المنهج",
       "u1": {
-        "title": "Islamic Creed",
-        "desc": "Consolidating the pillars of faith and explaining the concepts of monotheism.",
-        "level": "Beginner Level"
+        "title": "العقيدة الإسلامية",
+        "desc": "ترسيخ أركان الإيمان وتوضيح مفاهيم التوحيد.",
+        "level": "مستوى المبتدئين"
       },
       "u2": {
-        "title": "Fiqh of Worship",
-        "desc": "Learning the rules of purification, prayer, and fasting practically and theoretically.",
-        "level": "First Stage"
+        "title": "فقه العبادات",
+        "desc": "تعلم أحكام الطهارة والصلاة والصيام عملياً ونظرياً.",
+        "level": "المرحلة الأولى"
       },
       "u3": {
-        "title": "Prophet's Biography",
-        "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.",
-        "level": "Advanced Level"
+        "title": "السيرة النبوية",
+        "desc": "محطات من حياة النبي ﷺ واستخلاص العبر منها.",
+        "level": "مستوى متقدم"
       },
       "u4": {
-        "title": "Ethics and Manners",
-        "desc": "Promoting positive behaviors and Islamic manners in daily life.",
-        "level": "Enrichment Curriculum"
+        "title": "الأخلاق والآداب",
+        "desc": "تعزيز السلوكيات الإيجابية والآداب الإسلامية في الحياة اليومية.",
+        "level": "منهج إثرائي"
       }
     }
+  },
+  "teacherComplaints": {
+    "errTitle": "يرجى كتابة عنوان الطلب",
+    "errDetails": "يرجى كتابة تفاصيل الطلب",
+    "errSelectGroup": "يرجى اختيار المجموعة",
+    "errSelectSession": "يرجى اختيار الحصة المراد تأجيلها",
+    "errProposedDate": "يرجى تحديد التاريخ الجديد المقترح",
+    "errProposedTimes": "يرجى تحديد وقت البداية ووقت النهاية المقترحين",
+    "newSubmissionDesc": "اختر نوع الطلب واملأ البيانات المطلوبة لإرسالها للإدارة.",
+    "submissionType": "نوع التقديم",
+    "loadingGroups": "جاري تحميل المجموعات...",
+    "selectGroupPlaceholder": "-- اختر المجموعة --",
+    "typeGeneral": "عامة",
+    "selectGroupFirst": "اختر المجموعة أولاً",
+    "loadingSessions": "جاري تحميل الحصص...",
+    "noSessions": "لا توجد حصص مسجلة لهذه المجموعة",
+    "selectSessionPlaceholder": "-- اختر الحصة --",
+    "sessionDefault": "حصة",
+    "addAttachmentUrl": "إضافة رابط مرفق",
+    "attachmentUrlPlaceholder": "https://example.com/file.pdf"
+  },
+  "teacherHomework": {
+    "createTitle": "إنشاء واجب جديد",
+    "createSubtitle": "أضف واجباً للطلاب بعد الجلسة",
+    "submissionsTitle": "تسليمات الواجبات",
+    "submissionsSubtitle": "متابعة وتقييم تسليمات الطلاب للواجبات المدرسية",
+    "summaryTitle": "ملخص الواجب",
+    "video": "الفيديو",
+    "notAttached": "لم يتم الإرفاق",
+    "quiz": "الاختبار",
+    "questionsAdded": "{{count}} سؤال مضاف",
+    "document": "الملف المرفق (PDF)",
+    "deadline": "الموعد النهائي",
+    "notSet": "لم يحدد بعد",
+    "studyGroup": "المجموعة الدراسية",
+    "targetGroup": "المجموعة المستهدفة",
+    "selectActiveGroup": "اختر المجموعة الدراسية النشطة",
+    "noActiveGroups": "لا توجد مجموعات نشطة حالياً",
+    "homeworkTitle": "عنوان الواجب",
+    "homeworkTitlePlaceholder": "مثال: مراجعة سورة النبأ من الآية 1 إلى 15",
+    "homeworkDesc": "وصف الواجب وتعليمات الحل",
+    "homeworkDescPlaceholder": "اكتب تفاصيل الواجب والمطلوب من الطلاب بدقة...",
+    "submissionDeadline": "الموعد النهائي لتسليم الواجب",
+    "attachmentsAndContent": "مرفقات ومحتوى الواجب",
+    "videoTab": "فيديو توضيحي",
+    "documentTab": "ملف تدريبي",
+    "quizTab": "أسئلة تفاعلية",
+    "uploadVideo": "اضغط لرفع فيديو الشرح (MP4, WebM)",
+    "maxVideoSize": "الحد الأقصى لحجم الفيديو: 50 ميجابايت",
+    "uploadDoc": "اضغط لرفع ملف الواجب (PDF)",
+    "maxDocSize": "الحد الأقصى لحجم الملف: 10 ميجابايت",
+    "saveDraft": "حفظ كمسودة",
+    "publishNow": "نشر الواجب الآن",
+    "publishing": "جارٍ النشر...",
+    "allSubmissions": "الكل",
+    "pendingReview": "بانتظار المراجعة",
+    "submittedOnTime": "تم التسليم",
+    "submittedLate": "تسليم متأخر",
+    "overdue": "متأخر عن الموعد",
+    "evaluated": "تم التقييم",
+    "notEvaluated": "غير مقيم",
+    "searchStudentPlaceholder": "ابحث باسم الطالب أو عنوان الواجب...",
+    "student": "الطالب",
+    "homework": "الواجب",
+    "submissionDate": "تاريخ التسليم",
+    "grade": "الدرجة",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "viewSubmission": "عرض التسليم",
+    "noSubmissionsFound": "لا توجد تسليمات مطابقة",
+    "errSelectGroup": "يرجى اختيار المجموعة الدراسية النشطة",
+    "errSetDeadline": "يرجى تحديد الموعد النهائي لتسليم الواجب",
+    "errTitleRequired": "عنوان الواجب مطلوب",
+    "draftSaved": "تم حفظ الواجب كمسودة بنجاح",
+    "publishedSuccess": "تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة",
+    "publishFailed": "فشل نشر الواجب",
+    "uploadError": "حدث خطأ أثناء رفع ونشر الواجب",
+    "notSubmitted": "لم يتم التسليم",
+    "justNow": "الآن",
+    "minsAgo": "منذ {{count}} دقيقة",
+    "hoursAgo": "منذ {{count}} ساعة",
+    "daysAgo": "منذ {{count}} أيام",
+    "quizBankTitle": "بنك أسئلة الاختبار القصير",
+    "quizBankDesc": "يمكنك إضافة حتى 20 سؤالاً (اختياري بأربعة خيارات كحد أقصى، أو مقالي) مع تحديد درجات كل سؤال",
+    "questionsCount": "{{count}} / 20 سؤال",
+    "totalPoints": "إجمالي الدرجات: {{points}}",
+    "questionNum": "سؤال {{num}}",
+    "multipleChoice": "اختياري",
+    "essay": "مقالي",
+    "addMultipleChoice": "+ سؤال اختياري",
+    "addEssay": "+ سؤال مقالي",
+    "noQuestionsYet": "لم تتم إضافة أي أسئلة للاختبار بعد",
+    "noQuestionsYetDesc": "أضف أسئلة اختيار من متعدد أو أسئلة مقالية لاختبار استيعاب الطلاب لما تم شرحه",
+    "addMultipleChoiceBtn": "إضافة سؤال اختياري (Multiple Choice)",
+    "addEssayBtn": "إضافة سؤال مقالي (Essay)",
+    "questionPoints": "درجة السؤال:",
+    "pointsUnit": "درجات",
+    "deleteQuestion": "حذف هذا السؤال",
+    "questionText": "نص السؤال",
+    "mcqPlaceholder": "مثال: ما هو حكم النون الساكنة إذا جاء بعدها حرف الياء؟",
+    "essayPlaceholder": "مثال: اذكر باختصار تعريف المد اللازم الكلمي المثقل مع مثال من سورة الفاتحة.",
+    "optionsLabel": "الخيارات (حدد الإجابة الصحيحة بالنقر على الدائرة)",
+    "optionsCount": "{{count}} من 4 خيارات",
+    "correctAnswer": "الإجابة الصحيحة",
+    "setCorrectAnswer": "اضغط لجعلها الإجابة الصحيحة",
+    "optionPlaceholder": "الخيار {{num}}",
+    "addOption": "إضافة خيار إضافي",
+    "essayNoteTitle": "ملاحظة حول السؤال المقالي:",
+    "essayNoteDesc": "سيقوم الطالب بكتابة إجابته في صندوق نصي عند حل الواجب، وسيتم عرض إجابته عليك لمراجعتها وتصحيحها ووضع الدرجة المناسبة في صفحة التسليمات.",
+    "yesterday": "أمس"
   }
 }
