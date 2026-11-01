@@ -4,6 +4,9 @@ import { Sun, Moon, Settings as SettingsIcon, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../../../i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
+import { profileApi } from '@/shared/services/api/profileApi.js';
+import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
+import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 
 const ToggleSwitch = ({ checked, onChange, isRtl }) => (
     <button
@@ -33,6 +36,7 @@ export default function ParentSettings() {
     });
 
     const [isGoogleLinked, setIsGoogleLinked] = useState(false);
+    const [linkingGoogle, setLinkingGoogle] = useState(false);
     const [isEmailLinked, setIsEmailLinked] = useState(false);
 
     const [preferences, setPreferences] = useState({
@@ -56,6 +60,32 @@ export default function ParentSettings() {
 
     const handlePasswordChange = (e) => {
         setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+    };
+
+    const handleToggleGoogleLink = async () => {
+        try {
+            setLinkingGoogle(true);
+            if (isGoogleLinked) {
+                await profileApi.unlinkGoogleAccount();
+                setIsGoogleLinked(false);
+                showSuccessToast(isRtl ? 'تم إلغاء ربط حساب Google بنجاح' : 'Google account unlinked successfully');
+            } else {
+                const googleAuth = await triggerGoogleAuth();
+                await profileApi.linkGoogleAccount({
+                    googleId: googleAuth.googleId
+                });
+                setIsGoogleLinked(true);
+                showSuccessToast(isRtl ? 'تم ربط حساب Google بنجاح' : 'Google account linked successfully');
+            }
+        } catch (err) {
+            if (err?.message?.includes('closed') || err?.message?.includes('cancel')) {
+                showErrorToast(isRtl ? 'تم إلغاء العملية بواسطة المستخدم' : 'Process cancelled by user');
+            } else {
+                showErrorToast(isRtl ? 'حدث خطأ أثناء تحديث ربط Google' : 'Failed to update Google link');
+            }
+        } finally {
+            setLinkingGoogle(false);
+        }
     };
 
     const containerVariants = {
@@ -157,7 +187,8 @@ export default function ParentSettings() {
                         <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
                     </div>
                     <button
-                        onClick={() => setIsGoogleLinked(!isGoogleLinked)}
+                        onClick={handleToggleGoogleLink}
+                        disabled={linkingGoogle}
                         className="w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-black dark:bg-[#1a1a1a] dark:hover:bg-black text-white rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-800 dark:border-slate-700"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -166,7 +197,7 @@ export default function ParentSettings() {
                             <path d="M5.84 14.14C5.62 13.48 5.49 12.76 5.49 12C5.49 11.24 5.62 10.52 5.84 9.86V7.01H2.16C1.4 8.53 0.96 10.22 0.96 12C0.96 13.78 1.4 15.47 2.16 16.99L5.84 14.14Z" fill="#FBBC05" />
                             <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
                         </svg>
-                        <span className="font-semibold text-sm">{isGoogleLinked ? t('parentSettings.unlinkGoogle') : t('parentSettings.linkGoogle')}</span>
+                        <span className="font-semibold text-sm">{linkingGoogle ? (isRtl ? 'جاري المعالجة...' : 'Processing...') : (isGoogleLinked ? t('parentSettings.unlinkGoogle') : t('parentSettings.linkGoogle'))}</span>
                     </button>
                 </div>
 

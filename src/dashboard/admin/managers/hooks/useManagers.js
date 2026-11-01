@@ -43,7 +43,7 @@ export function useManagers() {
   const { data: permissionsData } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => managersApi.fetchPermissions(),
-    staleTime: 10 * 60 * 1000,
+    staleTime: 30 * 1000,
     enabled: needsExtraData,
     select: (raw) => {
       const items = raw?.data || raw || [];
@@ -52,9 +52,9 @@ export function useManagers() {
         const id = perm._id || perm.id || item._id || item.id;
         const name = perm.name || item.name;
         const actions = item.actions || perm.actions || [];
-        const keys = Array.isArray(actions)
-          ? actions.map((a) => (typeof a === 'object' ? a.key : a)).filter(Boolean)
-          : (Array.isArray(item.keys) ? item.keys : []);
+        const keys = Array.isArray(item.keys) ? item.keys : (Array.isArray(perm.keys) ? perm.keys : (Array.isArray(actions) && actions.length > 0 ? actions.map((a) => (typeof a === 'object' ? a.key : a)).filter(Boolean) : []));
+
+
         return { id, name, keys };
       }) : [];
       return { ...raw, data: normalized };

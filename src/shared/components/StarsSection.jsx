@@ -210,19 +210,19 @@ export default React.memo(function StarsSection({ featuredStudents }) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 sm:mb-14 gap-6"
+                    className="relative mb-10 sm:mb-14"
                 >
-                    <div className="text-start">
+                    <div className="text-center max-w-3xl mx-auto px-4">
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
                             {t('stars.title', 'نجوم التميز الأكاديمي')}
                         </h2>
-                        <div className="mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#0F7A6C]" />
-                        <p className="mt-5 text-slate-600 dark:text-slate-300 text-sm sm:text-base lg:text-lg max-w-2xl leading-relaxed">
+                        <div className="mx-auto mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#0F7A6C]" />
+                        <p className="mt-5 text-slate-600 dark:text-slate-300 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed">
                             {t('stars.description', 'نحتفي بطلابنا المتميزين الذين حققوا نتائج استثنائية وكانوا مثالاً للجد والاجتهاد')}
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 self-start md:self-end">
+                    <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">
                         <button
                             type="button"
                             onClick={() => scroll('prev')}

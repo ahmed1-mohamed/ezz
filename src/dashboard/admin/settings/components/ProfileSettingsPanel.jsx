@@ -4,26 +4,31 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
+import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
 import { sortCountries, sortCountryCodes, getCountryName, normalizeCountries } from '@/shared/utils/countryUtils.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Shield } from 'lucide-react';
 
 export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
     const { user, updateUser } = useAuth();
+    const normalizedRole = String(user?.role || '').toLowerCase();
+    const isSuperAdmin = normalizedRole === 'super_admin' || normalizedRole === 'superadmin';
 
     const [profileData, setProfileData] = useState({
         email: user?.email || '',
-        nameAr: typeof user?.name === 'object' ? (user?.name?.ar || '') : (user?.name || ''),
-        nameEn: typeof user?.name === 'object' ? (user?.name?.en || '') : (user?.name || ''),
+        nameAr: user?.nameAr || (typeof user?.name === 'object' ? (user?.name?.ar || '') : (user?.name || '')),
+        nameEn: user?.nameEn || (typeof user?.name === 'object' ? (user?.name?.en || '') : ''),
         country: '',
-        avatar: user?.image || user?.photoUrl || user?.photo || ''
+        avatar: user?.image || user?.photoUrl || user?.photo || '',
+        isGoogleLinked: Boolean(user?.isGoogleLinked || user?.googleId),
     });
 
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [savingProfile, setSavingProfile] = useState(false);
+    const [linkingGoogle, setLinkingGoogle] = useState(false);
     const [apiCountries, setApiCountries] = useState([]);
 
     const [selectedCountryCode, setSelectedCountryCode] = useState(null);
@@ -49,8 +54,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
 
             if (res?.success && res.data) {
                 const nameData = res.data.name;
-                const parsedNameAr = typeof nameData === 'object' ? (nameData?.ar || '') : (typeof nameData === 'string' ? nameData : '');
-                const parsedNameEn = typeof nameData === 'object' ? (nameData?.en || '') : (typeof nameData === 'string' ? nameData : '');
+                const parsedNameAr = res.data.nameAr || (typeof nameData === 'object' ? (nameData?.ar || '') : (typeof nameData === 'string' ? nameData : ''));
+                const parsedNameEn = res.data.nameEn || (typeof nameData === 'object' ? (nameData?.en || '') : '');
 
                 let mappedCountry = '';
                 if (res.data.country) {
@@ -75,7 +80,8 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     nameAr: parsedNameAr,
                     nameEn: parsedNameEn,
                     country: mappedCountry,
-                    avatar: res.data.image || res.data.photoUrl || res.data.photo || prev.avatar
+                    avatar: res.data.image || res.data.photoUrl || res.data.photo || prev.avatar,
+                    isGoogleLinked: Boolean(res.data.isGoogleLinked || res.data.googleId || res.data.provider === 'google' || user?.isGoogleLinked || user?.googleId),
                 }));
 
                 const phoneData = res.data.phone || '';
@@ -112,7 +118,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 }
 
                 if (onProfileLoadedRef.current) {
-                    onProfileLoadedRef.current({ phone: phoneData, country: mappedCountry });
+                    onProfileLoadedRef.current({ phone: phoneData, country: mappedCountry, permission: res.data.permission, permissions: res.data.permissions, permissionId: res.data.permissionId || res.data.permission?.id || res.data.permission?._id, role: res.data.role });
                 }
             }
             setLoadingProfile(false);
@@ -125,26 +131,63 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         setProfileData({ ...profileData, [e.target.name]: val });
     };
 
+    const handleToggleGoogleLink = async () => {
+        try {
+            setLinkingGoogle(true);
+            if (profileData.isGoogleLinked) {
+                await profileApi.unlinkGoogleAccount();
+                setProfileData((prev) => ({ ...prev, isGoogleLinked: false, googleId: null }));
+                if (updateUser) updateUser({ isGoogleLinked: false, googleId: null });
+                showSuccessToast(isRtl ? 'تم إلغاء ربط حساب Google بنجاح' : 'Google account unlinked successfully');
+            } else {
+                const googleAuth = await triggerGoogleAuth();
+                await profileApi.linkGoogleAccount({
+                    googleId: googleAuth.googleId
+                });
+                setProfileData((prev) => ({ ...prev, isGoogleLinked: true, googleId: googleAuth.googleId }));
+                if (updateUser) updateUser({ isGoogleLinked: true, googleId: googleAuth.googleId });
+                showSuccessToast(isRtl ? 'تم ربط حساب Google بنجاح' : 'Google account linked successfully');
+            }
+        } catch (err) {
+            if (err?.message?.includes('closed') || err?.message?.includes('cancel')) {
+                showErrorToast(isRtl ? 'تم إلغاء العملية بواسطة المستخدم' : 'Process cancelled by user');
+            } else {
+                showErrorToast(isRtl ? 'حدث خطأ أثناء تحديث ربط Google' : 'Failed to update Google link');
+            }
+        } finally {
+            setLinkingGoogle(false);
+        }
+    };
+
     const handleSaveProfile = async () => {
         setSavingProfile(true);
-        const ar = profileData.nameAr.trim();
-        const en = profileData.nameEn.trim();
+        const ar = profileData.nameAr?.trim() || '';
+        const en = profileData.nameEn?.trim() || '';
 
-        if (!ar && !en) {
-            showErrorToast(isRtl ? 'يرجى إدخال اسم المستخدم' : 'Please enter user name');
+        if (!ar) {
+            showErrorToast(isRtl ? 'يرجى إدخال الاسم باللغة العربية' : 'Please enter Arabic name');
             setSavingProfile(false);
             return;
         }
 
-        const finalAr = ar || en;
-        const finalEn = en || ar;
+        if (!en) {
+            showErrorToast(isRtl ? 'يرجى إدخال الاسم باللغة الإنجليزية' : 'Please enter English name');
+            setSavingProfile(false);
+            return;
+        }
 
-        setProfileData(prev => ({ ...prev, nameAr: finalAr, nameEn: finalEn }));
+        setProfileData(prev => ({ ...prev, nameAr: ar, nameEn: en }));
 
         const fullPhone = phoneVal ? `${selectedCountryCode?.code || ''} ${phoneVal.trim()}`.trim() : '';
         const payload = {
-            nameAr: finalAr,
-            nameEn: finalEn,
+            nameAr: ar,
+            nameEn: en,
+            'name[ar]': ar,
+            'name[en]': en,
+            name: {
+                ar,
+                en
+            }
         };
         
         if (profileData.country) {
@@ -162,9 +205,11 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         const res = await profileApi.updateProfile(payload);
         if (res?.success) {
             showSuccessToast(isRtl ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
-            const updatedNameObj = res.data?.name || { ar: profileData.nameAr.trim(), en: profileData.nameEn.trim() };
+            const updatedNameObj = res.data?.name || { ar, en };
             updateUser({
                 name: updatedNameObj,
+                nameAr: ar,
+                nameEn: en,
                 image: res.data?.image || profileData.avatar
             });
             if (onProfileLoaded) {
@@ -232,17 +277,25 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         {t('parentSettings.changePhoto')}
                     </button>
                     <span className="text-[10px] text-slate-400">{t('parentSettings.photoLimit')}</span>
+                    {(!isSuperAdmin && (user?.permission?.name || user?.role)) && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] rounded-full text-xs font-bold mt-2">
+                            <Shield size={13} />
+                            {user?.permission?.name || user?.role}
+                        </span>
+                    )}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="flex flex-col items-start w-full">
-                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">
-                        {isRtl ? 'الاسم باللغة العربية' : 'Arabic Name'}
+                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start flex items-center gap-1">
+                        <span>{isRtl ? 'الاسم باللغة العربية' : 'Arabic Name'}</span>
+                        <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
                         name="nameAr"
+                        required
                         value={profileData.nameAr}
                         onChange={handleProfileChange}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
@@ -250,12 +303,14 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     />
                 </div>
                 <div className="flex flex-col items-start w-full">
-                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">
-                        {isRtl ? 'الاسم باللغة الإنجليزية' : 'English Name'}
+                    <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start flex items-center gap-1">
+                        <span>{isRtl ? 'الاسم باللغة الإنجليزية' : 'English Name'}</span>
+                        <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
                         name="nameEn"
+                        required
                         value={profileData.nameEn}
                         onChange={handleProfileChange}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm font-medium text-start"
@@ -368,8 +423,9 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <button
                         type="button"
-                        onClick={() => setProfileData(prev => ({ ...prev, isGoogleLinked: !prev.isGoogleLinked }))}
-                        className="w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-black dark:bg-[#1a1a1a] dark:hover:bg-black text-white rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-800 dark:border-slate-700"
+                        disabled={linkingGoogle}
+                        onClick={handleToggleGoogleLink}
+                        className="w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-black dark:bg-[#1a1a1a] dark:hover:bg-black text-white rounded-xl py-3.5 px-4 transition-all shadow-sm border border-slate-800 dark:border-slate-700 cursor-pointer disabled:opacity-50"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.3C21.38 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
@@ -378,7 +434,9 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                             <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
                         </svg>
                         <span className="font-semibold text-sm">
-                            {profileData.isGoogleLinked
+                            {linkingGoogle
+                                ? (isRtl ? 'جاري المعالجة...' : 'Processing...')
+                                : profileData.isGoogleLinked
                                 ? (isRtl ? 'إلغاء ربط جوجل' : 'Unlink Google')
                                 : (isRtl ? 'ربط حساب جوجل' : 'Link Google')}
                         </span>
@@ -390,7 +448,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 <button
                     onClick={handleSaveProfile}
                     disabled={savingProfile}
-                    className="bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-70 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto min-w-[160px] flex items-center justify-center gap-2"
+                    className="bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-70 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-sm w-full md:w-auto min-w-[160px] flex items-center justify-center gap-2 cursor-pointer"
                 >
                     {savingProfile && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
                     {t('parentSettings.saveChanges')}

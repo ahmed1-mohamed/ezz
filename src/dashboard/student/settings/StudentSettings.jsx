@@ -4,6 +4,9 @@ import { Camera, Sun, Moon, Settings as SettingsIcon, Mail, Lock, User, Globe, B
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../../../i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
+import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
+import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
+import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 
 const STORAGE_KEY = 'studentSettings';
 
@@ -119,19 +122,17 @@ function PreferenceRow({ label, desc, checked, onChange, isRtl }) {
 }
 
 export default function StudentSettings() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme, setTheme } = useAuth();
   const isRtl = i18n.language.startsWith('ar');
-
   const saved = loadFromStorage();
-
   const [profile, setProfile] = useState(saved?.profile ?? defaultProfile);
   const [password, setPassword] = useState(defaultPassword);
   const [isGoogleLinked, setIsGoogleLinked] = useState(saved?.isGoogleLinked ?? false);
+  const [linkingGoogle, setLinkingGoogle] = useState(false);
   const [isEmailLinked, setIsEmailLinked] = useState(saved?.isEmailLinked ?? false);
   const [preferences, setPreferences] = useState(saved?.preferences ?? defaultPreferences);
   const [savedBanner, setSavedBanner] = useState(false);
-
   const persistAll = (patch = {}) => {
     const data = {
       profile,
@@ -144,28 +145,47 @@ export default function StudentSettings() {
     setSavedBanner(true);
     setTimeout(() => setSavedBanner(false), 2000);
   };
-
   const handleProfileChange = (e) => {
     setProfile((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
   const handlePasswordChange = (e) => {
     setPassword((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
+  const handleToggleGoogleLink = async () => {
+    try {
+      setLinkingGoogle(true);
+      if (isGoogleLinked) {
+        await studentPortalApi.unlinkGoogleAccount();
+        setIsGoogleLinked(false);
+        showSuccessToast(isRtl ? 'تم إلغاء ربط حساب Google بنجاح' : 'Google account unlinked successfully');
+      } else {
+        const googleAuth = await triggerGoogleAuth();
+        await studentPortalApi.linkGoogleAccount({
+          googleId: googleAuth.googleId
+        });
+        setIsGoogleLinked(true);
+        showSuccessToast(isRtl ? 'تم ربط حساب Google بنجاح' : 'Google account linked successfully');
+      }
+    } catch (err) {
+      if (err?.message?.includes('closed') || err?.message?.includes('cancel')) {
+        showErrorToast(isRtl ? 'تم إلغاء العملية بواسطة المستخدم' : 'Process cancelled by user');
+      } else {
+        showErrorToast(isRtl ? 'حدث خطأ أثناء تحديث ربط Google' : 'Failed to update Google link');
+      }
+    } finally {
+      setLinkingGoogle(false);
+    }
+  };
   const togglePreference = (key) => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
   };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.08 } },
   };
-
   return (
     <motion.div
       variants={containerVariants}
@@ -178,10 +198,10 @@ export default function StudentSettings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
-              {isRtl ? 'الإعدادات' : 'Settings'}
+              {t('studentDashboard.settings.title', 'الإعدادات')}
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              {isRtl ? 'إدارة معلومات حسابك وتفضيلاتك الشخصية' : 'Manage your account info and personal preferences'}
+              {t('studentDashboard.settings.subtitle', 'إدارة معلومات حسابك وتفضيلاتك الشخصية')}
             </p>
           </div>
           {savedBanner && (
@@ -191,15 +211,13 @@ export default function StudentSettings() {
               exit={{ opacity: 0 }}
               className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-full"
             >
-              {isRtl ? '✓ تم الحفظ' : '✓ Saved'}
+              {t('studentDashboard.settings.saved', '✓ تم الحفظ')}
             </motion.span>
           )}
         </div>
       </SectionCard>
-
       <SectionCard>
-        <SectionTitle icon={User} label={isRtl ? 'الملف الشخصي' : 'Profile'} />
-
+        <SectionTitle icon={User} label={t('studentDashboard.settings.profile.title', 'الملف الشخصي')} />
         <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
           <div className="relative shrink-0">
             <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shadow-md">
@@ -211,21 +229,22 @@ export default function StudentSettings() {
           </div>
           <div className="flex flex-col items-center md:items-start gap-1">
             <button className="bg-[#0f7a6c] hover:bg-[#0c6156] text-white px-5 py-2 rounded-xl text-sm font-bold transition-colors">
-              {isRtl ? 'تغيير الصورة' : 'Change Photo'}
+              {t('studentDashboard.settings.profile.changePhoto', 'تغيير الصورة')}
             </button>
-            <span className="text-[10px] text-slate-400">{isRtl ? 'الحد الأقصى 5 ميجابايت. JPG أو PNG' : 'Max 5MB. JPG or PNG'}</span>
+            <span className="text-[10px] text-slate-400">
+              {t('studentDashboard.settings.profile.photoLimit', 'الحد الأقصى 5 ميجابايت. JPG أو PNG')}
+            </span>
           </div>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <FieldInput
-            label={isRtl ? 'الاسم الكامل' : 'Full Name'}
+            label={t('studentDashboard.settings.profile.fullName', 'الاسم الكامل')}
             name="fullName"
             value={profile.fullName}
             onChange={handleProfileChange}
           />
           <FieldInput
-            label={isRtl ? 'البريد الإلكتروني' : 'Email Address'}
+            label={t('studentDashboard.settings.profile.emailAddress', 'البريد الإلكتروني')}
             type="email"
             name="email"
             value={profile.email}
@@ -233,7 +252,7 @@ export default function StudentSettings() {
             dir="ltr"
           />
           <FieldInput
-            label={isRtl ? 'رقم الهاتف' : 'Phone Number'}
+            label={t('studentDashboard.settings.profile.phoneNumber', 'رقم الهاتف')}
             type="tel"
             name="phone"
             value={profile.phone}
@@ -241,16 +260,15 @@ export default function StudentSettings() {
             dir="ltr"
           />
           <FieldInput
-            label={isRtl ? 'المستوى الدراسي' : 'Study Level'}
+            label={t('studentDashboard.settings.profile.studyLevel', 'المستوى الدراسي')}
             name="grade"
             value={profile.grade}
             onChange={handleProfileChange}
           />
         </div>
-
         <div className="pt-5 border-t border-slate-100 dark:border-slate-700 space-y-3">
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3">
-            {isRtl ? 'ربط الحسابات' : 'Linked Accounts'}
+            {t('studentDashboard.settings.profile.linkedAccounts', 'ربط الحسابات')}
           </p>
           <button
             onClick={() => setIsEmailLinked(!isEmailLinked)}
@@ -259,12 +277,13 @@ export default function StudentSettings() {
             <Mail size={18} />
             <span className="font-semibold text-sm">
               {isEmailLinked
-                ? (isRtl ? 'إلغاء ربط البريد الإلكتروني' : 'Unlink Email')
-                : (isRtl ? 'المتابعة باستخدام Email' : 'Continue with Email')}
+                ? t('studentDashboard.settings.profile.unlinkEmail', 'إلغاء ربط البريد الإلكتروني')
+                : t('studentDashboard.settings.profile.continueEmail', 'المتابعة باستخدام البريد الإلكتروني')}
             </span>
           </button>
           <button
-            onClick={() => setIsGoogleLinked(!isGoogleLinked)}
+            onClick={handleToggleGoogleLink}
+            disabled={linkingGoogle}
             className="w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-black dark:bg-[#1a1a1a] text-white rounded-xl py-3.5 px-4 transition-all border border-slate-800"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -274,25 +293,24 @@ export default function StudentSettings() {
               <path d="M12 5.34C13.62 5.34 15.07 5.9 16.21 6.99L19.38 3.82C17.45 2.02 14.96 0.95 12 0.95C7.7 0.95 4.01 3.33 2.16 7.01L5.84 9.86C6.71 7.27 9.14 5.34 12 5.34Z" fill="#EA4335" />
             </svg>
             <span className="font-semibold text-sm">
-              {isGoogleLinked
-                ? (isRtl ? 'إلغاء ربط Google' : 'Unlink Google')
-                : (isRtl ? 'المتابعة باستخدام Google' : 'Continue with Google')}
+              {linkingGoogle
+                ? t('common.loading', 'جاري المعالجة...')
+                : isGoogleLinked
+                ? t('studentDashboard.settings.profile.unlinkGoogle', 'إلغاء ربط Google')
+                : t('studentDashboard.settings.profile.continueGoogle', 'المتابعة باستخدام Google')}
             </span>
           </button>
         </div>
-
         <SaveButton
-          label={isRtl ? 'حفظ التغييرات' : 'Save Changes'}
+          label={t('studentDashboard.settings.saveChanges', 'حفظ التغييرات')}
           onClick={() => persistAll({ profile, isGoogleLinked, isEmailLinked })}
         />
       </SectionCard>
-
       <SectionCard>
-        <SectionTitle icon={Lock} label={isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'} />
-
+        <SectionTitle icon={Lock} label={t('studentDashboard.settings.security.title', 'الأمان وكلمة المرور')} />
         <div className="space-y-4 mb-2">
           <FieldInput
-            label={isRtl ? 'كلمة المرور الحالية' : 'Current Password'}
+            label={t('studentDashboard.settings.security.currentPassword', 'كلمة المرور الحالية')}
             type="password"
             name="current"
             value={password.current}
@@ -300,14 +318,14 @@ export default function StudentSettings() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FieldInput
-              label={isRtl ? 'كلمة المرور الجديدة' : 'New Password'}
+              label={t('studentDashboard.settings.security.newPassword', 'كلمة المرور الجديدة')}
               type="password"
               name="newPass"
               value={password.newPass}
               onChange={handlePasswordChange}
             />
             <FieldInput
-              label={isRtl ? 'تأكيد كلمة المرور' : 'Confirm Password'}
+              label={t('studentDashboard.settings.security.confirmPassword', 'تأكيد كلمة المرور')}
               type="password"
               name="confirm"
               value={password.confirm}
@@ -315,95 +333,101 @@ export default function StudentSettings() {
             />
           </div>
         </div>
-
-        <SaveButton label={isRtl ? 'تحديث كلمة المرور' : 'Update Password'} onClick={() => { }} />
+        <SaveButton
+          label={t('studentDashboard.settings.security.updatePassword', 'تحديث كلمة المرور')}
+          onClick={() => {}}
+        />
       </SectionCard>
-
       <SectionCard>
-        <SectionTitle icon={Globe} label={isRtl ? 'اللغة والمظهر' : 'Language & Appearance'} />
-
+        <SectionTitle icon={Globe} label={t('studentDashboard.settings.appearance.title', 'اللغة والمظهر')} />
         <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide">
-          {isRtl ? 'اللغة المفضلة' : 'Preferred Language'}
+          {t('studentDashboard.settings.appearance.preferredLanguage', 'اللغة المفضلة')}
         </h3>
         <div className="grid grid-cols-2 gap-3 mb-7">
           {[
-            { code: 'ar', labelAr: 'العربية', labelEn: 'Arabic', descAr: 'اللغة الافتراضية', descEn: 'Default Language' },
-            { code: 'en', labelAr: 'English', labelEn: 'English', descAr: 'لغة ثانوية', descEn: 'Secondary Language' },
-          ].map(({ code, labelAr, labelEn, descAr, descEn }) => (
+            {
+              code: 'ar',
+              label: t('studentDashboard.settings.appearance.arabic', 'العربية'),
+              desc: t('studentDashboard.settings.appearance.defaultLang', 'اللغة الافتراضية'),
+            },
+            {
+              code: 'en',
+              label: t('studentDashboard.settings.appearance.english', 'English'),
+              desc: t('studentDashboard.settings.appearance.secondaryLang', 'Secondary Language'),
+            },
+          ].map(({ code, label, desc }) => (
             <button
               key={code}
               onClick={() => handleLanguageChange(code)}
-              className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${i18n.language === code
-                ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
-                : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
-                }`}
+              className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${
+                i18n.language.startsWith(code)
+                  ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
+              }`}
             >
-              <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">{isRtl ? labelAr : labelEn}</span>
-              <span className="text-[10px] text-slate-400">{isRtl ? descAr : descEn}</span>
+              <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">{label}</span>
+              <span className="text-[10px] text-slate-400">{desc}</span>
             </button>
           ))}
         </div>
-
         <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide">
-          {isRtl ? 'المظهر' : 'Appearance'}
+          {t('studentDashboard.settings.appearance.appearanceTitle', 'المظهر')}
         </h3>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { key: 'light', icon: Sun, iconClass: 'text-amber-500', labelAr: 'فاتح', labelEn: 'Light' },
-            { key: 'dark', icon: Moon, iconClass: 'text-indigo-400', labelAr: 'داكن', labelEn: 'Dark' },
-            { key: 'auto', icon: SettingsIcon, iconClass: 'text-slate-500', labelAr: 'تلقائي', labelEn: 'Auto' },
-          ].map(({ key, icon: Icon, iconClass, labelAr, labelEn }) => (
+            { key: 'light', icon: Sun, iconClass: 'text-amber-500', label: t('studentDashboard.settings.appearance.light', 'فاتح') },
+            { key: 'dark', icon: Moon, iconClass: 'text-indigo-400', label: t('studentDashboard.settings.appearance.dark', 'داكن') },
+            { key: 'auto', icon: SettingsIcon, iconClass: 'text-slate-500', label: t('studentDashboard.settings.appearance.auto', 'تلقائي') },
+          ].map(({ key, icon: Icon, iconClass, label }) => (
             <button
               key={key}
               onClick={() => setTheme(key)}
-              className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${theme === key
-                ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
-                : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
-                }`}
+              className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${
+                theme === key
+                  ? 'border-[#0f7a6c] bg-[#0f7a6c]/5 dark:bg-[#0f7a6c]/10'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'
+              }`}
             >
               <Icon className={`w-5 h-5 ${iconClass}`} />
-              <span className="font-bold text-slate-800 dark:text-slate-100 text-xs">{isRtl ? labelAr : labelEn}</span>
+              <span className="font-bold text-slate-800 dark:text-slate-100 text-xs">{label}</span>
             </button>
           ))}
         </div>
       </SectionCard>
-
       <SectionCard>
-        <SectionTitle icon={BookOpen} label={isRtl ? 'تفضيلات الطالب' : 'Student Preferences'} />
-
+        <SectionTitle icon={BookOpen} label={t('studentDashboard.settings.preferences.title', 'تفضيلات الطالب')} />
         <div className="space-y-3 mb-2">
           <PreferenceRow
-            label={isRtl ? 'عرض الإنجازات والأوسمة' : 'Show Achievements & Badges'}
-            desc={isRtl ? 'عرض إنجازاتك في صفحتك الشخصية' : 'Show your achievements on your profile'}
+            label={t('studentDashboard.settings.preferences.showAchievements', 'عرض الإنجازات والأوسمة')}
+            desc={t('studentDashboard.settings.preferences.showAchievementsDesc', 'عرض إنجازاتك في صفحتك الشخصية')}
             checked={preferences.showAchievements}
             onChange={() => togglePreference('showAchievements')}
             isRtl={isRtl}
           />
           <PreferenceRow
-            label={isRtl ? 'مشاركة التقدم مع المعلم' : 'Share Progress with Teacher'}
-            desc={isRtl ? 'السماح للمعلم برؤية مستوى تقدمك الكامل' : 'Allow teacher to view your full learning progress'}
+            label={t('studentDashboard.settings.preferences.shareProgress', 'مشاركة التقدم مع المعلم')}
+            desc={t('studentDashboard.settings.preferences.shareProgressDesc', 'السماح للمعلم برؤية مستوى تقدمك الكامل')}
             checked={preferences.shareProgressWithTeacher}
             onChange={() => togglePreference('shareProgressWithTeacher')}
             isRtl={isRtl}
           />
           <PreferenceRow
-            label={isRtl ? 'تذكيرات الحصص' : 'Session Reminders'}
-            desc={isRtl ? 'استقبال تنبيهات قبل موعد الحصة' : 'Receive notifications before each session'}
+            label={t('studentDashboard.settings.preferences.reminders', 'تذكيرات الحصص')}
+            desc={t('studentDashboard.settings.preferences.remindersDesc', 'استقبل تنبيهات قبل موعد الحصة')}
             checked={preferences.receiveReminders}
             onChange={() => togglePreference('receiveReminders')}
             isRtl={isRtl}
           />
           <PreferenceRow
-            label={isRtl ? 'حفظ سجل النشاط' : 'Save Activity Log'}
-            desc={isRtl ? 'الاحتفاظ بسجل كامل لنشاطك في المنصة' : 'Keep a full log of your activity on the platform'}
+            label={t('studentDashboard.settings.preferences.saveLog', 'حفظ سجل النشاط')}
+            desc={t('studentDashboard.settings.preferences.saveLogDesc', 'الاحتفاظ بسجل كامل لنشاطك في المنصة')}
             checked={preferences.saveActivityLog}
             onChange={() => togglePreference('saveActivityLog')}
             isRtl={isRtl}
           />
         </div>
-
         <SaveButton
-          label={isRtl ? 'حفظ التفضيلات' : 'Save Preferences'}
+          label={t('studentDashboard.settings.preferences.savePreferences', 'حفظ التفضيلات')}
           onClick={() => persistAll({ preferences })}
         />
       </SectionCard>

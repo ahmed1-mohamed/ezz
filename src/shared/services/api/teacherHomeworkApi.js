@@ -91,20 +91,55 @@ export const teacherHomeworkApi = {
   },
 
 
-  fetchSubmissionDetails: async (submissionId) => {
-    try {
-      if (!submissionId || !/^[0-9a-fA-F]{24}$/.test(String(submissionId))) {
-        return { success: true, data: null };
-      }
-      const response = await api.get(`/api/v1/teacher/homework/submissions/${submissionId}`, {
-        skipLang: true,
-      });
-      const resData = response.data?.data || response.data || null;
-      return { success: true, data: resData };
-    } catch (error) {
-      console.warn('API fetchSubmissionDetails failed:', error);
-      return { success: false, data: null, error };
+  fetchSubmissionDetails: async (submissionId, homeworkId) => {
+    const validSubId = submissionId && /^[0-9a-fA-F]{24}$/.test(String(submissionId)) ? String(submissionId) : null;
+    const validHwId = homeworkId && /^[0-9a-fA-F]{24}$/.test(String(homeworkId)) ? String(homeworkId) : null;
+
+    if (!validSubId && !validHwId) {
+      return { success: true, data: null };
     }
+
+    if (validSubId) {
+      try {
+        const response = await api.get(`/api/v1/teacher/homework/submissions/${validSubId}`, {
+          skipLang: true,
+          skipGlobalErrorToast: true,
+          silent: true,
+        });
+        const resData = response.data?.data || response.data || null;
+        if (resData) return { success: true, data: resData };
+      } catch {
+        // try alternatives silently
+      }
+
+      try {
+        const response = await api.get(`/api/v1/teacher/submissions/${validSubId}`, {
+          skipLang: true,
+          skipGlobalErrorToast: true,
+          silent: true,
+        });
+        const resData = response.data?.data || response.data || null;
+        if (resData) return { success: true, data: resData };
+      } catch {
+        // try next
+      }
+    }
+
+    if (validHwId) {
+      try {
+        const response = await api.get(`/api/v1/teacher/homework/${validHwId}`, {
+          skipLang: true,
+          skipGlobalErrorToast: true,
+          silent: true,
+        });
+        const resData = response.data?.data || response.data || null;
+        if (resData) return { success: true, data: resData };
+      } catch {
+        // ignore
+      }
+    }
+
+    return { success: true, data: null };
   },
 
   evaluateSubmission: async (submissionId, payload) => {

@@ -4,7 +4,6 @@ import { Calendar } from 'lucide-react';
 import { landingApi } from '@/shared/services/api/landingApi';
 import CTASection from '@/shared/components/CTASection.jsx';
 import ScheduleHero from './components/Schedule/ScheduleHero.jsx';
-import ScheduleFilterBar from './components/Schedule/ScheduleFilterBar.jsx';
 import ScheduleDayTabs from './components/Schedule/ScheduleDayTabs.jsx';
 import ScheduleSessionCard from './components/Schedule/ScheduleSessionCard.jsx';
 import ScheduleEmptyState from './components/Schedule/ScheduleEmptyState.jsx';
@@ -12,7 +11,6 @@ import ScheduleEmptyState from './components/Schedule/ScheduleEmptyState.jsx';
 export default function SchedulePage() {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language?.startsWith('ar') ?? true;
-    const isEn = i18n.language === 'en';
 
     const [timetableData, setTimetableData] = useState({ week: {}, days: [] });
     const [loading, setLoading] = useState(true);
@@ -59,38 +57,11 @@ export default function SchedulePage() {
     }, [i18n.language]);
 
     const days = useMemo(() => timetableData?.days || [], [timetableData]);
-    const weekInfo = useMemo(() => timetableData?.week || {}, [timetableData]);
 
     const activeDay = useMemo(() => {
         if (!days || days.length === 0) return null;
         return days[activeDayIndex] || days[0];
     }, [days, activeDayIndex]);
-
-    const formattedWeekRange = useMemo(() => {
-        if (weekInfo?.formattedRange) {
-            if (isEn && /[\u0600-\u06FF]/.test(weekInfo.formattedRange)) {
-                if (weekInfo.startDate && weekInfo.endDate) {
-                    return `From ${weekInfo.startDate} to ${weekInfo.endDate}`;
-                }
-            }
-            if (isRtl && weekInfo.formattedRange.startsWith('From')) {
-                if (weekInfo.startDate && weekInfo.endDate) {
-                    return `من تاريخ ${weekInfo.startDate} إلى تاريخ ${weekInfo.endDate}`;
-                }
-            }
-            return weekInfo.formattedRange;
-        }
-        if (weekInfo?.startDate && weekInfo?.endDate) {
-            return isRtl
-                ? `من تاريخ ${weekInfo.startDate} إلى تاريخ ${weekInfo.endDate}`
-                : `From ${weekInfo.startDate} to ${weekInfo.endDate}`;
-        }
-        return '';
-    }, [weekInfo, isRtl, isEn]);
-
-    const totalWeeklySessions = useMemo(() => {
-        return days.reduce((acc, d) => acc + (d.sessions ? d.sessions.length : (d.sessionsCount || 0)), 0);
-    }, [days]);
 
     const getLocalizedDay = useCallback((dayItem) => {
         if (!dayItem) return '';
@@ -137,10 +108,10 @@ export default function SchedulePage() {
             });
             const end = session.endTime
                 ? new Date(session.endTime).toLocaleTimeString(locale, {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                  })
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                })
                 : '';
             return end ? `${start} - ${end}` : start;
         } catch {
@@ -173,20 +144,14 @@ export default function SchedulePage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 transition-colors duration-300 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="w-full min-h-[calc(100vh-4rem)] bg-[#EEF2F0]/80 dark:bg-slate-950 transition-colors duration-300 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
                 <ScheduleHero
                     title={timetableData.title}
                     subtitle={timetableData.subtitle}
-                    formattedWeekRange={formattedWeekRange}
-                    weekInfo={weekInfo}
-                    totalWeeklySessions={totalWeeklySessions}
                 />
 
-                <ScheduleFilterBar
-                    statusFilter={statusFilter}
-                    onStatusFilterChange={setStatusFilter}
-                />
+
 
                 {loading ? (
                     <div className="space-y-4">

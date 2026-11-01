@@ -1,279 +1,453 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, ChevronLeft, ChevronRight, Clock, User, Video } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  User,
+  Video,
+  ExternalLink,
+  AlertCircle
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-
-const SESSIONS_BY_DAY = {
-  '2026-04-13': [],
-  '2026-04-14': [
-    {
-      id: 101,
-      startTime: '11:00 ص',
-      endTime: '12:00 م',
-      subject: 'علوم القرآن',
-      teacher: 'الشيخ أحمد السيد',
-      status: 'completed',
-    },
-  ],
-  '2026-04-15': [
-    {
-      id: 1,
-      startTime: '4:00 م',
-      endTime: '5:00 م',
-      subject: 'التجويد - أحكام النون الساكنة',
-      teacher: 'الشيخ أحمد السيد',
-      status: 'live',
-    },
-    {
-      id: 2,
-      startTime: '7:00 م',
-      endTime: '8:00 م',
-      subject: 'البلاغة والأدب',
-      teacher: 'الشيخ أحمد السيد',
-      status: 'live',
-    },
-  ],
-  '2026-04-16': [
-    {
-      id: 3,
-      startTime: '3:00 م',
-      endTime: '4:00 م',
-      subject: 'النحو والصرف',
-      teacher: 'الدكتور محمد الأمين',
-      status: 'upcoming',
-    },
-  ],
-  '2026-04-17': [
-    {
-      id: 4,
-      startTime: '5:00 م',
-      endTime: '6:00 م',
-      subject: 'حفظ سورة البقرة',
-      teacher: 'الشيخ أحمد السيد',
-      status: 'upcoming',
-    },
-  ],
-  '2026-04-18': [],
-  '2026-04-19': [],
-};
-
-const WEEK_DAYS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-const WEEK_DAYS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTHS_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function buildWeek(baseDate) {
-  const days = [];
-  const start = new Date(baseDate);
-  const dayOfWeek = start.getDay();
-  start.setDate(start.getDate() - dayOfWeek);
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    days.push(d);
-  }
-  return days;
-}
-
-function toDateKey(date) {
-  return date.toISOString().split('T')[0];
-}
-
-function getStatusConfig(status) {
-  switch (status) {
-    case 'live':
-      return { label: 'مباشر الآن', labelEn: 'Live Now', badgeClass: 'bg-red-100 text-red-600', dotClass: 'bg-red-500' };
-    case 'upcoming':
-      return { label: 'قادم', labelEn: 'Upcoming', badgeClass: 'bg-amber-100 text-amber-700', dotClass: 'bg-amber-400' };
-    case 'completed':
-      return { label: 'مكتمل', labelEn: 'Completed', badgeClass: 'bg-slate-100 text-slate-500', dotClass: 'bg-slate-400' };
-    default:
-      return { label: status, labelEn: status, badgeClass: 'bg-slate-100 text-slate-500', dotClass: 'bg-slate-400' };
-  }
-}
-
-function hasSessions(dateKey) {
-  return (SESSIONS_BY_DAY[dateKey] || []).length > 0;
-}
+import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
+import Spinner from '@/shared/components/Spinner';
 
 export default function StudentSchedule() {
-  const { i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
-  const today = new Date('2026-04-15');
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [weekBase, setWeekBase] = useState(today);
-
-  const weekDays = buildWeek(weekBase);
-  const selectedKey = toDateKey(selectedDate);
-  const sessions = SESSIONS_BY_DAY[selectedKey] || [];
-
-  const monthLabel = isRtl
-    ? `${MONTHS_AR[weekDays[0].getMonth()]} ${weekDays[0].getFullYear()}`
-    : `${MONTHS_EN[weekDays[0].getMonth()]} ${weekDays[0].getFullYear()}`;
-
-  const dayLabel = isRtl
-    ? `${WEEK_DAYS_AR[selectedDate.getDay()]} ${selectedDate.getDate()} ${MONTHS_AR[selectedDate.getMonth()]}`
-    : `${WEEK_DAYS_EN[selectedDate.getDay()]} ${selectedDate.getDate()} ${MONTHS_EN[selectedDate.getMonth()]}`;
-
-  function goToPrevWeek() {
-    const d = new Date(weekBase);
-    d.setDate(d.getDate() - 7);
-    setWeekBase(d);
-  }
-
-  function goToNextWeek() {
-    const d = new Date(weekBase);
-    d.setDate(d.getDate() + 7);
-    setWeekBase(d);
-  }
-
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const [timetableData, setTimetableData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentDateParam, setCurrentDateParam] = useState(null);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const fetchSchedule = async (date) => {
+    try {
+      setLoading(true);
+      const params = date ? { date } : {};
+      const res = await studentPortalApi.fetchWeeklyTimetable(params);
+      const data = res?.data || res;
+      setTimetableData(data);
+      if (data?.days?.length) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const todayIdx = data.days.findIndex((d) => d.date === todayStr);
+        if (todayIdx >= 0) {
+          setSelectedDayIndex(todayIdx);
+        } else {
+          const firstWithSessions = data.days.findIndex(
+            (d) => (d.sessionsCount ?? d.sessions?.length ?? 0) > 0
+          );
+          setSelectedDayIndex(firstWithSessions >= 0 ? firstWithSessions : 0);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load weekly timetable:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchSchedule(currentDateParam);
+  }, [currentDateParam]);
+  const weekInfo = timetableData?.weekInfo || {};
+  const days = Array.isArray(timetableData?.days) ? timetableData.days : [];
+  const selectedDay = days[selectedDayIndex] || days[0] || null;
+  const sessions = Array.isArray(selectedDay?.sessions) ? selectedDay.sessions : [];
+  const handlePrevWeek = () => {
+    if (weekInfo.previousWeekDate) {
+      setCurrentDateParam(weekInfo.previousWeekDate);
+    }
+  };
+  const handleNextWeek = () => {
+    if (weekInfo.nextWeekDate) {
+      setCurrentDateParam(weekInfo.nextWeekDate);
+    }
+  };
+  const handleCurrentWeek = () => {
+    setCurrentDateParam(null);
+  };
+  const monthYearLabel = useMemo(() => {
+    const refDate = selectedDay?.date || weekInfo.startDate || weekInfo.currentWeekDate;
+    if (!refDate) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
+    const d = new Date(refDate);
+    if (isNaN(d.getTime())) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
+    const monthsAr = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    const monthsEn = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return isRtl ? `${monthsAr[d.getMonth()]} ${d.getFullYear()}` : `${monthsEn[d.getMonth()]} ${d.getFullYear()}`;
+  }, [selectedDay, weekInfo, isRtl]);
+  const formatDayHeading = (dayObj) => {
+    if (!dayObj) return '';
+    const name = dayObj.dayName || dayObj.day || '';
+    if (!dayObj.date) return name;
+    const d = new Date(dayObj.date);
+    if (isNaN(d.getTime())) return `${name} - ${dayObj.formattedDate || dayObj.date}`;
+    const monthsAr = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    const monthsEn = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    const dateFormatted = isRtl
+      ? `${d.getDate()} ${monthsAr[d.getMonth()]}`
+      : `${d.getDate()} ${monthsEn[d.getMonth()]}`;
+    return isRtl ? `حصص يوم ${name} - ${dateFormatted}` : `Sessions for ${name} - ${dateFormatted}`;
+  };
+  const getDayNumber = (dayObj) => {
+    if (!dayObj) return '';
+    if (dayObj.date) {
+      const parts = dayObj.date.split('-');
+      if (parts.length === 3) return parseInt(parts[2], 10);
+    }
+    if (dayObj.formattedDate) {
+      const parts = dayObj.formattedDate.split('/');
+      if (parts.length >= 1) return parts[0];
+    }
+    return '';
+  };
+  const renderStatusBadge = (session) => {
+    const status = session.status?.toLowerCase();
+    const canJoin = session.canJoinNow || status === 'live' || status === 'in_progress';
+    if (canJoin) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FFEAEA] dark:bg-red-950/40 text-[#E53E3E] dark:text-red-400">
+          <span className="w-2 h-2 rounded-full bg-[#E53E3E] animate-pulse" />
+          <span>{t('studentDashboard.schedule.liveNow', 'مباشر الآن')}</span>
+        </span>
+      );
+    }
+    switch (status) {
+      case 'cancelled':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span>{session.statusText || t('studentDashboard.schedule.cancelledSession', 'ملغاة')}</span>
+          </span>
+        );
+      case 'rescheduled':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span>{session.statusText || t('studentDashboard.schedule.rescheduled', 'معاد جدولتها')}</span>
+          </span>
+        );
+      case 'completed':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+            <span>{session.statusText || t('studentDashboard.schedule.sessionCompleted', 'مكتملة')}</span>
+          </span>
+        );
+      case 'scheduled':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00695C] dark:bg-emerald-400" />
+            <span>{session.statusText || t('studentDashboard.schedule.scheduled', 'مجدولة')}</span>
+          </span>
+        );
+    }
+  };
+  const renderActionButton = (session) => {
+    const zoomUrl = session.zoom?.joinUrl || session.joinUrl;
+    const status = session.status?.toLowerCase();
+    if (status === 'cancelled') {
+      return (
+        <span className="text-xs font-semibold text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-4 py-2 rounded-xl">
+          {t('studentDashboard.schedule.cancelledSession', 'حصة ملغاة')}
+        </span>
+      );
+    }
+    if (zoomUrl) {
+      return (
+        <a
+          href={zoomUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+        >
+          <Video size={16} />
+          <span>{t('studentDashboard.schedule.joinLiveNow', 'انتقل إلى البث الآن')}</span>
+        </a>
+      );
+    }
+    return (
+      <span className="text-xs font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/40 px-3.5 py-2 rounded-xl border border-slate-100 dark:border-slate-800">
+        {status === 'completed'
+          ? t('studentDashboard.schedule.sessionCompleted', 'الحصة مكتملة')
+          : t('studentDashboard.schedule.linkAvailableSoon', 'الرابط متاح قريباً')}
+      </span>
+    );
+  };
   return (
-    <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#EEF5F3] dark:bg-slate-950 p-4 sm:p-6 lg:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="max-w-7xl mx-auto space-y-5"
+        className="max-w-7xl mx-auto space-y-6"
       >
-
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center shrink-0">
-              <Calendar size={20} className="text-[#0f7a6c] dark:text-emerald-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                {isRtl ? 'جدول الحصص' : 'Class Schedule'}
-              </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isRtl ? 'اختر التاريخ لمشاهدة الحصص' : 'Select a date to view sessions'}
-              </p>
-            </div>
+        {/* Card 1: Top Header Banner */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="text-start space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#1E293B] dark:text-white">
+              {t('studentDashboard.schedule.title', 'جدول الحصص')}
+            </h1>
+            <p className="text-xs sm:text-sm font-medium text-slate-400 dark:text-slate-500">
+              {t('studentDashboard.schedule.subtitle', 'اختر التاريخ لمشاهدة الحصص')}
+            </p>
           </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-5">
-            <button
-              onClick={goToPrevWeek}
-              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-            >
-              {isRtl ? <ChevronRight size={16} className="text-slate-600 dark:text-slate-300" /> : <ChevronLeft size={16} className="text-slate-600 dark:text-slate-300" />}
-            </button>
-            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{monthLabel}</span>
-            <button
-              onClick={goToNextWeek}
-              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-            >
-              {isRtl ? <ChevronLeft size={16} className="text-slate-600 dark:text-slate-300" /> : <ChevronRight size={16} className="text-slate-600 dark:text-slate-300" />}
-            </button>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[#00594C] dark:text-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/30">
+            <Calendar size={28} />
           </div>
-
-          <div className="grid grid-cols-7 gap-1.5">
-            {weekDays.map((day) => {
-              const key = toDateKey(day);
-              const isSelected = key === selectedKey;
-              const isToday = key === toDateKey(today);
-              const hasData = hasSessions(key);
-
-              return (
+        </section>
+        {/* Card 2: Week Navigation & Days Selector */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
+          {/* Month/Year Title & Arrow Navigators */}
+          <div className="flex items-center justify-between">
+            {/* Right arrow in RTL = Next or Prev */}
+            <button
+              type="button"
+              onClick={isRtl ? handleNextWeek : handlePrevWeek}
+              disabled={isRtl ? !weekInfo.nextWeekDate : !weekInfo.previousWeekDate}
+              aria-label="Navigate"
+              className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
+                {monthYearLabel}
+              </h2>
+              {!weekInfo.isCurrentWeek && (
                 <button
-                  key={key}
-                  onClick={() => setSelectedDate(day)}
-                  className={`flex flex-col items-center py-3 rounded-2xl transition-all duration-200 ${isSelected
-                    ? 'bg-[#0f7a6c] text-white shadow-md shadow-emerald-200/50'
-                    : isToday
-                      ? 'bg-emerald-50 dark:bg-emerald-900/20 text-[#0f7a6c] dark:text-emerald-400'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
-                    }`}
+                  type="button"
+                  onClick={handleCurrentWeek}
+                  className="text-xs font-bold text-[#00594C] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer"
                 >
-                  <span className={`text-[10px] font-medium mb-1 ${isSelected ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'}`}>
-                    {isRtl ? WEEK_DAYS_AR[day.getDay()].slice(0, 3) : WEEK_DAYS_EN[day.getDay()]}
-                  </span>
-                  <span className="text-base font-bold leading-none">{day.getDate()}</span>
-                  <span className={`mt-1.5 w-1.5 h-1.5 rounded-full ${hasData ? (isSelected ? 'bg-white/70' : 'bg-[#0f7a6c] dark:bg-emerald-400') : 'bg-transparent'}`} />
+                  {isRtl ? 'الأسبوع الحالي' : 'Current Week'}
                 </button>
-              );
-            })}
+              )}
+            </div>
+            {/* Left arrow in RTL */}
+            <button
+              type="button"
+              onClick={isRtl ? handlePrevWeek : handleNextWeek}
+              disabled={isRtl ? !weekInfo.previousWeekDate : !weekInfo.nextWeekDate}
+              aria-label="Navigate"
+              className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            </button>
           </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-          <div className="px-5 pt-5 pb-3 border-b border-slate-100 dark:border-slate-700">
-            <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200">
-              {isRtl ? `حصص يوم ${dayLabel}` : `Sessions — ${dayLabel}`}
-            </h2>
+          {/* 7 Days Row */}
+          {days.length > 0 && (
+            <div className="grid grid-cols-7 gap-2 sm:gap-3">
+              {days.map((dayItem, index) => {
+                const isSelected = selectedDayIndex === index;
+                const sessionsCount = dayItem.sessionsCount ?? dayItem.sessions?.length ?? 0;
+                const hasSessions = sessionsCount > 0;
+                const dayNum = getDayNumber(dayItem);
+                return (
+                  <button
+                    key={dayItem.date || index}
+                    type="button"
+                    onClick={() => setSelectedDayIndex(index)}
+                    className={`py-3 px-1 sm:py-4 sm:px-2 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer select-none ${
+                      isSelected
+                        ? 'bg-[#00594C] text-white shadow-md shadow-[#00594C]/25 scale-[1.02]'
+                        : 'bg-[#F8FAF9] dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-100/80 dark:border-slate-700/60'
+                    }`}
+                  >
+                    <span
+                      className={`text-[11px] sm:text-xs font-medium ${
+                        isSelected ? 'text-white/90' : 'text-slate-400 dark:text-slate-400'
+                      }`}
+                    >
+                      {dayItem.dayName || dayItem.day}
+                    </span>
+                    <span className="text-base sm:text-xl font-bold mt-1">
+                      {dayNum}
+                    </span>
+                    {/* Dot indicator for sessions */}
+                    <div className="h-2 flex items-center justify-center mt-2">
+                      {hasSessions ? (
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isSelected
+                              ? 'bg-white/80'
+                              : 'bg-[#00594C] dark:bg-emerald-400'
+                          }`}
+                        />
+                      ) : (
+                        <span className="w-1.5 h-1.5 opacity-0" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+        {/* Card 3: Selected Day Sessions Details */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
+          {/* Day Title */}
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <h3 className="text-lg sm:text-xl font-extrabold text-[#1E293B] dark:text-white text-start">
+              {formatDayHeading(selectedDay)}
+            </h3>
           </div>
-
-          {sessions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-              <div className="w-14 h-14 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-3">
-                <Calendar size={24} className="text-slate-400" />
+          {loading ? (
+            <div className="flex h-48 items-center justify-center">
+              <Spinner />
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="py-12 text-center space-y-3">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mx-auto">
+                <Calendar size={28} />
               </div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                {isRtl ? 'لا توجد حصص في هذا اليوم' : 'No sessions on this day'}
+              <h4 className="text-base font-bold text-slate-700 dark:text-slate-200">
+                {t('studentDashboard.schedule.noSessionsDay', 'لا توجد حصص مجدولة لهذا اليوم')}
+              </h4>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                {t('studentDashboard.schedule.selectAnotherDay', 'اختر يوماً آخر من الأسبوع لمشاهدة الحصص')}
               </p>
             </div>
           ) : (
-            <>
-              <div className="hidden sm:grid grid-cols-[1fr_2fr_1.5fr_1fr_1.2fr] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-700/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                <span>{isRtl ? 'الوقت' : 'Time'}</span>
-                <span>{isRtl ? 'المادة' : 'Subject'}</span>
-                <span>{isRtl ? 'المعلم' : 'Teacher'}</span>
-                <span>{isRtl ? 'الحالة' : 'Status'}</span>
-                <span>{isRtl ? 'الإجراء' : 'Action'}</span>
+            <div>
+              {/* Table Column Headers (Desktop/Tablet) */}
+              <div className="hidden md:grid grid-cols-12 items-center text-xs font-bold text-slate-500 dark:text-slate-400 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="col-span-3 text-start">
+                  {t('studentDashboard.schedule.time', 'الوقت')}
+                </div>
+                <div className="col-span-4 text-start">
+                  {t('studentDashboard.schedule.subject', 'المادة')}
+                </div>
+                <div className="col-span-2 text-start">
+                  {t('studentDashboard.schedule.teacher', 'المعلم')}
+                </div>
+                <div className="col-span-2 text-center">
+                  {t('studentDashboard.schedule.status', 'الحالة')}
+                </div>
+                <div className="col-span-1 text-end">
+                  {t('studentDashboard.schedule.action', 'الإجراء')}
+                </div>
               </div>
-
-              <div className="divide-y divide-slate-100 dark:divide-slate-700">
+              {/* Sessions Rows */}
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {sessions.map((session) => {
-                  const config = getStatusConfig(session.status);
+                  const groupName = typeof session.group === 'object'
+                    ? session.group?.name
+                    : (session.group || session.title);
+                  const teacherName = typeof session.teacher === 'object'
+                    ? session.teacher?.name
+                    : (session.teacher || '-');
+                  const teacherImage = typeof session.teacher === 'object'
+                    ? session.teacher?.image
+                    : null;
                   return (
                     <motion.div
                       key={session.id}
-                      initial={{ opacity: 0, x: isRtl ? 12 : -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_1.5fr_1fr_1.2fr] gap-3 sm:gap-4 items-center px-5 py-4"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="py-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors rounded-2xl px-2"
                     >
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                        <Clock size={14} className="text-[#0f7a6c] dark:text-emerald-400 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold">{session.startTime}</p>
-                          <p className="text-[10px] text-slate-400">- {session.endTime}</p>
+                      {/* Desktop Table View */}
+                      <div className="hidden md:grid grid-cols-12 items-center gap-2">
+                        {/* 1. Time */}
+                        <div className="col-span-3 text-start">
+                          <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
+                            <Clock size={16} className="text-[#00594C] dark:text-emerald-400 shrink-0" />
+                            <span>{session.timeRange || (session.durationMinutes ? `${session.durationMinutes} دقيقة` : '-')}</span>
+                          </div>
+                        </div>
+                        {/* 2. Subject / Group */}
+                        <div className="col-span-4 text-start">
+                          <div className="space-y-0.5">
+                            <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+                              {groupName}
+                            </h4>
+                            {session.title && session.title !== groupName && (
+                              <p className="text-xs text-slate-400 dark:text-slate-500 truncate">
+                                {session.title}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        {/* 3. Teacher */}
+                        <div className="col-span-2 text-start">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {teacherImage ? (
+                              <img
+                                src={teacherImage}
+                                alt=""
+                                className="w-7 h-7 rounded-full object-cover shrink-0"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              />
+                            ) : (
+                              <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-slate-400">
+                                <User size={15} />
+                              </div>
+                            )}
+                            <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                              {teacherName}
+                            </span>
+                          </div>
+                        </div>
+                        {/* 4. Status */}
+                        <div className="col-span-2 text-center">
+                          <div className="flex justify-center">
+                            {renderStatusBadge(session)}
+                          </div>
+                        </div>
+                        {/* 5. Action */}
+                        <div className="col-span-1 text-end flex justify-end">
+                          {renderActionButton(session)}
                         </div>
                       </div>
-
-                      <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{session.subject}</p>
-
-                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                        <User size={13} className="shrink-0" />
-                        <span className="text-xs font-medium">{session.teacher}</span>
-                      </div>
-
-                      <div>
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${config.badgeClass}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${config.dotClass} ${session.status === 'live' ? 'animate-pulse' : ''}`} />
-                          {isRtl ? config.label : config.labelEn}
-                        </span>
-                      </div>
-
-                      <div>
-                        {session.status === 'live' || session.status === 'upcoming' ? (
-                          <button className="flex items-center gap-1.5 bg-[#0f7a6c] hover:bg-[#0c6156] active:scale-95 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all duration-200 shadow-sm shadow-emerald-200/50">
-                            <Video size={13} />
-                            <span>{isRtl ? 'الانتقال إلى البث الآن' : 'Join Live'}</span>
-                          </button>
-                        ) : (
-                          <span className="text-xs text-slate-400 dark:text-slate-500">{isRtl ? 'انتهت الحصة' : 'Ended'}</span>
-                        )}
+                      {/* Mobile Card View */}
+                      <div className="md:hidden space-y-3 text-start">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1">
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                              {groupName}
+                            </h4>
+                            {session.title && session.title !== groupName && (
+                              <p className="text-xs text-slate-400 dark:text-slate-500">
+                                {session.title}
+                              </p>
+                            )}
+                          </div>
+                          <div>{renderStatusBadge(session)}</div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300 pt-1">
+                          <div className="flex items-center gap-1.5 font-bold">
+                            <Clock size={14} className="text-[#00594C] dark:text-emerald-400" />
+                            <span>{session.timeRange || '-'}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <User size={14} className="text-slate-400" />
+                            <span>{teacherName}</span>
+                          </div>
+                        </div>
+                        <div className="pt-2 flex justify-end">
+                          {renderActionButton(session)}
+                        </div>
                       </div>
                     </motion.div>
                   );
                 })}
               </div>
-            </>
+            </div>
           )}
-        </div>
+        </section>
       </motion.div>
     </div>
   );

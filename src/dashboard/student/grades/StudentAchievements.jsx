@@ -1,44 +1,70 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Award } from 'lucide-react';
+import { Award, Calendar, User, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
+import Spinner from '@/shared/components/Spinner';
 
-const badges = [
-  { id: 1, emoji: '✨', titleAr: 'نجم الأسبوع', titleEn: 'Star of the Week', descAr: 'أفضل أداء في الأسبوع الثاني على حارس', descEn: 'Best performance in the second week', student: 'سالم العبدلي', date: '22 نوفمبر 2025', bg: 'from-orange-400 to-orange-600' },
-  { id: 2, emoji: '📖', titleAr: 'طالب مجتهد', titleEn: 'Diligent Student', descAr: 'حضور 30 حصة متتالية بدون غياب', descEn: '30 consecutive sessions without absence', student: 'عبد الله محمد', date: '10 أغسطس 2024', bg: 'from-slate-500 to-slate-700' },
-  { id: 3, emoji: '⭐', titleAr: 'حافظ مميز', titleEn: 'Distinguished Memorizer', descAr: 'حفظ 5 سور بدون أخطاء', descEn: 'Memorized 5 Surahs without mistakes', student: 'عبد الله محمد', date: '5 ديسمبر 2025', bg: 'from-slate-400 to-slate-600' },
-  { id: 4, emoji: '🏆', titleAr: 'متقن التجويد', titleEn: 'Tajweed Master', descAr: 'إتمام 20 حصة تجويد بتقييم ممتاز', descEn: '20 Tajweed sessions with excellent rating', student: 'عمر السعيد', date: '10 أبريل 2024', bg: 'from-yellow-400 to-yellow-600' },
-  { id: 5, emoji: '📚', titleAr: 'محب العلم', titleEn: 'Knowledge Lover', descAr: 'المشاركة الفعّالة في جميع الحصص', descEn: 'Active participation in all sessions', student: 'يزيد البر', date: '2 يونيو 2026', bg: 'from-pink-500 to-rose-600' },
-  { id: 6, emoji: '🌟', titleAr: 'الطالب المثالي', titleEn: 'Ideal Student', descAr: 'التزام وأدب وحسن خلق', descEn: 'Commitment, discipline, and good character', student: 'سعود الهاشم', date: '13 مارس 2025', bg: 'from-teal-500 to-teal-700' },
-  { id: 7, emoji: '💎', titleAr: 'قارئ مميز', titleEn: 'Distinguished Reader', descAr: 'قراءة مشتبة بأحكام التجويد الصحيحة', descEn: 'Reading with correct Tajweed rules', student: 'عمر الغالبي', date: '14 يونيو 2026', bg: 'from-blue-500 to-blue-700' },
-  { id: 8, emoji: '🎯', titleAr: 'منجز الواجبات', titleEn: 'Assignment Achiever', descAr: 'إكمال 50 واجب بتقييم ممتاز', descEn: 'Completed 50 assignments with excellent rating', student: 'أحمد الناصر', date: '30 سبتمبر 2026', bg: 'from-purple-500 to-purple-700' },
-  { id: 9, emoji: '🌟', titleAr: 'الطالب المثالي', titleEn: 'Ideal Student', descAr: 'التزام وأدب وحسن خلق', descEn: 'Commitment and good character', student: 'ماجد عبد الله', date: '12 مارس 2025', bg: 'from-yellow-500 to-amber-600' },
-  { id: 10, emoji: '🏆', titleAr: 'متقن التجويد', titleEn: 'Tajweed Master', descAr: 'إتمام 20 حصة تجويد بتقييم ممتاز', descEn: '20 Tajweed sessions with excellent rating', student: 'عبد الرحمن إبراهيم', date: '7 مارس 2025', bg: 'from-emerald-500 to-emerald-700' },
-  { id: 11, emoji: '🎯', titleAr: 'منجز الواجبات', titleEn: 'Assignment Achiever', descAr: 'إكمال 50 واجب بتقييم ممتاز', descEn: 'Completed 50 assignments with excellent rating', student: 'عبد العزيز صالح', date: '25 يونيو 2026', bg: 'from-violet-500 to-violet-700' },
-  { id: 12, emoji: '🏆', titleAr: 'متقن التجويد', titleEn: 'Tajweed Master', descAr: 'إتمام 20 حصة تجويد بتقييم ممتاز', descEn: '20 Tajweed sessions with excellent rating', student: 'طلال منصور', date: '1 ديسمبر 2024', bg: 'from-cyan-500 to-cyan-700' },
-];
+function RewardCard({ reward, isRtl, index }) {
+  const teacherName = reward.teacher?.name || '-';
+  const assignedDate = reward.assignedAt
+    ? new Date(reward.assignedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : '';
 
-function BadgeCard({ badge, isRtl, index }) {
+  const bgColor = reward.backgroundColor || '#0f7a6c';
+
   return (
     <motion.div
-      variants={{ hidden: { opacity: 0, scale: 0.9 }, visible: { opacity: 1, scale: 1, transition: { delay: index * 0.05, duration: 0.35, ease: 'easeOut' } } }}
-      whileHover={{ y: -3, scale: 1.02 }}
-      className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col"
+      variants={{
+        hidden: { opacity: 0, scale: 0.94 },
+        visible: { opacity: 1, scale: 1, transition: { delay: index * 0.05, duration: 0.35, ease: 'easeOut' } },
+      }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700 flex flex-col text-start"
     >
-      <div className={`h-28 bg-gradient-to-br ${badge.bg} flex items-center justify-center`}>
-        <span className="text-5xl drop-shadow-md">{badge.emoji}</span>
+      <div
+        className="h-32 flex items-center justify-center relative overflow-hidden"
+        style={{
+          background: bgColor.startsWith('#')
+            ? `linear-gradient(135deg, ${bgColor}, ${bgColor}dd)`
+            : bgColor,
+        }}
+      >
+        <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-3xl shadow-md text-white">
+          {reward.icon && (reward.icon.startsWith('http') || reward.icon.startsWith('/')) ? (
+            <img src={reward.icon} alt="" className="w-10 h-10 object-contain" />
+          ) : (
+            <span>{reward.icon || '🏆'}</span>
+          )}
+        </div>
       </div>
 
-      <div className="p-3.5 flex flex-col flex-1" dir={isRtl ? 'rtl' : 'ltr'}>
-        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 text-end mb-1">
-          {isRtl ? badge.titleAr : badge.titleEn}
+      <div className="p-5 flex flex-col flex-1" dir={isRtl ? 'rtl' : 'ltr'}>
+        <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-1.5">
+          {reward.name}
         </h3>
-        <p className="text-[10px] text-slate-500 dark:text-slate-400 text-end leading-snug mb-3">
-          {isRtl ? badge.descAr : badge.descEn}
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-1">
+          {reward.description}
         </p>
-        <div className="mt-auto flex items-center justify-end gap-1.5 text-[10px] text-slate-400 dark:text-slate-500">
-          <span>{badge.date}</span>
-          <span>·</span>
-          <span className="font-medium text-slate-600 dark:text-slate-300">{badge.student}</span>
+
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 truncate">
+            {reward.teacher?.image ? (
+              <img src={reward.teacher.image} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
+            ) : (
+              <User size={13} className="shrink-0" />
+            )}
+            <span className="truncate font-medium text-slate-600 dark:text-slate-300">{teacherName}</span>
+          </div>
+          {assignedDate && (
+            <span className="text-[11px] shrink-0" dir="ltr">
+              {assignedDate}
+            </span>
+          )}
         </div>
       </div>
     </motion.div>
@@ -46,39 +72,82 @@ function BadgeCard({ badge, isRtl, index }) {
 }
 
 export default function StudentAchievements() {
-  const { i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
+
+  const [loading, setLoading] = useState(true);
+  const [rewards, setRewards] = useState([]);
+
+  useEffect(() => {
+    async function loadRewards() {
+      try {
+        setLoading(true);
+        const res = await studentPortalApi.fetchRewards();
+        const raw = res?.data || res || [];
+        setRewards(Array.isArray(raw) ? raw : []);
+      } catch (err) {
+        console.warn('Could not load student rewards:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadRewards();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6 max-w-7xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className=" space-y-5">
-
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-xl">
-            <span className="text-xs text-slate-500 dark:text-slate-400">{isRtl ? 'إجمالي الأوسمة' : 'Total Badges'}</span>
-            <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100">{badges.length}</span>
-          </div>
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto space-y-6"
+      >
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-start">
+            <div className="w-14 h-14 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-500">
+              <Award size={28} />
+            </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 text-end">{isRtl ? 'الانجازات والأوسمة' : 'Achievements & Badges'}</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 text-end mt-0.5">{isRtl ? 'بطاقات الأكاديمية بانجاز و إنجازاتك' : 'Your academy achievements and badges'}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">
+                {t('studentDashboard.rewards.title', 'سجل الإنجازات والأوسمة')}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                {t('studentDashboard.rewards.subtitle', 'الأوسمة والشهادات التقديرية الممنوحة لك من المعلمين')}
+              </p>
             </div>
-            <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center shrink-0">
-              <Award size={20} className="text-amber-500" />
-            </div>
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-3 text-center self-start sm:self-auto">
+            <span className="text-xs text-slate-400">{t('studentDashboard.rewards.total', 'إجمالي الأوسمة')}</span>
+            <p className="text-2xl font-black text-amber-500 mt-0.5">{rewards.length}</p>
           </div>
         </div>
 
-        <motion.div
-          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04 } } }}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
-        >
-          {badges.map((b, i) => (
-            <BadgeCard key={b.id} badge={b} isRtl={isRtl} index={i} />
-          ))}
-        </motion.div>
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Spinner />
+          </div>
+        ) : rewards.length === 0 ? (
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-700 space-y-3">
+            <Award size={36} className="text-slate-300 dark:text-slate-600 mx-auto" />
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">
+              {t('studentDashboard.rewards.empty', 'لا توجد أوسمة ممنوحة حتى الآن')}
+            </h3>
+            <p className="text-xs text-slate-400">
+              {t('studentDashboard.rewards.keepUp', 'استمر في الاجتهاد وحضور الحصص للحصول على الأوسمة التقديرية')}
+            </p>
+          </div>
+        ) : (
+          <motion.div
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04 } } }}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          >
+            {rewards.map((reward, i) => (
+              <RewardCard key={reward.id || i} reward={reward} isRtl={isRtl} index={i} />
+            ))}
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );

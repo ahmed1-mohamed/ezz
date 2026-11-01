@@ -1,5 +1,10 @@
+import api from './axiosConfig';
+
 export const formatRewardIcon = (icon) => {
   if (!icon) return '🎁';
+  if (typeof icon === 'object' && icon !== null) {
+    icon = icon.ar || icon.en || icon.icon || icon.emoji || '';
+  }
   const clean = String(icon).trim();
   const lower = clean.toLowerCase();
   const map = {
@@ -17,31 +22,15 @@ export const formatRewardIcon = (icon) => {
 };
 
 export const adminRewardsApi = {
-  fetchStats: async () => {
-    try {
-      const response = await api.get('/api/v1/admin/rewards/stats');
-      return response.data;
-    } catch (error) {
-      console.error('API fetchStats failed:', error);
-      return {
-        success: false,
-        data: {
-          totalRewards: 0,
-          totalSuggestions: 0,
-          approvedCount: 0,
-          pendingCount: 0,
-          rejectedCount: 0,
-          totalAchievements: 0,
-        }
-      };
-    }
-  },
+
 
   createReward: async (data) => {
     try {
+      const nameVal = data.name;
+      const descVal = data.description;
       const payload = {
-        name: { ar: data.name, en: data.nameEn || data.name },
-        description: { ar: data.description, en: data.descriptionEn || data.description },
+        name: typeof nameVal === 'object' ? nameVal : { ar: nameVal, en: data.nameEn || nameVal },
+        description: typeof descVal === 'object' ? descVal : { ar: descVal, en: data.descriptionEn || descVal },
         icon: formatRewardIcon(data.emoji || data.icon || '⭐'),
         backgroundColor: data.bgColor || data.backgroundColor || '#4CAF50'
       };
@@ -55,9 +44,11 @@ export const adminRewardsApi = {
 
   updateReward: async (id, data) => {
     try {
+      const nameVal = data.name;
+      const descVal = data.description;
       const payload = {
-        name: { ar: data.name, en: data.nameEn || data.name },
-        description: { ar: data.description, en: data.descriptionEn || data.description },
+        name: typeof nameVal === 'object' ? nameVal : { ar: nameVal, en: data.nameEn || nameVal },
+        description: typeof descVal === 'object' ? descVal : { ar: descVal, en: data.descriptionEn || descVal },
         icon: formatRewardIcon(data.emoji || data.icon || '⭐'),
         backgroundColor: data.bgColor || data.backgroundColor || '#4CAF50'
       };
@@ -82,7 +73,8 @@ export const adminRewardsApi = {
   fetchRewardById: async (id) => {
     try {
       const response = await api.get(`/api/v1/rewards/private/${id}`);
-      let rewardData = response.data.data || response.data;
+      const raw = response.data;
+      let rewardData = raw?.data || raw?.reward || raw;
       if (Array.isArray(rewardData)) {
         rewardData = rewardData[0];
       }
@@ -139,15 +131,31 @@ export const adminRewardsApi = {
     }
   },
 
-  approveSuggestion: async (id) => {
+  approveSuggestion: async (id, suggestion = null) => {
     try {
+      const payload = {};
+      if (suggestion) {
+        const rawIcon = suggestion.icon || suggestion.emoji;
+        if (rawIcon) {
+          payload.icon = formatRewardIcon(rawIcon);
+        }
+        if (suggestion.backgroundColor || suggestion.bgColor) {
+          payload.backgroundColor = suggestion.backgroundColor || suggestion.bgColor;
+        }
+        if (suggestion.name) {
+          payload.name = suggestion.name;
+        }
+        if (suggestion.description) {
+          payload.description = suggestion.description;
+        }
+      }
       const candidates = [
-        () => api.patch(`/api/v1/suggested-rewards/private/accept/${id}`, {}, { skipLang: true }),
-        () => api.patch(`/api/v1/suggested-rewards/private/approve/${id}`, {}, { skipLang: true }),
-        () => api.patch(`/api/v1/suggested-rewards/private/${id}/accept`, {}, { skipLang: true }),
-        () => api.patch(`/api/v1/suggested-rewards/private/${id}`, { status: 'accepted' }, { skipLang: true }),
-        () => api.put(`/api/v1/suggested-rewards/private/accept/${id}`, {}, { skipLang: true }),
-        () => api.post(`/api/v1/suggested-rewards/private/accept/${id}`, {}, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/accept/${id}`, payload, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/approve/${id}`, payload, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/${id}/accept`, payload, { skipLang: true }),
+        () => api.patch(`/api/v1/suggested-rewards/private/${id}`, { status: 'accepted', ...payload }, { skipLang: true }),
+        () => api.put(`/api/v1/suggested-rewards/private/accept/${id}`, payload, { skipLang: true }),
+        () => api.post(`/api/v1/suggested-rewards/private/accept/${id}`, payload, { skipLang: true }),
       ];
       let lastErr = null;
       for (const reqFn of candidates) {

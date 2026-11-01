@@ -121,8 +121,12 @@ export default function TeacherEvaluations() {
   });
 
   const sessionsList = useMemo(() => {
-    const groupData = groupDetailsRes?.data || groupDetailsRes || {};
-    const groupSessions = groupData.sessionsHistory || groupData.sessions || [];
+    const groupData = groupDetailsRes?.data?.group || groupDetailsRes?.data || groupDetailsRes || {};
+    const groupSessions =
+      groupData.sessionsHistory ||
+      groupData.completedSessions ||
+      groupData.sessions ||
+      [];
     let list = [];
 
     if (Array.isArray(groupSessions) && groupSessions.length > 0) {
@@ -147,7 +151,7 @@ export default function TeacherEvaluations() {
   }, [selectedSessionId, sessionsList]);
 
   const studentsList = useMemo(() => {
-    const groupData = groupDetailsRes?.data || groupDetailsRes || {};
+    const groupData = groupDetailsRes?.data?.group || groupDetailsRes?.data || groupDetailsRes || {};
     const students = groupData.students || [];
 
     if (Array.isArray(students) && students.length > 0) {
@@ -354,7 +358,11 @@ export default function TeacherEvaluations() {
       <EvaluationSelectionCard
         groupsList={groupsList}
         activeGroupId={activeGroupId}
-        onSelectGroup={setSelectedGroupId}
+        onSelectGroup={(newGroupId) => {
+          setSelectedGroupId(newGroupId);
+          setSelectedSessionId('');
+          setSelectedStudentId('');
+        }}
         isLoadingGroups={isLoadingGroups}
         sessionsList={sessionsList}
         activeSessionId={activeSessionId}

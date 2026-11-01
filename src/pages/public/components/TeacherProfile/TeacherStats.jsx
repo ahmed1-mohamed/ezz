@@ -22,7 +22,7 @@ export default function TeacherStats({ stats = {}, t }) {
                         </div>
                         <span className="font-bold text-lg">{t('teacherProfile.statsStudents', 'عدد الطلاب')}</span>
                     </div>
-                    <span className="font-bold text-xl" dir="ltr">{safeStats.studentsCount || '100+'}</span>
+                    <span className="font-bold text-xl" dir="ltr">{safeStats.studentsCount || '0'}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-white border-b border-white/10 pb-4">
@@ -32,7 +32,7 @@ export default function TeacherStats({ stats = {}, t }) {
                         </div>
                         <span className="font-bold text-lg">{t('teacherProfile.statsSessions', 'إجمالي الحصص')}</span>
                     </div>
-                    <span className="font-bold text-xl" dir="ltr">{safeStats.sessionsCount || '500+'}</span>
+                    <span className="font-bold text-xl" dir="ltr">{safeStats.sessionsCount || '0'}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-white">
@@ -42,7 +42,7 @@ export default function TeacherStats({ stats = {}, t }) {
                         </div>
                         <span className="font-bold text-lg">{t('teacherProfile.statsExp', 'سنوات الخبرة')}</span>
                     </div>
-                    <span className="font-bold text-xl">{safeStats.experience || '10 سنوات خبرة'}</span>
+                    <span className="font-bold text-xl">{safeStats.experience || t('teacherProfile.notSpecified', 'غير محدد')}</span>
                 </div>
             </div>
         </motion.div>

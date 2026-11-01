@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import { Play } from 'lucide-react';
+import { Play, Clock, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export default memo(function TeacherNextSessionCard({ nextSession }) {
   const { t } = useTranslation();
 
-  if (!nextSession || !nextSession.title) {
+  if (!nextSession || (!nextSession.title && !nextSession.group)) {
     return (
       <div className="bg-[#00594C] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4">
         <div className="text-start space-y-1">
@@ -21,24 +21,34 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
     );
   }
 
-  const title = nextSession.title;
+  const title = nextSession.title || '';
   const group = nextSession.group ? String(nextSession.group) : '';
+  const timeStr = nextSession.timeStr || nextSession.time || '';
   const countdown = nextSession.countdown || '0:00';
   const countdownUnit = nextSession.countdownUnit || '';
 
   return (
     <div className="bg-[#00594C] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4">
-      {/* Top: Header & Subtitle */}
-      <div className="text-start space-y-1">
+      {/* Top: Header & Details */}
+      <div className="text-start space-y-1.5">
         <h3 className="font-black text-base text-white">
           {t('teacherDashboard.nextSession', 'الجلسة التالية')}
         </h3>
-        <p className="text-xs text-emerald-100 font-semibold truncate" title={title}>
-          {title}
-        </p>
+        {title && (
+          <p className="text-xs text-white font-bold truncate" title={title}>
+            {title}
+          </p>
+        )}
         {group && (
-          <p className="text-[11px] text-emerald-200/90 font-medium truncate" title={group}>
-            {group}
+          <p className="text-xs text-emerald-100 font-semibold flex items-center gap-1.5 truncate" title={group}>
+            <BookOpen size={13} className="text-emerald-300 shrink-0" />
+            <span>{group}</span>
+          </p>
+        )}
+        {timeStr && (
+          <p className="text-[11px] text-emerald-200 font-medium flex items-center gap-1.5">
+            <Clock size={12} className="text-emerald-300 shrink-0" />
+            <span>{timeStr}</span>
           </p>
         )}
       </div>

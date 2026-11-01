@@ -1,29 +1,31 @@
 import { useMemo } from 'react'
 import { Shield } from 'lucide-react'
-import { PERMISSIONS_LIST } from '@/shared/permissions.constant'
+import { SYSTEM_PERMISSIONS } from '../constants'
+import { expandPermissionKeys } from '@/shared/utils/permissionUtils'
 
 export default function EditGrantedPermissionsCard({
   supervisorPermissions = [],
   isRtl
 }) {
-
   const categories = useMemo(() => {
     const items = []
-    const rawPerms = supervisorPermissions || []
-    const activeKeys = rawPerms.map(p => (typeof p === 'object' && p !== null ? (p.key || p.name || p._id || '') : String(p)))
+    const rawPerms = Array.isArray(supervisorPermissions) ? supervisorPermissions : []
+    const initialKeys = rawPerms.map(p => (typeof p === 'object' && p !== null ? (p.key || p.name || p.id || p._id || '') : String(p))).filter(Boolean)
+    const activeKeys = expandPermissionKeys(initialKeys)
 
-    Object.values(PERMISSIONS_LIST).forEach(module => {
+    SYSTEM_PERMISSIONS.forEach(module => {
       const activeTags = []
 
       module.actions.forEach(action => {
-        if (activeKeys.includes(action.key)) {
-          activeTags.push(isRtl ? action.label.ar : action.label.en)
+        const isMatch = activeKeys.has(action.key) || (action.aliases && action.aliases.some(a => activeKeys.has(a)))
+        if (isMatch) {
+          activeTags.push(isRtl ? action.labelAr : action.labelEn)
         }
       })
 
       if (activeTags.length > 0) {
         items.push({
-          title: isRtl ? module.name.ar : module.name.en,
+          title: isRtl ? module.titleAr : module.titleEn,
           tags: activeTags
         })
       }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import imageSrc from '../../images/programs/7.webp';
+import heroImg from '@/images/curriculums/education-hero.svg'
 import CurriculumUnits from '@/shared/components/CurriculumUnits.jsx'
 import CurriculumsCTA from '@/shared/components/CurriculumsCTA.jsx'
 
@@ -29,46 +29,41 @@ export default React.memo(function Curriculums() {
         <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
             <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
 
-                <section className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white dark:bg-slate-900/90 dark:border-slate-800 p-6 sm:p-12 lg:p-16 shadow-sm">
-                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 text-start">
+                <section className="overflow-hidden rounded-3xl sm:rounded-[40px] border border-slate-200/60 bg-[#EBF2F0] dark:bg-slate-900/90 dark:border-slate-800 p-6 sm:p-10 lg:p-12 xl:p-16 shadow-xs">
+                    <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 lg:gap-12 xl:gap-16">
                         <motion.div
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
-                            className="order-2 lg:order-1 max-w-3xl space-y-8 flex-1 flex flex-col items-center text-center lg:items-start lg:text-start"
+                            className="flex-1 max-w-2xl space-y-6 flex flex-col items-start text-start"
                         >
-                            <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-4 py-2 text-sm font-bold text-white shadow-sm">
+                            <motion.div variants={itemVariants} className="inline-flex items-center rounded-full bg-[#735C00] px-4 py-1.5 text-xs sm:text-sm font-bold text-white shadow-xs">
                                 {t('curriculum.badge', 'رحلة المعرفة')}
                             </motion.div>
 
-                            <motion.div variants={itemVariants} className="space-y-4">
-                                <h1 className="bg-gradient-to-r from-[#00695C] to-[#004D40] dark:from-emerald-400 dark:to-emerald-600 bg-clip-text text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.4] py-2 text-transparent overflow-visible">
-                                    <span className="block">{t('curriculum.titleLine1', 'مناهج تعليمية')}</span>
-                                    <span className="block pt-2">{t('curriculum.titleLine2', 'تنير البصيرة وتسمو بالروح')}</span>
+                            <motion.div variants={itemVariants} className="space-y-2">
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#005247] dark:text-emerald-400 leading-[1.3] tracking-tight">
+                                    <span className="block">{t('curriculum.titleLine1', 'مناهج تعليمية شاملة')}</span>
+                                    <span className="block">{t('curriculum.titleLine2', 'لفهم أعمق وتعلّم متكامل')}</span>
                                 </h1>
                             </motion.div>
 
-                            <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl font-medium">
-                                {t('curriculum.description', 'نقدم محتوى تعليمي متخصص مصمم بأحدث الأساليب التربوية لغرس القيم وبناء جيل متسلح بالعلم والإيمان')}
+                            <motion.p variants={itemVariants} className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-xl">
+                                {t('curriculum.description', 'نقدم مناهج تعليمية شاملة تجمع مختلف المواد الدراسية بشرح مبسط ومترابط، لبناء معرفة متكاملة تدعم فهم الطلاب وتفوقهم.')}
                             </motion.p>
                         </motion.div>
 
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, x: isRtl ? 40 : -40 }}
-                            animate={{ opacity: 1, scale: 1, x: 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-                            className="order-1 lg:order-2 flex justify-center flex-1"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                            className="flex-1 flex justify-center items-center w-full max-w-lg lg:max-w-xl"
                         >
-                            <div className="relative w-full max-w-lg">
-                                <div className="absolute z-0 inset-0 -m-8 rounded-full bg-[#FEF6E0] dark:bg-[#00695C]/20 blur-3xl mix-blend-multiply dark:mix-blend-screen" />
-                                <motion.div
-                                    animate={{ y: [0, -15, 0] }}
-                                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                                    className="relative z-10 overflow-hidden rounded-[2rem] border-8 border-white bg-white dark:border-slate-800 dark:bg-slate-900 shadow-2xl"
-                                >
-                                    <img src={imageSrc} alt="Curriculums" className="w-full h-64 sm:h-80 lg:h-[400px] object-cover" />
-                                </motion.div>
-                            </div>
+                            <img
+                                src={heroImg}
+                                alt={t('curriculum.badge', 'رحلة المعرفة')}
+                                className="w-full h-auto object-contain drop-shadow-md select-none pointer-events-none"
+                            />
                         </motion.div>
                     </div>
                 </section>

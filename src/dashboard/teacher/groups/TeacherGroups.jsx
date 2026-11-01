@@ -9,26 +9,44 @@ import TeacherGroupCard from './components/TeacherGroupCard.jsx';
 import TeacherGroupsEmptyState from './components/TeacherGroupsEmptyState.jsx';
 
 function getGroupTypeLabel(group, t) {
-  const raw = (group?.type || '').toLowerCase();
-  if (raw === 'private' || raw.includes('خاص') || raw === 'individual' || raw.includes('فردي')) {
-    return t('teacherDashboard.private', 'خاص');
+  const raw = String(group?.type || '').toLowerCase();
+  const isPriv = group?.isPrivate === true ||
+    raw === 'private' ||
+    raw.includes('خاص') ||
+    raw === 'individual' ||
+    raw.includes('فردي') ||
+    group?.maxStudents === 1;
+  if (isPriv) {
+    return t ? t('teacherDashboard.private', 'خاصة') : 'خاصة';
   }
-  return t('teacherDashboard.public', 'عام');
+  return t ? t('teacherDashboard.public', 'عامة') : 'عامة';
 }
 
 function getGroupLevelLabel(group, isRtl = true) {
-  const levelObj = group?.studentLevel || group?.level;
-  if (!levelObj) return isRtl ? 'المستوى الأول' : 'Level 1';
+  const levelObj = group?.studentLevel || group?.level || group?.curriculum?.studentLevel || group?.stage;
+  if (!levelObj) return '-';
+  if (typeof levelObj === 'string') {
+    if (/^[a-fA-F0-9]{24}$/.test(levelObj)) {
+      if (group?.curriculum?.studentLevel?.name) {
+        const cLevel = group.curriculum.studentLevel.name;
+        return typeof cLevel === 'object' ? (isRtl ? cLevel.ar || cLevel.en : cLevel.en || cLevel.ar) : cLevel;
+      }
+      return '-';
+    }
+    return levelObj;
+  }
   if (typeof levelObj === 'object' && levelObj !== null) {
     if (levelObj.name) {
       if (typeof levelObj.name === 'object' && levelObj.name !== null) {
-        return isRtl ? (levelObj.name.ar || levelObj.name.en || 'المستوى الأول') : (levelObj.name.en || levelObj.name.ar || 'Level 1');
+        return isRtl ? (levelObj.name.ar || levelObj.name.en || '-') : (levelObj.name.en || levelObj.name.ar || '-');
       }
       return levelObj.name;
     }
-    return isRtl ? (levelObj.ar || levelObj.en || 'المستوى الأول') : (levelObj.en || levelObj.ar || 'Level 1');
+    if (levelObj.ar || levelObj.en) {
+      return isRtl ? (levelObj.ar || levelObj.en) : (levelObj.en || levelObj.ar);
+    }
   }
-  return String(levelObj);
+  return '-';
 }
 
 function formatSchedule(group) {

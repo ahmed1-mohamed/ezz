@@ -27,13 +27,11 @@ export default function TeacherProfile() {
                 const res = await teachersApi.fetchPublicTeacherById(id)
                 const realData = res?.data
 
-                const fallbackImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&h=600&auto=format&fit=crop"
-
-                const teacherData = {
+                                const teacherData = {
                     id: realData?.teacher_id || realData?.id || id,
                     name: realData?.name || '',
                     title: realData?.degree || realData?.title || '',
-                    image: realData?.image || fallbackImage,
+                    image: realData?.image || realData?.imageUrl || realData?.avatar || realData?.photo || realData?.photoUrl || realData?.profileImage || realData?.user?.photoUrl || realData?.user?.image || null,
                     rating: realData?.rating && Number(realData.rating) > 0 ? Number(realData.rating).toFixed(1) : '5.0',
                     reviewsCount: realData?.reviewsCount || realData?.ratingsCount || 0,
                     experience: realData?.yearsOfExperience !== undefined ? `${realData.yearsOfExperience} ${t('teacher.yearsExperience', 'سنوات خبرة')}` : '',

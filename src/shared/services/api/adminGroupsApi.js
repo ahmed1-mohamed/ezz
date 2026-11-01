@@ -57,14 +57,29 @@ export const adminGroupsApi = {
 
   updateGroup: async (id, groupData) => {
     const cleanData = {};
-    if (groupData.name !== undefined) cleanData.name = groupData.name;
-    if (groupData.image !== undefined) cleanData.image = groupData.image;
-    if (groupData.country !== undefined) cleanData.country = groupData.country;
+    if (groupData.name !== undefined) {
+      cleanData.name = typeof groupData.name === 'object' && groupData.name !== null
+        ? {
+            ar: groupData.name.ar || groupData.nameAr || '',
+            en: groupData.name.en || groupData.nameEn || '',
+          }
+        : groupData.name;
+    }
+    if (groupData.image !== undefined && groupData.image) cleanData.image = groupData.image;
+    if (groupData.country !== undefined && groupData.country) cleanData.country = groupData.country;
     if (groupData.maxStudents !== undefined || groupData.max_students !== undefined) {
       cleanData.maxStudents = Number(groupData.maxStudents || groupData.max_students);
     }
-    if (groupData.startDate) cleanData.startDate = groupData.startDate;
-    if (groupData.endDate) cleanData.endDate = groupData.endDate;
+    const start = groupData.startTime || groupData.startDate;
+    const end = groupData.endTime || groupData.endDate;
+    if (start) {
+      cleanData.startDate = start;
+      cleanData.startTime = start;
+    }
+    if (end) {
+      cleanData.endDate = end;
+      cleanData.endTime = end;
+    }
 
     try {
       const response = await api.patch(`/api/v1/groups/private/${id}`, cleanData);
@@ -114,27 +129,35 @@ export const adminGroupsApi = {
   },
 
   changeTeacher: async (groupId, payload) => {
-    const teacherId = typeof payload === 'string'
+    const cleanGroupId = typeof groupId === 'object' && groupId !== null
+      ? (groupId.id || groupId._id)
+      : groupId;
+
+    const cleanTeacherId = typeof payload === 'string'
       ? payload
       : (payload?.teacherId || payload?.teacher || payload?.id || payload?._id);
 
-    try {
-      const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, { teacherId });
-      return response.data;
-    } catch (err1) {
+    const attempts = [
+      () => api.patch(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
+      () => api.patch(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacher: cleanTeacherId }),
+      () => api.post(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
+      () => api.post(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacher: cleanTeacherId }),
+      () => api.put(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
+      () => api.patch(`/api/v1/groups/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
+      () => api.patch(`/api/v1/groups/private/${cleanGroupId}`, { teacher: cleanTeacherId }),
+      () => api.put(`/api/v1/groups/private/${cleanGroupId}`, { teacher: cleanTeacherId }),
+    ];
+
+    let lastError = null;
+    for (const attempt of attempts) {
       try {
-        const res2 = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, { teacher: teacherId });
-        return res2.data;
-      } catch (err2) {
-        try {
-          const res3 = await api.put(`/api/v1/groups/private/${groupId}/change-teacher`, { teacherId });
-          return res3.data;
-        } catch (err3) {
-          const res4 = await api.put(`/api/v1/groups/private/${groupId}/change-teacher`, { teacher: teacherId });
-          return res4.data;
-        }
+        const response = await attempt();
+        return response.data;
+      } catch (err) {
+        lastError = err;
       }
     }
+    throw lastError;
   },
 
   updateGroupSchedule: async (groupId, payload) => {

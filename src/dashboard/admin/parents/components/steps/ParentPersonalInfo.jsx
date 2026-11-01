@@ -103,7 +103,7 @@ export default function ParentPersonalInfo({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'ملاحظات' : 'Notes'}
+            {isRtl ? 'رقم الهاتف' : 'Phone Number'}
           </label>
           <div className="flex gap-2" dir="ltr">
             <div className="relative shrink-0">

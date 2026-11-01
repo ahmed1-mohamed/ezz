@@ -145,12 +145,16 @@
   },
   "teacher": {
     "viewProfile": "View Profile",
+    "jobTitle": "Certified Teacher",
+    "certified": "Accredited",
+    "remote": "Remote",
+    "onlineTeaching": "Online Teaching",
+    "onlinePlatform": "Online Platform",
     "names": {
       "1": "Dr. Ahmed Al-Mansouri",
       "2": "Dr. Khalid Al-Shamsi",
       "3": "Dr. Youssef Al-Harbi"
     },
-    "jobTitle": "Certified in the Ten Qira'at",
     "subject1": "Holy Quran",
     "subject2": "Arabic Language",
     "level1": "Beginner",
@@ -852,7 +856,7 @@
     "subtitle": "Transparent Pricing",
     "title": "Choose Your Plan",
     "description": "Choose the perfect plan for your educational journey.",
-    "cta": "Start Now",
+    "cta": "Get Started",
     "faqTitle": "Have Questions?",
     "faqText": "Contact our support team for more details on pricing and available options.",
     "contactCta": "Contact Sales",
@@ -896,7 +900,13 @@
           "API access"
         ]
       }
-    }
+    },
+    "sessionsPerMonth": "sessions / month",
+    "sessions": "sessions",
+    "minutes": "min",
+    "discount": "Discount",
+    "discountBadge": "Off",
+    "originalPrice": "Original price:"
   },
   "curriculums": {
     "subtitle": "Our Learning Pathways",
@@ -931,18 +941,97 @@
   },
   "curriculum": {
     "badge": "Journey of Knowledge",
-    "titleLine1": "Educational Curriculums",
-    "titleLine2": "Enlighten the Insight and Elevate the Soul",
-    "description": "We offer specialized educational content designed with the latest pedagogical methods to instill values and build a generation armed with knowledge and faith",
+    "titleLine1": "Comprehensive Educational Curricula",
+    "titleLine2": "For Deeper Understanding & Integrated Learning",
+    "description": "We provide comprehensive educational curricula bringing together various academic subjects with simplified and cohesive explanations, building integrated knowledge that supports student understanding and excellence.",
+    "coreValues": {
+      "title": "Our Core Values",
+      "v1": {
+        "title": "Scientific Integrity",
+        "desc": "Transferring knowledge with connected authenticity and rigorous methodology preserving heritage."
+      },
+      "v2": {
+        "title": "Gentleness & Compassion",
+        "desc": "Teaching with love and encouragement following the noble pedagogical approach."
+      },
+      "v3": {
+        "title": "Facilitation & Inclusiveness",
+        "desc": "Making knowledge accessible to all regardless of distance and circumstances."
+      }
+    },
+    "comprehensiveness": {
+      "mainTitle": "Comprehensive Educational Curricula",
+      "coverage": {
+        "title": "Comprehensive Curriculum Coverage",
+        "subtitle": "Covering all essential subjects, focusing on lesson comprehension, exercises, and reviews to prepare students with confidence.",
+        "lessonExplanation": {
+          "title": "Lesson Explanations",
+          "desc": "Starting from fundamentals, explaining concepts simply and clearly with practical examples."
+        },
+        "exercises": {
+          "title": "Exercises & Practice",
+          "desc": "Applying knowledge through diverse exercises to reinforce skills and retain information."
+        },
+        "reviews": {
+          "title": "Periodic Reviews",
+          "desc": "Tracking progress systematically with regular reviews to boost retention and exam readiness."
+        }
+      },
+      "stages": {
+        "title": "Diverse Educational Stages",
+        "subtitle": "Covering different stages with tailored depth and methodology according to each stage's needs.",
+        "primary": {
+          "title": "Primary Stage",
+          "desc": "Focusing on solid foundations and fundamental concepts and rules."
+        },
+        "preparatory": {
+          "title": "Preparatory Stage",
+          "desc": "Deepening comprehension and applying concepts to more advanced problem-solving."
+        },
+        "secondary": {
+          "title": "Secondary Stage",
+          "desc": "Focusing on exam preparation, analytical reasoning, and critical thinking."
+        }
+      },
+      "subjects": {
+        "math": {
+          "title": "Mathematics",
+          "desc": "Focusing on core concepts and operations with interactive and accessible problem-solving."
+        },
+        "science": {
+          "title": "Science",
+          "desc": "Connecting theory and experiments to nurture scientific inquiry and understanding of nature."
+        },
+        "languages": {
+          "title": "Languages",
+          "desc": "Developing reading, writing, and speaking skills with focus on comprehension and communication."
+        },
+        "social": {
+          "title": "Social Studies",
+          "desc": "Connecting history, geography, and citizenship to build a holistic worldview and cultural appreciation."
+        }
+      }
+    },
     "cta": {
       "title": "Are you ready to start your journey?",
       "desc": "Join over 5,000 students enjoying a unique educational experience.",
-      "button": "Register Now for Free"
+      "btn": "Register Now for Free"
     }
   },
   "curriculumUnits": {
-    "mainTitle": "Educational Units",
-    "badgeCount": "12 Study Units",
+    "mainTitle": "Choose Your Educational Curriculum",
+    "badgeCount": "Journey of Knowledge & Faith",
+    "certifiedCurriculum": "Certified Curriculum",
+    "highQuality": "High Educational Quality",
+    "overview": "Overview",
+    "interactiveFeature": "Interactive Feature",
+    "graduationBenefit": "Graduation Benefit",
+    "studyLevels": "Study Levels & Units",
+    "levels": "Levels",
+    "units": "Units",
+    "noUnits": "No units added yet",
+    "showLess": "Show Less",
+    "showMore": "Show More",
     "tabs": {
       "quran": "Holy Quran",
       "arabic": "Arabic Language",
@@ -954,7 +1043,7 @@
         "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
       },
       "feat1": {
-        "title": "Certified Certificate",
+        "title": "Accredited Certificate",
         "desc": "Upon completing each part"
       },
       "feat2": {
@@ -1124,7 +1213,7 @@
       "subject": "Message Subject",
       "subjectPlaceholder": "Enter the subject",
       "phone": "Phone Number",
-      "phonePlaceholder": "+0201012345678",
+      "phonePlaceholder": "+971 50 123 4567",
       "message": "Your Message",
       "messagePlaceholder": "How can we help you today?",
       "submit": "Send Message"
@@ -1143,6 +1232,7 @@
       "titleMin": "Subject must be at least 5 characters",
       "phoneRequired": "Phone number is required",
       "phoneInvalid": "Invalid phone number",
+      "phoneInvalidCountry": "Phone number must start with a valid country code (e.g., +971)",
       "messageRequired": "Message content is required",
       "messageMin": "Message must be at least 10 characters",
       "formError": "Error in Contact Form: Please correct the highlighted fields"
@@ -1787,7 +1877,9 @@
         "teacher": "Teacher",
         "teacherName": "Sheikh Ahmed",
         "joinButton": "Join Session Now",
-        "timeValue": "4:00 PM"
+        "timeValue": "4:00 PM",
+        "none": "No upcoming sessions currently",
+        "checkSchedule": "You can check your weekly schedule for upcoming session dates"
       },
       "quickAccess": {
         "schedule": "Class Schedule",
@@ -1797,7 +1889,9 @@
         "achievements": "Achievements",
         "achievementsDesc": "8 badges earned",
         "certificates": "Certificates",
-        "certificatesDesc": "4 available certificates"
+        "certificatesDesc": "4 available certificates",
+        "materials": "Educational Materials",
+        "materialsDesc": "Curriculum files and books"
       },
       "progress": {
         "title": "Academic Progress",
@@ -1806,7 +1900,11 @@
           "tajweed": "Surah Al-Baqarah - Tajweed",
           "arabic": "Arabic Language",
           "grammar": "Grammar and Morphology"
-        }
+        },
+        "quran": "Holy Quran",
+        "tajweed": "Tajweed & Recitation",
+        "arabic": "Arabic Language",
+        "grammar": "Grammar & Morphology"
       }
     },
     "achievements": {
@@ -1815,12 +1913,12 @@
       "subtitle": "Your academy achievements and badges"
     },
     "attendance": {
-      "title": "Attendance Record",
-      "subtitle": "Your session attendance log",
+      "title": "Attendance History",
+      "subtitle": "Track your attendance record and details for each class session",
       "rate": "Attendance Rate",
-      "attended": "Sessions Attended",
+      "attended": "Attended Sessions",
       "absences": "Absences",
-      "detailedLog": "Detailed Attendance Log",
+      "detailedLog": "Detailed Session Log",
       "date": "Date",
       "day": "Day",
       "subject": "Subject",
@@ -1828,23 +1926,34 @@
       "time": "Time",
       "status": "Status",
       "present": "Present",
-      "absent": "Absent"
+      "absent": "Absences",
+      "total": "Total Sessions",
+      "noRecords": "No attendance records yet"
     },
     "materials": {
-      "title": "Educational Materials",
-      "subtitle": "Files and educational resources from your teachers",
+      "title": "Learning Materials & Curricula",
+      "subtitle": "Files, books, and curriculum attachments for your groups",
       "usefulLinks": "Useful Links",
       "videos": "Educational Videos",
       "pdfs": "PDF Files",
       "size": "Size",
       "open": "Open",
-      "download": "Download"
+      "download": "Download",
+      "tabAttachments": "Files & Attachments",
+      "tabCurricula": "Curricula & Units",
+      "search": "Search in materials and curricula...",
+      "teacher": "Teacher",
+      "openLink": "Open Link",
+      "noAttachments": "No attachments available currently",
+      "noCurricula": "No curricula available currently",
+      "viewUnits": "View Units & Files",
+      "hideUnits": "Hide Units"
     },
     "profile": {
       "studentId": "Student ID",
       "learningHours": "Learning Hours",
-      "avgRating": "Avg. Rating",
-      "attendance": "Attendance",
+      "avgRating": "Average Rating",
+      "attendance": "Attendance Rate",
       "sessionsDone": "Sessions Done",
       "enrolledCourses": "Enrolled Courses",
       "courses": "Courses",
@@ -1863,7 +1972,19 @@
       "session": "Session",
       "renewalDate": "Renewal Date",
       "subscriptionActive": "Subscription Active & Verified",
-      "expiresIn": "Expires in 30 days (next renewal date)"
+      "expiresIn": "Expires in 30 days (next renewal date)",
+      "studentRole": "Student Account",
+      "email": "Email",
+      "phone": "Phone Number",
+      "sessionsBalance": "Sessions Balance",
+      "completedHomework": "Completed Homework",
+      "linkedAccounts": "Linked Accounts & Security",
+      "googleDesc": "Link your Google account for quick login and extra security",
+      "googleAccount": "Google Account",
+      "googleLinked": "Account is currently linked",
+      "googleNotLinked": "Account is not linked",
+      "unlinkGoogle": "Unlink Google Account",
+      "linkGoogle": "Link Google Account"
     },
     "grades": {
       "title": "Grades & Level",
@@ -1876,8 +1997,8 @@
       "toImprove": "To Improve:"
     },
     "assignments": {
-      "title": "Assignments & Tasks",
-      "subtitle": "Track your study assignments",
+      "title": "Assignments",
+      "subtitle": "Track your assignments and submit them on time",
       "all": "All",
       "pending": "Pending",
       "completed": "Completed",
@@ -1888,11 +2009,21 @@
       "submitTitle": "Submit Assignment",
       "typeAnswer": "Type your answer here...",
       "cancel": "Cancel",
-      "confirmSubmit": "Confirm Submission"
+      "confirmSubmit": "Confirm Submission",
+      "ongoing": "Ongoing",
+      "completedTab": "Completed",
+      "overdueTab": "Overdue",
+      "inProgress": "In Progress",
+      "overdue": "Overdue",
+      "progress": "Progress",
+      "dueDateLabel": "Due Date:",
+      "submittedDateLabel": "Submitted:",
+      "overdueDays": "5 days overdue",
+      "empty": "No assignments in this section"
     },
     "teachers": {
-      "title": "My Teachers",
-      "subtitle": "Communicate with your teachers and track your evaluations",
+      "title": "Teachers List",
+      "subtitle": "Explore our distinguished teachers, profiles, and curricula",
       "sendMessage": "Send Message",
       "viewProfile": "View Profile",
       "backToTeachers": "Back to Teachers",
@@ -1904,11 +2035,20 @@
       "availableTimes": "Available Times for Appointments",
       "contactTeacher": "Contact Teacher",
       "bookAppointment": "Book Appointment",
-      "teacherNotFound": "Teacher not found",
-      "backToList": "Back to list",
+      "teacherNotFound": "Teacher details not found",
+      "backToList": "Back to Teachers",
       "sessionsProvided": "Sessions",
       "students": "Students",
-      "upcomingSessions": "Upcoming Sessions"
+      "upcomingSessions": "Upcoming Sessions",
+      "searchPlaceholder": "Search teacher by name...",
+      "noTeachers": "No teachers available currently",
+      "certifiedTeacher": "Certified Teacher",
+      "yearsExp": "years of exp",
+      "aboutTeacher": "About Teacher",
+      "philosophy": "Teaching Philosophy",
+      "studentsCount": "Students Count",
+      "sessionsCount": "Total Sessions",
+      "defaultBio": "Certified teacher at Manarat Al-Ezz Academy with extensive educational experience, dedicated to delivering an interactive and inspiring learning journey for our students."
     },
     "recorded": {
       "title": "Recorded Sessions",
@@ -1926,16 +2066,18 @@
       "selectDate": "Select a date to view recordings",
       "available30Days": "Available 30 days · No downloads",
       "recordingsOn": "Recordings — ",
-      "noRecordings": "No recordings on this day",
+      "noRecordings": "No recordings available on this day",
       "policyFooter": "Recordings are available for 30 days from session date · Downloading is strictly prohibited",
       "time": "Time",
       "sessionTitle": "Session Title",
       "teacher": "Teacher",
       "duration": "Duration",
-      "actions": "Actions"
+      "actions": "Actions",
+      "streamSoon": "Stream playback will begin shortly"
     },
     "schedule": {
       "title": "Class Schedule",
+      "subtitle": "Your session schedules and details",
       "todayClasses": "Today's Classes",
       "upcomingClass": "Upcoming Class",
       "completed": "Completed",
@@ -1953,7 +2095,25 @@
       "joinLive": "Join Live",
       "ended": "Ended",
       "liveNow": "Live Now",
-      "upcoming": "Upcoming"
+      "upcoming": "Upcoming",
+      "currentWeek": "Current Week",
+      "sessionsUnit": "sessions",
+      "sessionNumber": "Session",
+      "timing": "Timing",
+      "joinZoom": "Join via Zoom",
+      "regularSession": "Regular Session",
+      "minutes": "min",
+      "noSessionsDay": "No sessions scheduled for this day",
+      "selectAnotherDay": "Select another day from the week bar to view scheduled sessions",
+      "sessionFinished": "Session Completed",
+      "linkNotReady": "Session link available at start time",
+      "liveSession": "Live Session",
+      "cancelledSession": "Cancelled Session",
+      "joinLiveNow": "Join Live Now",
+      "linkAvailableSoon": "Link available soon",
+      "sessionCompleted": "Session Completed",
+      "rescheduled": "Rescheduled",
+      "scheduled": "Scheduled"
     },
     "live": {
       "backToSchedule": "Back to Schedule",
@@ -1973,7 +2133,10 @@
       "topic": "Topic:",
       "started": "Started:",
       "ends": "Ends:",
-      "you": "You"
+      "you": "You",
+      "noActiveSession": "No active live session at the moment",
+      "checkSchedule": "Please check the schedule for upcoming live stream times",
+      "goToSchedule": "Go to Schedule"
     },
     "settings": {
       "title": "Settings",
@@ -2025,6 +2188,42 @@
         "savePreferences": "Save Preferences"
       },
       "saveChanges": "Save Changes"
+    },
+    "homework": {
+      "pageTitle": "Homework & Assignments",
+      "pageSubtitle": "Track and submit your required assignments and activities",
+      "teacher": "Teacher",
+      "dueDate": "Due Date",
+      "description": "Instructions",
+      "attachedFile": "Attached File",
+      "download": "Download",
+      "submitHomework": "Submit Homework",
+      "yourAnswer": "Your Answer / Notes",
+      "answerPlaceholder": "Write your answer here...",
+      "chooseFile": "Click to choose file (PDF, Image, Document)",
+      "submitNow": "Submit Now",
+      "submitting": "Submitting...",
+      "alreadySubmitted": "Submitted successfully",
+      "grade": "Grade",
+      "feedback": "Teacher Feedback",
+      "empty": "No assignments in this section",
+      "viewDetails": "View Details",
+      "submitAction": "Submit Homework"
+    },
+    "evaluations": {
+      "title": "Evaluations History",
+      "subtitle": "Teacher ratings and feedback on your performance in class sessions",
+      "avgRating": "Average Rating",
+      "totalEvaluations": "Total Evaluations",
+      "teacher": "Teacher",
+      "empty": "No evaluations recorded yet"
+    },
+    "rewards": {
+      "title": "Achievements & Badges",
+      "subtitle": "Honor badges and certificates awarded by teachers",
+      "total": "Total Badges",
+      "empty": "No badges awarded yet",
+      "keepUp": "Keep working hard to earn recognition badges"
     }
   },
   "stars": {
@@ -2137,6 +2336,8 @@
     "back": "Back to Teachers",
     "aboutTitle": "About the Teacher",
     "philosophyTitle": "Teaching Philosophy",
+    "defaultPhilosophy": "Teaching is not merely transferring knowledge, but nurturing values and building character through continuous encouragement and positive interaction.",
+    "defaultAbout": "A certified teacher at Manarat Al-Ezz platform, possessing extensive educational experience and dedicated to delivering an interactive and inspiring learning experience.",
     "session": "Session",
     "rating": "Rating",
     "bookTrial": "Book Trial Session",
@@ -3243,7 +3444,13 @@
     "req2": "Contains letters and numbers",
     "req3": "At least one special symbol",
     "changeAvatar": "Change Avatar",
-    "verifiedTeacher": "Verified Teacher"
+    "verifiedTeacher": "Verified Teacher",
+    "linkedAccounts": "Linked Accounts & Security",
+    "googleAccount": "Google Account",
+    "googleLinked": "Account is currently linked",
+    "googleNotLinked": "Account is not linked",
+    "unlinkGoogle": "Unlink Google",
+    "linkGoogle": "Link Google"
   },
   "publicCourses": {
     "title": "Educational Programs & Curricula",

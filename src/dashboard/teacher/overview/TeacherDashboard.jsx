@@ -117,22 +117,41 @@ function formatSessionCard(s, idx, isRtl, t) {
     if (!isNaN(d.getTime())) {
       const now = new Date();
       const diffMs = d.getTime() - now.getTime();
+      const diffMinutes = Math.round(diffMs / (1000 * 60));
+      const diffHours = Math.round(diffMs / (1000 * 60 * 60));
       const isToday = now.toDateString() === d.toDateString();
       const tomorrow = new Date();
       tomorrow.setDate(now.getDate() + 1);
       const isTomorrow = tomorrow.toDateString() === d.toDateString();
 
-      if (isToday) {
-        const diffHours = Math.round(diffMs / (1000 * 60 * 60));
-        if (diffHours > 0 && diffHours <= 3) {
-          relativeBadge = isRtl ? (t ? t('teacherDashboard.inTwoHours', 'بعد ساعتين') : 'بعد ساعتين') : 'In 2 hours';
+      if (diffMs > 0) {
+        if (diffMinutes < 60) {
+          relativeBadge = isRtl ? `بعد ${diffMinutes} دقيقة` : `In ${diffMinutes}m`;
           badgeVariant = 'amber';
-        } else {
+        } else if (diffHours === 1) {
+          relativeBadge = isRtl ? 'بعد ساعة' : 'In 1 hour';
+          badgeVariant = 'amber';
+        } else if (diffHours === 2) {
+          relativeBadge = isRtl ? 'بعد ساعتين' : 'In 2 hours';
+          badgeVariant = 'amber';
+        } else if (diffHours > 2 && diffHours <= 10) {
+          relativeBadge = isRtl ? `بعد ${diffHours} ساعات` : `In ${diffHours} hours`;
+          badgeVariant = 'amber';
+        } else if (isToday) {
           relativeBadge = isRtl ? (t ? t('teacherDashboard.today', 'اليوم') : 'اليوم') : 'Today';
           badgeVariant = 'amber';
+        } else if (isTomorrow) {
+          relativeBadge = isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow';
+          badgeVariant = 'blue';
+        } else {
+          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          if (diffDays <= 7) {
+            relativeBadge = isRtl ? `بعد ${diffDays} أيام` : `In ${diffDays} days`;
+            badgeVariant = 'blue';
+          }
         }
-      } else if (isTomorrow) {
-        relativeBadge = isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow';
+      } else if (diffMs >= -60 * 60 * 1000) {
+        relativeBadge = isRtl ? 'جارية الآن' : 'Live now';
         badgeVariant = 'blue';
       }
     }
@@ -150,26 +169,44 @@ function formatSessionCard(s, idx, isRtl, t) {
 }
 
 function getGroupTypeLabel(group, t) {
-  const raw = (group?.type || '').toLowerCase();
-  if (raw === 'private' || raw.includes('خاص') || raw === 'individual' || raw.includes('فردي')) {
-    return t('teacherDashboard.private', 'خاص');
+  const raw = String(group?.type || '').toLowerCase();
+  const isPriv = group?.isPrivate === true ||
+    raw === 'private' ||
+    raw.includes('خاص') ||
+    raw === 'individual' ||
+    raw.includes('فردي') ||
+    group?.maxStudents === 1;
+  if (isPriv) {
+    return t ? t('teacherDashboard.private', 'خاصة') : 'خاصة';
   }
-  return t('teacherDashboard.public', 'عام');
+  return t ? t('teacherDashboard.public', 'عامة') : 'عامة';
 }
 
 function getGroupLevelLabel(group, isRtl = true, t) {
-  const levelObj = group?.studentLevel || group?.level;
-  if (!levelObj) return isRtl ? (t ? t('teacherDashboard.levelHigh', 'مرتفع') : 'مرتفع') : 'High';
+  const levelObj = group?.studentLevel || group?.level || group?.curriculum?.studentLevel || group?.stage;
+  if (!levelObj) return '-';
+  if (typeof levelObj === 'string') {
+    if (/^[a-fA-F0-9]{24}$/.test(levelObj)) {
+      if (group?.curriculum?.studentLevel?.name) {
+        const cLevel = group.curriculum.studentLevel.name;
+        return typeof cLevel === 'object' ? (isRtl ? cLevel.ar || cLevel.en : cLevel.en || cLevel.ar) : cLevel;
+      }
+      return '-';
+    }
+    return levelObj;
+  }
   if (typeof levelObj === 'object' && levelObj !== null) {
     if (levelObj.name) {
       if (typeof levelObj.name === 'object' && levelObj.name !== null) {
-        return isRtl ? (levelObj.name.ar || levelObj.name.en || 'مرتفع') : (levelObj.name.en || levelObj.name.ar || 'High');
+        return isRtl ? (levelObj.name.ar || levelObj.name.en || '-') : (levelObj.name.en || levelObj.name.ar || '-');
       }
       return levelObj.name;
     }
-    return isRtl ? (levelObj.ar || levelObj.en || 'مرتفع') : (levelObj.en || levelObj.ar || 'High');
+    if (levelObj.ar || levelObj.en) {
+      return isRtl ? (levelObj.ar || levelObj.en) : (levelObj.en || levelObj.ar);
+    }
   }
-  return String(levelObj);
+  return '-';
 }
 
 export default function TeacherDashboard() {
@@ -287,12 +324,34 @@ export default function TeacherDashboard() {
 
     const startTimeVal = rawNext.startTime || rawNext.scheduledAt || rawNext.startDate || rawNext.date;
     const { countdown, countdownUnit } = calculateCountdown(startTimeVal, isRtl, t);
+    let timeStr = '';
+    if (startTimeVal) {
+      try {
+        const d = new Date(startTimeVal);
+        if (!isNaN(d.getTime())) {
+          timeStr = d.toLocaleTimeString(isRtl ? 'ar-EG' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          });
+          if (rawNext.endTime) {
+            const endD = new Date(rawNext.endTime);
+            if (!isNaN(endD.getTime())) {
+              timeStr += ` - ${endD.toLocaleTimeString(isRtl ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+            }
+          }
+        }
+      } catch {
+        timeStr = '';
+      }
+    }
 
     return {
       ...rawNext,
       id: rawNext.id || rawNext._id,
-      title: title || group || (rawNext.sessionNumber ? (isRtl ? `الحصة رقم ${rawNext.sessionNumber}` : `Session #${rawNext.sessionNumber}`) : ''),
+      title: title || (rawNext.sessionNumber ? (isRtl ? `الحصة رقم ${rawNext.sessionNumber}` : `Session #${rawNext.sessionNumber}`) : ''),
       group,
+      timeStr,
       countdown: rawNext.countdown || countdown,
       countdownUnit: rawNext.countdownUnit || countdownUnit,
       joinUrl: rawNext.zoomJoinUrl || rawNext.joinUrl || (rawNext.id ? `/dashboard/teacher/live?session=${rawNext.id}` : '/dashboard/teacher/live'),

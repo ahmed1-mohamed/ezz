@@ -61,7 +61,7 @@ export default function RolesPermissionsScreen({
   const createMutation = useMutation({
     mutationFn: managersApi.createPermission,
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['permissions'])
+      queryClient.invalidateQueries({ queryKey: ['permissions'] })
       setIsAddRoleModalOpen(false)
       setNewRoleNameAr('')
       setNewRoleNameEn('')
@@ -74,7 +74,21 @@ export default function RolesPermissionsScreen({
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }) => managersApi.updatePermission(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries(['permissions'])
+      queryClient.setQueryData(['permissions'], (old) => {
+        if (!old) return old;
+        const items = old.data || old;
+        if (!Array.isArray(items)) return old;
+        const updatedList = items.map((p) => {
+          const pid = p.id || p._id;
+          if (String(pid) === String(selectedPermissionId)) {
+            return { ...p, keys: activeKeys };
+          }
+          return p;
+        });
+        return old.data ? { ...old, data: updatedList } : updatedList;
+      })
+      queryClient.invalidateQueries({ queryKey: ['permissions'] })
+      queryClient.invalidateQueries({ queryKey: ['admins'] })
       showSuccessToast(isRtl ? 'تم الحفظ بنجاح!' : 'Saved successfully!', isRtl)
     }
   })
@@ -82,7 +96,8 @@ export default function RolesPermissionsScreen({
   const deleteRoleMutation = useMutation({
     mutationFn: (id) => managersApi.deletePermission(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['permissions'])
+      queryClient.invalidateQueries({ queryKey: ['permissions'] })
+      queryClient.invalidateQueries({ queryKey: ['admins'] })
       showSuccessToast(isRtl ? 'تم حذف الدور بنجاح!' : 'Role deleted successfully!', isRtl)
       if (permissionsList.length > 0) {
         const remaining = permissionsList.filter(p => p.id !== selectedPermissionId)
@@ -95,10 +110,10 @@ export default function RolesPermissionsScreen({
     permissionsList.find(p => p.id === selectedPermissionId)
     , [selectedPermissionId, permissionsList])
 
-  const handleToggleKey = (key) => {
+  const handleToggleKey = (key, aliases = []) => {
     setActiveKeys(prev =>
-      prev.includes(key)
-        ? prev.filter(k => k !== key)
+      [key, ...(aliases || [])].some(k => prev.includes(k))
+        ? prev.filter(k => ![key, ...(aliases || [])].includes(k))
         : [...prev, key]
     )
   }
@@ -128,14 +143,19 @@ export default function RolesPermissionsScreen({
   }
 
   const previewStats = useMemo(() => {
-    let granted = activeKeys.length
+    let granted = 0
     let totalOptions = 0
 
     SYSTEM_PERMISSIONS.forEach(m => {
-      totalOptions += m.actions.length
+      m.actions.forEach(act => {
+        totalOptions++
+        if (activeKeys.includes(act.key) || (act.aliases && act.aliases.some(a => activeKeys.includes(a)))) {
+          granted++
+        }
+      })
     })
 
-    const denied = totalOptions - granted
+    const denied = Math.max(0, totalOptions - granted)
     const accessLevel = totalOptions > 0 ? Math.round((granted / totalOptions) * 100) : 0
 
     return { granted, denied, accessLevel }

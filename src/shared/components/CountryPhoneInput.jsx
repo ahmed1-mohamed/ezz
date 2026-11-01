@@ -4,12 +4,21 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Search, Check, Loader2 } from 'lucide-react'
 import { fetchCountries, sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
-export default function CountryPhoneInput({ value = '', onChange, error, label }) {
+export default function CountryPhoneInput({
+    value = '',
+    onChange,
+    error,
+    label,
+    placeholder,
+    disabled = false,
+    defaultCountry = 'AE',
+    defaultDialCode = '+971'
+}) {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language.startsWith('ar')
 
     const [rawCountries, setRawCountries] = useState([])
-    const [countryCode, setCountryCode] = useState('')
+    const [countryCode, setCountryCode] = useState(defaultDialCode)
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(true)
@@ -22,7 +31,14 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                 const sorted = sortCountries(list, isRtl)
                 setRawCountries(sorted)
                 if (sorted.length > 0) {
-                    setCountryCode((prev) => prev || sorted[0].dialCode || '+20')
+                    const matchedDefault = sorted.find(c =>
+                        (defaultDialCode && c.dialCode === defaultDialCode) ||
+                        (defaultCountry && c.code && c.code.toUpperCase() === defaultCountry.toUpperCase()) ||
+                        (c.name && (c.name.includes('الإمارات') || c.name.includes('Emirates'))) ||
+                        (c.nameEn && c.nameEn.toLowerCase().includes('emirates'))
+                    )
+                    const initialCode = matchedDefault?.dialCode || defaultDialCode || sorted[0].dialCode || '+971'
+                    setCountryCode((prev) => prev || initialCode)
                 }
             })
             .catch((err) => console.error('CountryPhoneInput fetchCountries error:', err))
@@ -33,7 +49,7 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
         return () => {
             isMounted = false
         }
-    }, [i18n.language, isRtl])
+    }, [i18n.language, isRtl, defaultCountry, defaultDialCode])
 
     const countriesList = useMemo(() => {
         const sorted = sortCountries(rawCountries, isRtl)
@@ -77,17 +93,25 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
         const inputVal = e.target.value
         let finalValue = inputVal
 
-        const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
-        const matched = sorted.find(c => c.dialCode && inputVal.trim().startsWith(c.dialCode))
+        if (inputVal.trim().startsWith('+')) {
+            const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
+            const matched = sorted.find(c => c.dialCode && inputVal.trim().startsWith(c.dialCode))
 
-        if (matched) {
-            setCountryCode(matched.dialCode)
-            const prefix = matched.dialCode
-            let rest = inputVal.substring(prefix.length)
-            if (rest.trim().startsWith('0')) {
-                rest = rest.replace('0', '')
+            if (matched) {
+                setCountryCode(matched.dialCode)
+                const prefix = matched.dialCode
+                let rest = inputVal.substring(prefix.length)
+                if (rest.trim().startsWith('0')) {
+                    rest = rest.replace('0', '')
+                }
+                finalValue = `${prefix}${rest}`
             }
-            finalValue = `${prefix}${rest}`
+        } else if (inputVal.trim().length > 0 && countryCode) {
+            let rest = inputVal.trim()
+            if (rest.startsWith('0')) {
+                rest = rest.substring(1)
+            }
+            finalValue = `${countryCode} ${rest}`
         }
 
         if (onChange) {
@@ -110,15 +134,27 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
             currentPhone = currentPhone.substring(1)
         }
 
-        const newPhone = `${dialCode} ${currentPhone}`.trim()
+        const newPhone = currentPhone ? `${dialCode} ${currentPhone}`.trim() : `${dialCode} `
         if (onChange) {
             onChange(newPhone)
         }
     }
 
     const selectedCountryObj = useMemo(() => {
-        return rawCountries.find(c => c.dialCode === countryCode) || rawCountries[0] || null
-    }, [rawCountries, countryCode])
+        const found = rawCountries.find(c => c.dialCode === countryCode) ||
+                      rawCountries.find(c => c.dialCode === defaultDialCode) ||
+                      rawCountries.find(c => c.code && c.code.toUpperCase() === defaultCountry.toUpperCase()) ||
+                      rawCountries.find(c => (c.name && c.name.includes('الإمارات')) || (c.nameEn && c.nameEn.toLowerCase().includes('emirates'))) ||
+                      rawCountries[0]
+
+        return found || {
+            name: 'الإمارات العربية المتحدة',
+            nameEn: 'United Arab Emirates',
+            dialCode: defaultDialCode || '+971',
+            flag: '🇦🇪',
+            code: 'AE'
+        }
+    }, [rawCountries, countryCode, defaultDialCode, defaultCountry])
 
     return (
         <div className="space-y-2 text-start">
@@ -129,11 +165,12 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                 <div className="relative w-16 sm:w-20 country-dropdown-container shrink-0">
                     <button
                         type="button"
+                        disabled={disabled}
                         onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="w-full h-full bg-[#F5F5F2] dark:bg-slate-800 border border-transparent dark:border-slate-700 hover:border-[#00695C]/35 dark:hover:border-emerald-500/35 text-slate-700 dark:text-slate-200 rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 p-3 flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-[0.98] outline-none"
+                        className={`w-full h-full bg-[#F5F5F2] dark:bg-slate-800 border border-transparent dark:border-slate-700 hover:border-[#00695C]/35 dark:hover:border-emerald-500/35 text-slate-700 dark:text-slate-200 rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 p-3 flex items-center justify-center gap-1 transition-all active:scale-[0.98] outline-none ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                         <span className="text-lg sm:text-xl shrink-0">
-                            {selectedCountryObj?.flag || '🌍'}
+                            {selectedCountryObj?.flag || '🇦🇪'}
                         </span>
                         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -211,11 +248,12 @@ export default function CountryPhoneInput({ value = '', onChange, error, label }
                 <input
                     type="tel"
                     name="phone"
+                    disabled={disabled}
                     value={value}
                     onChange={handleInputChange}
                     dir="ltr"
-                    placeholder={t('contact.form.phonePlaceholder', '01012345678')}
-                    className={`flex-1 w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-4 transition-all text-start ${error ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'}`}
+                    placeholder={placeholder || t('contact.form.phonePlaceholder', '+971 50 123 4567')}
+                    className={`flex-1 w-full bg-[#F5F5F2] dark:bg-slate-800 border text-slate-900 dark:text-white dark:placeholder-slate-500 text-base rounded-2xl focus:ring-2 focus:ring-[#00695C] dark:focus:ring-emerald-500 block p-4 transition-all text-start ${error ? 'border-red-500 focus:ring-red-500' : 'border-transparent dark:border-slate-700'} ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
                 />
             </div>
             {error && <span className="text-xs text-red-500 font-bold px-1 block">{error}</span>}

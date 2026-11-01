@@ -23,10 +23,32 @@ export const authApi = {
 
   googleLogin: async (data) => {
     try {
-      const response = await api.post('/api/v1/auth/google', data);
+      const googleId = typeof data === 'string' ? data : (data?.googleId || data?.sub);
+      const response = await api.post('/api/v1/auth/google/login', { googleId });
       return response.data;
     } catch (error) {
       console.error('Error during google login:', error);
+      throw error;
+    }
+  },
+
+  linkGoogle: async (data) => {
+    try {
+      const googleId = typeof data === 'string' ? data : (data?.googleId || data?.sub);
+      const response = await api.post('/api/v1/auth/google/link', { googleId });
+      return response.data;
+    } catch (error) {
+      console.error('Error during google link:', error);
+      throw error;
+    }
+  },
+
+  unlinkGoogle: async () => {
+    try {
+      const response = await api.delete('/api/v1/auth/google/unlink');
+      return response.data;
+    } catch (error) {
+      console.error('Error during google unlink:', error);
       throw error;
     }
   },

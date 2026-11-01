@@ -37,16 +37,30 @@ export const adminParentsApi = {
   updateParent: async (id, parentData) => {
     try {
       const isFormData = parentData instanceof FormData;
-      if (!isFormData && typeof parentData === 'object' && parentData !== null) {
-        const keysToRemove = ['image', 'photo', 'photoUrl', 'profileImage'];
-        keysToRemove.forEach(k => {
-          if (typeof parentData[k] === 'string') {
-            delete parentData[k];
-          }
-        });
-      }
+      let body = parentData;
       const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
-      const response = await api.patch(`/api/v1/parents/${id}`, parentData, { headers });
+      if (isFormData && body && typeof body.delete === 'function') {
+        body.delete('id');
+      }
+
+      if (!isFormData && typeof parentData === 'object' && parentData !== null) {
+        body = { ...parentData };
+        const keysToRemove = [
+          'id', '_id', 'parent_id', 'user_id', 'userId',
+          'createdAt', 'updatedAt', '__v',
+          'phonePrefix', 'profileImage', 'profileImageFile', 'image', 'photo', 'photoUrl'
+        ];
+        keysToRemove.forEach((k) => delete body[k]);
+        if (body.email === '' || body.email === undefined) {
+          delete body.email;
+        }
+        if (body.password === '********' || !body.password) {
+          delete body.password;
+          delete body.confirmPassword;
+        }
+      }
+
+      const response = await api.patch(`/api/v1/parents/${id}`, body, { headers });
       return response.data;
     } catch (error) {
       console.error('API updateParent failed:', error);

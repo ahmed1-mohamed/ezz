@@ -8,8 +8,9 @@ import { setCookie } from '@/shared/utils/cookieUtils.js';
 import api from '@/shared/services/api/axiosConfig.js';
 import { Loader2 } from 'lucide-react';
 
-export default function PasswordSettingsPanel({ itemVariants, profilePhone, profileCountry }) {
-    const { t } = useTranslation();
+export default function PasswordSettingsPanel({ itemVariants }) {
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     const { user } = useAuth();
 
     const [passwordData, setPasswordData] = useState({
@@ -25,12 +26,20 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
     };
 
     const handleUpdatePassword = async () => {
+        if (!passwordData.current) {
+            showErrorToast(isRtl ? 'كلمة المرور الحالية مطلوبة' : 'Current password is required');
+            return;
+        }
         if (!passwordData.new) {
-            showErrorToast('كلمة المرور الجديدة مطلوبة');
+            showErrorToast(isRtl ? 'كلمة المرور الجديدة مطلوبة' : 'New password is required');
+            return;
+        }
+        if (passwordData.new.length < 6) {
+            showErrorToast(isRtl ? 'يجب ألا تقل كلمة المرور عن 6 أحرف' : 'Password must be at least 6 characters');
             return;
         }
         if (passwordData.new !== passwordData.confirm) {
-            showErrorToast('كلمتا المرور غير متطابقتين');
+            showErrorToast(isRtl ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match');
             return;
         }
 
@@ -38,27 +47,13 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
 
         const userId = user?.id || user?._id || user?.user_id;
         const payload = {
+            currentPassword: passwordData.current,
             password: passwordData.new,
             confirmPassword: passwordData.confirm,
             userId,
         };
 
-        if (passwordData.current) {
-            payload.currentPassword = passwordData.current;
-        }
-        if (profilePhone && typeof profilePhone === 'string' && profilePhone.trim()) {
-            payload.phone = profilePhone.trim();
-        }
-        if (profileCountry && typeof profileCountry === 'string' && profileCountry.trim()) {
-            payload.country = profileCountry.trim();
-        }
-
-        let res;
-        if (passwordData.current) {
-            res = await profileApi.changePassword(payload);
-        } else {
-            res = await profileApi.createPassword(payload);
-        }
+        const res = await profileApi.changePassword(payload);
 
         if (res?.success) {
             const resData = res.data?.data || res.data;
@@ -84,10 +79,10 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
                 setCookie('refresh_token', newRefreshToken, 7);
             }
 
-            showSuccessToast('تم تحديث كلمة المرور بنجاح');
+            showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح' : 'Password updated successfully');
             setPasswordData({ current: '', new: '', confirm: '' });
         } else {
-            showErrorToast(res?.error || 'حدث خطأ أثناء تحديث كلمة المرور');
+            showErrorToast(res?.error || (isRtl ? 'حدث خطأ أثناء تحديث كلمة المرور' : 'Error updating password'));
         }
         setSavingPassword(false);
     };
@@ -96,14 +91,13 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.security')}</h2>
 
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.security')}</h3>
-
             <div className="space-y-4 mb-6">
                 <div className="flex flex-col items-start w-full">
                     <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.currentPassword')}</label>
                     <input
                         type="password"
                         name="current"
+                        required
                         value={passwordData.current}
                         onChange={handlePasswordChange}
                         placeholder="••••••••••••••••"
@@ -117,6 +111,7 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
                         <input
                             type="password"
                             name="confirm"
+                            required
                             value={passwordData.confirm}
                             onChange={handlePasswordChange}
                             placeholder="••••••••••••••••"
@@ -128,6 +123,7 @@ export default function PasswordSettingsPanel({ itemVariants, profilePhone, prof
                         <input
                             type="password"
                             name="new"
+                            required
                             value={passwordData.new}
                             onChange={handlePasswordChange}
                             placeholder="••••••••••••••••"

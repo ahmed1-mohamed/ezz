@@ -51,6 +51,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
+    if (typeof window !== 'undefined') {
+      window.__lastApiError = null;
+    }
     const lang = localStorage.getItem('appLanguage') || 'ar';
     config.headers['Accept-Language'] = lang;
 
@@ -184,35 +187,38 @@ api.interceptors.response.use(
 
     const status = error.response?.status;
     const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
-
+    if (typeof window !== 'undefined' && status) {
+      window.__lastApiError = { status: Number(status), time: Date.now() };
+    }
+    if (status >= 500 || status === 500) {
+      error._isServerError = true;
+      error._suppressToast = true;
+      error._toastShown = true;
+      if (originalRequest && (status === 502 || status === 503 || status === 504)) {
+        if (!originalRequest._gatewayRetryCount || originalRequest._gatewayRetryCount < 1) {
+          originalRequest._gatewayRetryCount = (originalRequest._gatewayRetryCount || 0) + 1;
+          const delayMs = 400;
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          return api(originalRequest);
+        }
+      }
+      error.message = isArabic
+        ? 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً'
+        : 'An unexpected error occurred. Please try again later.';
+      return Promise.reject(error);
+    }
     if (status === 403) {
       if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
         showSafeErrorToast(error, { status: 403, isArabic });
       }
       return Promise.reject(error);
     }
-
     if (status === 404) {
       if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
         showSafeErrorToast(error, { status: 404, isArabic });
       }
       return Promise.reject(error);
     }
-
-    if (status === 502 || status === 503 || status === 504) {
-      if (originalRequest && (!originalRequest._gatewayRetryCount || originalRequest._gatewayRetryCount < 1)) {
-        originalRequest._gatewayRetryCount = (originalRequest._gatewayRetryCount || 0) + 1;
-        const delayMs = 400;
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-        return api(originalRequest);
-      }
-      // Never show server error leaks or status codes
-      error.message = isArabic
-        ? 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً'
-        : 'An unexpected error occurred. Please try again later.';
-      return Promise.reject(error);
-    }
-
     if (status === 429) {
       if (originalRequest && (!originalRequest._rateLimitRetryCount || originalRequest._rateLimitRetryCount < 2)) {
         originalRequest._rateLimitRetryCount = (originalRequest._rateLimitRetryCount || 0) + 1;
@@ -222,7 +228,6 @@ api.interceptors.response.use(
       }
       return Promise.reject(error);
     }
-
     if (status === 400) {
       const data = error.response.data;
       const msgs = data?.message || data?.error || (typeof data === 'string' ? data : null);
@@ -262,7 +267,7 @@ api.interceptors.response.use(
 
       // Show ONE single sanitized toast, avoiding spamming or stacking multiple messages
       if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
-        showSafeErrorToast(msgs, { status: 400, isArabic });
+        showSafeErrorToast(error, { status, isArabic });
       }
 
       if (Array.isArray(msgs) && msgs.length > 0) {

@@ -42,9 +42,6 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
               <th className="text-center pb-4 font-semibold px-4">
                 {t('teacherDashboard.students', 'الطلاب')}
               </th>
-              <th className="text-center pb-4 font-semibold px-4">
-                {t('teacherDashboard.progress', 'التقدم')}
-              </th>
               <th className="text-start pb-4 font-semibold ps-4">
                 {t('teacherDashboard.nextSession', 'الجلسة القادمة')}
               </th>
@@ -66,13 +63,13 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
 
                   {/* 2. النوع */}
                   <td className="py-5 text-center px-4">
-                    {row.type === 'خاص' || row.type?.toLowerCase() === 'private' ? (
+                    {row.type === 'خاصة' || row.type === 'خاص' || row.type?.toLowerCase() === 'private' ? (
                       <span className="inline-block px-7 py-2 rounded-full text-xs font-bold bg-[#eff6ff] text-[#2563eb] dark:bg-blue-950/40 dark:text-blue-300">
-                        {t('teacherDashboard.private', 'خاص')}
+                        {t('teacherDashboard.private', 'خاصة')}
                       </span>
                     ) : (
                       <span className="inline-block px-7 py-2 rounded-full text-xs font-bold bg-[#faf5ff] text-[#9333ea] dark:bg-purple-950/40 dark:text-purple-300">
-                        {t('teacherDashboard.public', 'عام')}
+                        {t('teacherDashboard.public', 'عامة')}
                       </span>
                     )}
                   </td>
@@ -92,26 +89,11 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
                     </div>
                   </td>
 
-                  {/* 5. التقدم */}
-                  <td className="py-5 text-center px-4">
-                    <div className="flex items-center justify-center gap-2.5">
-                      <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 w-8 text-end">
-                        {row.progress ?? 75}%
-                      </span>
-                      <div className="w-20 sm:w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#00594C] rounded-full transition-all duration-500"
-                          style={{ width: `${row.progress ?? 75}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* 6. الجلسة القادمة + التفاصيل */}
+                  {/* 5. الجلسة القادمة + التفاصيل */}
                   <td className="py-5 text-start ps-4">
                     <div className="flex items-center justify-between gap-3 text-xs">
                       <span className="text-slate-500 dark:text-slate-400 font-semibold whitespace-nowrap font-mono">
-                        {row.nextSessionTime || `${t('teacherDashboard.today', isRtl ? 'اليوم' : 'Today')} 18:30`}
+                        {row.nextSessionTime || '-'}
                       </span>
                       <Link
                         to={`/dashboard/teacher/groups/${row.id}`}
@@ -125,7 +107,7 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400 text-xs font-semibold">
+                <td colSpan={5} className="py-8 text-center text-slate-400 text-xs font-semibold">
                   {t('teacher.noGroups', 'لا توجد مجموعات دراسية حالياً')}
                 </td>
               </tr>

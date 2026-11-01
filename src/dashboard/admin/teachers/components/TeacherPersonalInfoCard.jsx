@@ -6,7 +6,8 @@ export default function TeacherPersonalInfoCard({
   formData,
   onChange,
   isRtl = true,
-  countries = []
+  countries = [],
+  isEdit = false
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [fetchedCountries, setFetchedCountries] = useState([])
@@ -44,18 +45,48 @@ export default function TeacherPersonalInfoCard({
     return sortCountries(rawList, isRtl)
   }, [sourceCountries, isRtl])
 
-  const initialCode = formData.phone?.startsWith('+') ? formData.phone.split(' ')[0] : ''
+  const rawPhone = (formData.phone || '').trim()
   const [userSelectedCountry, setUserSelectedCountry] = useState(null)
+
+  const { parsedCountry, parsedPhone } = useMemo(() => {
+    if (!rawPhone) return { parsedCountry: null, parsedPhone: '' }
+    if (rawPhone.startsWith('+')) {
+      const sorted = [...activeCountries].sort((a, b) => (b.code?.length || 0) - (a.code?.length || 0))
+      for (const country of sorted) {
+        if (country.code && rawPhone.startsWith(country.code)) {
+          return {
+            parsedCountry: country,
+            parsedPhone: rawPhone.slice(country.code.length).trim()
+          }
+        }
+      }
+      const match = rawPhone.match(/^(\+\d{1,4})\s*(.*)$/)
+      if (match) {
+        const found = activeCountries.find(c => c.code === match[1])
+        return {
+          parsedCountry: found || null,
+          parsedPhone: match[2].trim()
+        }
+      }
+    }
+    if (rawPhone.includes(' ')) {
+      const parts = rawPhone.split(' ')
+      const prefix = parts[0]
+      const found = activeCountries.find(c => c.code === prefix)
+      return {
+        parsedCountry: found || null,
+        parsedPhone: parts.slice(1).join(' ').trim()
+      }
+    }
+    return { parsedCountry: null, parsedPhone: rawPhone }
+  }, [rawPhone, activeCountries])
 
   const selectedCountry = useMemo(() => {
     if (userSelectedCountry) return userSelectedCountry
+    if (parsedCountry) return parsedCountry
     if (activeCountries.length === 0) return null
-    if (initialCode) {
-      const matched = activeCountries.find((c) => c.code === initialCode)
-      if (matched) return matched
-    }
     return activeCountries[0]
-  }, [userSelectedCountry, activeCountries, initialCode])
+  }, [userSelectedCountry, parsedCountry, activeCountries])
 
   const onChangeRef = useRef(onChange)
   useEffect(() => {
@@ -68,10 +99,7 @@ export default function TeacherPersonalInfoCard({
     }
   }, [activeCountries, formData.country, selectedCountry, isRtl])
 
-  const rawPhone = formData.phone || ''
-  const phoneNumberOnly = rawPhone.includes(' ')
-    ? rawPhone.split(' ').slice(1).join(' ')
-    : (rawPhone.startsWith('+') ? rawPhone.replace(/^\+\d+/, '').trim() : rawPhone)
+  const phoneNumberOnly = parsedPhone
 
   const handlePhoneNumChange = (value) => {
     const cleanVal = value.replace(/[^\d]/g, '')
@@ -95,7 +123,7 @@ export default function TeacherPersonalInfoCard({
         {isRtl ? 'البيانات الشخصية' : 'Personal Information'}
       </h2>
 
-       <div className="flex flex-col items-center justify-center pt-1 pb-4">
+      <div className="flex flex-col items-center justify-center pt-1 pb-4">
         <label className="relative cursor-pointer group flex flex-col items-center justify-center w-44 h-44 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-[#005953] bg-[#f8faf9] dark:bg-slate-950/20 transition-all overflow-hidden">
           {formData.profileImage || formData.image ? (
             <img
@@ -136,7 +164,7 @@ export default function TeacherPersonalInfoCard({
         </span>
       </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الإسم بالعربية' : 'Name in Arabic'}
@@ -167,21 +195,23 @@ export default function TeacherPersonalInfoCard({
         </div>
       </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
-          </label>
-          <input
-            type="email"
-            required
-            value={formData.email || ''}
-            onChange={(e) => onChange('email', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
-            placeholder="Nora_ahmed@yahoo.com"
-            dir="ltr"
-          />
-        </div>
+      <div className={`grid grid-cols-1 ${!isEdit ? 'md:grid-cols-2' : ''} gap-5`}>
+        {!isEdit && (
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+              {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
+            </label>
+            <input
+              type="email"
+              required
+              value={formData.email || ''}
+              onChange={(e) => onChange('email', e.target.value)}
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              placeholder="Nora_ahmed@yahoo.com"
+              dir="ltr"
+            />
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">

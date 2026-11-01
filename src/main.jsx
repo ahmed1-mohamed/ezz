@@ -6,6 +6,7 @@ import { store } from './store/store.js'
 import App from './App.jsx'
 import './i18n.js'
 import './index.css'
+import '@/shared/utils/errorHandler.js'
 import { AuthProvider } from '@/shared/context/AuthContext.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 

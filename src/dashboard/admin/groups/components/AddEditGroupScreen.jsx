@@ -113,7 +113,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     curriculum: resolveEntityId(group?.curriculum),
     studentLevel: resolveEntityId(group?.studentLevel) || '',
     teacher: resolveEntityId(group?.teacher),
-    type: group?.type || 'group',
+    type: group?.type === 'group' ? 'public' : (group?.type || 'public'),
     language: resolveEntityId(group?.language) || '',
     maxStudents: group?.maxStudents || 5,
     status: group?.status || 'active',
@@ -139,7 +139,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
         curriculum: resolveEntityId(group.curriculum),
         studentLevel: resolveEntityId(group.studentLevel) || '',
         teacher: resolveEntityId(group.teacher),
-        type: group.type || 'group',
+        type: group.type === 'group' ? 'public' : (group.type || 'public'),
         language: resolveEntityId(group.language) || '',
         maxStudents: group.maxStudents || 5,
         status: group.status || 'active',
@@ -176,26 +176,34 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
 
         if (!isMounted) return
 
+        const extractArray = (res) => {
+          if (!res) return []
+          if (Array.isArray(res)) return res
+          if (Array.isArray(res.data)) return res.data
+          if (Array.isArray(res.data?.data)) return res.data.data
+          if (Array.isArray(res.items)) return res.items
+          return []
+        }
+
         if (cRes.status === 'fulfilled' && cRes.value) {
-          const rawList = cRes.value?.data || (Array.isArray(cRes.value) ? cRes.value : [])
-          const list = normalizeCountries(rawList)
-          if (Array.isArray(list) && list.length > 0) setCountries(list)
+          const list = normalizeCountries(extractArray(cRes.value))
+          if (list.length > 0) setCountries(list)
         }
         if (curRes.status === 'fulfilled' && curRes.value) {
-          const list = curRes.value?.data || (Array.isArray(curRes.value) ? curRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setCurricula(list)
+          const list = extractArray(curRes.value)
+          if (list.length > 0) setCurricula(list)
         }
         if (lvlRes.status === 'fulfilled' && lvlRes.value) {
-          const list = lvlRes.value?.data || (Array.isArray(lvlRes.value) ? lvlRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setLevels(list)
+          const list = extractArray(lvlRes.value)
+          if (list.length > 0) setLevels(list)
         }
         if (tRes.status === 'fulfilled' && tRes.value) {
-          const list = tRes.value?.data || (Array.isArray(tRes.value) ? tRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setTeachers(list)
+          const list = extractArray(tRes.value)
+          if (list.length > 0) setTeachers(list)
         }
         if (langRes.status === 'fulfilled' && langRes.value) {
-          const list = langRes.value?.data || (Array.isArray(langRes.value) ? langRes.value : [])
-          if (Array.isArray(list) && list.length > 0) setLanguages(list)
+          const list = extractArray(langRes.value)
+          if (list.length > 0) setLanguages(list)
         }
       } catch (err) {
         console.warn('Could not load options for group form:', err)
@@ -310,7 +318,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       country: formData.country,
       curriculum: formData.curriculum,
       studentLevel: formData.studentLevel,
-      type: formData.type || 'group',
+      type: formData.type === 'group' ? 'public' : (formData.type || 'public'),
       language: formData.language,
       maxStudents: maxStudentsNum || 1,
       teacher: formData.teacher,

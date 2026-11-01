@@ -2,7 +2,8 @@ import { RefreshCw, UserX, X, Users, Clock, Video } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import ReschedulePanel from './ReschedulePanel'
 import ChangeTeacherPanel from './ChangeTeacherPanel'
-import { formatTime12h } from '@/shared/services/api/adminSessionsApi'
+import { formatTime12h, formatTimeRange12h } from '@/shared/services/api/adminSessionsApi'
+import { useTranslation } from 'react-i18next'
 
 const safeText = (val, fallback = '') => {
   if (val === null || val === undefined) return fallback;
@@ -27,6 +28,8 @@ export default function SessionRow({
 }) {
   const isCancelled = session.status === 'cancelled'
   const isCompleted = session.status === 'completed'
+  const { i18n } = useTranslation()
+  const isRtl = i18n?.language?.startsWith('ar') ?? true
 
   const groupName = safeText(session.groupName, 'مجموعة دراسية')
   const sessionTitle = safeText(session.title)
@@ -35,7 +38,7 @@ export default function SessionRow({
   const teacherContact = safeText(session.teacherPhone || session.teacherEmail)
   const date = safeText(session.date, '-')
   const day = safeText(session.day)
-  const time = formatTime12h(session.time || session.startTime, true)
+  const time = formatTimeRange12h(session.startTime || session.time, session.endTime, session.durationMinutes, isRtl)
   const studentsCount = Number(session.studentsCount) || 0
 
   return (

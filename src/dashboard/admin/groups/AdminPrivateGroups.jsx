@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   Search,
   Plus,
@@ -30,6 +31,8 @@ const TYPE_FILTER_VALUES = ['all', 'public', 'private']
 export default function AdminPrivateGroups() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const { id: routeGroupId } = useParams()
+  const navigate = useNavigate()
 
   const [viewMode, setViewMode] = useState('list')
   const [selectedGroup, setSelectedGroup] = useState(null)
@@ -48,6 +51,44 @@ export default function AdminPrivateGroups() {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+
+  useEffect(() => {
+    let active = true
+    if (routeGroupId) {
+      if (!selectedGroup || (String(selectedGroup.id) !== String(routeGroupId) && String(selectedGroup._id) !== String(routeGroupId))) {
+        setIsLoading(true)
+        adminGroupsApi.fetchGroupByIdRaw(routeGroupId)
+          .then((res) => {
+            if (!active) return
+            const data = res?.data || res
+            if (data && (data.id || data._id || data.name)) {
+              setSelectedGroup({
+                ...data,
+                id: data.id || data._id || routeGroupId,
+                _id: data._id || data.id || routeGroupId,
+              })
+              setViewMode('edit-group')
+            }
+          })
+          .catch((err) => {
+            console.error('Failed to load group by route ID for edit:', err)
+            showErrorToast(t('adminDashboard.groups.loadError', 'فشل تحميل بيانات المجموعة'), isRtl)
+            navigate('/dashboard/admin/private-groups')
+          })
+          .finally(() => {
+            if (active) setIsLoading(false)
+          })
+      } else {
+        setViewMode('edit-group')
+      }
+    } else {
+      if (viewMode === 'edit-group') {
+        setViewMode('list')
+        setSelectedGroup(null)
+      }
+    }
+    return () => { active = false }
+  }, [routeGroupId, navigate, isRtl, t])
 
   const STATUS_TABS = useMemo(() => [
     { key: 'all', label: t('adminDashboard.privateGroups.tabs.all', 'الكل') },
@@ -126,7 +167,46 @@ export default function AdminPrivateGroups() {
     setIsLoading(true)
     try {
       if (viewMode === 'edit-group' && selectedGroup) {
-        const res = await adminGroupsApi.updateGroup(selectedGroup.id, formData)
+        const restrictedPayload = {
+          name: typeof formData.name === 'object' && formData.name !== null
+            ? {
+                ar: formData.name.ar || formData.nameAr || '',
+                en: formData.name.en || formData.nameEn || '',
+              }
+            : (formData.name || ''),
+          ...(formData.image ? { image: formData.image } : {}),
+          ...(formData.country ? { country: formData.country } : {}),
+          maxStudents: Number(formData.maxStudents || 1),
+          ...(formData.startDate ? { startDate: formData.startDate } : {}),
+          ...(formData.endDate ? { endDate: formData.endDate } : {}),
+        }
+        const res = await adminGroupsApi.updateGroup(selectedGroup.id, restrictedPayload)
+
+        if (formData.status && formData.status !== selectedGroup.status) {
+          try {
+            await adminGroupsApi.updateGroupStatus(selectedGroup.id, formData.status)
+          } catch (statusErr) {
+            console.warn('Failed to update group status via dedicated endpoint:', statusErr)
+          }
+        }
+
+        if (Array.isArray(formData.weeklySchedule)) {
+          try {
+            await adminGroupsApi.updateGroupSchedule(selectedGroup.id, formData.weeklySchedule)
+          } catch (schedErr) {
+            console.warn('Failed to update group schedule via dedicated endpoint:', schedErr)
+          }
+        }
+
+        const currentTeacherId = String(selectedGroup.teacher?.id || selectedGroup.teacher?._id || selectedGroup.teacher || '')
+        const newTeacherId = String(formData.teacher || '')
+        if (newTeacherId && newTeacherId !== currentTeacherId) {
+          try {
+            await adminGroupsApi.changeTeacher(selectedGroup.id, newTeacherId)
+          } catch (tchErr) {
+            console.warn('Failed to update group teacher via dedicated endpoint:', tchErr)
+          }
+        }
         const updatedItem = res?.data || res
         if (updatedItem) {
           setGroups((prev) => prev.map((g) => (g.id === selectedGroup.id ? { ...g, ...updatedItem } : g)))
@@ -194,7 +274,7 @@ export default function AdminPrivateGroups() {
       setSelectedGroup({ ...group, id: groupId, _id: groupId })
     } finally {
       setIsLoading(false)
-      setViewMode('edit-group')
+      navigate(`/dashboard/admin/private-groups/edit/${groupId}`); setViewMode('edit-group')
     }
   }
 
@@ -256,29 +336,46 @@ export default function AdminPrivateGroups() {
     }
   }
 
+  const handleTransferStudent = async (groupId, studentId, targetGroupId) => {
+    setIsLoading(true)
+    try {
+      const res = await adminGroupsApi.transferStudent(groupId, {
+        student: studentId,
+        targetGroup: targetGroupId,
+      })
+      showSuccessToast(res?.message || t('adminDashboard.groups.transferSuccess', 'تم نقل الطالب بنجاح'), isRtl)
+      const detailed = await adminGroupsApi.fetchGroupByIdLocalized(groupId)
+      const data = detailed?.data || detailed
+      if (data && (data.id || data._id)) {
+        setSelectedGroup(data)
+      }
+      loadGroups()
+    } catch (err) {
+      console.error('Failed to transfer student:', err)
+      showErrorToast(err?.response?.data?.message || t('adminDashboard.groups.transferError', 'فشل نقل الطالب'), isRtl)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleRemoveStudent = async (groupId, studentId, studentName) => {
     const isConfirmed = await showDeleteConfirm(isRtl, studentName)
     if (!isConfirmed) return
     try {
       const res = await adminGroupsApi.removeStudentFromGroup(groupId, studentId)
       if (res?.success || res) {
-        setGroups((prev) =>
-          prev.map((g) => {
-            if (g.id === groupId) {
-              const list = (g.students || []).filter((s) => s.id !== studentId)
-              return { ...g, students: list, currentStudentsCount: list.length }
-            }
-            return g
-          })
-        )
-        if (selectedGroup?.id === groupId) {
-          setSelectedGroup((prev) => {
-            if (!prev) return prev
-            const list = (prev.students || []).filter((s) => s.id !== studentId)
-            return { ...prev, students: list, currentStudentsCount: list.length }
-          })
-        }
         showSuccessToast(res?.message || t('adminDashboard.groups.removeStudentSuccess', 'تمت إزالة الطالب من المجموعة بنجاح'), isRtl)
+        try {
+          const detailed = await adminGroupsApi.fetchGroupByIdLocalized(groupId)
+          const data = detailed?.data || detailed
+          if (data && (data.id || data._id)) {
+            setSelectedGroup(data)
+            setGroups((prev) => prev.map((g) => (g.id === groupId || g._id === groupId ? { ...g, ...data } : g)))
+          }
+        } catch (detailErr) {
+          console.warn('Failed to refresh group details after student removal:', detailErr)
+        }
+        await loadGroups()
       }
     } catch (error) {
       console.error('Failed to remove student:', error)
@@ -293,7 +390,7 @@ export default function AdminPrivateGroups() {
 
   const handleChangeTeacher = async (teacherId, teacherObj) => {
     if (!groupForTeacherChange) return
-    const groupId = groupForTeacherChange.id
+    const groupId = groupForTeacherChange.id || groupForTeacherChange._id
     setIsLoading(true)
     try {
       const teacherName = typeof teacherObj?.name === 'object'

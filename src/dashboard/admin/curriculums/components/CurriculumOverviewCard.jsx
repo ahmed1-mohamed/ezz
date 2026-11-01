@@ -11,6 +11,10 @@ export default function CurriculumOverviewCard({
       ? (isRtl ? curriculum?.description?.ar : curriculum?.description?.en) || curriculum?.description?.ar
       : curriculum?.description
 
+  const levelName = typeof curriculum?.studentLevel === 'object' && curriculum?.studentLevel !== null
+    ? (isRtl ? curriculum.studentLevel.name?.ar || curriculum.studentLevel.name?.en : curriculum.studentLevel.name?.en || curriculum.studentLevel.name?.ar) || curriculum.studentLevel.name
+    : curriculum?.studentLevel
+
   const parseLocalizedList = (raw) => {
     if (!raw) return []
     let list = raw
@@ -66,6 +70,11 @@ export default function CurriculumOverviewCard({
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
                 {isRtl ? 'منهج تعليمي معتمد' : 'Certified Curriculum'}
               </span>
+              {levelName && (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#00594C]/10 text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 border border-[#00594C]/20">
+                  {levelName}
+                </span>
+              )}
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                 {totalLevels} {isRtl ? 'مستويات' : 'Levels'}
               </span>

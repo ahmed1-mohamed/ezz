@@ -168,6 +168,8 @@ export const mapTeacherData = (item) => {
     achievementsEn,
     showOnWebsite: Boolean(item.showOnWebsite),
     certificates,
+    workingHours: item.workingHours || item.availability || item.availableHours || [],
+    availability: item.workingHours || item.availability || item.availableHours || [],
     specializations,
     groups,
     image,
@@ -671,6 +673,11 @@ export const teachersApi = {
           fd.append('hourlyRate', String(Math.max(0, Number(teacherData.hourlyRate) || 0)));
         }
 
+        if (teacherData.workingHours !== undefined || teacherData.availability !== undefined) {
+          const sched = teacherData.workingHours || teacherData.availability;
+          fd.append('workingHours', JSON.stringify(sched));
+          fd.append('availability', JSON.stringify(sched));
+        }
         if (teacherData.showOnWebsite !== undefined) {
           fd.append('showOnWebsite', String(Boolean(teacherData.showOnWebsite)));
         }
@@ -739,6 +746,11 @@ export const teachersApi = {
 
       if (teacherData.achievements !== undefined) {
         payload.achievements = teacherData.achievements;
+      if (teacherData.workingHours !== undefined || teacherData.availability !== undefined) {
+        const sched = teacherData.workingHours || teacherData.availability;
+        payload.workingHours = sched;
+        payload.availability = sched;
+      }
       }
 
       if (teacherData.showOnWebsite !== undefined) {

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
-import { showDeleteConfirm, showSuccessToast } from '@/shared/utils/sweetAlert'
+import { showDeleteConfirm, showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import ManagersList from './components/ManagersList'
 import RolesPermissionsScreen from './components/RolesPermissionsScreen'
 import AddSupervisorScreen from './components/AddSupervisorScreen'
@@ -15,6 +16,9 @@ export default function AdminManagers() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { id: routeAdminId } = useParams()
 
   const [viewMode, setViewMode] = useState('list')
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
@@ -43,8 +47,62 @@ export default function AdminManagers() {
     toggleStatusMutation
   } = useManagersMutations(isRtl)
 
+  const loadSupervisorDetails = useCallback(async (adminId) => {
+    enableExtraData()
+    setIsLoadingDetails(true)
+    try {
+      const rawAdminRes = await managersApi.fetchRawAdminById(adminId)
+      const rawAdmin = rawAdminRes?.data || rawAdminRes || {}
+      const arName = rawAdmin.name?.ar || rawAdmin.nameAr || rawAdmin.name_ar || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '')
+      const enName = rawAdmin.name?.en || rawAdmin.nameEn || rawAdmin.name_en || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '')
+      const preparedAdmin = {
+        ...rawAdmin,
+        admin_id: rawAdmin.admin_id || rawAdmin.id || rawAdmin._id || adminId,
+        id: rawAdmin.id || rawAdmin._id || rawAdmin.admin_id || adminId,
+        _id: rawAdmin._id || rawAdmin.id || rawAdmin.admin_id || adminId,
+        name: arName,
+        nameEn: enName,
+      }
+      setSelectedSupervisor(preparedAdmin)
+      return preparedAdmin
+    } catch (err) {
+      console.error('Failed to fetch raw admin details:', err)
+      const fallback = { id: adminId, _id: adminId, admin_id: adminId }
+      setSelectedSupervisor(fallback)
+      return fallback
+    } finally {
+      setIsLoadingDetails(false)
+    }
+  }, [enableExtraData])
+
+  useEffect(() => {
+    const pathname = location.pathname
+    if (pathname.endsWith('/managers/add')) {
+      enableExtraData()
+      setViewMode('add-supervisor')
+    } else if (pathname.endsWith('/managers/permissions') || pathname.endsWith('/managers/roles')) {
+      enableExtraData()
+      setViewMode('permissions')
+    } else if (routeAdminId && pathname.includes('/permissions')) {
+      enableExtraData()
+      setViewMode('assign-role')
+      if (!selectedSupervisor || (String(selectedSupervisor.id) !== String(routeAdminId) && String(selectedSupervisor._id) !== String(routeAdminId))) {
+        loadSupervisorDetails(routeAdminId)
+      }
+    } else if (routeAdminId) {
+      enableExtraData()
+      setViewMode('edit-supervisor')
+      if (!selectedSupervisor || (String(selectedSupervisor.id) !== String(routeAdminId) && String(selectedSupervisor._id) !== String(routeAdminId))) {
+        loadSupervisorDetails(routeAdminId)
+      }
+    } else {
+      setViewMode('list')
+      setSelectedSupervisor(null)
+    }
+  }, [location.pathname, routeAdminId, enableExtraData, loadSupervisorDetails, selectedSupervisor])
+
   const handleToggleStatus = (supervisor) => {
-    const targetUserId = supervisor.user_id || supervisor.user?.id || supervisor.user?._id
+    const targetUserId = supervisor.user_id || supervisor.user?.id || supervisor.user?._id || (typeof supervisor.user === 'string' ? supervisor.user : null)
     if (!targetUserId) {
       console.error('UserId is missing for toggle status operation!')
       return
@@ -69,13 +127,13 @@ export default function AdminManagers() {
   const handleDelete = async (supervisor) => {
     const supervisorName = typeof supervisor.name === 'object' && supervisor.name !== null
       ? (isRtl ? supervisor.name.ar || supervisor.name.en : supervisor.name.en || supervisor.name.ar)
-      : (supervisor.name || '');
+      : (supervisor.name || '')
 
     const isConfirmed = await showDeleteConfirm(isRtl, supervisorName)
-    if (!isConfirmed) return;
+    if (!isConfirmed) return
 
     try {
-      const adminId = supervisor.admin_id || supervisor.id || supervisor._id;
+      const adminId = supervisor.admin_id || supervisor.id || supervisor._id
       await deleteMutation.mutateAsync(adminId)
     } catch (err) {
       console.error('Failed to delete supervisor:', err)
@@ -83,34 +141,21 @@ export default function AdminManagers() {
   }
 
   const handleOpenEditScreen = async (supervisor) => {
+    const adminId = supervisor.admin_id || supervisor.id || supervisor._id
+    navigate(`/dashboard/admin/managers/${adminId}/edit`)
+  }
+
+  const handleOpenRolePermissions = (supervisorOrRoleName) => {
     enableExtraData()
-    setIsLoadingDetails(true)
-    try {
-      const adminId = supervisor.admin_id || supervisor.id || supervisor._id
-      const rawAdminRes = await managersApi.fetchRawAdminById(adminId)
-      const rawAdmin = rawAdminRes?.data || rawAdminRes || supervisor
-
-      const arName = rawAdmin.name?.ar || rawAdmin.nameAr || rawAdmin.name_ar || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '');
-      const enName = rawAdmin.name?.en || rawAdmin.nameEn || rawAdmin.name_en || (typeof rawAdmin.name === 'string' ? rawAdmin.name : '');
-
-      const preparedAdmin = {
-        ...rawAdmin,
-        name: arName,
-        nameEn: enName
-      }
-
-      setSelectedSupervisor(preparedAdmin)
-      setViewMode('edit-supervisor')
-    } catch (err) {
-      console.error('Failed to fetch raw admin details:', err)
-      setSelectedSupervisor(supervisor)
-      setViewMode('edit-supervisor')
-    } finally {
-      setIsLoadingDetails(false)
+    if (supervisorOrRoleName && typeof supervisorOrRoleName === 'object') {
+      const adminId = supervisorOrRoleName.admin_id || supervisorOrRoleName.id || supervisorOrRoleName._id
+      navigate(`/dashboard/admin/managers/${adminId}/permissions`)
+    } else {
+      navigate('/dashboard/admin/managers/permissions')
     }
   }
 
-  if (isLoadingSupervisors) {
+  if (isLoadingSupervisors && viewMode === 'list') {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
@@ -144,18 +189,10 @@ export default function AdminManagers() {
           onDelete={handleDelete}
           onOpenAddScreen={() => {
             enableExtraData()
-            setViewMode('add-supervisor')
+            navigate('/dashboard/admin/managers/add')
           }}
           onOpenEditScreen={handleOpenEditScreen}
-          onOpenRolePermissions={(supervisorOrRoleName) => {
-            enableExtraData()
-            if (supervisorOrRoleName && typeof supervisorOrRoleName === 'object') {
-              setSelectedSupervisor(supervisorOrRoleName)
-              setViewMode('assign-role')
-            } else {
-              setViewMode('permissions')
-            }
-          }}
+          onOpenRolePermissions={handleOpenRolePermissions}
         />
       )}
 
@@ -174,28 +211,27 @@ export default function AdminManagers() {
                 await managersApi.updateAdminPermission(adminId, permissionId)
               }
               queryClient.invalidateQueries({ queryKey: ['admins'] })
+              queryClient.invalidateQueries({ queryKey: ['permissions'] })
               showSuccessToast(isRtl ? 'تم حفظ الدور بنجاح!' : 'Role saved successfully!', isRtl)
-              setViewMode('list')
-              setSelectedSupervisor(null)
+              navigate('/dashboard/admin/managers')
             } catch (err) {
               console.error('Failed to save admin role:', err)
+              showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل حفظ الصلاحية' : 'Failed to save permission'), isRtl)
             }
           }}
           onDeleteAdminRole={async (adminId) => {
             try {
               await managersApi.deleteAdminPermission(adminId)
               queryClient.invalidateQueries({ queryKey: ['admins'] })
+              queryClient.invalidateQueries({ queryKey: ['permissions'] })
               showSuccessToast(isRtl ? 'تم حذف الصلاحيات بنجاح!' : 'Permissions deleted successfully!', isRtl)
-              setViewMode('list')
-              setSelectedSupervisor(null)
+              navigate('/dashboard/admin/managers')
             } catch (err) {
               console.error('Failed to delete admin role:', err)
+              showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل حذف الصلاحية' : 'Failed to delete permission'), isRtl)
             }
           }}
-          onCancel={() => {
-            setSelectedSupervisor(null)
-            setViewMode('list')
-          }}
+          onCancel={() => navigate('/dashboard/admin/managers')}
         />
       )}
 
@@ -209,18 +245,18 @@ export default function AdminManagers() {
           onSave={async (data) => {
             try {
               const res = await createMutation.mutateAsync(data.adminData)
-              const newAdmin = res?.data || res;
-              const newAdminId = newAdmin?.admin_id || newAdmin?.id || newAdmin?._id;
+              const newAdmin = res?.data || res
+              const newAdminId = newAdmin?.admin_id || newAdmin?.id || newAdmin?._id
               if (newAdminId && data.permissionId) {
-                await managersApi.assignAdminPermission(newAdminId, data.permissionId);
-                queryClient.invalidateQueries({ queryKey: ['admins'] });
+                await managersApi.assignAdminPermission(newAdminId, data.permissionId)
+                queryClient.invalidateQueries({ queryKey: ['admins'] })
               }
-              setViewMode('list')
+              navigate('/dashboard/admin/managers')
             } catch (err) {
               console.error('Failed to add supervisor:', err)
             }
           }}
-          onCancel={() => setViewMode('list')}
+          onCancel={() => navigate('/dashboard/admin/managers')}
         />
       )}
 
@@ -235,47 +271,48 @@ export default function AdminManagers() {
           onToggleStatus={handleToggleStatus}
           onSave={async (data) => {
             try {
-              const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id;
+              const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
               await updateMutation.mutateAsync({ id: targetAdminId, adminData: data.adminData })
 
               if (data.permissionId && data.permissionId !== selectedSupervisor.permission?._id && data.permissionId !== selectedSupervisor.permissionId) {
                 try {
                   if (selectedSupervisor.permission?._id || selectedSupervisor.permissionId) {
-                    await managersApi.updateAdminPermission(targetAdminId, data.permissionId);
+                    await managersApi.updateAdminPermission(targetAdminId, data.permissionId)
                   } else {
-                    await managersApi.assignAdminPermission(targetAdminId, data.permissionId);
+                    await managersApi.assignAdminPermission(targetAdminId, data.permissionId)
                   }
                 } catch (permErr) {
                   console.error('Failed to update supervisor permission:', permErr)
                 }
               }
 
-              queryClient.invalidateQueries({ queryKey: ['admins'] });
-              setViewMode('list')
+              queryClient.invalidateQueries({ queryKey: ['admins'] })
+              navigate('/dashboard/admin/managers')
             } catch (err) {
               console.error('Failed to update supervisor:', err)
             }
           }}
-          onUpdatePassword={async (newPassword, extra = {}) => {
+          onUpdatePassword={async (newPassword) => {
             try {
-              const targetUserId = selectedSupervisor.user_id || selectedSupervisor.user?.id || selectedSupervisor.user?._id;
-              const phone = extra.phone || selectedSupervisor.phone || selectedSupervisor.user?.phone || '';
-              const countryId = extra.countryId || selectedSupervisor.country?._id || selectedSupervisor.country?.id || '';
+              let targetUserId = selectedSupervisor.user_id ||
+                (typeof selectedSupervisor.user === 'string' ? selectedSupervisor.user : (selectedSupervisor.user?.id || selectedSupervisor.user?._id))
+              if (!targetUserId) {
+                const adminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
+                const rawAdminRes = await managersApi.fetchRawAdminById(adminId)
+                const rawAdmin = rawAdminRes?.data || rawAdminRes
+                targetUserId = rawAdmin?.user_id || (typeof rawAdmin?.user === 'string' ? rawAdmin.user : (rawAdmin?.user?._id || rawAdmin?.user?.id)) || adminId
+              }
               await managersApi.changeUserPassword(targetUserId, {
                 password: newPassword,
                 confirmPassword: newPassword,
-                phone,
-                country: countryId,
-              });
-              showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl);
+              })
+              showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
             } catch (err) {
-              console.error('Failed to update password:', err);
+              console.error('Failed to update password:', err)
+              showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل تحديث كلمة المرور' : 'Failed to update password'), isRtl)
             }
           }}
-          onCancel={() => {
-            setSelectedSupervisor(null)
-            setViewMode('list')
-          }}
+          onCancel={() => navigate('/dashboard/admin/managers')}
         />
       )}
     </div>

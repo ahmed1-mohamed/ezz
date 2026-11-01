@@ -297,29 +297,20 @@ export default function AdminGroups() {
     try {
       const res = await adminGroupsApi.removeStudentFromGroup(groupId, studentId)
       if (res?.success || res) {
-        setGroups((prev) =>
-          prev.map((g) => {
-            if (g.id === groupId || g._id === groupId) {
-              const list = (g.students || []).filter((s) => {
-                const sId = typeof s === 'string' ? s : (s?.id || s?._id || s?.student?._id || s?.student?.id || s?.student)
-                return String(sId) !== String(studentId)
-              })
-              return { ...g, students: list, currentStudentsCount: list.length }
-            }
-            return g
-          })
-        )
-        if (selectedGroup?.id === groupId || selectedGroup?._id === groupId) {
-          setSelectedGroup((prev) => {
-            if (!prev) return prev
-            const list = (prev.students || []).filter((s) => {
-              const sId = typeof s === 'string' ? s : (s?.id || s?._id || s?.student?._id || s?.student?.id || s?.student)
-              return String(sId) !== String(studentId)
-            })
-            return { ...prev, students: list, currentStudentsCount: list.length }
-          })
-        }
         showSuccessToast(res?.message || t('adminDashboard.groups.removeStudentSuccess', 'تمت إزالة الطالب من المجموعة بنجاح'), isRtl)
+        try {
+          const detailed = await adminGroupsApi.fetchGroupByIdLocalized(groupId)
+          const data = detailed?.data || detailed
+          if (data && (data.id || data._id)) {
+            setSelectedGroup(data)
+            setGroups((prev) =>
+              prev.map((g) => (g.id === groupId || g._id === groupId ? { ...g, ...data } : g))
+            )
+          }
+        } catch (detailErr) {
+          console.warn('Failed to refresh group details after student removal:', detailErr)
+        }
+        await loadGroups()
       }
     } catch (error) {
       console.error('Failed to remove student:', error)
@@ -330,7 +321,7 @@ export default function AdminGroups() {
   const handleEditGroup = (group) => {
     const groupId = group.id || group._id
     setSelectedGroup({ ...group, id: groupId, _id: groupId })
-    navigate(`/dashboard/admin/groups/${groupId}/edit`)
+    navigate(`/dashboard/admin/groups/edit/${groupId}`)
   }
 
   const handleTransferStudent = async (groupId, studentId, targetGroupId) => {
@@ -427,7 +418,7 @@ export default function AdminGroups() {
 
   const handleChangeTeacher = async (teacherId, teacherObj) => {
     if (!groupForTeacherChange) return
-    const groupId = groupForTeacherChange.id
+    const groupId = groupForTeacherChange.id || groupForTeacherChange._id
     setIsLoading(true)
     try {
       const teacherName = typeof teacherObj?.name === 'object'

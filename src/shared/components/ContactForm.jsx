@@ -8,7 +8,7 @@ import ContactBanner from './ContactBanner.jsx'
 import ContactInfoCards from './ContactInfoCards.jsx'
 import CountryPhoneInput from './CountryPhoneInput.jsx'
 
-import { sanitizeErrorMessage } from '@/shared/utils/errorHandler.js'
+import { sanitizeErrorMessage, canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
 
 export default function ContactForm() {
     const { t } = useTranslation()
@@ -48,15 +48,21 @@ export default function ContactForm() {
             }, 0)
         } else if (messageSubmitStatus === 'failed') {
             setTimeout(() => {
+                if (!canShowErrorInToaster(submitError)) {
+                    dispatch(resetMessageSubmitStatus());
+                    return;
+                }
                 const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
-                const errorMsg = sanitizeErrorMessage(submitError, null, isArabic) || t('contact.toast.error', 'عذراً، حدث خطأ ما أثناء إرسال الرسالة.');
-                setToast({
-                    show: true,
-                    message: errorMsg,
-                    type: 'error'
-                })
-                dispatch(resetMessageSubmitStatus())
-            }, 0)
+                const errorMsg = sanitizeErrorMessage(submitError, null, isArabic);
+                if (errorMsg) {
+                    setToast({
+                        show: true,
+                        message: errorMsg,
+                        type: 'error'
+                    });
+                }
+                dispatch(resetMessageSubmitStatus());
+            }, 0);
         }
     }, [messageSubmitStatus, submitError, dispatch, t])
 
@@ -108,7 +114,7 @@ export default function ContactForm() {
         if (!phoneVal) {
             newErrors.phone = t('contact.validation.phoneRequired', 'رقم الهاتف مطلوب')
         } else if (!phoneVal.startsWith('+')) {
-            newErrors.phone = t('contact.validation.phoneInvalidCountry', 'يجب أن يبدأ رقم الهاتف برمز دولة صحيح (مثال: +20)')
+            newErrors.phone = t('contact.validation.phoneInvalidCountry', 'يجب أن يبدأ رقم الهاتف برمز دولة صحيح (مثال: +971)')
         } else {
             const digits = phoneVal.substring(1).replace(/\D/g, '')
             if (digits.length < 8 || digits.length > 15) {
@@ -230,6 +236,8 @@ export default function ContactForm() {
                             value={formData.phone}
                             onChange={handlePhoneChange}
                             error={errors.phone}
+                            defaultCountry="AE"
+                            defaultDialCode="+971"
                         />
                     </div>
 

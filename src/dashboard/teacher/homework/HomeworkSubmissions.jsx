@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -56,6 +57,9 @@ export default function HomeworkSubmissions() {
     return () => clearInterval(interval);
   }, [isRtl]);
 
+  const { id: paramId } = useParams();
+  const navigate = useNavigate();
+
   const [statusFilter, setStatusFilter] = useState('all');
   const [evaluationFilter, setEvaluationFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -81,26 +85,18 @@ export default function HomeworkSubmissions() {
     if (isNaN(date.getTime())) {
       return String(rawDate);
     }
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMins < 5) return t('teacherHomework.justNow', 'الآن');
-    if (diffMins < 60) return t('teacherHomework.minsAgo', { count: diffMins, defaultValue: `منذ ${diffMins} دقيقة` });
-    if (diffHours < 24) return t('teacherHomework.hoursAgo', { count: diffHours, defaultValue: `منذ ${diffHours} ساعة` });
-    if (diffDays === 1) return t('teacherHomework.yesterday', 'أمس');
-    if (diffDays < 7) return t('teacherHomework.daysAgo', { count: diffDays, defaultValue: `منذ ${diffDays} أيام` });
-
     try {
-      return new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+      const datePart = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
         day: 'numeric',
         month: 'short',
+        year: 'numeric',
+      }).format(date);
+      const timePart = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false,
+        hour12: true,
       }).format(date);
+      return `${datePart} - ${timePart}`;
     } catch {
       return date.toLocaleDateString();
     }
@@ -140,8 +136,17 @@ export default function HomeworkSubmissions() {
           item.rawEvaluationStatus === 'evaluated' ||
           (item.grade !== null && item.grade !== undefined);
 
+        const subDate = item.submittedAt || item.submissionDate || item.date || item.createdAt || null;
+        const hwId =
+          item.homework?._id ||
+          item.homework?.id ||
+          (typeof item.homework === 'string' ? item.homework : null) ||
+          item.homeworkId ||
+          null;
+
         return {
           id: item.id || item._id || `submission-${idx + 1}`,
+          homeworkId: hwId,
           studentName:
             typeof item.student === 'object'
               ? item.student?.name || 'طالب'
@@ -154,8 +159,8 @@ export default function HomeworkSubmissions() {
             typeof item.homework === 'object'
               ? item.homework?.title || 'واجب مدرسي'
               : item.homework || 'واجب مدرسي',
-          submittedAt: item.submittedAt || item.createdAt || null,
-          timeText: formatSubmissionTime(item.submittedAt || item.createdAt),
+          submittedAt: subDate,
+          timeText: formatSubmissionTime(subDate),
           rawStatus: normStatus,
           rawEvaluationStatus: isEval ? 'evaluated' : 'not_evaluated',
           grade: item.grade ?? null,
@@ -167,7 +172,18 @@ export default function HomeworkSubmissions() {
     }
 
     return [];
-  }, [submissionsRes]);
+  }, [submissionsRes, isRtl, t]);
+
+  useEffect(() => {
+    if (paramId && rawSubmissions.length > 0 && !selectedSubmission) {
+      const found = rawSubmissions.find((s) => s.id === paramId || s.homeworkId === paramId);
+      if (found) {
+        setSelectedSubmission(found);
+      } else {
+        setSelectedSubmission({ id: paramId, homeworkId: paramId });
+      }
+    }
+  }, [paramId, rawSubmissions, selectedSubmission]);
 
   const stats = useMemo(() => {
     let all = rawSubmissions.length;
@@ -215,7 +231,12 @@ export default function HomeworkSubmissions() {
     return (
       <SubmissionDetailsView
         submission={selectedSubmission}
-        onBack={() => setSelectedSubmission(null)}
+        onBack={() => {
+          setSelectedSubmission(null);
+          if (paramId) {
+            navigate('/dashboard/teacher/assignments/submissions');
+          }
+        }}
         currentTimeStr={currentTimeStr}
         currentDateStr={currentDateStr}
       />
@@ -367,7 +388,7 @@ export default function HomeworkSubmissions() {
                 <th className="py-4 px-4 text-start">{t('teacherHomework.homework', 'الواجب')}</th>
                 <th className="py-4 px-4 text-start">{t('teacherHomework.submissionDate', 'وقت التسليم')}</th>
                 <th className="py-4 px-4 text-center">{t('teacherHomework.status', 'الحالة')}</th>
-                <th className="py-4 px-4 text-center">{t('teacherHomework.grade', 'التقييم')}</th>
+                <th className="py-4 px-4 text-center">{t('teacherHomework.evaluationStatus', 'حالة التقييم')}</th>
                 <th className="py-4 px-6 text-center">{t('teacherHomework.actions', 'الإجراءات')}</th>
               </tr>
             </thead>

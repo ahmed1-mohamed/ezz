@@ -4,6 +4,7 @@ import { showErrorToast } from '@/shared/utils/sweetAlert'
 import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
 import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
+import TeacherAvailabilityCard from './TeacherAvailabilityCard'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import { sortCountries, normalizeCountries } from '@/shared/utils/countryUtils'
@@ -91,7 +92,9 @@ const getInitialFormData = (teacher) => ({
   nameEn: getInitialNameEn(teacher),
   subject: teacher?.subject || 'القرآن الكريم',
   email: teacher?.email || '',
-  phone: teacher?.phone || '',
+  phone: teacher?.phone || teacher?.user?.phone || teacher?.userId?.phone || '',
+  workingHours: teacher?.workingHours || teacher?.availability || teacher?.availableHours || [],
+  availability: teacher?.workingHours || teacher?.availability || teacher?.availableHours || [],
   joinDate: teacher?.joinDate || new Date().toISOString().split('T')[0],
   totalEarnings: teacher?.totalEarnings || 0,
   dueEarnings: teacher?.dueEarnings || 0,
@@ -321,6 +324,7 @@ export default function AddEditTeacherScreen({
           onChange={handleFieldChange}
           isRtl={isRtl}
           countries={apiCountries}
+          isEdit={!!teacher}
         />
 
          <TeacherAcademicInfoCard

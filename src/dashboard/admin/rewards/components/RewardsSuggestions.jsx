@@ -18,13 +18,17 @@ import { useTranslation } from 'react-i18next'
 
 function renderRewardIcon(icon) {
   if (!icon) return <span className="text-2xl">🎁</span>
-  const lower = String(icon).toLowerCase().trim()
+  if (typeof icon === 'object' && icon !== null) {
+    icon = icon.ar || icon.en || icon.icon || icon.emoji || ''
+  }
+  const clean = String(icon).trim()
+  const lower = clean.toLowerCase()
+  if (lower === 'trophy') return <span className="text-2xl">🏆</span>
   if (lower === 'star') return <Star className="w-7 h-7 text-amber-500 fill-amber-500" />
-  if (lower === 'trophy') return <Trophy className="w-7 h-7 text-amber-500" />
   if (lower === 'award') return <Award className="w-7 h-7 text-amber-500" />
   if (lower === 'medal') return <Medal className="w-7 h-7 text-amber-500" />
   if (lower === 'heart') return <Heart className="w-7 h-7 text-rose-500 fill-rose-500" />
-  return <span className="text-2xl">{icon}</span>
+  return <span className="text-2xl">{clean}</span>
 }
 
 function getLocalizedText(val, isRtl) {
@@ -267,7 +271,7 @@ export default function RewardsSuggestions({
                       {onApprove && (
                         <button
                           type="button"
-                          onClick={() => onApprove(sugId)}
+                          onClick={() => onApprove(sugId, sug)}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0d6b5e] text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
                         >
                           <Check size={14} />

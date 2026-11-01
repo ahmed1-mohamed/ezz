@@ -42,7 +42,11 @@ export default React.memo(function TeacherGroupCard({ group }) {
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col justify-between hover:shadow-md transition-shadow text-start">
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+            group.type === 'خاصة' || group.type === 'خاص' || group.rawType === 'private'
+              ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+              : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+          }`}>
             {group.type}
           </span>
           {renderStatus(group.status)}

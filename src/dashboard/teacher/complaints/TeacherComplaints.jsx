@@ -57,6 +57,8 @@ export default function TeacherComplaints() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [selectedItemForDetails, setSelectedItemForDetails] = useState(null);
@@ -68,8 +70,13 @@ export default function TeacherComplaints() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['teacherComplaints'],
-    queryFn: () => teacherComplaintsApi.fetchComplaints(),
+    queryKey: ['teacherComplaints', currentPage, statusFilter],
+    queryFn: () =>
+      teacherComplaintsApi.fetchComplaints({
+        page: currentPage,
+        limit: itemsPerPage,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+      }),
   });
 
   const rawList = useMemo(() => {
@@ -134,9 +141,6 @@ export default function TeacherComplaints() {
       return true;
     });
   }, [rawList, statusFilter, typeFilter, searchQuery]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
 
   const serverTotalPages =
     responseData?.pagination?.numberOfPages ||
@@ -257,7 +261,10 @@ export default function TeacherComplaints() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setStatusFilter(tab.id)}
+                onClick={() => {
+                  setStatusFilter(tab.id);
+                  setCurrentPage(1);
+                }}
                 type="button"
                 className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                   isSelected

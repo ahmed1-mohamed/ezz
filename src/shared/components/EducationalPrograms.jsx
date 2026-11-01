@@ -180,21 +180,21 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 sm:mb-12 gap-6"
+                    className="relative mb-8 sm:mb-12"
                 >
-                    <div className="text-start">
+                    <div className="text-center max-w-3xl mx-auto px-4">
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F7A6C] dark:text-emerald-400">
                             {t('programs.title', 'برامجنا التعليمية')}
                         </h2>
 
-                        <div className="mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
+                        <div className="mx-auto mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
 
-                        <p className="mt-5 sm:mt-6 max-w-2xl text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-7 sm:leading-8">
+                        <p className="mt-5 sm:mt-6 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-7 sm:leading-8">
                             {t('programs.description', 'نقدم مجموعة متنوعة من البرامج التعليمية المتميزة لتلبية احتياجات جميع أبنائنا.')}
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 self-start md:self-end">
+                    <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">
                         <button
                             type="button"
                             onClick={() => scroll('prev')}
@@ -300,8 +300,8 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                         )}
                                     </div>
 
-                                    <div className="p-5 sm:p-6 flex flex-col flex-1 text-start">
-                                        <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white group-hover:text-[#0F7A6C] dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
+                                    <div className="p-5 sm:p-6 flex flex-col flex-1 text-center">
+                                        <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-[#0F7A6C] dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
                                             {prog.title}
                                         </h3>
 

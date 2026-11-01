@@ -57,10 +57,11 @@ export default function GroupDetailsModal({
 
       const actualStudentId = String(
         raw?.student_id ||
-        raw?.studentId ||
         raw?.student?.student_id ||
+        (matched && matched.student_id) ||
+        raw?.studentId ||
         raw?.student?.studentId ||
-        (matched && (matched.student_id || matched.studentId)) ||
+        (matched && matched.studentId) ||
         (raw?.student && typeof raw.student === 'object' && (raw.student.id || raw.student._id)) ||
         (typeof raw?.student === 'string' && raw.student) ||
         (matched && (matched.id || matched._id)) ||
@@ -178,7 +179,7 @@ export default function GroupDetailsModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9990] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
@@ -345,7 +346,7 @@ export default function GroupDetailsModal({
                     </button>
                   )}
                   <button
-                    onClick={() => onRemoveStudent(group.id || group._id, student.studentId || student.id, student.name)}
+                    onClick={() => onRemoveStudent(group.id || group._id, student.student_id || student.studentId || student.id, student.name)}
                     className="flex items-center gap-1.5 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-200 dark:border-red-800 cursor-pointer opacity-100 sm:opacity-0 group-hover/std:opacity-100"
                     title={t('adminDashboard.groups.removeStudent', 'إزالة')}
                   >

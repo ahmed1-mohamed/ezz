@@ -14,18 +14,17 @@ export const extractSafeString = (val, preferredLang = 'ar', fallback = '') => {
   return String(val).trim();
 };
 
-export const formatTime12h = (timeStr, isRtl = true) => {
-  if (!timeStr) return '-';
-  const cleanStr = String(timeStr).trim();
-  if (!cleanStr) return '-';
+export const formatSingleTime12h = (timeVal, isRtl = true) => {
+  if (!timeVal) return '';
+  const str = String(timeVal).trim();
+  if (!str) return '';
 
-  if (cleanStr.includes(' - ')) {
-    const parts = cleanStr.split(' - ').map((s) => s.trim());
-    return `${formatTime12h(parts[0], isRtl)} - ${formatTime12h(parts[1], isRtl)}`;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    return '';
   }
 
-  if (cleanStr.includes('T')) {
-    const d = new Date(cleanStr);
+  if (str.includes('T')) {
+    const d = new Date(str);
     if (!isNaN(d.getTime())) {
       let hours = d.getHours();
       const minutes = d.getMinutes().toString().padStart(2, '0');
@@ -35,7 +34,7 @@ export const formatTime12h = (timeStr, isRtl = true) => {
     }
   }
 
-  const match = cleanStr.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  const match = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
   if (match) {
     let hours = parseInt(match[1], 10);
     const minutes = match[2];
@@ -44,7 +43,62 @@ export const formatTime12h = (timeStr, isRtl = true) => {
     return `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
   }
 
-  return cleanStr;
+  if (/(\d{1,2}):(\d{2})\s*(AM|PM|am|pm|ص|م)/.test(str)) {
+    return str;
+  }
+
+  return str;
+};
+
+export const formatTimeRange12h = (startTimeStr, endTimeStr, durationMinutes = 60, isRtl = true) => {
+  if (typeof startTimeStr === 'string' && startTimeStr.includes(' - ')) {
+    const parts = startTimeStr.split(' - ').map((s) => s.trim());
+    const startFmt = formatSingleTime12h(parts[0], isRtl);
+    const endFmt = formatSingleTime12h(parts[1], isRtl);
+    if (startFmt && endFmt) return `${startFmt} - ${endFmt}`;
+    if (startFmt) return startFmt;
+  }
+
+  let startFmt = formatSingleTime12h(startTimeStr, isRtl);
+  let endFmt = formatSingleTime12h(endTimeStr, isRtl);
+
+  if (startFmt && !endFmt && durationMinutes) {
+    let startHour = null;
+    let startMin = null;
+
+    if (String(startTimeStr).includes('T')) {
+      const d = new Date(startTimeStr);
+      if (!isNaN(d.getTime())) {
+        startHour = d.getHours();
+        startMin = d.getMinutes();
+      }
+    } else {
+      const m = String(startTimeStr).match(/^(\d{1,2}):(\d{2})/);
+      if (m) {
+        startHour = parseInt(m[1], 10);
+        startMin = parseInt(m[2], 10);
+      }
+    }
+
+    if (startHour !== null && startMin !== null) {
+      const totalMinutes = startHour * 60 + startMin + Number(durationMinutes);
+      let endHour = Math.floor(totalMinutes / 60) % 24;
+      const endMinute = totalMinutes % 60;
+      const period = endHour >= 12 ? (isRtl ? 'م' : 'PM') : (isRtl ? 'ص' : 'AM');
+      endHour = endHour % 12 || 12;
+      endFmt = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')} ${period}`;
+    }
+  }
+
+  if (startFmt && endFmt) {
+    return `${startFmt} - ${endFmt}`;
+  }
+
+  return startFmt || endFmt || '-';
+};
+
+export const formatTime12h = (timeStr, isRtl = true) => {
+  return formatTimeRange12h(timeStr, null, 60, isRtl);
 };
 
 export const mapSessionData = (item) => {

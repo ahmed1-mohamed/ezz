@@ -8,6 +8,7 @@ import ProfileSettingsPanel from './components/ProfileSettingsPanel.jsx';
 import PasswordSettingsPanel from './components/PasswordSettingsPanel.jsx';
 import LanguageAppearancePanel from './components/LanguageAppearancePanel.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
+import { extractPermissionKeys } from '@/shared/hooks/useAdminPermissions.js';
 import { CheckCircle, Shield, XCircle } from 'lucide-react';
 
 export default function AdminSettings() {
@@ -16,12 +17,9 @@ export default function AdminSettings() {
     const isRtl = i18n.language === 'ar';
     const normalizedRole = String(user?.role || '').toLowerCase();
     const isSuperAdmin = normalizedRole === 'super_admin' || normalizedRole === 'superadmin';
-    const isAdmin = normalizedRole === 'admin' || normalizedRole === 'manager' || (!isSuperAdmin && String(user?.role || '').includes('Admin'));
-
-    const [profileDataForPassword, setProfileDataForPassword] = useState({ phone: '', country: '' });
+    const isAdmin = !isSuperAdmin;
     const [adminPermissions, setAdminPermissions] = useState(null);
     const [loadingPermissions, setLoadingPermissions] = useState(false);
-
     useEffect(() => {
         if (isAdmin && !isSuperAdmin) {
             const loadPermissions = async () => {
@@ -31,14 +29,17 @@ export default function AdminSettings() {
                         managersApi.fetchPermissions(),
                         profileApi.fetchProfile()
                     ]);
-
-                    const allPermissions = res.status === 'fulfilled' ? (res.value?.data || res.value || []) : [];
+                    const rawData = res.status === 'fulfilled' ? (res.value?.data || res.value || []) : [];
+                    const allPermissions = Array.isArray(rawData) ? rawData : (Array.isArray(rawData?.data) ? rawData.data : []);
                     const profileData = profileRes.status === 'fulfilled' ? (profileRes.value?.data || profileRes.value) : null;
-
-                    if (profileData?.permission && typeof profileData.permission === 'object' && (profileData.permission.permissions || profileData.permission.name)) {
+                    if (profileData?.permission && typeof profileData.permission === 'object' && (profileData.permission.keys || profileData.permission.permissions || profileData.permission.name)) {
                         setAdminPermissions(profileData.permission);
-                    } else if (profileData?.permissions && typeof profileData.permissions === 'object') {
-                        setAdminPermissions({ name: profileData.name || 'Admin', permissions: profileData.permissions });
+                    } else if (profileData?.permissions && (Array.isArray(profileData.permissions) || typeof profileData.permissions === 'object')) {
+                        setAdminPermissions({
+                            name: profileData.permission?.name || profileData.name || 'Admin',
+                            permissions: profileData.permissions,
+                            keys: profileData.keys || profileData.permissions
+                        });
                     } else {
                         const userPermissionId = profileData?.permissionId ||
                             profileData?.permission?.id ||
@@ -48,12 +49,30 @@ export default function AdminSettings() {
                             user?.permission?.id ||
                             user?.permission?._id ||
                             (typeof user?.permission === 'string' ? user.permission : null);
-
-                        if (userPermissionId && Array.isArray(allPermissions)) {
-                            const matched = allPermissions.find(p => String(p.id || p._id) === String(userPermissionId));
+                        if (userPermissionId) {
+                            let matched = allPermissions.find(p => String(p.id || p._id) === String(userPermissionId));
+                            if (!matched || !matched.keys) {
+                                try {
+                                    const singleRes = await managersApi.fetchPermissionById(userPermissionId);
+                                    const singleData = singleRes?.data || singleRes;
+                                    if (singleData && (singleData.keys || singleData.name || singleData.permissions)) {
+                                        matched = singleData;
+                                    }
+                                } catch (e) {
+                                    console.warn('Could not fetch single permission details:', e);
+                                }
+                            }
                             if (matched) {
                                 setAdminPermissions(matched);
                             }
+                        } else if (user?.permission && typeof user.permission === 'object') {
+                            setAdminPermissions(user.permission);
+                        } else if (user?.permissions) {
+                            setAdminPermissions({
+                                name: user.role || 'Admin',
+                                permissions: user.permissions,
+                                keys: user.permissions
+                            });
                         } else if (Array.isArray(allPermissions) && allPermissions.length === 1) {
                             setAdminPermissions(allPermissions[0]);
                         }
@@ -66,7 +85,17 @@ export default function AdminSettings() {
             loadPermissions();
         }
     }, [isAdmin, isSuperAdmin, user?.id]);
-
+    const handleProfileLoaded = (profileInfo) => {
+        if (profileInfo?.permission && typeof profileInfo.permission === 'object') {
+            setAdminPermissions(profileInfo.permission);
+        } else if (profileInfo?.permissions) {
+            setAdminPermissions({
+                name: profileInfo.permission?.name || profileInfo.role || 'Admin',
+                permissions: profileInfo.permissions,
+                keys: profileInfo.permissions
+            });
+        }
+    };
     const containerVariants = {
         hidden: { opacity: 0 },
         show: {
@@ -74,41 +103,25 @@ export default function AdminSettings() {
             transition: { staggerChildren: 0.1 }
         }
     };
-
     const itemVariants = {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
     };
-
     const renderPermissionsPanel = () => {
-        if (!isAdmin && !isSuperAdmin) return null;
-
-        const permissionName = isSuperAdmin
-            ? (isRtl ? 'مدير نظام كامل الصلاحيات (Super Admin)' : 'Super Administrator (Full Access)')
-            : (adminPermissions
-                ? (typeof adminPermissions.name === 'object'
-                    ? (isRtl ? adminPermissions.name.ar || adminPermissions.name.en : adminPermissions.name.en || adminPermissions.name.ar)
-                    : adminPermissions.name)
-                : '');
-
-        const grantedKeys = new Set();
-        if (isSuperAdmin) {
-            SYSTEM_PERMISSIONS.forEach(mod => mod.actions.forEach(act => grantedKeys.add(act.key)));
-        } else if (adminPermissions) {
-            if (adminPermissions.permissions && typeof adminPermissions.permissions === 'object') {
-                Object.values(adminPermissions.permissions).forEach(val => {
-                    if (Array.isArray(val)) {
-                        val.forEach(k => grantedKeys.add(typeof k === 'object' ? (k.key || k.action) : k));
-                    } else if (typeof val === 'string') {
-                        grantedKeys.add(val);
-                    }
-                });
-            }
-            if (Array.isArray(adminPermissions.keys)) {
-                adminPermissions.keys.forEach(k => grantedKeys.add(k));
-            }
-        }
-
+        if (isSuperAdmin) return null;
+        if (!isAdmin) return null;
+        const permissionName = adminPermissions
+            ? (typeof adminPermissions.name === 'object'
+                ? (isRtl ? adminPermissions.name.ar || adminPermissions.name.en : adminPermissions.name.en || adminPermissions.name.ar)
+                : adminPermissions.name)
+            : (typeof user?.permission?.name === 'object'
+                ? (isRtl ? user.permission.name.ar || user.permission.name.en : user.permission.name.en || user.permission.name.ar)
+                : (user?.permission?.name || (isRtl ? 'مشرف / مسؤول' : 'Admin / Supervisor')));
+        const grantedKeys = extractPermissionKeys(adminPermissions || user?.permissions || user?.permission);
+        const isActionGranted = (action) =>
+            grantedKeys.has('*') ||
+            grantedKeys.has(action.key) ||
+            (action.aliases && action.aliases.some(a => grantedKeys.has(a)));
         return (
             <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3 mb-6">
@@ -126,21 +139,19 @@ export default function AdminSettings() {
                         )}
                     </div>
                 </div>
-
                 {loadingPermissions ? (
                     <div className="flex items-center justify-center py-12">
                         <div className="w-8 h-8 border-3 border-[#0f7a6c] border-t-transparent rounded-full animate-spin"></div>
                     </div>
-                ) : !adminPermissions ? (
+                ) : !adminPermissions && grantedKeys.size === 0 ? (
                     <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
                         {isRtl ? 'لا توجد صلاحيات محددة' : 'No permissions assigned'}
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {SYSTEM_PERMISSIONS.map((module) => {
-                            const hasAnyGranted = module.actions.some(a => grantedKeys.has(a.key));
-                            const hasAnyDenied = module.actions.some(a => !grantedKeys.has(a.key));
-
+                            const hasAnyGranted = module.actions.some(a => isActionGranted(a));
+                            const hasAnyDenied = module.actions.some(a => !isActionGranted(a));
                             return (
                                 <div key={module.module} className="rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
                                     <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-900/50">
@@ -167,7 +178,7 @@ export default function AdminSettings() {
                                     </div>
                                     <div className="px-4 py-3 space-y-2">
                                         {module.actions.map((action) => {
-                                            const isGranted = grantedKeys.has(action.key);
+                                            const isGranted = isActionGranted(action);
                                             return (
                                                 <div key={action.key} className="flex items-center gap-2.5">
                                                     {isGranted ? (
@@ -190,7 +201,6 @@ export default function AdminSettings() {
             </motion.div>
         );
     };
-
     return (
         <motion.div
             variants={containerVariants}
@@ -203,24 +213,17 @@ export default function AdminSettings() {
                 <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{t('parentSettings.title')}</h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('parentSettings.subtitle')}</p>
             </motion.div>
-
             <ProfileSettingsPanel
                 itemVariants={itemVariants}
-                onProfileLoaded={(data) => setProfileDataForPassword({ phone: data.phone, country: data.country })}
+                onProfileLoaded={handleProfileLoaded}
             />
-
             <PasswordSettingsPanel
                 itemVariants={itemVariants}
-                profilePhone={profileDataForPassword.phone}
-                profileCountry={profileDataForPassword.country}
             />
-
             <LanguageAppearancePanel
                 itemVariants={itemVariants}
             />
-
             {renderPermissionsPanel()}
-
         </motion.div>
     );
 }

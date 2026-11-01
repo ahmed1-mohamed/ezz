@@ -17,7 +17,6 @@ export default function AdminRewards() {
   const { hasPermission, isSuperAdmin } = useAdminPermissions()
   const p = (key) => t(`adminDashboard.rewards.${key}`, key)
 
-  const [stats, setStats] = useState(null)
   const [rewards, setRewards] = useState([])
   const [suggestions, setSuggestions] = useState([])
   const [suggestionsStats, setSuggestionsStats] = useState(null)
@@ -64,12 +63,10 @@ export default function AdminRewards() {
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const [statsRes, rewardsRes, suggestionsRes] = await Promise.all([
-      adminRewardsApi.fetchStats(),
+    const [rewardsRes, suggestionsRes] = await Promise.all([
       adminRewardsApi.fetchRewards(),
       adminRewardsApi.fetchSuggestions(suggestionsFilter),
     ])
-    if (statsRes?.data) setStats(statsRes.data)
     if (rewardsRes?.success) setRewards(rewardsRes.data)
     if (suggestionsRes?.success) {
       setSuggestions(suggestionsRes.data)
@@ -91,24 +88,17 @@ export default function AdminRewards() {
   }, [loadData])
 
   const handleEditRewardClick = async (reward, switchTab = false) => {
-    const loadingToast = toast.loading(isRtl ? 'جاري تحميل بيانات المكافأة...' : 'Loading reward details...')
+    setEditingReward(reward)
+    setShowForm(true)
+    if (switchTab) setActiveMainTab('rewards')
+
     try {
       const res = await adminRewardsApi.fetchRewardById(reward.id || reward._id)
-      if (res?.success && res.data) {
-        setEditingReward(res.data)
-        setShowForm(true)
-      } else {
-        setEditingReward(reward)
-        setShowForm(true)
+      if (res?.success && res.data && typeof res.data === 'object' && Object.keys(res.data).length > 0) {
+        setEditingReward((prev) => ({ ...prev, ...res.data }))
       }
-      if (switchTab) setActiveMainTab('rewards')
     } catch (error) {
       console.error('Failed to fetch reward details for edit:', error)
-      setEditingReward(reward)
-      setShowForm(true)
-      if (switchTab) setActiveMainTab('rewards')
-    } finally {
-      toast.dismiss(loadingToast)
     }
   }
 
@@ -153,11 +143,12 @@ export default function AdminRewards() {
     }
   }
 
-  const handleApproveSuggestion = async (id) => {
-    const res = await adminRewardsApi.approveSuggestion(id)
+  const handleApproveSuggestion = async (id, suggestion = null) => {
+    const res = await adminRewardsApi.approveSuggestion(id, suggestion)
     if (res?.success) {
       showSuccessToast(isRtl ? 'تم قبول المقترح بنجاح' : 'Suggestion approved successfully', isRtl)
       loadSuggestionsByStatus(suggestionsFilter)
+      loadData()
     } else {
       showErrorToast(res?.error || (isRtl ? 'فشل قبول المقترح' : 'Failed to approve suggestion'), isRtl)
     }
@@ -187,7 +178,7 @@ export default function AdminRewards() {
     }
   }
 
-  if (loading && !stats) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-60">
         <Spinner />
@@ -273,7 +264,7 @@ export default function AdminRewards() {
       ) : canViewSuggestions ? (
         <RewardsSuggestions
           suggestions={suggestions}
-          stats={suggestionsStats || stats || {}}
+          stats={suggestionsStats || {}}
           activeFilter={suggestionsFilter}
           onFilterChange={loadSuggestionsByStatus}
           isLoading={isSuggestionsLoading}

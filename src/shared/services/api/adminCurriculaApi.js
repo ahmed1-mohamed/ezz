@@ -43,13 +43,34 @@ export const adminCurriculaApi = {
 
   createCurriculum: async (payload) => {
     try {
+      let desiredShowOnWebsite = null;
       if (payload && !(payload instanceof FormData)) {
         if ('isActive' in payload) delete payload.isActive;
+        if ('showOnWebsite' in payload) {
+          payload.showOnWebsite = Boolean(payload.showOnWebsite);
+        }
       } else if (payload instanceof FormData) {
         payload.delete('isActive');
+        if (payload.has('showOnWebsite')) {
+          const raw = payload.get('showOnWebsite');
+          desiredShowOnWebsite = raw === 'true' || raw === true;
+          payload.delete('showOnWebsite');
+        }
       }
       const response = await api.post('/api/v1/curricula/private', payload);
-      return response.data;
+      const resData = response.data;
+      const createdItem = resData?.data || resData;
+      const createdId = createdItem?._id || createdItem?.id;
+      if (createdId && desiredShowOnWebsite !== null) {
+        try {
+          await api.patch(`/api/v1/curricula/private/${createdId}`, {
+            showOnWebsite: Boolean(desiredShowOnWebsite)
+          });
+        } catch (patchErr) {
+          console.warn('API createCurriculum showOnWebsite sync failed:', patchErr);
+        }
+      }
+      return resData;
     } catch (error) {
       console.error('API createCurriculum failed:', error);
       throw error;
@@ -60,14 +81,30 @@ export const adminCurriculaApi = {
     try {
       const cId = typeof id === 'object' ? (id.id || id._id) : String(id).trim();
       const endpoint = `/api/v1/curricula/private/${cId}`;
-
+      let desiredShowOnWebsite = null;
       if (payload && !(payload instanceof FormData)) {
         if ('isActive' in payload) delete payload.isActive;
+        if ('showOnWebsite' in payload) {
+          payload.showOnWebsite = Boolean(payload.showOnWebsite);
+        }
       } else if (payload instanceof FormData) {
         payload.delete('isActive');
+        if (payload.has('showOnWebsite')) {
+          const raw = payload.get('showOnWebsite');
+          desiredShowOnWebsite = raw === 'true' || raw === true;
+          payload.delete('showOnWebsite');
+        }
       }
-
       const response = await api.patch(endpoint, payload);
+      if (desiredShowOnWebsite !== null) {
+        try {
+          await api.patch(endpoint, {
+            showOnWebsite: Boolean(desiredShowOnWebsite)
+          });
+        } catch (patchErr) {
+          console.warn('API updateCurriculum showOnWebsite sync failed:', patchErr);
+        }
+      }
       return response.data;
     } catch (error) {
       console.error('API updateCurriculum failed:', error);

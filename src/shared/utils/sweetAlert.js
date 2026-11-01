@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 
 export const showDeleteConfirm = async (isRtl = true, itemName = '') => {
   const result = await Swal.fire({
@@ -13,6 +13,12 @@ export const showDeleteConfirm = async (isRtl = true, itemName = '') => {
     confirmButtonText: isRtl ? 'نعم، احذف!' : 'Yes, delete it!',
     cancelButtonText: isRtl ? 'إلغاء' : 'Cancel',
     reverseButtons: isRtl,
+    willOpen: (popup) => {
+      const c = popup.closest('.swal2-container');
+      if (c) {
+        c.style.setProperty('z-index', '99999999', 'important');
+      }
+    },
     customClass: {
       container: '!z-[999999]',
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 rounded-3xl shadow-2xl',
@@ -20,9 +26,8 @@ export const showDeleteConfirm = async (isRtl = true, itemName = '') => {
       htmlContainer: 'dark:text-slate-400',
     }
   });
-
   return result.isConfirmed;
-}
+};
 
 export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = '', confirmColor = '#0f7a6c' } = {}) => {
   const result = await Swal.fire({
@@ -44,87 +49,236 @@ export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = 
       input: 'dark:bg-slate-800 dark:text-white',
     }
   });
-
   return result.isConfirmed ? result.value.trim() : null;
-}
+};
+
+let lastSuccessMessage = '';
+let lastSuccessTime = 0;
 
 export const showSuccessToast = (title = '', isRtl = true) => {
+  const cleanTitle = typeof title === 'object' && title !== null
+    ? (title.message || (isRtl ? title.ar : title.en) || '')
+    : String(title || '').trim();
+  if (!cleanTitle) return;
+  const now = Date.now();
+  if (cleanTitle === lastSuccessMessage && now - lastSuccessTime < 2000) {
+    return;
+  }
+  lastSuccessMessage = cleanTitle;
+  lastSuccessTime = now;
   Swal.fire({
     toast: true,
     position: isRtl ? 'top-start' : 'top-end',
     icon: 'success',
-    title: title,
+    title: cleanTitle,
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.dir = isRtl ? 'rtl' : 'ltr';
+    didOpen: (toastEl) => {
+      toastEl.dir = isRtl ? 'rtl' : 'ltr';
     },
     customClass: {
-      popup: 'dark:bg-slate-900 dark:border dark:border-slate-800',
-      title: 'dark:text-white text-sm',
+      container: '!z-[99999999]',
+      popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 !z-[99999999]',
+      title: 'dark:text-white text-sm font-medium',
     }
   });
+};
+
+export const ALLOWED_ERROR_STATUS_CODES = new Set([400, 401, 403, 404]);
+
+export function isAllowedErrorCode(status) {
+  if (status === undefined || status === null || status === '') return false;
+  const num = Number(status);
+  return ALLOWED_ERROR_STATUS_CODES.has(num);
+}
+
+const TECHNICAL_LEAK_PATTERNS = [
+  /server\s*error/i,
+  /internal\s*server/i,
+  /bad\s*gateway/i,
+  /gateway\s*timeout/i,
+  /service\s*unavailable/i,
+  /target\.constructor/i,
+  /cannot\s+read\s+propert/i,
+  /\b(sql|select|insert|database|query)\b/i,
+  /failed\s+with\s+status\s+code/i,
+  /jwt|bearer|token\s+expired/i,
+  /econnrefused|enotfound|etimedout/i,
+  /network\s+error/i,
+  /syntax\s*error/i,
+  /reference\s*error/i,
+  /type\s*error/i,
+];
+
+export function containsTechnicalLeak(text) {
+  if (typeof text !== 'string') return true;
+  const trimmed = text.trim();
+  if (!trimmed) return true;
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) return true;
+  if (/^\d{3}\b/.test(trimmed)) return true;
+  return TECHNICAL_LEAK_PATTERNS.some((pattern) => pattern.test(trimmed));
+}
+
+export function extractErrorMessage(rawInput, isArabic = true) {
+  if (!rawInput) return '';
+  if (typeof rawInput === 'object' && rawInput !== null) {
+    if (rawInput.response?.data) {
+      return extractErrorMessage(rawInput.response.data, isArabic);
+    }
+    if (rawInput.message !== undefined && rawInput.message !== null) {
+      if (typeof rawInput.message === 'string') {
+        const msg = rawInput.message.trim();
+        if (!/^Request failed with status code/i.test(msg)) {
+          return msg;
+        }
+      } else if (Array.isArray(rawInput.message)) {
+        const joined = rawInput.message
+          .map(m => extractErrorMessage(m, isArabic))
+          .filter(Boolean)
+          .join(' - ');
+        if (joined) return joined;
+      } else if (typeof rawInput.message === 'object') {
+        const localized = isArabic ? (rawInput.message.ar || rawInput.message.en) : (rawInput.message.en || rawInput.message.ar);
+        if (localized) return localized;
+      }
+    }
+    if (rawInput.ar || rawInput.en) {
+      return isArabic ? (rawInput.ar || rawInput.en) : (rawInput.en || rawInput.ar);
+    }
+    if (typeof rawInput.error === 'string') {
+      const errStr = rawInput.error.trim();
+      if (!/^(Bad Request|Internal Server Error|Unauthorized|Forbidden|Not Found)$/i.test(errStr)) {
+        return errStr;
+      }
+    }
+    if (typeof rawInput.message === 'string') {
+      return rawInput.message.trim();
+    }
+  }
+  if (Array.isArray(rawInput)) {
+    const joined = rawInput
+      .map(item => extractErrorMessage(item, isArabic))
+      .filter(Boolean)
+      .join(' - ');
+    if (joined) return joined;
+  }
+  if (typeof rawInput === 'string') {
+    const trimmed = rawInput.trim();
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        return extractErrorMessage(parsed, isArabic);
+      } catch {
+        // keep as is
+      }
+    }
+    return trimmed;
+  }
+  return String(rawInput || '').trim();
+}
+
+export function canShowErrorInToaster(errorOrMessage, options = {}) {
+  if (!errorOrMessage && !options.status && !options.statusCode) return false;
+  if (errorOrMessage && typeof errorOrMessage === 'object') {
+    if (errorOrMessage._isServerError || errorOrMessage._suppressToast) return false;
+  }
+  let status = options.status ?? options.statusCode;
+  if (errorOrMessage && typeof errorOrMessage === 'object') {
+    status = status ?? errorOrMessage.response?.status ?? errorOrMessage.status ?? errorOrMessage.statusCode ?? errorOrMessage.code;
+  }
+  if (status !== undefined && status !== null && status !== '') {
+    const num = Number(status);
+    if (!Number.isNaN(num)) {
+      if (num === 500 || num >= 500) return false;
+      if (!ALLOWED_ERROR_STATUS_CODES.has(num)) return false;
+    }
+  }
+  if (typeof window !== 'undefined' && window.__lastApiError) {
+    const timeDiff = Date.now() - (window.__lastApiError.time || 0);
+    if (timeDiff < 1500) {
+      const lastStatus = Number(window.__lastApiError.status);
+      if (lastStatus === 500 || lastStatus >= 500 || !ALLOWED_ERROR_STATUS_CODES.has(lastStatus)) {
+        return false;
+      }
+    }
+  }
+  const text = extractErrorMessage(errorOrMessage, true);
+  if (typeof text === 'string' && text) {
+    if (/\b500\b|internal\s*server\s*error|server\s*error|خطأ\s*في\s*الخادم|خطأ\s*داخلي|فشل\s*الاتصال\s*بالخادم/i.test(text)) {
+      return false;
+    }
+    if (containsTechnicalLeak(text)) {
+      if (!status || !ALLOWED_ERROR_STATUS_CODES.has(Number(status))) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+export function sanitizeErrorMessage(rawInput, status, isArabic = true) {
+  if (!canShowErrorInToaster(rawInput, { status })) return '';
+  const candidate = extractErrorMessage(rawInput, isArabic);
+  let resolvedStatus = status;
+  if (rawInput && typeof rawInput === 'object') {
+    resolvedStatus = resolvedStatus ?? rawInput.response?.status ?? rawInput.status ?? rawInput.statusCode;
+  }
+  const numStatus = Number(resolvedStatus);
+  if (!candidate || containsTechnicalLeak(candidate)) {
+    if (numStatus === 400) {
+      return isArabic ? 'يرجى التأكد من صحة البيانات المدخلة' : 'Please verify the entered data.';
+    }
+    if (numStatus === 401) {
+      return isArabic ? 'انتهت الجلسة أو غير مصرح، يرجى تسجيل الدخول مجدداً' : 'Session expired or unauthorized. Please sign in again.';
+    }
+    if (numStatus === 403) {
+      return isArabic ? 'ليس لديك الصلاحية لتنفيذ هذا الإجراء' : 'You do not have permission to perform this action.';
+    }
+    if (numStatus === 404) {
+      return isArabic ? 'العنصر أو الصفحة المطلوبة غير موجودة' : 'The requested resource was not found.';
+    }
+    return '';
+  }
+  return candidate;
 }
 
 let lastSwalErrorMessage = '';
 let lastSwalErrorTime = 0;
 
 export const showErrorToast = (title = '', isRtl = true, status = null) => {
-  // If status is provided and not in allowed list (400, 401, 403, 404), do not show
-  if (status !== null && status !== undefined && ![400, 401, 403, 404].includes(Number(status))) {
-    return;
-  }
-
-  // Detect technical leak or status code leak in string
-  const rawText = typeof title === 'object' && title !== null
-    ? (title.message || title.error || title.response?.data?.message || '')
-    : String(title || '');
-
-  const isTechnical = /status\s*code|server\s*error|internal\s*server|bad\s*gateway|should\s+not\s+exist|isString|isEmail|target\.constructor|\b(sql|database|query)\b/i.test(rawText);
-
-  let cleanTitle = rawText.trim();
-  if (!cleanTitle || isTechnical) {
-    cleanTitle = isRtl
-      ? 'يرجى التأكد من صحة البيانات المدخلة'
-      : 'Please check the entered data.';
-  }
-
+  if (!canShowErrorInToaster(title, { status })) return;
+  const cleanTitle = sanitizeErrorMessage(title, status, isRtl);
+  if (!cleanTitle) return;
   const now = Date.now();
-  if (cleanTitle === lastSwalErrorMessage && now - lastSwalErrorTime < 2500) {
-    return;
-  }
-  if (now - lastSwalErrorTime < 800) {
-    return;
-  }
-
+  if (cleanTitle === lastSwalErrorMessage && now - lastSwalErrorTime < 2000) return;
+  if (now - lastSwalErrorTime < 400) return;
   lastSwalErrorMessage = cleanTitle;
   lastSwalErrorTime = now;
-
   Swal.fire({
     toast: true,
     position: isRtl ? 'top-start' : 'top-end',
     icon: 'error',
     title: cleanTitle,
     showConfirmButton: false,
-    timer: 3000,
+    timer: 3500,
     timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.dir = isRtl ? 'rtl' : 'ltr';
+    didOpen: (toastEl) => {
+      toastEl.dir = isRtl ? 'rtl' : 'ltr';
     },
     customClass: {
-      popup: 'dark:bg-slate-900 dark:border dark:border-slate-800',
-      title: 'dark:text-white text-sm',
+      container: '!z-[99999999]',
+      popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 !z-[99999999]',
+      title: 'dark:text-white text-sm font-medium',
     }
   });
-}
+};
 
 export const showRewardDetails = (reward, isRtl = true) => {
   const name = typeof reward.name === 'object' ? (isRtl ? reward.name.ar : reward.name.en) : reward.name;
   const description = typeof reward.description === 'object' ? (isRtl ? reward.description.ar : reward.description.en) : reward.description;
   const emoji = reward.icon || reward.emoji || '🎁';
   const bgColor = reward.backgroundColor || reward.bgColor || '#f3f4f6';
-  
   Swal.fire({
     html: `
       <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
@@ -144,4 +298,4 @@ export const showRewardDetails = (reward, isRtl = true) => {
       htmlContainer: 'dark:text-white',
     }
   });
-}
+};

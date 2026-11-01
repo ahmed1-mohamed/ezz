@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Trash2, Pencil, Eye } from 'lucide-react'
+import { Trash2, Pencil, Eye, GraduationCap } from 'lucide-react'
 
 export default function CurriculumCard({ curriculum, onEdit, onDelete, onView }) {
   const { i18n } = useTranslation()
@@ -12,6 +12,10 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
   const description = typeof curriculum.description === 'object'
     ? (isRtl ? curriculum.description.ar : curriculum.description.en) || curriculum.description.ar || curriculum.description.en
     : curriculum.description;
+
+  const levelName = typeof curriculum.studentLevel === 'object' && curriculum.studentLevel !== null
+    ? (isRtl ? curriculum.studentLevel.name?.ar || curriculum.studentLevel.name?.en : curriculum.studentLevel.name?.en || curriculum.studentLevel.name?.ar) || curriculum.studentLevel.name
+    : curriculum.studentLevel;
 
   const isShown = Boolean(curriculum?.showOnWebsite);
 
@@ -29,7 +33,7 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
             {isShown ? (isRtl ? 'معروض' : 'Visible') : (isRtl ? 'مخفي' : 'Hidden')}
           </span>
         </div>
-         <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 rounded-[20px] overflow-hidden flex items-center justify-center shrink-0">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 rounded-[20px] overflow-hidden flex items-center justify-center shrink-0">
           {curriculum.image && curriculum.image.trim() !== '' ? (
             <img
               src={curriculum.image}
@@ -43,9 +47,18 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
           )}
         </div>
 
-        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2 line-clamp-1 w-full">
+        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1.5 line-clamp-1 w-full">
           {name}
         </h3>
+
+        {levelName && (
+          <div className="mb-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00594C]/10 text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300">
+              <GraduationCap size={13} />
+              <span>{levelName}</span>
+            </span>
+          </div>
+        )}
 
         <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 w-full">
           {description || (isRtl ? 'لا يوجد وصف' : 'No description')}

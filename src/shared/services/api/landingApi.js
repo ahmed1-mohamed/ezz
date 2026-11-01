@@ -250,7 +250,10 @@ export const landingApi = {
 
   addFeaturedStudent: async (studentData) => {
     try {
-      const response = await api.post('/api/v1/featured-students/private', studentData);
+      const payload = { ...studentData };
+      delete payload.active;
+      delete payload.isActive;
+      const response = await api.post('/api/v1/featured-students/private', payload);
       return response.data;
     } catch (error) {
       console.error('Error adding featured student:', error);
@@ -260,7 +263,10 @@ export const landingApi = {
 
   updateFeaturedStudent: async (id, studentData) => {
     try {
-      const response = await api.patch(`/api/v1/featured-students/private/${id}`, studentData);
+      const payload = { ...studentData };
+      delete payload.active;
+      delete payload.isActive;
+      const response = await api.patch(`/api/v1/featured-students/private/${id}`, payload);
       return response.data;
     } catch (error) {
       console.error(`Error updating featured student with id ${id}:`, error);
@@ -338,6 +344,16 @@ export const landingApi = {
       return response.data;
     } catch (error) {
       console.error(`Error deleting private testimonial with id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  fetchExchangeRate: async () => {
+    try {
+      const response = await api.get('/api/v1/currencies/public/exchange-rate');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching exchange rate:', error);
       throw error;
     }
   }

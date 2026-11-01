@@ -139,16 +139,6 @@ export default function AdminTeachers() {
       if (isUpdate) {
         await teachersApi.updateTeacher(id, formData)
 
-        const newRate = Number(formData.hourlyRate)
-        const oldRate = Number(selectedTeacherRecord?.hourlyRate)
-        if (!isNaN(newRate) && newRate !== oldRate && newRate >= 0) {
-          try {
-            await teachersApi.updateTeacherHourlyRate(id, newRate)
-          } catch (rateErr) {
-            console.warn('Hourly rate update failed during teacher edit:', rateErr)
-          }
-        }
-
         toast.success(isRtl ? 'تم تحديث بيانات المعلم بنجاح' : 'Teacher updated successfully')
       } else {
         const createRes = await teachersApi.createTeacher(formData)

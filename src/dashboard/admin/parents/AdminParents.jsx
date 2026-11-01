@@ -183,52 +183,86 @@ export default function AdminParents() {
   const handleSuspend = async (id) => {
     try {
       const res = await adminParentsApi.suspendParent(id)
-      if (res.success) {
+      if (res) {
         setParents((prev) =>
-          prev.map((p) => (p.id === id ? { ...p, status: 'Expired' } : p))
+          prev.map((p) => {
+            const pId = p.parent_id || p._id || p.id
+            return pId === id ? { ...p, status: p.status === 'Active' ? 'Expired' : 'Active', active: !p.active } : p
+          })
         )
-        setSelectedParent((prev) =>
-          prev?.id === id ? { ...prev, status: 'Expired' } : prev
-        )
+        setSelectedParent((prev) => {
+          if (!prev) return prev
+          const currentStatus = prev.status || (prev.active ? 'Active' : 'Expired')
+          const nextStatus = currentStatus === 'Active' ? 'Expired' : 'Active'
+          return { ...prev, status: nextStatus, active: nextStatus === 'Active' }
+        })
+        toast.success(isRtl ? 'تم تحديث حالة الحساب بنجاح' : 'Account status updated successfully')
       }
     } catch (err) {
       console.error('Failed to suspend parent:', err)
+      toast.error(isRtl ? 'فشل في تحديث حالة الحساب' : 'Failed to update account status')
     }
   }
 
   const handleOpenEditScreen = async (parent) => {
     setIsLoading(true)
     try {
-      const targetId = parent.parent_id || parent._id || parent.id;
+      const targetId = parent.parent_id || parent._id || parent.id || parent.user_id;
       const fullParentData = await adminParentsApi.fetchParentById(targetId)
       setSelectedParent(fullParentData?.data || fullParentData || parent)
-      setViewMode('edit-parent')
+      setViewMode('view-parent')
     } catch (error) {
       console.error('Failed to fetch parent details', error)
       toast.error(isRtl ? 'فشل في تحميل تفاصيل ولي الأمر' : 'Failed to fetch parent details')
       setSelectedParent(parent)
-      setViewMode('edit-parent')
+      setViewMode('view-parent')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleOpenDetails = (parent) => {
-    setSelectedParent(parent)
+  const handleOpenDetails = async (parent) => {
+    const targetId = parent.parent_id || parent._id || parent.id || parent.user_id
+    try {
+      const singleRes = await adminParentsApi.fetchParentById(targetId)
+      const singleData = singleRes?.data || singleRes
+      setSelectedParent(singleData || parent)
+    } catch {
+      setSelectedParent(parent)
+    }
     setViewMode('view-parent')
   }
 
-  const handleSaveFromDetails = async (formData) => {
+  const handleSaveFromDetails = async (payload) => {
     try {
-      const res = await adminParentsApi.updateParent(formData.id, formData)
-      if (res.success) {
+      const isFormData = payload instanceof FormData
+      const targetId = isFormData
+        ? payload.get('id')
+        : (payload.id || selectedParent?.parent_id || selectedParent?._id || selectedParent?.id)
+
+      const res = await adminParentsApi.updateParent(targetId, payload)
+      if (res) {
+        const updatedData = res.data || res
         setParents((prev) =>
-          prev.map((p) => (p.id === formData.id ? { ...p, ...res.data } : p))
+          prev.map((p) => {
+            const pId = p.parent_id || p._id || p.id
+            return pId === targetId ? { ...p, ...updatedData } : p
+          })
         )
-        setSelectedParent((prev) => ({ ...prev, ...res.data }))
+        setSelectedParent((prev) => ({ ...prev, ...updatedData }))
+        toast.success(isRtl ? 'تم تحديث البيانات بنجاح' : 'Parent updated successfully')
       }
     } catch (err) {
       console.error('Failed to update parent from details:', err)
+      const msgs = err.response?.data?.message
+      if (Array.isArray(msgs)) {
+        msgs.forEach((m) => toast.error(m))
+      } else if (typeof msgs === 'string') {
+        toast.error(msgs)
+      } else {
+        toast.error(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update parent')
+      }
+      throw err
     }
   }
 

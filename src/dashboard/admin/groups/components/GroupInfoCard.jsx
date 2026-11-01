@@ -4,7 +4,7 @@ import SelectField from './fields/SelectField'
  import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 const GROUP_TYPES = [
-  { value: 'group', ar: 'عامة', en: 'General' },
+  { value: 'public', ar: 'عامة', en: 'General' },
   { value: 'private', ar: 'خاصة', en: 'Private' },
 ]
 
@@ -362,7 +362,7 @@ export default function GroupInfoCard({
           label={t('adminDashboard.groups.curriculum', 'المنهج الدراسي')}
           value={formData.curriculum}
           onChange={(val) => {
-            handleChange('curriculum', val)
+            handleChange('curriculum', val); handleChange('teacher', '')
             const newCurriculum = resolvedCurricula.find((c) => (c.id || c._id) === val)
             if (newCurriculum?.levels && newCurriculum.levels.length > 0) {
               const hasCurrentLevel = newCurriculum.levels.some((l) => (l.id || l._id) === formData.studentLevel)
@@ -417,7 +417,7 @@ export default function GroupInfoCard({
 
         <SelectField
           label={t('adminDashboard.groups.language', 'اللغة')}
-          value={formData.language || 'العربية'}
+          value={formData.language || ''}
           onChange={(val) => handleChange('language', val)}
           options={languageOptions}
           placeholder={isLoadingEndpoints && languageOptions.length === 0 ? t('common.loading', 'جاري التحميل...') : t('adminDashboard.groups.language', 'اللغة')}

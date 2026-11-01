@@ -122,7 +122,7 @@ export const managersApi = {
 
   fetchPermissions: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/permissions/localized/all', { params });
+      const response = await api.get('/api/v1/permissions', { params });
       return response.data;
     } catch (error) {
       console.error('API fetchPermissions failed:', error);
@@ -132,7 +132,7 @@ export const managersApi = {
 
   fetchPermissionById: async (id) => {
     try {
-      const response = await api.get(`/api/v1/permissions/localized/${id}`);
+      const response = await api.get(`/api/v1/permissions/${id}`);
       return response.data;
     } catch (error) {
       console.error('API fetchPermissionById failed:', error);
@@ -171,23 +171,34 @@ export const managersApi = {
   },
 
   assignAdminPermission: async (adminId, permissionId) => {
-    try {
-      const response = await api.post(`/api/v1/permissions/admin/${adminId}`, { permissionId });
-      return response.data;
-    } catch (error) {
-      console.error('API assignAdminPermission failed:', error);
-      throw error;
+    const cleanAdminId = typeof adminId === 'object' && adminId !== null
+      ? (adminId.admin_id || adminId.id || adminId._id)
+      : adminId;
+    const cleanPermId = typeof permissionId === 'object' && permissionId !== null
+      ? (permissionId.id || permissionId._id)
+      : permissionId;
+    const attempts = [
+      () => api.patch(`/api/v1/permissions/admin/${cleanAdminId}`, { permissionId: cleanPermId }),
+      () => api.patch(`/api/v1/permissions/admin/${cleanAdminId}`, { permission: cleanPermId }),
+      () => api.post(`/api/v1/permissions/admin/${cleanAdminId}`, { permissionId: cleanPermId }),
+      () => api.post(`/api/v1/permissions/admin/${cleanAdminId}`, { permission: cleanPermId }),
+      () => api.put(`/api/v1/permissions/admin/${cleanAdminId}`, { permissionId: cleanPermId }),
+      () => api.patch(`/api/v1/admins/${cleanAdminId}`, { permission: cleanPermId }),
+    ];
+    let lastError = null;
+    for (const attempt of attempts) {
+      try {
+        const response = await attempt();
+        return response.data;
+      } catch (err) {
+        lastError = err;
+      }
     }
+    throw lastError;
   },
 
   updateAdminPermission: async (adminId, permissionId) => {
-    try {
-      const response = await api.patch(`/api/v1/permissions/admin/${adminId}`, { permissionId });
-      return response.data;
-    } catch (error) {
-      console.error('API updateAdminPermission failed:', error);
-      throw error;
-    }
+    return managersApi.assignAdminPermission(adminId, permissionId);
   },
 
   fetchRolesPermissions: async () => {
@@ -208,23 +219,49 @@ export const managersApi = {
   },
 
   changeUserPassword: async (userId, data) => {
-    try {
-      const response = await api.patch(`/api/v1/users/${userId}/change-password`, data);
-      return response.data;
-    } catch (error) {
-      console.error('API changeUserPassword failed:', error);
-      throw error;
+    const cleanUserId = typeof userId === 'object' && userId !== null
+      ? (userId.id || userId._id || userId.user_id)
+      : userId;
+    const password = typeof data === 'string' ? data : (data?.password || data?.newPassword);
+    const confirmPassword = typeof data === 'object' ? (data?.confirmPassword || password) : password;
+    const payload = { password, confirmPassword };
+    const attempts = [
+      () => api.patch(`/api/v1/users/${cleanUserId}/change-password`, payload),
+      () => api.patch(`/api/v1/users/${cleanUserId}/change-password`, { password }),
+      () => api.put(`/api/v1/users/${cleanUserId}/change-password`, payload),
+      () => api.patch(`/api/v1/admins/${cleanUserId}/change-password`, payload),
+    ];
+    let lastError = null;
+    for (const attempt of attempts) {
+      try {
+        const response = await attempt();
+        return response.data;
+      } catch (err) {
+        lastError = err;
+      }
     }
+    throw lastError;
   },
 
   deleteAdminPermission: async (adminId) => {
-    try {
-      const response = await api.delete(`/api/v1/permissions/admin/${adminId}`);
-      return response.data;
-    } catch (error) {
-      console.error('API deleteAdminPermission failed:', error);
-      throw error;
+    const cleanAdminId = typeof adminId === 'object' && adminId !== null
+      ? (adminId.admin_id || adminId.id || adminId._id)
+      : adminId;
+    const attempts = [
+      () => api.delete(`/api/v1/permissions/admin/${cleanAdminId}`),
+      () => api.delete(`/api/v1/admins/${cleanAdminId}/permissions`),
+      () => api.patch(`/api/v1/admins/${cleanAdminId}`, { permission: null }),
+    ];
+    let lastError = null;
+    for (const attempt of attempts) {
+      try {
+        const response = await attempt();
+        return response.data;
+      } catch (err) {
+        lastError = err;
+      }
     }
+    throw lastError;
   }
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Users, Video, ExternalLink, BookOpen } from 'lucide-react';
+import { Clock, Users, BookOpen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherScheduleSessionCard({ session, index }) {
@@ -7,8 +7,6 @@ export default React.memo(function TeacherScheduleSessionCard({ session, index }
 
   const isLive = session.status === 'live' || session.status === 'in_progress';
   const isCompleted = session.status === 'completed';
-
-  const zoomUrl = session.zoomJoinUrl || session.joinUrl || session.meetingUrl;
 
   return (
     <div
@@ -64,29 +62,6 @@ export default React.memo(function TeacherScheduleSessionCard({ session, index }
             </div>
           )}
         </div>
-      </div>
-
-      <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
-        {zoomUrl ? (
-          <a
-            href={zoomUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`w-full py-2.5 px-4 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              isLive
-                ? 'bg-red-600 hover:bg-red-700 text-white shadow-xs'
-                : 'bg-[#00594C] hover:bg-[#00483d] text-white shadow-xs'
-            }`}
-          >
-            <Video size={14} />
-            <span>{t('teacherSchedule.joinLive', 'انضمام للحصة')}</span>
-            <ExternalLink size={12} className="opacity-80" />
-          </a>
-        ) : (
-          <div className="w-full py-2 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-400 text-xs font-semibold text-center">
-            {isCompleted ? t('teacherSchedule.filterCompleted', 'مكتملة') : t('schedule.linkPending', 'رابط الجلسة سيتاح قبل الموعد')}
-          </div>
-        )}
       </div>
     </div>
   );

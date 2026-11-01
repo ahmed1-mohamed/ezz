@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/shared/context/useAuth'
 import { profileApi } from '@/shared/services/api/profileApi'
 import { managersApi } from '@/shared/services/api/managersApi'
+import { expandPermissionKeys } from '@/shared/utils/permissionUtils'
 
 export function extractPermissionKeys(source) {
   const set = new Set()
@@ -11,7 +12,7 @@ export function extractPermissionKeys(source) {
   const addIfKey = (k) => {
     if (typeof k === 'string') {
       const trimmed = k.trim()
-      if (trimmed === '*' || trimmed.includes('.')) {
+      if (trimmed) {
         set.add(trimmed)
       }
     }
@@ -30,7 +31,7 @@ export function extractPermissionKeys(source) {
         }
       }
     })
-    return set
+    return expandPermissionKeys(set)
   }
 
   if (typeof source !== 'object') return set
@@ -66,7 +67,7 @@ export function extractPermissionKeys(source) {
     }
   }
 
-  return set
+  return expandPermissionKeys(set)
 }
 
 export function useAdminPermissions() {
@@ -136,7 +137,8 @@ export function useAdminPermissions() {
           }
 
           const allPermsRes = await managersApi.fetchPermissions()
-          const list = allPermsRes?.data || allPermsRes || []
+          const rawData = allPermsRes?.data || allPermsRes || [];
+          const list = Array.isArray(rawData) ? rawData : (Array.isArray(rawData?.data) ? rawData.data : []);
           if (Array.isArray(list)) {
             const matched = list.find(p => (p.id || p._id) === permId)
             if (matched) {
@@ -146,7 +148,8 @@ export function useAdminPermissions() {
           }
         } else {
           const allPermsRes = await managersApi.fetchPermissions()
-          const list = allPermsRes?.data || allPermsRes || []
+          const rawData = allPermsRes?.data || allPermsRes || [];
+          const list = Array.isArray(rawData) ? rawData : (Array.isArray(rawData?.data) ? rawData.data : []);
           if (Array.isArray(list) && list.length === 1) {
             return Array.from(extractPermissionKeys(list[0]))
           }

@@ -1,4 +1,4 @@
-import { FileText, Languages } from 'lucide-react'
+import { FileText, Languages, GraduationCap } from 'lucide-react'
 
 export default function CurriculumBasicInfoCard({
   nameAr = '',
@@ -12,6 +12,9 @@ export default function CurriculumBasicInfoCard({
   languageId = '',
   setLanguageId,
   languages = [],
+  studentLevelId = '',
+  setStudentLevelId,
+  studentLevels = [],
   isRtl = true
 }) {
   return (
@@ -25,7 +28,7 @@ export default function CurriculumBasicInfoCard({
             {isRtl ? 'المعلومات الأساسية للمنهج' : 'Curriculum Basic Information'}
           </h3>
           <p className="text-xs text-slate-400 dark:text-slate-500">
-            {isRtl ? 'الاسم، الوصف، ولغة التدريس باللغتين العربية والإنجليزية' : 'Bilingual names, descriptions, and language'}
+            {isRtl ? 'الاسم، الوصف، المستوى الدراسي، ولغة التدريس باللغتين العربية والإنجليزية' : 'Bilingual names, descriptions, student level, and language'}
           </p>
         </div>
       </div>
@@ -90,32 +93,63 @@ export default function CurriculumBasicInfoCard({
         </div>
       </div>
 
-      <div>
-        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-          {isRtl ? 'لغة الشرح والتدريس' : 'Explanation Language'}
-        </label>
-        <div className="relative">
-          <select
-            value={languageId}
-            onChange={(e) => setLanguageId(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-[#00594C] dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all text-sm font-semibold text-slate-800 dark:text-white shadow-xs appearance-none cursor-pointer"
-          >
-            <option value="" disabled>
-              {isRtl ? 'اختر لغة الشرح' : 'Select explanation language'}
-            </option>
-            {languages.map((lang) => {
-              const langId = lang.id || lang._id
-              const langName = typeof lang.name === 'object'
-                ? (isRtl ? lang.name.ar : lang.name.en) || lang.name.ar || lang.name.en
-                : lang.name
-              return (
-                <option key={langId} value={langId} className="dark:bg-slate-850">
-                  {langName}
-                </option>
-              )
-            })}
-          </select>
-          <Languages size={18} className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+            {isRtl ? 'لغة الشرح والتدريس' : 'Explanation Language'}
+          </label>
+          <div className="relative">
+            <select
+              value={languageId}
+              onChange={(e) => setLanguageId(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-[#00594C] dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all text-sm font-semibold text-slate-800 dark:text-white shadow-xs appearance-none cursor-pointer"
+            >
+              <option value="">
+                {isRtl ? '-- اختر لغة الشرح --' : '-- Select explanation language --'}
+              </option>
+              {languages.map((lang) => {
+                const langId = lang.id || lang._id
+                const langName = typeof lang.name === 'object'
+                  ? (isRtl ? lang.name.ar : lang.name.en) || lang.name.ar || lang.name.en
+                  : lang.name
+                return (
+                  <option key={langId} value={langId} className="dark:bg-slate-850">
+                    {langName}
+                  </option>
+                )
+              })}
+            </select>
+            <Languages size={18} className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+            {isRtl ? 'المستوى الدراسي' : 'Student Level'}
+          </label>
+          <div className="relative">
+            <select
+              value={studentLevelId}
+              onChange={(e) => setStudentLevelId && setStudentLevelId(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-[#00594C] dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 rounded-2xl py-3.5 ps-11 pe-4 outline-none transition-all text-sm font-semibold text-slate-800 dark:text-white shadow-xs appearance-none cursor-pointer"
+            >
+              <option value="">
+                {isRtl ? '-- اختر المستوى الدراسي --' : '-- Select student level --'}
+              </option>
+              {(Array.isArray(studentLevels) ? studentLevels : []).map((lvl) => {
+                const lvlId = lvl.id || lvl._id
+                const lvlName = typeof lvl.name === 'object' && lvl.name !== null
+                  ? (isRtl ? lvl.name.ar || lvl.name.en : lvl.name.en || lvl.name.ar)
+                  : (lvl.name || lvl.title || lvlId)
+                return (
+                  <option key={lvlId} value={lvlId} className="dark:bg-slate-850">
+                    {lvlName}
+                  </option>
+                )
+              })}
+            </select>
+            <GraduationCap size={18} className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
         </div>
       </div>
     </div>

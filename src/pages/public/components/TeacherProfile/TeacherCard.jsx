@@ -39,7 +39,7 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                         src={imgUrl}
                         alt={teacher?.name || ''}
                         onError={() => setHasImgError(true)}
-                        className="relative w-full h-full object-cover rounded-[32px] shadow-sm z-10 grayscale hover:grayscale-0 transition-all duration-500"
+                        className="relative w-full h-full object-cover rounded-[32px] shadow-sm z-10 transition-all duration-500"
                     />
                 ) : (
                     <div className="relative w-full h-full rounded-[32px] bg-gradient-to-br from-[#00695C] via-[#00594C] to-[#0A4038] flex flex-col items-center justify-center text-white shadow-sm z-10 p-6 text-center select-none">

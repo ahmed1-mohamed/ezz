@@ -254,6 +254,34 @@ export default function AppRoutes() {
                                         element={<PermissionRoute permission="users.read"><AdminManagers /></PermissionRoute>}
                                     />
                                     <Route
+                                        path="/dashboard/admin/managers/add"
+                                        element={<PermissionRoute permission="users.create"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/managers/permissions"
+                                        element={<PermissionRoute permission="users.read"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/managers/roles"
+                                        element={<PermissionRoute permission="users.read"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/managers/:id"
+                                        element={<PermissionRoute permission="users.read"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/managers/:id/edit"
+                                        element={<PermissionRoute permission="users.update"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/managers/edit/:id"
+                                        element={<PermissionRoute permission="users.update"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/managers/:id/permissions"
+                                        element={<PermissionRoute permission="users.update"><AdminManagers /></PermissionRoute>}
+                                    />
+                                    <Route
                                         path="/dashboard/admin/students"
                                         element={<PermissionRoute permission="students.read"><AdminStudents /></PermissionRoute>}
                                     />
@@ -302,8 +330,20 @@ export default function AppRoutes() {
                                         element={<PermissionRoute permission="groups.update"><AdminGroups /></PermissionRoute>}
                                     />
                                     <Route
+                                        path="/dashboard/admin/groups/edit/:id"
+                                        element={<PermissionRoute permission="groups.update"><AdminGroups /></PermissionRoute>}
+                                    />
+                                    <Route
                                         path="/dashboard/admin/private-groups"
                                         element={<PermissionRoute permission="groups.read"><AdminPrivateGroups /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/private-groups/:id/edit"
+                                        element={<PermissionRoute permission="groups.update"><AdminPrivateGroups /></PermissionRoute>}
+                                    />
+                                    <Route
+                                        path="/dashboard/admin/private-groups/edit/:id"
+                                        element={<PermissionRoute permission="groups.update"><AdminPrivateGroups /></PermissionRoute>}
                                     />
                                    
                                     <Route
@@ -440,6 +480,18 @@ export default function AppRoutes() {
                                      />
                                      <Route
                                          path="/dashboard/teacher/assignments/submissions"
+                                         element={<HomeworkSubmissions />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/assignments/submissions/:id"
+                                         element={<HomeworkSubmissions />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/assignments/:id"
+                                         element={<HomeworkSubmissions />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/homework/:id"
                                          element={<HomeworkSubmissions />}
                                      />
                                      <Route

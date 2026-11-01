@@ -19,8 +19,8 @@ export default function Footer() {
     const contactData = contactResponse;
 
     const email = contactData?.email || "info@manaratezz.edu.sa"
-    const phone = contactData?.phone || "+0201012345678"
-    const whatsapp = contactData?.whatsapp || "+0201012345678"
+    const phone = contactData?.phone || "+971501234567"
+    const whatsapp = contactData?.whatsapp || "+971501234567"
     const policyLinks = [
         { label: t('public.footer.privacy', 'سياسة الخصوصية'), href: '/privacy' },
         { label: t('public.footer.terms', 'الشروط والأحكام'), href: '/terms' },

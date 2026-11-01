@@ -27,14 +27,14 @@ export default function PermissionsMatrix({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
             {module.actions.map((action) => {
-              const isActive = activeKeys.includes(action.key)
+              const isActive = activeKeys.includes(action.key) || (action.aliases && action.aliases.some(a => activeKeys.includes(a)))
               return (
                 <button
                   key={action.key}
                   type="button"
                   disabled={isAdminAssignment}
                   aria-pressed={isActive}
-                  onClick={isAdminAssignment ? undefined : () => handleToggleKey(action.key)}
+                  onClick={isAdminAssignment ? undefined : () => handleToggleKey(action.key, action.aliases)}
                   className={`w-full flex items-center justify-between p-4 rounded-2xl border select-none transition-all duration-200 ${isAdminAssignment ? 'cursor-default opacity-80' : 'cursor-pointer'
                     } ${isActive
                       ? 'bg-[#eef4f2] border-[#0f7a6c]/20 text-[#0f7a6c] dark:bg-[#0f7a6c]/10 dark:text-[#14a693] dark:border-[#0f7a6c]/10 font-bold shadow-sm'

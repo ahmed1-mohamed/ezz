@@ -82,7 +82,7 @@ export default function EditSupervisorScreen({
     permissionId: supervisor.permission?._id || supervisor.permissionId || null,
     countryId: initialCountryId,
     status: supervisor.status || 'Active',
-    photoUrl: supervisor.photoUrl || null
+    photoUrl: supervisor.image || supervisor.photoUrl || supervisor.photo || supervisor.user?.image || supervisor.avatar || null
   })
 
   const sortedCountries = useMemo(() => {
@@ -424,7 +424,14 @@ export default function EditSupervisorScreen({
         />
 
         <EditGrantedPermissionsCard
-          supervisorPermissions={supervisor.permission?.actions || supervisor.permissions || []}
+          supervisorPermissions={
+            supervisor.permission?.keys ||
+            roles?.find(r => (r.id || r._id) === (formData.permissionId || supervisor.permission?._id || supervisor.permission?.id || supervisor.permissionId))?.keys ||
+            (Array.isArray(supervisor.permission) ? supervisor.permission : null) ||
+            supervisor.permission?.actions ||
+            supervisor.permissions ||
+            []
+          }
           isRtl={isRtl}
           t={t}
         />

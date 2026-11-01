@@ -33,12 +33,12 @@ export default function SubmissionDetailsView({
   const queryClient = useQueryClient();
 
   const submissionId = submission?.id || submission?._id;
-  const isMongoId = Boolean(submissionId && /^[0-9a-fA-F]{24}$/.test(String(submissionId)));
+  const homeworkId = submission?.homeworkId || submission?.homework?._id || submission?.homework?.id || (typeof submission?.homework === 'string' ? submission?.homework : null);
 
   const { data: detailsRes } = useQuery({
-    queryKey: ['teacher-submission-details', submissionId],
-    queryFn: () => teacherHomeworkApi.fetchSubmissionDetails(submissionId),
-    enabled: isMongoId,
+    queryKey: ['teacher-submission-details', submissionId, homeworkId],
+    queryFn: () => teacherHomeworkApi.fetchSubmissionDetails(submissionId, homeworkId),
+    enabled: Boolean(submissionId || homeworkId),
     staleTime: 60 * 1000,
     retry: false,
   });

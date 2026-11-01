@@ -125,7 +125,7 @@ export default function AdminSessions() {
     const scheduled = Number(apiStats?.scheduled ?? list.filter((s) => s.status === 'scheduled').length) || 0
     const completed = Number(apiStats?.completed ?? list.filter((s) => s.status === 'completed').length) || 0
     const cancelled = Number(apiStats?.cancelled ?? list.filter((s) => s.status === 'cancelled').length) || 0
-    const total = Number(apiStats?.total ?? totalCount ?? (live + scheduled + completed + cancelled)) || 0
+    const total = Number(apiStats?.total || (live + scheduled + completed + cancelled) || totalCount) || 0
     return {
       total,
       scheduled,

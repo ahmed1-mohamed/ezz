@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Save, X, Loader2 } from 'lucide-react'
 import { explanationLanguagesApi } from '@/shared/services/api/explanationLanguagesApi'
+import { adminLevelsApi } from '@/shared/services/api/adminLevelsApi'
 import AddEditCurriculumHeader from './AddEditCurriculumHeader'
 import CurriculumMediaCard from './CurriculumMediaCard'
 import CurriculumPublishingCard from './CurriculumPublishingCard'
@@ -49,6 +50,12 @@ export default function AddEditCurriculumScreen({
   })
   const languages = languagesResponse?.data || []
 
+  const { data: levelsResponse } = useQuery({
+    queryKey: ['admin-student-levels'],
+    queryFn: () => adminLevelsApi.fetchLevels(),
+  })
+  const studentLevels = levelsResponse?.data || levelsResponse || []
+
   const initialArName = typeof curriculum?.name === 'object'
     ? (curriculum.name?.ar || curriculum.name?.en || '')
     : (curriculum?.name || '')
@@ -75,6 +82,10 @@ export default function AddEditCurriculumScreen({
     curriculum?.explanationLanguage?.id ||
     (typeof curriculum?.language === 'string' ? curriculum.language : '')
 
+  const resolvedLevelId = curriculum?.studentLevel?._id ||
+    curriculum?.studentLevel?.id ||
+    (typeof curriculum?.studentLevel === 'string' ? curriculum.studentLevel : '')
+
   const [nameAr, setNameAr] = useState(initialArName)
   const [nameEn, setNameEn] = useState(initialEnName)
   const [descriptionAr, setDescriptionAr] = useState(initialArDesc)
@@ -82,6 +93,7 @@ export default function AddEditCurriculumScreen({
   const [image, setImage] = useState(curriculum?.image || null)
   const [previewImage, setPreviewImage] = useState(curriculum?.image || null)
   const [languageId, setLanguageId] = useState(resolvedLangId || '')
+  const [studentLevelId, setStudentLevelId] = useState(resolvedLevelId || '')
 
   const [featuresAr, setFeaturesAr] = useState(
     initialFeaturesAr.length > 0 ? initialFeaturesAr : (initialFeaturesEn.length > 0 ? initialFeaturesEn : [''])
@@ -172,6 +184,7 @@ export default function AddEditCurriculumScreen({
       if (descriptionEn.trim()) formData.append('description[en]', descriptionEn.trim() || descriptionAr.trim())
       formData.append('image', image)
       if (languageId) formData.append('language', languageId)
+      if (studentLevelId) formData.append('studentLevel', studentLevelId)
       formData.append('showOnWebsite', String(showOnWebsite))
       finalFeaturesAr.forEach(f => formData.append('features[ar][]', f))
       finalFeaturesEn.forEach(f => formData.append('features[en][]', f))
@@ -187,8 +200,11 @@ export default function AddEditCurriculumScreen({
         benefitsAfterGraduation: { ar: finalBenefitsAr, en: finalBenefitsEn }
       }
       if (languageId) jsonPayload.language = languageId
+      if (studentLevelId) jsonPayload.studentLevel = studentLevelId
       if (image && typeof image === 'string' && !image.startsWith('blob:')) {
         jsonPayload.image = image
+      } else if (image === null) {
+        jsonPayload.image = null
       }
       onSave(jsonPayload)
     }
@@ -237,6 +253,9 @@ export default function AddEditCurriculumScreen({
               languageId={languageId}
               setLanguageId={setLanguageId}
               languages={languages}
+              studentLevelId={studentLevelId}
+              setStudentLevelId={setStudentLevelId}
+              studentLevels={studentLevels}
               isRtl={isRtl}
             />
 

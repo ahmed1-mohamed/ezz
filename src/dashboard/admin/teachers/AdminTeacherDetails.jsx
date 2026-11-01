@@ -81,49 +81,16 @@ export default function AdminTeacherDetails() {
     setIsSavingTeacher(true)
     try {
       await teachersApi.updateTeacher(id, formData)
-
-      const newRate = Number(formData.hourlyRate)
-      const oldRate = Number(teacher?.hourlyRate)
-      if (!isNaN(newRate) && newRate !== oldRate && newRate >= 0) {
-        try {
-          await teachersApi.updateTeacherHourlyRate(id, newRate)
-        } catch (rateErr) {
-          console.warn('Hourly rate update failed:', rateErr)
-        }
-      }
-
-      if (formData.password && formData.password.trim().length >= 6) {
-        const userId =
-          (typeof teacher?.user === 'string' && teacher.user) ||
-          teacher?.user?._id ||
-          teacher?.user?.id ||
-          teacher?.user_id ||
-          teacher?.userId ||
-          id
-        try {
-          await teachersApi.changeTeacherPassword(userId, {
-            password: formData.password,
-            confirmPassword: formData.confirmPassword || formData.password,
-            email: formData.email || teacher?.email,
-            phone: formData.phone || teacher?.phone,
-            country: formData.country || teacher?.country
-          })
-        } catch (pwErr) {
-          console.warn('Password update failed:', pwErr)
-        }
-      }
-
+      await loadTeacherDetails()
       toast.success(isRtl ? 'تم تحديث بيانات المعلم بنجاح' : 'Teacher updated successfully')
-      await queryClient.invalidateQueries({ queryKey: ['teacher-details', id] })
-      await queryClient.invalidateQueries({ queryKey: ['teachers'] })
       setIsEditing(false)
     } catch (err) {
       const backendMsg = err.response?.data?.message
       const errorText = Array.isArray(backendMsg)
         ? backendMsg.join(' - ')
-        : (backendMsg || (isRtl ? 'حدث خطأ أثناء حفظ بيانات المعلم' : 'Failed to save teacher'))
+        : (backendMsg || (isRtl ? 'حدث خطأ أثناء تعديل المعلم' : 'Failed to update teacher'))
       toast.error(errorText)
-      console.error('Failed to save teacher:', err)
+      console.error('Failed to update teacher:', err)
     } finally {
       setIsSavingTeacher(false)
     }

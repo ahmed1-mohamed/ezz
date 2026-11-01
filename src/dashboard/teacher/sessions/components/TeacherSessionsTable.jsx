@@ -48,7 +48,6 @@ export default React.memo(function TeacherSessionsTable({ sessions }) {
               <th className="pb-3 text-start">{t('teacherSessions.dateTime', 'التاريخ والوقت')}</th>
               <th className="pb-3 text-start">{t('teacherSessions.students', 'الطلاب')}</th>
               <th className="pb-3 text-start">{t('teacherSessions.status', 'الحالة')}</th>
-              <th className="pb-3 text-end">{t('teacherSessions.actions', 'الإجراءات')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-semibold text-slate-700 dark:text-slate-200">
@@ -78,21 +77,6 @@ export default React.memo(function TeacherSessionsTable({ sessions }) {
                 </td>
                 <td className="py-3.5 text-start">
                   {renderBadge(item.status)}
-                </td>
-                <td className="py-3.5 text-end">
-                  {item.zoomJoinUrl ? (
-                    <a
-                      href={item.zoomJoinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#00594C] hover:bg-[#00483d] text-white text-xs font-bold shadow-xs cursor-pointer"
-                    >
-                      <Video size={13} />
-                      <span>{t('teacherSessions.join', 'انضمام')}</span>
-                    </a>
-                  ) : (
-                    <span className="text-slate-300 dark:text-slate-600 text-xs">-</span>
-                  )}
                 </td>
               </tr>
             ))}

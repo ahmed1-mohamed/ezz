@@ -47,7 +47,9 @@ export function AuthProvider({ children }) {
                     role: data.role ? normalizeRole(data.role) : baseUser.role,
                     permission: data.permission || baseUser.permission || null,
                     permissionId: data.permissionId || data.permission?.id || data.permission?._id || (typeof data.permission === 'string' ? data.permission : (baseUser.permissionId || null)),
-                    permissions: data.permissions || data.permission?.permissions || data.permission?.keys || baseUser.permissions || null
+                    permissions: data.permissions || data.permission?.permissions || data.permission?.keys || baseUser.permissions || null,
+                    isGoogleLinked: Boolean(data.googleId || data.isGoogleLinked || baseUser.isGoogleLinked),
+                    googleId: data.googleId || baseUser.googleId || null
                 };
                 setUser(updated);
                 setCookie('authUser', updated, cookieDays);
@@ -96,10 +98,8 @@ export function AuthProvider({ children }) {
             }
             setUser(authUser)
             setCookie('authUser', authUser, cookieDays)
-
             const fullProfile = await refreshProfile(authUser, cookieDays)
             if (fullProfile) authUser = fullProfile
-
             setLoading(false)
             return authUser
         } catch (error) {
@@ -133,14 +133,12 @@ export function AuthProvider({ children }) {
             }
             setUser(authUser)
             setCookie('authUser', authUser, 7)
-
             try {
                 const fullProfile = await refreshProfile(authUser, 7)
                 if (fullProfile) authUser = fullProfile
             } catch (err) {
                 void err;
             }
-
             setLoading(false)
             return authUser
         } catch (error) {
@@ -154,51 +152,78 @@ export function AuthProvider({ children }) {
         }
     }, [refreshProfile])
 
-    const loginWithGoogle = useCallback(async (username, password) => {
-        setLoading(true)
+    const loginWithGoogle = useCallback(async (googlePayload) => {
+        setLoading(true);
         try {
-            const res = await api.post('/api/v1/auth/google', {
-                username: username.trim(),
-                password: password
-            })
-            const data = res.data?.data || res.data
-            const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
-            const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
-            if (accessToken) setCookie('access_token', accessToken, 7)
-            if (refreshToken) setCookie('refresh_token', refreshToken, 7)
-            const userDetails = data.user || data
+            const googleId = typeof googlePayload === 'string'
+                ? googlePayload
+                : (googlePayload?.googleId || googlePayload?.sub);
+            const responseData = await authApi.googleLogin({ googleId });
+            const data = responseData?.data || responseData;
+            const accessToken = responseData?.token || responseData?.accessToken || responseData?.access_token || data?.token || data?.accessToken || data?.access_token;
+            const refreshToken = responseData?.refresh_token || responseData?.refreshToken || data?.refresh_token || data?.refreshToken;
+            if (accessToken) setCookie('access_token', accessToken, 7);
+            if (refreshToken) setCookie('refresh_token', refreshToken, 7);
+            const userDetails = data.user || data;
             let authUser = {
-                id: userDetails.id || 1,
+                id: userDetails.id || userDetails._id || 1,
                 name: userDetails.name || 'User',
-                email: userDetails.email || username,
+                email: userDetails.email || '',
                 role: normalizeRole(userDetails.role),
-                image: userDetails.image || userDetails.avatar || userDetails.photo || userDetails.photoUrl || null,
-                avatar: userDetails.avatar || userDetails.image || userDetails.photo || userDetails.photoUrl || null,
-            }
-            setUser(authUser)
-            setCookie('authUser', authUser, 7)
-
-            const fullProfile = await refreshProfile(authUser, 7)
-            if (fullProfile) authUser = fullProfile
-
-            setLoading(false)
-            return authUser
+                image: userDetails.image || userDetails.avatar || userDetails.photo || null,
+                avatar: userDetails.avatar || userDetails.image || userDetails.photo || null,
+                permission: userDetails.permission || null,
+                permissionId: userDetails.permissionId || userDetails.permission?.id || userDetails.permission?._id || (typeof userDetails.permission === 'string' ? userDetails.permission : null),
+                permissions: userDetails.permissions || userDetails.permission?.permissions || userDetails.permission?.keys || null,
+                isGoogleLinked: true,
+                googleId: googleId,
+            };
+            setUser(authUser);
+            setCookie('authUser', authUser, 7);
+            const fullProfile = await refreshProfile(authUser, 7);
+            if (fullProfile) authUser = fullProfile;
+            setLoading(false);
+            return authUser;
         } catch (error) {
-            setLoading(false)
-            const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar'
-            const status = error.response?.status
-            const data = error.response?.data
-            const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message
-            const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic)
-            throw new Error(safeMsg, { cause: error })
+            setLoading(false);
+            const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
+            const status = error.response?.status;
+            const data = error.response?.data;
+            const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message;
+            const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic);
+            throw new Error(safeMsg, { cause: error });
         }
-    }, [refreshProfile])
+    }, [refreshProfile]);
+
+    const linkGoogle = useCallback(async (googlePayload) => {
+        const googleId = typeof googlePayload === 'string'
+            ? googlePayload
+            : (googlePayload?.googleId || googlePayload?.sub);
+        const res = await authApi.linkGoogle({ googleId });
+        if (user) {
+            const updated = { ...user, isGoogleLinked: true, googleId };
+            setUser(updated);
+            setCookie('authUser', updated, 7);
+            await refreshProfile(updated, 7);
+        }
+        return res;
+    }, [user, refreshProfile]);
+
+    const unlinkGoogle = useCallback(async () => {
+        const res = await authApi.unlinkGoogle();
+        if (user) {
+            const updated = { ...user, isGoogleLinked: false, googleId: null };
+            setUser(updated);
+            setCookie('authUser', updated, 7);
+            await refreshProfile(updated, 7);
+        }
+        return res;
+    }, [user, refreshProfile]);
 
     const logout = useCallback(async (options = {}) => {
         const redirectPath = (typeof options === 'string')
             ? options
             : (options && typeof options.redirectPath === 'string' ? options.redirectPath : '/login')
-
         try {
             await authApi.logout()
         } catch (err) {
@@ -243,8 +268,8 @@ export function AuthProvider({ children }) {
     )
 
     const actionsValue = useMemo(
-        () => ({ login, signup, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
-        [login, signup, loginWithGoogle, logout, updateUser, theme, toggleTheme, setTheme],
+        () => ({ login, signup, loginWithGoogle, linkGoogle, unlinkGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
+        [login, signup, loginWithGoogle, linkGoogle, unlinkGoogle, logout, updateUser, theme, toggleTheme, setTheme],
     )
 
     return (

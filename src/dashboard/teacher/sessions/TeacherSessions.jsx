@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi.js';
 
 import TeacherSessionsHeader from './components/TeacherSessionsHeader.jsx';
@@ -135,6 +136,23 @@ export default function TeacherSessions() {
     });
   }, [sessionsList, activeTab, debouncedSearch]);
 
+  const serverTotalPages =
+    responseData?.pagination?.numberOfPages ||
+    responseData?.pagination?.totalPages ||
+    responseData?.totalPages ||
+    responseData?.meta?.totalPages ||
+    (responseData?.total ? Math.ceil(responseData.total / itemsPerPage) : 0);
+
+  const totalPages = Math.max(1, serverTotalPages || Math.ceil(filteredSessions.length / itemsPerPage));
+
+  const displaySessions = useMemo(() => {
+    if (serverTotalPages && serverTotalPages > 1) {
+      return filteredSessions;
+    }
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredSessions.slice(start, start + itemsPerPage);
+  }, [filteredSessions, currentPage, itemsPerPage, serverTotalPages]);
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherSessionsHeader
@@ -163,7 +181,63 @@ export default function TeacherSessions() {
       ) : filteredSessions.length === 0 ? (
         <TeacherSessionsEmptyState />
       ) : (
-        <TeacherSessionsTable sessions={filteredSessions} />
+        <div className="space-y-4">
+          <TeacherSessionsTable sessions={displaySessions} />
+
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between pt-4 text-xs gap-3">
+              <span className="text-slate-500 dark:text-slate-400 font-semibold">
+                {t('teacher.paginationInfo', 'عرض صفحة {{currentPage}} من {{totalPages}}', {
+                  currentPage,
+                  totalPages,
+                })}
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 cursor-pointer"
+                  title={t('common.prev', 'الصفحة السابقة')}
+                >
+                  {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    const pageNum = i + 1;
+                    const isCurrent = pageNum === currentPage;
+                    return (
+                      <button
+                        type="button"
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 rounded-xl font-bold text-xs transition cursor-pointer ${
+                          isCurrent
+                            ? 'bg-[#00594C] text-white shadow-xs'
+                            : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 cursor-pointer"
+                  title={t('common.next', 'الصفحة التالية')}
+                >
+                  {isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

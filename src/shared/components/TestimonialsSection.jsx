@@ -206,19 +206,19 @@ export default React.memo(function TestimonialsSection({ testimonials: customTes
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     viewport={{ once: true }}
-                    className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 sm:mb-14 gap-6"
+                    className="relative mb-10 sm:mb-14"
                 >
-                    <div className="text-start">
+                    <div className="text-center max-w-3xl mx-auto px-4">
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1B1B1B] dark:text-white">
                             {t('testimonials.title', 'ماذا يقول أولياء الأمور؟')}
                         </h2>
-                        <div className="mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
-                        <p className="mt-5 text-[#6B7280] dark:text-slate-300 text-sm sm:text-base lg:text-lg max-w-2xl leading-relaxed">
+                        <div className="mx-auto mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
+                        <p className="mt-5 text-[#6B7280] dark:text-slate-300 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed">
                             {t('testimonials.subtitle', 'آراء حقيقية من عائلات انضمت إلى رحلتنا التعليمية')}
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 self-start md:self-end">
+                    <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">
                         <button
                             type="button"
                             onClick={() => scroll('prev')}

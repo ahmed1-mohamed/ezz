@@ -11,7 +11,7 @@ import FaqTable from './components/FaqTable'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import Spinner from '@/shared/components/Spinner'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
-import { normalizeCountries, getCountryName } from '@/shared/utils/countryUtils'
+import { normalizeCountries, sortCountries, getCountryName } from '@/shared/utils/countryUtils'
 
 export default function AdminPackages() {
     const { t, i18n } = useTranslation()
@@ -30,6 +30,10 @@ export default function AdminPackages() {
     const [editingFaq, setEditingFaq] = useState(null)
     const [isFaqFormOpen, setIsFaqFormOpen] = useState(false)
     const [selectedCountryFilter, setSelectedCountryFilter] = useState('all')
+
+    const sortedCountries = useMemo(() => {
+        return sortCountries(countries, isRtl)
+    }, [countries, isRtl])
 
     const loadAll = useCallback(async () => {
         setIsLoading(true)
@@ -143,37 +147,41 @@ export default function AdminPackages() {
     }
 
     const handleEditFaqClick = async (faq) => {
-        let faqData = faq
+        const initialFaq = {
+            id: faq.id || faq._id,
+            question: typeof faq.question === 'object' && faq.question !== null ? (faq.question.ar || faq.question.en || '') : (faq.question || ''),
+            question_en: typeof faq.question === 'object' && faq.question !== null ? (faq.question.en || faq.question.ar || '') : (faq.question_en || ''),
+            answer: typeof faq.answer === 'object' && faq.answer !== null ? (faq.answer.ar || faq.answer.en || '') : (faq.answer || ''),
+            answer_en: typeof faq.answer === 'object' && faq.answer !== null ? (faq.answer.en || faq.answer.ar || '') : (faq.answer_en || ''),
+        };
+        setEditingFaq(initialFaq);
+        setIsFaqFormOpen(true);
         try {
-            const res = await adminPackagesApi.fetchFaqById(faq.id || faq._id)
-            if (res?.data) {
-                faqData = res.data
-            } else if (res && typeof res === 'object') {
-                faqData = res
+            const res = await adminPackagesApi.fetchFaqById(faq.id || faq._id);
+            let faqData = res?.data || res;
+            if (Array.isArray(faqData)) {
+                faqData = faqData[0];
+            }
+            if (faqData?.data && !faqData.question) {
+                faqData = Array.isArray(faqData.data) ? faqData.data[0] : faqData.data;
+            }
+            if (faqData && typeof faqData === 'object') {
+                const qAr = typeof faqData.question === 'object' && faqData.question !== null ? (faqData.question.ar || faqData.question.en || '') : (faqData.question || initialFaq.question);
+                const qEn = typeof faqData.question === 'object' && faqData.question !== null ? (faqData.question.en || faqData.question.ar || '') : (faqData.question_en || initialFaq.question_en);
+                const aAr = typeof faqData.answer === 'object' && faqData.answer !== null ? (faqData.answer.ar || faqData.answer.en || '') : (faqData.answer || initialFaq.answer);
+                const aEn = typeof faqData.answer === 'object' && faqData.answer !== null ? (faqData.answer.en || faqData.answer.ar || '') : (faqData.answer_en || initialFaq.answer_en);
+                setEditingFaq({
+                    id: faqData.id || faqData._id || initialFaq.id,
+                    question: qAr,
+                    question_en: qEn,
+                    answer: aAr,
+                    answer_en: aEn,
+                });
             }
         } catch (error) {
-            console.warn('Failed to fetch single FAQ details, falling back to table data:', error)
+            console.warn('Failed to fetch single FAQ details, retaining table data:', error);
         }
-
-        const mappedFaq = {
-            id: faqData.id || faqData._id || faq.id || faq._id,
-            question: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.ar || faqData.question.en || '' : faqData.question || faq.question || '',
-            question_en: typeof faqData.question === 'object' && faqData.question !== null ? faqData.question.en || faqData.question.ar || '' : faqData.question_en || faq.question_en || '',
-            answer: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.ar || faqData.answer.en || '' : faqData.answer || faq.answer || '',
-            answer_en: typeof faqData.answer === 'object' && faqData.answer !== null ? faqData.answer.en || faqData.answer.ar || '' : faqData.answer_en || faq.answer_en || '',
-        }
-
-        setEditingFaq(mappedFaq)
-        setIsFaqFormOpen(true)
-    }
-
-    if (isLoading) {
-        return (
-            <div className="flex h-[60vh] items-center justify-center">
-                <Spinner />
-            </div>
-        )
-    }
+    };
 
     const canViewPackages = hasPermission('packages.read') || hasPermission('packages_faqs.read') || isSuperAdmin
     const canCreatePackage = hasPermission('packages.create') || isSuperAdmin
@@ -192,6 +200,14 @@ export default function AdminPackages() {
             return String(pCountry) === String(selectedCountryFilter) || p.country === selectedCountryFilter;
         });
     }, [packages, selectedCountryFilter]);
+
+    if (isLoading) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <Spinner />
+            </div>
+        )
+    }
 
     if (!canViewPackages && !canViewFaqs) {
         return (
@@ -234,7 +250,7 @@ export default function AdminPackages() {
                         >
                             {isRtl ? 'كل الدول' : 'All Countries'} ({packages.length})
                         </button>
-                        {countries.map((c) => {
+                        {sortedCountries.map((c) => {
                             const cid = c.id || c._id;
                             const cName = getCountryName(c, isRtl);
                             const flag = c.flag ? `${c.flag} ` : '';
@@ -282,7 +298,7 @@ export default function AdminPackages() {
                                         onEdit={canUpdatePackage ? handleEditPkgClick : null}
                                         onDelete={canDeletePackage ? (id) => executeDelete('package', id, pkg.nameAr || pkg.name_ar || pkg.name || '') : null}
                                         explanationLanguages={explanationLanguages}
-                                        countries={countries}
+                                        countries={sortedCountries}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -340,7 +356,7 @@ export default function AdminPackages() {
                 onSave={handleSavePkg}
                 editingPackage={editingPkg}
                 explanationLanguages={explanationLanguages}
-                countries={countries}
+                countries={sortedCountries}
             />
         </div>
     )

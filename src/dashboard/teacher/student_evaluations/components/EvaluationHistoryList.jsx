@@ -37,9 +37,12 @@ export default function EvaluationHistoryList({
             key={evalItem.id}
             className="bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100/70 dark:border-slate-800 transition"
           >
-            <div className="text-start space-y-1.5 flex-1 min-w-0">
+            <div className="text-start space-y-2 flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h5 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                  {t('teacherEvaluations.studentLabel', 'الطالب:')}
+                </span>
+                <h5 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
                   {evalItem.studentName}
                 </h5>
                 {evalItem.dateStr && (
@@ -49,14 +52,20 @@ export default function EvaluationHistoryList({
                 )}
               </div>
 
-              <p className="text-xs text-[#00594C] dark:text-emerald-400 font-bold">
-                {t('teacherEvaluations.group', 'المجموعة')}: {evalItem.groupName} • {evalItem.sessionName}
-              </p>
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className="inline-flex items-center gap-1 font-bold text-[#00594C] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg">
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('teacherEvaluations.group', 'المجموعة')}:</span> {evalItem.groupName}
+                </span>
+                <span className="inline-flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded-lg">
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">{t('teacherEvaluations.session', 'الحصة')}:</span> {evalItem.sessionName}
+                </span>
+              </div>
 
               {evalItem.notes && (
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium pt-1 line-clamp-2">
-                  {evalItem.notes}
-                </p>
+                <div className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 me-1">{t('teacherEvaluations.notesLabel', 'ملاحظة المعلم:')}</span>
+                  <span>{evalItem.notes}</span>
+                </div>
               )}
             </div>
 
