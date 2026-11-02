@@ -106,6 +106,7 @@ const ParentAttendance = lazy(() => import('../dashboard/parent/schedules/Parent
 
 const ParentAssignments = lazy(() => import('../dashboard/parent/overview/ParentAssignments.jsx'))
 const ParentAssignmentDetails = lazy(() => import('../dashboard/parent/overview/ParentAssignmentDetails.jsx'))
+const ParentExcuses = lazy(() => import('../dashboard/parent/schedules/ParentExcuses.jsx'))
 const ParentSettings = lazy(() => import('../dashboard/parent/settings/ParentSettings.jsx'))
 import { ParentExams, ParentNotifications, ParentProfile } from '../dashboard/parent/components/Placeholders.jsx'
 
@@ -585,6 +586,7 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/parent/ratings" element={<ParentRatings />} />
                                     <Route path="/dashboard/parent/assignments" element={<ParentAssignments />} />
                                     <Route path="/dashboard/parent/assignments/:id" element={<ParentAssignmentDetails />} />
+                                    <Route path="/dashboard/parent/excuses" element={<ParentExcuses />} />
                                     <Route path="/dashboard/parent/complaints" element={<ParentComplaints />} />
                                     <Route path="/dashboard/parent/exams" element={<ParentExams />} />
                                     <Route path="/dashboard/parent/notifications" element={<ParentNotifications />} />
