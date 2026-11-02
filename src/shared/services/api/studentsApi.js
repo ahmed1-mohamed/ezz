@@ -107,6 +107,37 @@ export const mapStudentData = (item) => {
   };
 };
 
+// Fields accepted by POST/PATCH /students (multipart):
+// name[ar], name[en], email, phone, country, password, confirmPassword, birthDate, studentLevel, parent, image
+const buildStudentFormData = (data = {}, { isCreate }) => {
+  const fd = new FormData();
+  const nameAr = typeof data.name === 'object' && data.name !== null ? data.name.ar : (data.nameAr ?? data.name);
+  const nameEn = typeof data.name === 'object' && data.name !== null ? data.name.en : data.nameEn;
+  if (nameAr) fd.append('name[ar]', String(nameAr).trim());
+  if (nameEn) fd.append('name[en]', String(nameEn).trim());
+  ['email', 'phone', 'country', 'birthDate', 'studentLevel', 'parent'].forEach((key) => {
+    if (data[key]) fd.append(key, data[key]);
+  });
+  if (isCreate || data.password) {
+    if (data.password) fd.append('password', data.password);
+    if (data.confirmPassword) fd.append('confirmPassword', data.confirmPassword);
+  }
+  const imageFile = data.profileImageFile instanceof File ? data.profileImageFile : (data.image instanceof File ? data.image : null);
+  if (imageFile) fd.append('image', imageFile);
+  return fd;
+};
+
+// Student endpoints don't return the profile image; it lives on the linked user (GET /users/:userId).
+const fetchUserImage = async (userId) => {
+  if (!userId) return null;
+  try {
+    const response = await api.get(`/api/v1/users/${userId}`, { skipCache: true, skipGlobalErrorToast: true });
+    return response.data?.data?.image || null;
+  } catch {
+    return null;
+  }
+};
+
 export const studentsApi = {
    fetchStudents: async (params = {}) => {
     const { status, page = 1, limit = 10, search, ...restParams } = params;
@@ -225,21 +256,11 @@ export const studentsApi = {
     return response.data;
   },
 
+  // Localized student profile used by the details page (country, age, lastSubscription, sessionsBalance...)
   fetchStudentById: async (id) => {
-    try {
-      const response = await api.get(`/api/v1/students/localized/${id}`);
-      const raw = response.data?.data || response.data;
-      return { success: true, data: mapStudentData(raw) };
-    } catch {
-      try {
-        const response = await api.get(`/api/v1/students/${id}`, { skipLang: true });
-        const raw = response.data?.data || response.data;
-        return { success: true, data: mapStudentData(raw) };
-      } catch (err) {
-        console.error('studentsApi.fetchStudentById failed:', err);
-        return { success: false, data: null };
-      }
-    }
+    const response = await api.get(`/api/v1/students/localized/${id}`, { skipCache: true });
+    const student = response.data?.data || null;
+    return student ? { ...student, image: await fetchUserImage(student.user_id) } : null;
   },
 
   fetchRawStudentById: async (id) => {
@@ -247,210 +268,62 @@ export const studentsApi = {
     return response.data;
   },
 
-  createStudent: async (studentData) => {
-    if (studentData instanceof FormData) {
-      const response = await api.post('/api/v1/students', studentData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
-    }
-
-    const hasImageFile = (studentData?.profileImageFile instanceof File) || (studentData?.image instanceof File);
-
-    if (hasImageFile) {
-      const fd = new FormData();
-      const nameAr = typeof studentData.name === 'object' && studentData.name !== null
-        ? (studentData.name.ar || studentData.nameAr || '')
-        : (studentData.nameAr || studentData.name || '');
-      const nameEn = typeof studentData.name === 'object' && studentData.name !== null
-        ? (studentData.name.en || studentData.nameEn || '')
-        : (studentData.nameEn || studentData.name || '');
-
-      if (nameAr) fd.append('name[ar]', nameAr);
-      if (nameEn) fd.append('name[en]', nameEn);
-      if (studentData.email) fd.append('email', studentData.email);
-      if (studentData.phone) fd.append('phone', studentData.phone);
-      if (studentData.country) fd.append('country', studentData.country);
-      if (studentData.password) fd.append('password', studentData.password);
-      if (studentData.confirmPassword) fd.append('confirmPassword', studentData.confirmPassword);
-      if (studentData.birthDate) fd.append('birthDate', studentData.birthDate);
-      if (studentData.studentLevel) fd.append('studentLevel', studentData.studentLevel);
-      if (studentData.parent) fd.append('parent', studentData.parent);
-
-      const imageFile = studentData.profileImageFile instanceof File ? studentData.profileImageFile : studentData.image;
-      if (imageFile instanceof File) {
-        fd.append('image', imageFile);
-      }
-
-      const response = await api.post('/api/v1/students', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
-    }
-
-    const payload = {
-      email: studentData.email,
-      name: typeof studentData.name === 'object' && studentData.name !== null
-        ? {
-            ar: studentData.name.ar || studentData.nameAr || '',
-            en: studentData.name.en || studentData.nameEn || ''
-          }
-        : {
-            ar: studentData.nameAr || studentData.name || '',
-            en: studentData.nameEn || studentData.name || ''
-          },
-      phone: studentData.phone,
-      country: studentData.country,
-      password: studentData.password,
-      confirmPassword: studentData.confirmPassword,
-      birthDate: studentData.birthDate,
-      studentLevel: studentData.studentLevel,
-      parent: studentData.parent
+  // Raw (non-localized) student record. The API localizes text by Accept-Language,
+  // so both languages are requested to rebuild the bilingual name for the edit form.
+  fetchStudentForEdit: async (id) => {
+    const [arRes, enRes] = await Promise.all([
+      api.get(`/api/v1/students/${id}`, { headers: { 'Accept-Language': 'ar' }, skipCache: true }),
+      api.get(`/api/v1/students/${id}`, { headers: { 'Accept-Language': 'en' }, skipCache: true })
+    ]);
+    const ar = arRes.data?.data || arRes.data || {};
+    const en = enRes.data?.data || enRes.data || {};
+    return {
+      ...ar,
+      image: await fetchUserImage(ar.user_id),
+      name: { ar: ar.name || '', en: en.name || '' },
+      countryAr: ar.country || '',
+      countryEn: en.country || '',
+      studentLevelAr: ar.studentLevel || '',
+      studentLevelEn: en.studentLevel || ''
     };
-
-    const response = await api.post('/api/v1/students', payload);
-    return response.data;
   },
 
-  updateStudent: async (id, studentData) => {
-    if (studentData instanceof FormData) {
-      const response = await api.patch(`/api/v1/students/${id}`, studentData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
-    }
-
-    const hasImageFile = (studentData?.profileImageFile instanceof File) || (studentData?.image instanceof File);
-
-    if (hasImageFile) {
-      const fd = new FormData();
-      if (studentData.name) {
-        const nameAr = typeof studentData.name === 'object' && studentData.name !== null
-          ? (studentData.name.ar || studentData.nameAr || '')
-          : (studentData.nameAr || studentData.name || '');
-        const nameEn = typeof studentData.name === 'object' && studentData.name !== null
-          ? (studentData.name.en || studentData.nameEn || '')
-          : (studentData.nameEn || studentData.name || '');
-        if (nameAr) fd.append('name[ar]', nameAr);
-        if (nameEn) fd.append('name[en]', nameEn);
-      }
-      if (studentData.email) fd.append('email', studentData.email);
-      if (studentData.phone) fd.append('phone', studentData.phone);
-      if (studentData.country) fd.append('country', studentData.country);
-      if (studentData.password) {
-        fd.append('password', studentData.password);
-        fd.append('confirmPassword', studentData.confirmPassword || studentData.password);
-      }
-      if (studentData.birthDate) fd.append('birthDate', studentData.birthDate);
-      if (studentData.studentLevel) fd.append('studentLevel', studentData.studentLevel);
-      if (studentData.parent) fd.append('parent', studentData.parent);
-      if (studentData.active !== undefined) fd.append('active', String(studentData.active));
-
-      const imageFile = studentData.profileImageFile instanceof File ? studentData.profileImageFile : studentData.image;
-      if (imageFile instanceof File) {
-        fd.append('image', imageFile);
-      }
-
-      const response = await api.patch(`/api/v1/students/${id}`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
-    }
-
-    const payload = { ...studentData };
-    delete payload._id;
-    delete payload.student_id;
-    delete payload.user_id;
-    delete payload.id;
-    delete payload.createdAt;
-    delete payload.updatedAt;
-    delete payload.profileImageFile;
-    delete payload.profileImage;
-
-    const response = await api.patch(`/api/v1/students/${id}`, payload);
-    return response.data;
-  },
-
-  addSessions: async (id, sessionsCount) => {
-    const response = await api.post(`/api/v1/students/${id}/add-sessions`, {
-      sessionsCount: Number(sessionsCount)
+  createStudent: async (studentData) => {
+    const response = await api.post('/api/v1/students', buildStudentFormData(studentData, { isCreate: true }), {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   },
 
-  toggleStudentStatus: async (studentOrId) => {
-    try {
-      const student = typeof studentOrId === 'object' && studentOrId !== null ? studentOrId : null;
-      const id = student?.student_id || student?._id || student?.id || studentOrId;
-
-      let userId = student?.user_id || student?.userId || student?.user?._id || student?.user?.id;
-
-      if (!userId) {
-        try {
-          const raw = await api.get(`/api/v1/students/${id}`, { skipLang: true });
-          const rawData = raw.data?.data || raw.data;
-          userId = rawData?.user_id || rawData?.userId || rawData?.user?._id || rawData?.user?.id || rawData?.user;
-        } catch {
-          userId = null;
-        }
-      }
-
-      if (userId && typeof userId === 'string') {
-        try {
-          const res = await api.patch(`/api/v1/users/${userId}/toggle-active`);
-          return { success: true, data: res.data };
-        } catch (err) {
-          console.warn(`Failed toggle-active on /users/${userId}:`, err);
-        }
-      }
-
-      try {
-        const res = await api.patch(`/api/v1/users/${id}/toggle-active`);
-        return { success: true, data: res.data };
-      } catch (err) {
-        console.warn(`Failed toggle-active on /users/${id}:`, err);
-      }
-
-      try {
-        const res = await api.patch(`/api/v1/students/${id}/toggle-active`);
-        return { success: true, data: res.data };
-      } catch (err) {
-        console.warn(`Failed toggle-active on /students/${id}/toggle-active:`, err);
-      }
-
-      const currentActive = student?.active === true || String(student?.active) === 'true';
-      const res = await api.patch(`/api/v1/students/${id}`, { active: !currentActive });
-      return { success: true, data: res.data };
-    } catch (error) {
-      console.error('API toggleStudentStatus failed:', error);
-      throw error;
-    }
+  updateStudent: async (id, studentData) => {
+    const body = studentData instanceof FormData ? studentData : buildStudentFormData(studentData, { isCreate: false });
+    const response = await api.patch(`/api/v1/students/${id}`, body, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
-  changeStudentPassword: async (userIdOrStudentId, passwordData) => {
-    try {
-      const password = typeof passwordData === 'string' ? passwordData : passwordData?.password;
-      const confirmPassword = typeof passwordData === 'object' ? (passwordData?.confirmPassword || password) : password;
+  // POST /students/:id/add-sessions accepts { count (1..3), reason? }
+  addSessions: async (id, count, reason) => {
+    const response = await api.post(`/api/v1/students/${id}/add-sessions`, {
+      count: Number(count),
+      ...(reason ? { reason } : {})
+    });
+    return response.data;
+  },
 
-      const payload = {
-        password,
-        confirmPassword,
-        ...(passwordData?.phone ? { phone: passwordData.phone } : {}),
-        ...(passwordData?.email ? { email: passwordData.email } : {}),
-        ...(passwordData?.country ? { country: passwordData.country } : {})
-      };
+  // PATCH /users/:userId/toggle-active — expects the student's user_id
+  toggleStudentStatus: async (student) => {
+    const userId = student?.user_id;
+    if (!userId) throw new Error('Missing student user_id');
+    const response = await api.patch(`/api/v1/users/${userId}/toggle-active`);
+    return response.data;
+  },
 
-      try {
-        const response = await api.patch(`/api/v1/users/${userIdOrStudentId}/change-password`, payload);
-        return response.data;
-      } catch {
-        const response = await api.patch(`/api/v1/students/${userIdOrStudentId}/change-password`, payload);
-        return response.data;
-      }
-    } catch (error) {
-      console.error('API changeStudentPassword failed:', error);
-      throw error;
-    }
+  // PATCH /users/:userId/change-password accepts only { password, confirmPassword }
+  changeStudentPassword: async (userId, { password, confirmPassword }) => {
+    const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
+    return response.data;
   },
 
   deleteStudent: async (id) => {

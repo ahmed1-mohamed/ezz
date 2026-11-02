@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+﻿import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { User, ShieldCheck, BookOpen } from 'lucide-react';
+import { User, ShieldCheck, BookOpen, Palette } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
-import { normalizeCountries, sortCountries } from '@/shared/utils/countryUtils.js';
+import { normalizeCountries, sortCountries, resolveCountryIdFromLabel, DEFAULT_DIAL_CODE } from '@/shared/utils/countryUtils.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import { setCookie } from '@/shared/utils/cookieUtils.js';
 import api from '@/shared/services/api/axiosConfig.js';
@@ -15,6 +15,7 @@ import TeacherProfileHeader from './components/TeacherProfileHeader.jsx';
 import TeacherPersonalInfoCard from './components/TeacherPersonalInfoCard.jsx';
 import TeacherPasswordCard from './components/TeacherPasswordCard.jsx';
 import TeacherTeachingInfoCard from './components/TeacherTeachingInfoCard.jsx';
+import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
 
 export default function TeacherProfile() {
   const { user, updateUser } = useAuth();
@@ -35,7 +36,7 @@ export default function TeacherProfile() {
   };
 
   const [apiCountries, setApiCountries] = useState([]);
-  const [selectedDialCode, setSelectedDialCode] = useState('+966');
+  const [selectedDialCode, setSelectedDialCode] = useState(DEFAULT_DIAL_CODE);
   const [phoneWithoutCode, setPhoneWithoutCode] = useState('');
 
   const [profileForm, setProfileForm] = useState({
@@ -79,10 +80,9 @@ export default function TeacherProfile() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -92,7 +92,7 @@ export default function TeacherProfile() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : "Wednesday, 5 Dhu al-Qi'dah 1447 AH");
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
 
@@ -144,14 +144,13 @@ export default function TeacherProfile() {
           const parsedBioAr = bioObj.ar || (typeof d.bio === 'string' ? d.bio : '') || d.about || '';
           const parsedBioEn = bioObj.en || '';
 
-          let mappedCountry = '';
-          if (d.country) {
-            const cId = d.country?._id || d.country?.id || d.country;
-            mappedCountry = typeof cId === 'string' ? cId : '';
-          }
+          // GET /profile returns the country as "<flag> <name>"; map it to the ID the update expects
+          const mappedCountry = typeof d.country === 'object' && d.country !== null
+            ? (d.country.id || d.country._id || '')
+            : resolveCountryIdFromLabel(normalized, d.country);
 
           const rawPhone = String(d.phone || '');
-          let dial = '+966';
+          let dial = DEFAULT_DIAL_CODE;
           let num = rawPhone;
 
           const phoneCountries = [...sorted]
@@ -225,21 +224,15 @@ export default function TeacherProfile() {
 
     setSavingProfile(true);
     try {
-      const fullPhone = phoneWithoutCode.trim() ? `${selectedDialCode}${phoneWithoutCode.trim()}` : '';
+      const localPhone = phoneWithoutCode.trim().replace(/^0+/, '');
+      const fullPhone = localPhone ? `${selectedDialCode}${localPhone}` : '';
 
+      // PATCH /profile accepts name, phone, country and image only
       const payload = {
         nameAr: profileForm.nameAr.trim(),
         nameEn: profileForm.nameEn.trim(),
-        email: profileForm.email.trim(),
         country: profileForm.country,
-        gender: profileForm.gender,
         phone: fullPhone,
-        about: profileForm.bioAr.trim(),
-        bio: {
-          ar: profileForm.bioAr.trim(),
-          en: profileForm.bioEn.trim(),
-        },
-        yearsOfExperience: profileForm.experience ? Number(profileForm.experience) : undefined,
       };
 
       if (profileForm.imageFile) {
@@ -284,7 +277,6 @@ export default function TeacherProfile() {
 
     setSavingPassword(true);
     try {
-      const fullPhone = phoneWithoutCode.trim() ? `${selectedDialCode}${phoneWithoutCode.trim()}` : '';
       let res;
 
       if (passwordForm.current) {
@@ -292,15 +284,11 @@ export default function TeacherProfile() {
           currentPassword: passwordForm.current,
           password: passwordForm.newPassword,
           confirmPassword: passwordForm.confirmPassword,
-          phone: fullPhone,
-          country: profileForm.country,
         });
       } else {
         res = await profileApi.createPassword({
           password: passwordForm.newPassword,
           confirmPassword: passwordForm.confirmPassword,
-          phone: fullPhone,
-          country: profileForm.country,
         });
       }
 
@@ -332,8 +320,16 @@ export default function TeacherProfile() {
   };
 
   const displayName = useMemo(() => {
-    if (isRtl) return profileForm.nameAr || profileForm.nameEn || user?.name || t('common.teacher', 'معلم');
-    return profileForm.nameEn || profileForm.nameAr || user?.name || t('common.teacher', 'Teacher');
+    const resolveStr = (val) => {
+      if (!val) return '';
+      if (typeof val === 'string') return val;
+      if (typeof val === 'object') return (isRtl ? val.ar || val.en : val.en || val.ar) || '';
+      return String(val);
+    };
+    if (isRtl) {
+      return resolveStr(profileForm.nameAr) || resolveStr(profileForm.nameEn) || resolveStr(user?.name) || t('common.teacher', 'معلم');
+    }
+    return resolveStr(profileForm.nameEn) || resolveStr(profileForm.nameAr) || resolveStr(user?.name) || t('common.teacher', 'Teacher');
   }, [isRtl, profileForm.nameAr, profileForm.nameEn, user?.name, t]);
 
   const initialLetter = useMemo(() => {
@@ -344,6 +340,7 @@ export default function TeacherProfile() {
     { key: 'personal', label: t('teacherProfilePage.personalInfo', 'البيانات الشخصية'), icon: User },
     { key: 'security', label: t('teacherProfilePage.security', 'الأمان وكلمة المرور'), icon: ShieldCheck },
     { key: 'teaching', label: t('teacherProfilePage.stats', 'المعلومات التعليمية والنبذة'), icon: BookOpen },
+    { key: 'display', label: t('parentSettings.languageDisplay', 'اللغة والعرض'), icon: Palette },
   ], [t]);
 
   return (
@@ -399,13 +396,13 @@ export default function TeacherProfile() {
           savingPassword={savingPassword}
           onSavePassword={handleSavePassword}
         />
+      ) : activeTab === 'display' ? (
+        <LanguageAppearancePanel />
       ) : (
         <TeacherTeachingInfoCard
           t={t}
           profileForm={profileForm}
-          setProfileForm={setProfileForm}
-          savingProfile={savingProfile}
-          onSave={handleSaveProfile}
+          isRtl={isRtl}
         />
       )}
     </div>

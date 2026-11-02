@@ -27,7 +27,7 @@ export const ParentChildren = () => <PlaceholderPage transKey="children" />;
 export const ParentSchedule = () => <PlaceholderPage transKey="schedule" />;
 export const ParentAttendance = () => <PlaceholderPage transKey="attendance" />;
 export const ParentAssignments = () => <PlaceholderPage transKey="assignments" />;
-export const ParentReports = () => <PlaceholderPage transKey="reports" />;
+
 export const ParentSettings = () => <PlaceholderPage transKey="settings" />;
 export const ParentExams = () => <PlaceholderPage transKey="exams" />;
 export const ParentNotifications = () => <PlaceholderPage transKey="notifications" />;

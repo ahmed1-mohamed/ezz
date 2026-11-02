@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, Plus, Loader2 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
+import { MAX_SESSIONS_PER_OPERATION, MAX_MANUAL_SESSIONS_PER_MONTH, getRemainingSessions, getMonthlyManualRemaining } from '../utils/studentUtils'
 
 export default function AddSessionsModal({
   isOpen,
@@ -11,8 +12,10 @@ export default function AddSessionsModal({
   onAddSessions,
   isLoading = false
 }) {
-  const [sessionsCount, setSessionsCount] = useState(8)
-  const [customInput, setCustomInput] = useState('')
+  const monthlyRemaining = getMonthlyManualRemaining(student?.sessionsBalance)
+  const maxAllowed = Math.min(MAX_SESSIONS_PER_OPERATION, monthlyRemaining)
+  const [sessionsCount, setSessionsCount] = useState(Math.min(1, maxAllowed))
+  const [reason, setReason] = useState('')
 
   if (!isOpen || !student) return null
 
@@ -20,34 +23,33 @@ export default function AddSessionsModal({
     ? student.name
     : (student.name?.ar || student.name?.en || 'الطالب')
 
-  const rawBal = student.sessionsBalance ?? student.remainingSessions ?? 0
-  const currentBalance = typeof rawBal === 'object' && rawBal !== null
-    ? (rawBal.remaining !== undefined
-        ? Number(rawBal.remaining)
-        : Math.max(0, Number(rawBal.total ?? 0) - Number(rawBal.used ?? 0)))
-    : Number(rawBal || 0)
-
-  const quickPresets = [4, 8, 12, 16]
+  const currentBalance = getRemainingSessions(student.sessionsBalance)
+  const manualAddedThisMonth = MAX_MANUAL_SESSIONS_PER_MONTH - monthlyRemaining
+  const presets = Array.from({ length: MAX_SESSIONS_PER_OPERATION }, (_, i) => i + 1)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const count = customInput ? Number(customInput) : Number(sessionsCount)
-    if (!count || count <= 0 || isNaN(count)) {
-      showErrorToast(isRtl ? 'الرجاء إدخال عدد حصص صحيح!' : 'Please enter a valid sessions count!', isRtl)
+    const count = Number(sessionsCount)
+    if (!Number.isInteger(count) || count < 1 || count > maxAllowed) {
+      showErrorToast(
+        isRtl
+          ? `عدد الحصص يجب أن يكون بين 1 و ${maxAllowed}`
+          : `Sessions count must be between 1 and ${maxAllowed}`,
+        isRtl
+      )
       return
     }
-    const studentId = student.student_id || student._id || student.id || student.user_id
-    onAddSessions(studentId, count)
+    onAddSessions(student.student_id, count, reason.trim())
   }
 
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
       dir={isRtl ? 'rtl' : 'ltr'}
-      onClick={onClose}
+      onClick={isLoading ? undefined : onClose}
     >
       <div
-        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6"
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -56,7 +58,7 @@ export default function AddSessionsModal({
               <Plus size={22} />
             </div>
             <div className="text-start">
-              <h3 className="text-lg font-bold text-slate-850 dark:text-white">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                 {isRtl ? 'إضافة حصص للطالب' : 'Add Sessions to Student'}
               </h3>
               <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
@@ -67,6 +69,7 @@ export default function AddSessionsModal({
           <button
             type="button"
             onClick={onClose}
+            disabled={isLoading}
             className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-xl transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X size={18} />
@@ -74,31 +77,43 @@ export default function AddSessionsModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="p-4 bg-slate-50 dark:bg-slate-950/30 rounded-2xl flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-              {isRtl ? 'رصيد الحصص الحالي' : 'Current Sessions Balance'}
-            </span>
-            <span className="text-base font-extrabold text-[#005953] dark:text-emerald-400">
-              {currentBalance} {isRtl ? 'حصة' : 'sessions'}
-            </span>
+          <div className="p-4 bg-slate-50 dark:bg-slate-950/30 rounded-2xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                {isRtl ? 'رصيد الحصص الحالي' : 'Current Sessions Balance'}
+              </span>
+              <span className="text-base font-extrabold text-[#005953] dark:text-emerald-400">
+                {currentBalance} {isRtl ? 'حصة' : 'sessions'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                {isRtl ? 'المضاف يدوياً هذا الشهر' : 'Manually added this month'}
+              </span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                {manualAddedThisMonth} / {MAX_MANUAL_SESSIONS_PER_MONTH}
+              </span>
+            </div>
           </div>
 
           <div className="space-y-2 text-start">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
-              {isRtl ? 'اختر عدد الحصص المراد إضافتها' : 'Select sessions to add'}
+              {isRtl
+                ? `اختر عدد الحصص (المتاح هذا الشهر: ${monthlyRemaining} من ${MAX_MANUAL_SESSIONS_PER_MONTH})`
+                : `Select sessions to add (available this month: ${monthlyRemaining} of ${MAX_MANUAL_SESSIONS_PER_MONTH})`}
             </label>
-            <div className="grid grid-cols-4 gap-2.5">
-              {quickPresets.map((preset) => {
-                const isSelected = !customInput && sessionsCount === preset
+            <div className="grid grid-cols-3 gap-2.5">
+              {presets.map((preset) => {
+                const isSelected = sessionsCount === preset
+                const isDisabled = preset > maxAllowed
                 return (
                   <button
                     key={preset}
                     type="button"
-                    onClick={() => {
-                      setSessionsCount(preset)
-                      setCustomInput('')
-                    }}
-                    className={`py-3 rounded-2xl font-bold text-sm transition-all border ${
+                    disabled={isDisabled}
+                    onClick={() => setSessionsCount(preset)}
+                    aria-pressed={isSelected}
+                    className={`py-3 rounded-2xl font-bold text-sm transition-all border disabled:opacity-40 disabled:cursor-not-allowed ${
                       isSelected
                         ? 'bg-[#005953] text-white border-[#005953] shadow-md shadow-brand-500/10'
                         : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-brand-500/40'
@@ -111,27 +126,32 @@ export default function AddSessionsModal({
             </div>
           </div>
 
+          {maxAllowed === 0 && (
+            <p className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-xs font-bold text-start">
+              {isRtl
+                ? 'تم بلوغ الحد الأقصى للحصص المضافة يدوياً لهذا الطالب خلال هذا الشهر'
+                : 'The monthly limit of manually added sessions has been reached for this student'}
+            </p>
+          )}
+
           <div className="space-y-1.5 text-start">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
-              {isRtl ? 'أو أدخل عدداً مخصصاً' : 'Or enter custom count'}
+              {isRtl ? 'سبب الإضافة (اختياري)' : 'Reason (optional)'}
             </label>
             <input
-              type="number"
-              min="1"
-              max="200"
-              value={customInput}
-              onChange={(e) => {
-                setCustomInput(e.target.value)
-              }}
-              placeholder={isRtl ? 'مثال: 8' : 'e.g. 8'}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 px-4 text-slate-850 dark:text-white text-sm outline-none focus:border-brand-500/40 transition-all"
+              type="text"
+              value={reason}
+              maxLength={200}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder={isRtl ? 'مثال: تعويض حصة' : 'e.g. make-up session'}
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 px-4 text-slate-800 dark:text-white text-sm outline-none focus:border-brand-500/40 transition-all"
             />
           </div>
 
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || maxAllowed === 0}
               className="flex-1 py-3.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl font-bold text-sm transition-all shadow-md shadow-brand-500/15 disabled:opacity-50 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}

@@ -4,7 +4,7 @@ import {
   Calendar,
   Clock,
   Layers,
-   AlertTriangle,
+  AlertTriangle,
   Lightbulb,
   CalendarClock,
   Paperclip,
@@ -12,6 +12,10 @@ import {
   Clock3,
   XCircle,
   MessageSquare,
+  Download,
+  FileText,
+  FileImage,
+  FileVideo,
 } from 'lucide-react';
 
 function formatDate(isoString, isRtl) {
@@ -40,6 +44,27 @@ function formatTime(val) {
     return val.length > 5 ? val.substring(0, 5) : val;
   }
   return String(val);
+}
+
+function extractFileName(urlOrAtt, fallbackIndex) {
+  const raw = typeof urlOrAtt === 'string' ? urlOrAtt : (urlOrAtt?.url || urlOrAtt?.name || '');
+  if (!raw) return `مرفق ${fallbackIndex + 1}`;
+  try {
+    const segments = raw.split('/').filter(Boolean);
+    const last = segments[segments.length - 1] || '';
+    const decoded = decodeURIComponent(last.split('?')[0]);
+    return decoded || `مرفق ${fallbackIndex + 1}`;
+  } catch {
+    return `مرفق ${fallbackIndex + 1}`;
+  }
+}
+
+function getFileIcon(urlOrAtt) {
+  const raw = typeof urlOrAtt === 'string' ? urlOrAtt : (urlOrAtt?.url || urlOrAtt?.name || '');
+  const ext = (raw.split('.').pop() || '').toLowerCase().split('?')[0];
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'].includes(ext)) return FileImage;
+  if (['mp4', 'mov', 'webm', 'avi', 'mkv'].includes(ext)) return FileVideo;
+  return FileText;
 }
 
 export default function TeacherComplaintDetailsModal({ item, onClose }) {

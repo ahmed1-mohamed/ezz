@@ -3,7 +3,12 @@ import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
 import { SYSTEM_PERMISSIONS } from '../constants'
-import { showSuccessToast } from '@/shared/utils/sweetAlert'
+import { PERMISSIONS_LIST } from '@/shared/permissions.constant'
+
+const BACKEND_PERMISSION_KEYS = new Set(
+  Object.values(PERMISSIONS_LIST).flatMap((group) => group.actions.map((action) => action.key))
+)
+import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 
 import RoleList from './roles/RoleList'
 import PermissionsMatrix from './roles/PermissionsMatrix'
@@ -73,7 +78,11 @@ export default function RolesPermissionsScreen({
 
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }) => managersApi.updatePermission(id, payload),
-    onSuccess: () => {
+    onError: (err) => {
+      const msg = err?.response?.data?.message
+      showErrorToast(Array.isArray(msg) ? msg.join(' - ') : (msg || (isRtl ? 'فشل حفظ الصلاحيات' : 'Failed to save permissions')), isRtl)
+    },
+    onSuccess: (_data, variables) => {
       queryClient.setQueryData(['permissions'], (old) => {
         if (!old) return old;
         const items = old.data || old;
@@ -81,7 +90,7 @@ export default function RolesPermissionsScreen({
         const updatedList = items.map((p) => {
           const pid = p.id || p._id;
           if (String(pid) === String(selectedPermissionId)) {
-            return { ...p, keys: activeKeys };
+            return { ...p, keys: variables.payload.keys };
           }
           return p;
         });
@@ -118,14 +127,26 @@ export default function RolesPermissionsScreen({
     )
   }
 
+  // The matrix toggles UI keys (e.g. READ_TEACHERS); the API only stores real action keys
+  // (e.g. teachers.read) and silently drops unknown ones, so expand to the backend keys before saving.
   const handleSave = () => {
     if (!selectedPermissionId) return
 
+    const keys = new Set(activeKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k)))
+    SYSTEM_PERMISSIONS.forEach((module) => {
+      module.actions.forEach((action) => {
+        const actionKeys = [action.key, ...(action.aliases || [])]
+        if (actionKeys.some((k) => activeKeys.includes(k))) {
+          actionKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k)).forEach((k) => keys.add(k))
+        } else {
+          actionKeys.forEach((k) => keys.delete(k))
+        }
+      })
+    })
+
     updateMutation.mutate({
       id: selectedPermissionId,
-      payload: {
-        keys: activeKeys
-      }
+      payload: { keys: [...keys] }
     })
   }
 

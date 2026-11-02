@@ -15,7 +15,8 @@ export default React.memo(function CurriculumUnits() {
             const res = await api.get('/api/v1/curricula/public');
             const items = res.data?.data || [];
             return items.map(item => item.data || item);
-        }
+        },
+        staleTime: 5 * 60 * 1000
     });
 
     const curricula = useMemo(() => curriculaData || [], [curriculaData]);
@@ -46,7 +47,8 @@ export default React.memo(function CurriculumUnits() {
 
             return curr;
         },
-        enabled: !!activeTabId
+        enabled: !!activeTabId,
+        staleTime: 5 * 60 * 1000
     });
 
     const currentData = activeCurriculumData || curricula.find(c => (c.id || c._id) === activeTabId);

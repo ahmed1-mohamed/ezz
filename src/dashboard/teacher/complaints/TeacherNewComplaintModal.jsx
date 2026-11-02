@@ -9,10 +9,21 @@ import {
   Send,
   Loader2,
   Paperclip,
-  Plus,
+  Upload,
 } from 'lucide-react';
 import { teacherComplaintsApi } from '@/shared/services/api/teacherComplaintsApi.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
+import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi.js';
+
+const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+
+const formatSessionOption = (sess, isRtl) => {
+  const start = sess.startTime || sess.scheduledAt || sess.date;
+  const d = start ? new Date(start) : null;
+  if (!d || Number.isNaN(d.getTime())) return sess.date || '—';
+  const locale = isRtl ? 'ar-EG' : 'en-GB';
+  return `${d.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`;
+};
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 
 export default function TeacherNewComplaintModal({ onClose }) {
@@ -25,8 +36,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [attachments, setAttachments] = useState([]);
-  const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
-  const [showAddUrlInput, setShowAddUrlInput] = useState(false);
 
   const [teacherGroups, setTeacherGroups] = useState([]);
   const [isLoadingGroups, setIsLoadingGroups] = useState(false);
@@ -81,12 +90,11 @@ export default function TeacherNewComplaintModal({ onClose }) {
     Promise.resolve().then(() => {
       if (!isMounted) return;
       setIsLoadingSessions(true);
-      return teacherGroupsApi.fetchGroupDetails(selectedGroupId);
+      // Only scheduled / rescheduled sessions can be postponed
+      return teacherSessionsApi.fetchScheduledSessions(selectedGroupId);
     })
-    .then((res) => {
-      if (!isMounted || !res) return;
-      const groupData = res?.data || res || {};
-      const sessions = groupData.sessionsHistory || [];
+    .then((sessions) => {
+      if (!isMounted) return;
       setAvailableSessions(Array.isArray(sessions) ? sessions : []);
     })
     .catch((err) => {
@@ -102,12 +110,14 @@ export default function TeacherNewComplaintModal({ onClose }) {
     };
   }, [selectedGroupId]);
 
-  const handleAddAttachment = () => {
-    if (newAttachmentUrl.trim()) {
-      setAttachments([...attachments, newAttachmentUrl.trim()]);
-      setNewAttachmentUrl('');
-      setShowAddUrlInput(false);
+  const handleAddAttachments = (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    const tooLarge = files.filter((f) => f.size > MAX_ATTACHMENT_SIZE);
+    if (tooLarge.length > 0) {
+      showErrorToast(isRtl ? 'حجم المرفق يجب ألا يتجاوز 10 ميجابايت' : 'Each attachment must be 10MB or less');
     }
+    setAttachments((prev) => [...prev, ...files.filter((f) => f.size <= MAX_ATTACHMENT_SIZE)]);
   };
 
   const handleRemoveAttachment = (idx) => {
@@ -144,8 +154,9 @@ export default function TeacherNewComplaintModal({ onClose }) {
       onClose();
     },
     onError: (err) => {
+      const rawMsg = err?.response?.data?.message;
       const errorMsg =
-        err?.response?.data?.message ||
+        (Array.isArray(rawMsg) ? rawMsg.join(' - ') : rawMsg) ||
         err?.message ||
         t('common.errorMessage', 'حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً');
       showErrorToast(errorMsg);
@@ -333,8 +344,8 @@ export default function TeacherNewComplaintModal({ onClose }) {
                       : t('teacherComplaints.selectSessionPlaceholder', '-- اختر الحصة --')}
                   </option>
                   {availableSessions.map((sess) => (
-                    <option key={sess.id} value={sess.id}>
-                      {sess.title || `${t('teacherComplaints.sessionDefault', 'حصة')} ${sess.sessionNumber || ''}`} ({sess.date || '—'})
+                    <option key={sess.id || sess._id} value={sess.id || sess._id}>
+                      {sess.title || `${t('teacherComplaints.sessionDefault', 'حصة')} ${sess.sessionNumber || ''}`} ({formatSessionOption(sess, isRtl)})
                     </option>
                   ))}
                 </select>
@@ -390,43 +401,12 @@ export default function TeacherNewComplaintModal({ onClose }) {
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                 {t('teacher.attachments', 'المرفقات (اختياري)')}
               </label>
-              {!showAddUrlInput && (
-                <button
-                  type="button"
-                  onClick={() => setShowAddUrlInput(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
-                >
-                  <Plus size={14} />
-                  <span>{t('teacherComplaints.addAttachmentUrl', 'إضافة رابط مرفق')}</span>
-                </button>
-              )}
+              <label className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
+                <Upload size={14} />
+                <span>{t('teacherComplaints.addAttachmentFile', isRtl ? 'إضافة ملفات' : 'Add files')}</span>
+                <input type="file" multiple className="hidden" onChange={handleAddAttachments} />
+              </label>
             </div>
-
-            {showAddUrlInput && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="url"
-                  value={newAttachmentUrl}
-                  onChange={(e) => setNewAttachmentUrl(e.target.value)}
-                  placeholder={t('teacherComplaints.attachmentUrlPlaceholder', 'https://example.com/file.pdf')}
-                  className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddAttachment}
-                  className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold cursor-pointer"
-                >
-                  {t('common.add', 'إضافة')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAddUrlInput(false)}
-                  className="px-2 py-2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
 
             {attachments.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-1">
@@ -436,7 +416,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                   >
                     <Paperclip size={12} className="text-slate-400" />
-                    <span className="truncate max-w-[200px]">{att}</span>
+                    <span className="truncate max-w-[200px]" dir="ltr">{att.name}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveAttachment(idx)}

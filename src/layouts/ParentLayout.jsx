@@ -7,12 +7,11 @@ import {
   Users,
   Calendar,
   CheckSquare,
-  BarChart2,
   Star,
   BookOpen,
   MessageSquare,
   Globe,
-  Settings,
+  User,
   Menu,
   X,
   LogOut,
@@ -24,12 +23,11 @@ const navItems = [
   { path: '/dashboard/parent/children', icon: Users, transKey: 'children' },
   { path: '/dashboard/parent/schedule', icon: Calendar, transKey: 'schedule' },
   { path: '/dashboard/parent/attendance', icon: CheckSquare, transKey: 'attendance' },
-  { path: '/dashboard/parent/reports', icon: BarChart2, transKey: 'reports' },
   { path: '/dashboard/parent/ratings', icon: Star, transKey: 'ratings' },
   { path: '/dashboard/parent/assignments', icon: BookOpen, transKey: 'assignments' },
   { path: '/dashboard/parent/complaints', icon: MessageSquare, transKey: 'complaints' },
   { path: '/', icon: Globe, transKey: 'website' },
-  { path: '/dashboard/parent/settings', icon: Settings, transKey: 'settings' },
+  { path: '/dashboard/parent/settings', icon: User, transKey: 'profile' },
 ];
 
 export default function ParentLayout() {
@@ -38,13 +36,11 @@ export default function ParentLayout() {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [prevLocationKey, setPrevLocationKey] = useState(location.key);
   if (prevLocationKey !== location.key) {
     setPrevLocationKey(location.key);
     setIsMobileMenuOpen(false);
   }
-
   const displayName = (() => {
     if (!user) return t('parentDashboard.user.name');
     if (typeof user.name === 'object' && user.name !== null) {
@@ -55,10 +51,8 @@ export default function ParentLayout() {
     }
     return user.name || t('parentDashboard.user.name');
   })();
-
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans">
-
       <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
           <button
@@ -67,12 +61,10 @@ export default function ParentLayout() {
           >
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          
           <div className="text-start hidden sm:block">
             <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">{t('parentDashboard.header.title')}</h2>
           </div>
         </div>
-
         <Link to="/dashboard/parent/settings" className="flex items-center gap-2.5 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
           <div className="text-end">
             <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[100px] sm:max-w-[140px]">
@@ -95,7 +87,6 @@ export default function ParentLayout() {
           </div>
         </Link>
       </header>
-
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -107,7 +98,6 @@ export default function ParentLayout() {
           />
         )}
       </AnimatePresence>
-
       <aside className={`
         fixed lg:sticky top-0 h-screen z-40
         w-60 bg-white dark:bg-slate-900 border-e border-slate-200 dark:border-slate-800
@@ -119,7 +109,6 @@ export default function ParentLayout() {
           <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-lg mb-1">{t('parentDashboard.header.title')}</h2>
           <p className="text-slate-500 dark:text-slate-400 text-xs">{t('parentDashboard.header.subtitle')}</p>
         </div>
-
         <div className="p-4 shrink-0">
           <Link to="/dashboard/parent" className="bg-[#0f7a6c] text-white rounded-xl p-3 flex items-center gap-3 shadow-md cursor-pointer hover:bg-[#0c6156] transition-transform hover:scale-[1.02] active:scale-95 block">
             {(() => {
@@ -137,7 +126,6 @@ export default function ParentLayout() {
             </div>
           </Link>
         </div>
-
         <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
           {navItems.map((item) => (
             <NavLink
@@ -156,7 +144,6 @@ export default function ParentLayout() {
             </NavLink>
           ))}
         </nav>
-
         <div className="p-4 mt-auto border-t border-slate-100 dark:border-slate-800 shrink-0">
           <button
             onClick={logout}
@@ -167,7 +154,6 @@ export default function ParentLayout() {
           </button>
         </div>
       </aside>
-
       <main className="flex-1 overflow-x-hidden min-h-screen relative">
         <Suspense
           fallback={

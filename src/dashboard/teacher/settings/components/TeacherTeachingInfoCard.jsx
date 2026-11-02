@@ -1,89 +1,39 @@
-import { Save } from 'lucide-react';
+import { Info } from 'lucide-react';
 
-export default function TeacherTeachingInfoCard({
-  t,
-  profileForm,
-  setProfileForm,
-  savingProfile,
-  onSave,
-}) {
+// Read-only: PATCH /profile only accepts name, phone, country and image, so the bio, experience and
+// specializations are managed by the administration from the teacher record.
+export default function TeacherTeachingInfoCard({ t, profileForm, isRtl }) {
+  const rows = [
+    { label: t('teacherProfilePage.bioAr', 'نبذة عن المعلم (بالعربية)'), value: profileForm.bioAr, wide: true },
+    { label: t('teacherProfilePage.bioEn', 'نبذة عن المعلم (بالإنجليزية)'), value: profileForm.bioEn, wide: true, ltr: true },
+    { label: t('teacherProfilePage.experience', 'سنوات الخبرة'), value: profileForm.experience },
+    { label: t('teacherProfilePage.specialization', 'التخصص والمواد'), value: profileForm.specialization },
+  ];
+
   return (
-    <form
-      onSubmit={onSave}
-      className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-start">
-        <div className="space-y-1.5 md:col-span-2">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-            {t('teacherProfilePage.bioAr', 'نبذة عن المعلم (بالعربية)')}
-          </label>
-          <textarea
-            rows={4}
-            value={profileForm.bioAr}
-            onChange={(e) => setProfileForm({ ...profileForm, bioAr: e.target.value })}
-            placeholder="اكتب نبذة مختصرة عن مؤهلاتك وخبراتك وفلسفتك في التدريس..."
-            className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#00594C]/20 focus:border-[#00594C] transition-all resize-none"
-          />
-        </div>
+    <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
+      <p className="flex items-start gap-2 p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+        <Info size={16} className="shrink-0 mt-0.5" />
+        <span>
+          {isRtl
+            ? 'تتم إدارة النبذة وسنوات الخبرة والتخصص من قبل إدارة المنصة. للتعديل تواصل مع الإدارة.'
+            : 'Your bio, experience and specialization are managed by the platform administration. Contact them to update these details.'}
+        </span>
+      </p>
 
-        <div className="space-y-1.5 md:col-span-2">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-            {t('teacherProfilePage.bioEn', 'نبذة عن المعلم (بالإنجليزية)')}
-          </label>
-          <textarea
-            rows={3}
-            dir="ltr"
-            value={profileForm.bioEn}
-            onChange={(e) => setProfileForm({ ...profileForm, bioEn: e.target.value })}
-            placeholder="Brief bio about your teaching experience and philosophy..."
-            className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#00594C]/20 focus:border-[#00594C] transition-all resize-none text-start"
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-            {t('teacherProfilePage.experience', 'سنوات الخبرة')}
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={profileForm.experience}
-            onChange={(e) => setProfileForm({ ...profileForm, experience: e.target.value })}
-            placeholder="5"
-            className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#00594C]/20 focus:border-[#00594C] transition-all"
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-            {t('teacherProfilePage.specialization', 'التخصص والمواد')}
-          </label>
-          <input
-            type="text"
-            value={profileForm.specialization}
-            onChange={(e) => setProfileForm({ ...profileForm, specialization: e.target.value })}
-            placeholder="القرآن الكريم، التجويد، القراءات"
-            className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#00594C]/20 focus:border-[#00594C] transition-all"
-          />
-        </div>
-      </div>
-
-      <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-        <button
-          type="submit"
-          disabled={savingProfile}
-          className="px-6 py-3 rounded-2xl bg-[#00594C] hover:bg-[#00473d] text-white text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
-        >
-          <Save size={16} />
-          <span>
-            {savingProfile
-              ? t('teacherProfilePage.saving', 'جاري الحفظ...')
-              : t('teacherProfilePage.saveChanges', 'حفظ التعديلات')}
-          </span>
-        </button>
-      </div>
-    </form>
+      <dl className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {rows.map((row) => (
+          <div key={row.label} className={`space-y-1.5 ${row.wide ? 'md:col-span-2' : ''}`}>
+            <dt className="text-xs font-bold text-slate-700 dark:text-slate-300">{row.label}</dt>
+            <dd
+              dir={row.ltr ? 'ltr' : undefined}
+              className="px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 whitespace-pre-line min-h-[2.75rem] text-start"
+            >
+              {row.value || '-'}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
-
-

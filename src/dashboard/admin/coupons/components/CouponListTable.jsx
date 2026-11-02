@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+﻿import { useState, memo } from 'react';
 import { Trash2, Copy, Check, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -42,13 +42,13 @@ function CouponListTable({ coupons, onDelete, onView }) {
             <table className="w-full text-sm text-center text-slate-500 dark:text-slate-400">
                 <thead className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-800/50">
                     <tr>
-                        <th scope="col" className="px-6 py-4 font-semibold text-right w-[15%]">
+                        <th scope="col" className="px-6 py-4 font-semibold text-start w-[15%]">
                             {t('adminDashboard.coupons.code', 'رمز الكوبون')}
                         </th>
                         <th scope="col" className="px-6 py-4 font-semibold text-center w-[10%]">
                             {t('adminDashboard.coupons.discountValue', 'قيمة الخصم')}
                         </th>
-                        <th scope="col" className="px-6 py-4 font-semibold text-right w-[25%]">
+                        <th scope="col" className="px-6 py-4 font-semibold text-start w-[25%]">
                             {t('adminDashboard.coupons.studentLabel', 'الطالب')}
                         </th>
                         <th scope="col" className="px-6 py-4 font-semibold text-center w-[15%]">
@@ -81,7 +81,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                 onClick={() => onView(coupon)}
                             >
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-right gap-2 font-bold text-[#0f7a6c] dark:text-[#14a693]">
+                                    <div className="flex items-center justify-start gap-2 font-bold text-[#0f7a6c] dark:text-[#14a693]">
                                         <Tag size={16} />
                                         {coupon.code}
                                     </div>
@@ -90,7 +90,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                     {coupon.discountPercentage}%
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-right gap-2.5">
+                                    <div className="flex items-center justify-start gap-2.5">
                                         {studentAvatar ? (
                                             <img
                                                 src={studentAvatar}

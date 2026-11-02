@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+﻿import { useMemo, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -20,14 +20,8 @@ export default function TeacherCourses() {
     } = useQuery({
         queryKey: ['teacher-courses-groups', statusParam],
         queryFn: () => teacherGroupsApi.fetchGroupsByStatus(statusParam),
-        staleTime: 0,
-        refetchOnMount: 'always',
-        refetchOnWindowFocus: true,
+        staleTime: 60 * 1000,
     });
-
-    useEffect(() => {
-        refetch();
-    }, [statusParam, refetch]);
 
     const coursesList = useMemo(() => {
         let list = [];

@@ -19,14 +19,8 @@ export const teacherHomeworkApi = {
 
   createHomework: async (data) => {
     try {
-      let config = { skipLang: true };
-      let payload = data;
-
-      if (data instanceof FormData) {
-        config.headers = { 'Content-Type': 'multipart/form-data' };
-      }
-
-      const response = await api.post('/api/v1/teacher/homework', payload, config);
+      const config = { skipLang: true };
+      const response = await api.post('/api/v1/teacher/homework', data, config);
       return {
         success: true,
         message: response.data?.message || 'تم نشر الواجب المدرسي بنجاح',
@@ -34,12 +28,10 @@ export const teacherHomeworkApi = {
       };
     } catch (error) {
       console.warn('API createHomework failed:', error);
+      const responseMessage = error.response?.data?.message || error.response?.data?.error;
       return {
         success: false,
-        message:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً',
+        message: responseMessage || 'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً',
         error,
       };
     }

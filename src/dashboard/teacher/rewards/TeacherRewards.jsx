@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -45,10 +45,9 @@ export default function TeacherRewards() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -58,7 +57,7 @@ export default function TeacherRewards() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : "Wednesday, 5 Dhu al-Qi'dah 1447 AH");
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
 

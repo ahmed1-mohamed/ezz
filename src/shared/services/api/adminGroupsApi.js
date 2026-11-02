@@ -1,5 +1,28 @@
 import api from './axiosConfig';
 
+const CREATE_FIELDS = ['country', 'curriculum', 'studentLevel', 'language', 'maxStudents', 'teacher', 'type', 'startDate', 'endDate', 'status'];
+const UPDATE_FIELDS = ['country', 'maxStudents', 'startDate', 'endDate'];
+
+const buildGroupFormData = (data = {}, fields) => {
+  const fd = new FormData();
+  const nameAr = typeof data.name === 'object' && data.name !== null ? data.name.ar : data.nameAr;
+  const nameEn = typeof data.name === 'object' && data.name !== null ? data.name.en : data.nameEn;
+  if (nameAr) fd.append('name[ar]', nameAr);
+  if (nameEn) fd.append('name[en]', nameEn);
+  fields.forEach((key) => {
+    if (data[key] !== undefined && data[key] !== null && data[key] !== '') fd.append(key, data[key]);
+  });
+  if (data.imageFile instanceof File) fd.append('image', data.imageFile);
+  if (fields === CREATE_FIELDS) {
+    (data.weeklySchedule || []).forEach((slot, i) => {
+      fd.append(`weeklySchedule[${i}][day]`, String(slot.day).toLowerCase());
+      fd.append(`weeklySchedule[${i}][startTime]`, slot.startTime);
+      fd.append(`weeklySchedule[${i}][endTime]`, slot.endTime);
+    });
+  }
+  return fd;
+};
+
 export const adminGroupsApi = {
   fetchGroups: async (params = {}) => {
     const response = await api.get('/api/v1/groups/private', { params });
@@ -46,48 +69,43 @@ export const adminGroupsApi = {
     return response.data;
   },
 
+  // Edit form source: English response gives the enum values (day/status/type) the write endpoints expect.
+  fetchGroupForEdit: async (id) => {
+    const response = await api.get(`/api/v1/groups/private/${id}`, {
+      headers: { 'Accept-Language': 'en' },
+      skipCache: true,
+    });
+    const group = response.data?.data || response.data || null;
+    if (!group) return null;
+    const lower = (v) => (typeof v === 'string' ? v.toLowerCase() : v);
+    return {
+      ...group,
+      status: lower(group.status),
+      type: lower(group.type),
+      weeklySchedule: (group.weeklySchedule || []).map((s) => ({ ...s, day: lower(s.day) })),
+    };
+  },
+
   fetchGroupById: async (id, params = {}) => {
     return adminGroupsApi.fetchGroupByIdLocalized(id, params);
   },
 
+  // POST /groups/private (multipart): name[ar], name[en], image(file), country, curriculum, studentLevel,
+  // language, maxStudents, teacher, type, startDate, endDate, status, weeklySchedule[i][day|startTime|endTime]
   createGroup: async (groupData) => {
-    const response = await api.post('/api/v1/groups/private', groupData);
+    const response = await api.post('/api/v1/groups/private', buildGroupFormData(groupData, CREATE_FIELDS), {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 
+  // PATCH /groups/private/:id only accepts name, image, country, maxStudents, startDate, endDate.
+  // Schedule, status and teacher have their own endpoints.
   updateGroup: async (id, groupData) => {
-    const cleanData = {};
-    if (groupData.name !== undefined) {
-      cleanData.name = typeof groupData.name === 'object' && groupData.name !== null
-        ? {
-            ar: groupData.name.ar || groupData.nameAr || '',
-            en: groupData.name.en || groupData.nameEn || '',
-          }
-        : groupData.name;
-    }
-    if (groupData.image !== undefined && groupData.image) cleanData.image = groupData.image;
-    if (groupData.country !== undefined && groupData.country) cleanData.country = groupData.country;
-    if (groupData.maxStudents !== undefined || groupData.max_students !== undefined) {
-      cleanData.maxStudents = Number(groupData.maxStudents || groupData.max_students);
-    }
-    const start = groupData.startTime || groupData.startDate;
-    const end = groupData.endTime || groupData.endDate;
-    if (start) {
-      cleanData.startDate = start;
-      cleanData.startTime = start;
-    }
-    if (end) {
-      cleanData.endDate = end;
-      cleanData.endTime = end;
-    }
-
-    try {
-      const response = await api.patch(`/api/v1/groups/private/${id}`, cleanData);
-      return response.data;
-    } catch {
-      const putRes = await api.put(`/api/v1/groups/private/${id}`, cleanData);
-      return putRes.data;
-    }
+    const response = await api.patch(`/api/v1/groups/private/${id}`, buildGroupFormData(groupData, UPDATE_FIELDS), {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
   },
 
   deleteGroup: async (id) => {
@@ -98,137 +116,57 @@ export const adminGroupsApi = {
   addStudentToGroup: async (groupId, payload) => {
     const studentId = typeof payload === 'string'
       ? payload
-      : (payload?.student || payload?.studentId || payload?.id || payload?._id);
-
-    const body = {
-      student: studentId,
-    };
-
-    const response = await api.post(`/api/v1/groups/private/${groupId}/students`, body);
+      : (payload?.student_id || payload?.student || payload?.id || payload?._id);
+    const response = await api.post(`/api/v1/groups/private/${groupId}/students`, { student: studentId });
     return response.data;
   },
 
   removeStudentFromGroup: async (groupId, studentId) => {
     const cleanStudentId = typeof studentId === 'object' && studentId !== null
-      ? (studentId.student_id || studentId.studentId || studentId.id || studentId._id)
+      ? (studentId.student_id || studentId.id || studentId._id)
       : studentId;
+    const response = await api.delete(`/api/v1/groups/private/${groupId}/students/${cleanStudentId}`);
+    return response.data;
+  },
 
-    try {
-      const response = await api.delete(`/api/v1/groups/private/${groupId}/students/${cleanStudentId}`);
-      return response.data;
-    } catch (err) {
-      try {
-        const res2 = await api.delete(`/api/v1/groups/private/${groupId}/students`, {
-          data: { student: cleanStudentId, student_id: cleanStudentId }
-        });
-        return res2.data;
-      } catch {
-        throw err;
-      }
-    }
+  fetchTeachersList: async (params = {}) => {
+    const response = await api.get('/api/v1/teachers/private/list', { params });
+    return response.data;
   },
 
   changeTeacher: async (groupId, payload) => {
-    const cleanGroupId = typeof groupId === 'object' && groupId !== null
-      ? (groupId.id || groupId._id)
-      : groupId;
-
-    const cleanTeacherId = typeof payload === 'string'
+    const teacherId = typeof payload === 'string'
       ? payload
-      : (payload?.teacherId || payload?.teacher || payload?.id || payload?._id);
-
-    const attempts = [
-      () => api.patch(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
-      () => api.patch(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacher: cleanTeacherId }),
-      () => api.post(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
-      () => api.post(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacher: cleanTeacherId }),
-      () => api.put(`/api/v1/groups/private/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
-      () => api.patch(`/api/v1/groups/${cleanGroupId}/change-teacher`, { teacherId: cleanTeacherId }),
-      () => api.patch(`/api/v1/groups/private/${cleanGroupId}`, { teacher: cleanTeacherId }),
-      () => api.put(`/api/v1/groups/private/${cleanGroupId}`, { teacher: cleanTeacherId }),
-    ];
-
-    let lastError = null;
-    for (const attempt of attempts) {
-      try {
-        const response = await attempt();
-        return response.data;
-      } catch (err) {
-        lastError = err;
-      }
-    }
-    throw lastError;
+      : (payload?.teacher || payload?.teacherId || payload?.id || payload?._id);
+    const response = await api.patch(`/api/v1/groups/private/${groupId}/change-teacher`, { teacher: teacherId });
+    return response.data;
   },
 
-  updateGroupSchedule: async (groupId, payload) => {
-    const weeklySchedule = Array.isArray(payload)
-      ? payload
-      : (payload?.weeklySchedule || payload?.schedule || []);
-
-    const formattedSchedule = weeklySchedule.map((s) => ({
-      day: (s.day || '').toLowerCase(),
-      startTime: s.startTime || s.timeFrom || '16:00',
-      endTime: s.endTime || s.timeTo || '17:30',
-    }));
-
+  // PATCH /groups/private/:id/schedule { weeklySchedule: [{ day: 'sunday', startTime: 'HH:mm', endTime: 'HH:mm' }] }
+  updateGroupSchedule: async (groupId, weeklySchedule) => {
     const body = {
-      weeklySchedule: formattedSchedule,
+      weeklySchedule: (weeklySchedule || []).map((s) => ({
+        day: String(s.day || '').toLowerCase(),
+        startTime: s.startTime,
+        endTime: s.endTime,
+      })),
     };
-
-    try {
-      const response = await api.patch(`/api/v1/groups/private/${groupId}/schedule`, body);
-      return response.data;
-    } catch {
-      const putRes = await api.put(`/api/v1/groups/private/${groupId}/schedule`, body);
-      return putRes.data;
-    }
+    const response = await api.patch(`/api/v1/groups/private/${groupId}/schedule`, body);
+    return response.data;
   },
 
-  updateGroupStatus: async (groupId, statusOrPayload) => {
-    let rawStatus = typeof statusOrPayload === 'string'
-      ? statusOrPayload
-      : (statusOrPayload?.status || 'active');
-
-    const statusMap = {
-      'نشط': 'active',
-      'متوقف': 'suspended',
-      'مكتمل': 'completed',
-    };
-    const status = statusMap[rawStatus] || rawStatus;
-    const body = { status };
-
-    try {
-      const response = await api.patch(`/api/v1/groups/private/${groupId}/status`, body);
-      return response.data;
-    } catch {
-      const putRes = await api.put(`/api/v1/groups/private/${groupId}/status`, body);
-      return putRes.data;
-    }
+  // PATCH /groups/private/:id/status { status: 'active' | 'pending' | 'stopped' | 'completed' }
+  updateGroupStatus: async (groupId, status) => {
+    const response = await api.patch(`/api/v1/groups/private/${groupId}/status`, { status });
+    return response.data;
   },
 
   transferStudent: async (groupId, payload) => {
-    const studentId = typeof payload === 'string'
-      ? payload
-      : (payload?.student_id || payload?.student || payload?.studentId || payload?.id || payload?._id);
-
-    const targetGroupId = payload?.targetGroup || payload?.targetGroupId || payload?.toGroup;
-
     const body = {
-      student: studentId,
-      targetGroup: targetGroupId,
+      student: payload?.student || payload?.student_id || payload?.studentId,
+      targetGroup: payload?.targetGroup || payload?.targetGroupId,
     };
-
-    try {
-      const response = await api.post(`/api/v1/groups/private/${groupId}/students/transfer`, body);
-      return response.data;
-    } catch {
-      try {
-        const patchRes = await api.patch(`/api/v1/groups/private/${groupId}/students/transfer`, body);
-        return patchRes.data;
-      } catch {
-        const altRes = await api.post(`/api/v1/groups/private/${groupId}/transfer-student`, body);
-        return altRes.data;
-      }
-    }
+    const response = await api.post(`/api/v1/groups/private/${groupId}/students/transfer`, body);
+    return response.data;
   },
 };

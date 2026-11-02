@@ -14,7 +14,7 @@ const toSafeString = (val, isRtl) => {
   return String(val)
 }
 
-export default function SelectField({ label, value, onChange, options = [], placeholder, isRtl, error, required }) {
+export default function SelectField({ label, value, onChange, options = [], placeholder, isRtl, error, required, disabled = false }) {
   const [open, setOpen] = useState(false)
 
   const displayLabel = (() => {
@@ -39,10 +39,11 @@ export default function SelectField({ label, value, onChange, options = [], plac
       </label>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         className={`w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border ${
           error ? 'border-red-500 bg-red-50/20' : 'border-transparent focus:border-brand-500/20'
-        } rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer`}
+        } rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer'}`}
       >
         <ChevronDown size={16} className="text-slate-400 shrink-0" />
         <span className={value ? 'text-slate-800 dark:text-slate-100 font-medium truncate' : 'text-slate-400 truncate'}>
@@ -50,7 +51,7 @@ export default function SelectField({ label, value, onChange, options = [], plac
         </span>
       </button>
       {error && <span className="text-xs text-red-500 mt-1 block text-start">{error}</span>}
-      {open && (
+      {open && !disabled && (
         <div className="absolute left-0 right-0 top-full mt-1 z-40 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 overflow-hidden max-h-48 overflow-y-auto">
           {options.length === 0 ? (
             <div className="px-4 py-3 text-xs text-slate-400 text-center">

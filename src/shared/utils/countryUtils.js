@@ -100,3 +100,35 @@ export const sortCountryCodes = (countryCodes = [], isRtl = true) => {
     return nameA.localeCompare(nameB, lang, { sensitivity: 'base' })
   })
 }
+export const DEFAULT_DIAL_CODE = '+971'
+
+// Detail endpoints return the country as "<flag> <localized name>"; map it back to the country ID.
+export const resolveCountryIdFromLabel = (countries = [], ...labels) => {
+  const values = labels.filter(Boolean).map(String)
+  if (values.length === 0) return ''
+  const byId = countries.find((c) => values.includes(c.id))
+  if (byId) return byId.id
+  const byFlag = countries.find((c) => c.flag && c.flag !== '🌍' && values.some((v) => v.startsWith(c.flag)))
+  if (byFlag) return byFlag.id
+  const byName = countries.find((c) => values.some((v) => (c.name && v.includes(c.name)) || (c.nameEn && v.includes(c.nameEn))))
+  return byName?.id || ''
+}
+
+// Splits "+971501234567" into the matching dial-code entry and the local number (longest prefix wins).
+export const splitPhoneNumber = (phone, codes = []) => {
+  const clean = String(phone || '').replace(/\s+/g, '')
+  if (!clean) return { code: null, number: '' }
+  const match = [...codes].sort((a, b) => b.code.length - a.code.length).find((c) => c.code && clean.startsWith(c.code))
+  return match ? { code: match, number: clean.slice(match.code.length) } : { code: null, number: clean }
+}
+
+// Joins a dial code and local number into the international format the API validates (+<code><number>).
+export const joinPhoneNumber = (dialCode, number) => {
+  const local = String(number || '').replace(/\D/g, '').replace(/^0+/, '')
+  return dialCode && local ? `${dialCode}${local}` : ''
+}
+
+export const toDialCodeOptions = (countries = []) =>
+  countries
+    .map((c) => ({ code: c.dialCode || c.phoneCode || '', flag: c.flag || '🌍', name: c.name || '', nameEn: c.nameEn || '' }))
+    .filter((c) => c.code)

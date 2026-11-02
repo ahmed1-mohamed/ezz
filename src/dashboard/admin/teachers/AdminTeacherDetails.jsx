@@ -81,7 +81,8 @@ export default function AdminTeacherDetails() {
     setIsSavingTeacher(true)
     try {
       await teachersApi.updateTeacher(id, formData)
-      await loadTeacherDetails()
+      await refetch()
+      await queryClient.invalidateQueries({ queryKey: ['teachers'] })
       toast.success(isRtl ? 'تم تحديث بيانات المعلم بنجاح' : 'Teacher updated successfully')
       setIsEditing(false)
     } catch (err) {

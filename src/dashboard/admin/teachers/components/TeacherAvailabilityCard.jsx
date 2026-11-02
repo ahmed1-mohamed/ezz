@@ -1,32 +1,23 @@
 import { useState } from 'react'
 import { Clock, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-
-const DAYS_OF_WEEK = [
-  { key: 'sunday', ar: 'الأحد', en: 'Sunday' },
-  { key: 'monday', ar: 'الإثنين', en: 'Monday' },
-  { key: 'tuesday', ar: 'الثلاثاء', en: 'Tuesday' },
-  { key: 'wednesday', ar: 'الأربعاء', en: 'Wednesday' },
-  { key: 'thursday', ar: 'الخميس', en: 'Thursday' },
-  { key: 'friday', ar: 'الجمعة', en: 'Friday' },
-  { key: 'saturday', ar: 'السبت', en: 'Saturday' },
-]
+import { DAYS_OF_WEEK } from '../utils/teacherConstants'
 
 export default function TeacherAvailabilityCard({
   formData = {},
   onChange,
-  isRtl = true,
-  t
+  isRtl = true
 }) {
   const [selectedDay, setSelectedDay] = useState('sunday')
   const [startTime, setStartTime] = useState('16:00')
   const [endTime, setEndTime] = useState('18:00')
 
-  const workingHours = Array.isArray(formData.workingHours)
-    ? formData.workingHours
-    : (Array.isArray(formData.availability)
-        ? formData.availability
-        : (Array.isArray(formData.availableHours) ? formData.availableHours : []))
+  // API slots look like { day (localized), rawDay: 'sunday', startTime, endTime }; the update endpoint expects the raw key.
+  const workingHours = (Array.isArray(formData.availability) ? formData.availability : []).map((slot) => ({
+    day: String(slot.rawDay || slot.day || '').toLowerCase(),
+    startTime: slot.startTime,
+    endTime: slot.endTime
+  }))
 
   const handleAddSlot = (e) => {
     e?.preventDefault()
@@ -39,20 +30,18 @@ export default function TeacherAvailabilityCard({
       return
     }
 
-    const newSlot = {
-      day: selectedDay,
-      startTime,
-      endTime
+    const overlaps = workingHours.some((s) => s.day === selectedDay && startTime < s.endTime && endTime > s.startTime)
+    if (overlaps) {
+      toast.error(isRtl ? 'هذا الموعد يتداخل مع موعد آخر في نفس اليوم' : 'This slot overlaps another slot on the same day')
+      return
     }
 
-    const updated = [...workingHours, newSlot]
-    onChange('workingHours', updated)
+    const updated = [...workingHours, { day: selectedDay, startTime, endTime }]
     onChange('availability', updated)
   }
 
   const handleRemoveSlot = (indexToRemove) => {
     const updated = workingHours.filter((_, idx) => idx !== indexToRemove)
-    onChange('workingHours', updated)
     onChange('availability', updated)
   }
 

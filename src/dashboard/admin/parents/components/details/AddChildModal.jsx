@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { X, Search, UserCheck, Plus, Loader2 } from 'lucide-react'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import { toast } from 'react-hot-toast'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
 
 export default function AddChildModal({
   isOpen,
@@ -21,7 +22,7 @@ export default function AddChildModal({
     const fetchStudents = async () => {
       setIsLoading(true)
       try {
-        const res = await studentsApi.fetchAllLocalizedStudents()
+        const res = await studentsApi.fetchAllLocalizedStudents({ limit: 1000 })
         const list = Array.isArray(res) ? res : (res?.data || [])
         setStudents(list)
       } catch (err) {
@@ -58,7 +59,7 @@ export default function AddChildModal({
       onClose()
     } catch (err) {
       console.error('Failed to link student:', err)
-      toast.error(isRtl ? 'فشل في ربط الطالب' : 'Failed to link student')
+      toast.error(getApiErrorText(err, isRtl ? 'فشل في ربط الطالب' : 'Failed to link student'))
     } finally {
       setIsLinking(false)
     }
@@ -114,7 +115,7 @@ export default function AddChildModal({
               </p>
             ) : (
               filteredStudents.map((student) => {
-                const sId = student.id || student._id || student.student_id
+                const sId = student.student_id || student.id || student._id
                 const isAlreadyLinked = existingChildIds.includes(sId)
                 const sName = typeof student.name === 'object'
                   ? (isRtl ? student.name?.ar || student.name?.en : student.name?.en || student.name?.ar)

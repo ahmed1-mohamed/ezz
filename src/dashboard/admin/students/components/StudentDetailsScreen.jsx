@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRight,
@@ -11,9 +11,14 @@ import {
   TrendingUp,
   Plus,
   Star,
-  Mail
+  Mail,
+  Globe,
+  Cake,
+  Phone,
+  Loader2
 } from 'lucide-react'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentProfileCard from './details/StudentProfileCard'
 import StudentSecurityCard from './details/StudentSecurityCard'
@@ -22,47 +27,32 @@ import StudentAchievementsCard from './details/StudentAchievementsCard'
 import StudentGroupCard from './details/StudentGroupCard'
 import StudentSubscriptionCard from './details/StudentSubscriptionCard'
 import AddSessionsModal from './AddSessionsModal'
+import { getRemainingSessions } from '../utils/studentUtils'
 
 const ChangeGroupModal = lazy(() => import('./ChangeGroupModal'))
 
 export default function StudentDetailsScreen({
-  student: initialStudent,
+  student,
   isRtl,
   onCancel,
   onEdit,
   onToggleStatus,
+  isTogglingStatus = false,
   onChangeGroup,
   onAddSessions
 }) {
   const { t } = useTranslation()
-  const [student, setStudent] = useState(initialStudent)
   const [isChangeGroupOpen, setIsChangeGroupOpen] = useState(false)
   const [isAddSessionsOpen, setIsAddSessionsOpen] = useState(false)
+  const [isAddingSessions, setIsAddingSessions] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
 
-  useEffect(() => {
-    if (initialStudent) {
-      const studentId = initialStudent.student_id || initialStudent._id || initialStudent.id || initialStudent.user_id
-      if (studentId) {
-        studentsApi.fetchStudentById(studentId)
-          .then((res) => {
-            const fullData = res?.data || res
-            if (fullData) {
-              setStudent(fullData)
-            }
-          })
-          .catch((err) => console.error('Failed to fetch full student details:', err))
-      }
-    }
-  }, [initialStudent])
-
   if (!student) return null
 
-  const studentId = student.student_id || student._id || student.id || student.user_id
   const isActive = student.active === true || String(student.active) === 'true'
   const isSuspended = !isActive
 
@@ -70,20 +60,16 @@ export default function StudentDetailsScreen({
     ? student.name
     : (student.name?.ar || student.name?.en || '-')
 
-  const rawParent = student.parent || {}
-  const rawParentName = typeof rawParent === 'object' && rawParent !== null
-    ? (rawParent.name?.ar || rawParent.name?.en || rawParent.name || student.parentName || '-')
-    : (student.parentName || '-')
-
-  const parentId = typeof rawParent === 'object' && rawParent !== null
-    ? (rawParent.id || rawParent._id || rawParent.user_id || '')
-    : (typeof rawParent === 'string' ? rawParent : '')
+  const rawParent = typeof student.parent === 'object' && student.parent !== null ? student.parent : {}
+  const rawParentName = typeof rawParent.name === 'object' && rawParent.name !== null
+    ? (rawParent.name.ar || rawParent.name.en || '-')
+    : (rawParent.name || '-')
 
   const parentInfo = {
-    id: parentId,
+    id: rawParent.parent_id || rawParent.id || '',
     name: String(rawParentName || '-'),
-    phone: (typeof rawParent === 'object' ? rawParent.phone : null) || student.parentPhone || student.phone || '-',
-    email: (typeof rawParent === 'object' ? rawParent.email : null) || student.parentEmail || '-',
+    phone: rawParent.phone || '-',
+    email: rawParent.email || '-',
     initial: String(rawParentName || '?').trim().charAt(0) || '?'
   }
 
@@ -101,55 +87,47 @@ export default function StudentDetailsScreen({
       showErrorToast(isRtl ? 'كلمة المرور وتأكيد كلمة المرور غير متطابقتين!' : 'Passwords do not match!', isRtl)
       return
     }
+    if (!student.user_id) {
+      showErrorToast(isRtl ? 'تعذر تحديد معرّف المستخدم للطالب' : 'Could not resolve the student user ID', isRtl)
+      return
+    }
 
     try {
       setIsUpdatingPassword(true)
-      const userId =
-        (typeof student.user === 'string' && student.user) ||
-        student.user?._id ||
-        student.user?.id ||
-        student.user_id ||
-        (typeof student.userId === 'string' && student.userId) ||
-        student.userId?._id ||
-        student.userId?.id ||
-        student.student_id ||
-        student._id ||
-        studentId
-      await studentsApi.changeStudentPassword(userId, {
-        password: newPassword,
-        confirmPassword,
-        email: student.email,
-        phone: student.phone
-      })
+      await studentsApi.changeStudentPassword(student.user_id, { password: newPassword, confirmPassword })
       showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      const msg = err.response?.data?.message || (isRtl ? 'فشل تحديث كلمة المرور' : 'Failed to update password')
-      showErrorToast(Array.isArray(msg) ? msg.join(' - ') : msg, isRtl)
+      showErrorToast(getApiErrorText(err, isRtl ? 'فشل تحديث كلمة المرور' : 'Failed to update password'), isRtl)
     } finally {
       setIsUpdatingPassword(false)
     }
   }
 
-  const rawSessionsBal = student.sessionsBalance ?? student.SessionsBalance ?? student.remainingSessions ?? 0
-  const sessionsBalance = typeof rawSessionsBal === 'object' && rawSessionsBal !== null
-    ? (rawSessionsBal.remaining !== undefined
-        ? Number(rawSessionsBal.remaining)
-        : Math.max(0, Number(rawSessionsBal.total ?? 0) - Number(rawSessionsBal.used ?? 0)))
-    : Number(rawSessionsBal || 0)
+  const handleAddSessions = async (studentId, count, reason) => {
+    setIsAddingSessions(true)
+    try {
+      await onAddSessions(studentId, count, reason)
+      setIsAddSessionsOpen(false)
+    } catch {
+      // error toast is shown by the caller; keep the modal open so the admin can retry
+    } finally {
+      setIsAddingSessions(false)
+    }
+  }
+
+  const sessionsBalance = getRemainingSessions(student.sessionsBalance)
 
   const attendanceRate = student.attendanceRate !== undefined && student.attendanceRate !== null
     ? `${Number(student.attendanceRate).toFixed(1)}%`
     : (isRtl ? 'غير محدد' : 'N/A')
 
-  const totalEvaluations = student.totalEvaluations !== undefined && student.totalEvaluations !== null
-    ? Number(student.totalEvaluations)
-    : (student.evaluationsCount ?? 0)
+  const totalEvaluations = Number(student.totalEvaluations ?? 0)
 
   const averageRating = student.averageRating !== undefined && student.averageRating !== null
-    ? Number(student.averageRating).toFixed(1)
-    : (student.rating ? Number(student.rating).toFixed(1) : '5.0')
+    ? `${Number(student.averageRating).toFixed(1)} / 5.0`
+    : (isRtl ? 'لا يوجد' : 'N/A')
 
   const stats = [
     {
@@ -172,12 +150,29 @@ export default function StudentDetailsScreen({
     }
   ]
 
-  const rawLevelVal = student.studentLevel?.name || student.levelName || student.level || (isRtl ? 'تمهيدي' : 'Beginner')
-  const levelVal = typeof rawLevelVal === 'object' && rawLevelVal !== null
-    ? (rawLevelVal.ar || rawLevelVal.en || '')
-    : String(rawLevelVal || '')
+  const levelVal = typeof student.studentLevel === 'object' && student.studentLevel !== null
+    ? (student.studentLevel.name?.ar || student.studentLevel.name?.en || student.studentLevel.name || '')
+    : String(student.studentLevel || student.levelName || '')
+
+  const ageValue = student.age !== undefined && student.age !== null
+    ? `${student.age} ${isRtl ? 'سنة' : 'years'}`
+    : '-'
 
   const detailsItems = [
+    {
+      label: isRtl ? 'الدولة' : 'Country',
+      value: typeof student.country === 'string' && student.country ? student.country : '-',
+      icon: Globe,
+      iconColor: 'text-sky-500',
+      bgClass: 'bg-sky-50/40 dark:bg-sky-900/10'
+    },
+    {
+      label: isRtl ? 'العمر' : 'Age',
+      value: ageValue,
+      icon: Cake,
+      iconColor: 'text-pink-500',
+      bgClass: 'bg-pink-50/40 dark:bg-pink-900/10'
+    },
     {
       label: t('adminDashboard.students.details.level', 'المستوى التعليمي'),
       value: levelVal || '-',
@@ -187,7 +182,7 @@ export default function StudentDetailsScreen({
     },
     {
       label: isRtl ? 'متوسط التقييم' : 'Average Rating',
-      value: `${averageRating} / 5.0`,
+      value: averageRating,
       icon: Star,
       iconColor: 'text-amber-500',
       bgClass: 'bg-amber-50/30 dark:bg-amber-900/10'
@@ -197,7 +192,16 @@ export default function StudentDetailsScreen({
       value: student.email || '-',
       icon: Mail,
       iconColor: 'text-emerald-500',
-      bgClass: 'bg-emerald-50/30 dark:bg-emerald-900/10'
+      bgClass: 'bg-emerald-50/30 dark:bg-emerald-900/10',
+      ltr: true
+    },
+    {
+      label: isRtl ? 'رقم الهاتف' : 'Phone',
+      value: student.phone || '-',
+      icon: Phone,
+      iconColor: 'text-violet-500',
+      bgClass: 'bg-violet-50/30 dark:bg-violet-900/10',
+      ltr: true
     },
     {
       label: t('adminDashboard.students.details.status', 'الحالة'),
@@ -208,45 +212,35 @@ export default function StudentDetailsScreen({
     }
   ]
 
-  const handleToggleStatusClick = () => {
-    if (onToggleStatus) {
-      onToggleStatus(student)
-    }
-  }
-
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
+
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={onCancel}
-            className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all cursor-pointer hover:scale-105"
+            className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all cursor-pointer hover:scale-105 shrink-0"
             title={t('common.backToList', 'العودة للقائمة')}
           >
             <BackArrow size={20} />
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2">
               <span>{t('adminDashboard.students.details.title', 'تفاصيل الطالب')}</span>
               <span className="text-slate-300 dark:text-slate-600 text-lg">/</span>
-              <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg font-bold">
+              <span className="text-slate-500 dark:text-slate-400 text-base sm:text-lg font-bold truncate">
                 {studentDisplayName}
               </span>
             </h1>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-bold">
-              {t('adminDashboard.students.details.subtitle', 'ملف شامل لـ {{name}}', { name: studentDisplayName })}
-            </p>
           </div>
         </div>
 
-        
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => setIsAddSessionsOpen(true)}
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
             <Plus size={16} />
             <span>{isRtl ? 'إضافة حصص' : 'Add Sessions'}</span>
@@ -254,8 +248,8 @@ export default function StudentDetailsScreen({
 
           <button
             type="button"
-            onClick={() => onEdit && onEdit(student)}
-            className="px-4 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
+            onClick={onEdit}
+            className="px-4 py-2.5 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
             <Pencil size={15} />
             <span>{t('adminDashboard.students.details.editData', 'تعديل البيانات')}</span>
@@ -263,42 +257,37 @@ export default function StudentDetailsScreen({
 
           <button
             type="button"
-            onClick={handleToggleStatusClick}
-            className={`px-4 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 ${
+            onClick={() => onToggleStatus(student)}
+            disabled={isTogglingStatus}
+            className={`px-4 py-2.5 font-semibold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-60 ${
               isSuspended
                 ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40'
-                : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-955/20 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40'
+                : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40'
             }`}
           >
-            {isSuspended ? (
-              <>
-                <CheckCircle size={15} />
-                <span>{t('adminDashboard.students.details.activateAccount', 'تفعيل الحساب')}</span>
-              </>
-            ) : (
-              <>
-                <Ban size={15} />
-                <span>{t('adminDashboard.students.details.suspendAccount', 'تعليق الحساب')}</span>
-              </>
-            )}
+            {isTogglingStatus ? <Loader2 size={15} className="animate-spin" /> : (isSuspended ? <CheckCircle size={15} /> : <Ban size={15} />)}
+            <span>
+              {isSuspended
+                ? t('adminDashboard.students.details.activateAccount', 'تفعيل الحساب')
+                : t('adminDashboard.students.details.suspendAccount', 'تعليق الحساب')}
+            </span>
           </button>
         </div>
       </div>
 
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
             <div
               key={index}
-              className="flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft"
+              className="flex items-center justify-between p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft"
             >
               <div className="space-y-1">
                 <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                   {stat.label}
                 </span>
-                <span className="text-3xl font-black text-slate-700 dark:text-slate-200 block">
+                <span className="text-2xl sm:text-3xl font-black text-slate-700 dark:text-slate-200 block">
                   {stat.value}
                 </span>
               </div>
@@ -310,32 +299,34 @@ export default function StudentDetailsScreen({
         })}
       </div>
 
-      
       <StudentProfileCard
         student={student}
         isRtl={isRtl}
         detailsItems={detailsItems}
       />
 
-      
       <StudentAchievementsCard
         student={student}
         isRtl={isRtl}
         t={t}
       />
 
-      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          
+          <StudentSubscriptionCard
+            student={student}
+            isRtl={isRtl}
+          />
+
           <StudentGroupCard
             student={student}
             isRtl={isRtl}
             onOpenChangeGroup={() => setIsChangeGroupOpen(true)}
             t={t}
           />
+        </div>
 
-          
+        <div className="space-y-6">
           <StudentSecurityCard
             isRtl={isRtl}
             newPassword={newPassword}
@@ -345,17 +336,7 @@ export default function StudentDetailsScreen({
             handlePasswordUpdate={handlePasswordUpdate}
             isUpdating={isUpdatingPassword}
           />
-        </div>
 
-        <div className="space-y-6">
-          
-          <StudentSubscriptionCard
-            student={student}
-            isRtl={isRtl}
-            t={t}
-          />
-
-          
           <StudentParentCard
             isRtl={isRtl}
             parentInfo={parentInfo}
@@ -363,21 +344,17 @@ export default function StudentDetailsScreen({
         </div>
       </div>
 
-      
-      <AddSessionsModal
-        isOpen={isAddSessionsOpen}
-        onClose={() => setIsAddSessionsOpen(false)}
-        student={student}
-        isRtl={isRtl}
-        onAddSessions={(id, count) => {
-          if (onAddSessions) {
-            onAddSessions(id, count)
-          }
-          setIsAddSessionsOpen(false)
-        }}
-      />
+      {isAddSessionsOpen && (
+        <AddSessionsModal
+          isOpen={isAddSessionsOpen}
+          onClose={() => setIsAddSessionsOpen(false)}
+          student={student}
+          isRtl={isRtl}
+          isLoading={isAddingSessions}
+          onAddSessions={handleAddSessions}
+        />
+      )}
 
-      
       <Suspense fallback={null}>
         {isChangeGroupOpen && (
           <ChangeGroupModal

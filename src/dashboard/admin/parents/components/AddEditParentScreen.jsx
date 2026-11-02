@@ -1,14 +1,21 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { ArrowRight, ArrowLeft, Save, Loader2 } from 'lucide-react'
 import ParentPersonalInfo from './steps/ParentPersonalInfo'
 import ParentSecurity from './steps/ParentSecurity'
 import ParentStudentLinkage from './steps/ParentStudentLinkage'
-import { landingApi } from '@/shared/services/api/landingApi'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
-import { sortCountries, sortCountryCodes, normalizeCountries } from '@/shared/utils/countryUtils'
+import {
+  sortCountries,
+  sortCountryCodes,
+  normalizeCountries,
+  fetchCountries,
+  toDialCodeOptions,
+  joinPhoneNumber,
+  DEFAULT_DIAL_CODE
+} from '@/shared/utils/countryUtils'
 
-export default function AddEditParentScreen({ parent = null, isRtl, isSaving = false, onSave, onCancel }) {
+export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
 
@@ -25,102 +32,57 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
   const [selectedStudents, setSelectedStudents] = useState([])
   const [showStudentSearch, setShowStudentSearch] = useState(false)
 
-  const initialNameObj = typeof parent?.name === 'object' ? parent.name : null;
-  const initialName = initialNameObj ? (initialNameObj.ar || '') : (parent?.name || '');
-  const initialNameEn = initialNameObj ? (initialNameObj.en || '') : (parent?.nameEn || '');
-
   const [formData, setFormData] = useState({
-    name: initialName,
-    nameEn: initialNameEn,
-    email: parent?.email || '',
-    country: parent?.country || '',
-    birthDate: parent?.birthDate || '',
-    status: parent?.active ? 'Active' : (parent?.status || 'Active'),
-    gender: parent?.gender || 'male',
-    password: parent ? '********' : '',
-    confirmPassword: parent ? '********' : '',
-    notes: '',
-    notesEn: '',
-    profileImage: parent?.image || parent?.profileImage || null,
+    name: '',
+    nameEn: '',
+    email: '',
+    country: '',
+    password: '',
+    confirmPassword: '',
+    profileImage: null,
     profileImageFile: null,
   })
 
   useEffect(() => {
-    const loadCountries = async () => {
-      try {
-        const res = await landingApi.fetchCountries();
-        let rawCountries = Array.isArray(res) ? res : (res?.data || []);
-        let fetchedCountries = normalizeCountries(rawCountries);
-        if (fetchedCountries.length > 0) {
-          fetchedCountries = sortCountries(fetchedCountries, isRtl);
-          setApiCountries(fetchedCountries);
+    let isMounted = true
+    fetchCountries().then((list) => {
+      if (!isMounted || list.length === 0) return
+      const normalized = sortCountries(normalizeCountries(list), isRtl)
+      setApiCountries(normalized)
+      setSelectedCountryCode((prev) => prev || toDialCodeOptions(normalized).find((c) => c.code === DEFAULT_DIAL_CODE) || null)
+    })
 
-          let prefix = parent?.phonePrefix || '';
-          let phonePart = parent?.phone || '';
+    studentsApi.fetchAllLocalizedStudents({ limit: 1000 })
+      .then((res) => {
+        if (!isMounted) return
+        const list = Array.isArray(res?.data) ? res.data : []
+        setApiStudents(list.map((s) => ({ ...s, id: s.student_id })))
+      })
+      .catch((err) => console.error('Failed to load students:', err))
 
-          if (parent?.phone && !prefix) {
-            const matchedCode = fetchedCountries.find(c => (c.dialCode || c.phoneCode) && parent.phone.startsWith(c.dialCode || c.phoneCode));
-            if (matchedCode) {
-              prefix = matchedCode.dialCode || matchedCode.phoneCode;
-              phonePart = parent.phone.substring(prefix.length);
-            }
-          } else if (prefix && phonePart) {
-            phonePart = phonePart.replace(prefix, '');
-          }
+    return () => {
+      isMounted = false
+    }
+  }, [isRtl])
 
-          setPhoneVal(phonePart);
-
-          if (prefix) {
-            const matchedCountry = fetchedCountries.find(c => c.phoneCode === prefix);
-            if (matchedCountry) {
-              setSelectedCountryCode({ code: matchedCountry.phoneCode, flag: matchedCountry.flag || '🌍', name: matchedCountry.name });
-            } else {
-              setSelectedCountryCode({ code: prefix, flag: '🌍', name: prefix });
-            }
-          } else {
-            setSelectedCountryCode(null);
-          }
-
-          if (parent?.country) {
-            const matchedCountry = fetchedCountries.find(c => c._id === parent.country || c.id === parent.country || c.name === parent.country || parent.country.includes(c.name));
-            if (matchedCountry) {
-              setFormData(prev => ({ ...prev, country: matchedCountry._id || matchedCountry.id }));
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load countries', err);
-      }
-    };
-
-    const loadStudents = async () => {
-      try {
-        const res = await studentsApi.fetchAllLocalizedStudents();
-        if (res && Array.isArray(res)) {
-          setApiStudents(res);
-        } else if (res?.data && Array.isArray(res.data)) {
-          setApiStudents(res.data);
-        }
-      } catch (err) {
-        console.error('Failed to load students:', err);
-      }
-    };
-
-    loadCountries();
-    loadStudents();
-  }, [isRtl, parent?.country, parent?.phone, parent?.phonePrefix]);
+  const dialCodes = useMemo(() => sortCountryCodes(toDialCodeOptions(apiCountries), isRtl), [apiCountries, isRtl])
 
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0]
+    e.target.value = ''
     if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, profileImage: reader.result, profileImageFile: file }))
+    if (!file.type.startsWith('image/')) {
+      showErrorToast(isRtl ? 'الرجاء اختيار ملف صورة صالح' : 'Please choose a valid image file', isRtl)
+      return
     }
-    reader.readAsDataURL(file)
+    if (file.size > 5 * 1024 * 1024) {
+      showErrorToast(isRtl ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image must be 5MB or less', isRtl)
+      return
+    }
+    setFormData((prev) => ({ ...prev, profileImage: URL.createObjectURL(file), profileImageFile: file }))
   }
 
   const filteredStudents = apiStudents.filter((s) => {
@@ -144,28 +106,32 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
 
   const handleSave = (e) => {
     e.preventDefault()
-    if (!formData.name) {
-      showErrorToast(isRtl ? 'الرجاء إدخال الاسم!' : 'Please enter Name!', isRtl)
-      return
-    }
-    if (!parent && !formData.profileImageFile) {
-      showErrorToast(isRtl ? 'الرجاء اختيار صورة!' : 'Please select an image!', isRtl)
-      return
-    }
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      showErrorToast(isRtl ? 'كلمة المرور وتأكيدها غير متطابقتين!' : 'Passwords do not match!', isRtl)
-      return
-    }
+    const nameAr = formData.name.trim()
+    const nameEn = formData.nameEn.trim()
+    const phone = joinPhoneNumber(selectedCountryCode?.code, phoneVal)
+    const fail = (ar, en) => showErrorToast(isRtl ? ar : en, isRtl)
+
+    if (nameAr.length < 2 || nameAr.length > 50) return fail('الاسم بالعربية يجب أن يكون بين 2 و 50 حرفًا', 'Arabic name must be 2–50 characters')
+    if (nameEn.length < 2 || nameEn.length > 50) return fail('الاسم بالإنجليزية يجب أن يكون بين 2 و 50 حرفًا', 'English name must be 2–50 characters')
+    if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) return fail('الرجاء إدخال بريد إلكتروني صالح', 'Please enter a valid email')
+    if (!phone || phone.length < 8) return fail('الرجاء إدخال رقم هاتف صحيح مع مفتاح الدولة', 'Please enter a valid phone number with country code')
+    if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
+    if (formData.password.length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
+    if (formData.password !== formData.confirmPassword) return fail('كلمة المرور وتأكيدها غير متطابقتين', 'Passwords do not match')
+
     onSave({
-      ...formData,
-      phone: `${selectedCountryCode?.code || ''}${phoneVal.trim()}`,
-      phonePrefix: selectedCountryCode?.code || '',
-      children: selectedStudents.map((s) => s.id),
-      childrenCount: selectedStudents.length,
+      name: { ar: nameAr, en: nameEn },
+      email: formData.email.trim(),
+      phone,
+      country: formData.country,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+      imageFile: formData.profileImageFile,
+      childrenIds: selectedStudents.map((s) => s.id),
     })
   }
 
-  const initial = formData.name ? formData.name.trim().charAt(0) : 'أ'
+  const initial = formData.name ? formData.name.trim().charAt(0) : '?'
 
   return (
     <div className="space-y-6 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -174,21 +140,17 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
           <button
             type="button"
             onClick={onCancel}
-            className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all hover:scale-105"
+            className="p-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full border border-slate-100 dark:border-slate-800 transition-all hover:scale-105 shrink-0"
           >
             <BackArrow size={20} />
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <span>{isRtl ? 'أولياء الأمور' : 'Parents'}</span>
-              <span className="text-slate-300 dark:text-slate-600 text-lg">/</span>
-              <span className="text-slate-500 dark:text-slate-400 font-semibold text-lg">
-                {parent
-                  ? (isRtl ? 'تعديل بيانات ولي الأمر' : 'Edit Parent')
-                  : (isRtl ? 'إضافة ولي أمر جديد' : 'Add New Parent')}
-              </span>
-            </h1>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2">
+            <span>{isRtl ? 'أولياء الأمور' : 'Parents'}</span>
+            <span className="text-slate-300 dark:text-slate-600 text-lg">/</span>
+            <span className="text-slate-500 dark:text-slate-400 font-semibold text-base sm:text-lg">
+              {isRtl ? 'إضافة ولي أمر جديد' : 'Add New Parent'}
+            </span>
+          </h1>
         </div>
         <button
           type="button"
@@ -213,10 +175,9 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
           setPhoneVal={setPhoneVal}
           isCountryDropdownOpen={isCountryDropdownOpen}
           setIsCountryDropdownOpen={setIsCountryDropdownOpen}
-          countryCodes={sortCountryCodes(apiCountries.map(c => ({ code: c.dialCode || c.phoneCode, flag: c.flag, name: c.name, nameEn: c.nameEn })), isRtl)}
           countries={apiCountries}
           setSelectedCountryCode={setSelectedCountryCode}
-          dynamicCountryCodes={sortCountryCodes(apiCountries.map(c => ({ code: c.dialCode || c.phoneCode, flag: c.flag, name: c.name, nameEn: c.nameEn })), isRtl)}
+          dynamicCountryCodes={dialCodes}
           initial={initial}
         />
 
@@ -248,10 +209,10 @@ export default function AddEditParentScreen({ parent = null, isRtl, isSaving = f
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 active:scale-95 cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 active:scale-95 cursor-pointer disabled:opacity-50"
           >
             {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-            <span>{isRtl ? 'حفظ التغييرات' : 'Save Changes'}</span>
+            <span>{isRtl ? 'إضافة ولي الأمر' : 'Add Parent'}</span>
           </button>
         </div>
       </form>

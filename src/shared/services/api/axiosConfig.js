@@ -55,7 +55,9 @@ api.interceptors.request.use(
       window.__lastApiError = null;
     }
     const lang = localStorage.getItem('appLanguage') || 'ar';
-    config.headers['Accept-Language'] = lang;
+    if (!config.headers['Accept-Language']) {
+      config.headers['Accept-Language'] = lang;
+    }
 
     const token = getCookie('access_token');
     if (token) {
@@ -187,13 +189,16 @@ api.interceptors.response.use(
 
     const status = error.response?.status;
     const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
-    if (typeof window !== 'undefined' && status) {
-      window.__lastApiError = { status: Number(status), time: Date.now() };
-    }
-    if (status >= 500 || status === 500) {
+    const isServerFailure = !error.response || (status && Number(status) >= 500);
+
+    if (isServerFailure) {
       error._isServerError = true;
       error._suppressToast = true;
       error._toastShown = true;
+      if (typeof window !== 'undefined') {
+        window.__lastServerErrorTime = Date.now();
+        window.__lastApiError = { status: status ? Number(status) : 500, time: Date.now() };
+      }
       if (originalRequest && (status === 502 || status === 503 || status === 504)) {
         if (!originalRequest._gatewayRetryCount || originalRequest._gatewayRetryCount < 1) {
           originalRequest._gatewayRetryCount = (originalRequest._gatewayRetryCount || 0) + 1;
@@ -207,52 +212,40 @@ api.interceptors.response.use(
         : 'An unexpected error occurred. Please try again later.';
       return Promise.reject(error);
     }
-    if (status === 403) {
-      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
-        showSafeErrorToast(error, { status: 403, isArabic });
-      }
-      return Promise.reject(error);
-    }
-    if (status === 404) {
-      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
-        showSafeErrorToast(error, { status: 404, isArabic });
-      }
-      return Promise.reject(error);
-    }
-    if (status === 429) {
-      if (originalRequest && (!originalRequest._rateLimitRetryCount || originalRequest._rateLimitRetryCount < 2)) {
-        originalRequest._rateLimitRetryCount = (originalRequest._rateLimitRetryCount || 0) + 1;
-        const delayMs = originalRequest._rateLimitRetryCount * 1200;
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-        return api(originalRequest);
-      }
-      return Promise.reject(error);
-    }
-    if (status === 400) {
-      const data = error.response.data;
-      const msgs = data?.message || data?.error || (typeof data === 'string' ? data : null);
 
+    if (status >= 400 && status < 500) {
+      if (typeof window !== 'undefined') {
+        window.__lastApiError = { status: Number(status), time: Date.now() };
+      }
+      if (status === 429) {
+        if (originalRequest && (!originalRequest._rateLimitRetryCount || originalRequest._rateLimitRetryCount < 2)) {
+          originalRequest._rateLimitRetryCount = (originalRequest._rateLimitRetryCount || 0) + 1;
+          const delayMs = originalRequest._rateLimitRetryCount * 1200;
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          return api(originalRequest);
+        }
+      }
+      const data = error.response?.data;
+      const msgs = data?.message || data?.errors || data?.error || (typeof data === 'string' ? data : null);
       const focusInputByError = (msg) => {
         if (typeof msg !== 'string') return;
         const lowerMsg = msg.toLowerCase();
-        
         const mapping = {
-          'language': 'sessions_language',
-          'اللغة': 'sessions_language',
-          'features': 'features',
-          'ميزة': 'features',
-          'name': 'name',
-          'الاسم': 'name',
-          'price': 'price',
-          'السعر': 'price',
-          'sessions': 'sessions_per_month',
-          'جلسات': 'sessions_per_month',
-          'question': 'question',
-          'سؤال': 'question',
-          'answer': 'answer',
-          'إجابة': 'answer'
+          language: 'sessions_language',
+          اللغة: 'sessions_language',
+          features: 'features',
+          ميزة: 'features',
+          name: 'name',
+          الاسم: 'name',
+          price: 'price',
+          السعر: 'price',
+          sessions: 'sessions_per_month',
+          جلسات: 'sessions_per_month',
+          question: 'question',
+          سؤال: 'question',
+          answer: 'answer',
+          إجابة: 'answer',
         };
-
         for (const [key, inputId] of Object.entries(mapping)) {
           if (lowerMsg.includes(key)) {
             const el = document.getElementById(inputId) || document.querySelector(`[name="${inputId}"]`);
@@ -264,17 +257,22 @@ api.interceptors.response.use(
           }
         }
       };
-
-      // Show ONE single sanitized toast, avoiding spamming or stacking multiple messages
-      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
-        showSafeErrorToast(error, { status, isArabic });
-      }
-
       if (Array.isArray(msgs) && msgs.length > 0) {
         focusInputByError(msgs[0]);
       } else if (typeof msgs === 'string') {
         focusInputByError(msgs);
+      } else if (typeof msgs === 'object' && msgs !== null) {
+        const firstVal = Object.values(msgs)[0];
+        if (Array.isArray(firstVal) && firstVal.length > 0) {
+          focusInputByError(firstVal[0]);
+        } else if (typeof firstVal === 'string') {
+          focusInputByError(firstVal);
+        }
       }
+      if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
+        showSafeErrorToast(error, { status, isArabic });
+      }
+      return Promise.reject(error);
     }
 
     // Sanitize any remaining technical message on the error object

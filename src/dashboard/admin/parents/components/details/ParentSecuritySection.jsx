@@ -6,10 +6,8 @@ export default function ParentSecuritySection({
   onUpdatePassword,
   isUpdatingPassword = false,
 }) {
-  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -17,9 +15,8 @@ export default function ParentSecuritySection({
     e.preventDefault()
     if (onUpdatePassword) {
       onUpdatePassword(
-        { currentPassword, newPassword, confirmPassword },
+        { newPassword, confirmPassword },
         () => {
-          setCurrentPassword('')
           setNewPassword('')
           setConfirmPassword('')
         }
@@ -42,28 +39,6 @@ export default function ParentSecuritySection({
       </div>
 
       <div className="space-y-5">
-        <div className="text-start">
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
-            {isRtl ? 'كلمة المرور الحالية' : 'Current Password'}
-          </label>
-          <div className="relative" dir="ltr">
-            <input
-              type={showCurrent ? 'text' : 'password'}
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="••••••••••••••••••••"
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pr-11 outline-none transition-all text-sm placeholder-slate-400"
-            />
-            <button
-              type="button"
-              onClick={() => setShowCurrent(!showCurrent)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-            >
-              {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="order-2 md:order-1 text-start">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">

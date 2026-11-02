@@ -128,11 +128,40 @@ export const studentPortalApi = {
     }
   },
 
-  // 6. Attendance
+  // 6. Next Session & Join Session
+  fetchNextSession: async () => {
+    try {
+      const response = await api.get('/api/v1/student/sessions/next', {
+        skipLang: true,
+      });
+      return response.data?.data ?? response.data ?? null;
+    } catch (error) {
+      console.error('Error fetching student next session:', error);
+      throw error;
+    }
+  },
+
+  joinSession: async (sessionId) => {
+    try {
+      const response = await api.get('/api/v1/student/sessions/' + sessionId + '/join', {
+        skipLang: true,
+      });
+      return response.data?.data ?? response.data ?? null;
+    } catch (error) {
+      if (error.response?.status === 405) {
+        const postRes = await api.post('/api/v1/student/sessions/' + sessionId + '/join');
+        return postRes.data?.data ?? postRes.data ?? null;
+      }
+      console.error('Error joining student session ' + sessionId + ':', error);
+      throw error;
+    }
+  },
+
+  // 7. Attendance
   fetchAttendance: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/sessions/attendance', { params });
-      return response.data?.data || response.data;
+      return response.data;
     } catch (error) {
       console.error('Error fetching student attendance:', error);
       throw error;

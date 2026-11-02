@@ -29,7 +29,7 @@ export default function AdminCurriculumDetails() {
   const [expandedUnits, setExpandedUnits] = useState({})
 
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, parentId: null, editingItem: null })
-  const [fileModalConfig, setFileModalConfig] = useState({ isOpen: false, levelId: null, unitId: null })
+  const [fileModalConfig, setFileModalConfig] = useState({ isOpen: false, levelId: null, unitId: null, editingFile: null })
 
   const { data: responseData, isLoading } = useQuery({
     queryKey: ['admin-curriculum-details', id],
@@ -41,6 +41,8 @@ export default function AdminCurriculumDetails() {
         return await adminCurriculaApi.fetchCurriculumById(id)
       }
     },
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
   })
 
   const curriculum = responseData?.data || responseData
@@ -104,6 +106,7 @@ export default function AdminCurriculumDetails() {
         case 'updateUnit': return adminCurriculaApi.updateUnit(id, ids.levelId, ids.unitId, payload)
         case 'deleteUnit': return adminCurriculaApi.deleteUnit(id, ids.levelId, ids.unitId)
         case 'addFile': return adminCurriculaApi.addFile(id, ids.levelId, ids.unitId, payload)
+        case 'updateFile': return adminCurriculaApi.updateFile(id, ids.levelId, ids.unitId, ids.fileId, payload)
         case 'deleteFile': return adminCurriculaApi.deleteFile(id, ids.levelId, ids.unitId, ids.fileId)
         default: throw new Error('Unknown action')
       }
@@ -125,7 +128,7 @@ export default function AdminCurriculumDetails() {
 
   const closeModal = () => {
     setModalConfig({ isOpen: false, type: null, parentId: null, editingItem: null })
-    setFileModalConfig({ isOpen: false, levelId: null, unitId: null })
+    setFileModalConfig({ isOpen: false, levelId: null, unitId: null, editingFile: null })
   }
 
   const handleBasicSubmit = (payload) => {
@@ -143,10 +146,9 @@ export default function AdminCurriculumDetails() {
     }
   }
 
-  const handleFileSubmit = (formData) => {
+  const handleFileSubmit = (formData, metadata) => {
     const lId = getCleanId(fileModalConfig.levelId)
     const uId = getCleanId(fileModalConfig.unitId)
-
     if (!lId) {
       toast.error(isRtl ? 'معرّف المستوى غير صالح أو مفقود' : 'Invalid level ID')
       return
@@ -155,8 +157,40 @@ export default function AdminCurriculumDetails() {
       toast.error(isRtl ? 'معرّف الوحدة غير صالح أو مفقود' : 'Invalid unit ID')
       return
     }
-
+    if (fileModalConfig.editingFile) {
+      const fId = getCleanId(fileModalConfig.editingFile)
+      actionMutation.mutate({
+        action: 'updateFile',
+        ids: { levelId: lId, unitId: uId, fileId: fId },
+        payload: formData,
+      })
+      return
+    }
     actionMutation.mutate({ action: 'addFile', ids: { levelId: lId, unitId: uId }, payload: formData })
+  }
+
+  const handleToggleFileVisibility = async (file, field, levelId, unitId) => {
+    const lId = getCleanId(levelId)
+    const uId = getCleanId(unitId)
+    const fId = getCleanId(file)
+    if (!lId || !uId || !fId) return
+    const currentValue = file[field] !== false
+    const nextValue = !currentValue
+    try {
+      await adminCurriculaApi.updateFile(id, lId, uId, fId, { [field]: nextValue })
+      toast.success(
+        isRtl
+          ? field === 'showToStudents'
+            ? nextValue ? 'أصبح الملف مرئياً للطلاب' : 'تم إخفاء الملف عن الطلاب'
+            : nextValue ? 'أصبح الملف مرئياً للمعلمين' : 'تم إخفاء الملف عن المعلمين'
+          : nextValue ? 'Visibility updated' : 'Visibility updated'
+      )
+      invalidate()
+    } catch (err) {
+      console.error('Failed to toggle file visibility:', err)
+      const errMsg = err.response?.data?.message
+      toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء تعديل إمكانية الرؤية' : 'Failed to update visibility'))
+    }
   }
 
   const handleDelete = async (type, item, ids = {}) => {
@@ -337,9 +371,13 @@ export default function AdminCurriculumDetails() {
           setModalConfig({ isOpen: true, type: 'unit', parentId: parentLevelId, editingItem: unit })
         }
         onDeleteUnit={(unit, parentLevelId) => handleDelete('unit', unit, { levelId: parentLevelId })}
-        onAddFile={(level, unit) => setFileModalConfig({ isOpen: true, levelId: level, unitId: unit })}
+        onAddFile={(level, unit) => setFileModalConfig({ isOpen: true, levelId: level, unitId: unit, editingFile: null })}
         onPreviewFile={handlePreviewFile}
         onDownloadFile={handleDownloadFile}
+        onEditFile={(file, parentLevelId, parentUnitId) =>
+          setFileModalConfig({ isOpen: true, levelId: parentLevelId, unitId: parentUnitId, editingFile: file })
+        }
+        onToggleFileVisibility={handleToggleFileVisibility}
         onDeleteFile={(file, parentLevelId, parentUnitId) =>
           handleDelete('file', file, { levelId: parentLevelId, unitId: parentUnitId })
         }
@@ -369,6 +407,7 @@ export default function AdminCurriculumDetails() {
         onClose={closeModal}
         onSubmit={handleFileSubmit}
         isSaving={actionMutation.isPending}
+        editingFile={fileModalConfig.editingFile}
       />
     </div>
   )

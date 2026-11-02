@@ -13,8 +13,8 @@ export default function StudentProfileCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] border border-slate-100 dark:border-slate-800/80 p-6 sm:p-8 shadow-soft space-y-6 text-start">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -33,16 +33,16 @@ export default function StudentProfileCard({
             {initial}
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-0.5 min-w-0">
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
               {studentDisplayName}
             </h2>
-            <p className="text-xs text-slate-400 dark:text-slate-500 font-mono" dir="ltr">
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-mono break-all" dir="ltr">
               {student?.email || '-'}
             </p>
-            {student?.birthDate && (
+            {student?.age !== undefined && student?.age !== null && (
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                {isRtl ? `تاريخ الميلاد: ${String(student.birthDate).slice(0, 10)}` : `Birth Date: ${String(student.birthDate).slice(0, 10)}`}
+                {isRtl ? `العمر: ${student.age} سنة` : `Age: ${student.age} years`}
               </p>
             )}
           </div>
@@ -60,7 +60,7 @@ export default function StudentProfileCard({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {detailsItems.map((item, index) => {
           const Icon = item.icon
           return (
@@ -72,7 +72,7 @@ export default function StudentProfileCard({
                 <span className="block text-[11px] font-bold text-slate-400 dark:text-slate-500">
                   {item.label}
                 </span>
-                <span className="block text-sm font-bold text-slate-700 dark:text-slate-200">
+                <span className="block text-sm font-bold text-slate-700 dark:text-slate-200 break-all" dir={item.ltr ? 'ltr' : undefined}>
                   {item.value}
                 </span>
               </div>

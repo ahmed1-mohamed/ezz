@@ -6,7 +6,6 @@ import {
   Home,
   Calendar,
   Video,
-  PlayCircle,
   Users,
   FileText,
   Star,
@@ -15,7 +14,6 @@ import {
   BookOpen,
   Globe,
   User,
-  Settings,
   Menu,
   X,
 } from 'lucide-react'
@@ -25,7 +23,6 @@ const navItems = [
   { path: '/dashboard/student', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/student/schedule', icon: Calendar, transKey: 'schedule' },
   { path: '/dashboard/student/live', icon: Video, transKey: 'liveSession' },
-  { path: '/dashboard/student/recorded', icon: PlayCircle, transKey: 'recordedSessions' },
   { path: '/dashboard/student/teachers', icon: Users, transKey: 'teachers' },
   { path: '/dashboard/student/assignments', icon: FileText, transKey: 'assignments' },
   { path: '/dashboard/student/grades', icon: Star, transKey: 'grades' },
@@ -34,7 +31,6 @@ const navItems = [
   { path: '/dashboard/student/materials', icon: BookOpen, transKey: 'materials' },
   { path: '/', icon: Globe, transKey: 'website' },
   { path: '/dashboard/student/profile', icon: User, transKey: 'profile' },
-  { path: '/dashboard/student/settings', icon: Settings, transKey: 'settings' },
 ]
 
 export default function StudentLayout() {
@@ -49,16 +45,16 @@ export default function StudentLayout() {
     setIsMobileMenuOpen(false)
   }
   const displayName = (() => {
-    if (!user) return t('studentDashboard.user.name', 'محمد أحمد')
+    if (!user) return t('studentDashboard.user.name', isRtl ? 'طالب' : 'Student')
     if (typeof user.name === 'object' && user.name !== null) {
       return isRtl ? (user.name.ar || user.name.en || '') : (user.name.en || user.name.ar || '')
     }
     if (user.nameAr || user.nameEn) {
       return isRtl ? (user.nameAr || user.nameEn || user.name) : (user.nameEn || user.nameAr || user.name)
     }
-    return user.name || t('studentDashboard.user.name', 'محمد أحمد')
+    return user.name || t('studentDashboard.user.name', isRtl ? 'طالب' : 'Student')
   })()
-  const initialLetter = displayName ? displayName.trim().charAt(0) : 'م'
+  const initialLetter = displayName ? displayName.trim().charAt(0) : (isRtl ? 'ط' : 'S')
   const userImage = user?.image || user?.avatar || user?.photoUrl || user?.photo || null
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>

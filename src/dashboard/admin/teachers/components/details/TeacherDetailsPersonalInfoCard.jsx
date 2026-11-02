@@ -111,7 +111,7 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
         </div>
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            Full Name
+            {isRtl ? 'الاسم بالإنجليزية' : 'Name in English'}
           </label>
           <div className="w-full bg-[#f3f7f6] dark:bg-slate-950 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 text-sm font-medium border border-transparent" dir="ltr">
             {nameEn}

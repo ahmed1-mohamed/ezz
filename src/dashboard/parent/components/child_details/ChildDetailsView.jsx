@@ -9,17 +9,14 @@ import ChildBadges from './ChildBadges';
 import ChildRecentEvaluations from './ChildRecentEvaluations';
 import ChildTimeline from './ChildTimeline';
 import TeacherEvaluationView from './TeacherEvaluationView';
-import SubscriptionRenewal from '../SubscriptionRenewal';
 import { parentApi } from '@/shared/services/api/parentApi';
 
 export default function ChildDetailsView({ childId, onBack }) {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-
   const [child, setChild] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     let isMounted = true;
     const loadChild = async () => {
@@ -39,13 +36,11 @@ export default function ChildDetailsView({ childId, onBack }) {
         if (isMounted) setIsLoading(false);
       }
     };
-
     if (childId) {
       loadChild();
     }
     return () => { isMounted = false; };
   }, [childId]);
-
   const showEvaluation = location.state?.view === 'evaluation';
   const setShowEvaluation = (show) => {
     if (show) {
@@ -56,7 +51,6 @@ export default function ChildDetailsView({ childId, onBack }) {
       navigate({ pathname: location.pathname, search: location.search }, { state: newState, replace: true });
     }
   };
-
   const getChildDisplayName = () => {
     if (!child) return childId || '-';
     if (typeof child.name === 'object' && child.name !== null) {
@@ -64,7 +58,6 @@ export default function ChildDetailsView({ childId, onBack }) {
     }
     return child.name || '-';
   };
-
   const childName = getChildDisplayName();
   const childSubject = typeof child?.subject === 'object'
     ? (i18n.language.startsWith('ar') ? child.subject.ar : child.subject.en)
@@ -73,7 +66,6 @@ export default function ChildDetailsView({ childId, onBack }) {
     ? new Date(child.createdAt).toLocaleDateString()
     : (child?.joinDate || '-');
   const avatarChar = childName.charAt(0) || 'ط';
-
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -81,16 +73,13 @@ export default function ChildDetailsView({ childId, onBack }) {
       transition: { staggerChildren: 0.1 }
     }
   };
-
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
-
   if (showEvaluation) {
     return <TeacherEvaluationView onBack={() => setShowEvaluation(false)} />;
   }
-
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -102,7 +91,6 @@ export default function ChildDetailsView({ childId, onBack }) {
       </div>
     );
   }
-
   return (
     <motion.div
       variants={containerVariants}
@@ -119,7 +107,6 @@ export default function ChildDetailsView({ childId, onBack }) {
           {t('parent.childDetails.back', 'رجوع')}
         </button>
       </div>
-
       <motion.div variants={itemVariants}>
         <ChildHeader
           name={childName}
@@ -129,28 +116,17 @@ export default function ChildDetailsView({ childId, onBack }) {
           onEvaluateClick={() => setShowEvaluation(true)}
         />
       </motion.div>
-
       <motion.div variants={itemVariants}>
         <ChildStatsRow child={child} />
       </motion.div>
-
       <motion.div variants={itemVariants}>
         <ChildBadges childId={childId} initialBadges={child?.badges} />
       </motion.div>
-
       <motion.div variants={itemVariants}>
         <ChildRecentEvaluations childId={childId} initialEvaluations={child?.evaluations} />
       </motion.div>
-
       <motion.div variants={itemVariants}>
         <ChildTimeline childId={childId} initialEvents={child?.timeline || child?.sessions} />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 mt-8">
-          {t('parentDashboard.childrenDetails.subscriptionSummaryTitle', 'ملخص الاشتراك')}
-        </h3>
-        <SubscriptionRenewal />
       </motion.div>
     </motion.div>
   );

@@ -66,7 +66,7 @@ export default function ParentPersonalInfo({
           <span>{isRtl ? 'تغيير الصورة' : 'Change Photo'}</span>
         </button>
         <p className="text-xs text-slate-400">
-          {isRtl ? 'الحد الأقصى 5 ميجابايت، PNG أو JPG' : 'Max 5MB, PNG or JPG'}
+          {isRtl ? 'اختياري · الحد الأقصى 5 ميجابايت، PNG أو JPG' : 'Optional · Max 5MB, PNG or JPG'}
         </p>
         <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageSelect} />
       </div>
@@ -74,7 +74,7 @@ export default function ParentPersonalInfo({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'الاسم بالإنجليزية' : 'Name in English'}
+            {isRtl ? 'الاسم بالإنجليزية *' : 'Name in English *'}
           </label>
           <input
             type="text"
@@ -87,7 +87,7 @@ export default function ParentPersonalInfo({
         </div>
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'الاسم بالعربية' : 'Name in Arabic'}
+            {isRtl ? 'الاسم بالعربية *' : 'Name in Arabic *'}
           </label>
           <input
             type="text"
@@ -103,7 +103,7 @@ export default function ParentPersonalInfo({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'رقم الهاتف' : 'Phone Number'}
+            {isRtl ? 'رقم الهاتف *' : 'Phone Number *'}
           </label>
           <div className="flex gap-2" dir="ltr">
             <div className="relative shrink-0">
@@ -156,7 +156,7 @@ export default function ParentPersonalInfo({
         </div>
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
+            {isRtl ? 'البريد الإلكتروني *' : 'Email Address *'}
           </label>
           <input
             type="email"
@@ -171,7 +171,7 @@ export default function ParentPersonalInfo({
 
       <div className="relative">
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-          {isRtl ? 'البلد' : 'Country'}
+          {isRtl ? 'البلد *' : 'Country *'}
         </label>
         <button
           type="button"
@@ -215,33 +215,6 @@ export default function ParentPersonalInfo({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'ملاحظات بالإنجليزية' : 'Notes in English'}
-          </label>
-          <textarea
-            rows={3}
-            value={formData.notesEn}
-            onChange={(e) => handleChange('notesEn', e.target.value)}
-            placeholder="Notes"
-            dir="ltr"
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 resize-none"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
-            {isRtl ? 'ملاحظات إضافية بالعربية' : 'Notes in Arabic'}
-          </label>
-          <textarea
-            rows={3}
-            value={formData.notes}
-            onChange={(e) => handleChange('notes', e.target.value)}
-            placeholder={isRtl ? 'أي ملاحظات خاصة بالطالب...' : 'Any special notes...'}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 resize-none text-start"
-          ></textarea>
-        </div>
-      </div>
     </div>
   )
 }

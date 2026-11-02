@@ -10,80 +10,23 @@ export default function ParentChildrenSection({
 }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  const defaultSampleChildren = [
-    {
-      id: 'sample-1',
-      name: isRtl ? 'علي خالد' : 'Ali Khaled',
-      joinDate: '20-02-2025',
-      subject: isRtl ? 'اللغة العربية' : 'Arabic Language',
-      usedSessions: 4,
-      remainingSessions: 12,
-      totalSessions: 16,
-    },
-    {
-      id: 'sample-2',
-      name: isRtl ? 'سعاد عمر' : 'Souad Omar',
-      joinDate: '05-03-2025',
-      subject: isRtl ? 'القرآن' : 'Quran',
-      usedSessions: 8,
-      remainingSessions: 10,
-      totalSessions: 18,
-    },
-    {
-      id: 'sample-3',
-      name: isRtl ? 'يوسف منصور' : 'Youssef Mansour',
-      joinDate: '10-04-2025',
-      subject: isRtl ? 'العربية و القرآن' : 'Arabic & Quran',
-      usedSessions: 5,
-      remainingSessions: 3,
-      totalSessions: 8,
-    },
-  ]
-
-  const displayList = Array.isArray(childrenList) && childrenList.length > 0
-    ? childrenList.map((child, index) => {
-        if (typeof child === 'string') {
-          return {
-            id: child,
-            name: `${isRtl ? 'طالب' : 'Student'} #${index + 1}`,
-            joinDate: '20-02-2025',
-            subject: isRtl ? 'اللغة العربية' : 'Arabic',
-            usedSessions: 4,
-            remainingSessions: 12,
-            totalSessions: 16,
-          }
-        }
-        const nameStr = typeof child.name === 'object'
-          ? (isRtl ? child.name?.ar || child.name?.en : child.name?.en || child.name?.ar)
-          : (child.name || `${isRtl ? 'طالب' : 'Student'} #${index + 1}`)
-
-        const used = Number(child.usedSessions ?? child.completedSessions ?? child.attendedSessions ?? 4)
-        const total = Number(child.totalSessions ?? child.packageSessions ?? (used + (child.remainingSessions ?? 12)) ?? 16)
-        const remaining = Number(child.remainingSessions ?? Math.max(0, total - used))
-
-        const rawDate = child.joinDate || child.createdAt || '2025-02-20'
-        let formattedDate = rawDate
-        if (rawDate && rawDate.includes('T')) {
-          const d = new Date(rawDate)
-          if (!isNaN(d.getTime())) {
-            const day = String(d.getDate()).padStart(2, '0')
-            const month = String(d.getMonth() + 1).padStart(2, '0')
-            const year = d.getFullYear()
-            formattedDate = `${day}-${month}-${year}`
-          }
-        }
-
-        return {
-          id: child.id || child._id || child.student_id || `child-${index}`,
-          name: nameStr,
-          joinDate: formattedDate,
-          subject: child.subject || child.curriculum || child.grade || (isRtl ? 'اللغة العربية' : 'Arabic'),
-          usedSessions: used,
-          remainingSessions: remaining,
-          totalSessions: total,
-        }
-      })
-    : defaultSampleChildren
+  const displayList = (Array.isArray(childrenList) ? childrenList : []).map((child) => {
+    const balance = typeof child.sessionsBalance === 'object' && child.sessionsBalance !== null ? child.sessionsBalance : {}
+    const total = Number(balance.total || 0)
+    const used = Number(balance.used || 0)
+    const firstGroup = Array.isArray(child.groups) ? child.groups[0] : null
+    return {
+      id: child.student_id || child.id || child._id,
+      name: typeof child.name === 'object' && child.name !== null
+        ? (isRtl ? child.name.ar || child.name.en : child.name.en || child.name.ar)
+        : (child.name || '-'),
+      level: typeof child.studentLevel === 'string' ? child.studentLevel : '',
+      groupName: firstGroup?.name || '',
+      usedSessions: used,
+      remainingSessions: Math.max(0, total - used),
+      totalSessions: total,
+    }
+  })
 
   const existingIds = displayList.map((c) => c.id)
 
@@ -113,11 +56,16 @@ export default function ParentChildrenSection({
             {isRtl ? 'متابعة الأبناء' : 'Children Follow-up'}
           </h3>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-medium">
-            {isRtl ? 'جميع معلومات أبنائك المسجلين' : 'All enrolled children info'}
+            {isRtl ? 'جميع الأبناء المسجلين لولي الأمر' : 'All children enrolled under this parent'}
           </p>
         </div>
 
         <div className="space-y-3">
+          {displayList.length === 0 && (
+            <p className="py-6 text-center text-sm font-bold text-slate-400 dark:text-slate-500">
+              {isRtl ? 'لا يوجد أبناء مرتبطون بولي الأمر حالياً' : 'No children are linked to this parent yet'}
+            </p>
+          )}
           {displayList.map((child) => {
             const total = Math.max(1, child.totalSessions || 1)
             const usedPct = Math.min(100, Math.max(0, (child.usedSessions / total) * 100))
@@ -173,10 +121,10 @@ export default function ParentChildrenSection({
 
                 <div className="order-2 md:order-3 text-start">
                   <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500">
-                    {isRtl ? 'المادة' : 'Subject'}
+                    {isRtl ? 'المجموعة' : 'Group'}
                   </span>
                   <p className="text-sm font-bold text-slate-800 dark:text-white mt-1">
-                    {child.subject}
+                    {child.groupName || (isRtl ? 'بدون مجموعة' : 'No group')}
                   </p>
                 </div>
 
@@ -184,9 +132,11 @@ export default function ParentChildrenSection({
                   <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white">
                     {child.name}
                   </h4>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-mono">
-                    {isRtl ? 'تاريخ الانضمام:' : 'Joined:'} {child.joinDate}
-                  </p>
+                  {child.level && (
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      {isRtl ? 'المستوى:' : 'Level:'} {child.level}
+                    </p>
+                  )}
                 </div>
               </div>
             )

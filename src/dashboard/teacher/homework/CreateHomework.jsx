@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+﻿import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -41,10 +41,9 @@ export default function CreateHomework() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -54,10 +53,9 @@ export default function CreateHomework() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
@@ -99,12 +97,10 @@ export default function CreateHomework() {
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (file.size > 50 * 1024 * 1024) {
       toast.error('حجم الفيديو يجب ألا يتجاوز 50 ميغابايت');
       return;
     }
-
     setMediaFile(file);
     try {
       const url = URL.createObjectURL(file);
@@ -128,12 +124,10 @@ export default function CreateHomework() {
   const handleDocumentChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (file.size > 50 * 1024 * 1024) {
       toast.error('حجم ملف الواجب يجب ألا يتجاوز 50 ميغابايت');
       return;
     }
-
     setDocumentFile(file);
   };
 
@@ -144,56 +138,102 @@ export default function CreateHomework() {
     }
   };
 
-  const handlePublishHomework = async (isDraft = false) => {
+  const handlePublishHomework = async () => {
     if (!title.trim()) {
       toast.error('يرجى كتابة عنوان الواجب');
       return;
     }
-
     if (!selectedGroupId) {
       toast.error(t('teacherHomework.errSelectGroup', 'يرجى اختيار المجموعة الدراسية النشطة'));
       return;
     }
-
     if (!deadline) {
       toast.error(t('teacherHomework.errSetDeadline', 'يرجى تحديد الموعد النهائي لتسليم الواجب'));
       return;
     }
-
+    if (questions.length > 20) {
+      toast.error(t('teacherHomework.maxQuestionsLimit', 'لا يمكن إضافة أكثر من 20 سؤالاً للواجب الواحد'));
+      return;
+    }
+    for (let index = 0; index < questions.length; index++) {
+      const q = questions[index];
+      if (!q.question || !q.question.trim()) {
+        toast.error(t('teacherHomework.errQuestionTextRequired', 'يرجى كتابة نص السؤال رقم {{number}}', { number: index + 1 }));
+        return;
+      }
+      if (q.type === 'multiple_choice') {
+        const validOptions = (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0);
+        if (validOptions.length < 2) {
+          toast.error(t('teacherHomework.errMinOptions', 'يجب توفير خيارين على الأقل للسؤال الاختياري رقم {{number}}', { number: index + 1 }));
+          return;
+        }
+      }
+    }
     setIsSubmitting(true);
-
     try {
-      const formData = new FormData();
-      formData.append('title', title.trim());
-      formData.append('description', description.trim());
-      formData.append('deadline', deadline);
-      formData.append('group', selectedGroupId);
-      formData.append('isDraft', String(isDraft));
-
-      if (mediaFile) {
-        formData.append('media', mediaFile);
+      const cleanQuestions = questions.map((q) => {
+        const item = {
+          type: q.type || 'multiple_choice',
+          question: q.question.trim(),
+          points: Number(q.points) || 5,
+        };
+        if (q.type === 'multiple_choice') {
+          item.options = (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0);
+          item.correctOptionIndex = Number(q.correctOptionIndex) || 0;
+        } else {
+          // essay type — backend requires options as empty array
+          item.options = [];
+        }
+        return item;
+      });
+      let payload;
+      if (mediaFile || documentFile) {
+        payload = new FormData();
+        payload.append('title', title.trim());
+        payload.append('description', description.trim());
+        payload.append('deadline', deadline);
+        payload.append('group', selectedGroupId);
+        if (mediaFile) {
+          payload.append('media', mediaFile);
+        }
+        if (documentFile) {
+          payload.append('document', documentFile);
+        }
+        if (cleanQuestions.length > 0) {
+          cleanQuestions.forEach((q, idx) => {
+            payload.append(`questions[${idx}][type]`, q.type);
+            payload.append(`questions[${idx}][question]`, q.question);
+            payload.append(`questions[${idx}][points]`, String(q.points));
+            if (q.type === 'multiple_choice') {
+              q.options.forEach((opt, oIdx) => {
+                payload.append(`questions[${idx}][options][${oIdx}]`, opt);
+              });
+              payload.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
+            } else {
+              // essay type — send empty options array marker so backend parses it as array
+              payload.append(`questions[${idx}][options][]`, '');
+            }
+          });
+        }
+      } else {
+        payload = {
+          title: title.trim(),
+          description: description.trim(),
+          deadline,
+          group: selectedGroupId,
+        };
+        if (cleanQuestions.length > 0) {
+          payload.questions = cleanQuestions;
+        }
       }
-
-      if (documentFile) {
-        formData.append('document', documentFile);
-      }
-
-      if (questions.length > 0) {
-        formData.append('questions', JSON.stringify(questions));
-      }
-
-      const res = await teacherHomeworkApi.createHomework(formData);
+      const res = await teacherHomeworkApi.createHomework(payload);
       setIsSubmitting(false);
-
       if (res.success) {
-        toast.success(
-          isDraft
-            ? t('teacherHomework.draftSaved', 'تم حفظ الواجب كمسودة بنجاح')
-            : t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة')
-        );
+        toast.success(t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'));
         navigate('/dashboard/teacher/assignments/submissions');
       } else {
-        toast.error(res.message || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));
+        const errorMsg = Array.isArray(res.message) ? res.message.join(' - ') : res.message;
+        toast.error(errorMsg || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));
       }
     } catch {
       setIsSubmitting(false);
@@ -522,7 +562,7 @@ export default function CreateHomework() {
       <div className="flex justify-end pt-2">
         <button
           type="button"
-          onClick={() => handlePublishHomework(false)}
+          onClick={() => handlePublishHomework()}
           disabled={isSubmitting}
           className="w-full sm:w-auto min-w-[200px] py-3.5 px-8 rounded-2xl bg-[#00594C] hover:bg-[#00473d] text-white font-black text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md transition-all cursor-pointer disabled:opacity-60"
         >

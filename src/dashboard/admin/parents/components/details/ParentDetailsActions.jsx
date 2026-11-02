@@ -5,7 +5,6 @@ export default function ParentDetailsActions({
   isSuspended = false,
   isSuspending = false,
   onToggleSuspend,
-  onOpenSendMessage,
 }) {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
@@ -28,14 +27,6 @@ export default function ParentDetailsActions({
               : (isRtl ? 'تعليق الحساب' : 'Suspend Account')}
           </span>
         )}
-      </button>
-
-      <button
-        type="button"
-        onClick={onOpenSendMessage}
-        className="w-full sm:flex-1 py-3.5 px-8 bg-[#00594C] hover:bg-[#004742] text-white text-sm font-bold rounded-2xl shadow-md transition-all active:scale-[0.98] cursor-pointer text-center"
-      >
-        {isRtl ? 'إرسال رسالة' : 'Send Message'}
       </button>
     </div>
   )

@@ -3,12 +3,23 @@ import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+function resolveText(val, isRtl) {
+  if (!val) return '';
+  if (typeof val === 'string') return val.trim();
+  if (typeof val === 'object') {
+    if (val.name) return resolveText(val.name, isRtl);
+    if (val.title) return resolveText(val.title, isRtl);
+    if (val.ar || val.en) return isRtl ? (val.ar || val.en) : (val.en || val.ar);
+  }
+  return String(val);
+}
+
 export default React.memo(function TeacherPendingEvaluationBanner({ pendingSession, pendingStudents }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   if (!pendingSession) return null;
-
+  const sessionTitle = resolveText(pendingSession.title, isRtl);
+  const groupName = resolveText(pendingSession.group, isRtl);
   return (
     <div className="bg-gradient-to-r from-amber-50 to-orange-50/60 dark:from-amber-950/40 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/60 rounded-3xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex items-start gap-3.5">
@@ -26,11 +37,11 @@ export default React.memo(function TeacherPendingEvaluationBanner({ pendingSessi
             </span>
           </div>
           <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-            {pendingSession.title}{' '}
+            {sessionTitle}{' '}
             {pendingSession.sessionNumber ? `(${t('teacherDashboard.sessionNumberLabel', 'الحصة رقم {{number}}', { number: pendingSession.sessionNumber })})` : ''}
-            {pendingSession.group ? ` - ${pendingSession.group}` : ''}
+            {groupName ? ` - ${groupName}` : ''}
           </h3>
-          {pendingStudents.length > 0 && (
+          {Array.isArray(pendingStudents) && pendingStudents.length > 0 && (
             <p className="text-xs text-amber-800 dark:text-amber-300 font-semibold">
               {t('teacherDashboard.studentsPending', 'الطلاب بانتظار التقييم: ')}
               {pendingStudents

@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
-import { landingApi } from '@/shared/services/api/landingApi'
 import { adminParentsApi } from '@/shared/services/api/adminParentsApi'
 import { studentsApi } from '@/shared/services/api/studentsApi'
-import { sortCountries, sortCountryCodes, normalizeCountries } from '@/shared/utils/countryUtils'
-import SendMessageModal from './SendMessageModal'
+import {
+  sortCountries,
+  sortCountryCodes,
+  normalizeCountries,
+  fetchCountries,
+  toDialCodeOptions,
+  resolveCountryIdFromLabel,
+  splitPhoneNumber,
+  joinPhoneNumber,
+  DEFAULT_DIAL_CODE
+} from '@/shared/utils/countryUtils'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
 import ParentDetailsHeader from './details/ParentDetailsHeader'
 import ParentStatsRow from './details/ParentStatsRow'
 import ParentOverviewBanner from './details/ParentOverviewBanner'
@@ -17,15 +27,14 @@ import ParentDetailsActions from './details/ParentDetailsActions'
 export default function ParentDetailsScreen({
   parent,
   isRtl = true,
-  t,
   onCancel,
   onSave,
-  onSendMessage,
-  onSuspend,
+  onToggleActive,
+  onChildrenChanged,
 }) {
   const navigate = useNavigate()
+  const parentId = parent.parent_id || parent.id
 
-  const [showMessageModal, setShowMessageModal] = useState(false)
   const [isSuspending, setIsSuspending] = useState(false)
   const [isSavingPersonal, setIsSavingPersonal] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
@@ -35,158 +44,100 @@ export default function ParentDetailsScreen({
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [selectedCountryCode, setSelectedCountryCode] = useState(null)
   const [phoneVal, setPhoneVal] = useState('')
-  const [childrenList, setChildrenList] = useState(parent?.children || [])
-
-  const initialNameObj = typeof parent?.name === 'object' ? parent.name : null
-  const initialNameAr = parent?.nameAr || (initialNameObj ? initialNameObj.ar : '') || (typeof parent?.name === 'string' ? parent.name : '') || ''
-  const initialNameEn = parent?.nameEn || (initialNameObj ? initialNameObj.en : '') || ''
-  const initialEmail = parent?.email || parent?.user?.email || parent?.userId?.email || ''
 
   const [formData, setFormData] = useState({
-    name: initialNameAr,
-    nameEn: initialNameEn,
-    email: initialEmail,
-    country: parent?.country || '',
-    birthDate: parent?.birthDate || '',
-    status: parent?.active === false || parent?.status === 'Expired' ? 'Expired' : 'Active',
-    profileImage: parent?.profileImage || parent?.image || null,
+    name: parent?.name?.ar || '',
+    nameEn: parent?.name?.en || '',
+    email: parent?.email || '',
+    country: '',
+    profileImage: parent?.image || null,
     profileImageFile: null,
   })
 
+  // The API has no per-parent children endpoint, so children are the students whose parent matches.
+  const { data: childrenList = [], refetch: refetchChildren } = useQuery({
+    queryKey: ['parent-children', parentId],
+    queryFn: async () => {
+      const res = await studentsApi.fetchAllLocalizedStudents({ limit: 1000 })
+      const list = Array.isArray(res?.data) ? res.data : []
+      return list.filter((s) => s.parent?.parent_id === parentId)
+    },
+    enabled: Boolean(parentId),
+    staleTime: 60 * 1000,
+  })
+
   useEffect(() => {
-    const fetchCountriesData = async () => {
-      try {
-        const res = await landingApi.fetchCountries()
-        const rawCountries = Array.isArray(res) ? res : (res?.data || [])
-        const normalized = normalizeCountries(rawCountries)
-        if (normalized.length > 0) {
-          const sortedC = sortCountries(normalized, isRtl)
-          const sortedCodes = sortCountryCodes(
-            normalized.map((c) => ({
-              code: c.dialCode || c.phoneCode || '',
-              flag: c.flag || '🌍',
-              name: c.name || '',
-              nameEn: c.nameEn || '',
-            })).filter((c) => c.code),
-            isRtl
-          )
+    let isMounted = true
+    fetchCountries().then((list) => {
+      if (!isMounted || list.length === 0) return
+      const normalized = normalizeCountries(list)
+      const codes = sortCountryCodes(toDialCodeOptions(normalized), isRtl)
+      setCountriesList(sortCountries(normalized, isRtl))
+      setCountryCodesList(codes)
 
-          setCountriesList(sortedC)
-          setCountryCodesList(sortedCodes)
+      const { code, number } = splitPhoneNumber(parent?.phone, codes)
+      setPhoneVal(number)
+      setSelectedCountryCode(code || codes.find((c) => c.code === DEFAULT_DIAL_CODE) || null)
 
-          const rawPhone = String(parent?.phone || parent?.user?.phone || parent?.userId?.phone || '').trim()
-          let prefix = parent?.phonePrefix || ''
-          let phonePart = rawPhone
-
-          if (rawPhone) {
-            const dialMatch = sortedCodes.find((c) => rawPhone.startsWith(c.code))
-            if (dialMatch) {
-              prefix = dialMatch.code
-              phonePart = rawPhone.slice(prefix.length).trim()
-            } else if (rawPhone.includes(' ')) {
-              const parts = rawPhone.split(/\s+/)
-              prefix = parts[0]
-              phonePart = parts.slice(1).join(' ').trim()
-            }
-          }
-
-          setPhoneVal(phonePart)
-
-          if (prefix) {
-            const matchedCountry = sortedCodes.find((c) => c.code === prefix)
-            setSelectedCountryCode(matchedCountry || { code: prefix, flag: '🌍', name: prefix })
-          } else if (sortedCodes.length > 0) {
-            const defaultEgypt = sortedCodes.find((c) => c.code === '+20' || c.code === '+02')
-            setSelectedCountryCode(defaultEgypt || sortedCodes[0])
-          }
-
-          if (parent?.country) {
-            const matched = sortedC.find(
-              (c) => c.id === parent.country || c._id === parent.country || c.name === parent.country
-            )
-            if (matched) {
-              setFormData((prev) => ({ ...prev, country: matched.id || matched._id }))
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load countries in ParentDetailsScreen:', err)
-      }
+      const countryId = resolveCountryIdFromLabel(normalized, parent?.country)
+      if (countryId) setFormData((prev) => ({ ...prev, country: countryId }))
+    })
+    return () => {
+      isMounted = false
     }
-
-    fetchCountriesData()
   }, [parent, isRtl])
-
-  useEffect(() => {
-    if (parent?.children) {
-      setChildrenList(parent.children)
-    }
-  }, [parent?.children])
 
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
 
   const handleImageChange = (file) => {
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setFormData((prev) => ({
-        ...prev,
-        profileImage: reader.result,
-        profileImageFile: file,
-      }))
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(isRtl ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image must be 5MB or less')
+      return
     }
-    reader.readAsDataURL(file)
+    setFormData((prev) => ({ ...prev, profileImage: URL.createObjectURL(file), profileImageFile: file }))
   }
 
   const handleSavePersonalInfo = async () => {
-    if (!formData.name && !formData.nameEn) {
-      toast.error(isRtl ? 'الرجاء إدخال اسم ولي الأمر' : 'Please enter parent name')
+    const nameAr = formData.name.trim()
+    const nameEn = formData.nameEn.trim()
+    if (nameAr.length < 2 || nameEn.length < 2) {
+      toast.error(isRtl ? 'الرجاء إدخال الاسم بالعربية والإنجليزية (حرفان على الأقل)' : 'Please enter Arabic and English names (min 2 characters)')
+      return
+    }
+    if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) {
+      toast.error(isRtl ? 'الرجاء إدخال بريد إلكتروني صالح' : 'Please enter a valid email')
+      return
+    }
+    const phone = joinPhoneNumber(selectedCountryCode?.code, phoneVal)
+    if (!phone) {
+      toast.error(isRtl ? 'الرجاء إدخال رقم هاتف صحيح مع مفتاح الدولة' : 'Please enter a valid phone number with country code')
+      return
+    }
+    if (!formData.country) {
+      toast.error(isRtl ? 'الرجاء اختيار الدولة' : 'Please select a country')
       return
     }
 
     setIsSavingPersonal(true)
     try {
-      const cleanPhone = phoneVal.trim()
-      const fullPhone = selectedCountryCode?.code
-        ? `${selectedCountryCode.code} ${cleanPhone}`.trim()
-        : cleanPhone
-
-      const parentId = parent.parent_id || parent._id || parent.id || parent.user_id
-
-      let payload
-      if (formData.profileImageFile instanceof File) {
-        payload = new FormData()
-        payload.append('id', parentId)
-        payload.append('name[ar]', formData.name || '')
-        payload.append('name[en]', formData.nameEn || '')
-        if (fullPhone) payload.append('phone', fullPhone)
-        if (formData.country) payload.append('country', formData.country)
-        if (formData.birthDate) payload.append('birthDate', formData.birthDate)
-        payload.append('image', formData.profileImageFile)
-      } else {
-        payload = {
-          name: {
-            ar: formData.name || '',
-            en: formData.nameEn || '',
-          },
-          phone: fullPhone || undefined,
-          country: formData.country || undefined,
-          birthDate: formData.birthDate || undefined,
-        }
-      }
-
-      if (onSave) {
-        await onSave(payload)
-      }
-    } catch (err) {
-      console.error('Failed to save personal info:', err)
+      await onSave({
+        name: { ar: nameAr, en: nameEn },
+        email: formData.email.trim(),
+        phone,
+        country: formData.country,
+        imageFile: formData.profileImageFile,
+      })
+      setFormData((prev) => ({ ...prev, profileImageFile: null }))
+    } catch {
+      // error toast is shown by the caller
     } finally {
       setIsSavingPersonal(false)
     }
   }
 
-  const handleUpdatePassword = async ({ currentPassword, newPassword, confirmPassword }, resetForm) => {
+  const handleUpdatePassword = async ({ newPassword, confirmPassword }, resetForm) => {
     if (!newPassword || !confirmPassword) {
       toast.error(isRtl ? 'الرجاء إدخال كلمة المرور الجديدة وتأكيدها' : 'Please enter and confirm new password')
       return
@@ -199,88 +150,49 @@ export default function ParentDetailsScreen({
       toast.error(isRtl ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match')
       return
     }
-
-    const userId =
-      (typeof parent?.user === 'string' && parent.user) ||
-      parent?.user?._id ||
-      parent?.user?.id ||
-      parent?.user_id ||
-      (typeof parent?.userId === 'string' && parent.userId) ||
-      parent?.userId?._id ||
-      parent?.userId?.id ||
-      parent?.parent_id ||
-      parent?._id ||
-      parent?.id
-
-    if (!userId) {
+    if (!parent.user_id) {
       toast.error(isRtl ? 'تعذر تحديد معرّف المستخدم' : 'Could not resolve user ID')
       return
     }
 
     setIsUpdatingPassword(true)
     try {
-      await adminParentsApi.changeParentPassword(userId, {
-        currentPassword: currentPassword || undefined,
-        password: newPassword,
-        confirmPassword,
-      })
+      await adminParentsApi.changeParentPassword(parent.user_id, { password: newPassword, confirmPassword })
       toast.success(isRtl ? 'تم تحديث كلمة المرور بنجاح' : 'Password updated successfully')
       if (resetForm) resetForm()
     } catch (err) {
       console.error('Failed to update password:', err)
-      const msg = err.response?.data?.message
-      const errorText = Array.isArray(msg)
-        ? msg.join(' - ')
-        : (msg || (isRtl ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Failed to update password'))
-      toast.error(errorText)
+      toast.error(getApiErrorText(err, isRtl ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Failed to update password'))
     } finally {
       setIsUpdatingPassword(false)
     }
   }
 
   const handleAddChildToParent = async (student) => {
-    const parentId = parent.parent_id || parent._id || parent.id || parent.user_id
-    const studentId = student.id || student._id || student.student_id
-
-    await studentsApi.updateStudent(studentId, { parent: parentId })
-    setChildrenList((prev) => [student, ...prev])
+    await studentsApi.updateStudent(student.student_id, { parent: parentId })
+    await refetchChildren()
+    if (onChildrenChanged) onChildrenChanged()
   }
 
   const handleViewChildDetails = (child) => {
-    const childId = child.id || child._id || child.student_id
-    if (childId && !String(childId).startsWith('sample-')) {
-      navigate(`/dashboard/admin/students/${childId}`)
-    } else {
-      navigate('/dashboard/admin/students')
-    }
+    navigate(`/dashboard/admin/students/${child.id}`)
   }
 
   const handleToggleSuspend = async () => {
-    const isCurrentlySuspended =
-      parent.active === false || parent.status === 'Expired' || parent.status === 'Suspended'
-    const confirmMessage = isCurrentlySuspended
-      ? (isRtl ? 'هل تريد تفعيل هذا الحساب؟' : 'Are you sure you want to activate this account?')
-      : (isRtl ? 'هل أنت متأكد من تعليق هذا الحساب؟' : 'Are you sure you want to suspend this account?')
-
-    if (!window.confirm(confirmMessage)) return
-
     setIsSuspending(true)
     try {
-      const parentId = parent.parent_id || parent._id || parent.id || parent.user_id
-      await onSuspend(parentId)
+      await onToggleActive(parent.user_id)
     } finally {
       setIsSuspending(false)
     }
   }
 
-  const displayName = typeof parent?.name === 'object'
-    ? (isRtl ? parent.name?.ar || parent.name?.en : parent.name?.en || parent.name?.ar)
-    : (parent?.name || (isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'))
-
-  const isSuspended =
-    parent.active === false || parent.status === 'Expired' || parent.status === 'Suspended'
-
-  const totalChildrenCount = childrenList.length > 0 ? childrenList.length : 3
+  const displayName = (isRtl ? parent?.name?.ar || parent?.name?.en : parent?.name?.en || parent?.name?.ar) || '-'
+  const isSuspended = parent.active === false
+  const totalRemaining = childrenList.reduce((sum, child) => {
+    const balance = child.sessionsBalance || {}
+    return sum + Math.max(0, Number(balance.total || 0) - Number(balance.used || 0))
+  }, 0)
 
   return (
     <div className="space-y-6 pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -293,15 +205,15 @@ export default function ParentDetailsScreen({
       />
 
       <ParentStatsRow
-        totalChildren={totalChildrenCount}
-        rating={parent.rating || '4.8'}
+        totalChildren={childrenList.length}
+        remainingSessions={totalRemaining}
         isRtl={isRtl}
       />
 
       <ParentOverviewBanner
         parent={parent}
         isRtl={isRtl}
-        childrenCount={childrenList.length > 0 ? childrenList.length : 1}
+        childrenCount={childrenList.length}
       />
 
       <ParentPersonalInfoSection
@@ -337,18 +249,7 @@ export default function ParentDetailsScreen({
         isSuspended={isSuspended}
         isSuspending={isSuspending}
         onToggleSuspend={handleToggleSuspend}
-        onOpenSendMessage={() => setShowMessageModal(true)}
       />
-
-      {showMessageModal && (
-        <SendMessageModal
-          parent={parent}
-          isRtl={isRtl}
-          t={t}
-          onClose={() => setShowMessageModal(false)}
-          onSend={onSendMessage}
-        />
-      )}
     </div>
   )
 }

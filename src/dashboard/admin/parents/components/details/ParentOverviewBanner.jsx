@@ -3,14 +3,14 @@ import { Users, Phone, Mail } from 'lucide-react'
 export default function ParentOverviewBanner({
   parent,
   isRtl = true,
-  childrenCount = 1,
+  childrenCount = 0,
 }) {
   const displayName = typeof parent?.name === 'object'
     ? (isRtl ? parent.name?.ar || parent.name?.en : parent.name?.en || parent.name?.ar)
-    : (parent?.name || (isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'))
+    : (parent?.name || '-')
 
-  const initialLetter = displayName ? displayName.trim().charAt(0) : 'خ'
-  const isActive = parent?.active !== false && parent?.status !== 'Expired' && parent?.status !== 'Suspended'
+  const initialLetter = displayName && displayName !== '-' ? displayName.trim().charAt(0) : '?'
+  const isActive = parent?.active !== false
   const imageSrc = parent?.profileImage || parent?.image || null
 
   return (
@@ -59,7 +59,7 @@ export default function ParentOverviewBanner({
                   {isRtl ? 'رقم الجوال' : 'Mobile'}:
                 </span>
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-mono" dir="ltr">
-                  {parent?.phone || '+966501234567'}
+                  {parent?.phone || '-'}
                 </span>
               </div>
 
@@ -68,8 +68,8 @@ export default function ParentOverviewBanner({
                 <span className="text-xs text-slate-400 font-medium">
                   {isRtl ? 'البريد الإلكتروني' : 'Email'}:
                 </span>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-mono" dir="ltr">
-                  {parent?.email || 'khalid@email.com'}
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-mono break-all" dir="ltr">
+                  {parent?.email || '-'}
                 </span>
               </div>
             </div>

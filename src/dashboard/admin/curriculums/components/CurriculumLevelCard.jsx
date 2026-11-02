@@ -18,6 +18,8 @@ export default function CurriculumLevelCard({
   onAddFile,
   onPreviewFile,
   onDownloadFile,
+  onEditFile,
+  onToggleFileVisibility,
   onDeleteFile,
   isRtl,
 }) {
@@ -185,6 +187,16 @@ export default function CurriculumLevelCard({
                                   isRtl={isRtl}
                                   onPreview={onPreviewFile}
                                   onDownload={onDownloadFile}
+                                  onEdit={
+                                    onEditFile
+                                      ? () => onEditFile(file, rawLevelId || levelId, rawUnitId || unitId)
+                                      : undefined
+                                  }
+                                  onToggleVisibility={
+                                    onToggleFileVisibility
+                                      ? (f, field) => onToggleFileVisibility(f, field, rawLevelId || levelId, rawUnitId || unitId)
+                                      : undefined
+                                  }
                                   onDelete={() =>
                                     onDeleteFile(file, rawLevelId || levelId, rawUnitId || unitId)
                                   }

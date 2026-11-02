@@ -9,11 +9,15 @@ import SelectField from './SelectField'
 import PackageImageUpload from './PackageImageUpload'
 import PackageFeaturesField from './PackageFeaturesField'
 import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
+import FamilyTiersField from './FamilyTiersField'
 import {
   EMPTY_PACKAGE,
+  PACKAGE_TYPES,
+  MIN_FAMILY_MEMBERS,
+  MAX_FAMILY_MEMBERS,
 } from './packages_constants'
 
-export default function PackageFormPanel({ isOpen, onClose, onSave, editingPackage, explanationLanguages = [], countries = [] }) {
+export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDiscount, editingPackage, explanationLanguages = [], countries = [] }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const p = (key) => t(`adminDashboard.packages.${key}`)
@@ -24,6 +28,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
 
   const [form, setForm] = useState(EMPTY_PACKAGE)
   const [saving, setSaving] = useState(false)
+  const [removingDiscount, setRemovingDiscount] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [imageFile, setImageFile] = useState(null)
   const [prevSyncKey, setPrevSyncKey] = useState({ isOpen, editingPackage })
@@ -43,6 +48,12 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
           sessions_language: validLanguage,
           features: editingPackage.features?.length ? [...editingPackage.features] : [''],
           features_en: editingPackage.features_en?.length ? [...editingPackage.features_en] : [''],
+          priceAfterDiscount: editingPackage.priceAfterDiscount ?? '',
+          maxMembers: editingPackage.maxMembers || MIN_FAMILY_MEMBERS,
+          familyTiers: (editingPackage.familyTiers || []).map((tier) => ({
+            membersCount: tier.membersCount,
+            pricePerPerson: tier.pricePerPerson,
+          })),
         })
         setImagePreview(editingPackage.image || null)
         setImageFile(null)
@@ -113,6 +124,33 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
       return
     }
 
+    if (!form.country) {
+      toast.error(isRtl ? 'الرجاء اختيار الدولة' : 'Please select a country')
+      return
+    }
+
+    const price = Number(form.price)
+    const hasDiscount = form.type !== 'family' && form.priceAfterDiscount !== '' && form.priceAfterDiscount !== null
+    if (hasDiscount && (Number(form.priceAfterDiscount) < 0 || Number(form.priceAfterDiscount) >= price)) {
+      toast.error(isRtl ? 'السعر بعد الخصم يجب أن يكون أقل من السعر الأصلي' : 'Discounted price must be lower than the original price')
+      return
+    }
+
+    if (form.type === 'family') {
+      const maxMembers = Number(form.maxMembers)
+      const invalidTier = form.familyTiers.find((tier) =>
+        Number(tier.membersCount) < MIN_FAMILY_MEMBERS ||
+        Number(tier.membersCount) > maxMembers ||
+        tier.pricePerPerson === '' || Number(tier.pricePerPerson) < 0
+      )
+      if (invalidTier) {
+        toast.error(isRtl
+          ? `تأكد من أن عدد الأفراد بين ${MIN_FAMILY_MEMBERS} و ${maxMembers} وأن سعر الفرد صحيح`
+          : `Members count must be between ${MIN_FAMILY_MEMBERS} and ${maxMembers} with a valid price per person`)
+        return
+      }
+    }
+
     const finalFeaturesEn = rawFeatures.map((feat, idx) => {
       const enVal = rawFeaturesEn[idx]
       return (enVal && enVal.trim().length >= 3) ? enVal.trim() : feat
@@ -121,7 +159,8 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
     setSaving(true)
     const cleaned = {
       ...form,
-      price: Number(form.price),
+      price,
+      priceAfterDiscount: hasDiscount ? Number(form.priceAfterDiscount) : null,
       sessions_per_month: Number(form.sessions_per_month),
       sessionDuration: Number(form.sessionDuration) || 60,
       features: rawFeatures,
@@ -131,6 +170,21 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
     await onSave(cleaned)
     setSaving(false)
   }
+
+  const handleRemoveDiscount = async () => {
+    setRemovingDiscount(true)
+    try {
+      const ok = await onRemoveDiscount(editingPackage.id)
+      if (ok) setField('priceAfterDiscount', '')
+    } finally {
+      setRemovingDiscount(false)
+    }
+  }
+
+  const discountPreview = form.price && form.priceAfterDiscount !== '' && Number(form.priceAfterDiscount) < Number(form.price)
+    ? Math.round((1 - Number(form.priceAfterDiscount) / Number(form.price)) * 10000) / 100
+    : null
+  const isFamily = form.type === 'family'
 
   return createPortal(
     <AnimatePresence>
@@ -172,7 +226,7 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 packageName={form.name || form.name_en}
               />
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="name" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('packageNameAr')}</label>
                   <input
@@ -197,6 +251,34 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                     dir="ltr"
                     className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
                   />
+                </div>
+              </div>
+
+              <div>
+                <span className="block text-xs font-medium text-slate-500 mb-1.5 text-start">
+                  {isRtl ? 'نوع الباقة' : 'Package type'}
+                </span>
+                <div className="grid grid-cols-2 gap-3" role="radiogroup">
+                  {PACKAGE_TYPES.map((type) => {
+                    const isSelected = form.type === type
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => {
+                          setField('type', type)
+                          if (type === 'family') setField('priceAfterDiscount', '')
+                        }}
+                        className={`py-2.5 rounded-xl text-sm font-semibold border transition-all ${isSelected
+                          ? 'bg-[#0f7a6c] border-[#0f7a6c] text-white'
+                          : 'bg-[#f3f7f6] dark:bg-slate-900/60 border-transparent text-slate-600 dark:text-slate-300 hover:border-[#0f7a6c]/30'}`}
+                      >
+                        {type === 'family' ? (isRtl ? 'باقة عائلية' : 'Family') : (isRtl ? 'باقة فردية' : 'Individual')}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -249,24 +331,90 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, editingPacka
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {!isFamily && (
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <label htmlFor="priceAfterDiscount" className="block text-xs font-medium text-slate-500 text-start">
+                      {isRtl ? 'السعر بعد الخصم (اختياري — عند وجود خصم فقط)' : 'Price after discount (optional — only if discounted)'}
+                    </label>
+                    {discountPreview !== null && (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 shrink-0">
+                        {isRtl ? `خصم ${discountPreview}%` : `${discountPreview}% off`}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      id="priceAfterDiscount"
+                      name="priceAfterDiscount"
+                      type="number"
+                      min="0"
+                      value={form.priceAfterDiscount ?? ''}
+                      onChange={(e) => setField('priceAfterDiscount', e.target.value)}
+                      placeholder={isRtl ? 'اتركه فارغاً إذا لا يوجد خصم' : 'Leave empty if there is no discount'}
+                      dir="ltr"
+                      className="flex-1 min-w-0 bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100"
+                    />
+                    {editingPackage?.priceAfterDiscount != null && onRemoveDiscount && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveDiscount}
+                        disabled={removingDiscount}
+                        className="shrink-0 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 border border-rose-200 hover:bg-rose-50 dark:border-rose-900/40 dark:hover:bg-rose-950/20 disabled:opacity-50 transition-colors"
+                      >
+                        {isRtl ? 'إلغاء الخصم' : 'Remove discount'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {isFamily && (
+                <div className="space-y-4 p-4 rounded-2xl border border-[#0f7a6c]/15 bg-[#0f7a6c]/[0.03]">
+                  <div>
+                    <span className="block text-xs font-medium text-slate-500 mb-1.5 text-start">
+                      {isRtl ? 'أقصى عدد للأفراد في الباقة' : 'Maximum members'}
+                    </span>
+                    <div className="grid grid-cols-4 gap-2" role="radiogroup">
+                      {Array.from({ length: MAX_FAMILY_MEMBERS - MIN_FAMILY_MEMBERS + 1 }, (_, i) => MIN_FAMILY_MEMBERS + i).map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          role="radio"
+                          aria-checked={Number(form.maxMembers) === n}
+                          onClick={() => {
+                            setField('maxMembers', n)
+                            setField('familyTiers', form.familyTiers.filter((tier) => Number(tier.membersCount) <= n))
+                          }}
+                          className={`py-2 rounded-xl text-sm font-bold border transition-all ${Number(form.maxMembers) === n
+                            ? 'bg-[#0f7a6c] border-[#0f7a6c] text-white'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <FamilyTiersField
+                    tiers={form.familyTiers}
+                    maxMembers={form.maxMembers}
+                    basePrice={form.price}
+                    onChange={(tiers) => setField('familyTiers', tiers)}
+                    isRtl={isRtl}
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <SelectField
                   id="country"
                   label={t('adminDashboard.packages.country', 'الدولة')}
                   value={form.country || ''}
                   onChange={(v) => setField('country', v)}
-                  options={[
-                    { value: '', label: t('adminDashboard.packages.allCountries', 'جميع الدول (عام)') },
-                    ...sortedCountries.map((c) => {
-                      const cid = c.id || c._id
-                      const name = getCountryName(c, isRtl)
-                      const flag = c.flag ? `${c.flag} ` : ''
-                      return {
-                        value: cid || name,
-                        label: `${flag}${name}`,
-                      }
-                    }),
-                  ]}
+                  options={sortedCountries.map((c) => ({
+                    value: c.id || c._id,
+                    label: `${c.flag ? `${c.flag} ` : ''}${getCountryName(c, isRtl)}`,
+                  }))}
                   placeholder={t('adminDashboard.packages.selectCountry', 'اختر الدولة')}
                 />
                 <SelectField

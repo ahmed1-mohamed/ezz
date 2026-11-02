@@ -1,302 +1,109 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Maximize2,
-  Mic,
-  MicOff,
-  Hand,
-  X,
-  Video,
-  MessageSquare,
-  Clock,
-  Users,
-  ArrowRight
-} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import api from '@/shared/services/api/axiosConfig';
-
-function SessionTimer() {
-  const [seconds, setSeconds] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const minutes = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  const formatted = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-  return (
-    <span className="font-mono text-sm font-bold text-slate-700 dark:text-slate-200">
-      {formatted}
-    </span>
-  );
-}
-
-function StatCard({ value, label, icon: Icon, bgColor, iconColor }) {
-  return (
-    <div className={`flex flex-col items-center justify-center rounded-2xl p-4 ${bgColor}`}>
-      <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{value}</span>
-        <Icon size={16} className={iconColor} />
-      </div>
-      <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-    </div>
-  );
-}
+import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
+import { showErrorToast } from '@/shared/utils/sweetAlert.js';
+import Spinner from '@/shared/components/Spinner.jsx';
+import StudentBeforeSessionView from './components/StudentBeforeSessionView.jsx';
+import StudentDuringSessionView from './components/StudentDuringSessionView.jsx';
 
 export default function StudentLive() {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const isRtl = i18n.language.startsWith('ar');
-  const [isMicOn, setIsMicOn] = useState(true);
-  const [isHandRaised, setIsHandRaised] = useState(false);
-  const [session, setSession] = useState(location.state?.session || null);
-  const [isLoading, setIsLoading] = useState(!location.state?.session);
-
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const initialSession = location.state?.session || null;
+  const [session, setSession] = useState(initialSession);
+  const [joinData, setJoinData] = useState(null);
+  const [stage, setStage] = useState('before');
+  const [isLoading, setIsLoading] = useState(!initialSession);
+  const [isJoining, setIsJoining] = useState(false);
   useEffect(() => {
-    if (session) return;
     let isMounted = true;
-    const fetchLiveSession = async () => {
+    async function loadNextSession() {
       try {
-        setIsLoading(true);
-        const res = await api.get('/api/v1/sessions/private', { params: { status: 'live' } });
-        const list = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+        if (!initialSession) {
+          setIsLoading(true);
+        }
+        const data = await studentPortalApi.fetchNextSession();
         if (isMounted) {
-          if (list.length > 0) {
-            setSession(list[0]);
-          } else {
+          if (data && (data.id || data._id || data.title)) {
+            setSession(data);
+          } else if (!initialSession) {
             setSession(null);
           }
         }
       } catch (err) {
-        console.error('Failed to fetch live session:', err);
+        console.error('Error fetching student next session:', err);
+        if (isMounted && !initialSession) {
+          setSession(null);
+        }
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
+    }
+    loadNextSession();
+    return () => {
+      isMounted = false;
     };
-
-    fetchLiveSession();
-    return () => { isMounted = false; };
-  }, [session]);
-
+  }, [initialSession]);
+  async function handleJoinSession(sess) {
+    const targetSession = sess || session;
+    const sid = targetSession?.id || targetSession?._id;
+    if (!sid) {
+      setStage('during');
+      return;
+    }
+    try {
+      setIsJoining(true);
+      const data = await studentPortalApi.joinSession(sid);
+      setJoinData(data);
+      setStage('during');
+    } catch (err) {
+      console.error('Error joining session:', err);
+      showErrorToast(t('studentDashboard.live.joinError', 'تعذر الاتصال ببيانات الحصة المباشرة، جاري محاولة الدخول المباشر...'));
+      setStage('during');
+    } finally {
+      setIsJoining(false);
+    }
+  }
+  function handleLeaveSession() {
+    setStage('before');
+    setJoinData(null);
+  }
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-6 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f7a6c]" />
+      <div className="min-h-screen bg-[#edf4f2] dark:bg-slate-950 p-6 flex justify-center items-center">
+        <Spinner />
       </div>
     );
   }
-
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-6 flex flex-col justify-center items-center text-center">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-md w-full shadow-sm border border-slate-100 dark:border-slate-700">
-          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-[#0f7a6c]">
-            <Video size={32} />
-          </div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-            {t('studentDashboard.live.noActiveSession', 'لا توجد حصة مباشرة نشطة حالياً')}
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-            {t('studentDashboard.live.checkSchedule', 'يرجى مراجعة جدول الحصص لمعرفة مواعيد البث القادمة')}
-          </p>
-          <button
-            onClick={() => navigate('/dashboard/student/schedule')}
-            className="w-full py-3 bg-[#0f7a6c] hover:bg-[#0c6156] text-white rounded-xl font-bold transition-colors text-sm flex items-center justify-center gap-2"
-          >
-            <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
-            <span>{t('studentDashboard.live.goToSchedule', 'الذهاب إلى الجدول')}</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const title = typeof session.title === 'object'
-    ? (isRtl ? session.title.ar : session.title.en)
-    : (session.title || session.className || t('studentDashboard.schedule.liveSession', 'حصة مباشرة'));
-  const teacher = typeof session.teacher === 'object'
-    ? (isRtl ? session.teacher.name?.ar || session.teacher.name : session.teacher.name?.en || session.teacher.name)
-    : (session.teacherName || session.teacher || '-');
-  const subject = typeof session.subject === 'object'
-    ? (isRtl ? session.subject.ar : session.subject.en)
-    : (session.subject || '-');
-
   return (
     <div
-      className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6"
+      className="min-h-screen bg-[#edf4f2] dark:bg-slate-950 p-4 sm:p-6"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="max-w-7xl mx-auto space-y-4"
+        className="max-w-6xl mx-auto space-y-6"
       >
-        <div className="bg-white dark:bg-slate-800 rounded-2xl px-5 py-3.5 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3">
-          <div className="text-end">
-            <h1 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">
-              {title}
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{teacher}</p>
-          </div>
-          <div className="flex items-center gap-2.5 shrink-0">
-            <SessionTimer />
-            <span className="flex items-center gap-1.5 bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              {t('studentDashboard.schedule.liveNow', 'مباشر الآن')}
-            </span>
-          </div>
-        </div>
-
-        <div className="relative bg-[#0d1f2d] rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: '16/9' }}>
-          <button className="absolute top-3 start-3 z-10 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors">
-            <Maximize2 size={16} className="text-white" />
-          </button>
-
-          <div className="absolute top-3 end-3 z-10">
-            <span className="flex items-center gap-1.5 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              {t('studentDashboard.schedule.liveNow', 'مباشر الآن')}
-            </span>
-          </div>
-
-          {session.liveUrl ? (
-            <iframe
-              src={session.liveUrl}
-              title="live-stream"
-              className="w-full h-full border-0"
-              allow="camera; microphone; fullscreen"
-              allowFullScreen
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full gap-3">
-              <div className="w-16 h-16 bg-[#0f7a6c] rounded-full flex items-center justify-center shadow-lg shadow-emerald-900/50">
-                <Video size={28} className="text-white" />
-              </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-base">{teacher}</p>
-                <p className="text-slate-400 text-xs mt-1">
-                  {t('studentDashboard.live.liveVideoStream', 'البث المباشر للمعلم')}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="absolute bottom-14 start-3 flex flex-col items-center gap-1">
-            <div className="w-16 h-12 bg-slate-700/80 rounded-xl flex items-center justify-center border border-slate-600/50">
-              <div className="w-8 h-8 bg-[#0f7a6c] rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">ط</span>
-              </div>
-            </div>
-            <span className="text-white text-[10px] font-medium">
-              {t('studentDashboard.live.you', 'أنت')}
-            </span>
-          </div>
-
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/dashboard/student/schedule')}
-                className="w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors shadow-md"
-              >
-                <X size={16} className="text-white" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsHandRaised(!isHandRaised)}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors shadow-md ${isHandRaised
-                  ? 'bg-amber-400 hover:bg-amber-500'
-                  : 'bg-white/20 hover:bg-white/30'
-                  }`}
-              >
-                <Hand size={16} className="text-white" />
-              </button>
-              <button
-                onClick={() => setIsMicOn(!isMicOn)}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors shadow-md ${isMicOn
-                  ? 'bg-white/20 hover:bg-white/30'
-                  : 'bg-red-500 hover:bg-red-600'
-                  }`}
-              >
-                {isMicOn
-                  ? <Mic size={16} className="text-white" />
-                  : <MicOff size={16} className="text-white" />
-                }
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-3">
-          <StatCard
-            value={session.messagesCount || session.messages || 0}
-            label={t('studentDashboard.live.messages', 'الرسائل')}
-            icon={MessageSquare}
-            bgColor="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
-            iconColor="text-slate-400"
+        {stage === 'before' ? (
+          <StudentBeforeSessionView
+            session={session}
+            onJoinSession={handleJoinSession}
+            isJoining={isJoining}
           />
-          <StatCard
-            value={session.raisedHands || 0}
-            label={t('studentDashboard.live.raiseHand', 'رفع اليد')}
-            icon={Hand}
-            bgColor="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/40"
-            iconColor="text-amber-500"
+        ) : (
+          <StudentDuringSessionView
+            session={session}
+            joinData={joinData}
+            onLeaveSession={handleLeaveSession}
           />
-          <StatCard
-            value={session.durationMinutes || session.duration || 60}
-            label={t('studentDashboard.recorded.duration', 'المدة')}
-            icon={Clock}
-            bgColor="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40"
-            iconColor="text-blue-500"
-          />
-          <StatCard
-            value={session.studentsCount || session.studentsPresent || 1}
-            label={t('studentDashboard.teachers.students', 'الطلاب')}
-            icon={Users}
-            bgColor="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
-            iconColor="text-slate-400"
-          />
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 rounded-2xl px-5 py-4 shadow-sm border border-slate-100 dark:border-slate-700">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 justify-end">
-            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-[#0f7a6c] shrink-0" />
-              <span className="font-medium text-slate-500 dark:text-slate-400">
-                {t('studentDashboard.live.topic', 'الموضوع')}:
-              </span>
-              <span className="font-bold text-slate-800 dark:text-slate-100">{subject}</span>
-            </div>
-            {(session.startTime || session.endTime) && (
-              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                {session.startTime && (
-                  <span>
-                    {t('studentDashboard.live.started', 'بدأت')}{' '}
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{session.startTime}</span>
-                  </span>
-                )}
-                {session.startTime && session.endTime && (
-                  <span className="text-slate-300 dark:text-slate-600">|</span>
-                )}
-                {session.endTime && (
-                  <span>
-                    {t('studentDashboard.live.ends', 'تنتهي')}{' '}
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{session.endTime}</span>
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </motion.div>
     </div>
   );

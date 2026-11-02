@@ -1,4 +1,4 @@
-import { useState, useCallback, Suspense } from 'react';
+﻿import { useState, Suspense } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,13 +16,13 @@ import {
   MessageSquare,
   User,
   BookOpen,
+  Library,
   LogOut,
   Menu,
   X,
   Globe,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
-import { setLanguage } from '@/i18n.js';
 
 export default function TeacherLayout() {
   const { user, logout } = useAuth();
@@ -40,11 +40,6 @@ export default function TeacherLayout() {
   })();
 
   const teacherInitial = teacherName ? teacherName.trim().charAt(0) : 'م';
-
-  const handleLanguageToggle = useCallback(() => {
-    const nextLang = isRtl ? 'en' : 'ar';
-    setLanguage(nextLang);
-  }, [isRtl]);
 
   const navItems = [
     {
@@ -97,6 +92,11 @@ export default function TeacherLayout() {
       path: '/dashboard/teacher/earnings',
       icon: DollarSign,
       label: t('teacher.navEarnings', 'الأرباح'),
+    },
+    {
+      path: '/dashboard/teacher/curricula',
+      icon: Library,
+      label: t('teacher.navCurricula', '\u0627\u0644\u0645\u0646\u0627\u0647\u062c \u0648\u0627\u0644\u0645\u0635\u0627\u062f\u0631'),
     },
     {
       path: '/dashboard/teacher/withdrawals',
@@ -186,14 +186,6 @@ export default function TeacherLayout() {
           </nav>
 
           <div className="p-4 space-y-3 shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <button
-              onClick={handleLanguageToggle}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-            >
-              <Globe size={15} />
-              <span>{isRtl ? 'English' : 'العربية'}</span>
-            </button>
-
             <Link
               to="/dashboard/teacher/profile"
               className="flex items-center justify-start gap-3 px-1 hover:opacity-80 transition-opacity"
@@ -236,13 +228,6 @@ export default function TeacherLayout() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleLanguageToggle}
-              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold"
-            >
-              <Globe size={16} />
-            </button>
-
             <Link
               to="/dashboard/teacher/profile"
               className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs overflow-hidden shadow-xs shrink-0"

@@ -120,6 +120,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     startDate: safeExtractDateString(group?.startDate),
     endDate: safeExtractDateString(group?.endDate),
     image: group?.image || null,
+    imageFile: null,
   })
 
   const [schedule, setSchedule] = useState(() => {
@@ -146,6 +147,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
         startDate: safeExtractDateString(group.startDate),
         endDate: safeExtractDateString(group.endDate),
         image: group.image || null,
+        imageFile: null,
       })
       setSchedule(normalizeScheduleList(group.weeklySchedule || group.schedule))
     }
@@ -170,7 +172,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           landingApi.fetchCountries(),
           adminCurriculaApi.fetchCurricula(),
           adminLevelsApi.fetchLevels(),
-          teachersApi.fetchTeachers({ limit: 100 }),
+          teachersApi.fetchTeachersList(),
           explanationLanguagesApi.fetchLanguages(),
         ])
 
@@ -229,10 +231,17 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0]
+    e.target.value = ''
     if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = () => handleChange('image', reader.result)
-    reader.readAsDataURL(file)
+    if (!file.type.startsWith('image/')) {
+      showErrorToast(t('adminDashboard.groups.imageTypeError', 'الرجاء اختيار ملف صورة صالح'), isRtlResolved)
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showErrorToast(t('adminDashboard.groups.imageSizeError', 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت'), isRtlResolved)
+      return
+    }
+    setFormData((prev) => ({ ...prev, image: URL.createObjectURL(file), imageFile: file }))
   }
 
   const handleAddSchedule = () => {
@@ -330,6 +339,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       ...(formData.startDate ? { startDate: formData.startDate } : {}),
       ...(formData.endDate ? { endDate: formData.endDate } : {}),
       ...(group && { status: formData.status || 'active' }),
+      ...(formData.imageFile ? { imageFile: formData.imageFile } : {}),
     }
 
     onSave(payload)

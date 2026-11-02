@@ -19,9 +19,7 @@ const queryClient = new QueryClient({
       refetchOnReconnect: false,
       retry: (failureCount, error) => {
         const status = error?.response?.status;
-        if (status === 429 || status === 401 || status === 403 || status === 404) {
-          return false;
-        }
+        if (status && status >= 400 && status < 500) return false;
         return failureCount < 1;
       },
     },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Video, Clock, Users, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { Video, Clock, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherUpcomingSessionsList({ upcomingSessions }) {
@@ -45,18 +45,11 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
                 </div>
               </div>
 
-              {/* Middle details: Time & Students & Relative Pill */}
+              {/* Middle details: time and relative pill */}
               <div className="hidden sm:flex items-center gap-3 md:gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                 <div className="flex items-center gap-1.5 font-mono">
                   <Clock size={13} className="text-slate-400" />
                   <span>{session.timeStr}</span>
-                </div>
-
-                <span className="text-slate-300 dark:text-slate-700">·</span>
-
-                <div className="flex items-center gap-1.5">
-                  <Users size={13} className="text-slate-400" />
-                  <span>{session.studentsCount || 0} {t('teacherDashboard.students', 'طلاب')}</span>
                 </div>
 
                 {session.relativeBadge && (

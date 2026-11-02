@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import StatCard from '../components/StatCard';
-import SubscriptionRenewal from '../components/SubscriptionRenewal';
+
 import {
   BookOpen,
   TrendingUp,
@@ -319,7 +319,7 @@ export default function ParentChildren() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <SubscriptionRenewal currentPackageName={child.package} remainingClasses={child.remainingClasses} />
+
       </motion.div>
 
     </motion.div>

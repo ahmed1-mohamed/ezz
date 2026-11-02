@@ -188,21 +188,26 @@ export default function GroupInfoCard({
       return specs.some(matchesItem) || currs.some(matchesItem) || subjects.some(matchesItem)
     })
 
-    return teachingThisCurriculum
+    return teachingThisCurriculum.length > 0 ? teachingThisCurriculum : (activeTeachers.length > 0 ? activeTeachers : resolvedTeachers)
   }, [resolvedTeachers, formData.curriculum, resolvedCurricula])
 
   const teacherOptions = useMemo(() => {
-    return filteredTeachers.map((tch) => {
+    const list = [...filteredTeachers]
+    if (formData.teacher && !list.some((tch) => String(tch.id || tch.teacher_id || tch._id) === String(formData.teacher))) {
+      const currentTch = resolvedTeachers.find((tch) => String(tch.id || tch.teacher_id || tch._id) === String(formData.teacher))
+      if (currentTch) list.unshift(currentTch)
+    }
+    return list.map((tch) => {
       const id = tch.id || tch.teacher_id || tch._id
-      const name = typeof tch.name === 'object'
+      const name = typeof tch.name === 'object' && tch.name !== null
         ? (isRtl ? (tch.name.ar || tch.name.en) : (tch.name.en || tch.name.ar))
-        : (tch.displayName || tch.name || '')
+        : (tch.displayName || tch.name || tch.nameAr || tch.nameEn || '')
       return {
         value: id,
         label: name || id,
       }
     })
-  }, [filteredTeachers, isRtl])
+  }, [filteredTeachers, resolvedTeachers, formData.teacher, isRtl])
 
   const languageOptions = useMemo(() => {
     if (resolvedLanguages.length > 0) {
@@ -375,6 +380,7 @@ export default function GroupInfoCard({
           placeholder={isLoadingEndpoints && curriculumOptions.length === 0 ? t('common.loading', 'جاري التحميل...') : t('adminDashboard.groups.curriculumPlaceholder', 'اختر المنهج الدراسي')}
           isRtl={isRtl}
           error={errors.curriculum}
+          disabled={isEditing}
           required
         />
       </div>
@@ -388,6 +394,7 @@ export default function GroupInfoCard({
           placeholder={isLoadingEndpoints && levelOptions.length === 0 ? t('common.loading', 'جاري التحميل...') : t('adminDashboard.groups.studentLevelPlaceholder', 'اختر المستوى')}
           isRtl={isRtl}
           error={errors.studentLevel}
+          disabled={isEditing}
           required
         />
 
@@ -406,12 +413,13 @@ export default function GroupInfoCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <SelectField
           label={t('adminDashboard.groups.groupType', 'نوع المجموعة')}
-          value={formData.type || 'group'}
+          value={formData.type || 'public'}
           onChange={(val) => handleChange('type', val)}
           options={typeOptions}
           placeholder={t('adminDashboard.groups.typePlaceholder', 'عامة')}
           isRtl={isRtl}
           error={errors.type}
+          disabled={isEditing}
           required
         />
 
@@ -423,6 +431,7 @@ export default function GroupInfoCard({
           placeholder={isLoadingEndpoints && languageOptions.length === 0 ? t('common.loading', 'جاري التحميل...') : t('adminDashboard.groups.language', 'اللغة')}
           isRtl={isRtl}
           error={errors.language}
+          disabled={isEditing}
           required
         />
       </div>
@@ -478,7 +487,8 @@ export default function GroupInfoCard({
             onChange={(val) => handleChange('status', val)}
             options={[
               { value: 'active', label: t('adminDashboard.groups.status.active', 'نشط') },
-              { value: 'suspended', label: t('adminDashboard.groups.status.suspended', 'متوقف') },
+              { value: 'pending', label: isRtl ? 'قيد الانتظار' : 'Pending' },
+              { value: 'stopped', label: t('adminDashboard.groups.status.suspended', 'متوقف') },
               { value: 'completed', label: t('adminDashboard.groups.status.completed', 'مكتمل') },
             ]}
             isRtl={isRtl}

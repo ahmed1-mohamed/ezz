@@ -1,110 +1,58 @@
 import api from './axiosConfig';
 
+// Fields accepted by POST/PATCH /parents (multipart):
+// name[ar], name[en], email, phone (international, e.g. +971501234567), country, password, confirmPassword, image
+const buildParentFormData = (data = {}) => {
+  const fd = new FormData();
+  if (data.name?.ar) fd.append('name[ar]', data.name.ar);
+  if (data.name?.en) fd.append('name[en]', data.name.en);
+  ['email', 'phone', 'country', 'password', 'confirmPassword'].forEach((key) => {
+    if (data[key]) fd.append(key, data[key]);
+  });
+  if (data.imageFile instanceof File) fd.append('image', data.imageFile);
+  return fd;
+};
 
 export const adminParentsApi = {
-  fetchParents: async () => {
-    try {
-      const response = await api.get('/api/v1/parents/localized/all');
-      return response.data;
-    } catch (error) {
-      console.error('API fetchParents failed:', error);
-      throw error;
-    }
+  fetchParents: async (params = {}) => {
+    const response = await api.get('/api/v1/parents/localized/all', { params: { limit: 1000, ...params } });
+    return response.data;
   },
 
+  // Raw record: bilingual name { ar, en }, phone, email, user_id, country ("<flag> <name>")
   fetchParentById: async (id) => {
-    try {
-      const response = await api.get(`/api/v1/parents/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('API fetchParentById failed:', error);
-      throw error;
-    }
+    const response = await api.get(`/api/v1/parents/${id}`, { skipCache: true });
+    return response.data;
   },
 
   createParent: async (parentData) => {
-    try {
-      const response = await api.post('/api/v1/parents', parentData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('API createParent failed:', error);
-      throw error;
-    }
+    const response = await api.post('/api/v1/parents', buildParentFormData(parentData), {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
   updateParent: async (id, parentData) => {
-    try {
-      const isFormData = parentData instanceof FormData;
-      let body = parentData;
-      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
-      if (isFormData && body && typeof body.delete === 'function') {
-        body.delete('id');
-      }
-
-      if (!isFormData && typeof parentData === 'object' && parentData !== null) {
-        body = { ...parentData };
-        const keysToRemove = [
-          'id', '_id', 'parent_id', 'user_id', 'userId',
-          'createdAt', 'updatedAt', '__v',
-          'phonePrefix', 'profileImage', 'profileImageFile', 'image', 'photo', 'photoUrl'
-        ];
-        keysToRemove.forEach((k) => delete body[k]);
-        if (body.email === '' || body.email === undefined) {
-          delete body.email;
-        }
-        if (body.password === '********' || !body.password) {
-          delete body.password;
-          delete body.confirmPassword;
-        }
-      }
-
-      const response = await api.patch(`/api/v1/parents/${id}`, body, { headers });
-      return response.data;
-    } catch (error) {
-      console.error('API updateParent failed:', error);
-      throw error;
-    }
+    const response = await api.patch(`/api/v1/parents/${id}`, buildParentFormData(parentData), {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
-  changeParentPassword: async (userId, data) => {
-    try {
-      const response = await api.patch(`/api/v1/users/${userId}/change-password`, data);
-      return response.data;
-    } catch (error) {
-      console.error('API changeParentPassword failed:', error);
-      throw error;
-    }
+  // PATCH /users/:userId/change-password { password, confirmPassword }
+  changeParentPassword: async (userId, { password, confirmPassword }) => {
+    const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
+    return response.data;
+  },
+
+  // PATCH /users/:userId/toggle-active
+  toggleParentActive: async (userId) => {
+    const response = await api.patch(`/api/v1/users/${userId}/toggle-active`);
+    return response.data;
   },
 
   deleteParent: async (id) => {
-    try {
-      const response = await api.delete(`/api/v1/parents/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('API deleteParent failed:', error);
-      throw error;
-    }
-  },
-
-  sendMessage: async (parentId, message) => {
-    try {
-      const response = await api.post(`/api/v1/parents/${parentId}/message`, { message });
-      return response.data;
-    } catch (error) {
-      console.error('API sendMessage failed:', error);
-      throw error;
-    }
-  },
-
-  suspendParent: async (parentId) => {
-    try {
-      const response = await api.post(`/api/v1/parents/${parentId}/suspend`);
-      return response.data;
-    } catch (error) {
-      console.error('API suspendParent failed:', error);
-      throw error;
-    }
+    const response = await api.delete(`/api/v1/parents/${id}`);
+    return response.data;
   },
 };

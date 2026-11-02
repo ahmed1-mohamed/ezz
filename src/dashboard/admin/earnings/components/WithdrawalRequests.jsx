@@ -82,16 +82,14 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
                     <div className="text-slate-700 dark:text-slate-300 font-medium">
                       {req.bank}
                     </div>
-
-                    ؤ                    <div className="text-slate-500 dark:text-slate-400 text-xs font-mono">
+                    <div className="text-slate-500 dark:text-slate-400 text-xs font-mono">
                       {req.accountNumber}
                     </div>
 
                     <div className="text-slate-500 dark:text-slate-400 text-xs">
                       {req.date}
                     </div>
-
-                    ؤ                    <div>
+                    <div>
                       {req.status === 'pending' ? (
                         <span className="inline-flex px-3 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 rounded-full text-xs font-semibold">
                           {p('statusPending')}
@@ -106,8 +104,7 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
                         </span>
                       )}
                     </div>
-
-                    ؤ                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-2">
                       {req.status === 'pending' ? (
                         <>
                           <button
@@ -151,15 +148,13 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
                       )}
                     </div>
                   </div>
-
-                  ؤ                  {isExpanded && (
+                  {isExpanded && (
                     <div className="bg-[#f0f7f6] dark:bg-slate-900/60 p-6 border-t border-slate-100 dark:border-slate-800 transition-all flex flex-col items-center">
                       <div className="w-full max-w-lg space-y-4">
                         <h4 className="font-bold text-slate-800 dark:text-white text-sm text-end">
                           {p('uploadProofTitle')}
                         </h4>
-
-                        ؤ                        <label className="block cursor-pointer">
+                        <label className="block cursor-pointer">
                           <div className="w-full h-36 rounded-2xl border-2 border-dashed border-[#0f7a6c]/20 hover:border-[#0f7a6c]/50 bg-white dark:bg-slate-950 flex flex-col items-center justify-center gap-2 overflow-hidden transition-colors">
                             {imagePreview ? (
                               <img
@@ -183,8 +178,7 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
                             onChange={handleFileChange}
                           />
                         </label>
-
-                        ؤ                        <div className="flex gap-3 justify-end">
+                        <div className="flex gap-3 justify-end">
                           <button
                             onClick={() => setExpandedId(null)}
                             className="px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 transition-colors"

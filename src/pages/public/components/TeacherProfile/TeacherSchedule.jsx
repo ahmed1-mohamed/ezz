@@ -8,37 +8,37 @@ export default function TeacherSchedule({ schedule = [], t }) {
         <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 mt-6"
+            className="w-full bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800 mt-6 transition-colors"
         >
-            <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+            <div className="flex justify-between items-center mb-8 border-b border-slate-100 dark:border-slate-800 pb-4">
                 <div className="flex items-center gap-3">
-                    <div className="bg-[#FFFDF5] p-2 rounded-xl text-[#9B7B16]">
+                    <div className="bg-[#FFFDF5] dark:bg-amber-950/40 p-2 rounded-xl text-[#9B7B16] dark:text-amber-400">
                         <Calendar className="w-5 h-5" />
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                         {t('teacherProfile.scheduleTitle', 'الجدول الدراسي اليومي')}
                     </h2>
                 </div>
-                <div className="bg-[#E5ECEB] p-2 rounded-xl text-[#00695C]">
+                <div className="bg-[#E5ECEB] dark:bg-emerald-950/40 p-2 rounded-xl text-[#00695C] dark:text-emerald-400">
                     <Calendar className="w-5 h-5" />
                 </div>
             </div>
 
             <div className="space-y-4">
                 {list.map((item, index) => (
-                    <div key={index} className="flex flex-col sm:flex-row items-center justify-between border border-slate-100 rounded-2xl p-4 sm:p-6 gap-6 hover:shadow-md transition-shadow">
+                    <div key={index} className="flex flex-col sm:flex-row items-center justify-between border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-6 gap-6 hover:shadow-md transition-all bg-white dark:bg-slate-900/60">
 
                         <div className="order-3 sm:order-1 sm:w-32 flex sm:justify-start justify-center w-full">
-                            <span className="bg-slate-50 text-slate-400 font-bold px-6 py-2 rounded-xl text-sm border border-slate-100">
+                            <span className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-6 py-2 rounded-xl text-sm border border-slate-100 dark:border-slate-700">
                                 {item.status}
                             </span>
                         </div>
 
                         <div className="order-2 flex-1 text-center sm:text-start space-y-2 w-full">
-                            <h3 className="font-extrabold text-slate-900 text-lg">
+                            <h3 className="font-extrabold text-slate-900 dark:text-white text-lg">
                                 {item.title}
                             </h3>
-                            <div className="flex items-center justify-center sm:justify-start gap-4 text-slate-500 text-sm font-medium">
+                            <div className="flex items-center justify-center sm:justify-start gap-4 text-slate-500 dark:text-slate-400 text-sm font-medium">
                                 <div className="flex items-center gap-1.5">
                                     <span>{item.group}</span>
                                     <Users className="w-4 h-4" />
@@ -50,9 +50,9 @@ export default function TeacherSchedule({ schedule = [], t }) {
                             </div>
                         </div>
 
-                        <div className="order-1 sm:order-3 bg-[#F2F2F2] rounded-2xl p-4 flex flex-col items-center justify-center min-w-[120px]">
-                            <span className="font-extrabold text-slate-700 text-xl" dir="ltr">{item.time}</span>
-                            <span className="text-slate-500 font-bold text-sm mt-1">{item.period}</span>
+                        <div className="order-1 sm:order-3 bg-[#F2F2F2] dark:bg-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[120px]">
+                            <span className="font-extrabold text-slate-700 dark:text-slate-200 text-xl" dir="ltr">{item.time}</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-bold text-sm mt-1">{item.period}</span>
                         </div>
 
                     </div>

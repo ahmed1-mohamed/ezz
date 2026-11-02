@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { Image as ImageIcon, ChevronDown } from 'lucide-react'
-import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
+import { toast } from 'react-hot-toast'
+import { sortCountries, getCountryName, fetchCountries, DEFAULT_DIAL_CODE } from '@/shared/utils/countryUtils'
 
 export default function TeacherPersonalInfoCard({
   formData,
@@ -83,10 +84,14 @@ export default function TeacherPersonalInfoCard({
 
   const selectedCountry = useMemo(() => {
     if (userSelectedCountry) return userSelectedCountry
-    if (parsedCountry) return parsedCountry
     if (activeCountries.length === 0) return null
-    return activeCountries[0]
-  }, [userSelectedCountry, parsedCountry, activeCountries])
+    const byCountryId = formData.country ? activeCountries.find(c => c.id === formData.country) : null
+    if (parsedCountry) {
+      // Several countries share a dial code (e.g. +1); prefer the teacher's saved country when it matches.
+      return byCountryId && byCountryId.code === parsedCountry.code ? byCountryId : parsedCountry
+    }
+    return byCountryId || activeCountries.find(c => c.code === DEFAULT_DIAL_CODE) || activeCountries[0]
+  }, [userSelectedCountry, parsedCountry, activeCountries, formData.country])
 
   const onChangeRef = useRef(onChange)
   useEffect(() => {
@@ -94,17 +99,17 @@ export default function TeacherPersonalInfoCard({
   })
 
   useEffect(() => {
-    if (activeCountries.length > 0 && !formData.country && selectedCountry?.name) {
-      onChangeRef.current('country', getCountryName(selectedCountry, isRtl))
+    if (activeCountries.length > 0 && !formData.country && selectedCountry?.id) {
+      onChangeRef.current('country', selectedCountry.id)
     }
-  }, [activeCountries, formData.country, selectedCountry, isRtl])
+  }, [activeCountries, formData.country, selectedCountry])
 
   const phoneNumberOnly = parsedPhone
 
   const handlePhoneNumChange = (value) => {
     const cleanVal = value.replace(/[^\d]/g, '')
     if (selectedCountry?.code) {
-      onChange('phone', `${selectedCountry.code} ${cleanVal}`.trim())
+      onChange('phone', cleanVal ? `${selectedCountry.code}${cleanVal.replace(/^0+/, '')}` : '')
     } else {
       onChange('phone', cleanVal)
     }
@@ -113,8 +118,8 @@ export default function TeacherPersonalInfoCard({
   const selectCountryCode = (country) => {
     setUserSelectedCountry(country)
     setIsDropdownOpen(false)
-    onChange('country', getCountryName(country, isRtl))
-    onChange('phone', `${country.code} ${phoneNumberOnly}`.trim())
+    onChange('country', country.id)
+    onChange('phone', phoneNumberOnly ? `${country.code}${phoneNumberOnly}` : '')
   }
 
   return (
@@ -147,15 +152,14 @@ export default function TeacherPersonalInfoCard({
             className="hidden"
             onChange={(e) => {
               const file = e.target.files[0]
-              if (file) {
-                onChange('profileImageFile', file)
-                onChange('image', file)
-                const reader = new FileReader()
-                reader.onloadend = () => {
-                  onChange('profileImage', reader.result)
-                }
-                reader.readAsDataURL(file)
+              e.target.value = ''
+              if (!file) return
+              if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
+                toast.error(isRtl ? 'الرجاء اختيار صورة صالحة بحجم لا يتجاوز 5 ميجابايت' : 'Please choose a valid image up to 5MB')
+                return
               }
+              onChange('profileImageFile', file)
+              onChange('profileImage', URL.createObjectURL(file))
             }}
           />
         </label>
@@ -182,7 +186,7 @@ export default function TeacherPersonalInfoCard({
 
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            Full Name
+            {isRtl ? 'الاسم بالإنجليزية' : 'Name in English'}
           </label>
           <input
             type="text"
@@ -255,7 +259,7 @@ export default function TeacherPersonalInfoCard({
               value={phoneNumberOnly}
               onChange={(e) => handlePhoneNumChange(e.target.value)}
               className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 text-start"
-              placeholder="+0201012345678"
+              placeholder="501234567"
             />
           </div>
         </div>

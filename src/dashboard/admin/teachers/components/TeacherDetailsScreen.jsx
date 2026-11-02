@@ -1,14 +1,16 @@
 import { useState, lazy, Suspense } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, ArrowLeft, Pencil } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Pencil, KeyRound } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
 import TeacherDetailsHeaderCard from './details/TeacherDetailsHeaderCard'
 import TeacherDetailsPersonalInfoCard from './details/TeacherDetailsPersonalInfoCard'
 import TeacherDetailsAcademicCard from './details/TeacherDetailsAcademicCard'
  import TeacherDetailsCertificatesCard from './details/TeacherDetailsCertificatesCard'
 import TeacherDetailsWebsiteCard from './details/TeacherDetailsWebsiteCard'
+import TeacherDetailsAvailabilityCard from './details/TeacherDetailsAvailabilityCard'
 import UpdateHourlyRateModal from './details/UpdateHourlyRateModal'
 import ChangeTeacherPasswordModal from './details/ChangeTeacherPasswordModal'
 import AddCertificateModal from './details/AddCertificateModal'
@@ -102,7 +104,7 @@ export default function TeacherDetailsScreen({
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-       <div className="flex items-center justify-between gap-4">
+       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {onCancel && (
             <button
@@ -119,16 +121,26 @@ export default function TeacherDetailsScreen({
           </h1>
         </div>
 
-        {onEdit && (
+        <div className="flex flex-wrap items-center justify-end gap-2.5">
           <button
             type="button"
-            onClick={() => onEdit(currentTeacher)}
-            className="flex items-center gap-2 px-6 py-3 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl text-sm transition-all shadow-md shadow-[#005953]/15 active:scale-95 cursor-pointer"
+            onClick={() => setIsPasswordModalOpen(true)}
+            className="flex items-center gap-2 px-4 sm:px-5 py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-[#005953] dark:text-emerald-400 border border-[#005953]/20 font-bold rounded-2xl text-sm transition-all active:scale-95 cursor-pointer"
           >
-            <Pencil size={16} />
-            <span>{isRtl ? 'تعديل البيانات' : 'Edit Profile'}</span>
+            <KeyRound size={16} />
+            <span>{isRtl ? 'تغيير كلمة المرور' : 'Change Password'}</span>
           </button>
-        )}
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(currentTeacher)}
+              className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl text-sm transition-all shadow-md shadow-[#005953]/15 active:scale-95 cursor-pointer"
+            >
+              <Pencil size={16} />
+              <span>{isRtl ? 'تعديل البيانات' : 'Edit Profile'}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {isLoading && (
@@ -148,6 +160,11 @@ export default function TeacherDetailsScreen({
         isRtl={isRtl}
       />
 
+       <TeacherDetailsAvailabilityCard
+        teacher={currentTeacher}
+        isRtl={isRtl}
+      />
+
        <TeacherDetailsAcademicCard
         teacher={currentTeacher}
         isRtl={isRtl}
@@ -163,7 +180,7 @@ export default function TeacherDetailsScreen({
           }
           teachersApi.updateTeacher(teacherId, { achievements: updated })
             .then(handleRefetchTeacher)
-            .catch(() => {})
+            .catch((err) => toast.error(getApiErrorText(err, isRtl ? 'تعذر حذف الإنجاز' : 'Failed to delete achievement')))
         }}
       />
 

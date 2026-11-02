@@ -1,4 +1,4 @@
-import { ExternalLink, Eye, Download, Trash2 } from 'lucide-react'
+import { ExternalLink, Eye, Download, Trash2, Pencil, Users, GraduationCap } from 'lucide-react'
 import { getFileMeta } from '../utils/curriculumDetailsUtils.js'
 
 export default function CurriculumFileItem({
@@ -6,6 +6,8 @@ export default function CurriculumFileItem({
   isRtl,
   onPreview,
   onDownload,
+  onEdit,
+  onToggleVisibility,
   onDelete,
 }) {
   const fileName =
@@ -15,6 +17,23 @@ export default function CurriculumFileItem({
 
   const meta = getFileMeta(file, isRtl)
   const MetaIcon = meta.icon
+
+  const isVisibleToStudents = file?.showToStudents !== false
+  const isVisibleToTeachers = file?.showToTeachers !== false
+
+  const handleToggleStudents = (e) => {
+    e.stopPropagation()
+    if (onToggleVisibility) {
+      onToggleVisibility(file, 'showToStudents')
+    }
+  }
+
+  const handleToggleTeachers = (e) => {
+    e.stopPropagation()
+    if (onToggleVisibility) {
+      onToggleVisibility(file, 'showToTeachers')
+    }
+  }
 
   return (
     <div
@@ -60,13 +79,62 @@ export default function CurriculumFileItem({
           </div>
         )}
 
-        <div className="overflow-hidden min-w-0 text-start">
+        <div className="overflow-hidden min-w-0 text-start space-y-1">
           <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
             {fileName}
           </p>
-          <span className="text-[10px] font-semibold text-slate-400 block mt-0.5">
-            {meta.type}
-          </span>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-semibold text-slate-400">
+              {meta.type}
+            </span>
+
+            {/* Student visibility flag badge */}
+            <button
+              type="button"
+              onClick={handleToggleStudents}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all cursor-pointer ${
+                isVisibleToStudents
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200 line-through'
+              }`}
+              title={
+                isRtl
+                  ? isVisibleToStudents
+                    ? 'يظهر للطلاب (انقر لتغيير الحالة)'
+                    : 'مخفي عن الطلاب (انقر لتغيير الحالة)'
+                  : isVisibleToStudents
+                  ? 'Visible to students (click to toggle)'
+                  : 'Hidden from students (click to toggle)'
+              }
+            >
+              <Users size={11} className={isVisibleToStudents ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'} />
+              <span>{isRtl ? 'الطلاب' : 'Students'}</span>
+            </button>
+
+            {/* Teacher visibility flag badge */}
+            <button
+              type="button"
+              onClick={handleToggleTeachers}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all cursor-pointer ${
+                isVisibleToTeachers
+                  ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200 line-through'
+              }`}
+              title={
+                isRtl
+                  ? isVisibleToTeachers
+                    ? 'يظهر للمعلمين (انقر لتغيير الحالة)'
+                    : 'مخفي عن المعلمين (انقر لتغيير الحالة)'
+                  : isVisibleToTeachers
+                  ? 'Visible to teachers (click to toggle)'
+                  : 'Hidden from teachers (click to toggle)'
+              }
+            >
+              <GraduationCap size={11} className={isVisibleToTeachers ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'} />
+              <span>{isRtl ? 'المعلمين' : 'Teachers'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -102,6 +170,20 @@ export default function CurriculumFileItem({
             title={isRtl ? 'تحميل الملف' : 'Download File'}
           >
             <Download size={15} />
+          </button>
+        )}
+
+        {onEdit && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit(file)
+            }}
+            className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl transition-all cursor-pointer"
+            title={isRtl ? 'تعديل الملف والصلاحيات' : 'Edit file & permissions'}
+          >
+            <Pencil size={15} />
           </button>
         )}
 

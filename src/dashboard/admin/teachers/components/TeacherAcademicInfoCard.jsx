@@ -1,63 +1,17 @@
 import { useState } from 'react'
-import { Trash2, ChevronDown, Loader2 } from 'lucide-react'
-import { toast } from 'react-hot-toast'
-import { teachersApi } from '@/shared/services/api/teachersApi'
+import { Trash2, Check } from 'lucide-react'
 
-const fallbackSubjects = [
-  'القرآن الكريم',
-  'التجويد والقراءات',
-  'اللغة العربية',
-  'الدراسات الإسلامية',
-  'القاعدة النورانية'
-]
+const getCurriculumId = (c) => (typeof c === 'object' && c !== null ? (c.id || c._id) : c)
 
 export default function TeacherAcademicInfoCard({
   formData,
   onChange,
   isRtl = true,
   curricula = [],
-  teacher = null,
   isEdit = false
 }) {
   const [newAchAr, setNewAchAr] = useState('')
   const [newAchEn, setNewAchEn] = useState('')
-  const [isUpdatingRate, setIsUpdatingRate] = useState(false)
-
-  const isEditMode = isEdit || Boolean(teacher?.id || teacher?.teacher_id || teacher?._id)
-
-  const handleUpdateHourlyRate = async () => {
-    const rawVal = formData.hourlyRate
-    if (rawVal === '' || rawVal === null || rawVal === undefined) {
-      toast.error(isRtl ? 'الرجاء إدخال سعر الساعة' : 'Please enter hourly rate')
-      return
-    }
-
-    const rateNumber = Math.max(0, Number(rawVal) || 0)
-    const teacherId = teacher?.teacher_id || teacher?.id || teacher?._id
-
-    if (!teacherId) {
-      toast.error(isRtl ? 'تعذر تحديد معرّف المعلم' : 'Could not resolve teacher ID')
-      return
-    }
-
-    setIsUpdatingRate(true)
-    try {
-      await teachersApi.updateTeacherHourlyRate(teacherId, rateNumber)
-      toast.success(
-        isRtl
-          ? `تم تحديث سعر الساعة بنجاح إلى ${rateNumber} $`
-          : `Hourly rate updated successfully to ${rateNumber} $`
-      )
-    } catch (err) {
-      const msg = err.response?.data?.message
-      const errorText = Array.isArray(msg)
-        ? msg.join(' - ')
-        : (msg || (isRtl ? 'حدث خطأ أثناء تحديث سعر الساعة' : 'Failed to update hourly rate'))
-      toast.error(errorText)
-    } finally {
-      setIsUpdatingRate(false)
-    }
-  }
 
   const handleAddAchievement = (e) => {
     e?.preventDefault?.()
@@ -134,26 +88,16 @@ export default function TeacherAcademicInfoCard({
         })()
       : [])
 
-  const selectedSpecId = Array.isArray(formData.specializations) && formData.specializations.length > 0
-    ? (typeof formData.specializations[0] === 'object' ? (formData.specializations[0].id || formData.specializations[0]._id) : formData.specializations[0])
-    : ''
+  // Curricula taught (sent as specializations: string[] of curriculum IDs)
+  const selectedSpecIds = (Array.isArray(formData.specializations) ? formData.specializations : [])
+    .map(getCurriculumId)
+    .filter(Boolean)
 
-  const handleSelectCurriculum = (e) => {
-    const value = e.target.value
-    if (!value) return
-
-    const matchedCurriculum = curricula.find(c => (c.id || c._id) === value)
-    if (matchedCurriculum) {
-      const cId = matchedCurriculum.id || matchedCurriculum._id
-      const cName = typeof matchedCurriculum.name === 'object'
-        ? (matchedCurriculum.name.ar || matchedCurriculum.name.en)
-        : matchedCurriculum.name
-
-      onChange('specializations', [cId])
-      onChange('subject', cName)
-    } else {
-      onChange('subject', value)
-    }
+  const toggleCurriculum = (curriculumId) => {
+    onChange('specializations', (prev = []) => {
+      const ids = prev.map(getCurriculumId).filter(Boolean)
+      return ids.includes(curriculumId) ? ids.filter((id) => id !== curriculumId) : [...ids, curriculumId]
+    })
   }
 
   const bioArValue = formData.aboutAr ?? (typeof formData.bio === 'object' ? formData.bio?.ar : formData.bio) ?? ''
@@ -165,46 +109,47 @@ export default function TeacherAcademicInfoCard({
         {isRtl ? 'البيانات الأكاديمية' : 'Academic Information'}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'التخصص' : 'Specialization'}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400">
+            {isRtl ? 'المناهج التي يدرّسها المعلم' : 'Curricula taught'}
           </label>
-          <div className="relative">
-            <select
-              value={selectedSpecId || formData.subject || ''}
-              onChange={handleSelectCurriculum}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium appearance-none cursor-pointer"
-            >
-              <option value="" disabled>
-                {isRtl ? 'اختر التخصص' : 'Select Specialization'}
-              </option>
-              {curricula && curricula.length > 0 ? (
-                curricula.map((curr) => {
-                  const id = curr.id || curr._id
-                  const name = typeof curr.name === 'object'
-                    ? (isRtl ? curr.name.ar || curr.name.en : curr.name.en || curr.name.ar)
-                    : curr.name
-                  return (
-                    <option key={id} value={id}>
-                      {name}
-                    </option>
-                  )
-                })
-              ) : (
-                fallbackSubjects.map((subj) => (
-                  <option key={subj} value={subj}>
-                    {subj}
-                  </option>
-                ))
-              )}
-            </select>
-            <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 ${isRtl ? 'left-3.5' : 'right-3.5'}`}>
-              <ChevronDown size={16} />
-            </div>
-          </div>
+          <span className="text-[11px] font-bold text-slate-400">
+            {isRtl ? `تم اختيار ${selectedSpecIds.length}` : `${selectedSpecIds.length} selected`}
+          </span>
         </div>
+        {curricula.length === 0 ? (
+          <p className="text-xs text-slate-400 bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl p-4">
+            {isRtl ? 'جاري تحميل المناهج...' : 'Loading curricula...'}
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2.5">
+            {curricula.map((curr) => {
+              const id = getCurriculumId(curr)
+              const name = typeof curr.name === 'object' && curr.name !== null
+                ? (isRtl ? curr.name.ar || curr.name.en : curr.name.en || curr.name.ar)
+                : curr.name
+              const isSelected = selectedSpecIds.includes(id)
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => toggleCurriculum(id)}
+                  className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all cursor-pointer ${isSelected
+                    ? 'bg-[#0f7a6c] border-[#0f7a6c] text-white shadow-sm'
+                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-[#0f7a6c]/40'}`}
+                >
+                  {isSelected && <Check size={14} />}
+                  <span>{name}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'سنوات الخبرة' : 'Years of Experience'}
@@ -212,56 +157,34 @@ export default function TeacherAcademicInfoCard({
           <input
             type="number"
             min="0"
-            value={formData.yearsOfExperience ?? formData.experienceYears ?? ''}
-            onChange={(e) => {
-              const val = e.target.value === '' ? '' : Number(e.target.value)
-              onChange('yearsOfExperience', val)
-              onChange('experienceYears', val)
-            }}
+            value={formData.yearsOfExperience ?? ''}
+            onChange={(e) => onChange('yearsOfExperience', e.target.value === '' ? '' : Number(e.target.value))}
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder={isRtl ? 'عدد سنوات الخبرة' : 'Years of experience'}
           />
         </div>
 
-        <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            {isRtl ? 'سعر الساعة ($)' : 'Hourly Rate ($)'}
-          </label>
-          <div className="flex items-center gap-2.5">
-            <div className="relative flex-1">
+        {!isEdit && (
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+              {isRtl ? 'سعر الساعة ($) *' : 'Hourly Rate ($) *'}
+            </label>
+            <div className="relative">
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={formData.hourlyRate ?? ''}
-                onChange={(e) => {
-                  const val = e.target.value === '' ? '' : Number(e.target.value)
-                  onChange('hourlyRate', val)
-                }}
+                onChange={(e) => onChange('hourlyRate', e.target.value === '' ? '' : Number(e.target.value))}
                 className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
                 placeholder={isRtl ? 'سعر الساعة بالدولار' : 'Hourly rate in USD'}
                 dir="ltr"
               />
               <span className="absolute end-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
             </div>
-
-            {isEditMode && (
-              <button
-                type="button"
-                onClick={handleUpdateHourlyRate}
-                disabled={isUpdatingRate}
-                className="px-5 py-3.5 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl text-xs sm:text-sm transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-2"
-              >
-                {isUpdatingRate && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isUpdatingRate
-                  ? (isRtl ? 'جاري التحديث...' : 'Updating...')
-                  : (isRtl ? 'تحديث السعر' : 'Update Rate')}
-              </button>
-            )}
           </div>
-        </div>
+        )}
       </div>
-
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>

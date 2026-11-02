@@ -185,4 +185,34 @@ export const teacherEvaluationsApi = {
       return { success: false, data: [] };
     }
   },
+
+  fetchPendingEvaluationSessions: async (groupId) => {
+    try {
+      const response = await api.get('/api/v1/teacher/sessions/completed/pending-evaluations/list', {
+        params: { groupId },
+        skipLang: true,
+      });
+      const resData = response.data || {};
+      const list = Array.isArray(resData?.data)
+        ? resData.data
+        : Array.isArray(resData?.data?.sessions)
+        ? resData.data.sessions
+        : Array.isArray(resData?.sessions)
+        ? resData.sessions
+        : Array.isArray(resData)
+        ? resData
+        : [];
+      return {
+        success: true,
+        data: list,
+      };
+    } catch (error) {
+      console.warn('API fetchPendingEvaluationSessions failed:', error);
+      return {
+        success: false,
+        data: [],
+        error,
+      };
+    }
+  },
 };

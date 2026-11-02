@@ -1,12 +1,9 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
-import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
-import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi.js';
 import TeacherDashboardHeader from './components/TeacherDashboardHeader.jsx';
-import TeacherPendingEvaluationBanner from './components/TeacherPendingEvaluationBanner.jsx';
 import TeacherStatsGrid from './components/TeacherStatsGrid.jsx';
 import TeacherNextSessionCard from './components/TeacherNextSessionCard.jsx';
 import TeacherUpcomingSessionsList from './components/TeacherUpcomingSessionsList.jsx';
@@ -17,21 +14,17 @@ function calculateCountdown(startTime, isRtl, t) {
   if (!startTime) return { countdown: '0:00', countdownUnit: '' };
   const target = new Date(startTime).getTime();
   if (isNaN(target)) return { countdown: '0:00', countdownUnit: '' };
-
   const now = Date.now();
   const diffMs = target - now;
-
   if (diffMs <= 0) {
     return {
       countdown: isRtl ? 'الآن' : 'Now',
       countdownUnit: '',
     };
   }
-
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
-
   if (diffDays > 0) {
     return {
       countdown: `${diffDays}`,
@@ -40,7 +33,6 @@ function calculateCountdown(startTime, isRtl, t) {
         : (diffDays === 1 ? 'day' : 'days'),
     };
   }
-
   if (diffHours > 0) {
     const remMinutes = diffMinutes % 60;
     return {
@@ -48,7 +40,6 @@ function calculateCountdown(startTime, isRtl, t) {
       countdownUnit: t ? t('teacherDashboard.hour', isRtl ? 'ساعة' : 'hour') : (isRtl ? 'ساعة' : 'hour'),
     };
   }
-
   return {
     countdown: `${diffMinutes}`,
     countdownUnit: isRtl ? 'دقيقة' : 'min',
@@ -59,25 +50,33 @@ function formatSessionCard(s, idx, isRtl, t) {
   if (!s) return null;
   const id = s.id || s._id || `session-${idx}`;
   let title = '';
+  if (typeof s.title === 'object' && s.title !== null) {
+    title = isRtl ? (s.title.ar || s.title.en) : (s.title.en || s.title.ar);
+  } else if (s.title) {
+    title = String(s.title);
+  }
+  let group = '';
   if (typeof s.group === 'object' && s.group !== null) {
-    title = isRtl
+    group = isRtl
       ? (s.group.name?.ar || s.group.name?.en || s.group.name)
       : (s.group.name?.en || s.group.name?.ar || s.group.name);
   } else if (s.group) {
-    title = String(s.group);
-  } else if (s.title) {
-    title = typeof s.title === 'object' && s.title !== null
-      ? (isRtl ? s.title.ar || s.title.en : s.title.en || s.title.ar)
-      : String(s.title);
+    group = String(s.group);
   }
-
-   let timeStr = '';
-  const dateVal = s.startTime || s.scheduledAt || s.startDate;
+  let timeStr = '';
+  const dateVal = s.startTime || s.scheduledAt || s.startDate || s.date;
   if (dateVal) {
     const d = new Date(dateVal);
     if (!isNaN(d.getTime())) {
       const hours = String(d.getHours()).padStart(2, '0');
       const minutes = String(d.getMinutes()).padStart(2, '0');
+      let endHoursStr = '';
+      if (s.endTime) {
+        const endD = new Date(s.endTime);
+        if (!isNaN(endD.getTime())) {
+          endHoursStr = ` - ${String(endD.getHours()).padStart(2, '0')}:${String(endD.getMinutes()).padStart(2, '0')}`;
+        }
+      }
       const isToday = new Date().toDateString() === d.toDateString();
       const tomorrow = new Date();
       tomorrow.setDate(new Date().getDate() + 1);
@@ -85,10 +84,9 @@ function formatSessionCard(s, idx, isRtl, t) {
       const dayLabel = isToday
         ? (isRtl ? (t ? t('teacherDashboard.today', 'اليوم') : 'اليوم') : 'Today')
         : (isTomorrow ? (isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow') : (s.day || ''));
-      timeStr = `${dayLabel ? `${dayLabel} ` : ''}${hours}:${minutes}`;
+      timeStr = `${dayLabel ? `${dayLabel} ` : ''}${hours}:${minutes}${endHoursStr}`;
     }
   }
-
   if (!timeStr) {
     if (s.day && (s.time || s.startTime)) {
       timeStr = `${s.day} ${s.time || s.startTime}`;
@@ -98,18 +96,6 @@ function formatSessionCard(s, idx, isRtl, t) {
       timeStr = String(s.date);
     }
   }
-
-  let studentsCount = 0;
-  if (Array.isArray(s.students) && s.students.length > 0) {
-    studentsCount = s.students.length;
-  } else if (Array.isArray(s.attendance) && s.attendance.length > 0) {
-    studentsCount = s.attendance.length;
-  } else if (typeof s.studentsCount === 'number' && s.studentsCount > 0) {
-    studentsCount = s.studentsCount;
-  } else if (s.group?.studentsCount) {
-    studentsCount = s.group.studentsCount;
-  }
-
   let relativeBadge = '';
   let badgeVariant = 'amber';
   if (dateVal) {
@@ -123,7 +109,6 @@ function formatSessionCard(s, idx, isRtl, t) {
       const tomorrow = new Date();
       tomorrow.setDate(now.getDate() + 1);
       const isTomorrow = tomorrow.toDateString() === d.toDateString();
-
       if (diffMs > 0) {
         if (diffMinutes < 60) {
           relativeBadge = isRtl ? `بعد ${diffMinutes} دقيقة` : `In ${diffMinutes}m`;
@@ -156,19 +141,22 @@ function formatSessionCard(s, idx, isRtl, t) {
       }
     }
   }
-
   return {
     id,
-    title: title || (s.sessionNumber ? `${t ? t('teacherDashboard.sessionNumberLabel', 'الحصة رقم {{number}}', { number: s.sessionNumber }) : `الحصة #${s.sessionNumber}`}` : ''),
+    title: title || (s.sessionNumber ? (isRtl ? `الحصة رقم ${s.sessionNumber}` : `Session #${s.sessionNumber}`) : group || ''),
+    group,
+    date: s.date,
+    day: s.day,
+    status: s.status,
+    studentsCount: s.studentsCount ?? 0,
     timeStr,
-    studentsCount,
     relativeBadge,
     badgeVariant,
     joinUrl: s.zoomJoinUrl || s.joinUrl || (s.id ? `/dashboard/teacher/live?session=${s.id}` : '/dashboard/teacher/live'),
   };
 }
 
-function getGroupTypeLabel(group, t) {
+function getGroupTypeLabel(group, t, isRtl = true) {
   const raw = String(group?.type || '').toLowerCase();
   const isPriv = group?.isPrivate === true ||
     raw === 'private' ||
@@ -177,22 +165,31 @@ function getGroupTypeLabel(group, t) {
     raw.includes('فردي') ||
     group?.maxStudents === 1;
   if (isPriv) {
-    return t ? t('teacherDashboard.private', 'خاصة') : 'خاصة';
+    return t ? t('teacherDashboard.private', isRtl ? 'خاصة' : 'Private') : (isRtl ? 'خاصة' : 'Private');
   }
-  return t ? t('teacherDashboard.public', 'عامة') : 'عامة';
+  return t ? t('teacherDashboard.public', isRtl ? 'عامة' : 'Public') : (isRtl ? 'عامة' : 'Public');
+}
+
+const GROUP_STATUS_KEYS = {
+  active: 'active', 'نشطة': 'active', 'نشط': 'active',
+  pending: 'pending', 'قيد الانتظار': 'pending',
+  stopped: 'stopped', 'متوقفة': 'stopped', 'متوقف': 'stopped',
+  completed: 'completed', 'مكتملة': 'completed', 'مكتمل': 'completed',
+};
+
+function getGroupStatusKey(status) {
+  const key = String(status || '').trim().toLowerCase();
+  return GROUP_STATUS_KEYS[key] || 'default';
 }
 
 function getGroupLevelLabel(group, isRtl = true, t) {
   const levelObj = group?.studentLevel || group?.level || group?.curriculum?.studentLevel || group?.stage;
   if (!levelObj) return '-';
   if (typeof levelObj === 'string') {
-    if (/^[a-fA-F0-9]{24}$/.test(levelObj)) {
-      if (group?.curriculum?.studentLevel?.name) {
-        const cLevel = group.curriculum.studentLevel.name;
-        return typeof cLevel === 'object' ? (isRtl ? cLevel.ar || cLevel.en : cLevel.en || cLevel.ar) : cLevel;
-      }
-      return '-';
-    }
+    const norm = levelObj.toLowerCase().trim();
+    if (norm === 'advanced' || norm === 'متقدم') return isRtl ? 'متقدم' : 'Advanced';
+    if (norm === 'middle' || norm === 'intermediate' || norm === 'متوسط') return isRtl ? 'متوسط' : 'Middle';
+    if (norm === 'beginner' || norm === 'مبتدئ') return isRtl ? 'مبتدئ' : 'Beginner';
     return levelObj;
   }
   if (typeof levelObj === 'object' && levelObj !== null) {
@@ -213,66 +210,30 @@ export default function TeacherDashboard() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const teacherName = useMemo(() => {
-    if (!user) return isRtl ? 'أ. محمد العتيبي' : 'Mr. Mohamed Al-Otaibi';
+    const fallback = t('teacher.teacherFallback', isRtl ? 'معلم' : 'Teacher');
+    if (!user) return fallback;
     if (typeof user.name === 'object' && user.name !== null) {
-      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || (isRtl ? 'أ. محمد العتيبي' : 'Mr. Mohamed Al-Otaibi');
+      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || fallback;
     }
-    return user.name || (isRtl ? 'أ. محمد العتيبي' : 'Mr. Mohamed Al-Otaibi');
-  }, [user, isRtl]);
-
+    return user.name || fallback;
+  }, [user, isRtl, t]);
   const { data: statsRes } = useQuery({
     queryKey: ['teacher-dashboard-statistics'],
     queryFn: () => dashboardApi.fetchTeacherStatistics(),
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: 60 * 1000,
   });
-
+  // GET /teacher/dashboard/statistics returns statistics, nextSession, upcomingSessions, and groupsOverview in one response
+  const apiData = useMemo(() => statsRes?.data?.data ?? statsRes?.data ?? {}, [statsRes]);
   const { data: nextSessionRes } = useQuery({
     queryKey: ['teacher-dashboard-next-session'],
     queryFn: () => dashboardApi.fetchNextSession(),
-    staleTime: 0,
-    refetchOnMount: 'always',
+    enabled: !apiData.nextSession,
+    staleTime: 60 * 1000,
   });
-
-  const { data: scheduledSessionsRes } = useQuery({
-    queryKey: ['teacher-dashboard-upcoming-sessions'],
-    queryFn: () => teacherSessionsApi.fetchSessionsByStatus('scheduled', { limit: 5 }),
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
-
-  const { data: pendingRes } = useQuery({
-    queryKey: ['teacher-pending-evaluation'],
-    queryFn: () => dashboardApi.fetchPendingEvaluation(),
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
-
-  const { data: groupsRes } = useQuery({
-    queryKey: ['teacher-dashboard-groups-overview'],
-    queryFn: () => teacherGroupsApi.fetchGroups({ limit: 5 }),
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
-
-  const pendingSession = pendingRes?.session;
-  const pendingStudentIds = useMemo(() => pendingRes?.pendingStudentIds || [], [pendingRes?.pendingStudentIds]);
-  const pendingStudents = useMemo(() => {
-    if (!pendingSession || !Array.isArray(pendingSession.attendance)) return [];
-    if (pendingStudentIds.length === 0) {
-      return pendingSession.attendance.map((att) => att.student).filter(Boolean);
-    }
-    return pendingSession.attendance
-      .filter((att) => att?.student?.student_id && pendingStudentIds.includes(att.student.student_id))
-      .map((att) => att.student);
-  }, [pendingSession, pendingStudentIds]);
-
-  const apiData = useMemo(() => statsRes?.data?.data ?? statsRes?.data ?? {}, [statsRes]);
   const stats = apiData.statistics || {};
-
-  const currency = t('teacherDashboard.currency', 'ر.س');
+  // Earnings are in US dollars
+  const currency = isRtl ? 'دولار' : 'USD';
   const totalStudents = stats.totalStudents ?? 0;
   const totalGroups = stats.totalGroups ?? 0;
   const totalSessions = stats.totalSessions ?? 0;
@@ -283,27 +244,15 @@ export default function TeacherDashboard() {
   const dueEarnings = stats.dueEarnings !== undefined && stats.dueEarnings !== null
     ? `${Number(stats.dueEarnings).toLocaleString('en-US')} ${currency}`
     : `0 ${currency}`;
-
-   const upcomingSessions = useMemo(() => {
-    const rawList = Array.isArray(apiData.upcomingSessions) && apiData.upcomingSessions.length > 0
-      ? apiData.upcomingSessions
-      : (Array.isArray(scheduledSessionsRes?.data) && scheduledSessionsRes.data.length > 0
-        ? scheduledSessionsRes.data
-        : (Array.isArray(scheduledSessionsRes) && scheduledSessionsRes.length > 0 ? scheduledSessionsRes : null));
-
-    if (!rawList || rawList.length === 0) {
-      return [];
-    }
-
+  const upcomingSessions = useMemo(() => {
+    const rawList = Array.isArray(apiData.upcomingSessions) ? apiData.upcomingSessions : [];
     return rawList.map((s, idx) => formatSessionCard(s, idx, isRtl, t)).filter(Boolean);
-  }, [apiData.upcomingSessions, scheduledSessionsRes, isRtl, t]);
-
-   const nextSession = useMemo(() => {
-    const rawNext = nextSessionRes?.session || apiData.nextSession;
-    if (!rawNext || (!rawNext.id && !rawNext.title)) {
+  }, [apiData.upcomingSessions, isRtl, t]);
+  const nextSession = useMemo(() => {
+    const rawNext = apiData.nextSession || nextSessionRes?.session;
+    if (!rawNext || (!rawNext.id && !rawNext.title && !rawNext.group)) {
       return null;
     }
-
     let title = '';
     if (typeof rawNext.title === 'object' && rawNext.title !== null) {
       title = isRtl
@@ -312,7 +261,6 @@ export default function TeacherDashboard() {
     } else if (rawNext.title) {
       title = String(rawNext.title);
     }
-
     let group = '';
     if (typeof rawNext.group === 'object' && rawNext.group !== null) {
       group = isRtl
@@ -321,7 +269,6 @@ export default function TeacherDashboard() {
     } else if (rawNext.group) {
       group = String(rawNext.group);
     }
-
     const startTimeVal = rawNext.startTime || rawNext.scheduledAt || rawNext.startDate || rawNext.date;
     const { countdown, countdownUnit } = calculateCountdown(startTimeVal, isRtl, t);
     let timeStr = '';
@@ -329,23 +276,27 @@ export default function TeacherDashboard() {
       try {
         const d = new Date(startTimeVal);
         if (!isNaN(d.getTime())) {
-          timeStr = d.toLocaleTimeString(isRtl ? 'ar-EG' : 'en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-          });
+          const hours = String(d.getHours()).padStart(2, '0');
+          const minutes = String(d.getMinutes()).padStart(2, '0');
+          timeStr = `${hours}:${minutes}`;
           if (rawNext.endTime) {
             const endD = new Date(rawNext.endTime);
             if (!isNaN(endD.getTime())) {
-              timeStr += ` - ${endD.toLocaleTimeString(isRtl ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+              timeStr += ` - ${String(endD.getHours()).padStart(2, '0')}:${String(endD.getMinutes()).padStart(2, '0')}`;
             }
+          }
+          if (rawNext.day) {
+            const isToday = new Date().toDateString() === d.toDateString();
+            const dayLabel = isToday
+              ? (isRtl ? 'اليوم' : 'Today')
+              : rawNext.day;
+            timeStr = `${dayLabel} (${timeStr})`;
           }
         }
       } catch {
         timeStr = '';
       }
     }
-
     return {
       ...rawNext,
       id: rawNext.id || rawNext._id,
@@ -356,66 +307,46 @@ export default function TeacherDashboard() {
       countdownUnit: rawNext.countdownUnit || countdownUnit,
       joinUrl: rawNext.zoomJoinUrl || rawNext.joinUrl || (rawNext.id ? `/dashboard/teacher/live?session=${rawNext.id}` : '/dashboard/teacher/live'),
     };
-  }, [nextSessionRes?.session, apiData.nextSession, isRtl, t]);
-
-   const groupsOverviewTable = useMemo(() => {
-    const raw = groupsRes?.data;
-    let list = [];
-    if (Array.isArray(groupsRes)) {
-      list = groupsRes;
-    } else if (Array.isArray(raw)) {
-      list = raw;
-    } else if (Array.isArray(raw?.data)) {
-      list = raw.data;
-    } else if (Array.isArray(raw?.groups)) {
-      list = raw.groups;
-    }
-
-    if (!list || list.length === 0) {
-      return [];
-    }
-
+  }, [apiData.nextSession, nextSessionRes?.session, isRtl, t]);
+  const groupsOverviewTable = useMemo(() => {
+    const list = Array.isArray(apiData.groupsOverview)
+      ? apiData.groupsOverview
+      : (Array.isArray(apiData.groups) ? apiData.groups : []);
     return list.map((g, idx) => {
-      const studentsCount = Array.isArray(g.students)
-        ? g.students.length
-        : (g.currentStudentsCount ?? 0);
-
+      const studentsCount = typeof g.students === 'number'
+        ? g.students
+        : (Array.isArray(g.students)
+          ? g.students.length
+          : Number(g.currentStudentsCount ?? g.studentsCount ?? 0));
       const groupName =
         typeof g.name === 'object' && g.name !== null
           ? (isRtl ? g.name.ar || g.name.en : g.name.en || g.name.ar)
           : (g.name || `${t('teacherDashboard.groupName', 'مجموعة')} ${idx + 1}`);
-
-      const progress = g.progress ?? 0;
-      let nextTime = g.nextSessionTime || '';
-      if (!nextTime && Array.isArray(g.schedules) && g.schedules.length > 0) {
-        nextTime = g.schedules.map((sc) => sc.day || sc.dayName || sc.time).filter(Boolean).join('، ');
-      }
-
+      const statusText = typeof g.status === 'object' && g.status !== null
+        ? (isRtl ? g.status.ar || g.status.en : g.status.en || g.status.ar)
+        : (g.statusText || g.status || '');
       return {
         id: g.id || g._id || `g-${idx}`,
         name: groupName,
-        type: getGroupTypeLabel(g, t),
+        image: g.image || null,
+        country: g.country || null,
+        curriculum: typeof g.curriculum === 'object' && g.curriculum !== null
+          ? (isRtl ? g.curriculum.name?.ar || g.curriculum.name : g.curriculum.name?.en || g.curriculum.name)
+          : (g.curriculum || null),
+        language: g.language || null,
+        type: getGroupTypeLabel(g, t, isRtl),
         level: getGroupLevelLabel(g, isRtl, t),
         studentsCount,
         maxStudents: g.maxStudents || 0,
-        progress,
-        nextSessionTime: nextTime,
+        status: statusText,
+        statusKey: getGroupStatusKey(g.rawStatus || g.status),
       };
     });
-  }, [groupsRes, isRtl, t]);
-
+  }, [apiData.groupsOverview, apiData.groups, isRtl, t]);
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-       <TeacherDashboardHeader teacherName={teacherName} />
-
-       {pendingSession && (
-        <TeacherPendingEvaluationBanner
-          pendingSession={pendingSession}
-          pendingStudents={pendingStudents}
-        />
-      )}
-
-       <TeacherStatsGrid
+      <TeacherDashboardHeader teacherName={teacherName} />
+      <TeacherStatsGrid
         totalStudents={totalStudents}
         totalGroups={totalGroups}
         totalSessions={totalSessions}
@@ -423,19 +354,17 @@ export default function TeacherDashboard() {
         totalEarnings={totalEarnings}
         dueEarnings={dueEarnings}
       />
-
-       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-         <div className="lg:col-span-8">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-8">
           <TeacherUpcomingSessionsList upcomingSessions={upcomingSessions} />
         </div>
-
         <div className="lg:col-span-4 space-y-4">
           <TeacherQuickActions />
           <TeacherNextSessionCard nextSession={nextSession} />
         </div>
       </section>
-
-       <TeacherGroupsOverviewTable groups={groupsOverviewTable} />
+      <TeacherGroupsOverviewTable groups={groupsOverviewTable} />
     </div>
   );
 }
+

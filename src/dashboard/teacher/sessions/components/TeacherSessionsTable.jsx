@@ -7,6 +7,13 @@ export default React.memo(function TeacherSessionsTable({ sessions }) {
 
   const renderBadge = (status) => {
     const st = (status || '').toLowerCase();
+    if (st === 'rescheduled') {
+      return (
+        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+          {t('teacherSessions.rescheduled', 'معاد جدولتها')}
+        </span>
+      );
+    }
     if (st === 'live' || st === 'in_progress') {
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-red-500 text-white animate-pulse">

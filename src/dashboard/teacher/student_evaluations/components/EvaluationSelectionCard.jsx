@@ -9,12 +9,14 @@ export default function EvaluationSelectionCard({
   sessionsList,
   activeSessionId,
   onSelectSession,
+  isLoadingSessions,
   isLoadingGroupDetails,
   studentsList,
   activeStudentId,
   onSelectStudent,
 }) {
   const { t } = useTranslation();
+  const isSessionsLoading = isLoadingSessions ?? isLoadingGroupDetails ?? false;
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
@@ -61,12 +63,12 @@ export default function EvaluationSelectionCard({
             <select
               value={activeSessionId}
               onChange={(e) => onSelectSession(e.target.value)}
-              disabled={isLoadingGroupDetails || sessionsList.length === 0}
+              disabled={isSessionsLoading || sessionsList.length === 0}
               className="w-full appearance-none px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-semibold focus:outline-none focus:border-[#00594C] cursor-pointer disabled:opacity-60"
             >
               {sessionsList.length === 0 ? (
                 <option value="">
-                  {t('teacherEvaluations.noSessionsRecorded', 'لا توجد حصص مسجلة لهذه المجموعة')}
+                  {t('teacherEvaluations.noPendingSessions', 'لا توجد حصص بحاجة إلى تقييم لهذه المجموعة')}
                 </option>
               ) : (
                 sessionsList.map((sess) => (
@@ -93,7 +95,9 @@ export default function EvaluationSelectionCard({
           <div className="p-6 text-center text-slate-400 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
             <Users size={24} className="mx-auto mb-1 text-slate-300 dark:text-slate-600" />
             <p className="text-xs font-bold">
-              {t('teacherEvaluations.noStudentsInGroup', 'لا يوجد طلاب مسجلين في هذه المجموعة بعد')}
+              {sessionsList.length === 0
+                ? t('teacherEvaluations.noPendingSessions', 'لا توجد حصص بحاجة إلى تقييم لهذه المجموعة')
+                : t('teacherEvaluations.noPendingStudentsInSession', 'تم تقييم جميع الطلاب في هذه الحصة')}
             </p>
           </div>
         ) : (

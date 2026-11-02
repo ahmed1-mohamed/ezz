@@ -18,6 +18,8 @@ export default function CurriculumLevelsSection({
   onAddFile,
   onPreviewFile,
   onDownloadFile,
+  onEditFile,
+  onToggleFileVisibility,
   onDeleteFile,
   isRtl,
 }) {
@@ -81,6 +83,8 @@ export default function CurriculumLevelsSection({
                 onAddFile={onAddFile}
                 onPreviewFile={onPreviewFile}
                 onDownloadFile={onDownloadFile}
+                onEditFile={onEditFile}
+                onToggleFileVisibility={onToggleFileVisibility}
                 onDeleteFile={onDeleteFile}
                 isRtl={isRtl}
               />

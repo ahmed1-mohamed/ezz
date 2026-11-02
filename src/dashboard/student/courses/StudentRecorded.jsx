@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
@@ -334,7 +334,7 @@ export default function StudentRecorded() {
                 type="button"
                 onClick={isRtl ? handleNextWeek : handlePrevWeek}
                 aria-label={isRtl ? 'Next Week' : 'Previous Week'}
-                className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -345,7 +345,7 @@ export default function StudentRecorded() {
                 type="button"
                 onClick={isRtl ? handlePrevWeek : handleNextWeek}
                 aria-label={isRtl ? 'Previous Week' : 'Next Week'}
-                className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 <ChevronRight size={18} />
               </button>
@@ -489,3 +489,4 @@ export default function StudentRecorded() {
     </>
   );
 }
+

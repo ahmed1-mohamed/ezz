@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowLeft, Pencil, Loader2 } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Save, Loader2 } from 'lucide-react'
 
 export default function ParentDetailsHeader({
   parentName,
@@ -21,7 +21,7 @@ export default function ParentDetailsHeader({
           <BackArrow size={20} />
         </button>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2">
             <span>{isRtl ? 'أولياء الأمور' : 'Parents'}</span>
             <span className="text-slate-300 dark:text-slate-600 text-base sm:text-lg">/</span>
             <span className="text-slate-500 dark:text-slate-400 font-semibold text-base sm:text-lg">
@@ -44,8 +44,8 @@ export default function ParentDetailsHeader({
           </>
         ) : (
           <>
-            <Pencil size={15} />
-            <span>{isRtl ? 'تعديل البيانات' : 'Edit Data'}</span>
+            <Save size={15} />
+            <span>{isRtl ? 'حفظ التعديلات' : 'Save Changes'}</span>
           </>
         )}
       </button>

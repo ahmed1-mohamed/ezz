@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Search, Check, Loader2 } from 'lucide-react'
@@ -182,7 +182,7 @@ export default function CountryPhoneInput({
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                 transition={{ duration: 0.2 }}
-                                className="absolute top-full mt-2 left-0 w-64 sm:w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col z-50 text-start"
+                                className="absolute top-full mt-2 start-0 w-64 sm:w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col z-50 text-start"
                             >
                                 <div className="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-900/50">
                                     <Search className="w-4 h-4 text-slate-400 shrink-0" />
@@ -260,3 +260,4 @@ export default function CountryPhoneInput({
         </div>
     )
 }
+

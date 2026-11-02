@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -9,20 +9,53 @@ import TeacherSessionsFilterBar from './components/TeacherSessionsFilterBar.jsx'
 import TeacherSessionsTable from './components/TeacherSessionsTable.jsx';
 import TeacherSessionsEmptyState from './components/TeacherSessionsEmptyState.jsx';
 
+// Formats an ISO timestamp (or an "HH:mm" string) as HH:mm. ISO dates contain "-" too,
+// so they must be parsed before treating "-" as a range separator.
 function formatTimeDisplay(timeStr) {
   if (!timeStr) return '-';
   const str = String(timeStr).trim();
-  if (str.includes('-')) {
-    const parts = str.split('-').map((s) => s.trim());
-    return `${formatTimeDisplay(parts[0])} - ${formatTimeDisplay(parts[1])}`;
-  }
-  if (str.includes('T')) {
+  if (/^\d{4}-\d{2}-\d{2}T/.test(str)) {
     const d = new Date(str);
     if (!isNaN(d.getTime())) {
       return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
   }
+  if (/^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/.test(str)) {
+    return str.split('-').map((s) => s.trim()).join(' - ');
+  }
   return str;
+}
+
+function formatDateDisplay(value, isRtl) {
+  if (!value) return '-';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// Session status may come back as a key ("completed") or translated text ("مكتملة")
+const STATUS_KEYS = {
+  scheduled: 'scheduled', 'مجدولة': 'scheduled', 'مجدول': 'scheduled',
+  rescheduled: 'rescheduled', 'معاد جدولتها': 'rescheduled', 'معاد جدولته': 'rescheduled', 'أعيدت جدولتها': 'rescheduled',
+  live: 'live', in_progress: 'live', 'in-progress': 'live', 'مباشرة': 'live', 'جارية': 'live',
+  completed: 'completed', 'مكتملة': 'completed', 'مكتمل': 'completed',
+  cancelled: 'cancelled', canceled: 'cancelled', 'ملغاة': 'cancelled', 'ملغية': 'cancelled', 'ملغي': 'cancelled',
+};
+
+function normalizeSessionStatus(item) {
+  const raw = String(item.rawStatus || item.statusKey || item.status || '').trim().toLowerCase();
+  return STATUS_KEYS[raw] || raw || 'scheduled';
+}
+
+function getStudentsCount(item) {
+  if (typeof item.studentsCount === 'number') return item.studentsCount;
+  if (Array.isArray(item.attendance)) return item.attendance.length;
+  if (Array.isArray(item.students)) return item.students.length;
+  if (typeof item.group === 'object' && item.group !== null) {
+    if (Array.isArray(item.group.students)) return item.group.students.length;
+    return Number(item.group.studentsCount ?? item.group.currentStudentsCount ?? 0);
+  }
+  return 0;
 }
 
 export default function TeacherSessions() {
@@ -52,10 +85,9 @@ export default function TeacherSessions() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -65,7 +97,7 @@ export default function TeacherSessions() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
 
@@ -108,23 +140,25 @@ export default function TeacherSessions() {
           (typeof item.group === 'object' && item.group !== null
             ? item.group.name || item.group.title
             : item.groupName || item.group) || t('teacherDashboard.groupName', 'مجموعة دراسية'),
-        date: item.date || item.startTime?.split('T')[0] || '-',
-        time: item.time || (item.startTime ? `${formatTimeDisplay(item.startTime)} - ${formatTimeDisplay(item.endTime)}` : '-'),
-        status: (item.status || 'scheduled').toLowerCase(),
-        studentsCount: item.studentsCount ?? (Array.isArray(item.students) ? item.students.length : 0),
+        date: formatDateDisplay(item.startTime || item.date, isRtl),
+        time: item.startTime
+          ? `${formatTimeDisplay(item.startTime)} - ${formatTimeDisplay(item.endTime)}`
+          : formatTimeDisplay(item.time),
+        status: normalizeSessionStatus(item),
+        studentsCount: getStudentsCount(item),
         zoomJoinUrl: item.zoomJoinUrl || item.joinUrl || item.meetingUrl || null,
       }));
     }
     return [];
-  }, [responseData, t]);
+  }, [responseData, t, isRtl]);
 
   const filteredSessions = useMemo(() => {
     return sessionsList.filter((s) => {
-      const st = (s.status || '').toLowerCase();
-      if (activeTab === 'scheduled' && st !== 'scheduled' && !st.includes('مجدول')) return false;
-      if (activeTab === 'live' && st !== 'live' && st !== 'in_progress' && st !== 'in-progress' && !st.includes('مباشر')) return false;
-      if (activeTab === 'completed' && st !== 'completed' && !st.includes('مكتمل')) return false;
-      if (activeTab === 'cancelled' && st !== 'cancelled' && !st.includes('ملغ')) return false;
+      const st = s.status;
+      if (activeTab === 'scheduled' && st !== 'scheduled' && st !== 'rescheduled') return false;
+      if (activeTab === 'live' && st !== 'live') return false;
+      if (activeTab === 'completed' && st !== 'completed') return false;
+      if (activeTab === 'cancelled' && st !== 'cancelled') return false;
 
       if (debouncedSearch.trim()) {
         const q = debouncedSearch.toLowerCase().trim();

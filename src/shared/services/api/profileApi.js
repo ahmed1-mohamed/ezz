@@ -25,18 +25,13 @@ export const profileApi = {
         formData.append('name[en]', enName);
       }
 
-      Object.keys(data).forEach((key) => {
-        if (['nameAr', 'nameEn', 'name', 'name[ar]', 'name[en]'].includes(key)) {
-          return;
-        }
-        const val = data[key];
-        if (val !== undefined && val !== null && val !== '') {
-          if (['image', 'photo', 'photoUrl', 'profileImage'].includes(key) && typeof val === 'string') {
-            return;
-          }
-          formData.append(key, val);
-        }
-      });
+      // PATCH /profile accepts only name, phone, country and image
+      if (data.phone) formData.append('phone', String(data.phone).replace(/\s+/g, ''));
+      if (data.country) formData.append('country', data.country);
+      if (data.birthDate) formData.append('birthDate', data.birthDate);
+      if (data.dateOfBirth) formData.append('dateOfBirth', data.dateOfBirth);
+      const imageFile = data.image instanceof File ? data.image : (data.imageFile instanceof File ? data.imageFile : null);
+      if (imageFile) formData.append('image', imageFile);
 
       const response = await api.patch('/api/v1/profile', formData, {
         headers: {

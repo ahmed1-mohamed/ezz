@@ -5,6 +5,7 @@ import { Mail, Lock, BookOpen, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { triggerGoogleAuth, loadGoogleScript } from '@/shared/services/googleAuthService.js'
+import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -62,11 +63,13 @@ export default function Login() {
             }, 50)
         } catch (error) {
             setServerError(error.message)
-            setToast({
-                show: true,
-                message: error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور'),
-                type: 'error'
-            })
+            if (canShowErrorInToaster(error)) {
+                setToast({
+                    show: true,
+                    message: error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور'),
+                    type: 'error'
+                })
+            }
         }
     }
 
@@ -91,11 +94,13 @@ export default function Login() {
                 ? (isRtl ? 'تم إلغاء تسجيل الدخول بجوجل' : 'Google sign-in was cancelled')
                 : (error.message || (isRtl ? 'فشل تسجيل الدخول بحساب جوجل' : 'Google sign-in failed'))
             setServerError(errorMsg)
-            setToast({
-                show: true,
-                message: errorMsg,
-                type: 'error'
-            })
+            if (canShowErrorInToaster(error)) {
+                setToast({
+                    show: true,
+                    message: errorMsg,
+                    type: 'error'
+                })
+            }
         } finally {
             setGoogleLoading(false)
         }

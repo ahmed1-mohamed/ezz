@@ -22,10 +22,20 @@ function readStoredUser() {
 }
 
 function normalizeRole(roleStr) {
-    if (!roleStr || typeof roleStr !== 'string') return 'Parent'
-    const r = roleStr.toLowerCase()
-    if (r === 'super_admin' || r === 'superadmin') return 'super_admin'
-    return roleStr.charAt(0).toUpperCase() + roleStr.slice(1).toLowerCase()
+    if (!roleStr) return 'Parent';
+    let target = roleStr;
+    if (typeof target === 'object' && target !== null) {
+        target = target.name || target.role || target.slug || target.key || 'Parent';
+    }
+    if (typeof target !== 'string') return 'Parent';
+    const r = target.toLowerCase();
+    if (r === 'super_admin' || r === 'superadmin') return 'super_admin';
+    if (r.includes('admin')) return 'Admin';
+    if (r.includes('manager') || r.includes('supervisor')) return 'Manager';
+    if (r.includes('teach') || r.includes('معلم') || r.includes('استاذ')) return 'Teacher';
+    if (r.includes('stud') || r.includes('طالب') || r.includes('تلميذ')) return 'Student';
+    if (r.includes('parent') || r.includes('guard') || r.includes('wali') || r.includes('ولي') || r.includes('أمر')) return 'Parent';
+    return target.charAt(0).toUpperCase() + target.slice(1).toLowerCase();
 }
 
 export function AuthProvider({ children }) {
@@ -77,7 +87,7 @@ export function AuthProvider({ children }) {
             const res = await api.post('/api/v1/auth/login', {
                 email: email.trim(),
                 password: password
-            })
+            }, { skipGlobalErrorToast: true })
             const data = res.data?.data || res.data
             const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
             const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
@@ -109,14 +119,18 @@ export function AuthProvider({ children }) {
             const data = error.response?.data
             const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message
             const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic)
-            throw new Error(safeMsg, { cause: error })
+            const err = new Error(safeMsg, { cause: error })
+            err.response = error.response
+            err.status = status
+            err._isServerError = error._isServerError
+            throw err
         }
     }, [refreshProfile])
 
     const signup = useCallback(async (signupData) => {
         setLoading(true)
         try {
-            const res = await api.post('/api/v1/auth/signup', signupData)
+            const res = await api.post('/api/v1/auth/signup', signupData, { skipGlobalErrorToast: true })
             const data = res.data?.data || res.data
             const accessToken = res.data?.token || res.data?.accessToken || res.data?.access_token || data?.token || data?.accessToken || data?.access_token
             const refreshToken = res.data?.refresh_token || res.data?.refreshToken || data?.refresh_token || data?.refreshToken
@@ -148,7 +162,11 @@ export function AuthProvider({ children }) {
             const data = error.response?.data
             const rawMsg = (Array.isArray(data?.message) ? data.message[0] : data?.message) || data?.error || error.message
             const safeMsg = sanitizeErrorMessage(rawMsg, status, isArabic)
-            throw new Error(safeMsg, { cause: error })
+            const err = new Error(safeMsg, { cause: error })
+            err.response = error.response
+            err.status = status
+            err._isServerError = error._isServerError
+            throw err
         }
     }, [refreshProfile])
 

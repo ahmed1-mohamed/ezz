@@ -31,8 +31,58 @@ const mapPackageData = (item) => ({
   color: item.icon === 'star' ? '#d97706' : '#0f7a6c',
   features: Array.isArray(item.features) ? item.features : (item.features?.ar || []),
   features_en: Array.isArray(item.features_en) ? item.features_en : (item.features?.en || []),
-  is_active: item.is_active !== undefined ? item.is_active : true
+  is_active: item.is_active !== undefined ? item.is_active : true,
+  type: item.type === 'family' ? 'family' : 'individual',
+  typeText: item.typeText || '',
+  maxMembers: item.maxMembers ?? null,
+  familyTiers: Array.isArray(item.familyTiers) ? item.familyTiers : [],
+  priceAfterDiscount: item.priceAfterDiscount ?? null,
+  discountPercentage: item.discountPercentage ?? null,
 });
+
+// JSON body for POST/PATCH /packages/private. Family pricing is written as `familyDiscounts`
+// ([{ membersCount 2..5, pricePerPerson }]) and read back as the computed `familyTiers`.
+const buildPackagePayload = (data) => {
+  const features = {
+    ar: (data.features || []).map((f) => String(f || '').trim()).filter(Boolean),
+    en: (data.features_en || []).map((f) => String(f || '').trim()).filter(Boolean),
+  };
+  const isFamily = data.type === 'family';
+  const discount = data.priceAfterDiscount === '' || data.priceAfterDiscount === null || data.priceAfterDiscount === undefined
+    ? null
+    : Number(data.priceAfterDiscount);
+  return {
+    name: { ar: String(data.name || '').trim(), en: String(data.name_en || data.name || '').trim() },
+    type: isFamily ? 'family' : 'individual',
+    price: Number(data.price),
+    priceAfterDiscount: discount,
+    sessionsCount: Number(data.sessions_per_month),
+    sessionDuration: Number(data.sessionDuration) || 60,
+    language: data.sessions_language,
+    country: data.country,
+    features,
+    ...(isFamily
+      ? {
+          maxMembers: Number(data.maxMembers),
+          familyDiscounts: (data.familyTiers || []).map((tier) => ({
+            membersCount: Number(tier.membersCount),
+            pricePerPerson: Number(tier.pricePerPerson),
+          })),
+        }
+      : {}),
+  };
+};
+
+const uploadPackageIcon = async (id, file) => {
+  const fd = new FormData();
+  fd.append('icon', file);
+  const response = await api.patch(`/api/v1/packages/private/${id}`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data?.data || response.data;
+};
+
+const toPackageError = (error) => error.response?.data?.message || error.message;
 
 export const adminPackagesApi = {
   fetchPackagesAndFaqs: async () => {
@@ -74,156 +124,38 @@ export const adminPackagesApi = {
 
   createPackage: async (packageData) => {
     try {
-      const arTitle = (typeof packageData.name === 'object' ? packageData.name?.ar : packageData.name) || packageData.titleAr || '';
-      const enTitle = (typeof packageData.name === 'object' ? packageData.name?.en : packageData.name_en) || packageData.nameEn || packageData.titleEn || arTitle;
-
-      const arFeaturesRaw = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
-      const enFeaturesRaw = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeaturesRaw));
-
-      let arFeatures = arFeaturesRaw
-        .map(f => typeof f === 'string' ? f.trim() : '')
-        .filter(f => f.length >= 3);
-      let enFeatures = enFeaturesRaw
-        .map(f => typeof f === 'string' ? f.trim() : '')
-        .filter(f => f.length >= 3);
-
-      if (enFeatures.length === 0 && arFeatures.length > 0) enFeatures = [...arFeatures];
-      if (arFeatures.length === 0 && enFeatures.length > 0) arFeatures = [...enFeatures];
-
-      const file = packageData.imageFile || (packageData.image instanceof File ? packageData.image : null);
-
-      if (file instanceof File || file instanceof Blob) {
-        const fd = new FormData();
-        fd.append('name[ar]', arTitle);
-        fd.append('name[en]', enTitle);
-        fd.append('price', String(packageData.price));
-        fd.append('sessionsCount', String(packageData.sessions_per_month));
-        if (packageData.sessionDuration) {
-          fd.append('sessionDuration', String(packageData.sessionDuration));
-        }
-        if (packageData.sessions_language) {
-          fd.append('language', packageData.sessions_language);
-        }
-        if (packageData.country) {
-          fd.append('country', packageData.country);
-        }
-        arFeatures.forEach((feat) => {
-          fd.append('features[ar][]', feat);
-        });
-        enFeatures.forEach((feat) => {
-          fd.append('features[en][]', feat);
-        });
-        fd.append('icon', file);
-
-        const response = await api.post('/api/v1/packages/private', fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        const item = response.data?.data || response.data;
-        return { success: true, data: mapPackageData(item) };
-      }
-
-      const payload = {
-        name: { ar: arTitle, en: enTitle },
-        price: Number(packageData.price),
-        sessionsCount: Number(packageData.sessions_per_month),
-        sessionDuration: Number(packageData.sessionDuration) || 60,
-        language: packageData.sessions_language || undefined,
-        country: packageData.country || undefined,
-        features: {
-          ar: arFeatures,
-          en: enFeatures
-        }
-      };
-
-      if (packageData.icon && packageData.icon !== 'star') {
-        payload.icon = packageData.icon;
-      }
-
+      const payload = buildPackagePayload(packageData);
+      if (payload.priceAfterDiscount === null) delete payload.priceAfterDiscount;
       const response = await api.post('/api/v1/packages/private', payload);
-      const item = response.data?.data || response.data;
+      let item = response.data?.data || response.data;
+      if (packageData.imageFile instanceof File && item?.id) {
+        item = await uploadPackageIcon(item.id, packageData.imageFile);
+      }
       return { success: true, data: mapPackageData(item) };
     } catch (error) {
       console.error('API createPackage failed:', error);
-      const errMsg = error.response?.data?.message || error.message;
-      return { success: false, error: errMsg };
+      return { success: false, error: toPackageError(error) };
     }
   },
 
   updatePackage: async (id, packageData) => {
     try {
-      const arTitle = (typeof packageData.name === 'object' ? packageData.name?.ar : packageData.name) || packageData.titleAr || '';
-      const enTitle = (typeof packageData.name === 'object' ? packageData.name?.en : packageData.name_en) || packageData.nameEn || packageData.titleEn || arTitle;
-
-      const arFeaturesRaw = Array.isArray(packageData.features) ? packageData.features : (packageData.features?.ar || []);
-      const enFeaturesRaw = Array.isArray(packageData.features_en) ? packageData.features_en : (Array.isArray(packageData.featuresEn) ? packageData.featuresEn : (packageData.features?.en || arFeaturesRaw));
-
-      let arFeatures = arFeaturesRaw
-        .map(f => typeof f === 'string' ? f.trim() : '')
-        .filter(f => f.length >= 3);
-      let enFeatures = enFeaturesRaw
-        .map(f => typeof f === 'string' ? f.trim() : '')
-        .filter(f => f.length >= 3);
-
-      if (enFeatures.length === 0 && arFeatures.length > 0) enFeatures = [...arFeatures];
-      if (arFeatures.length === 0 && enFeatures.length > 0) arFeatures = [...enFeatures];
-
-      const file = packageData.imageFile || (packageData.image instanceof File ? packageData.image : null);
-
-      if (file instanceof File || file instanceof Blob) {
-        const fd = new FormData();
-        fd.append('name[ar]', arTitle);
-        fd.append('name[en]', enTitle);
-        fd.append('price', String(packageData.price));
-        fd.append('sessionsCount', String(packageData.sessions_per_month));
-        if (packageData.sessionDuration) {
-          fd.append('sessionDuration', String(packageData.sessionDuration));
-        }
-        if (packageData.sessions_language) {
-          fd.append('language', packageData.sessions_language);
-        }
-        if (packageData.country) {
-          fd.append('country', packageData.country);
-        }
-        arFeatures.forEach((feat) => {
-          fd.append('features[ar][]', feat);
-        });
-        enFeatures.forEach((feat) => {
-          fd.append('features[en][]', feat);
-        });
-        fd.append('icon', file);
-
-        const response = await api.patch(`/api/v1/packages/private/${id}`, fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        const item = response.data?.data || response.data;
-        return { success: true, data: mapPackageData(item) };
+      const response = await api.patch(`/api/v1/packages/private/${id}`, buildPackagePayload(packageData));
+      let item = response.data?.data || response.data;
+      if (packageData.imageFile instanceof File) {
+        item = await uploadPackageIcon(id, packageData.imageFile);
       }
-
-      const payload = {
-        name: { ar: arTitle, en: enTitle },
-        price: Number(packageData.price),
-        sessionsCount: Number(packageData.sessions_per_month),
-        sessionDuration: Number(packageData.sessionDuration) || 60,
-        language: packageData.sessions_language || undefined,
-        country: packageData.country || undefined,
-        features: {
-          ar: arFeatures,
-          en: enFeatures
-        }
-      };
-
-      if (packageData.icon && packageData.icon !== 'star') {
-        payload.icon = packageData.icon;
-      }
-
-      const response = await api.patch(`/api/v1/packages/private/${id}`, payload);
-      const item = response.data?.data || response.data;
       return { success: true, data: mapPackageData(item) };
     } catch (error) {
       console.error('API updatePackage failed:', error);
-      const errMsg = error.response?.data?.message || error.message;
-      return { success: false, error: errMsg };
+      return { success: false, error: toPackageError(error) };
     }
+  },
+
+  // Clears the package discount (priceAfterDiscount → null)
+  removePackageDiscount: async (id) => {
+    const response = await api.patch(`/api/v1/packages/private/${id}`, { priceAfterDiscount: null });
+    return mapPackageData(response.data?.data || response.data);
   },
 
   fetchCountries: async () => {

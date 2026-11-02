@@ -162,8 +162,15 @@ export default function AdminTeachers() {
     }
   }
 
-  const handleOpenEditScreen = (teacher) => {
-    setSelectedTeacherRecord(teacher)
+  // List rows are localized; the edit form needs the raw record (bilingual name/bio, availability, curricula IDs).
+  const handleOpenEditScreen = async (teacher) => {
+    const id = teacher?.teacher_id || teacher?.id
+    const res = id ? await teachersApi.fetchTeacherById(id) : null
+    if (!res?.data) {
+      toast.error(isRtl ? 'تعذر تحميل بيانات المعلم' : 'Could not load teacher data')
+      return
+    }
+    setSelectedTeacherRecord(res.data)
     setViewMode('edit-teacher')
   }
 

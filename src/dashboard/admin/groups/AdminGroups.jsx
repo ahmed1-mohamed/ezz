@@ -17,7 +17,7 @@ import AddStudentsModal from './components/AddStudentsModal'
 import ChangeTeacherModal from './components/ChangeTeacherModal'
 import Spinner from '@/shared/components/Spinner'
 
-import { getLocalizedValue } from './utils/groupUtils'
+import { getLocalizedValue, saveGroupEdits } from './utils/groupUtils'
 import GroupCard from './components/GroupCard'
 import GroupDetailsModal from './components/GroupDetailsModal'
 
@@ -101,10 +101,9 @@ export default function AdminGroups() {
     if (routeGroupId) {
       if (!selectedGroup || (String(selectedGroup.id) !== String(routeGroupId) && String(selectedGroup._id) !== String(routeGroupId))) {
         setIsLoading(true)
-        adminGroupsApi.fetchGroupByIdRaw(routeGroupId)
-          .then((res) => {
+        adminGroupsApi.fetchGroupForEdit(routeGroupId)
+          .then((data) => {
             if (!active) return
-            const data = res?.data || res
             if (data && (data.id || data._id || data.name)) {
               setSelectedGroup({
                 ...data,
@@ -201,49 +200,7 @@ export default function AdminGroups() {
     try {
       const isEditing = (viewMode === 'edit-group' || Boolean(routeGroupId)) && selectedGroup
       if (isEditing) {
-        const targetId = selectedGroup.id || selectedGroup._id || routeGroupId
-
-        const restrictedPayload = {
-          name: typeof formData.name === 'object' && formData.name !== null
-            ? {
-                ar: formData.name.ar || formData.nameAr || '',
-                en: formData.name.en || formData.nameEn || '',
-              }
-            : (formData.name || ''),
-          ...(formData.image ? { image: formData.image } : {}),
-          ...(formData.country ? { country: formData.country } : {}),
-          maxStudents: Number(formData.maxStudents || 1),
-          ...(formData.startDate ? { startDate: formData.startDate } : {}),
-          ...(formData.endDate ? { endDate: formData.endDate } : {}),
-        }
-
-        const res = await adminGroupsApi.updateGroup(targetId, restrictedPayload)
-
-        if (formData.status && formData.status !== selectedGroup.status) {
-          try {
-            await adminGroupsApi.updateGroupStatus(targetId, formData.status)
-          } catch (statusErr) {
-            console.warn('Failed to update group status via dedicated endpoint:', statusErr)
-          }
-        }
-
-        if (Array.isArray(formData.weeklySchedule)) {
-          try {
-            await adminGroupsApi.updateGroupSchedule(targetId, formData.weeklySchedule)
-          } catch (schedErr) {
-            console.warn('Failed to update group schedule via dedicated endpoint:', schedErr)
-          }
-        }
-
-        const currentTeacherId = String(selectedGroup.teacher?.id || selectedGroup.teacher?._id || selectedGroup.teacher || '')
-        const newTeacherId = String(formData.teacher || '')
-        if (newTeacherId && newTeacherId !== currentTeacherId) {
-          try {
-            await adminGroupsApi.changeTeacher(targetId, newTeacherId)
-          } catch (tchErr) {
-            console.warn('Failed to update group teacher via dedicated endpoint:', tchErr)
-          }
-        }
+        const res = await saveGroupEdits(adminGroupsApi, selectedGroup, formData)
 
         setSelectedGroup(null)
         setViewMode('list')
@@ -523,10 +480,7 @@ export default function AdminGroups() {
        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={() => {
-              setSelectedGroup(null)
-              setViewMode('add-group')
-            }}
+            onClick={() => navigate('/dashboard/admin/groups/add')}
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-all shadow-md shadow-brand-500/20 active:scale-[0.98] cursor-pointer"
           >
             <Plus size={18} />

@@ -7,7 +7,7 @@ import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
 import TeacherAvailabilityCard from './TeacherAvailabilityCard'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
-import { sortCountries, normalizeCountries } from '@/shared/utils/countryUtils'
+import { sortCountries, normalizeCountries, resolveCountryIdFromLabel } from '@/shared/utils/countryUtils'
 import TeacherSecurityCard from './TeacherSecurityCard'
 
 const normalizeAchievements = (ach) => {
@@ -90,45 +90,27 @@ const getInitialBioEn = (teacher) => {
 const getInitialFormData = (teacher) => ({
   name: getInitialNameAr(teacher),
   nameEn: getInitialNameEn(teacher),
-  subject: teacher?.subject || 'القرآن الكريم',
   email: teacher?.email || '',
-  phone: teacher?.phone || teacher?.user?.phone || teacher?.userId?.phone || '',
-  workingHours: teacher?.workingHours || teacher?.availability || teacher?.availableHours || [],
-  availability: teacher?.workingHours || teacher?.availability || teacher?.availableHours || [],
-  joinDate: teacher?.joinDate || new Date().toISOString().split('T')[0],
-  totalEarnings: teacher?.totalEarnings || 0,
-  dueEarnings: teacher?.dueEarnings || 0,
-  hourlyRate: Number(teacher?.hourlyRate ?? 0),
-  yearsOfExperience: teacher?.yearsOfExperience ?? teacher?.experienceYears ?? 0,
-  experienceYears: teacher?.yearsOfExperience ?? teacher?.experienceYears ?? 0,
-  country: teacher?.country || '',
-  degree: getInitialDegreeAr(teacher),
+  phone: teacher?.phone || '',
+  // detail endpoints return the country as "<flag> <name>"; it is resolved to an ID once countries load
+  country: '',
+  countryLabel: teacher?.country || '',
+  hourlyRate: '',
+  yearsOfExperience: teacher?.yearsOfExperience ?? 0,
   degreeAr: getInitialDegreeAr(teacher),
   degreeEn: getInitialDegreeEn(teacher),
-  qualification: getInitialDegreeAr(teacher),
-  qualificationEn: getInitialDegreeEn(teacher),
-  totalGroups: teacher?.totalGroups ?? teacher?.groupsCount ?? 0,
-  groupsCount: teacher?.totalGroups ?? teacher?.groupsCount ?? 0,
-  totalLessons: teacher?.totalLessons ?? teacher?.totalSessions ?? 0,
-  totalSessions: teacher?.totalLessons ?? teacher?.totalSessions ?? 0,
-  totalStudents: teacher?.totalStudents ?? teacher?.studentsCount ?? 0,
-  studentsCount: teacher?.totalStudents ?? teacher?.studentsCount ?? 0,
-  profitPercentage: teacher?.profitPercentage ?? 20,
-  status: teacher?.active === false ? 'Suspended' : 'Active',
-  active: teacher?.active !== false,
-  rating: teacher?.rating || 5.0,
-  bio: getInitialBioAr(teacher),
   aboutAr: getInitialBioAr(teacher),
   aboutEn: getInitialBioEn(teacher),
+  bio: { ar: getInitialBioAr(teacher), en: getInitialBioEn(teacher) },
   showOnWebsite: Boolean(teacher?.showOnWebsite),
-  certificates: Array.isArray(teacher?.certificates) ? teacher.certificates : [],
   specializations: (teacher?.specializations || []).map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean),
   achievements: normalizeAchievements(teacher?.achievements),
+  availability: Array.isArray(teacher?.availability) ? teacher.availability : [],
   image: teacher?.image || '',
+  profileImage: teacher?.image || '',
   profileImageFile: null,
   password: '',
   confirmPassword: '',
-  documents: teacher?.documents || []
 })
 
 export default function AddEditTeacherScreen({
@@ -178,100 +160,53 @@ export default function AddEditTeacherScreen({
   }, [teacher, isRtl])
 
   const handleFieldChange = (key, value) => {
-    setFormData((prev) => ({ ...prev, [key]: value }))
+    setFormData((prev) => ({ ...prev, [key]: typeof value === 'function' ? value(prev[key]) : value }))
   }
+
+  useEffect(() => {
+    if (!formData.country && formData.countryLabel && apiCountries.length > 0) {
+      const countryId = resolveCountryIdFromLabel(apiCountries, formData.countryLabel)
+      if (countryId) setFormData((prev) => ({ ...prev, country: countryId }))
+    }
+  }, [apiCountries, formData.country, formData.countryLabel])
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    const fail = (ar, en) => showErrorToast(isRtl ? ar : en, isRtl)
 
-    const nameArStr = typeof formData.name === 'object' && formData.name !== null
-      ? (formData.name.ar || formData.name.en || '')
-      : String(formData.name || '')
-    const nameEnStr = typeof formData.nameEn === 'object' && formData.nameEn !== null
-      ? (formData.nameEn.en || formData.nameEn.ar || '')
-      : String(formData.nameEn || '')
+    const nameAr = String(formData.name || '').trim()
+    const nameEn = String(formData.nameEn || '').trim()
+    if (nameAr.length < 2 || nameEn.length < 2) return fail('الرجاء إدخال الاسم بالعربية والإنجليزية', 'Please enter the Arabic and English names')
+    if (!teacher && !/^\S+@\S+\.\S+$/.test(String(formData.email || '').trim())) return fail('الرجاء إدخال بريد إلكتروني صالح', 'Please enter a valid email')
+    if (!/^\+\d{7,15}$/.test(String(formData.phone || '').replace(/\s+/g, ''))) return fail('الرجاء إدخال رقم هاتف صحيح مع مفتاح الدولة', 'Please enter a valid phone number with country code')
+    if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
 
-    const nameArTrimmed = nameArStr.trim()
-    const nameEnTrimmed = nameEnStr.trim()
-
-    if (!nameArTrimmed || !formData.email) {
-      showErrorToast(isRtl ? 'الرجاء إدخال الاسم والبريد الإلكتروني!' : 'Please enter Name and Email!', isRtl)
-      return
-    }
-
-    if (!teacher && !formData.password) {
-      showErrorToast(isRtl ? 'يرجى إدخال كلمة المرور للمعلم الجديد' : 'Please enter a password for the new teacher', isRtl)
-      return
-    }
-
-    if (!teacher && formData.password && formData.password !== formData.confirmPassword) {
-      showErrorToast(isRtl ? 'كلمتا المرور غير متطابقتين!' : 'Passwords do not match!', isRtl)
-      return
-    }
-
-    const rawDegreeAr = typeof formData.degreeAr === 'object' && formData.degreeAr !== null
-      ? (formData.degreeAr.ar || formData.degreeAr.en || '')
-      : String(formData.degreeAr || formData.degree || formData.qualification || '')
-    const rawDegreeEn = typeof formData.degreeEn === 'object' && formData.degreeEn !== null
-      ? (formData.degreeEn.en || formData.degreeEn.ar || '')
-      : String(formData.degreeEn || formData.qualificationEn || '')
-
-    const rawBioAr = typeof formData.aboutAr === 'object' && formData.aboutAr !== null
-      ? (formData.aboutAr.ar || formData.aboutAr.en || '')
-      : String(formData.aboutAr || formData.bio || '')
-    const rawBioEn = typeof formData.aboutEn === 'object' && formData.aboutEn !== null
-      ? (formData.aboutEn.en || formData.aboutEn.ar || '')
-      : String(formData.aboutEn || '')
-
-    let formattedAchievements = formData.achievements
-    if (Array.isArray(formData.achievements)) {
-      const arList = []
-      const enList = []
-      formData.achievements.forEach(item => {
-        if (typeof item === 'object' && item !== null) {
-          if (item.ar || item.en) {
-            arList.push(item.ar || item.en || '')
-            enList.push(item.en || item.ar || '')
-          }
-        } else if (typeof item === 'string' && item.trim()) {
-          arList.push(item.trim())
-          enList.push(item.trim())
-        }
-      })
-      formattedAchievements = { ar: arList, en: enList }
+    if (!teacher) {
+      if (formData.hourlyRate === '' || Number(formData.hourlyRate) < 0) return fail('الرجاء إدخال سعر الساعة', 'Please enter the hourly rate')
+      if (String(formData.password || '').length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
+      if (formData.password !== formData.confirmPassword) return fail('كلمتا المرور غير متطابقتين!', 'Passwords do not match!')
     }
 
     onSave({
-      ...formData,
-      name: {
-        ar: nameArTrimmed,
-        en: nameEnTrimmed || nameArTrimmed
-      },
-      nameEn: nameEnTrimmed || nameArTrimmed,
-      bio: {
-        ar: rawBioAr.trim(),
-        en: (rawBioEn || rawBioAr).trim()
-      },
-      aboutAr: rawBioAr.trim(),
-      aboutEn: (rawBioEn || rawBioAr).trim(),
-      degree: {
-        ar: rawDegreeAr.trim() || 'مؤهل جامعي',
-        en: (rawDegreeEn || rawDegreeAr).trim() || 'University Degree'
-      },
-      degreeAr: rawDegreeAr.trim() || 'مؤهل جامعي',
-      degreeEn: (rawDegreeEn || rawDegreeAr).trim() || 'University Degree',
-      specializations: (formData.specializations || []).map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean),
-      certificates: formData.certificates,
-      achievements: formattedAchievements,
+      name: { ar: nameAr, en: nameEn },
+      phone: String(formData.phone).replace(/\s+/g, ''),
+      country: formData.country,
+      bio: { ar: String(formData.aboutAr || '').trim(), en: String(formData.aboutEn || '').trim() },
+      degree: { ar: String(formData.degreeAr || '').trim(), en: String(formData.degreeEn || '').trim() },
+      specializations: formData.specializations,
       yearsOfExperience: Math.max(0, Number(formData.yearsOfExperience) || 0),
-      hourlyRate: Math.max(0, Number(formData.hourlyRate) || 0),
-      totalLessons: Math.max(0, Number(formData.totalLessons || formData.totalSessions) || 0),
-      totalStudents: Math.max(0, Number(formData.totalStudents || formData.studentsCount) || 0),
+      achievements: formData.achievements,
       showOnWebsite: Boolean(formData.showOnWebsite),
-      profitPercentage: Math.min(100, Math.max(0, Number(formData.profitPercentage) || 0)),
-      totalEarnings: Number(formData.totalEarnings) || 0,
-      dueEarnings: Number(formData.dueEarnings) || 0,
-      totalGroups: Number(formData.totalGroups || formData.groupsCount) || 0
+      availability: formData.availability,
+      profileImageFile: formData.profileImageFile,
+      ...(teacher
+        ? {}
+        : {
+            email: String(formData.email).trim(),
+            hourlyRate: Math.max(0, Number(formData.hourlyRate) || 0),
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+          }),
     })
   }
 
@@ -331,19 +266,23 @@ export default function AddEditTeacherScreen({
           formData={formData}
           onChange={handleFieldChange}
           isRtl={isRtl}
-          t={t}
           curricula={apiCurricula}
-          teacher={teacher}
           isEdit={!!teacher}
         />
 
-        <TeacherSecurityCard
+        <TeacherAvailabilityCard
           formData={formData}
           onChange={handleFieldChange}
           isRtl={isRtl}
-          isEdit={!!teacher}
-          teacher={teacher}
         />
+
+        {!teacher && (
+          <TeacherSecurityCard
+            formData={formData}
+            onChange={handleFieldChange}
+            isRtl={isRtl}
+          />
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">

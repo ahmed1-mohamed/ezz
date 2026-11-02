@@ -1,76 +1,69 @@
-import { useState, useMemo, useEffect } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/shared/context/useAuth.jsx';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
-
 import TeacherGroupsHeader from './components/TeacherGroupsHeader.jsx';
+import TeacherGroupsStatsGrid from './components/TeacherGroupsStatsGrid.jsx';
 import TeacherGroupsFilterBar from './components/TeacherGroupsFilterBar.jsx';
 import TeacherGroupCard from './components/TeacherGroupCard.jsx';
 import TeacherGroupsEmptyState from './components/TeacherGroupsEmptyState.jsx';
 
-function getGroupTypeLabel(group, t) {
-  const raw = String(group?.type || '').toLowerCase();
-  const isPriv = group?.isPrivate === true ||
-    raw === 'private' ||
-    raw.includes('خاص') ||
-    raw === 'individual' ||
-    raw.includes('فردي') ||
-    group?.maxStudents === 1;
-  if (isPriv) {
-    return t ? t('teacherDashboard.private', 'خاصة') : 'خاصة';
+function formatWeeklySchedule(weeklySchedule, isRtl = true) {
+  if (!Array.isArray(weeklySchedule) || weeklySchedule.length === 0) {
+    return isRtl ? 'المواعيد: لم تحدد' : 'Schedule: Not set';
   }
-  return t ? t('teacherDashboard.public', 'عامة') : 'عامة';
+  const days = weeklySchedule.map((s) => s.day).filter(Boolean);
+  const uniqueDays = [...new Set(days)];
+  const firstTime = weeklySchedule[0]?.startTime || '';
+  if (!firstTime) return uniqueDays.join('، ');
+  let formattedTime = firstTime;
+  const parts = firstTime.split(':');
+  if (parts.length >= 2) {
+    const hours = parseInt(parts[0], 10);
+    const minutes = parts[1];
+    if (!isNaN(hours)) {
+      const period = isRtl ? (hours >= 12 ? 'م' : 'ص') : (hours >= 12 ? 'PM' : 'AM');
+      const hours12 = hours % 12 || 12;
+      formattedTime = `${hours12}:${minutes} ${period}`;
+    }
+  }
+  return `${uniqueDays.join('، ')} - ${formattedTime}`;
 }
 
-function getGroupLevelLabel(group, isRtl = true) {
-  const levelObj = group?.studentLevel || group?.level || group?.curriculum?.studentLevel || group?.stage;
-  if (!levelObj) return '-';
-  if (typeof levelObj === 'string') {
-    if (/^[a-fA-F0-9]{24}$/.test(levelObj)) {
-      if (group?.curriculum?.studentLevel?.name) {
-        const cLevel = group.curriculum.studentLevel.name;
-        return typeof cLevel === 'object' ? (isRtl ? cLevel.ar || cLevel.en : cLevel.en || cLevel.ar) : cLevel;
-      }
-      return '-';
-    }
-    return levelObj;
+function getGroupTypeLabel(rawType, isRtl = true, t) {
+  const norm = String(rawType || '').toLowerCase().trim();
+  const isPriv = norm === 'private' || norm.includes('خاص');
+  if (isPriv) {
+    return t ? t('teacherGroups.private', isRtl ? 'خاص' : 'Private') : (isRtl ? 'خاص' : 'Private');
   }
-  if (typeof levelObj === 'object' && levelObj !== null) {
-    if (levelObj.name) {
-      if (typeof levelObj.name === 'object' && levelObj.name !== null) {
-        return isRtl ? (levelObj.name.ar || levelObj.name.en || '-') : (levelObj.name.en || levelObj.name.ar || '-');
-      }
-      return levelObj.name;
-    }
-    if (levelObj.ar || levelObj.en) {
-      return isRtl ? (levelObj.ar || levelObj.en) : (levelObj.en || levelObj.ar);
-    }
+  return t ? t('teacherGroups.public', isRtl ? 'عام' : 'Public') : (isRtl ? 'عام' : 'Public');
+}
+
+function getGroupLevelLabel(level, isRtl = true) {
+  if (!level) return '-';
+  if (typeof level === 'string') {
+    const norm = level.toLowerCase().trim();
+    if (!norm) return '-';
+    if (norm === 'advanced' || norm === 'متقدم') return isRtl ? 'متقدم' : 'Advanced';
+    if (norm === 'middle' || norm === 'intermediate' || norm === 'متوسط') return isRtl ? 'متوسط' : 'Middle';
+    if (norm === 'beginner' || norm === 'مبتدئ') return isRtl ? 'مبتدئ' : 'Beginner';
+    return level;
   }
   return '-';
 }
 
-function formatSchedule(group) {
-  if (group.schedule && typeof group.schedule === 'string') return group.schedule;
-  if (Array.isArray(group.schedules) && group.schedules.length > 0) {
-    return group.schedules.map((s) => s.day || s.dayName || s.time).filter(Boolean).join('، ');
-  }
-  return '';
-}
-
 export default function TeacherGroups() {
+  const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const page = 1;
-  const limit = 50;
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
+  const page = 1;
+  const limit = 50;
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -85,10 +78,9 @@ export default function TeacherGroups() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -98,206 +90,134 @@ export default function TeacherGroups() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-    }, 350);
+    }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
-  const {
-    data: responseData,
-    isLoading,
-    isFetching,
-    refetch,
-  } = useQuery({
-    queryKey: ['teacherGroups', page, statusFilter],
-    queryFn: async () => {
-      try {
-        if (statusFilter && statusFilter !== 'all') {
-          return await teacherGroupsApi.fetchGroupsByStatus(statusFilter, { page, limit });
-        }
-        const res = await teacherGroupsApi.fetchGroups({ page, limit });
-        const list = Array.isArray(res?.data)
-          ? res.data
-          : (Array.isArray(res)
-            ? res
-            : (Array.isArray(res?.data?.data)
-              ? res.data.data
-              : (Array.isArray(res?.data?.groups) ? res.data.groups : [])));
-        if (list && list.length > 0) {
-          return res;
-        }
-        const activeRes = await teacherGroupsApi.fetchActiveGroups({ page, limit });
-        const activeList = Array.isArray(activeRes?.data)
-          ? activeRes.data
-          : (Array.isArray(activeRes)
-            ? activeRes
-            : (Array.isArray(activeRes?.data?.data) ? activeRes.data.data : []));
-        if (activeList && activeList.length > 0) {
-          return activeRes;
-        }
-        return res;
-      } catch (err) {
-        if (statusFilter && statusFilter !== 'all') {
-          return await teacherGroupsApi.fetchGroupsByStatus(statusFilter, { page, limit });
-        }
-        return await teacherGroupsApi.fetchActiveGroups({ page, limit });
-      }
-    },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+  const { data: responseData, isLoading } = useQuery({
+    queryKey: ['teacherGroups', page, limit],
+    queryFn: () => teacherGroupsApi.fetchGroups({ page, limit }),
+    staleTime: 60 * 1000,
   });
-
-  useEffect(() => {
-    refetch();
-  }, [statusFilter, refetch]);
-
   const rawGroups = useMemo(() => {
     let list = [];
-    if (Array.isArray(responseData)) {
-      list = responseData;
-    } else if (Array.isArray(responseData?.data)) {
+    if (Array.isArray(responseData?.data)) {
       list = responseData.data;
     } else if (Array.isArray(responseData?.data?.data)) {
       list = responseData.data.data;
-    } else if (Array.isArray(responseData?.data?.groups)) {
-      list = responseData.data.groups;
-    } else if (Array.isArray(responseData?.groups)) {
-      list = responseData.groups;
-    } else if (Array.isArray(responseData?.items)) {
-      list = responseData.items;
-    } else if (Array.isArray(responseData?.data?.items)) {
-      list = responseData.data.items;
-    } else if (Array.isArray(responseData?.result)) {
-      list = responseData.result;
-    } else if (Array.isArray(responseData?.data?.result)) {
-      list = responseData.data.result;
+    } else if (Array.isArray(responseData)) {
+      list = responseData;
     }
     if (!Array.isArray(list)) return [];
     return list.map((g, idx) => {
       const groupName = typeof g.name === 'object' && g.name !== null
         ? (isRtl ? g.name.ar || g.name.en : g.name.en || g.name.ar)
-        : g.name || `${t('teacherDashboard.groupName', 'مجموعة')} ${idx + 1}`;
-
+        : (g.name || `${t('teacherDashboard.groupName', 'مجموعة')} ${idx + 1}`);
       const currName = typeof g.curriculum === 'object' && g.curriculum !== null
         ? (isRtl ? g.curriculum.name?.ar || g.curriculum.name?.en : g.curriculum.name?.en || g.curriculum.name?.ar)
         : (g.curriculum?.name || g.curriculum || '');
-
-      const langName = typeof g.explanationLanguage === 'object' && g.explanationLanguage !== null
-        ? (isRtl ? g.explanationLanguage.name?.ar || g.explanationLanguage.name?.en : g.explanationLanguage.name?.en || g.explanationLanguage.name?.ar)
-        : (g.explanationLanguage?.name || g.language || '');
-
+      const rawType = String(g.type || '').toLowerCase();
+      const isPrivate = g.isPrivate === true || rawType === 'private' || rawType.includes('خاص') || g.maxStudents === 1;
+      const rawStatus = String(g.status || '').toLowerCase();
+      const isActive = rawStatus === 'active' || rawStatus.includes('نشط') || rawStatus === 'نشطة';
+      const studentsCount = typeof g.currentStudentsCount === 'number'
+        ? g.currentStudentsCount
+        : (Array.isArray(g.students) ? g.students.length : 0);
+      const scheduleText = formatWeeklySchedule(g.weeklySchedule || g.schedules, isRtl);
       return {
         id: g.id || g._id || `grp-${idx}`,
         name: groupName,
         curriculum: currName,
-        status: g.status || (statusFilter !== 'all' ? statusFilter : 'active'),
-        language: langName,
-        currentStudentsCount: Array.isArray(g.students) ? g.students.length : (g.currentStudentsCount ?? 0),
+        country: g.country || '',
+        language: g.language || '',
+        status: g.status || 'نشطة',
+        rawStatus,
+        isActive,
+        isPrivate,
+        type: getGroupTypeLabel(g.type, isRtl, t),
+        rawType,
+        level: getGroupLevelLabel(g.level, isRtl),
+        currentStudentsCount: studentsCount,
         maxStudents: g.maxStudents || 0,
-        type: getGroupTypeLabel(g, t),
-        rawType: (g.type || 'public').toLowerCase(),
-        level: getGroupLevelLabel(g, isRtl),
-        schedule: formatSchedule(g),
+        scheduleFormatted: scheduleText,
       };
     });
-  }, [responseData, statusFilter, isRtl, t]);
-
-  const statusCounts = useMemo(() => {
-    let all = rawGroups.length;
-    let pending = 0;
-    let active = 0;
-    let stopped = 0;
-    let completed = 0;
-
-    rawGroups.forEach((g) => {
-      const st = (g.status || '').toLowerCase();
-      if (st === 'pending' || st.includes('انتظار')) {
-        pending++;
-      } else if (st === 'stopped' || st.includes('موقوف') || st.includes('متوقف')) {
-        stopped++;
-      } else if (st === 'completed' || st.includes('مكتمل')) {
-        completed++;
-      } else {
-        active++;
-      }
-    });
-
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'active') active = rawGroups.length;
-      if (statusFilter === 'pending') pending = rawGroups.length;
-      if (statusFilter === 'stopped') stopped = rawGroups.length;
-      if (statusFilter === 'completed') completed = rawGroups.length;
-    }
-
-    return { all, active, pending, stopped, completed };
-  }, [rawGroups, statusFilter]);
-
+  }, [responseData, isRtl, t]);
+  const stats = useMemo(() => {
+    const totalGroups = responseData?.statistics?.total ?? rawGroups.length;
+    const privateGroups = rawGroups.filter((g) => g.isPrivate).length;
+    const publicGroups = rawGroups.filter((g) => !g.isPrivate).length;
+    const totalStudents = rawGroups.reduce((acc, g) => acc + (Number(g.currentStudentsCount) || 0), 0);
+    return {
+      totalGroups,
+      privateGroups,
+      publicGroups,
+      totalStudents,
+    };
+  }, [responseData?.statistics, rawGroups]);
   const filteredGroups = useMemo(() => {
     return rawGroups.filter((g) => {
-      const st = (g.status || '').toLowerCase();
-      if (statusFilter === 'active' && (st === 'pending' || st === 'stopped' || st === 'completed' || st.includes('انتظار') || st.includes('موقوف') || st.includes('مكتمل'))) return false;
-      if (statusFilter === 'pending' && st !== 'pending' && !st.includes('انتظار')) return false;
-      if (statusFilter === 'stopped' && st !== 'stopped' && !st.includes('موقوف')) return false;
-      if (statusFilter === 'completed' && st !== 'completed' && !st.includes('مكتمل')) return false;
-
-      if (typeFilter !== 'all') {
-        const isPriv = g.rawType === 'private' || g.type.includes('خاص');
-        if (typeFilter === 'private' && !isPriv) return false;
-        if (typeFilter === 'public' && isPriv) return false;
-      }
-
+      if (activeFilter === 'private' && !g.isPrivate) return false;
+      if (activeFilter === 'public' && g.isPrivate) return false;
+      if (activeFilter === 'active' && !g.isActive) return false;
       if (debouncedSearch.trim()) {
-        const q = debouncedSearch.toLowerCase().trim();
-        const matchName = g.name.toLowerCase().includes(q);
-        const matchCurr = (g.curriculum || '').toLowerCase().includes(q);
-        return matchName || matchCurr;
+        const query = debouncedSearch.toLowerCase().trim();
+        const matchesName = g.name.toLowerCase().includes(query);
+        const matchesCurriculum = (g.curriculum || '').toLowerCase().includes(query);
+        const matchesCountry = (g.country || '').toLowerCase().includes(query);
+        return matchesName || matchesCurriculum || matchesCountry;
       }
       return true;
     });
-  }, [rawGroups, statusFilter, typeFilter, debouncedSearch]);
-
+  }, [rawGroups, activeFilter, debouncedSearch]);
+  const userInitial = useMemo(() => {
+    const name = user?.name || '';
+    if (typeof name === 'object' && name !== null) {
+      const resolved = isRtl ? name.ar || name.en : name.en || name.ar;
+      return resolved ? resolved.trim().charAt(0) : 'أ';
+    }
+    return typeof name === 'string' && name.trim() ? name.trim().charAt(0) : 'أ';
+  }, [user, isRtl]);
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-6 max-w-7xl mx-auto pb-14 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherGroupsHeader
+        totalGroups={stats.totalGroups}
         currentTimeStr={currentTimeStr}
         currentDateStr={currentDateStr}
-        isFetching={isFetching}
-        onRefetch={refetch}
+        userInitial={userInitial}
+        notificationsCount={3}
       />
-
+      <TeacherGroupsStatsGrid
+        totalGroups={stats.totalGroups}
+        privateGroups={stats.privateGroups}
+        publicGroups={stats.publicGroups}
+        totalStudents={stats.totalStudents}
+      />
       <TeacherGroupsFilterBar
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        typeFilter={typeFilter}
-        onTypeFilterChange={setTypeFilter}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        statusCounts={statusCounts}
       />
-
-      {isLoading || (isFetching && rawGroups.length === 0) ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-64 rounded-3xl bg-slate-100 dark:bg-slate-800/60 animate-pulse border border-slate-100 dark:border-slate-800" />
           ))}
         </div>
       ) : filteredGroups.length === 0 ? (
         <TeacherGroupsEmptyState />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {filteredGroups.map((group) => (
             <TeacherGroupCard key={group.id} group={group} />
           ))}
@@ -306,3 +226,4 @@ export default function TeacherGroups() {
     </div>
   );
 }
+

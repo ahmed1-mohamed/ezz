@@ -66,6 +66,13 @@ export default function StudentSchedule() {
   const handleCurrentWeek = () => {
     setCurrentDateParam(null);
   };
+  const isCurrentWeek = useMemo(() => {
+    if (!currentDateParam && weekInfo.isCurrentWeek !== false) return true;
+    if (weekInfo.isCurrentWeek !== undefined) return Boolean(weekInfo.isCurrentWeek);
+    const todayStr = new Date().toISOString().split('T')[0];
+    return days.some((d) => d.date === todayStr);
+  }, [currentDateParam, weekInfo.isCurrentWeek, days]);
+
   const monthYearLabel = useMemo(() => {
     const refDate = selectedDay?.date || weekInfo.startDate || weekInfo.currentWeekDate;
     if (!refDate) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
@@ -212,12 +219,12 @@ export default function StudentSchedule() {
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
           {/* Month/Year Title & Arrow Navigators */}
           <div className="flex items-center justify-between">
-            {/* Right arrow in RTL = Next or Prev */}
             <button
               type="button"
-              onClick={isRtl ? handleNextWeek : handlePrevWeek}
-              disabled={isRtl ? !weekInfo.nextWeekDate : !weekInfo.previousWeekDate}
-              aria-label="Navigate"
+              onClick={isRtl ? handlePrevWeek : handleNextWeek}
+              disabled={isRtl ? !weekInfo.previousWeekDate : !weekInfo.nextWeekDate}
+              aria-label={isRtl ? 'الأسبوع السابق' : 'Previous Week'}
+              title={isRtl ? 'الأسبوع السابق' : 'Previous Week'}
               className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -226,22 +233,26 @@ export default function StudentSchedule() {
               <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
                 {monthYearLabel}
               </h2>
-              {!weekInfo.isCurrentWeek && (
+              {isCurrentWeek ? (
+                <span className="text-xs font-bold text-[#00594C] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-200/50 dark:border-emerald-800/50 select-none">
+                  {isRtl ? 'الأسبوع الحالي' : 'Current Week'}
+                </span>
+              ) : (
                 <button
                   type="button"
                   onClick={handleCurrentWeek}
-                  className="text-xs font-bold text-[#00594C] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer"
+                  className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-3 py-1 rounded-full transition-colors cursor-pointer flex items-center gap-1.5"
                 >
-                  {isRtl ? 'الأسبوع الحالي' : 'Current Week'}
+                  <span>{isRtl ? 'العودة للأسبوع الحالي' : 'Back to Current Week'}</span>
                 </button>
               )}
             </div>
-            {/* Left arrow in RTL */}
             <button
               type="button"
-              onClick={isRtl ? handlePrevWeek : handleNextWeek}
-              disabled={isRtl ? !weekInfo.previousWeekDate : !weekInfo.nextWeekDate}
-              aria-label="Navigate"
+              onClick={isRtl ? handleNextWeek : handlePrevWeek}
+              disabled={isRtl ? !weekInfo.nextWeekDate : !weekInfo.previousWeekDate}
+              aria-label={isRtl ? 'الأسبوع التالي' : 'Next Week'}
+              title={isRtl ? 'الأسبوع التالي' : 'Next Week'}
               className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}

@@ -12,23 +12,28 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
   const hourlyRate = teacher?.hourlyRate ?? 0
   const totalEarnings = teacher?.totalEarnings ?? 0
   const dueEarnings = teacher?.dueEarnings ?? 0
-  const totalLessons = teacher?.totalLessons ?? teacher?.totalSessions ?? 0
-  const ratingNumber = teacher?.rating !== undefined && teacher?.rating !== null ? Number(teacher.rating) : 5
+  // actualLessons = lessons actually delivered (from the API); totalLessons is the number shown on the public website
+  const actualLessons = Number(teacher?.actualLessons ?? 0)
+  const ratingNumber = Number(teacher?.rating ?? 0)
   const rating = ratingNumber.toFixed(1)
 
-  const subjectName = teacher?.subject ||
-    (Array.isArray(teacher?.specializations) && teacher?.specializations.length > 0
-      ? (typeof teacher.specializations[0] === 'object' ? (teacher.specializations[0].name?.ar || teacher.specializations[0].name) : teacher.specializations[0])
-      : (isRtl ? 'غير محدد' : 'Not specified'))
+  const specializationNames = (Array.isArray(teacher?.specializations) ? teacher.specializations : [])
+    .map((spec) => (typeof spec?.name === 'object' && spec.name !== null
+      ? (isRtl ? spec.name.ar || spec.name.en : spec.name.en || spec.name.ar)
+      : spec?.name))
+    .filter(Boolean)
+  const subjectName = specializationNames.length > 0
+    ? specializationNames.join(' · ')
+    : (isRtl ? 'غير محدد' : 'Not specified')
 
   const teacherDisplayName = teacherRawName
-    ? (teacherRawName.startsWith('أ.') ? teacherRawName : `أ. ${teacherRawName}`)
+    ? (isRtl && !teacherRawName.startsWith('أ.') ? `أ. ${teacherRawName}` : teacherRawName)
     : (isRtl ? 'معلم' : 'Teacher')
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
           {teacher?.image ? (
             <img
               src={teacher.image}
@@ -144,7 +149,7 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
               {isRtl ? 'الحصص' : 'Lessons'}
             </span>
             <span className="text-lg font-extrabold text-slate-800 dark:text-white block mt-0.5">
-              {totalLessons}
+              {actualLessons}
             </span>
           </div>
         </div>

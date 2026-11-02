@@ -11,6 +11,14 @@ export const EMPTY_PACKAGE = {
   country: '',
   features: [''],
   features_en: [''],
+  type: 'individual',
+  priceAfterDiscount: '',
+  maxMembers: 2,
+  familyTiers: [],
 }
+
+export const PACKAGE_TYPES = ['individual', 'family']
+export const MIN_FAMILY_MEMBERS = 2
+export const MAX_FAMILY_MEMBERS = 5
 
 export const EMPTY_FAQ = { question: '', question_en: '', answer: '', answer_en: '' }

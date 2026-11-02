@@ -9,6 +9,51 @@ export const getImageUrl = (imagePath) => {
   return `https://manaret-ezz.dramcode.top/${cleanPath}`;
 };
 
+const toBilingual = (value, enFallback = '') => {
+  if (typeof value === 'object' && value !== null) return { ar: value.ar || '', en: value.en || '' };
+  return { ar: value || '', en: enFallback || value || '' };
+};
+
+export const toAvailabilityPayload = (slots = []) =>
+  (Array.isArray(slots) ? slots : [])
+    .map((s) => ({
+      day: String(s.rawDay || s.day || '').toLowerCase(),
+      startTime: s.startTime,
+      endTime: s.endTime,
+    }))
+    .filter((s) => s.day && s.startTime && s.endTime);
+
+const buildTeacherPayload = (data = {}, { isCreate }) => {
+  const payload = {};
+  if (data.name !== undefined) payload.name = toBilingual(data.name, data.nameEn);
+  if (data.phone) payload.phone = data.phone;
+  if (data.country) payload.country = data.country;
+  if (data.bio !== undefined) payload.bio = toBilingual(data.bio);
+  if (data.degree !== undefined) payload.degree = toBilingual(data.degree);
+  if (Array.isArray(data.specializations)) {
+    payload.specializations = data.specializations.map((s) => (typeof s === 'object' ? (s.id || s._id) : s)).filter(Boolean);
+  }
+  if (data.yearsOfExperience !== undefined) payload.yearsOfExperience = Math.max(0, Number(data.yearsOfExperience) || 0);
+  if (data.achievements !== undefined) {
+    const ach = data.achievements;
+    payload.achievements = Array.isArray(ach)
+      ? { ar: ach.map((a) => a.ar || a.en || '').filter(Boolean), en: ach.map((a) => a.en || a.ar || '').filter(Boolean) }
+      : { ar: ach?.ar || [], en: ach?.en || [] };
+  }
+  if (data.showOnWebsite !== undefined) payload.showOnWebsite = Boolean(data.showOnWebsite);
+  if (data.availability !== undefined) payload.availability = toAvailabilityPayload(data.availability);
+  ['totalLessons', 'totalStudents', 'totalGroups'].forEach((key) => {
+    if (data[key] !== undefined) payload[key] = Math.max(0, Number(data[key]) || 0);
+  });
+  if (isCreate) {
+    payload.email = data.email;
+    payload.password = data.password;
+    payload.confirmPassword = data.confirmPassword;
+    payload.hourlyRate = Math.max(0, Number(data.hourlyRate) || 0);
+  }
+  return payload;
+};
+
 export const mapTeacherData = (item) => {
   if (!item) return null;
 
@@ -168,8 +213,7 @@ export const mapTeacherData = (item) => {
     achievementsEn,
     showOnWebsite: Boolean(item.showOnWebsite),
     certificates,
-    workingHours: item.workingHours || item.availability || item.availableHours || [],
-    availability: item.workingHours || item.availability || item.availableHours || [],
+    availability: Array.isArray(item.availability) ? item.availability : [],
     specializations,
     groups,
     image,
@@ -370,21 +414,30 @@ export const teachersApi = {
 
   fetchTeachersList: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/teachers/private/localized/list', { params });
+      const response = await api.get('/api/v1/teachers/private/list', { params });
       const resData = response.data || {};
-      const rawList = resData.data || (Array.isArray(resData) ? resData : []);
+      const rawList = resData.data?.teachers || resData.teachers || resData.data || (Array.isArray(resData) ? resData : []);
       const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
       return { success: true, data: items };
-    } catch {
+    } catch (error) {
+      console.warn('API fetchTeachersList (/api/v1/teachers/private/list) failed, trying fallback:', error);
       try {
-        const fallback = await api.get('/api/v1/teachers/private/localized/all', { params });
+        const fallback = await api.get('/api/v1/teachers/private/localized/list', { params });
         const resData = fallback.data || {};
-        const rawList = resData.data || (Array.isArray(resData) ? resData : []);
+        const rawList = resData.data?.teachers || resData.teachers || resData.data || (Array.isArray(resData) ? resData : []);
         const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
         return { success: true, data: items };
-      } catch (err) {
-        console.error('API fetchTeachersList failed:', err);
-        return { success: false, data: [] };
+      } catch {
+        try {
+          const secondFallback = await api.get('/api/v1/teachers/private/localized/all', { params });
+          const resData = secondFallback.data || {};
+          const rawList = resData.data?.teachers || resData.teachers || resData.data || (Array.isArray(resData) ? resData : []);
+          const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
+          return { success: true, data: items };
+        } catch (finalErr) {
+          console.error('API fetchTeachersList all fallbacks failed:', finalErr);
+          return { success: false, data: [] };
+        }
       }
     }
   },
@@ -419,375 +472,50 @@ export const teachersApi = {
     }
   },
 
+  // POST /teachers/private is JSON-only (numeric/boolean fields fail multipart validation),
+  // so the image is uploaded afterwards with a multipart PATCH containing only `image`.
   createTeacher: async (teacherData) => {
-    try {
-      const hasFiles = teacherData instanceof FormData ||
-        (teacherData?.profileImageFile instanceof File) ||
-        (teacherData?.image instanceof File) ||
-        (teacherData?.cvFile instanceof File) ||
-        (teacherData?.cv instanceof File) ||
-        (Array.isArray(teacherData?.certificates) && teacherData.certificates.some(c => (c instanceof File) || (c?.file instanceof File)));
-
-      if (hasFiles) {
-        let fd = teacherData instanceof FormData ? teacherData : new FormData();
-        if (!(teacherData instanceof FormData)) {
-          const nameObj = (typeof teacherData.name === 'object' && teacherData.name !== null)
-            ? teacherData.name
-            : { ar: teacherData.name || '', en: teacherData.nameEn || teacherData.name || '' };
-          fd.append('name[ar]', nameObj.ar || '');
-          fd.append('name[en]', nameObj.en || '');
-          if (teacherData.nameEn) fd.append('nameEn', teacherData.nameEn);
-
-          const degreeObj = (typeof teacherData.degree === 'object' && teacherData.degree !== null)
-            ? teacherData.degree
-            : { ar: teacherData.degree || teacherData.qualification || '', en: teacherData.degreeEn || teacherData.qualificationEn || '' };
-          fd.append('degree[ar]', degreeObj.ar || '');
-          fd.append('degree[en]', degreeObj.en || '');
-
-          const bioObj = (typeof teacherData.bio === 'object' && teacherData.bio !== null)
-            ? teacherData.bio
-            : { ar: teacherData.bio || teacherData.aboutAr || '', en: teacherData.aboutEn || teacherData.bio || '' };
-          fd.append('bio[ar]', bioObj.ar || '');
-          fd.append('bio[en]', bioObj.en || '');
-
-          if (teacherData.email) fd.append('email', teacherData.email);
-          if (teacherData.phone) fd.append('phone', teacherData.phone);
-          if (teacherData.country) fd.append('country', teacherData.country);
-          if (teacherData.password) fd.append('password', teacherData.password);
-          if (teacherData.confirmPassword) fd.append('confirmPassword', teacherData.confirmPassword);
-          fd.append('hourlyRate', String(Number(teacherData.hourlyRate) || 0));
-          fd.append('totalLessons', String(Number(teacherData.totalLessons) || 0));
-          fd.append('totalStudents', String(Number(teacherData.totalStudents) || 0));
-          fd.append('yearsOfExperience', String(Number(teacherData.yearsOfExperience) || 0));
-          fd.append('profitPercentage', String(Number(teacherData.profitPercentage) || 0));
-          fd.append('showOnWebsite', String(Boolean(teacherData.showOnWebsite)));
-
-          if (Array.isArray(teacherData.specializations)) {
-            teacherData.specializations.forEach((s) => {
-              const sId = typeof s === 'object' ? (s.id || s._id) : s;
-              if (sId) fd.append('specializations[]', sId);
-            });
-          }
-
-          if (teacherData.achievements) {
-            if (Array.isArray(teacherData.achievements)) {
-              teacherData.achievements.forEach((ach) => {
-                if (typeof ach === 'object' && ach !== null) {
-                  if (ach.ar) fd.append('achievements[ar][]', ach.ar);
-                  if (ach.en) fd.append('achievements[en][]', ach.en);
-                } else {
-                  fd.append('achievements[ar][]', String(ach));
-                  fd.append('achievements[en][]', String(ach));
-                }
-              });
-            } else if (typeof teacherData.achievements === 'object' && teacherData.achievements !== null) {
-              if (Array.isArray(teacherData.achievements.ar)) {
-                teacherData.achievements.ar.forEach(a => fd.append('achievements[ar][]', a));
-              }
-              if (Array.isArray(teacherData.achievements.en)) {
-                teacherData.achievements.en.forEach(a => fd.append('achievements[en][]', a));
-              }
-            }
-          }
-
-          if (teacherData.profileImageFile instanceof File) {
-            fd.append('image', teacherData.profileImageFile);
-          } else if (teacherData.image instanceof File) {
-            fd.append('image', teacherData.image);
-          }
-
-          const cvObj = teacherData.cvFile instanceof File ? teacherData.cvFile : (teacherData.cv instanceof File ? teacherData.cv : null);
-          if (cvObj) {
-            fd.append('cv', cvObj);
-          }
-
-          if (Array.isArray(teacherData.certificates)) {
-            teacherData.certificates.forEach((c) => {
-              if (c instanceof File) {
-                fd.append('certificates', c);
-              } else if (c?.file instanceof File) {
-                fd.append('certificates', c.file);
-              }
-            });
-          }
-        }
-
-        const response = await api.post('/api/v1/teachers/private', fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        const item = response.data?.data || response.data;
-        return { success: true, data: mapTeacherData(item) };
-      }
-
-      const nameObj = (typeof teacherData.name === 'object' && teacherData.name !== null)
-        ? teacherData.name
-        : { ar: teacherData.name || '', en: teacherData.nameEn || teacherData.name || '' };
-
-      const degreeObj = (typeof teacherData.degree === 'object' && teacherData.degree !== null)
-        ? teacherData.degree
-        : { ar: teacherData.degree || teacherData.qualification || 'مؤهل جامعي', en: teacherData.qualificationEn || teacherData.degreeEn || 'University Degree' };
-
-      const bioObj = (typeof teacherData.bio === 'object' && teacherData.bio !== null)
-        ? teacherData.bio
-        : { ar: teacherData.bio || teacherData.aboutAr || '', en: teacherData.aboutEn || teacherData.bio || '' };
-
-      const specializations = Array.isArray(teacherData.specializations)
-        ? teacherData.specializations.map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean)
-        : [];
-
-      const achievements = Array.isArray(teacherData.achievements)
-        ? teacherData.achievements.filter(Boolean)
-        : [];
-
-      const payload = {
-        name: nameObj,
-        nameEn: teacherData.nameEn || nameObj.en,
-        degree: degreeObj,
-        bio: bioObj,
-        email: teacherData.email,
-        phone: teacherData.phone,
-        country: teacherData.country,
-        specializations,
-        achievements,
-        showOnWebsite: Boolean(teacherData.showOnWebsite),
-        totalLessons: Math.max(0, Number(teacherData.totalLessons) || 0),
-        totalStudents: Math.max(0, Number(teacherData.totalStudents) || 0),
-        hourlyRate: Math.max(0, Number(teacherData.hourlyRate) || 0),
-        yearsOfExperience: Math.max(0, Number(teacherData.yearsOfExperience ?? teacherData.experienceYears ?? 0)),
-        profitPercentage: Math.min(100, Math.max(0, Number(teacherData.profitPercentage ?? 20))),
-      };
-
-      if (teacherData.password) payload.password = teacherData.password;
-      if (teacherData.confirmPassword) payload.confirmPassword = teacherData.confirmPassword;
-      if (Array.isArray(teacherData.certificates) && teacherData.certificates.length > 0) {
-        payload.certificates = teacherData.certificates;
-      }
-
-      const imageVal = teacherData.profileImage || teacherData.image;
-      if (imageVal && typeof imageVal === 'string' && !imageVal.startsWith('blob:')) {
-        payload.image = imageVal;
-      }
-
-      const response = await api.post('/api/v1/teachers/private', payload);
-      const item = response.data?.data || response.data;
-      return { success: true, data: mapTeacherData(item) };
-    } catch (error) {
-      console.error('API createTeacher failed:', error);
-      throw error;
+    const payload = buildTeacherPayload(teacherData, { isCreate: true });
+    const response = await api.post('/api/v1/teachers/private', payload);
+    let item = response.data?.data || response.data;
+    const newId = item?.teacher_id || item?.id || item?._id;
+    if (newId && teacherData.profileImageFile instanceof File) {
+      item = (await teachersApi.uploadTeacherImage(newId, teacherData.profileImageFile)) || item;
     }
+    return { success: true, data: mapTeacherData(item) };
   },
 
+  // PATCH /teachers/private/:id accepts: name, phone, country, bio, degree, specializations[], yearsOfExperience,
+  // achievements, showOnWebsite, availability[], totalLessons, totalStudents, totalGroups (+ image via multipart).
+  // Email and hourlyRate are not editable here (hourly rate has its own endpoint).
   updateTeacher: async (id, teacherData) => {
-    try {
-      const hasImageFile = (teacherData?.profileImageFile instanceof File) || (teacherData?.image instanceof File);
-
-      if (teacherData instanceof FormData) {
-        const response = await api.patch(`/api/v1/teachers/private/${id}`, teacherData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        const item = response.data?.data || response.data;
-        return { success: true, data: mapTeacherData(item) };
-      }
-
-      if (hasImageFile) {
-        const fd = new FormData();
-
-        if (teacherData.name !== undefined) {
-          const nameObj = (typeof teacherData.name === 'object' && teacherData.name !== null)
-            ? teacherData.name
-            : { ar: teacherData.name || '', en: teacherData.nameEn || teacherData.name || '' };
-          fd.append('name[ar]', nameObj.ar || '');
-          fd.append('name[en]', nameObj.en || '');
-        }
-
-        const imgFile = teacherData.profileImageFile instanceof File ? teacherData.profileImageFile : teacherData.image;
-        if (imgFile instanceof File) {
-          fd.append('image', imgFile);
-        }
-
-        if (teacherData.email !== undefined && teacherData.email !== null) {
-          fd.append('email', typeof teacherData.email === 'string' ? teacherData.email.trim() : teacherData.email);
-        }
-
-        if (teacherData.phone !== undefined) fd.append('phone', teacherData.phone);
-
-        if (teacherData.country !== undefined) fd.append('country', teacherData.country);
-
-        if (teacherData.totalLessons !== undefined || teacherData.totalSessions !== undefined) {
-          fd.append('totalLessons', String(Math.max(0, Number(teacherData.totalLessons ?? teacherData.totalSessions) || 0)));
-        }
-
-        if (teacherData.totalStudents !== undefined || teacherData.studentsCount !== undefined) {
-          fd.append('totalStudents', String(Math.max(0, Number(teacherData.totalStudents ?? teacherData.studentsCount) || 0)));
-        }
-
-        if (teacherData.bio !== undefined || teacherData.aboutAr !== undefined || teacherData.aboutEn !== undefined) {
-          const bioObj = (typeof teacherData.bio === 'object' && teacherData.bio !== null)
-            ? teacherData.bio
-            : { ar: teacherData.bio || teacherData.aboutAr || '', en: teacherData.aboutEn || '' };
-          fd.append('bio[ar]', bioObj.ar || '');
-          fd.append('bio[en]', bioObj.en || '');
-        }
-
-        if (Array.isArray(teacherData.specializations)) {
-          teacherData.specializations.forEach((s) => {
-            const sId = typeof s === 'object' ? (s.id || s._id) : s;
-            if (sId) fd.append('specializations[]', sId);
-          });
-        }
-
-        if (teacherData.yearsOfExperience !== undefined || teacherData.experienceYears !== undefined) {
-          fd.append('yearsOfExperience', String(Math.max(0, Number(teacherData.yearsOfExperience ?? teacherData.experienceYears) || 0)));
-        }
-
-        if (teacherData.degree !== undefined || teacherData.degreeAr !== undefined || teacherData.qualification !== undefined) {
-          const degreeObj = (typeof teacherData.degree === 'object' && teacherData.degree !== null)
-            ? teacherData.degree
-            : { ar: teacherData.degree || teacherData.degreeAr || teacherData.qualification || '', en: teacherData.degreeEn || teacherData.qualificationEn || '' };
-          fd.append('degree[ar]', degreeObj.ar || '');
-          fd.append('degree[en]', degreeObj.en || '');
-        }
-
-        if (teacherData.achievements !== undefined) {
-          if (Array.isArray(teacherData.achievements)) {
-            teacherData.achievements.forEach((ach) => {
-              if (typeof ach === 'object' && ach !== null) {
-                if (ach.ar) fd.append('achievements[ar][]', ach.ar);
-                if (ach.en) fd.append('achievements[en][]', ach.en);
-              } else {
-                fd.append('achievements[ar][]', String(ach));
-                fd.append('achievements[en][]', String(ach));
-              }
-            });
-          } else if (typeof teacherData.achievements === 'object' && teacherData.achievements !== null) {
-            if (Array.isArray(teacherData.achievements.ar)) {
-              teacherData.achievements.ar.forEach(a => fd.append('achievements[ar][]', a));
-            }
-            if (Array.isArray(teacherData.achievements.en)) {
-              teacherData.achievements.en.forEach(a => fd.append('achievements[en][]', a));
-            }
-          }
-        }
-
-        if (teacherData.hourlyRate !== undefined) {
-          fd.append('hourlyRate', String(Math.max(0, Number(teacherData.hourlyRate) || 0)));
-        }
-
-        if (teacherData.workingHours !== undefined || teacherData.availability !== undefined) {
-          const sched = teacherData.workingHours || teacherData.availability;
-          fd.append('workingHours', JSON.stringify(sched));
-          fd.append('availability', JSON.stringify(sched));
-        }
-        if (teacherData.showOnWebsite !== undefined) {
-          fd.append('showOnWebsite', String(Boolean(teacherData.showOnWebsite)));
-        }
-
-        const response = await api.patch(`/api/v1/teachers/private/${id}`, fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        const item = response.data?.data || response.data;
-        return { success: true, data: mapTeacherData(item) };
-      }
-
-      const payload = {};
-
-      if (teacherData.name !== undefined) {
-        payload.name = (typeof teacherData.name === 'object' && teacherData.name !== null)
-          ? teacherData.name
-          : { ar: teacherData.name || '', en: teacherData.nameEn || teacherData.name || '' };
-      }
-
-      const imageVal = teacherData.profileImage || teacherData.image;
-      if (imageVal && typeof imageVal === 'string' && !imageVal.startsWith('blob:')) {
-        payload.image = imageVal;
-      }
-
-      if (teacherData.email !== undefined && teacherData.email !== null) {
-        payload.email = typeof teacherData.email === 'string' ? teacherData.email.trim() : teacherData.email;
-      }
-
-      if (teacherData.phone !== undefined) payload.phone = teacherData.phone;
-
-      if (teacherData.country !== undefined) payload.country = teacherData.country;
-
-      if (teacherData.hourlyRate !== undefined) {
-        payload.hourlyRate = Math.max(0, Number(teacherData.hourlyRate) || 0);
-      }
-
-      if (teacherData.totalLessons !== undefined || teacherData.totalSessions !== undefined) {
-        payload.totalLessons = Math.max(0, Number(teacherData.totalLessons ?? teacherData.totalSessions) || 0);
-      }
-
-      if (teacherData.totalStudents !== undefined || teacherData.studentsCount !== undefined) {
-        payload.totalStudents = Math.max(0, Number(teacherData.totalStudents ?? teacherData.studentsCount) || 0);
-      }
-
-      if (teacherData.bio !== undefined || teacherData.aboutAr !== undefined || teacherData.aboutEn !== undefined) {
-        payload.bio = (typeof teacherData.bio === 'object' && teacherData.bio !== null)
-          ? teacherData.bio
-          : { ar: teacherData.bio || teacherData.aboutAr || '', en: teacherData.aboutEn || '' };
-      }
-
-      if (Array.isArray(teacherData.specializations)) {
-        payload.specializations = teacherData.specializations
-          .map(s => typeof s === 'object' ? (s.id || s._id) : s)
-          .filter(Boolean);
-      }
-
-      if (teacherData.yearsOfExperience !== undefined || teacherData.experienceYears !== undefined) {
-        payload.yearsOfExperience = Math.max(0, Number(teacherData.yearsOfExperience ?? teacherData.experienceYears) || 0);
-      }
-
-      if (teacherData.degree !== undefined || teacherData.degreeAr !== undefined || teacherData.qualification !== undefined) {
-        payload.degree = (typeof teacherData.degree === 'object' && teacherData.degree !== null)
-          ? teacherData.degree
-          : { ar: teacherData.degree || teacherData.degreeAr || teacherData.qualification || '', en: teacherData.degreeEn || teacherData.qualificationEn || '' };
-      }
-
-      if (teacherData.achievements !== undefined) {
-        payload.achievements = teacherData.achievements;
-      if (teacherData.workingHours !== undefined || teacherData.availability !== undefined) {
-        const sched = teacherData.workingHours || teacherData.availability;
-        payload.workingHours = sched;
-        payload.availability = sched;
-      }
-      }
-
-      if (teacherData.showOnWebsite !== undefined) {
-        payload.showOnWebsite = Boolean(teacherData.showOnWebsite);
-      }
-
+    const payload = buildTeacherPayload(teacherData, { isCreate: false });
+    let item = null;
+    if (Object.keys(payload).length > 0) {
       const response = await api.patch(`/api/v1/teachers/private/${id}`, payload);
-      const item = response.data?.data || response.data;
-      return { success: true, data: mapTeacherData(item) };
-    } catch (error) {
-      console.error('API updateTeacher failed:', error);
-      throw error;
+      item = response.data?.data || response.data;
     }
+    if (teacherData.profileImageFile instanceof File) {
+      item = (await teachersApi.uploadTeacherImage(id, teacherData.profileImageFile)) || item;
+    }
+    return { success: true, data: mapTeacherData(item) };
   },
 
-  updateTeacherHourlyRate: async (idOrTeacher, hourlyRate) => {
-    const id = typeof idOrTeacher === 'object' && idOrTeacher !== null
-      ? (idOrTeacher.teacher_id || idOrTeacher.id || idOrTeacher._id)
-      : idOrTeacher;
-    const rateNumber = Math.max(0, Number(hourlyRate) || 0);
-    try {
-      const response = await api.patch(`/api/v1/teachers/private/${id}/hourly-rate`, {
-        hourlyRate: rateNumber,
-        hourly_rate: rateNumber
-      });
-      return response.data;
-    } catch (error) {
-      if (error.response?.status === 404 || error.response?.status === 405) {
-        const fallbackRes = await api.patch(`/api/v1/teachers/private/${id}`, {
-          hourlyRate: rateNumber,
-          hourly_rate: rateNumber
-        });
-        return fallbackRes.data;
-      }
-      console.error('API updateTeacherHourlyRate failed:', error);
-      throw error;
-    }
+  uploadTeacherImage: async (id, file) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    const response = await api.patch(`/api/v1/teachers/private/${id}`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data?.data || response.data;
+  },
+
+  // PATCH /teachers/private/:id/hourly-rate { hourlyRate: number >= 0 }
+  updateTeacherHourlyRate: async (id, hourlyRate) => {
+    const response = await api.patch(`/api/v1/teachers/private/${id}/hourly-rate`, {
+      hourlyRate: Math.max(0, Number(hourlyRate) || 0)
+    });
+    return response.data;
   },
 
   addTeacherCertificate: async (id, certData) => {
@@ -870,112 +598,17 @@ export const teachersApi = {
     }
   },
 
-  changeTeacherPassword: async (userIdOrTeacher, passwordData) => {
-    try {
-      let userId = typeof userIdOrTeacher === 'object' && userIdOrTeacher !== null
-        ? (
-            (typeof userIdOrTeacher.user === 'string' && userIdOrTeacher.user) ||
-            userIdOrTeacher.user?._id ||
-            userIdOrTeacher.user?.id ||
-            userIdOrTeacher.user_id ||
-            (typeof userIdOrTeacher.userId === 'string' && userIdOrTeacher.userId) ||
-            userIdOrTeacher.userId?._id ||
-            userIdOrTeacher.userId?.id ||
-            userIdOrTeacher.userRef ||
-            userIdOrTeacher.id ||
-            userIdOrTeacher.teacher_id
-          )
-        : userIdOrTeacher;
-
-      const password = typeof passwordData === 'string' ? passwordData : passwordData?.password;
-      const confirmPassword = typeof passwordData === 'object' ? (passwordData?.confirmPassword || password) : password;
-
-      const payload = {
-        password,
-        confirmPassword,
-        ...(passwordData?.phone ? { phone: passwordData.phone } : {}),
-        ...(passwordData?.email ? { email: passwordData.email } : {}),
-        ...(passwordData?.country ? { country: passwordData.country } : {})
-      };
-
-      try {
-        const response = await api.patch(`/api/v1/users/${userId}/change-password`, payload);
-        return response.data;
-      } catch (err) {
-        if (err.response?.status === 404 && typeof userId === 'string') {
-          try {
-            const raw = await api.get(`/api/v1/teachers/private/${userId}`);
-            const rawData = raw.data?.data || raw.data;
-            const actualUserId =
-              (typeof rawData?.user === 'string' && rawData.user) ||
-              rawData?.user?._id ||
-              rawData?.user?.id ||
-              rawData?.user_id ||
-              (typeof rawData?.userId === 'string' && rawData.userId) ||
-              rawData?.userId?._id ||
-              rawData?.userId?.id;
-            if (actualUserId && actualUserId !== userId) {
-              const res = await api.patch(`/api/v1/users/${actualUserId}/change-password`, payload);
-              return res.data;
-            }
-          } catch (err2) {
-            void err2;
-          }
-        }
-        throw err;
-      }
-    } catch (error) {
-      console.error('API changeTeacherPassword failed:', error);
-      throw error;
-    }
+  // PATCH /users/:userId/change-password { password, confirmPassword } — userId is the teacher's user_id
+  changeTeacherPassword: async (userId, { password, confirmPassword }) => {
+    const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
+    return response.data;
   },
 
-  toggleTeacherStatus: async (teacherOrId) => {
-    try {
-      const teacher = typeof teacherOrId === 'object' && teacherOrId !== null ? teacherOrId : null;
-      const id = teacher?.teacher_id || teacher?.id || teacherOrId;
-
-      let userId = teacher?.user_id || teacher?.userId || teacher?.user?._id || teacher?.user?.id;
-
-      if (!userId) {
-        try {
-          const raw = await api.get(`/api/v1/teachers/private/${id}`);
-          const rawData = raw.data?.data || raw.data;
-          userId = rawData?.user_id || rawData?.userId || rawData?.user?._id || rawData?.user?.id || rawData?.user;
-        } catch {
-          userId = null;
-        }
-      }
-
-      if (userId && typeof userId === 'string') {
-        try {
-          const res = await api.patch(`/api/v1/users/${userId}/toggle-active`);
-          return { success: true, data: res.data };
-        } catch (err) {
-          console.warn(`Failed toggle-active on /users/${userId}:`, err);
-        }
-      }
-
-      try {
-        const res = await api.patch(`/api/v1/users/${id}/toggle-active`);
-        return { success: true, data: res.data };
-      } catch (err) {
-        console.warn(`Failed toggle-active on /users/${id}:`, err);
-      }
-
-      try {
-        const res = await api.patch(`/api/v1/teachers/private/${id}/toggle-active`);
-        return { success: true, data: res.data };
-      } catch (err) {
-        console.warn(`Failed toggle-active on /teachers/private/${id}/toggle-active:`, err);
-      }
-
-      const res = await api.patch(`/api/v1/teachers/${id}/toggle-active`);
-      return { success: true, data: res.data };
-    } catch (error) {
-      console.error('API toggleTeacherStatus failed:', error);
-      throw error;
-    }
+  // PATCH /users/:userId/toggle-active
+  toggleTeacherStatus: async (teacher) => {
+    if (!teacher?.user_id) throw new Error('Missing teacher user_id');
+    const res = await api.patch(`/api/v1/users/${teacher.user_id}/toggle-active`);
+    return { success: true, data: res.data };
   },
 
   deleteTeacher: async (id) => {

@@ -170,31 +170,10 @@ export const managersApi = {
     }
   },
 
+  // PATCH /admins/:adminId { permission: <permission group id> }
   assignAdminPermission: async (adminId, permissionId) => {
-    const cleanAdminId = typeof adminId === 'object' && adminId !== null
-      ? (adminId.admin_id || adminId.id || adminId._id)
-      : adminId;
-    const cleanPermId = typeof permissionId === 'object' && permissionId !== null
-      ? (permissionId.id || permissionId._id)
-      : permissionId;
-    const attempts = [
-      () => api.patch(`/api/v1/permissions/admin/${cleanAdminId}`, { permissionId: cleanPermId }),
-      () => api.patch(`/api/v1/permissions/admin/${cleanAdminId}`, { permission: cleanPermId }),
-      () => api.post(`/api/v1/permissions/admin/${cleanAdminId}`, { permissionId: cleanPermId }),
-      () => api.post(`/api/v1/permissions/admin/${cleanAdminId}`, { permission: cleanPermId }),
-      () => api.put(`/api/v1/permissions/admin/${cleanAdminId}`, { permissionId: cleanPermId }),
-      () => api.patch(`/api/v1/admins/${cleanAdminId}`, { permission: cleanPermId }),
-    ];
-    let lastError = null;
-    for (const attempt of attempts) {
-      try {
-        const response = await attempt();
-        return response.data;
-      } catch (err) {
-        lastError = err;
-      }
-    }
-    throw lastError;
+    const response = await api.patch(`/api/v1/admins/${adminId}`, { permission: permissionId });
+    return response.data;
   },
 
   updateAdminPermission: async (adminId, permissionId) => {
@@ -218,50 +197,15 @@ export const managersApi = {
     }
   },
 
-  changeUserPassword: async (userId, data) => {
-    const cleanUserId = typeof userId === 'object' && userId !== null
-      ? (userId.id || userId._id || userId.user_id)
-      : userId;
-    const password = typeof data === 'string' ? data : (data?.password || data?.newPassword);
-    const confirmPassword = typeof data === 'object' ? (data?.confirmPassword || password) : password;
-    const payload = { password, confirmPassword };
-    const attempts = [
-      () => api.patch(`/api/v1/users/${cleanUserId}/change-password`, payload),
-      () => api.patch(`/api/v1/users/${cleanUserId}/change-password`, { password }),
-      () => api.put(`/api/v1/users/${cleanUserId}/change-password`, payload),
-      () => api.patch(`/api/v1/admins/${cleanUserId}/change-password`, payload),
-    ];
-    let lastError = null;
-    for (const attempt of attempts) {
-      try {
-        const response = await attempt();
-        return response.data;
-      } catch (err) {
-        lastError = err;
-      }
-    }
-    throw lastError;
+  // PATCH /users/:userId/change-password { password, confirmPassword }
+  changeUserPassword: async (userId, { password, confirmPassword }) => {
+    const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
+    return response.data;
   },
 
+  // DELETE /permissions/admin/:adminId
   deleteAdminPermission: async (adminId) => {
-    const cleanAdminId = typeof adminId === 'object' && adminId !== null
-      ? (adminId.admin_id || adminId.id || adminId._id)
-      : adminId;
-    const attempts = [
-      () => api.delete(`/api/v1/permissions/admin/${cleanAdminId}`),
-      () => api.delete(`/api/v1/admins/${cleanAdminId}/permissions`),
-      () => api.patch(`/api/v1/admins/${cleanAdminId}`, { permission: null }),
-    ];
-    let lastError = null;
-    for (const attempt of attempts) {
-      try {
-        const response = await attempt();
-        return response.data;
-      } catch (err) {
-        lastError = err;
-      }
-    }
-    throw lastError;
+    const response = await api.delete(`/api/v1/permissions/admin/${adminId}`);
+    return response.data;
   }
 };
-

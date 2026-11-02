@@ -6,7 +6,7 @@ import { managersApi } from '@/shared/services/api/managersApi.js';
 import { SYSTEM_PERMISSIONS } from '@/dashboard/admin/managers/constants';
 import ProfileSettingsPanel from './components/ProfileSettingsPanel.jsx';
 import PasswordSettingsPanel from './components/PasswordSettingsPanel.jsx';
-import LanguageAppearancePanel from './components/LanguageAppearancePanel.jsx';
+import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { extractPermissionKeys } from '@/shared/hooks/useAdminPermissions.js';
 import { CheckCircle, Shield, XCircle } from 'lucide-react';

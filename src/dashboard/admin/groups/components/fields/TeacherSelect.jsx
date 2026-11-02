@@ -4,9 +4,9 @@ import { ChevronDown, Search, X, Check, GraduationCap } from 'lucide-react'
 function getTeacherName(t, isRtl = true) {
   if (!t) return ''
   if (typeof t.name === 'object' && t.name !== null) {
-    return isRtl ? (t.name.ar || t.name.en) : (t.name.en || t.name.ar)
+    return isRtl ? (t.name.ar || t.name.en || '') : (t.name.en || t.name.ar || '')
   }
-  return t.name || ''
+  return t.displayName || t.name || t.nameAr || t.nameEn || ''
 }
 
 export default function TeacherSelect({
@@ -139,7 +139,7 @@ export default function TeacherSelect({
             ) : (
               filteredTeachers.map((teacher) => {
                 const tId = teacher.id || teacher.teacher_id || teacher._id
-                const tName = getTeacherName(teacher)
+                const tName = getTeacherName(teacher, isRtl)
                 const isSelected = selectedTeacher && String(selectedTeacher.id || selectedTeacher.teacher_id || selectedTeacher._id) === String(tId)
                 const isCurrent = currentTeacherId && String(currentTeacherId) === String(tId)
 

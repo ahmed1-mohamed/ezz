@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import { Upload, Calendar } from 'lucide-react'
 import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils'
 
@@ -114,13 +114,13 @@ export default function StudentStep1({
                 <span>{(selectedCountryCode?.dialCode || selectedCountryCode?.code) ? `(${selectedCountryCode.dialCode || selectedCountryCode.code})` : ''}</span>
               </button>
               {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 animate-fadeIn">
+                <div className="absolute start-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 animate-fadeIn">
                   {sortedCountryCodes.map((country) => (
                     <button
                       key={(country.dialCode || country.code) + (country.name || country.nameEn || '')}
                       type="button"
                       onClick={() => selectCountryCode(country)}
-                      className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-750 dark:text-slate-350 text-sm transition-colors text-left"
+                      className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-750 dark:text-slate-350 text-sm transition-colors text-start"
                     >
                       <span>{country.flag}</span>
                       <span className="font-semibold">{country.dialCode || country.code}</span>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -13,14 +13,105 @@ function isValidObjectId(id) {
   return typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
 }
 
+function isStudentEvaluated(raw) {
+  if (!raw) return false;
+  if (raw.isEvaluated === true || raw.evaluated === true || raw.hasEvaluation === true) return true;
+  const s = raw.student && typeof raw.student === 'object' ? raw.student : null;
+  if (s && (s.isEvaluated === true || s.evaluated === true || s.hasEvaluation === true)) return true;
+  return false;
+}
+
+function normalizePendingStudent(raw, idx, isRtl, t) {
+  if (!raw || isStudentEvaluated(raw)) return null;
+  const s = raw.student && typeof raw.student === 'object' ? raw.student : raw;
+  if (isStudentEvaluated(s)) return null;
+  const rawId = s.id || s._id || s.student_id || raw.student_id || raw.studentId || raw.id;
+  if (!rawId) return null;
+  const rawName = s.name || raw.studentName || raw.name;
+  const fallbackName = t('teacherEvaluations.defaultStudentName', 'طالب {{number}}', { number: idx + 1 });
+  let nameStr = fallbackName;
+  if (typeof rawName === 'object' && rawName !== null) {
+    nameStr = (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar) || fallbackName;
+  } else if (typeof rawName === 'string' && rawName.trim()) {
+    nameStr = rawName.trim();
+  }
+  const avgRating = s.averageRating ?? s.rating ?? raw.averageRating ?? raw.rating ?? (s.lastGrade ? s.lastGrade / 20 : null);
+  const lastGrade = s.lastGrade ?? raw.lastGrade ?? null;
+  return {
+    id: String(rawId),
+    name: nameStr,
+    averageRating: avgRating,
+    lastGrade,
+  };
+}
+
+function extractSessionPendingStudents(item, isRtl, t) {
+  if (!item) return [];
+  const sess = item.session && typeof item.session === 'object' ? item.session : item;
+  const directPending =
+    item.pendingStudents ||
+    item.pendingEvaluationStudents ||
+    item.pendingStudentsList ||
+    item.unevaluatedStudents ||
+    sess.pendingStudents ||
+    sess.pendingEvaluationStudents ||
+    sess.pendingStudentsList ||
+    sess.unevaluatedStudents;
+  if (Array.isArray(directPending) && directPending.length > 0) {
+    return directPending
+      .filter((st) => !isStudentEvaluated(st))
+      .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t))
+      .filter((st) => Boolean(st && st.id));
+  }
+  const pendingIds =
+    item.pendingEvaluationStudentIds ||
+    item.pendingStudentIds ||
+    sess.pendingEvaluationStudentIds ||
+    sess.pendingStudentIds;
+  if (Array.isArray(pendingIds) && pendingIds.length > 0) {
+    const pool = [
+      ...(Array.isArray(item.attendance) ? item.attendance : []),
+      ...(Array.isArray(sess.attendance) ? sess.attendance : []),
+      ...(Array.isArray(item.students) ? item.students : []),
+      ...(Array.isArray(sess.students) ? sess.students : []),
+    ];
+    const matched = pool.filter((st) => {
+      if (isStudentEvaluated(st)) return false;
+      const sObj = st.student && typeof st.student === 'object' ? st.student : st;
+      const id = sObj?.id || sObj?._id || sObj?.student_id || st?.student_id || st?.studentId || st?.id;
+      return id && pendingIds.some((pid) => String(pid) === String(id));
+    });
+    if (matched.length > 0) {
+      return matched
+        .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t))
+        .filter((st) => Boolean(st && st.id));
+    }
+  }
+  const attendance = Array.isArray(item.attendance) ? item.attendance : Array.isArray(sess.attendance) ? sess.attendance : null;
+  if (Array.isArray(attendance) && attendance.length > 0) {
+    const unEvaluated = attendance.filter((att) => !isStudentEvaluated(att));
+    if (unEvaluated.length > 0) {
+      return unEvaluated
+        .map((att, idx) => normalizePendingStudent(att.student || att, idx, isRtl, t))
+        .filter((st) => Boolean(st && st.id));
+    }
+  }
+  const students = Array.isArray(item.students) ? item.students : Array.isArray(sess.students) ? sess.students : null;
+  if (Array.isArray(students) && students.length > 0) {
+    const unEvaluated = students.filter((st) => !isStudentEvaluated(st));
+    return unEvaluated
+      .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t))
+      .filter((st) => Boolean(st && st.id));
+  }
+  return [];
+}
+
 export default function TeacherEvaluations() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -35,10 +126,9 @@ export default function TeacherEvaluations() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -48,15 +138,13 @@ export default function TeacherEvaluations() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -65,7 +153,6 @@ export default function TeacherEvaluations() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evalPage, setEvalPage] = useState(1);
   const evalsPerPage = 5;
-
   const {
     data: groupsRes,
     isLoading: isLoadingGroups,
@@ -85,7 +172,6 @@ export default function TeacherEvaluations() {
     },
     staleTime: 5 * 60 * 1000,
   });
-
   const groupsList = useMemo(() => {
     const raw = groupsRes?.data || (Array.isArray(groupsRes) ? groupsRes : []);
     if (Array.isArray(raw)) {
@@ -101,108 +187,87 @@ export default function TeacherEvaluations() {
     }
     return [];
   }, [groupsRes, isRtl, t]);
-
   const activeGroupId = useMemo(() => {
     if (selectedGroupId && groupsList.some((g) => g.id === selectedGroupId)) {
       return selectedGroupId;
     }
     return groupsList[0]?.id || '';
   }, [selectedGroupId, groupsList]);
-
   const {
-    data: groupDetailsRes,
-    isLoading: isLoadingGroupDetails,
-    refetch: refetchGroupDetails,
+    data: pendingSessionsRes,
+    isLoading: isLoadingPendingSessions,
+    refetch: refetchPendingSessions,
   } = useQuery({
-    queryKey: ['teacher-eval-group-details', activeGroupId],
-    queryFn: () => teacherGroupsApi.fetchGroupDetails(activeGroupId),
+    queryKey: ['teacher-pending-eval-sessions', activeGroupId],
+    queryFn: () => teacherEvaluationsApi.fetchPendingEvaluationSessions(activeGroupId),
     enabled: isValidObjectId(activeGroupId),
-    staleTime: 0,
+    staleTime: 60 * 1000,
   });
-
   const sessionsList = useMemo(() => {
-    const groupData = groupDetailsRes?.data?.group || groupDetailsRes?.data || groupDetailsRes || {};
-    const groupSessions =
-      groupData.sessionsHistory ||
-      groupData.completedSessions ||
-      groupData.sessions ||
-      [];
-    let list = [];
-
-    if (Array.isArray(groupSessions) && groupSessions.length > 0) {
-      list = groupSessions.map((s, idx) => ({
-        id: s.id || s._id,
-        name:
-          s.title ||
-          s.name ||
-          t('teacherEvaluations.defaultSessionName', 'الحصة {{number}}', { number: idx + 1 }),
-        date: s.date || s.startTime?.split('T')[0] || '',
-      }));
-    }
-
-    return list.filter((s) => isValidObjectId(s.id));
-  }, [groupDetailsRes, t]);
-
+    const rawList = pendingSessionsRes?.data;
+    if (!Array.isArray(rawList)) return [];
+    const mapped = rawList
+      .map((item, idx) => {
+        const sessObj = item?.session && typeof item.session === 'object' ? item.session : item;
+        const id = sessObj?.id || sessObj?._id || item?.id || item?._id;
+        if (!isValidObjectId(id)) return null;
+        const resolveStr = (val) => {
+          if (!val) return '';
+          if (typeof val === 'string') return val.trim();
+          if (typeof val === 'object') return (isRtl ? val.ar || val.en : val.en || val.ar) || '';
+          return String(val);
+        };
+        const name =
+          resolveStr(sessObj?.title) ||
+          resolveStr(sessObj?.name) ||
+          resolveStr(item?.title) ||
+          resolveStr(item?.name) ||
+          (sessObj?.sessionNumber ? (isRtl ? `الحصة رقم ${sessObj.sessionNumber}` : `Session #${sessObj.sessionNumber}`) : '') ||
+          t('teacherEvaluations.defaultSessionName', 'الحصة {{number}}', { number: idx + 1 });
+        const date = sessObj?.date || sessObj?.startTime?.split('T')[0] || item?.date || '';
+        const pendingStudents = extractSessionPendingStudents(item, isRtl, t);
+        return {
+          id,
+          name,
+          date,
+          pendingStudents,
+          raw: item,
+        };
+      })
+      .filter(Boolean);
+    const withPending = mapped.filter((s) => s.pendingStudents && s.pendingStudents.length > 0);
+    return withPending.length > 0 ? withPending : mapped;
+  }, [pendingSessionsRes, isRtl, t]);
   const activeSessionId = useMemo(() => {
     if (selectedSessionId && sessionsList.some((s) => s.id === selectedSessionId)) {
       return selectedSessionId;
     }
     return sessionsList[0]?.id || '';
   }, [selectedSessionId, sessionsList]);
-
+  const activeSession = useMemo(() => {
+    return sessionsList.find((s) => s.id === activeSessionId) || null;
+  }, [sessionsList, activeSessionId]);
   const studentsList = useMemo(() => {
-    const groupData = groupDetailsRes?.data?.group || groupDetailsRes?.data || groupDetailsRes || {};
-    const students = groupData.students || [];
-
-    if (Array.isArray(students) && students.length > 0) {
-      return students
-        .map((std, idx) => {
-          const rawId = std.id || std._id || std.student?._id || std.student?.id || std.student_id;
-          const rawName = std.name || std.student?.name;
-          const fallbackName = t('teacherEvaluations.defaultStudentName', 'طالب {{number}}', {
-            number: idx + 1,
-          });
-          const nameStr =
-            typeof rawName === 'object' && rawName !== null
-              ? (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar) || fallbackName
-              : rawName || fallbackName;
-
-          const avgRating = std.averageRating ?? std.rating ?? (std.lastGrade ? std.lastGrade / 20 : null);
-
-          return {
-            id: rawId,
-            name: nameStr,
-            averageRating: avgRating,
-            lastGrade: std.lastGrade || null,
-          };
-        })
-        .filter((std) => isValidObjectId(std.id) || (typeof std.id === 'string' && std.id.length > 5));
-    }
-    return [];
-  }, [groupDetailsRes, isRtl, t]);
-
+    return activeSession?.pendingStudents || [];
+  }, [activeSession]);
   const activeStudentId = useMemo(() => {
     if (selectedStudentId && studentsList.some((st) => st.id === selectedStudentId)) {
       return selectedStudentId;
     }
     return studentsList[0]?.id || '';
   }, [selectedStudentId, studentsList]);
-
   const currentSelectedStudent = useMemo(() => {
     return studentsList.find((s) => s.id === activeStudentId) || null;
   }, [studentsList, activeStudentId]);
-
   const studentAverageRating = useMemo(() => {
     if (currentSelectedStudent?.averageRating) {
       return Number(currentSelectedStudent.averageRating).toFixed(1);
     }
     return Number(rating).toFixed(1);
   }, [currentSelectedStudent, rating]);
-
   const studentAveragePercentage = useMemo(() => {
     return Math.round((Number(studentAverageRating) / 5) * 100);
   }, [studentAverageRating]);
-
   const { data: historyRes, refetch: refetchHistory } = useQuery({
     queryKey: ['teacher-evaluations-history'],
     queryFn: async () => {
@@ -214,37 +279,37 @@ export default function TeacherEvaluations() {
     },
     staleTime: 60 * 1000,
   });
-
   const recentEvaluationsList = useMemo(() => {
     const list = historyRes?.data;
     if (Array.isArray(list) && list.length > 0) {
       return list.map((item, idx) => {
+        const resolveGroupName = (rawGroup) => {
+          if (!rawGroup || typeof rawGroup !== 'object') return typeof rawGroup === 'string' ? rawGroup : '';
+          const n = rawGroup.name;
+          if (!n) return '';
+          if (typeof n === 'object') return (isRtl ? n.ar || n.en : n.en || n.ar) || '';
+          return String(n);
+        };
         const studentName =
           typeof item.student === 'object' && item.student !== null
             ? (isRtl ? item.student?.name?.ar || item.student?.name?.en : item.student?.name?.en || item.student?.name?.ar) ||
-              item.student?.name ||
+              (typeof item.student?.name === 'string' ? item.student?.name : '') ||
               t('teacherEvaluations.defaultStudent', 'طالب')
             : item.studentName || t('teacherEvaluations.defaultStudent', 'طالب');
-
         const sessionName =
           typeof item.session === 'object' && item.session !== null
-            ? item.session?.title ||
-              item.session?.name ||
+            ? (typeof item.session?.title === 'string' ? item.session.title : '') ||
+              (typeof item.session?.name === 'string' ? item.session.name : '') ||
               t('teacherEvaluations.defaultSessionName', 'الحصة {{number}}', { number: idx + 1 })
             : item.sessionName ||
               t('teacherEvaluations.defaultSessionName', 'الحصة {{number}}', { number: idx + 1 });
-
         const groupName =
-          typeof item.group === 'object' && item.group !== null
-            ? (isRtl ? item.group?.name?.ar || item.group?.name?.en : item.group?.name?.en || item.group?.name?.ar) ||
-              item.group?.name
-            : item.groupName ||
-              (typeof item.session?.group === 'object' ? item.session?.group?.name : item.session?.group) ||
-              t('teacherEvaluations.defaultGroupName', 'المجموعة الدراسية');
-
+          resolveGroupName(item.group) ||
+          (typeof item.groupName === 'string' ? item.groupName : '') ||
+          resolveGroupName(item.session?.group) ||
+          t('teacherEvaluations.defaultGroupName', 'المجموعة الدراسية');
         const ratingVal = Number(item.rating || 5);
         const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') : '';
-
         return {
           id: item.id || item._id || `eval-${idx}`,
           studentName,
@@ -256,16 +321,13 @@ export default function TeacherEvaluations() {
         };
       });
     }
-
     return [];
   }, [historyRes, isRtl, t]);
-
   const totalEvalPages = Math.max(1, Math.ceil(recentEvaluationsList.length / evalsPerPage));
   const paginatedEvaluations = useMemo(() => {
     const start = (evalPage - 1) * evalsPerPage;
     return recentEvaluationsList.slice(start, start + evalsPerPage);
   }, [recentEvaluationsList, evalPage, evalsPerPage]);
-
   const levelInfo = useMemo(() => {
     const pct = studentAveragePercentage;
     if (pct >= 90) {
@@ -297,31 +359,24 @@ export default function TeacherEvaluations() {
       badgeClass: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
     };
   }, [studentAveragePercentage, t]);
-
   const handleSaveEvaluation = async () => {
     if (!activeSessionId || !isValidObjectId(activeSessionId)) {
       toast.error(t('teacherEvaluations.invalidSessionToast', 'يرجى تحديد حصة صالحة مسجلة في النظام'));
       return;
     }
-
     if (!activeStudentId || (!isValidObjectId(activeStudentId) && activeStudentId.startsWith('std-'))) {
       toast.error(t('teacherEvaluations.selectStudentToast', 'يرجى اختيار طالب مسجل في الحصة'));
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       const payload = {
         student: activeStudentId,
         rating: Number(rating),
         notes: notes.trim(),
       };
-
       const res = await teacherEvaluationsApi.createStudentEvaluation(activeSessionId, payload);
-
       setIsSubmitting(false);
-
       if (res.success) {
         toast.success(
           t('teacherEvaluations.saveSuccessToast', 'تم حفظ تقييم {{name}} بنجاح ({{rating}}/5 نجوم)', {
@@ -330,8 +385,9 @@ export default function TeacherEvaluations() {
           })
         );
         setNotes('');
+        setSelectedStudentId('');
         queryClient.invalidateQueries({ queryKey: ['teacher-evaluations-history'] });
-        queryClient.invalidateQueries({ queryKey: ['teacher-eval-group-details'] });
+        queryClient.invalidateQueries({ queryKey: ['teacher-pending-eval-sessions'] });
       } else {
         toast.error(res.message || t('teacherEvaluations.saveErrorToast', 'تعذر حفظ التقييم'));
       }
@@ -340,13 +396,11 @@ export default function TeacherEvaluations() {
       toast.error(t('teacherEvaluations.errorOccurredToast', 'حدث خطأ أثناء حفظ التقييم'));
     }
   };
-
   const handleRefreshAll = () => {
     refetchGroups();
-    refetchGroupDetails();
+    refetchPendingSessions();
     refetchHistory();
   };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
       <EvaluationHeader
@@ -354,7 +408,6 @@ export default function TeacherEvaluations() {
         currentDateStr={currentDateStr}
         onRefresh={handleRefreshAll}
       />
-
       <EvaluationSelectionCard
         groupsList={groupsList}
         activeGroupId={activeGroupId}
@@ -367,12 +420,11 @@ export default function TeacherEvaluations() {
         sessionsList={sessionsList}
         activeSessionId={activeSessionId}
         onSelectSession={setSelectedSessionId}
-        isLoadingGroupDetails={isLoadingGroupDetails}
+        isLoadingSessions={isLoadingPendingSessions}
         studentsList={studentsList}
         activeStudentId={activeStudentId}
         onSelectStudent={setSelectedStudentId}
       />
-
       <EvaluationFormCard
         currentSelectedStudent={currentSelectedStudent}
         studentAverageRating={studentAverageRating}
@@ -386,7 +438,6 @@ export default function TeacherEvaluations() {
         isSubmitting={isSubmitting}
         canSubmit={Boolean(activeSessionId && activeStudentId)}
       />
-
       <EvaluationHistoryList
         evaluationsList={recentEvaluationsList}
         paginatedEvaluations={paginatedEvaluations}
@@ -397,3 +448,4 @@ export default function TeacherEvaluations() {
     </div>
   );
 }
+

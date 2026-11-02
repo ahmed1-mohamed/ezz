@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom';
 import { Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+const STATUS_STYLES = {
+  active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+  pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+  stopped: 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300',
+  completed: 'bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300',
+  default: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+};
+
 export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
@@ -40,11 +48,12 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
                 {t('teacherDashboard.groupLevel', 'المستوى')}
               </th>
               <th className="text-center pb-4 font-semibold px-4">
+                {t('teacherDashboard.groupStatus', isRtl ? 'الحالة' : 'Status')}
+              </th>
+              <th className="text-center pb-4 font-semibold px-4">
                 {t('teacherDashboard.students', 'الطلاب')}
               </th>
-              <th className="text-start pb-4 font-semibold ps-4">
-                {t('teacherDashboard.nextSession', 'الجلسة القادمة')}
-              </th>
+              <th className="pb-4" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
@@ -81,20 +90,22 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
                     </span>
                   </td>
 
+                  <td className="py-5 text-center px-4">
+                    <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold ${STATUS_STYLES[row.statusKey] || STATUS_STYLES.default}`}>
+                      {row.status || '-'}
+                    </span>
+                  </td>
+
                   {/* 4. الطلاب */}
                   <td className="py-5 text-center px-4">
                     <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
-                      <span>{row.studentsCount}/{row.maxStudents || 5}</span>
+                      <span>{row.studentsCount}/{row.maxStudents || '-'}</span>
                       <Users size={13} className="text-slate-400" />
                     </div>
                   </td>
 
-                  {/* 5. الجلسة القادمة + التفاصيل */}
-                  <td className="py-5 text-start ps-4">
-                    <div className="flex items-center justify-between gap-3 text-xs">
-                      <span className="text-slate-500 dark:text-slate-400 font-semibold whitespace-nowrap font-mono">
-                        {row.nextSessionTime || '-'}
-                      </span>
+                  <td className="py-5 text-end ps-4">
+                    <div className="text-xs">
                       <Link
                         to={`/dashboard/teacher/groups/${row.id}`}
                         className="text-[#00594C] dark:text-emerald-400 font-bold hover:underline whitespace-nowrap cursor-pointer"
@@ -107,7 +118,7 @@ export default React.memo(function TeacherGroupsOverviewTable({ groups }) {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-slate-400 text-xs font-semibold">
+                <td colSpan={6} className="py-8 text-center text-slate-400 text-xs font-semibold">
                   {t('teacher.noGroups', 'لا توجد مجموعات دراسية حالياً')}
                 </td>
               </tr>

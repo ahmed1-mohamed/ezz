@@ -1,52 +1,10 @@
-import { useState } from 'react'
-import { X, Search, BookOpen } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { X, Search, BookOpen, Loader2 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { showErrorToast } from '@/shared/utils/sweetAlert'
+import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 
-const availableGroups = [
-  {
-    id: 'group-a',
-    name: 'مجموعة القرآن أ',
-    nameEn: 'Quran Group A',
-    teacherName: 'أ. فاطمة الزهراء',
-    teacherNameEn: 'Mrs. Fatima Alzahraa',
-    level: 'متوسط',
-    levelEn: 'Intermediate',
-    schedule: 'السبت، الاثنين، الأربعاء - 10:00',
-    scheduleEn: 'Sat, Mon, Wed - 10:00',
-    status: 'Active',
-    type: 'Group',
-    language: 'Arabic'
-  },
-  {
-    id: 'group-b',
-    name: 'مجموعة التجويد ب',
-    nameEn: 'Tajweed Group B',
-    teacherName: 'أ. عائشة محمود',
-    teacherNameEn: 'Mrs. Aisha Mahmoud',
-    level: 'مبتدئ',
-    levelEn: 'Beginner',
-    schedule: 'الأحد، الثلاثاء، الخميس - 16:00',
-    scheduleEn: 'Sun, Tue, Thu - 16:00',
-    status: 'Active',
-    type: 'Group',
-    language: 'Arabic'
-  },
-  {
-    id: 'group-c',
-    name: 'مجموعة القراءات ج',
-    nameEn: 'Qiraat Group C',
-    teacherName: 'أ. عبد الرحمن علي',
-    teacherNameEn: 'Mr. Abdulrahman Ali',
-    level: 'متقدم',
-    levelEn: 'Advanced',
-    schedule: 'السبت، الاثنين، الأربعاء - 18:00',
-    scheduleEn: 'Sat, Mon, Wed - 18:00',
-    status: 'Active',
-    type: 'Group',
-    language: 'Arabic'
-  }
-]
+const textOf = (val) => (typeof val === 'object' && val !== null ? (val.name || val.ar || val.en || '') : (val || ''))
 
 export default function ChangeGroupModal({
   isOpen,
@@ -56,42 +14,63 @@ export default function ChangeGroupModal({
   onChangeGroup
 }) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredGroups, setFilteredGroups] = useState(availableGroups)
+  const [groups, setGroups] = useState([])
+  const [isLoadingGroups, setIsLoadingGroups] = useState(true)
   const [selectedGroup, setSelectedGroup] = useState(null)
-  const studentDisplayName = typeof student.name === 'string' ? student.name : (student.name?.ar || student.name?.en || '-');
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const currentGroups = Array.isArray(student?.groups) ? student.groups : []
+  const currentGroup = currentGroups[0] || null
+  const studentDisplayName = textOf(student?.name) || '-'
+
+  useEffect(() => {
+    let isMounted = true
+    adminGroupsApi.fetchLocalizedActiveGroups({ limit: 100 })
+      .then((res) => {
+        if (isMounted) setGroups(Array.isArray(res?.data) ? res.data : [])
+      })
+      .catch((err) => console.error('Failed to load groups:', err))
+      .finally(() => {
+        if (isMounted) setIsLoadingGroups(false)
+      })
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const filteredGroups = useMemo(() => {
+    const currentIds = currentGroups.map((g) => g.id)
+    const available = groups.filter((g) => !currentIds.includes(g.id))
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return available
+    return available.filter((g) =>
+      textOf(g.name).toLowerCase().includes(query) || textOf(g.teacher).toLowerCase().includes(query)
+    )
+  }, [groups, currentGroups, searchQuery])
 
   if (!isOpen || !student) return null
 
-  const handleSearch = (e) => {
-    e?.preventDefault()
-    const query = searchQuery.trim().toLowerCase()
-    if (!query) {
-      setFilteredGroups(availableGroups)
-      return
-    }
-
-    const filtered = availableGroups.filter((g) => {
-      const nameMatch = g.name.toLowerCase().includes(query) || g.nameEn.toLowerCase().includes(query)
-      const teacherMatch = g.teacherName.toLowerCase().includes(query) || g.teacherNameEn.toLowerCase().includes(query)
-      return nameMatch || teacherMatch
-    })
-    setFilteredGroups(filtered)
-  }
-
-  const handleConfirmChange = () => {
+  const handleConfirmChange = async () => {
     if (!selectedGroup) {
       showErrorToast(isRtl ? 'الرجاء اختيار مجموعة جديدة!' : 'Please select a new group!', isRtl)
       return
     }
-    onChangeGroup(student.id, selectedGroup.name)
-    onClose()
+    setIsSubmitting(true)
+    try {
+      await onChangeGroup(currentGroup?.id || null, selectedGroup.id)
+      onClose()
+    } catch {
+      // error toast is shown by the caller
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
 
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
@@ -100,22 +79,22 @@ export default function ChangeGroupModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350 rounded-full transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 rounded-full transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-              {isRtl ? 'أسم الطالب' : 'Student Name'}
+              {isRtl ? 'اسم الطالب' : 'Student Name'}
             </label>
             <input
               type="text"
               readOnly
               value={studentDisplayName}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950/60 border border-slate-100/40 dark:border-slate-800/40 text-slate-550 dark:text-slate-400 rounded-2xl py-3 px-4 outline-none font-semibold text-sm cursor-not-allowed"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950/60 border border-slate-100/40 dark:border-slate-800/40 text-slate-500 dark:text-slate-400 rounded-2xl py-3 px-4 outline-none font-semibold text-sm cursor-not-allowed"
             />
           </div>
 
@@ -126,8 +105,8 @@ export default function ChangeGroupModal({
             <input
               type="text"
               readOnly
-              value={student.groupName || (isRtl ? 'لا يوجد مجموعة' : 'No Group')}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955/60 border border-slate-100/40 dark:border-slate-800/40 text-slate-550 dark:text-slate-400 rounded-2xl py-3 px-4 outline-none font-semibold text-sm cursor-not-allowed"
+              value={currentGroup ? textOf(currentGroup.name) : (isRtl ? 'لا يوجد مجموعة' : 'No Group')}
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950/60 border border-slate-100/40 dark:border-slate-800/40 text-slate-500 dark:text-slate-400 rounded-2xl py-3 px-4 outline-none font-semibold text-sm cursor-not-allowed"
             />
           </div>
         </div>
@@ -137,78 +116,67 @@ export default function ChangeGroupModal({
             {isRtl ? 'اختر المجموعة الجديدة' : 'Select New Group'}
           </label>
 
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <button
-              type="submit"
-              className="px-6 py-3 bg-[#005953] hover:bg-[#004742] text-white font-bold text-sm rounded-2xl transition-all shadow-md cursor-pointer active:scale-95 shrink-0"
-            >
-              {isRtl ? 'بحث' : 'Search'}
-            </button>
-            <div className="relative flex-1">
-              <div className={`absolute inset-y-0 ${isRtl ? 'left-3.5' : 'right-3.5'} flex items-center pointer-events-none text-slate-400`}>
-                <Search size={16} />
-              </div>
-              <input
-                type="text"
-                placeholder={isRtl ? 'بحث...' : 'Search...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'
-                  } outline-none transition-all text-sm`}
-              />
+          <div className="relative">
+            <div className={`absolute inset-y-0 ${isRtl ? 'left-3.5' : 'right-3.5'} flex items-center pointer-events-none text-slate-400`}>
+              <Search size={16} />
             </div>
-          </form>
+            <input
+              type="text"
+              placeholder={isRtl ? 'ابحث باسم المجموعة أو المعلم...' : 'Search by group or teacher...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm`}
+            />
+          </div>
 
-          <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-1">
-            {filteredGroups.length === 0 ? (
+          <div className="space-y-3 max-h-[35vh] overflow-y-auto pe-1">
+            {isLoadingGroups ? (
+              <div className="flex justify-center py-6">
+                <Loader2 className="w-5 h-5 animate-spin text-[#005953]" />
+              </div>
+            ) : filteredGroups.length === 0 ? (
               <div className="text-center py-6 text-sm text-slate-400">
                 {isRtl ? 'لم يتم العثور على مجموعات' : 'No groups found'}
               </div>
             ) : (
               filteredGroups.map((group) => {
                 const isSelected = selectedGroup?.id === group.id
+                const isFull = group.maxStudents && Number(group.currentStudentsCount) >= Number(group.maxStudents)
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={group.id}
+                    disabled={isFull}
                     onClick={() => setSelectedGroup(group)}
-                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
+                    className={`w-full flex items-center justify-between gap-3 p-4 rounded-2xl border transition-all text-start ${isFull ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${isSelected
                       ? 'border-[#005953] bg-[#f3f7f6] dark:bg-slate-950/40'
                       : 'border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-950/20 bg-white dark:bg-slate-900'
                       }`}
                   >
-                    <div className="text-start space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-slate-450 dark:text-slate-500">
-                          {isRtl ? group.teacherName : group.teacherNameEn}
-                        </span>
-                        <span className="text-slate-300 dark:text-slate-700">·</span>
-                        <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
-                          {isRtl ? group.schedule : group.scheduleEn}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="flex gap-2">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/25 dark:text-blue-400">
-                          {isRtl ? group.level : group.levelEn}
-                        </span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-955/20 dark:text-emerald-400">
-                          <span className="w-1 h-1 rounded-full bg-emerald-600 me-1" />
-                          {isRtl ? 'نشط' : 'Active'}
-                        </span>
-                      </div>
-
-                      <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                        {isRtl ? group.name : group.nameEn}
-                      </span>
-
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-[#005953] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-450'
-                        }`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-[#005953] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
                         <BookOpen size={14} />
                       </div>
+                      <div className="min-w-0 space-y-0.5">
+                        <span className="block text-sm font-bold text-slate-700 dark:text-slate-200 truncate">
+                          {textOf(group.name)}
+                        </span>
+                        <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500 truncate">
+                          {textOf(group.teacher)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                    <div className="flex flex-wrap justify-end gap-2 shrink-0">
+                      {group.studentLevel && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/25 dark:text-blue-400">
+                          {textOf(group.studentLevel)}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        {group.currentStudentsCount ?? 0}/{group.maxStudents ?? '-'}
+                      </span>
+                    </div>
+                  </button>
                 )
               })
             )}
@@ -218,11 +186,12 @@ export default function ChangeGroupModal({
         <button
           type="button"
           onClick={handleConfirmChange}
-          className="w-full py-4 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-sm"
+          disabled={isSubmitting || !selectedGroup}
+          className="w-full py-4 bg-[#005953] hover:bg-[#004742] text-white font-bold rounded-2xl transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-sm flex items-center justify-center gap-2 disabled:opacity-50"
         >
+          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {isRtl ? 'تغيير المجموعة' : 'Change Group'}
         </button>
-
       </div>
     </div>,
     document.body

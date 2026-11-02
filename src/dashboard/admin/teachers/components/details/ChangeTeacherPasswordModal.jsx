@@ -18,7 +18,7 @@ export default function ChangeTeacherPasswordModal({
 
   if (!isOpen || !teacher) return null
 
-  const userId = teacher.user_id || teacher.userId || teacher.user?._id || teacher.user?.id || teacher.teacher_id || teacher.id
+  const userId = teacher.user_id
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -40,12 +40,7 @@ export default function ChangeTeacherPasswordModal({
 
     try {
       setIsSubmitting(true)
-      await teachersApi.changeTeacherPassword(userId, {
-        password,
-        confirmPassword,
-        phone: teacher.phone,
-        country: teacher.country
-      })
+      await teachersApi.changeTeacherPassword(userId, { password, confirmPassword })
       toast.success(isRtl ? 'تم تغيير كلمة مرور المعلم بنجاح!' : 'Teacher password changed successfully!')
       setPassword('')
       setConfirmPassword('')

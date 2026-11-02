@@ -81,6 +81,20 @@ export default function AdminPackages() {
         }
     }
 
+    const handleRemoveDiscount = async (id) => {
+        try {
+            const updated = await adminPackagesApi.removePackageDiscount(id)
+            setPackages((prev) => prev.map((p) => (p.id === id ? { ...p, priceAfterDiscount: null, discountPercentage: null, ...updated, name: p.name, name_en: p.name_en, features: p.features, features_en: p.features_en } : p)))
+            setEditingPkg((prev) => (prev && prev.id === id ? { ...prev, priceAfterDiscount: null } : prev))
+            toast.success(isRtl ? 'تم إلغاء الخصم' : 'Discount removed')
+            return true
+        } catch (error) {
+            const msg = error?.response?.data?.message
+            toast.error((Array.isArray(msg) ? msg.join(', ') : msg) || (isRtl ? 'تعذر إلغاء الخصم' : 'Failed to remove discount'))
+            return false
+        }
+    }
+
     const executeDelete = async (type, id, name) => {
         const isConfirmed = await showDeleteConfirm(isRtl, name);
         if (!isConfirmed) return;
@@ -133,7 +147,11 @@ export default function AdminPackages() {
                 country: typeof pkgData.country === 'object' && pkgData.country !== null ? (pkgData.country.id || pkgData.country._id || pkgData.country.name) : (pkgData.country || pkg.country || ''),
                 features: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.ar || []),
                 features_en: Array.isArray(pkgData.features) ? pkgData.features : (pkgData.features?.en || []),
-                image: pkgData.image || pkg.image || null,
+                image: pkg.image || null,
+                type: pkgData.type === 'family' ? 'family' : 'individual',
+                maxMembers: pkgData.maxMembers || null,
+                familyTiers: Array.isArray(pkgData.familyTiers) ? pkgData.familyTiers : [],
+                priceAfterDiscount: pkgData.priceAfterDiscount ?? null,
             }
 
             setEditingPkg(mappedPkg)
@@ -260,6 +278,9 @@ export default function AdminPackages() {
                                 return String(pCountry) === String(cid) || p.country === cName || p.country === c.name || p.country === c.nameEn;
                             }).length;
 
+                            // Only list countries that actually have packages (the full list has ~250 entries)
+                            if (count === 0 && !isSelected) return null;
+
                             return (
                                 <button
                                     key={cid || cName}
@@ -354,6 +375,7 @@ export default function AdminPackages() {
                 isOpen={pkgPanelOpen}
                 onClose={() => setPkgPanelOpen(false)}
                 onSave={handleSavePkg}
+                onRemoveDiscount={handleRemoveDiscount}
                 editingPackage={editingPkg}
                 explanationLanguages={explanationLanguages}
                 countries={sortedCountries}

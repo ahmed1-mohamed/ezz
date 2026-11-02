@@ -1,301 +1,580 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, Star, CheckCircle2, ChevronDown, Send } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { MessageSquare, Star, Plus, CheckCircle2, Clock, XCircle, AlertCircle, Paperclip, Send, X, FileText, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
+import { parentApi } from '@/shared/services/api/parentApi';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 320, damping: 26 } }
+};
 
 export default function ParentComplaints() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
+  const [complaints, setComplaints] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [formValues, setFormValues] = useState({
+    type: 'suggestion',
+    title: '',
+    details: '',
+    attachments: []
+  });
 
-  const [submissionType, setSubmissionType] = useState('complaint');
-  const [selectedChild, setSelectedChild] = useState('');
-  const [selectedGroup, setSelectedGroup] = useState('');
-  const [selectedTeacher, setSelectedTeacher] = useState('');
-  const [details, setDetails] = useState('');
-
-  const teachers = [
-    { id: 't1', name: 'الشيخ أحمد منصور', nameEn: 'Sheikh Ahmed Mansour', avatar: 'أ' },
-    { id: 't2', name: 'الشيخ محمد علي', nameEn: 'Sheikh Mohamed Ali', avatar: 'م' },
-  ];
-
-  const pastReports = [
-    {
-      id: 1,
-      title: 'تأخر في بدء الحصة',
-      titleEn: 'Delay in starting the class',
-      teacher: 'الشيخ أحمد منصور',
-      teacherEn: 'Sheikh Ahmed Mansour',
-      date: '2024-04-20',
-      status: 'قيد المراجعة',
-      statusEn: 'Under Review',
-      statusColor: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30',
-      icon: MessageSquare,
-      isSuggestion: false
-    },
-    {
-      id: 2,
-      title: 'أداء متميز',
-      titleEn: 'Outstanding Performance',
-      teacher: 'الأستاذة فاطمة علي',
-      teacherEn: 'Ms. Fatima Ali',
-      date: '2024-04-15',
-      status: 'تم الاستلام',
-      statusEn: 'Received',
-      statusColor: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
-      icon: Star,
-      isSuggestion: true
+  const getStatusInfo = (status) => {
+    const raw = String(status || '').toLowerCase().trim();
+    if (raw === 'resolved' || raw === 'accepted' || raw === 'مقبول' || raw === 'تم الحل') {
+      return {
+        label: isRtl ? 'تم الحل' : 'Resolved',
+        badgeClass: 'bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30',
+        icon: CheckCircle2,
+        color: 'emerald'
+      };
     }
-  ];
+    if (raw === 'rejected' || raw === 'مرفوض') {
+      return {
+        label: isRtl ? 'مرفوض' : 'Rejected',
+        badgeClass: 'bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/30',
+        icon: XCircle,
+        color: 'rose'
+      };
+    }
+    return {
+      label: isRtl ? 'قيد المراجعة' : 'Under Review',
+      badgeClass: 'bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/30',
+      icon: Clock,
+      color: 'amber'
+    };
+  };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
+  const loadComplaints = useCallback(async (tab = 'all') => {
+    setIsLoading(true);
+    try {
+      const res = await parentApi.fetchComplaints(tab);
+      if (res?.success && Array.isArray(res.data)) {
+        setComplaints(res.data);
+      } else {
+        setComplaints([]);
+      }
+    } catch (err) {
+      console.error('Failed to load complaints:', err);
+      setComplaints([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadComplaints(activeTab);
+  }, [loadComplaints, activeTab]);
+
+  const handleOpenDetails = async (item) => {
+    setSelectedComplaint(item);
+    setIsLoadingDetails(true);
+    try {
+      const res = await parentApi.fetchComplaintById(item.id);
+      if (res?.success && res.data) {
+        setSelectedComplaint(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch complaint details:', err);
+    } finally {
+      setIsLoadingDetails(false);
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setFormValues((prev) => ({
+      ...prev,
+      attachments: [...prev.attachments, ...files]
+    }));
   };
 
-  const currentTypeName = submissionType === 'complaint' ? t('parentDashboard.complaints.complaint') : t('parentDashboard.complaints.suggestion');
+  const handleRemoveAttachment = (index) => {
+    setFormValues((prev) => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formValues.title.trim()) {
+      toast.error(isRtl ? 'يرجى إدخال عنوان الطلب' : 'Please enter title');
+      return;
+    }
+    if (!formValues.details.trim()) {
+      toast.error(isRtl ? 'يرجى كتابة التفاصيل' : 'Please provide details');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await parentApi.createComplaint(formValues);
+      if (res?.success) {
+        toast.success(res.message || (isRtl ? 'تم إرسال الطلب بنجاح' : 'Submitted successfully'));
+        setFormValues({ type: 'suggestion', title: '', details: '', attachments: [] });
+        setIsFormOpen(false);
+        loadComplaints(activeTab);
+      } else {
+        toast.error(res?.message || (isRtl ? 'تعذر إرسال الطلب' : 'Submission failed'));
+      }
+    } catch (err) {
+      console.error('Submit complaint error:', err);
+      toast.error(isRtl ? 'حدث خطأ أثناء الإرسال' : 'An error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filteredComplaints = complaints.filter((item) => {
+    if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+    if (activeTab === 'pending' && (item.status === 'resolved' || item.status === 'accepted' || item.status === 'rejected')) return false;
+    return true;
+  });
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
-      whileInView="show" viewport={{ once: true, amount: 0.1 }}
-      className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans"
+      animate="show"
+      className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans bg-transparent min-h-screen"
+      dir={isRtl ? 'rtl' : 'ltr'}
     >
-
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm text-center border border-slate-100 dark:border-slate-700 transition-all hover:shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-          {t('parentDashboard.complaints.title')}
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400">
-          {t('parentDashboard.complaints.subtitle')}
-        </p>
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
-        <h2 className="font-semibold text-lg text-slate-800 dark:text-slate-100 text-start">
-          {t('parentDashboard.complaints.submissionType')}
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setSubmissionType('complaint')}
-            className={`
-              flex flex-col items-center justify-center p-6 rounded-xl cursor-pointer transition-all border-2
-              ${submissionType === 'complaint'
-                ? 'border-[#0f7a6c] bg-emerald-50/50 dark:bg-emerald-900/20'
-                : 'border-slate-100 dark:border-slate-700 hover:border-[#0f7a6c]/30 hover:bg-slate-50 dark:hover:bg-slate-800/50'}
-            `}
-          >
-            <MessageSquare size={28} className={submissionType === 'complaint' ? 'text-[#0f7a6c] mb-3' : 'text-slate-400 mb-3'} />
-            <h3 className={`font-bold ${submissionType === 'complaint' ? 'text-slate-800 dark:text-slate-100' : 'text-slate-600 dark:text-slate-300'}`}>
-              {t('parentDashboard.complaints.complaint')}
-            </h3>
-          </motion.div>
-
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setSubmissionType('suggestion')}
-            className={`
-              flex flex-col items-center justify-center p-6 rounded-xl cursor-pointer transition-all border-2
-              ${submissionType === 'suggestion'
-                ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-900/20'
-                : 'border-slate-100 dark:border-slate-700 hover:border-yellow-500/30 hover:bg-slate-50 dark:hover:bg-slate-800/50'}
-            `}
-          >
-            <Star size={28} className={submissionType === 'suggestion' ? 'text-yellow-500 mb-3' : 'text-slate-400 mb-3'} />
-            <h3 className={`font-bold ${submissionType === 'suggestion' ? 'text-slate-800 dark:text-slate-100' : 'text-slate-600 dark:text-slate-300'}`}>
-              {t('parentDashboard.complaints.suggestion')}
-            </h3>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 space-y-6">
-
-        <div className="space-y-2 text-start">
-          <label className="font-semibold text-sm text-slate-700 dark:text-slate-300">
-            {t('parentDashboard.complaints.selectChild')}
-          </label>
-          <div className="relative">
-            <select
-              value={selectedChild}
-              onChange={(e) => setSelectedChild(e.target.value)}
-              className="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg p-3 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow font-medium cursor-pointer"
-            >
-              <option value="" disabled>{t('parentDashboard.complaints.selectChild')}</option>
-              <option value="c1">{t('parentDashboard.home.children.fatima')}</option>
-              <option value="c2">{t('parentDashboard.home.children.mohamed')}</option>
-            </select>
-            <ChevronDown size={18} className="absolute top-1/2 -translate-y-1/2 end-4 text-slate-400 pointer-events-none" />
-          </div>
+      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100">{t('parentDashboard.complaints.title', 'الشكاوى والمقترحات')}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {t('parentDashboard.complaints.subtitle', 'نسعد باستقبال ملاحظاتكم ومقترحاتكم لتحسين تجربتكم وتجربة أبنائكم')}
+          </p>
         </div>
 
-        <div className="space-y-2 text-start">
-          <label className="font-semibold text-sm text-slate-700 dark:text-slate-300">
-            {t('parentDashboard.complaints.selectGroup')}
-          </label>
-          <div className="relative">
-            <select
-              value={selectedGroup}
-              onChange={(e) => setSelectedGroup(e.target.value)}
-              className="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg p-3 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow font-medium cursor-pointer"
-            >
-              <option value="" disabled>{t('parentDashboard.complaints.selectGroup')}</option>
-              <option value="g1">{isRtl ? 'مجموعة القرآن - المستوى المتقدم' : 'Quran Group - Advanced Level'}</option>
-              <option value="g2">{isRtl ? 'مجموعة التجويد - المستوى الأول' : 'Tajweed Group - Level 1'}</option>
-            </select>
-            <ChevronDown size={18} className="absolute top-1/2 -translate-y-1/2 end-4 text-slate-400 pointer-events-none" />
-          </div>
-        </div>
-
-        <div className="space-y-3 text-start">
-          <label className="font-semibold text-sm text-slate-700 dark:text-slate-300">
-            {t('parentDashboard.complaints.selectTeacher')}
-          </label>
-          <div className="space-y-3">
-            {teachers.map((teacher) => {
-              const isSelected = selectedTeacher === teacher.id;
-              return (
-                <div
-                  key={teacher.id}
-                  onClick={() => setSelectedTeacher(teacher.id)}
-                  className={`
-                    flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border-2
-                    ${isSelected ? 'border-[#0f7a6c] bg-slate-50 dark:bg-slate-800/50' : 'border-slate-100 dark:border-slate-700 hover:border-[#0f7a6c]/30'}
-                  `}
-                >
-                  <div className="flex items-center gap-3 text-start">
-                    <div className="w-8 h-8 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white text-sm font-bold shrink-0">
-                      {teacher.avatar}
-                    </div>
-                    <span className="font-medium text-slate-800 dark:text-slate-200">
-                      {isRtl ? teacher.name : teacher.nameEn}
-                    </span>
-                  </div>
-
-                  <div className="ms-4 shrink-0">
-                    {isSelected ? (
-                      <div className="text-[#0f7a6c]">
-                        <CheckCircle2 size={20} className="fill-current text-[#0f7a6c] bg-white rounded-full" />
-                      </div>
-                    ) : (
-                      <div className="w-5" />
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="space-y-2 text-start">
-          <label className="font-semibold text-sm text-slate-700 dark:text-slate-300">
-            {t('parentDashboard.complaints.details', { type: currentTypeName })}
-          </label>
-          <textarea
-            value={details}
-            onChange={(e) => setDetails(e.target.value)}
-            placeholder={t('parentDashboard.complaints.detailsPlaceholder', { type: currentTypeName })}
-            rows={5}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow placeholder:text-slate-400 resize-none font-medium"
-          />
-        </div>
-
-        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 mt-8 space-y-4 text-start">
-          <h3 className="font-bold text-slate-800 dark:text-slate-100">
-            {submissionType === 'complaint' ? t('parentDashboard.complaints.complaintSummary') : t('parentDashboard.complaints.suggestionSummary')}
-          </h3>
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 dark:text-slate-400">{t('parentDashboard.complaints.child')}</span>
-              <span className="font-medium text-slate-800 dark:text-slate-200 text-end">
-                {selectedChild === 'c1' ? t('parentDashboard.home.children.fatima') :
-                  selectedChild === 'c2' ? t('parentDashboard.home.children.mohamed') : t('parentDashboard.complaints.notSelected')}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 dark:text-slate-400">{t('parentDashboard.complaints.group')}</span>
-              <span className="font-medium text-slate-800 dark:text-slate-200 text-end">
-                {selectedGroup === 'g1' ? (isRtl ? 'مجموعة القرآن - المستوى المتقدم' : 'Quran Group - Advanced Level') :
-                  selectedGroup === 'g2' ? (isRtl ? 'مجموعة التجويد - المستوى الأول' : 'Tajweed Group - Level 1') : t('parentDashboard.complaints.notSelected')}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 dark:text-slate-400">{t('parentDashboard.complaints.teacher')}</span>
-              <span className="font-medium text-slate-800 dark:text-slate-200 text-end">
-                {selectedTeacher === 't1' ? (isRtl ? 'الشيخ أحمد منصور' : 'Sheikh Ahmed Mansour') :
-                  selectedTeacher === 't2' ? (isRtl ? 'الشيخ محمد علي' : 'Sheikh Mohamed Ali') : t('parentDashboard.complaints.notSelected')}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 dark:text-slate-400">{t('parentDashboard.complaints.type')}</span>
-              <span className="font-medium text-slate-800 dark:text-slate-200 text-end">
-                {currentTypeName}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full flex items-center justify-center gap-2 bg-[#0f7a6c] hover:bg-[#0c6156] text-white py-4 rounded-xl font-bold transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 mt-6"
+        <button
+          onClick={() => setIsFormOpen(!isFormOpen)}
+          className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm shadow-sm transition-all active:scale-95 ${
+            isFormOpen
+              ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200'
+              : 'bg-[#0f7a6c] hover:bg-[#0c6156] text-white shadow-[#0f7a6c]/20'
+          }`}
         >
-          <span>{t('parentDashboard.complaints.submit', { type: currentTypeName })}</span>
-          <Send size={18} className="rtl:-scale-x-100" />
-        </motion.button>
-
+          {isFormOpen ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          <span>{isFormOpen ? (isRtl ? 'إغلاق النموذج' : 'Close Form') : (isRtl ? 'تقديم طلب جديد' : 'New Submission')}</span>
+        </button>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
-        <h2 className="font-semibold text-lg text-slate-800 dark:text-slate-100 text-start">
-          {t('parentDashboard.complaints.pastReports')}
-        </h2>
-
-        <div className="space-y-4">
-          {pastReports.map((report) => (
-            <div key={report.id} className="border border-slate-100 dark:border-slate-700 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
-
-              <div className="flex flex-col text-start">
-                <div className="flex items-center gap-2 mb-1">
-                  <report.icon size={16} className={report.isSuggestion ? 'text-yellow-500' : 'text-[#0f7a6c]'} />
-                  <h3 className="font-bold text-slate-800 dark:text-slate-100">
-                    {isRtl ? report.title : report.titleEn}
-                  </h3>
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {isRtl ? report.teacher : report.teacherEn}
-                </p>
-                {report.isSuggestion && (
-                  <div className="flex items-center gap-1 mt-1.5 text-yellow-400" dir="ltr">
-                    {[1, 2, 3, 4, 5].map(star => <Star key={star} size={10} className="fill-current" />)}
-                  </div>
-                )}
-                <span className="text-xs text-slate-400 mt-2 block font-medium">{report.date}</span>
-              </div>
-
-              <div className="shrink-0 mt-2 md:mt-0">
-                <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${report.statusColor}`}>
-                  {isRtl ? report.status : report.statusEn}
+      <AnimatePresence>
+        {isFormOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -20 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-md border border-slate-100 dark:border-slate-700 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <h2 className="font-extrabold text-lg text-slate-800 dark:text-slate-100">
+                  {isRtl ? 'تقديم شكوى أو مقترح جديد' : 'Submit Complaint or Suggestion'}
+                </h2>
+                <span className="text-xs text-slate-400 font-medium">
+                  {isRtl ? 'سيتم مراجعة طلبكم والرد خلال 24 ساعة' : 'Reviewed within 24 hours'}
                 </span>
               </div>
 
-            </div>
-          ))}
-        </div>
-      </motion.div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
+                  {isRtl ? 'نوع الطلب' : 'Submission Type'}
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div
+                    onClick={() => setFormValues((prev) => ({ ...prev, type: 'suggestion' }))}
+                    className={`flex items-center gap-3 p-4 rounded-2xl cursor-pointer border-2 transition-all ${
+                      formValues.type === 'suggestion'
+                        ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm'
+                        : 'border-slate-100 dark:border-slate-700 hover:border-slate-200'
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                      <Star className="w-5 h-5 fill-current" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100">{isRtl ? 'اقتراح وتطوير' : 'Suggestion'}</h4>
+                      <p className="text-xs text-slate-400">{isRtl ? 'فكرة أو تحسين ترغب في إضافته' : 'Idea or enhancement'}</p>
+                    </div>
+                  </div>
 
+                  <div
+                    onClick={() => setFormValues((prev) => ({ ...prev, type: 'complaint' }))}
+                    className={`flex items-center gap-3 p-4 rounded-2xl cursor-pointer border-2 transition-all ${
+                      formValues.type === 'complaint'
+                        ? 'border-[#0f7a6c] bg-emerald-50/50 dark:bg-emerald-950/20 shadow-sm'
+                        : 'border-slate-100 dark:border-slate-700 hover:border-slate-200'
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100">{isRtl ? 'شكوى أو ملاحظة' : 'Complaint'}</h4>
+                      <p className="text-xs text-slate-400">{isRtl ? 'مشكلة واجهتك أثناء الدراسة أو الخدمة' : 'Issue or inconvenience'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
+                  {isRtl ? 'عنوان الطلب' : 'Title'} <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formValues.title}
+                  onChange={(e) => setFormValues((prev) => ({ ...prev, title: e.target.value }))}
+                  placeholder={
+                    formValues.type === 'suggestion'
+                      ? (isRtl ? 'مثال: اقتراح إضافة تسجيلات الحصص في لوحة تحكم الطالب' : 'e.g. Suggestion to add session recordings')
+                      : (isRtl ? 'مثال: ملاحظة بخصوص موعد الحصة الأسبوعية' : 'e.g. Note regarding weekly schedule')
+                  }
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 text-sm font-medium text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#0f7a6c]/40 transition-all placeholder:text-slate-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
+                  {isRtl ? 'التفاصيل والشرح' : 'Details'} <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={formValues.details}
+                  onChange={(e) => setFormValues((prev) => ({ ...prev, details: e.target.value }))}
+                  placeholder={isRtl ? 'يرجى توضيح الموضوع بالتفصيل حتى نتمكن من مساعدتك بأسرع شكل...' : 'Please explain in detail...'}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 text-sm font-medium text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#0f7a6c]/40 transition-all placeholder:text-slate-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
+                  {isRtl ? 'المرفقات (اختياري)' : 'Attachments (optional)'}
+                </label>
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 cursor-pointer text-xs font-bold text-slate-600 dark:text-slate-300 transition-colors">
+                    <Paperclip className="w-4 h-4 text-slate-400" />
+                    <span>{isRtl ? 'إرفاق ملف أو صورة' : 'Attach file'}</span>
+                    <input type="file" multiple onChange={handleFileChange} className="hidden" />
+                  </label>
+
+                  {formValues.attachments.map((file, idx) => (
+                    <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                      <FileText className="w-3.5 h-3.5 text-[#0f7a6c]" />
+                      <span className="max-w-[140px] truncate">{file.name}</span>
+                      <button type="button" onClick={() => handleRemoveAttachment(idx)} className="text-slate-400 hover:text-rose-500">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="px-6 py-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                >
+                  {isRtl ? 'إلغاء' : 'Cancel'}
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-50 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95"
+                >
+                  {isSubmitting ? (
+                    <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 rtl:-scale-x-100" />
+                  )}
+                  <span>{isSubmitting ? (isRtl ? 'جاري الإرسال...' : 'Submitting...') : (isRtl ? 'إرسال الطلب' : 'Submit')}</span>
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'all'
+                ? 'bg-[#0f7a6c] text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {isRtl ? 'جميع الطلبات' : 'All Requests'}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('pending')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'pending'
+                ? 'bg-amber-500 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {isRtl ? 'قيد المراجعة' : 'Pending'}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('resolved')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'resolved'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {isRtl ? 'تم الحل / المقبولة' : 'Resolved'}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('rejected')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'rejected'
+                ? 'bg-rose-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {isRtl ? 'المرفوضة' : 'Rejected'}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs text-slate-400 font-medium">{isRtl ? 'النوع:' : 'Type:'}</span>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
+          >
+            <option value="all">{isRtl ? 'الكل' : 'All'}</option>
+            <option value="suggestion">{isRtl ? 'اقتراح' : 'Suggestion'}</option>
+            <option value="complaint">{isRtl ? 'شكوى' : 'Complaint'}</option>
+          </select>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center py-24">
+          <div className="w-9 h-9 rounded-full border-3 border-[#0f7a6c] border-t-transparent animate-spin" />
+        </div>
+      ) : filteredComplaints.length === 0 ? (
+        <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-3xl p-16 text-center border border-slate-100 dark:border-slate-700 shadow-sm space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-400 flex items-center justify-center mx-auto">
+            <MessageSquare className="w-8 h-8" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">{isRtl ? 'لا توجد طلبات مسجلة' : 'No requests found'}</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            {isRtl ? 'يمكنك تقديم شكوى أو اقتراح في أي وقت وسيقوم فريق الإدارة بمتابعتها سريعاً.' : 'You can submit suggestions or complaints anytime.'}
+          </p>
+        </motion.div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {filteredComplaints.map((item) => {
+            const statusInfo = getStatusInfo(item.status);
+            const isSuggestion = item.type === 'suggestion';
+            return (
+              <motion.div
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.2 }}
+                key={item.id}
+                className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
+              >
+                <div className="flex items-start gap-4 flex-1">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                    isSuggestion
+                      ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
+                      : 'bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-emerald-950/40 dark:text-emerald-400'
+                  }`}>
+                    {isSuggestion ? <Star className="w-6 h-6 fill-current" /> : <MessageSquare className="w-6 h-6" />}
+                  </div>
+
+                  <div className="space-y-1.5 flex-1 text-start">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold ${
+                        isSuggestion
+                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300'
+                          : 'bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-emerald-950/30 dark:text-emerald-300'
+                      }`}>
+                        {isSuggestion ? (isRtl ? 'اقتراح' : 'Suggestion') : (isRtl ? 'شكوى' : 'Complaint')}
+                      </span>
+
+                      <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${statusInfo.badgeClass}`}>
+                        <statusInfo.icon className="w-3.5 h-3.5" />
+                        <span>{statusInfo.label}</span>
+                      </span>
+
+                      <span className="text-xs text-slate-400 font-medium">
+                        {formatDate(item.createdAt)}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
+                      {item.title}
+                    </h3>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                      {item.details}
+                    </p>
+
+                    {item.response && (
+                      <div className="mt-3 p-3 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-2xl border border-emerald-100 dark:border-emerald-900/30">
+                        <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 block mb-1">
+                          {isRtl ? 'رد الإدارة:' : 'Admin Reply:'}
+                        </span>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                          {item.response}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex items-center justify-end w-full md:w-auto">
+                  <button
+                    onClick={() => handleOpenDetails(item)}
+                    className="px-5 py-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-colors shadow-sm"
+                  >
+                    {isRtl ? 'عرض التفاصيل' : 'View Details'}
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {selectedComplaint && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl border border-slate-100 dark:border-slate-700 space-y-6 text-start"
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    selectedComplaint.type === 'suggestion'
+                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                      : 'bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-emerald-950/40 dark:text-emerald-300'
+                  }`}>
+                    {selectedComplaint.type === 'suggestion' ? (isRtl ? 'اقتراح' : 'Suggestion') : (isRtl ? 'شكوى' : 'Complaint')}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusInfo(selectedComplaint.status).badgeClass}`}>
+                    {getStatusInfo(selectedComplaint.status).label}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedComplaint(null)}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-slate-400 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div>
+                <span className="text-xs text-slate-400 font-semibold block mb-1">
+                  {formatDate(selectedComplaint.createdAt)}
+                </span>
+                <h2 className="text-xl font-black text-slate-800 dark:text-slate-100">
+                  {selectedComplaint.title}
+                </h2>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-900/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">
+                  {isRtl ? 'تفاصيل الطلب:' : 'Details:'}
+                </span>
+                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line">
+                  {selectedComplaint.details}
+                </p>
+              </div>
+
+              {Array.isArray(selectedComplaint.attachments) && selectedComplaint.attachments.length > 0 && (
+                <div>
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">
+                    {isRtl ? 'المرفقات:' : 'Attachments:'}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedComplaint.attachments.map((fileUrl, i) => (
+                      <a
+                        key={i}
+                        href={typeof fileUrl === 'string' ? fileUrl : '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 hover:underline"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>{isRtl ? `مرفق ${i + 1}` : `Attachment ${i + 1}`}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedComplaint.response && (
+                <div className="bg-emerald-50 dark:bg-emerald-950/40 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/40 space-y-1">
+                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-sm">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isRtl ? 'رد ومتابعة الإدارة:' : 'Admin Response:'}</span>
+                  </div>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300 leading-relaxed whitespace-pre-line">
+                    {selectedComplaint.response}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button
+                  onClick={() => setSelectedComplaint(null)}
+                  className="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                >
+                  {isRtl ? 'إغلاق' : 'Close'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

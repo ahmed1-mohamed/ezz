@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { adminParentsApi } from '@/shared/services/api/adminParentsApi'
 import ParentsList from './components/ParentsList'
-import AddEditParentScreen from './components/AddEditParentScreen'
-import ParentDetailsScreen from './components/ParentDetailsScreen'
+import { getParentId } from './utils/parentUtils'
 import Spinner from '@/shared/components/Spinner'
 import StatsCard from '@/shared/components/StatsCard'
 import { Users, UserCheck, UserX } from 'lucide-react'
@@ -12,259 +11,59 @@ import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import toast from 'react-hot-toast'
 
 export default function AdminParents() {
-  const { id: paramParentId } = useParams()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const queryParentId = searchParams.get('id')
-  const targetParentId = paramParentId || queryParentId
+  const legacyParentId = searchParams.get('id')
 
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
 
-  const [viewMode, setViewMode] = useState('list')
   const [parents, setParents] = useState([])
   const [statistics, setStatistics] = useState(null)
   const [pagination, setPagination] = useState(null)
-  const [selectedParent, setSelectedParent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSavingParent, setIsSavingParent] = useState(false)
+
+  useEffect(() => {
+    if (legacyParentId) {
+      navigate(`/dashboard/admin/parents/${legacyParentId}`, { replace: true })
+    }
+  }, [legacyParentId, navigate])
 
   useEffect(() => {
     async function loadParents() {
       setIsLoading(true)
       try {
         const res = await adminParentsApi.fetchParents()
-        const parentList = res?.data || res || []
-        if (res) {
-          setParents(parentList)
-          setStatistics(res.statistics || null)
-          setPagination(res.pagination || null)
-        }
-
-        if (targetParentId) {
-          const matched = parentList.find(
-            (p) => (p.parent_id || p._id || p.id || p.user_id) === targetParentId
-          )
-          if (matched) {
-            setSelectedParent(matched)
-            setViewMode('view-parent')
-          } else {
-            try {
-              const singleRes = await adminParentsApi.fetchParentById(targetParentId)
-              const singleData = singleRes?.data || singleRes
-              if (singleData) {
-                setSelectedParent(singleData)
-                setViewMode('view-parent')
-              }
-            } catch (singleErr) {
-              console.warn('Failed to fetch parent by ID:', singleErr)
-            }
-          }
-        }
+        setParents(res?.data || [])
+        setStatistics(res?.statistics || null)
+        setPagination(res?.pagination || null)
       } catch (err) {
         console.error('Failed to fetch parents:', err)
+        toast.error(isRtl ? 'تعذر تحميل أولياء الأمور' : 'Failed to load parents')
       } finally {
         setIsLoading(false)
       }
     }
     loadParents()
-  }, [targetParentId])
-
-  const handleSaveParent = async (formData) => {
-    setIsSavingParent(true)
-    try {
-      if (viewMode === 'edit-parent' && selectedParent) {
-        try {
-          const payload = new FormData();
-          payload.append('email', formData.email || '');
-          payload.append('name[ar]', formData.name || '');
-          payload.append('name[en]', formData.nameEn || '');
-          payload.append('phone', formData.phone || '');
-          payload.append('country', formData.country || '');
-          if (formData.password && formData.password !== '********') {
-            payload.append('password', formData.password);
-            payload.append('confirmPassword', formData.confirmPassword);
-          }
-          if (formData.profileImageFile) {
-            payload.append('image', formData.profileImageFile);
-          }
-
-          const targetId = selectedParent.parent_id || selectedParent._id || selectedParent.id;
-          const res = await adminParentsApi.updateParent(targetId, payload)
-          if (res) {
-            setParents((prev) =>
-              prev.map((p) => {
-                const pId = p.parent_id || p._id || p.id;
-                return pId === targetId ? { ...p, ...(res.data || res || formData) } : p;
-              })
-            )
-            setSelectedParent(null)
-            setViewMode('list')
-            toast.success(isRtl ? 'تم تحديث البيانات بنجاح' : 'Parent updated successfully')
-          }
-        } catch (err) {
-          console.error('Failed to update parent:', err)
-          const msgs = err.response?.data?.message;
-          if (Array.isArray(msgs)) {
-            msgs.forEach(m => toast.error(m));
-          } else if (typeof msgs === 'string') {
-            toast.error(msgs);
-          } else {
-            toast.error(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update parent');
-          }
-        }
-      } else {
-        try {
-          const payload = new FormData();
-          payload.append('email', formData.email || '');
-          payload.append('name[ar]', formData.name || '');
-          payload.append('name[en]', formData.nameEn || '');
-          payload.append('phone', formData.phone || '');
-          payload.append('country', formData.country || '');
-          payload.append('password', formData.password || '');
-          payload.append('confirmPassword', formData.confirmPassword || '');
-          if (formData.profileImageFile) {
-            payload.append('image', formData.profileImageFile);
-          }
-
-          const res = await adminParentsApi.createParent(payload)
-          if (res) {
-            setParents((prev) => [res.data || res || formData, ...prev])
-            setViewMode('list')
-            toast.success(isRtl ? 'تم إضافة ولي الأمر بنجاح' : 'Parent created successfully')
-          }
-        } catch (err) {
-          console.error('Failed to create parent:', err)
-          const msgs = err.response?.data?.message;
-          if (Array.isArray(msgs)) {
-            msgs.forEach(m => toast.error(m));
-          } else if (typeof msgs === 'string') {
-            toast.error(msgs);
-          } else {
-            toast.error(isRtl ? 'حدث خطأ أثناء الإضافة' : 'Failed to create parent');
-          }
-        }
-      }
-    } finally {
-      setIsSavingParent(false)
-    }
-  }
+  }, [isRtl])
 
   const handleDeleteParent = async (parent) => {
-    const parentName = typeof parent.name === 'object' ? (isRtl ? parent.name.ar || parent.name.en : parent.name.en || parent.name.ar) : parent.name;
-    const isConfirmed = await showDeleteConfirm(isRtl, parentName);
-    if (!isConfirmed) return;
+    const parentName = typeof parent.name === 'object' ? (isRtl ? parent.name.ar || parent.name.en : parent.name.en || parent.name.ar) : parent.name
+    const isConfirmed = await showDeleteConfirm(isRtl, parentName)
+    if (!isConfirmed) return
 
     try {
-      const targetId = parent.parent_id || parent._id || parent.id;
-      const res = await adminParentsApi.deleteParent(targetId)
-      if (res) {
-        setParents((prev) => prev.filter((p) => {
-          const pId = p.parent_id || p._id || p.id;
-          return pId !== targetId;
-        }))
-        if ((selectedParent?.parent_id || selectedParent?._id || selectedParent?.id) === targetId) {
-          setSelectedParent(null)
-          setViewMode('list')
-        }
-      }
+      const targetId = getParentId(parent)
+      await adminParentsApi.deleteParent(targetId)
+      setParents((prev) => prev.filter((p) => getParentId(p) !== targetId))
+      toast.success(isRtl ? 'تم حذف ولي الأمر بنجاح' : 'Parent deleted successfully')
     } catch (err) {
       console.error('Failed to delete parent:', err)
+      toast.error(isRtl ? 'حدث خطأ أثناء حذف ولي الأمر' : 'Failed to delete parent')
     }
   }
 
-  const handleSendMessage = async (parentId, message) => {
-    try {
-      await adminParentsApi.sendMessage(parentId, message)
-    } catch (err) {
-      console.error('Failed to send message:', err)
-    }
-  }
-
-  const handleSuspend = async (id) => {
-    try {
-      const res = await adminParentsApi.suspendParent(id)
-      if (res) {
-        setParents((prev) =>
-          prev.map((p) => {
-            const pId = p.parent_id || p._id || p.id
-            return pId === id ? { ...p, status: p.status === 'Active' ? 'Expired' : 'Active', active: !p.active } : p
-          })
-        )
-        setSelectedParent((prev) => {
-          if (!prev) return prev
-          const currentStatus = prev.status || (prev.active ? 'Active' : 'Expired')
-          const nextStatus = currentStatus === 'Active' ? 'Expired' : 'Active'
-          return { ...prev, status: nextStatus, active: nextStatus === 'Active' }
-        })
-        toast.success(isRtl ? 'تم تحديث حالة الحساب بنجاح' : 'Account status updated successfully')
-      }
-    } catch (err) {
-      console.error('Failed to suspend parent:', err)
-      toast.error(isRtl ? 'فشل في تحديث حالة الحساب' : 'Failed to update account status')
-    }
-  }
-
-  const handleOpenEditScreen = async (parent) => {
-    setIsLoading(true)
-    try {
-      const targetId = parent.parent_id || parent._id || parent.id || parent.user_id;
-      const fullParentData = await adminParentsApi.fetchParentById(targetId)
-      setSelectedParent(fullParentData?.data || fullParentData || parent)
-      setViewMode('view-parent')
-    } catch (error) {
-      console.error('Failed to fetch parent details', error)
-      toast.error(isRtl ? 'فشل في تحميل تفاصيل ولي الأمر' : 'Failed to fetch parent details')
-      setSelectedParent(parent)
-      setViewMode('view-parent')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleOpenDetails = async (parent) => {
-    const targetId = parent.parent_id || parent._id || parent.id || parent.user_id
-    try {
-      const singleRes = await adminParentsApi.fetchParentById(targetId)
-      const singleData = singleRes?.data || singleRes
-      setSelectedParent(singleData || parent)
-    } catch {
-      setSelectedParent(parent)
-    }
-    setViewMode('view-parent')
-  }
-
-  const handleSaveFromDetails = async (payload) => {
-    try {
-      const isFormData = payload instanceof FormData
-      const targetId = isFormData
-        ? payload.get('id')
-        : (payload.id || selectedParent?.parent_id || selectedParent?._id || selectedParent?.id)
-
-      const res = await adminParentsApi.updateParent(targetId, payload)
-      if (res) {
-        const updatedData = res.data || res
-        setParents((prev) =>
-          prev.map((p) => {
-            const pId = p.parent_id || p._id || p.id
-            return pId === targetId ? { ...p, ...updatedData } : p
-          })
-        )
-        setSelectedParent((prev) => ({ ...prev, ...updatedData }))
-        toast.success(isRtl ? 'تم تحديث البيانات بنجاح' : 'Parent updated successfully')
-      }
-    } catch (err) {
-      console.error('Failed to update parent from details:', err)
-      const msgs = err.response?.data?.message
-      if (Array.isArray(msgs)) {
-        msgs.forEach((m) => toast.error(m))
-      } else if (typeof msgs === 'string') {
-        toast.error(msgs)
-      } else {
-        toast.error(isRtl ? 'حدث خطأ أثناء التحديث' : 'Failed to update parent')
-      }
-      throw err
-    }
-  }
+  const openDetails = (parent) => navigate(`/dashboard/admin/parents/${getParentId(parent)}`)
 
   if (isLoading) {
     return (
@@ -276,83 +75,48 @@ export default function AdminParents() {
 
   return (
     <div className="space-y-8 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="text-start">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+          {t('adminDashboard.parents.title', 'إدارة أولياء الأمور')}
+        </h1>
+        <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+          {t('adminDashboard.parents.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
+        </p>
+      </div>
 
-      {viewMode === 'list' && (
-        <>
-          <div className="text-start">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-              {t('adminDashboard.parents.title', 'إدارة أولياء الأمور')}
-            </h1>
-            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
-              {t('adminDashboard.parents.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
-            </p>
-          </div>
-
-          {statistics && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mt-6 mb-2">
-              <StatsCard
-                title={t('adminDashboard.parents.totalParents', 'إجمالي أولياء الأمور')}
-                value={statistics.total}
-                icon={<Users size={20} />}
-                accent="bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400"
-              />
-              <StatsCard
-                title={t('adminDashboard.parents.active', 'نشط')}
-                value={statistics.active}
-                icon={<UserCheck size={20} />}
-                accent="bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
-              />
-              <StatsCard
-                title={t('adminDashboard.parents.stopped', 'موقوف')}
-                value={statistics.stopped}
-                icon={<UserX size={20} />}
-                accent="bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
-              />
-            </div>
-          )}
-
-          <ParentsList
-            parents={parents}
-            pagination={pagination}
-            isRtl={isRtl}
-            t={t}
-            onOpenAddScreen={() => setViewMode('add-parent')}
-            onOpenEditScreen={handleOpenEditScreen}
-            onOpenDetails={handleOpenDetails}
-            onDelete={handleDeleteParent}
+      {statistics && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mt-6 mb-2">
+          <StatsCard
+            title={t('adminDashboard.parents.totalParents', 'إجمالي أولياء الأمور')}
+            value={statistics.total}
+            icon={<Users size={20} />}
+            accent="bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400"
           />
-        </>
+          <StatsCard
+            title={t('adminDashboard.parents.active', 'نشط')}
+            value={statistics.active}
+            icon={<UserCheck size={20} />}
+            accent="bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
+          />
+          <StatsCard
+            title={t('adminDashboard.parents.stopped', 'موقوف')}
+            value={statistics.stopped}
+            icon={<UserX size={20} />}
+            accent="bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
+          />
+        </div>
       )}
 
-      {(viewMode === 'add-parent' || viewMode === 'edit-parent') && (
-        <AddEditParentScreen
-          parent={viewMode === 'edit-parent' ? selectedParent : null}
-          isRtl={isRtl}
-          t={t}
-          isSaving={isSavingParent}
-          onSave={handleSaveParent}
-          onCancel={() => {
-            setSelectedParent(null)
-            setViewMode('list')
-          }}
-        />
-      )}
-
-      {viewMode === 'view-parent' && selectedParent && (
-        <ParentDetailsScreen
-          parent={selectedParent}
-          isRtl={isRtl}
-          t={t}
-          onCancel={() => {
-            setSelectedParent(null)
-            setViewMode('list')
-          }}
-          onSave={handleSaveFromDetails}
-          onSendMessage={handleSendMessage}
-          onSuspend={handleSuspend}
-        />
-      )}
-
+      <ParentsList
+        parents={parents}
+        pagination={pagination}
+        isRtl={isRtl}
+        t={t}
+        onOpenAddScreen={() => navigate('/dashboard/admin/parents/add')}
+        onOpenEditScreen={openDetails}
+        onOpenDetails={openDetails}
+        onDelete={handleDeleteParent}
+      />
     </div>
   )
 }

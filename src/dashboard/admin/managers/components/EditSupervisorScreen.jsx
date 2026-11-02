@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import {
   ArrowRight,
   ArrowLeft,
@@ -236,6 +236,7 @@ export default function EditSupervisorScreen({
             email: supervisor.email || '',
             phone: initialPhone,
             phonePrefix: initialPrefix,
+            photoUrl: formData.photoUrl,
           }}
           joinDate={joinDate}
           isRtl={isRtl}
@@ -305,7 +306,7 @@ export default function EditSupervisorScreen({
                       </button>
 
                       {isDropdownOpen && (
-                        <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-left">
+                        <div role="listbox" className="absolute start-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-start">
                           <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
                             <label htmlFor="editCountrySearchInput" className="sr-only">
                               {isRtl ? 'بحث...' : 'Search...'}

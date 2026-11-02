@@ -6,6 +6,7 @@ import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
+import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Register() {
@@ -181,11 +182,13 @@ export default function Register() {
         } catch (error) {
             const errorMsg = error.message || t('register.errorMessage', 'فشل إنشاء الحساب، يرجى المحاولة مرة أخرى.')
             setServerError(errorMsg)
-            setToast({
-                show: true,
-                message: errorMsg,
-                type: 'error'
-            })
+            if (canShowErrorInToaster(error)) {
+                setToast({
+                    show: true,
+                    message: errorMsg,
+                    type: 'error'
+                })
+            }
         }
     }
 

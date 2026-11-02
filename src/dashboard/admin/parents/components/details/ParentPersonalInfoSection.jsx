@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { ChevronDown, Lock } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { getCountryName } from '@/shared/utils/countryUtils'
 
 export default function ParentPersonalInfoSection({
@@ -25,7 +25,7 @@ export default function ParentPersonalInfoSection({
     }
   }
 
-  const avatarInitial = formData.name ? formData.name.trim().charAt(0) : 'أ'
+  const avatarInitial = formData.name ? formData.name.trim().charAt(0) : '?'
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800/80 shadow-soft space-y-6">
@@ -46,7 +46,7 @@ export default function ParentPersonalInfoSection({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/png,image/jpeg,image/jpg"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
             onChange={handleFileSelect}
             className="hidden"
           />
@@ -67,7 +67,7 @@ export default function ParentPersonalInfoSection({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="order-2 md:order-1 text-start">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
-              Full Name
+              {isRtl ? 'الاسم بالإنجليزية' : 'English Name'}
             </label>
             <input
               type="text"
@@ -105,9 +105,9 @@ export default function ParentPersonalInfoSection({
                   onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
                   className="h-[46px] flex items-center justify-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-950/80 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
                 >
-                  <span>{selectedCountryCode?.flag || '🇪🇬'}</span>
+                  <span>{selectedCountryCode?.flag || '🌍'}</span>
                   <span className="font-mono text-xs">
-                    {selectedCountryCode?.code ? `(${selectedCountryCode.code})` : '(+02)'}
+                    {selectedCountryCode?.code ? `(${selectedCountryCode.code})` : ''}
                   </span>
                   <ChevronDown size={14} className="text-slate-400" />
                 </button>
@@ -139,30 +139,23 @@ export default function ParentPersonalInfoSection({
                 type="tel"
                 value={phoneVal}
                 onChange={(e) => setPhoneVal(e.target.value)}
-                placeholder="01012345678"
+                placeholder="501234567"
                 className="flex-1 bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm placeholder-slate-400 font-mono"
               />
             </div>
           </div>
 
           <div className="order-1 md:order-2 text-start">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-slate-600 dark:text-slate-400">
-                {isRtl ? 'البريد الإلكتروني' : 'Email'}
-              </label>
-              <span className="text-[10px] text-slate-400 flex items-center gap-1 font-medium">
-                <Lock size={10} />
-                <span>{isRtl ? 'ثابت' : 'Fixed'}</span>
-              </span>
-            </div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isRtl ? 'البريد الإلكتروني' : 'Email'}
+            </label>
             <input
               type="email"
               value={formData.email || ''}
-              readOnly
-              disabled
-              placeholder="Nora_ahmed@yahoo.com"
+              onChange={(e) => handleChange('email', e.target.value)}
+              placeholder="name@example.com"
               dir="ltr"
-              className="w-full bg-[#f3f7f6]/80 dark:bg-slate-950/60 border border-transparent text-slate-500 dark:text-slate-400 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm placeholder-slate-400 cursor-not-allowed"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm placeholder-slate-400"
             />
           </div>
         </div>
@@ -190,38 +183,6 @@ export default function ParentPersonalInfoSection({
           </div>
         </div>
 
-        <div className="text-start">
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
-            {isRtl ? 'تاريخ الميلاد' : 'Birth Date'}
-          </label>
-          <input
-            type="text"
-            value={formData.birthDate || ''}
-            onChange={(e) => handleChange('birthDate', e.target.value)}
-            placeholder="DD/MM/YY"
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm placeholder-slate-400 text-start"
-          />
-        </div>
-
-        <div className="text-start">
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
-            {isRtl ? 'الحالة' : 'Status'}
-          </label>
-          <div className="relative">
-            <select
-              value={formData.status || 'Active'}
-              onChange={(e) => handleChange('status', e.target.value)}
-              className="w-full appearance-none bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pr-10 outline-none transition-all text-sm cursor-pointer"
-            >
-              <option value="Active">{isRtl ? 'نشط' : 'Active'}</option>
-              <option value="Inactive">{isRtl ? 'غير نشط' : 'Inactive'}</option>
-              <option value="Expired">{isRtl ? 'موقوف' : 'Suspended'}</option>
-            </select>
-            <div className={`absolute top-1/2 -translate-y-1/2 ${isRtl ? 'left-4' : 'right-4'} pointer-events-none text-slate-400`}>
-              <ChevronDown size={16} />
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

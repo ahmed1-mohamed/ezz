@@ -239,17 +239,43 @@ export const adminCurriculaApi = {
           const nameAr = payload.get('name[ar]') || payload.get('nameAr') || '';
           const nameEn = payload.get('name[en]') || payload.get('nameEn') || nameAr;
           const linkUrl = payload.get('url');
+          const showToStudentsRaw = payload.get('showToStudents');
+          const showToTeachersRaw = payload.get('showToTeachers');
+          const showToStudents = showToStudentsRaw !== null ? (showToStudentsRaw === 'true' || showToStudentsRaw === true) : true;
+          const showToTeachers = showToTeachersRaw !== null ? (showToTeachersRaw === 'true' || showToTeachersRaw === true) : true;
 
           if (type === 'link' && linkUrl) {
             const jsonBody = {
               type: 'link',
               name: { ar: nameAr, en: nameEn },
-              url: linkUrl
+              url: linkUrl,
+              showToStudents,
+              showToTeachers,
             };
             const jsonRes = await api.post(endpoint, jsonBody, {
               headers: { 'Content-Type': 'application/json' }
             });
             return jsonRes.data;
+          }
+
+          const errMsg = String(error?.response?.data?.message || '');
+          if (errMsg.includes('boolean')) {
+            payload.delete('showToStudents');
+            payload.delete('showToTeachers');
+            const retryRes = await api.post(endpoint, payload);
+            const created = retryRes.data?.data || retryRes.data;
+            const fileId = created?._id || created?.id;
+            if (fileId) {
+              try {
+                await api.patch(`${endpoint}/${fileId}`, {
+                  showToStudents,
+                  showToTeachers,
+                });
+              } catch (patchErr) {
+                console.warn('API addFile sync visibility flags failed:', patchErr);
+              }
+            }
+            return retryRes.data;
           }
         } else if (typeof payload === 'object' && !(payload instanceof FormData)) {
           const fd = new FormData();
@@ -258,9 +284,9 @@ export const adminCurriculaApi = {
           const en = payload.name?.en || payload.nameEn || ar;
           fd.append('name[ar]', ar);
           fd.append('name[en]', en);
-          if (payload.url) {
-            fd.append('url', payload.url);
-          }
+          if (payload.url) fd.append('url', payload.url);
+          if (payload.showToStudents !== undefined) fd.append('showToStudents', String(payload.showToStudents));
+          if (payload.showToTeachers !== undefined) fd.append('showToTeachers', String(payload.showToTeachers));
           const fdRes = await api.post(endpoint, fd, {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
@@ -274,6 +300,37 @@ export const adminCurriculaApi = {
       throw error;
     }
   },
+
+  updateFile: async (curriculumId, levelId, unitId, fileId, payload) => {
+    try {
+      const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+      const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+      const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
+      const fId = typeof fileId === 'object' ? (fileId._id || fileId.id || fileId.fileId) : fileId;
+      const endpoint = `/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files/${fId}`;
+      const isFormData = payload instanceof FormData;
+      const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
+      const response = await api.patch(endpoint, payload, { headers });
+      return response.data;
+    } catch (error) {
+      if (!(payload instanceof FormData)) {
+        try {
+          const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
+          const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
+          const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
+          const fId = typeof fileId === 'object' ? (fileId._id || fileId.id || fileId.fileId) : fileId;
+          const endpoint = `/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files/${fId}`;
+          const putRes = await api.put(endpoint, payload, { headers: { 'Content-Type': 'application/json' } });
+          return putRes.data;
+        } catch (putErr) {
+          console.warn('API updateFile fallback attempt PUT failed:', putErr);
+        }
+      }
+      console.error('API updateFile failed:', error);
+      throw error;
+    }
+  },
+
   deleteFile: async (curriculumId, levelId, unitId, fileId) => {
     try {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;

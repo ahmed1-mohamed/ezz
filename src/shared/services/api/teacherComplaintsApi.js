@@ -1,5 +1,16 @@
 import api from './axiosConfig';
 
+const toMultipart = ({ attachments = [], ...fields }) => {
+  const fd = new FormData();
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') fd.append(key, value);
+  });
+  attachments.forEach((file) => {
+    if (file instanceof File) fd.append('attachments', file);
+  });
+  return fd;
+};
+
 export const teacherComplaintsApi = {
   fetchComplaints: async (filterOrParams) => {
     let queryParams = {};
@@ -37,15 +48,19 @@ export const teacherComplaintsApi = {
     return response.data?.data || response.data;
   },
 
+  // Attachments are uploaded files (multipart, repeated `attachments` field)
   createComplaintOrSuggestion: async (payload) => {
-    const response = await api.post('/api/v1/teacher/complaints-suggestions', payload);
+    const response = await api.post('/api/v1/teacher/complaints-suggestions', toMultipart(payload), {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 
   requestRescheduleSession: async (payload) => {
     const response = await api.post(
       '/api/v1/teacher/complaints-suggestions/reschedule-session',
-      payload
+      toMultipart(payload),
+      { headers: { 'Content-Type': 'multipart/form-data' } }
     );
     return response.data;
   },

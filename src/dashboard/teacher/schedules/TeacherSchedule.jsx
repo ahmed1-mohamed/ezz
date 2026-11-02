@@ -1,15 +1,38 @@
-import { useState, useMemo, useEffect } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Users,
+  Video,
+  RotateCcw,
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { timetableApi } from '@/shared/services/api/timetableApi.js';
-
-import TeacherScheduleHeader from './components/TeacherScheduleHeader.jsx';
-import TeacherScheduleWeekNavigator from './components/TeacherScheduleWeekNavigator.jsx';
-import TeacherScheduleDaysTabs from './components/TeacherScheduleDaysTabs.jsx';
-import TeacherScheduleSessionCard from './components/TeacherScheduleSessionCard.jsx';
-import TeacherScheduleEmptyState from './components/TeacherScheduleEmptyState.jsx';
+import Spinner from '@/shared/components/Spinner.jsx';
 
 const DAY_KEYS = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const STALE_TIME_MS = 60 * 1000;
+const MONTHS_AR = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+];
+const MONTHS_EN = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+const MONTHS_SHORT_AR = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+];
+const MONTHS_SHORT_EN = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
 
 function parseLocalDate(dateString) {
   if (!dateString) return new Date();
@@ -22,26 +45,93 @@ function parseLocalDate(dateString) {
   return isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
-function isSameDay(a, b) {
-  if (!a || !b) return false;
+function checkIsSameDay(dateA, dateB) {
+  if (!dateA || !dateB) return false;
   return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
+    dateA.getFullYear() === dateB.getFullYear() &&
+    dateA.getMonth() === dateB.getMonth() &&
+    dateA.getDate() === dateB.getDate()
   );
+}
+
+function formatSessionTime(session, isRtl) {
+  if (session.timeRange) return session.timeRange;
+  if (!session.startTime) return '-';
+  if (!session.startTime.includes('T')) {
+    return session.endTime ? `${session.startTime} - ${session.endTime}` : session.startTime;
+  }
+  try {
+    const locale = isRtl ? 'ar-EG' : 'en-GB';
+    const start = new Date(session.startTime).toLocaleTimeString(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const end = session.endTime
+      ? new Date(session.endTime).toLocaleTimeString(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      : '';
+    return end ? `${start} - ${end}` : start;
+  } catch {
+    return session.startTime || '-';
+  }
+}
+
+function resolveGroupName(rawGroup, isRtl, fallback) {
+  if (!rawGroup) return fallback;
+  if (typeof rawGroup === 'string') return rawGroup.trim();
+  if (typeof rawGroup === 'object') {
+    const name = rawGroup.name || rawGroup.title;
+    if (typeof name === 'string') return name.trim();
+    if (typeof name === 'object' && name !== null) {
+      return (isRtl ? name.ar || name.en : name.en || name.ar) || fallback;
+    }
+  }
+  return fallback;
+}
+
+function resolveSessionTitle(rawTitle, isRtl, fallback) {
+  if (!rawTitle) return fallback;
+  if (typeof rawTitle === 'string') return rawTitle.trim();
+  if (typeof rawTitle === 'object') {
+    return (isRtl ? rawTitle.ar || rawTitle.en : rawTitle.en || rawTitle.ar) || fallback;
+  }
+  return String(rawTitle);
+}
+
+function getDayNumber(dayObject) {
+  if (!dayObject) return '';
+  if (dayObject.date) {
+    const parts = dayObject.date.split('-');
+    if (parts.length === 3) return parseInt(parts[2], 10);
+  }
+  return '';
+}
+
+function formatDayHeading(dayObject, isRtl) {
+  if (!dayObject) return '';
+  const name = dayObject.dayName || dayObject.day || '';
+  if (!dayObject.date) return name;
+  const parsedDate = parseLocalDate(dayObject.date);
+  if (isNaN(parsedDate.getTime())) return `${name} - ${dayObject.date}`;
+  const dateFormatted = isRtl
+    ? `${parsedDate.getDate()} ${MONTHS_SHORT_AR[parsedDate.getMonth()]}`
+    : `${parsedDate.getDate()} ${MONTHS_SHORT_EN[parsedDate.getMonth()]}`;
+  return isRtl ? `حصص يوم ${name} - ${dateFormatted}` : `Sessions for ${name} - ${dateFormatted}`;
 }
 
 export default function TeacherSchedule() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const today = useMemo(() => new Date(), []);
-
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState('');
-
+  const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-  const [selectedDayIndex, setSelectedDayIndex] = useState(null);
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -57,10 +147,9 @@ export default function TeacherSchedule() {
       } catch {
         setCurrentTimeStr(now.toTimeString().slice(0, 8));
       }
-
       try {
         const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura',
+          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
           {
             weekday: 'long',
             day: 'numeric',
@@ -70,10 +159,9 @@ export default function TeacherSchedule() {
         ).format(now);
         setCurrentDateStr(dateFormatted);
       } catch {
-        setCurrentDateStr(isRtl ? 'الأربعاء، ٥ ذو القعدة ١٤٤٧ هـ' : 'Wednesday, 5 Dhu al-Qi\'dah 1447 AH');
+        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
@@ -91,151 +179,492 @@ export default function TeacherSchedule() {
         weekOffset,
         date: selectedDate || undefined,
       }),
-    staleTime: 60 * 1000,
+    staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
   });
 
-  const weekInfo = useMemo(
-    () => timetableData?.weekInfo || timetableData?.week || {},
-    [timetableData]
-  );
+  const weekInfo = useMemo(() => {
+    const raw = timetableData?.data || timetableData || {};
+    return raw.weekInfo || raw.week || {};
+  }, [timetableData]);
 
   const weekDays = useMemo(() => {
-    const apiDays = timetableData?.days;
-    if (Array.isArray(apiDays) && apiDays.length > 0) {
-      return apiDays.map((d, idx) => {
-        const dObj = d.date ? parseLocalDate(d.date) : null;
-        const dayKey = d.day ? d.day.toLowerCase() : DAY_KEYS[idx % 7];
-        const dayName = t(`schedule.${dayKey}`, { defaultValue: d.dayName || d.day });
-        const sessions = (Array.isArray(d.sessions) ? d.sessions : []).map((s, sIdx) => ({
-          id: s.id || s._id || `s-${idx}-${sIdx}`,
-          title: s.title || s.name || t('teacherSchedule.sessionTitleFallback', 'حصة دراسية'),
-          groupName:
-            (typeof s.group === 'object' && s.group !== null
-              ? s.group.name || s.group.title
-              : s.groupName || s.group) || t('teacherDashboard.groupName', 'مجموعة دراسية'),
-          startTime: s.startTime || s.time || '',
-          endTime: s.endTime || '',
-          timeRange: s.timeRange || (s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : s.startTime || s.time || ''),
-          status: (s.status || 'scheduled').toLowerCase(),
-          studentsCount: s.studentsCount ?? (Array.isArray(s.students) ? s.students.length : 0),
-          zoomJoinUrl: s.zoomJoinUrl || s.joinUrl || s.meetingUrl || null,
-        }));
-
+    const raw = timetableData?.data || timetableData || {};
+    const apiDays = Array.isArray(raw.days)
+      ? raw.days
+      : Array.isArray(raw)
+      ? raw
+      : Array.isArray(timetableData?.days)
+      ? timetableData.days
+      : [];
+    if (apiDays.length > 0) {
+      return apiDays.map((dayItem, index) => {
+        const dateObject = dayItem.date ? parseLocalDate(dayItem.date) : null;
+        const dayKey = dayItem.day ? dayItem.day.toLowerCase() : DAY_KEYS[index % 7];
+        const dayName = t(`schedule.${dayKey}`, { defaultValue: dayItem.dayName || dayItem.day });
+        const fallbackGroup = t('teacherDashboard.groupName', 'مجموعة دراسية');
+        const fallbackTitle = t('teacherSchedule.sessionTitleFallback', 'حصة دراسية');
+        const sessions = (Array.isArray(dayItem.sessions) ? dayItem.sessions : []).map((sess, sIdx) => {
+          const resolvedGroup = resolveGroupName(sess.group || sess.groupName, isRtl, fallbackGroup);
+          const resolvedTitle = resolveSessionTitle(sess.title || sess.name, isRtl, fallbackTitle);
+          const timeRange = formatSessionTime(sess, isRtl);
+          return {
+            id: sess.id || sess._id || `s-${index}-${sIdx}`,
+            title: resolvedTitle,
+            groupName: resolvedGroup,
+            startTime: sess.startTime || sess.time || '',
+            endTime: sess.endTime || '',
+            timeRange,
+            status: (sess.status || 'scheduled').toLowerCase(),
+            studentsCount: sess.studentsCount ?? (Array.isArray(sess.students) ? sess.students.length : 0),
+            zoomStartUrl: sess.zoomStartUrl || sess.startUrl || sess.zoom?.start_url || sess.zoomJoinUrl || sess.joinUrl || sess.meetingUrl || null,
+            zoomJoinUrl: sess.zoomJoinUrl || sess.joinUrl || sess.meetingUrl || null,
+          };
+        });
         return {
           dayKey,
           dayName,
-          date: d.date,
-          dateObj: dObj,
-          isToday: d.isToday ?? (dObj ? isSameDay(dObj, today) : false),
+          date: dayItem.date,
+          dateObject,
+          isToday: dayItem.isToday ?? (dateObject ? checkIsSameDay(dateObject, today) : false),
+          sessionsCount: dayItem.sessionsCount ?? sessions.length,
           sessions,
         };
       });
     }
-
     return [];
-  }, [timetableData, today, t]);
+  }, [timetableData, today, t, isRtl]);
+
+  useEffect(() => {
+    if (weekDays.length > 0 && selectedDayIndex === null) {
+      const todayIndex = weekDays.findIndex((d) => d.isToday);
+      if (todayIndex >= 0) {
+        setSelectedDayIndex(todayIndex);
+      } else {
+        const firstWithSessions = weekDays.findIndex((d) => d.sessionsCount > 0);
+        setSelectedDayIndex(firstWithSessions >= 0 ? firstWithSessions : 0);
+      }
+    }
+  }, [weekDays, selectedDayIndex]);
 
   const activeDayIndex = useMemo(() => {
     if (selectedDayIndex !== null && selectedDayIndex >= 0 && selectedDayIndex < weekDays.length) {
       return selectedDayIndex;
     }
-    const todayIdx = weekDays.findIndex((d) => d.isToday);
-    return todayIdx !== -1 ? todayIdx : 0;
+    const todayIndex = weekDays.findIndex((d) => d.isToday);
+    return todayIndex !== -1 ? todayIndex : 0;
   }, [selectedDayIndex, weekDays]);
 
-  const totalWeekSessions = useMemo(() => {
-    return weekDays.reduce((acc, d) => acc + (d.sessions?.length || 0), 0);
-  }, [weekDays]);
+  const selectedDay = weekDays[activeDayIndex] || weekDays[0] || null;
+  const sessions = selectedDay?.sessions || [];
 
-  const weekRangeLabel = useMemo(() => {
-    if (weekInfo?.formattedRange) return weekInfo.formattedRange;
-    if (weekInfo?.startDate && weekInfo?.endDate) {
-      return `${t('teacherSchedule.from', 'من')} ${weekInfo.startDate} ${t('teacherSchedule.to', 'إلى')} ${weekInfo.endDate}`;
+  const handlePrevWeek = () => {
+    if (weekInfo?.previousWeekDate) {
+      setSelectedDate(weekInfo.previousWeekDate);
+      setWeekOffset(0);
+    } else {
+      setWeekOffset((prev) => prev - 1);
     }
-    if (weekDays.length >= 2) {
-      const first = weekDays[0].date;
-      const last = weekDays[weekDays.length - 1].date;
-      if (first && last) return `${t('teacherSchedule.from', 'من')} ${first} ${t('teacherSchedule.to', 'إلى')} ${last}`;
+    setSelectedDayIndex(0);
+  };
+
+  const handleNextWeek = () => {
+    if (weekInfo?.nextWeekDate) {
+      setSelectedDate(weekInfo.nextWeekDate);
+      setWeekOffset(0);
+    } else {
+      setWeekOffset((prev) => prev + 1);
     }
-    return '';
-  }, [weekInfo, weekDays, t]);
+    setSelectedDayIndex(0);
+  };
 
-  const weekTitle = useMemo(() => {
-    if (weekOffset === 0 && !selectedDate) return t('teacherSchedule.currentWeek', 'الأسبوع الحالي');
-    if (weekOffset > 0) return `${t('teacherSchedule.nextWeek', 'الأسبوع القادم')} (+${weekOffset})`;
-    if (weekOffset < 0) return `${t('teacherSchedule.prevWeek', 'الأسبوع السابق')} (${weekOffset})`;
-    return weekInfo?.weekLabel || t('teacherSchedule.allWeek', 'الجدول الأسبوعي');
-  }, [weekOffset, selectedDate, weekInfo, t]);
+  const handleCurrentWeek = () => {
+    setWeekOffset(0);
+    setSelectedDate('');
+    setSelectedDayIndex(null);
+  };
 
-  const activeDay = weekDays[activeDayIndex] || weekDays[0] || null;
-  const activeDaySessions = activeDay?.sessions || [];
+  const monthYearLabel = useMemo(() => {
+    const referenceDate = selectedDay?.date || weekInfo?.startDate || weekInfo?.currentWeekDate || selectedDate;
+    if (!referenceDate) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
+    const parsedDate = parseLocalDate(referenceDate);
+    if (isNaN(parsedDate.getTime())) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
+    return isRtl
+      ? `${MONTHS_AR[parsedDate.getMonth()]} ${parsedDate.getFullYear()}`
+      : `${MONTHS_EN[parsedDate.getMonth()]} ${parsedDate.getFullYear()}`;
+  }, [selectedDay, weekInfo, selectedDate, isRtl]);
+
+  const renderStatusBadge = (session) => {
+    const status = session.status?.toLowerCase();
+    const isLive = status === 'live' || status === 'in_progress';
+    if (isLive) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FFEAEA] dark:bg-red-950/40 text-[#E53E3E] dark:text-red-400">
+          <span className="w-2 h-2 rounded-full bg-[#E53E3E] animate-pulse" />
+          <span>{t('teacherSchedule.filterLive', 'مباشر الآن')}</span>
+        </span>
+      );
+    }
+    switch (status) {
+      case 'cancelled':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span>{t('teacherSchedule.cancelledSession', 'ملغاة')}</span>
+          </span>
+        );
+      case 'rescheduled':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span>{t('teacherSchedule.rescheduled', 'معاد جدولتها')}</span>
+          </span>
+        );
+      case 'completed':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+            <span>{t('teacherSchedule.filterCompleted', 'مكتملة')}</span>
+          </span>
+        );
+      case 'scheduled':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00695C] dark:bg-emerald-400" />
+            <span>{t('teacherSchedule.filterScheduled', 'مجدولة')}</span>
+          </span>
+        );
+    }
+  };
+
+  const renderActionButton = (session) => {
+    const status = session.status?.toLowerCase();
+    const isLive = status === 'live' || status === 'in_progress';
+    if (status === 'cancelled') {
+      return (
+        <span className="text-xs font-semibold text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-4 py-2 rounded-xl">
+          {t('teacherSchedule.cancelledSession', 'حصة ملغاة')}
+        </span>
+      );
+    }
+    if (status === 'completed') {
+      return (
+        <span className="text-xs font-semibold text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-4 py-2 rounded-xl">
+          {t('teacherSchedule.sessionCompleted', 'الحصة مكتملة')}
+        </span>
+      );
+    }
+    const targetUrl = session.zoomStartUrl || session.zoomJoinUrl || (session.id ? `/dashboard/teacher/live?session=${session.id}` : null);
+    if (targetUrl) {
+      const isInternal = targetUrl.startsWith('/');
+      if (isInternal) {
+        return (
+          <Link
+            to={targetUrl}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+          >
+            <Video size={16} />
+            <span>{isLive ? t('teacherSchedule.joinLiveNow', 'انتقل إلى البث الآن') : t('teacherSchedule.startSession', 'بدء الحصة')}</span>
+          </Link>
+        );
+      }
+      return (
+        <a
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+        >
+          <Video size={16} />
+          <span>{isLive ? t('teacherSchedule.joinLiveNow', 'انتقل إلى البث الآن') : t('teacherSchedule.startSession', 'بدء الحصة')}</span>
+        </a>
+      );
+    }
+    return (
+      <span className="text-xs font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/40 px-3.5 py-2 rounded-xl border border-slate-100 dark:border-slate-800">
+        {t('teacherSchedule.linkAvailableSoon', 'الرابط متاح قريباً')}
+      </span>
+    );
+  };
+
+  const isCurrentWeek = weekOffset === 0 && !selectedDate && (weekInfo?.isCurrentWeek ?? true);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-      <TeacherScheduleHeader
-        currentTimeStr={currentTimeStr}
-        currentDateStr={currentDateStr}
-        isFetching={isFetching}
-        onRefetch={refetch}
-      />
-
-      <TeacherScheduleWeekNavigator
-        weekOffset={weekOffset}
-        onPrevWeek={() => setWeekOffset((prev) => prev - 1)}
-        onNextWeek={() => setWeekOffset((prev) => prev + 1)}
-        onResetWeek={() => {
-          setWeekOffset(0);
-          setSelectedDate('');
-        }}
-        weekTitle={weekTitle}
-        weekRangeLabel={weekRangeLabel}
-        totalWeekSessions={totalWeekSessions}
-        selectedDate={selectedDate}
-        onDateChange={(val) => {
-          setSelectedDate(val);
-          setWeekOffset(0);
-        }}
-      />
-
-      {isLoading ? (
-        <div className="space-y-4">
-          <div className="flex gap-2.5 overflow-x-auto pb-2">
-            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <div key={i} className="w-24 h-24 rounded-3xl bg-slate-200/60 dark:bg-slate-800/60 animate-pulse shrink-0" />
-            ))}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="space-y-6"
+      >
+        {/* Card 1: Top Header Banner */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-start">
+            <div className="w-12 h-12 rounded-2xl bg-[#00594C] text-white flex items-center justify-center shadow-xs shrink-0">
+              <Calendar size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight flex items-center gap-2">
+                <span>{t('teacherSchedule.title', 'الجدول الأسبوعي')}</span>
+                {isFetching && (
+                  <div className="w-4 h-4 border-2 border-[#00594C]/30 border-t-[#00594C] rounded-full animate-spin" />
+                )}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-0.5">
+                {t('teacherSchedule.subtitle', 'اختر التاريخ لمشاهدة الحصص الدراسية')}
+              </p>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-56 rounded-3xl bg-slate-200/60 dark:bg-slate-800/60 animate-pulse" />
-            ))}
-          </div>
-        </div>
-      ) : weekDays.length === 0 ? (
-        <TeacherScheduleEmptyState message={t('teacherSchedule.noSessionsWeek', 'لا توجد حصص مجدولة لهذا الأسبوع')} />
-      ) : (
-        <>
-          <TeacherScheduleDaysTabs
-            weekDays={weekDays}
-            activeDayIndex={activeDayIndex}
-            onSelectDay={setSelectedDayIndex}
-          />
 
-          {activeDaySessions.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activeDaySessions.map((session, idx) => (
-                <TeacherScheduleSessionCard
-                  key={session.id || idx}
-                  session={session}
-                  index={idx}
-                />
-              ))}
+          <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+              title={t('common.refresh', 'تحديث')}
+            >
+              <RotateCcw size={16} className={isFetching ? 'animate-spin' : ''} />
+            </button>
+
+            {currentTimeStr && (
+              <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
+                {currentTimeStr}
+              </span>
+            )}
+
+            {currentDateStr && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                <Calendar size={14} className="text-slate-400" />
+                <span>{currentDateStr}</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Card 2: Week Navigation & Days Selector */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={isRtl ? handleNextWeek : handlePrevWeek}
+              aria-label="Navigate"
+              className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+            >
+              {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
+                {monthYearLabel}
+              </h2>
+              {!isCurrentWeek && (
+                <button
+                  type="button"
+                  onClick={handleCurrentWeek}
+                  className="text-xs font-bold text-[#00594C] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer"
+                >
+                  {isRtl ? 'الأسبوع الحالي' : 'Current Week'}
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={isRtl ? handlePrevWeek : handleNextWeek}
+              aria-label="Navigate"
+              className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+            >
+              {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            </button>
+          </div>
+
+          {weekDays.length > 0 && (
+            <div className="grid grid-cols-7 gap-2 sm:gap-3">
+              {weekDays.map((dayItem, index) => {
+                const isSelected = activeDayIndex === index;
+                const sessionsCount = dayItem.sessionsCount ?? dayItem.sessions?.length ?? 0;
+                const hasSessions = sessionsCount > 0;
+                const dayNum = getDayNumber(dayItem);
+                return (
+                  <button
+                    key={dayItem.date || index}
+                    type="button"
+                    onClick={() => setSelectedDayIndex(index)}
+                    className={`py-3 px-1 sm:py-4 sm:px-2 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer select-none ${
+                      isSelected
+                        ? 'bg-[#00594C] text-white shadow-md shadow-[#00594C]/25 scale-[1.02]'
+                        : 'bg-[#F8FAF9] dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-100/80 dark:border-slate-700/60'
+                    }`}
+                  >
+                    <span
+                      className={`text-[11px] sm:text-xs font-medium ${
+                        isSelected ? 'text-white/90' : 'text-slate-400 dark:text-slate-400'
+                      }`}
+                    >
+                      {dayItem.dayName || dayItem.day}
+                    </span>
+                    <span className="text-base sm:text-xl font-bold mt-1">
+                      {dayNum}
+                    </span>
+                    <div className="h-2 flex items-center justify-center mt-2">
+                      {hasSessions ? (
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isSelected
+                              ? 'bg-white/80'
+                              : 'bg-[#00594C] dark:bg-emerald-400'
+                          }`}
+                        />
+                      ) : (
+                        <span className="w-1.5 h-1.5 opacity-0" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* Card 3: Selected Day Sessions Details */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <h3 className="text-lg sm:text-xl font-extrabold text-[#1E293B] dark:text-white text-start">
+              {formatDayHeading(selectedDay, isRtl)}
+            </h3>
+          </div>
+
+          {isLoading ? (
+            <div className="flex h-48 items-center justify-center">
+              <Spinner />
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="py-12 text-center space-y-3">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mx-auto">
+                <Calendar size={28} />
+              </div>
+              <h4 className="text-base font-bold text-slate-700 dark:text-slate-200">
+                {t('teacherSchedule.noSessionsDay', 'لا توجد حصص مجدولة لهذا اليوم')}
+              </h4>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                {t('teacherSchedule.selectAnotherDay', 'اختر يوماً آخر من الأسبوع لمشاهدة الحصص')}
+              </p>
             </div>
           ) : (
-            <TeacherScheduleEmptyState message={t('teacherSchedule.noSessionsDay', 'لا توجد حصص مجدولة لهذا اليوم')} />
+            <div>
+              {/* Table Column Headers (Desktop/Tablet) */}
+              <div className="hidden md:grid grid-cols-12 items-center text-xs font-bold text-slate-500 dark:text-slate-400 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="col-span-3 text-start">
+                  {t('teacherSchedule.time', 'الوقت')}
+                </div>
+                <div className="col-span-4 text-start">
+                  {t('teacherSchedule.subjectOrGroup', 'المادة / المجموعة')}
+                </div>
+                <div className="col-span-2 text-start">
+                  {t('teacherSchedule.students', 'الطلاب')}
+                </div>
+                <div className="col-span-2 text-center">
+                  {t('teacherSchedule.status', 'الحالة')}
+                </div>
+                <div className="col-span-1 text-end">
+                  {t('teacherSchedule.action', 'الإجراء')}
+                </div>
+              </div>
+
+              {/* Sessions Rows */}
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                {sessions.map((session) => (
+                  <motion.div
+                    key={session.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="py-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors rounded-2xl px-2"
+                  >
+                    {/* Desktop Table View */}
+                    <div className="hidden md:grid grid-cols-12 items-center gap-2">
+                      {/* 1. Time */}
+                      <div className="col-span-3 text-start">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
+                          <Clock size={16} className="text-[#00594C] dark:text-emerald-400 shrink-0" />
+                          <span>{session.timeRange || '-'}</span>
+                        </div>
+                      </div>
+
+                      {/* 2. Group / Session */}
+                      <div className="col-span-4 text-start">
+                        <div className="space-y-0.5">
+                          <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+                            {session.groupName}
+                          </h4>
+                          {session.title && session.title !== session.groupName && (
+                            <p className="text-xs text-slate-400 dark:text-slate-500 truncate">
+                              {session.title}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 3. Students */}
+                      <div className="col-span-2 text-start">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-slate-400">
+                            <Users size={15} />
+                          </div>
+                          <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                            {session.studentsCount} {t('teacherSchedule.students', 'طلاب')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 4. Status */}
+                      <div className="col-span-2 text-center">
+                        <div className="flex justify-center">
+                          {renderStatusBadge(session)}
+                        </div>
+                      </div>
+
+                      {/* 5. Action */}
+                      <div className="col-span-1 text-end flex justify-end">
+                        {renderActionButton(session)}
+                      </div>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3 text-start">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                            {session.groupName}
+                          </h4>
+                          {session.title && session.title !== session.groupName && (
+                            <p className="text-xs text-slate-400 dark:text-slate-500">
+                              {session.title}
+                            </p>
+                          )}
+                        </div>
+                        <div>{renderStatusBadge(session)}</div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300 pt-1">
+                        <div className="flex items-center gap-1.5 font-bold">
+                          <Clock size={14} className="text-[#00594C] dark:text-emerald-400" />
+                          <span>{session.timeRange || '-'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Users size={14} className="text-slate-400" />
+                          <span>{session.studentsCount} {t('teacherSchedule.students', 'طلاب')}</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 flex justify-end">
+                        {renderActionButton(session)}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           )}
-        </>
-      )}
+        </section>
+      </motion.div>
     </div>
   );
 }

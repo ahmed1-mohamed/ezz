@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -51,16 +51,8 @@ export default function TeacherGroupDetails() {
     queryKey: ['teacherGroupDetails', id],
     queryFn: () => teacherGroupsApi.fetchGroupDetails(id),
     enabled: Boolean(id),
-    staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+    staleTime: 60 * 1000,
   });
-
-  useEffect(() => {
-    if (id) {
-      refetch();
-    }
-  }, [id, refetch]);
 
   const group = responseData?.data?.group || responseData?.data || (responseData?.id ? responseData : null);
   const studentsList = group?.students || [];
@@ -517,3 +509,4 @@ export default function TeacherGroupDetails() {
     </div>
   );
 }
+
