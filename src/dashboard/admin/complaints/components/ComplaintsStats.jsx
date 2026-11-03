@@ -18,7 +18,6 @@ export default function ComplaintsStats({ statistics, activeTab, onSelectTab, is
       </div>
     )
   }
-
   const statCards = [
     {
       id: 'all',
@@ -57,13 +56,11 @@ export default function ComplaintsStats({ statistics, activeTab, onSelectTab, is
       activeBorder: 'border-rose-500 ring-2 ring-rose-500/20'
     }
   ]
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
       {statCards.map((stat) => {
         const Icon = stat.icon
         const isActive = activeTab === stat.id
-
         return (
           <button
             type="button"

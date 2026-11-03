@@ -80,6 +80,7 @@ const CreateHomework = lazy(() => import('../dashboard/teacher/homework/CreateHo
 const HomeworkSubmissions = lazy(() => import('../dashboard/teacher/homework/HomeworkSubmissions.jsx'))
 const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 const TeacherCurricula = lazy(() => import('../dashboard/teacher/curricula/TeacherCurricula.jsx'))
+const TeacherEarnings = lazy(() => import('../dashboard/teacher/earnings/TeacherEarnings.jsx'))
 
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
 const StudentSchedule = lazy(() => import('../dashboard/student/schedule/StudentSchedule.jsx'))
@@ -554,6 +555,18 @@ export default function AppRoutes() {
                                      <Route
                                          path="/dashboard/teacher/curricula"
                                          element={<TeacherCurricula />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/earnings"
+                                         element={<TeacherEarnings />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/withdrawals"
+                                         element={<TeacherEarnings />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/payment-methods"
+                                         element={<TeacherEarnings />}
                                      />
                                 </Route>
                             </Route>

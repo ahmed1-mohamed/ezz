@@ -17,21 +17,17 @@ export default function AdminComplaints() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
-
   const [activeTab, setActiveTab] = useState('all')
   const [activeType, setActiveType] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-
   const handleSelectTab = (tabId) => {
     setActiveTab(tabId)
     setCurrentPage(1)
   }
-
   const handleSelectType = (type) => {
     setActiveType(type)
     setCurrentPage(1)
   }
-
   const {
     data: listData,
     isLoading: isListLoading,
@@ -49,13 +45,11 @@ export default function AdminComplaints() {
     staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
-
   const { data: statsData } = useQuery({
     queryKey: ['complaintsStats'],
     queryFn: () => complaintsApi.fetchComplaints({ status: 'all', page: 1, limit: 1 }),
     staleTime: STALE_TIME_MS,
   })
-
   const items = useMemo(() => {
     if (Array.isArray(listData?.data)) return listData.data
     if (Array.isArray(listData)) return listData
@@ -67,7 +61,6 @@ export default function AdminComplaints() {
   const isPaginationDimmed = totalPages <= 1
   const indexOfFirstItem = totalItems > 0 ? (currentPage - 1) * PAGE_LIMIT + 1 : 0
   const indexOfLastItem = totalItems > 0 ? Math.min(currentPage * PAGE_LIMIT, totalItems) : 0
-
   const statistics = useMemo(() => {
     const raw = statsData?.statistics || listData?.statistics || statsData?.data?.statistics || listData?.data?.statistics
     if (raw) return raw
@@ -78,15 +71,12 @@ export default function AdminComplaints() {
       rejected: items.filter((i) => i.status === 'rejected').length,
     }
   }, [statsData, listData, totalItems, items])
-
   const refreshData = () => {
     queryClient.invalidateQueries({ queryKey: ['complaints'] })
     queryClient.invalidateQueries({ queryKey: ['complaintsStats'] })
     queryClient.invalidateQueries({ queryKey: ['complaintDetails'] })
   }
-
   const getErrorText = (err, fallback) => err?.response?.data?.message || fallback
-
   const deleteMutation = useMutation({
     mutationFn: complaintsApi.deleteComplaint,
     onSuccess: () => {
@@ -95,7 +85,6 @@ export default function AdminComplaints() {
     },
     onError: (err) => showErrorToast(getErrorText(err, t('adminDashboard.complaints.actionFailed', 'فشلت العملية')), isRtl),
   })
-
   const statusMutation = useMutation({
     mutationFn: ({ action, id, notes, ...extra }) => complaintsApi[action]({ id, notes, ...extra }),
     onSuccess: () => {
@@ -104,23 +93,19 @@ export default function AdminComplaints() {
     },
     onError: (err) => showErrorToast(getErrorText(err, t('adminDashboard.complaints.actionFailed', 'فشلت العملية')), isRtl),
   })
-
   const handleDelete = async (item) => {
     const isConfirmed = await showDeleteConfirm(isRtl, item.title)
     if (!isConfirmed) return
     deleteMutation.mutate(item.id || item._id)
   }
-
   const handleResolve = async (item) => {
     const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'reschedule_request' || item.type === 'delay'
     const isSuggestion = item.type === 'suggestion'
-
     if (isPostpone) {
       const sessionId = item.sessionId || item.session?.id || item.session?._id || (typeof item.session === 'string' ? item.session : null)
       const proposedDate = item.proposedDate || item.suggestedDate || item.rescheduleDate || item.newDate || item.date || ''
       const proposedStartTime = item.proposedStartTime || item.suggestedStartTime || item.newStartTime || item.startTime || ''
       const proposedEndTime = item.proposedEndTime || item.suggestedEndTime || item.newEndTime || item.endTime || ''
-
       const notes = await showNotesPrompt({
         isRtl,
         title: t('adminDashboard.complaints.approvePostponeTitle', 'الموافقة على طلب التأجيل وإعادة جدولة الحصة'),
@@ -128,7 +113,6 @@ export default function AdminComplaints() {
         confirmColor: CONFIRM_GREEN,
       })
       if (!notes) return
-
       statusMutation.mutate({
         action: 'approvePostpone',
         id: item.id || item._id,
@@ -140,7 +124,6 @@ export default function AdminComplaints() {
       })
       return
     }
-
     const notes = await showNotesPrompt({
       isRtl,
       title: isSuggestion
@@ -158,7 +141,6 @@ export default function AdminComplaints() {
       notes,
     })
   }
-
   const handleReject = async (item) => {
     const notes = await showNotesPrompt({
       isRtl,
@@ -169,11 +151,9 @@ export default function AdminComplaints() {
     if (!notes) return
     statusMutation.mutate({ action: 'rejectComplaint', id: item.id || item._id, notes })
   }
-
   const errorMessage = isListError
     ? getErrorText(listError, t('adminDashboard.complaints.errorLoading', 'حدث خطأ أثناء تحميل الشكاوى والمقترحات'))
     : null
-
   return (
     <div className="space-y-6 sm:space-y-8 animate-fadeIn p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="text-start">
@@ -188,13 +168,11 @@ export default function AdminComplaints() {
           {t('adminDashboard.complaints.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
       {errorMessage && (
         <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
           {errorMessage}
         </div>
       )}
-
       <ComplaintsStats
         statistics={statistics}
         activeTab={activeTab}
@@ -202,9 +180,7 @@ export default function AdminComplaints() {
         isLoading={isListLoading}
         t={t}
       />
-
       <ComplaintsTypeFilter activeType={activeType} onSelectType={handleSelectType} t={t} />
-
       <div className="space-y-4 sm:space-y-6">
         {isListLoading ? (
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-12 text-center space-y-4 shadow-soft">
@@ -232,7 +208,6 @@ export default function AdminComplaints() {
           ))
         )}
       </div>
-
       <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
       >
@@ -244,7 +219,6 @@ export default function AdminComplaints() {
           {t('adminDashboard.complaints.pagination.of', 'من أصل')}{' '}
           <span className="font-extrabold text-slate-700 dark:text-slate-200">{totalItems}</span>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -254,11 +228,9 @@ export default function AdminComplaints() {
           >
             {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
-
           <span className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[72px] text-center">
             {currentPage} / {totalPages}
           </span>
-
           <button
             type="button"
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
