@@ -58,11 +58,19 @@ export default React.memo(function ParentTrackChildrenSection({
               const remainingSessions = child.sessionsBalance?.remaining ?? (child.remainingClasses ?? 3);
               const safeTotal = totalSessions > 0 ? totalSessions : 1;
               const pct = Math.min(100, Math.max(5, Math.round((remainingSessions / safeTotal) * 100)));
-              const groupSubtitle = Array.isArray(child.groups) && child.groups.length > 0
+              const childName = typeof child.name === 'object' && child.name !== null
+                ? (isRtl ? (child.name.ar || child.name.en) : (child.name.en || child.name.ar))
+                : String(child.name || '-');
+              const rawGroup = Array.isArray(child.groups) && child.groups.length > 0
                 ? (child.groups.length > 1
-                    ? `${child.groups[0]} (+${child.groups.length - 1})`
-                    : child.groups[0])
-                : (child.subject || child.studentLevel || t('parentDashboard.home.children.subject1', 'القرآن واللغة العربية'));
+                    ? `${typeof child.groups[0] === 'object' ? (child.groups[0]?.name || '-') : child.groups[0]} (+${child.groups.length - 1})`
+                    : (typeof child.groups[0] === 'object' ? (child.groups[0]?.name || '-') : child.groups[0]))
+                : (typeof child.subject === 'object' && child.subject !== null
+                    ? (child.subject.ar || child.subject.en || '')
+                    : (typeof child.studentLevel === 'object' && child.studentLevel !== null
+                        ? (child.studentLevel.ar || child.studentLevel.en || '')
+                        : (child.subject || child.studentLevel || t('parentDashboard.home.children.subject1', 'القرآن واللغة العربية'))));
+              const groupSubtitle = typeof rawGroup === 'object' && rawGroup !== null ? '' : String(rawGroup || '');
               const dotColor =
                 remainingSessions <= 3
                   ? 'bg-[#e63946]'
@@ -84,7 +92,7 @@ export default React.memo(function ParentTrackChildrenSection({
                     <div className="flex items-start justify-between mb-6">
                       <div className="text-start min-w-0 flex-1 pe-2">
                         <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 truncate">
-                          {child.name}
+                          {childName}
                         </h3>
                         <p className="text-xs text-slate-400 dark:text-slate-400 mt-1 truncate" title={groupSubtitle}>
                           {groupSubtitle}

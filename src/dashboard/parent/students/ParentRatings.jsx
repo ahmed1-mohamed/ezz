@@ -1,16 +1,33 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Star, BookOpen, ChevronDown, Calendar, User, GraduationCap, Award, MessageSquare } from 'lucide-react';
+import {
+  Star,
+   Calendar,
+   Users,
+  GraduationCap,
+   Search,
+  RotateCcw,
+  History,
+  CheckCircle2,
+  Clock,
+   HelpCircle,
+  ChevronDown,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { parentApi } from '@/shared/services/api/parentApi';
+import { parentTeacherEvaluationsApi } from '@/shared/services/api/parentTeacherEvaluationsApi';
 import ParentPagination from '../overview/components/ParentPagination';
+import TeacherCard from './components/teacher_evaluations/TeacherCard';
+import TeacherEvaluationModal from './components/teacher_evaluations/TeacherEvaluationModal';
+import EvaluationsHistoryList from './components/teacher_evaluations/EvaluationsHistoryList';
 
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.08 }
-  }
+    transition: { staggerChildren: 0.08 },
+  },
 };
 
 const itemVariants = {
@@ -18,9 +35,24 @@ const itemVariants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 320, damping: 26 }
-  }
+    transition: { type: 'spring', stiffness: 320, damping: 26 },
+  },
 };
+
+function extractSafeText(val, isRtl = true) {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val.trim();
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    const localized = isRtl ? (val.ar || val.en) : (val.en || val.ar);
+    if (localized && typeof localized === 'string') return localized.trim();
+    if (val.name && typeof val.name === 'string') return val.name.trim();
+    if (val.title && typeof val.title === 'string') return val.title.trim();
+    if (val.text && typeof val.text === 'string') return val.text.trim();
+    return '';
+  }
+  return '';
+}
 
 function formatDate(dateStr, isRtl) {
   if (!dateStr) return '-';
@@ -30,13 +62,13 @@ function formatDate(dateStr, isRtl) {
       return new Intl.DateTimeFormat(isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       }).format(d);
     }
   } catch {
-    return dateStr;
+    return String(dateStr);
   }
-  return dateStr;
+  return String(dateStr);
 }
 
 function getRatingMeta(rating, t) {
@@ -44,38 +76,82 @@ function getRatingMeta(rating, t) {
   if (numericRating >= 4.8) {
     return {
       label: t('parent.ratings.labelExcellent', 'ممتاز'),
-      badgeClass: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+      badgeClass: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
     };
   }
   if (numericRating >= 4.0) {
     return {
       label: t('parent.ratings.labelVeryGood', 'جيد جداً'),
-      badgeClass: 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 border-teal-200 dark:border-teal-800'
+      badgeClass: 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 border-teal-200 dark:border-teal-800',
     };
   }
   if (numericRating >= 3.0) {
     return {
       label: t('parent.ratings.labelGood', 'جيد'),
-      badgeClass: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+      badgeClass: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-800',
     };
   }
   return {
     label: t('parent.ratings.labelAcceptable', 'مقبول'),
-    badgeClass: 'bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+    badgeClass: 'bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
   };
 }
 
 export default function ParentRatings() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('teachers');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedTeacherForEval, setSelectedTeacherForEval] = useState(null);
+  const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
+  const {
+    data: teachersData,
+    isLoading: isLoadingTeachers,
+    isError: isErrorTeachers,
+    refetch: refetchTeachers,
+  } = useQuery({
+    queryKey: ['parent-children-teachers'],
+    queryFn: () => parentTeacherEvaluationsApi.fetchChildrenTeachers(),
+  });
+  const teachersList = useMemo(() => {
+    if (!teachersData) return [];
+    if (Array.isArray(teachersData.data)) return teachersData.data;
+    if (Array.isArray(teachersData)) return teachersData;
+    return [];
+  }, [teachersData]);
+  const teacherStats = useMemo(() => {
+    const total = teachersList.length;
+    const evaluated = teachersList.filter((tc) => tc?.isEvaluatedThisWeek).length;
+    const pending = Math.max(0, total - evaluated);
+    return { total, evaluated, pending };
+  }, [teachersList]);
+  const filteredTeachers = useMemo(() => {
+    let result = teachersList;
+    if (statusFilter === 'evaluated') {
+      result = result.filter((tc) => tc?.isEvaluatedThisWeek);
+    } else if (statusFilter === 'pending') {
+      result = result.filter((tc) => !tc?.isEvaluatedThisWeek);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((tc) => {
+        const nameMatch = extractSafeText(tc?.name, isRtl).toLowerCase().includes(q);
+        const specMatch = Array.isArray(tc?.specializations) && tc.specializations.some((s) => extractSafeText(s, isRtl).toLowerCase().includes(q));
+        const childMatch = Array.isArray(tc?.children) && tc.children.some((c) => extractSafeText(c?.name || c, isRtl).toLowerCase().includes(q));
+        return nameMatch || specMatch || childMatch;
+      });
+    }
+    return result;
+  }, [teachersList, statusFilter, searchQuery, isRtl]);
   const [studentsList, setStudentsList] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [ratingsData, setRatingsData] = useState({
+  const [currentStudentPage, setCurrentStudentPage] = useState(1);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(true);
+  const [studentRatingsData, setStudentRatingsData] = useState({
     evaluations: [],
     stats: { average: 0, count: 0, excellent: 0 },
-    pagination: { currentPage: 1, limit: 10, numberOfPages: 1 }
+    pagination: { currentPage: 1, limit: 10, numberOfPages: 1 },
   });
   useEffect(() => {
     let isMounted = true;
@@ -90,10 +166,12 @@ export default function ParentRatings() {
       }
     };
     loadStudents();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
-  const fetchRatings = useCallback(async (studentId, page) => {
-    setIsLoading(true);
+  const fetchStudentRatings = useCallback(async (studentId, page) => {
+    setIsLoadingStudents(true);
     try {
       const params = { page, limit: 10 };
       if (studentId && studentId !== 'all') {
@@ -104,12 +182,12 @@ export default function ParentRatings() {
       const evaluations = rawList.map((item, idx) => {
         const id = item.id || item._id || `eval-${idx}`;
         const rating = Number(item.rating ?? item.score ?? 5);
-        const notes = item.notes || item.comment || '';
-        const studentName = item.studentData?.name || item.studentName || item.student || '-';
-        const studentImage = item.studentData?.image || null;
-        const teacherName = item.teacherData?.name || item.teacherName || item.teacher || '-';
-        const teacherImage = item.teacherData?.image || null;
-        const sessionTitle = item.sessionData?.title || item.subject || item.title || t('parent.ratings.sessionDefault', 'حصة تفاعلية');
+        const notes = extractSafeText(item.notes || item.comment, isRtl);
+        const studentName = extractSafeText(item.studentData?.name || item.studentName || item.student, isRtl) || '-';
+        const studentImage = typeof item.studentData?.image === 'string' && item.studentData.image.trim() ? item.studentData.image : null;
+        const teacherName = extractSafeText(item.teacherData?.name || item.teacherName || item.teacher, isRtl) || '-';
+        const teacherImage = typeof item.teacherData?.image === 'string' && item.teacherData.image.trim() ? item.teacherData.image : null;
+        const sessionTitle = extractSafeText(item.sessionData?.title || item.subject || item.title, isRtl) || t('parent.ratings.sessionDefault', 'حصة تفاعلية');
         const sessionDate = item.sessionData?.date || item.date || item.createdAt?.slice(0, 10) || '-';
         const sessionStatus = item.sessionData?.status || 'completed';
         const meta = getRatingMeta(rating, t);
@@ -125,241 +203,446 @@ export default function ParentRatings() {
           sessionDate,
           sessionStatus,
           label: meta.label,
-          badgeClass: meta.badgeClass
+          badgeClass: meta.badgeClass,
         };
       });
       const totalCount = res?.totalEvaluations ?? evaluations.length;
-      const averageRating = res?.averageRating !== undefined ? Number(res.averageRating) : (evaluations.length > 0 ? (evaluations.reduce((acc, e) => acc + e.rating, 0) / evaluations.length) : 0);
-      const excellentCount = evaluations.filter(e => e.rating >= 4.5).length;
-      setRatingsData({
+      const averageRating = res?.averageRating !== undefined
+        ? Number(res.averageRating)
+        : (evaluations.length > 0 ? evaluations.reduce((acc, e) => acc + e.rating, 0) / evaluations.length : 0);
+      const excellentCount = evaluations.filter((e) => e.rating >= 4.5).length;
+      setStudentRatingsData({
         evaluations,
         stats: {
           average: averageRating,
           count: totalCount,
-          excellent: excellentCount
+          excellent: excellentCount,
         },
         pagination: res?.pagination || {
           currentPage: page,
           limit: 10,
-          numberOfPages: Math.max(1, Math.ceil(totalCount / 10))
-        }
+          numberOfPages: Math.max(1, Math.ceil(totalCount / 10)),
+        },
       });
     } catch (err) {
       console.error('Failed to fetch student evaluations', err);
-      setRatingsData({
+      setStudentRatingsData({
         evaluations: [],
         stats: { average: 0, count: 0, excellent: 0 },
-        pagination: { currentPage: 1, limit: 10, numberOfPages: 1 }
+        pagination: { currentPage: 1, limit: 10, numberOfPages: 1 },
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingStudents(false);
     }
-  }, [t]);
+  }, [t, isRtl]);
   useEffect(() => {
-    fetchRatings(selectedStudent, currentPage);
-  }, [fetchRatings, selectedStudent, currentPage]);
-  const handleStudentChange = useCallback((e) => {
+    if (activeTab === 'students') {
+      fetchStudentRatings(selectedStudent, currentStudentPage);
+    }
+  }, [activeTab, fetchStudentRatings, selectedStudent, currentStudentPage]);
+  const handleOpenEvaluateModal = (teacher) => {
+    setSelectedTeacherForEval(teacher);
+    setIsEvalModalOpen(true);
+  };
+  const handleCloseEvaluateModal = () => {
+    setIsEvalModalOpen(false);
+    setSelectedTeacherForEval(null);
+  };
+  const handleEvaluationSuccess = () => {
+    refetchTeachers();
+  };
+  const handleStudentChange = (e) => {
     setSelectedStudent(e.target.value);
-    setCurrentPage(1);
-  }, []);
-  const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
+    setCurrentStudentPage(1);
+  };
+  const handleStudentPageChange = (page) => {
+    setCurrentStudentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-  const hasEvaluations = ratingsData.evaluations.length > 0;
+  };
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans min-h-screen relative"
+      className="p-2 md:p-8 max-w-7xl mx-auto space-y-6 font-sans min-h-screen relative transition-colors"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="text-center md:text-start">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-            {t('parent.ratings.title', 'تقييمات الطلاب')}
-          </h1>
-          <p className="text-sm text-slate-400 dark:text-slate-400 mt-1">
-            {t('parent.ratings.subtitle', 'سجل تقييمات وملاحظات المعلمين للأبناء')}
-          </p>
-        </div>
-        <div className="flex flex-col items-center md:items-start gap-1.5 w-full sm:w-72">
-          <label className="text-xs text-slate-500 dark:text-slate-400 font-medium text-start w-full">
-            {t('parent.schedule.selectStudent', 'اختر الابن')}
-          </label>
-          <div className="relative w-full">
-            <select
-              value={selectedStudent}
-              onChange={handleStudentChange}
-              className="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-bold"
+      {/* Top Header Card */}
+      <motion.div
+        variants={itemVariants}
+        className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-4 shadow-sm border border-slate-200 dark:border-slate-800"
+      >
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center shrink-0">
+              <Star className="w-7 h-7 fill-current" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                  {t('parentTeacherEval.hubBadge', 'منظومة التقييمات')}
+                </span>
+                {teacherStats.pending > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
+                    <Clock className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{teacherStats.pending} {t('parentTeacherEval.pendingThisWeekCount', 'معلم بانتظار التقييم')}</span>
+                  </span>
+                )}
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
+                {t('parentTeacherEval.pageTitle', 'تقييم المعلمين')}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl leading-relaxed">
+                {t(
+                  'parentTeacherEval.pageSubtitle',
+                  'شارك في تقييم أداء معلمي أبنائك أسبوعياً واستعرض سجل تقييماتك وملاحظات المعلمين للأبناء'
+                )}
+              </p>
+            </div>
+          </div>
+          {/* Navigation Tabs Switcher */}
+          <div className="flex items-center gap-1 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 self-start lg:self-center">
+            <button
+              type="button"
+              onClick={() => setActiveTab('teachers')}
+              className={`flex items-center gap-2 px-2 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
+                activeTab === 'teachers'
+                  ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
-              <option value="all">{t('parent.ratings.allStudents', 'جميع الأبناء')}</option>
-              {studentsList.map((s) => {
-                const id = s.student_id || s.user_id || s.id || s._id;
-                const name = typeof s.name === 'object' ? (isRtl ? (s.name.ar || s.name.en) : (s.name.en || s.name.ar)) : s.name;
-                return <option key={id} value={id}>{name}</option>;
-              })}
-            </select>
-            <div className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none">
-              <ChevronDown className="w-4 h-4" />
+              <Users className="w-4 h-4" />
+              <span>{t('parentTeacherEval.tabTeachers', 'معلمو الأبناء')}</span>
+              {teacherStats.total > 0 && (
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                  activeTab === 'teachers' ? 'bg-[#0f7a6c]/10 text-[#0f7a6c]' : 'bg-slate-200 dark:bg-slate-700'
+                }`}>
+                  {teacherStats.total}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('history')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
+                activeTab === 'history'
+                  ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              <span>{t('parentTeacherEval.tabHistory', 'سجل تقييماتي للمعلمين')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('students')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer shrink-0 ${
+                activeTab === 'students'
+                  ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              <span>{t('parentTeacherEval.tabStudents', 'تقييمات الأبناء')}</span>
+            </button>
+          </div>
+        </div>
+        {/* Tab 1 Stats Banner */}
+        {activeTab === 'teachers' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs border border-slate-200/60 dark:border-slate-700">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-slate-400 font-medium block">
+                  {t('parentTeacherEval.statTotalTeachers', 'إجمالي معلمي الأبناء')}
+                </span>
+                <span className="text-lg font-black text-slate-900 dark:text-white mt-0.5 block">
+                  {teacherStats.total} {t('parentTeacherEval.teachersUnit', 'معلمين')}
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs border border-slate-200/60 dark:border-slate-700">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-slate-400 font-medium block">
+                  {t('parentTeacherEval.statEvaluatedThisWeek', 'تم تقييمهم هذا الأسبوع')}
+                </span>
+                <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                  {teacherStats.evaluated} {t('parentTeacherEval.teachersUnit', 'معلمين')}
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-xs border border-slate-200/60 dark:border-slate-700">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-slate-400 font-medium block">
+                  {t('parentTeacherEval.statPendingThisWeek', 'بانتظار التقييم الأسبوعي')}
+                </span>
+                <span className="text-lg font-black text-amber-600 dark:text-amber-400 mt-0.5 block">
+                  {teacherStats.pending} {t('parentTeacherEval.teachersUnit', 'معلمين')}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </motion.div>
-      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="text-start flex flex-col items-start">
-            <span className="text-xs font-medium text-slate-400 dark:text-slate-400 mb-1">
-              {t('parent.ratings.average', 'متوسط التقييم')}
-            </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl sm:text-4xl font-bold text-amber-500">
-                {Number(ratingsData.stats.average).toFixed(1)}
-              </span>
-              <span className="text-xs text-slate-400 font-medium">/ 5</span>
+      {/* TAB 1: Teachers List & Weekly Evaluation */}
+      {activeTab === 'teachers' && (
+        <div className="space-y-6">
+          {/* Search and Status Filters */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('parentTeacherEval.searchTeacherPlaceholder', 'بحث باسم المعلم أو التخصص أو الابن...')}
+                className="w-full ps-10 pe-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30 focus:border-[#0f7a6c]"
+              />
+            </div>
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 w-full md:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === 'all'
+                      ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {t('parentTeacherEval.filterAll', 'الكل')} ({teacherStats.total})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('pending')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === 'pending'
+                      ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {t('parentTeacherEval.filterPending', 'بانتظار التقييم')} ({teacherStats.pending})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('evaluated')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === 'evaluated'
+                      ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {t('parentTeacherEval.filterEvaluated', 'تم التقييم')} ({teacherStats.evaluated})
+                </button>
+              </div>
+              {(searchQuery || statusFilter !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter('all');
+                  }}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title={t('parentTeacherEval.resetFilters', 'إعادة ضبط')}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
-          <div className="text-amber-500 shrink-0">
-            <Star size={28} strokeWidth={1.75} className="fill-amber-400/20" />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="text-start flex flex-col items-start">
-            <span className="text-xs font-medium text-slate-400 dark:text-slate-400 mb-1">
-              {t('parent.ratings.count', 'إجمالي التقييمات')}
-            </span>
-            <span className="text-3xl sm:text-4xl font-bold text-[#0f7a6c] dark:text-emerald-400">
-              {ratingsData.stats.count}
-            </span>
-          </div>
-          <div className="text-[#0f7a6c] dark:text-emerald-400 shrink-0">
-            <BookOpen size={28} strokeWidth={1.75} />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="text-start flex flex-col items-start">
-            <span className="text-xs font-medium text-slate-400 dark:text-slate-400 mb-1">
-              {t('parent.ratings.excellent', 'تقييمات ممتازة')}
-            </span>
-            <span className="text-3xl sm:text-4xl font-bold text-emerald-500">
-              {ratingsData.stats.excellent}
-            </span>
-          </div>
-          <div className="text-emerald-500 shrink-0">
-            <Award size={28} strokeWidth={1.75} />
-          </div>
-        </div>
-      </motion.div>
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="h-36 bg-white dark:bg-slate-800 rounded-3xl animate-pulse" />
-          ))}
-        </div>
-      ) : hasEvaluations ? (
-        <div className="space-y-4">
-          {ratingsData.evaluations.map((evaluation) => {
-            const formattedDate = formatDate(evaluation.sessionDate, isRtl);
-            return (
-              <motion.div
-                variants={itemVariants}
-                key={evaluation.id}
-                className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-start justify-between gap-6 transition-all hover:shadow-md"
+          {/* Teachers Cards Grid */}
+          {isLoadingTeachers ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((sk) => (
+                <div
+                  key={sk}
+                  className="h-80 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 animate-pulse space-y-4"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+                      <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+                    </div>
+                  </div>
+                  <div className="h-16 bg-slate-100 dark:bg-slate-800/60 rounded-2xl" />
+                  <div className="h-14 bg-slate-100 dark:bg-slate-800/60 rounded-2xl" />
+                </div>
+              ))}
+            </div>
+          ) : isErrorTeachers ? (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center mx-auto">
+                <HelpCircle className="w-7 h-7" />
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                  {t('parentTeacherEval.loadErrorTeachersTitle', 'تعذر تحميل قائمة معلمي الأبناء')}
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                  {t('parentTeacherEval.loadErrorTeachersSubtitle', 'يرجى التحقق من اتصال الإنترنت وإعادة المحاولة')}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => refetchTeachers()}
+                className="px-6 py-2.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs font-bold shadow-md transition-colors inline-flex items-center gap-2 cursor-pointer"
               >
-                <div className="flex-1 w-full text-start space-y-3 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                      {evaluation.sessionTitle}
-                    </h3>
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full border ${evaluation.badgeClass}`}>
-                      {evaluation.label}
-                    </span>
-                    {evaluation.sessionStatus === 'completed' && (
-                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300">
-                        {t('parentDashboard.home.completedStatus', 'مكتملة')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-6 h-6 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-                        {evaluation.studentImage ? (
-                          <img src={evaluation.studentImage} alt={evaluation.studentName} className="w-full h-full object-cover" />
-                        ) : (
-                          <User className="w-3.5 h-3.5" />
-                        )}
-                      </div>
-                      <span>{t('parent.ratings.student', 'الطالب')}: <strong className="text-slate-700 dark:text-slate-200">{evaluation.studentName}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-                        {evaluation.teacherImage ? (
-                          <img src={evaluation.teacherImage} alt={evaluation.teacherName} className="w-full h-full object-cover" />
-                        ) : (
-                          <GraduationCap className="w-3.5 h-3.5" />
-                        )}
-                      </div>
-                      <span>{t('parent.ratings.teacher', 'المعلم')}: <strong className="text-slate-700 dark:text-slate-200">{evaluation.teacherName}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-slate-400">
-                      <Calendar className="w-3.5 h-3.5 shrink-0" />
-                      <span>{formattedDate}</span>
-                    </div>
-                  </div>
-                  {evaluation.notes && (
-                    <div className="bg-slate-50 dark:bg-slate-900/60 rounded-2xl p-4 border border-slate-100 dark:border-slate-800/80 flex items-start gap-3">
-                      <MessageSquare className="w-4 h-4 text-[#0f7a6c] mt-0.5 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                          {t('parent.reports.teacherNotes', 'ملاحظات المعلم')}:
-                        </span>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                          {evaluation.notes}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="shrink-0 flex md:flex-col items-center justify-between md:justify-center border-t md:border-t-0 md:border-s border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:ps-6 gap-2">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        size={18}
-                        className={star <= Math.round(evaluation.rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-700'}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
-                      {evaluation.rating}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">/ 5</span>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-          {ratingsData.pagination.numberOfPages > 1 && (
-            <ParentPagination
-              currentPage={currentPage}
-              totalPages={ratingsData.pagination.numberOfPages}
-              totalItems={ratingsData.stats.count}
-              startIndex={(currentPage - 1) * ratingsData.pagination.limit}
-              endIndex={currentPage * ratingsData.pagination.limit}
-              itemLabel={t('parent.ratings.evaluationLabel', 'تقييم')}
-              onPageChange={handlePageChange}
-            />
+                <RotateCcw className="w-4 h-4" />
+                <span>{t('parentTeacherEval.retryBtn', 'إعادة المحاولة')}</span>
+              </button>
+            </div>
+          ) : filteredTeachers.length === 0 ? (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+                <Users className="w-7 h-7" />
+              </div>
+              <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                {t('parentTeacherEval.noTeachersFoundTitle', 'لا يوجد معلمون مطابقون')}
+              </h4>
+              <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
+                {t('parentTeacherEval.noTeachersFoundSubtitle', 'لم يتم العثور على أي معلم مطابق لمعايير البحث أو التصفية')}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTeachers.map((tc) => (
+                <TeacherCard
+                  key={tc.teacherId || tc.id}
+                  teacher={tc}
+                  onEvaluate={handleOpenEvaluateModal}
+                />
+              ))}
+            </div>
           )}
         </div>
-      ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-800 shadow-xs">
-          <p className="text-slate-400 text-sm">
-            {t('parent.ratings.empty', 'لا توجد تقييمات مسجلة حالياً.')}
-          </p>
+      )}
+      {/* TAB 2: Evaluations History */}
+      {activeTab === 'history' && <EvaluationsHistoryList />}
+      {/* TAB 3: Students Evaluations Given By Teachers */}
+      {activeTab === 'students' && (
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-center md:text-start">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                {t('parent.ratings.studentTitle', 'تقييمات وملاحظات الأبناء')}
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                {t('parent.ratings.studentSubtitle', 'متابعة تقييمات المعلمين التفصيلية لكل حصة يدرسها الأبناء')}
+              </p>
+            </div>
+            <div className="flex flex-col items-center md:items-start gap-1.5 w-full sm:w-72">
+              <label className="text-xs text-slate-500 dark:text-slate-400 font-medium text-start w-full">
+                {t('parent.schedule.selectStudent', 'اختر الابن')}
+              </label>
+              <div className="relative w-full">
+                <select
+                  value={selectedStudent}
+                  onChange={handleStudentChange}
+                  className="w-full appearance-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl py-2.5 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-xs sm:text-sm font-bold"
+                >
+                  <option value="all">{t('parent.ratings.allStudents', 'جميع الأبناء')}</option>
+                  {studentsList.map((s) => {
+                    const id = s.student_id || s.user_id || s.id || s._id;
+                    const name = extractSafeText(s.name, isRtl) || '-';
+                    return (
+                      <option key={id} value={id}>
+                        {name}
+                      </option>
+                    );
+                  })}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 end-3.5 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+          {isLoadingStudents ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((sk) => (
+                <div key={sk} className="h-40 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse p-6" />
+              ))}
+            </div>
+          ) : studentRatingsData.evaluations.length === 0 ? (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+                <GraduationCap className="w-7 h-7" />
+              </div>
+              <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                {t('parent.ratings.noEvaluations', 'لا توجد تقييمات للأبناء مسجلة حالياً')}
+              </h4>
+              <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
+                {t('parent.ratings.noEvaluationsHint', 'يقوم المعلم بإضافة التقييم مباشرة بعد نهاية كل حصة تدريسية')}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {studentRatingsData.evaluations.map((ev) => (
+                  <div
+                    key={ev.id}
+                    className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-[#0f7a6c] dark:text-emerald-400">
+                          {ev.studentImage ? (
+                            <img src={ev.studentImage} alt={ev.studentName} className="w-full h-full object-cover rounded-xl" />
+                          ) : (
+                            <span>{ev.studentName.charAt(0) || 'S'}</span>
+                          )}
+                        </div>
+                        <div>
+                          <span className="font-extrabold text-sm text-slate-900 dark:text-white block">
+                            {ev.studentName}
+                          </span>
+                          <span className="text-[11px] text-slate-400 block">
+                            {t('teacherLive.teacherPrefix', 'المعلم')}: {ev.teacherName}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 text-xs font-black">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span>{ev.rating} / 5</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium pt-1">
+                      <Calendar className="w-3.5 h-3.5 text-[#0f7a6c]" />
+                      <span>{ev.sessionTitle} • {formatDate(ev.sessionDate, isRtl)}</span>
+                    </div>
+                    {Boolean(ev.notes) && (
+                      <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed italic">
+                        "{ev.notes}"
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {studentRatingsData.pagination.numberOfPages > 1 && (
+                <ParentPagination
+                  currentPage={currentStudentPage}
+                  numberOfPages={studentRatingsData.pagination.numberOfPages}
+                  onPageChange={handleStudentPageChange}
+                />
+              )}
+            </div>
+          )}
         </div>
       )}
+      {/* Teacher Evaluation Modal */}
+      <TeacherEvaluationModal
+        isOpen={isEvalModalOpen}
+        teacher={selectedTeacherForEval}
+        onClose={handleCloseEvaluateModal}
+        onSuccess={handleEvaluationSuccess}
+      />
     </motion.div>
   );
 }

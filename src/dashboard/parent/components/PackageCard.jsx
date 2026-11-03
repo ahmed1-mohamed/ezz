@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-const PackageCard = memo(({ title, priceDisplay, features, buttonText, image }) => {
+const PackageCard = memo(({ title, priceDisplay, features, buttonText, image, onClick }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center gap-4 transition-all hover:shadow-md hover:-translate-y-1">
       <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-900/50 text-[#0f7a6c] dark:text-[#3ab795] flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-800 text-xl overflow-hidden">
@@ -36,7 +36,11 @@ const PackageCard = memo(({ title, priceDisplay, features, buttonText, image }) 
         ))}
       </div>
 
-      <button className="w-full py-3 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl font-bold transition-all shadow-sm text-sm active:translate-y-0.5 mt-auto">
+      <button
+        type="button"
+        onClick={onClick}
+        className="w-full py-3 bg-[#0f7a6c] hover:bg-[#0c6256] text-white rounded-xl font-bold transition-all shadow-sm text-sm active:translate-y-0.5 mt-auto cursor-pointer"
+      >
         {buttonText}
       </button>
     </div>

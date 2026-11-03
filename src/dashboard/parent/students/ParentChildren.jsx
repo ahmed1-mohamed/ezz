@@ -1,327 +1,348 @@
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import StatCard from '../components/StatCard';
-
 import {
   BookOpen,
   TrendingUp,
-  Trophy,
-  Clock,
+  Award,
+  Star,
+  Layers,
+  Calendar,
+  MessageSquare,
+  ArrowRight,
+  ArrowLeft,
+  ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { parentApi } from '@/shared/services/api/parentApi';
+import ChildHeroCard from './components/children/ChildHeroCard';
+import ChildGroupsList from './components/children/ChildGroupsList';
+import ChildSessionsBalanceCard from './components/children/ChildSessionsBalanceCard';
+import ChildLastSubscriptionCard from './components/children/ChildLastSubscriptionCard';
+import ChildHomeworkStatsCard from './components/children/ChildHomeworkStatsCard';
+import ChildRewardsSection from './components/children/ChildRewardsSection';
+import ChildTransactionsLog from './components/children/ChildTransactionsLog';
 
 export default function ParentChildren() {
-  const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
+  const { studentId: paramStudentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const isRtl = i18n.language.startsWith('ar');
-  const currentChildId = searchParams.get('id') || 'c1';
-
-  const handleChildSelect = (childId) => {
-    setSearchParams({ id: childId });
-  };
-
-  const childrenData = useMemo(() => ({
-    c1: {
-      id: 'c1',
-      name: t('parentDashboard.home.children.mohamed'),
-      subject: t('parentDashboard.home.children.subject1'),
-      joinDate: '15-01-2025',
-      avatarInitial: 'م',
-      totalClasses: 24,
-      attendanceRate: '96%',
-      averageRating: '92',
-      badges: [
-        { name: isRtl ? 'متميز في الحفظ' : 'Excellent in Memorization', color: 'bg-[#fdf8ee] text-[#c49d3f] border border-[#f8e6c7] dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/20', icon: '🏆' },
-        { name: isRtl ? 'حضور منتظم' : 'Regular Attendance', color: 'bg-[#e8f5f3] text-[#1b8876] border border-[#cbebe7] dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/20', icon: '⭐' },
-        { name: isRtl ? 'أفضل طالب الشهر' : 'Best Student of Month', color: 'bg-[#fdeeed] text-[#e05353] border border-[#fbd3d2] dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/20', icon: '🌟' }
-      ],
-      evaluations: [
-        { id: 1, title: isRtl ? 'حفظ سورة البقرة' : 'Memorizing Surah Al-Baqarah', teacher: isRtl ? 'المعلم الشيخ أحمد منصور' : 'Teacher Sheikh Ahmed Mansour', date: '2026-04-08', score: 95 },
-        { id: 2, title: isRtl ? 'حفظ سورة البقرة' : 'Memorizing Surah Al-Baqarah', teacher: isRtl ? 'المعلم الشيخ أحمد منصور' : 'Teacher Sheikh Ahmed Mansour', date: '2026-04-08', score: 95 },
-        { id: 3, title: isRtl ? 'حفظ سورة البقرة' : 'Memorizing Surah Al-Baqarah', teacher: isRtl ? 'المعلم الشيخ أحمد منصور' : 'Teacher Sheikh Ahmed Mansour', date: '2026-04-08', score: 95 }
-      ],
-      timeline: [
-        { id: 1, text: isRtl ? 'حضر حصة حفظ سورة البقرة' : 'Attended class of Memorizing Surah Al-Baqarah', teacher: isRtl ? 'المعلم الشيخ أحمد منصور' : 'Teacher Sheikh Ahmed Mansour', time: isRtl ? '2026-04-09 | 09:00 صباحاً' : '2026-04-09 | 09:00 AM', color: 'bg-emerald-500' },
-        { id: 2, text: isRtl ? 'حصل على شارة متميز في علوم القرآن' : 'Got badge "Excellent in Quran Sciences"', teacher: isRtl ? 'المعلم الشيخ سامي العلي' : 'Teacher Sheikh Sami Al-Ali', time: isRtl ? '2026-04-10 | 10:30 صباحاً' : '2026-04-10 | 10:30 AM', color: 'bg-amber-500' },
-        { id: 3, text: isRtl ? 'حضر حصة قواعد اللغة العربية' : 'Attended Arabic Grammar class', teacher: isRtl ? 'المعلم الأستاذة ليلى العسيري' : 'Teacher Ms. Layla Al-Assiri', time: isRtl ? '2026-04-11 | 11:15 صباحاً' : '2026-04-11 | 11:15 AM', color: 'bg-emerald-500' },
-        { id: 4, text: isRtl ? 'تغيب عن حصة تاريخ الحضارة الإسلامية' : 'Absent from Islamic History class', teacher: isRtl ? 'المعلم الدكتور يوسف القحطاني' : 'Teacher Dr. Yousef Al-Qahtani', time: isRtl ? '2026-04-12 | 01:00 مساءً' : '2026-04-12 | 01:00 PM', color: 'bg-red-500' }
-      ],
-      package: t('parentDashboard.home.advancedPackage'),
-      remainingClasses: 29
-    },
-    c2: {
-      id: 'c2',
-      name: t('parentDashboard.home.children.aisha'),
-      subject: t('parentDashboard.home.children.subject2'),
-      joinDate: '10-02-2025',
-      avatarInitial: 'ع',
-      totalClasses: 18,
-      attendanceRate: '92%',
-      averageRating: '88',
-      badges: [
-        { name: isRtl ? 'حضور منتظم' : 'Regular Attendance', color: 'bg-[#e8f5f3] text-[#1b8876] border border-[#cbebe7] dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/20', icon: '⭐' },
-        { name: isRtl ? 'متميز في القراءة' : 'Excellent in Reading', color: 'bg-[#fdf8ee] text-[#c49d3f] border border-[#f8e6c7] dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/20', icon: '📖' },
-        { name: isRtl ? 'سريعة التعلم' : 'Fast Learner', color: 'bg-[#fdeeed] text-[#e05353] border border-[#fbd3d2] dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/20', icon: '⚡' }
-      ],
-      evaluations: [
-        { id: 1, title: isRtl ? 'دروس النحو والصرف' : 'Grammar Lessons', teacher: isRtl ? 'الأستاذة ليلى العسيري' : 'Ms. Layla Al-Assiri', date: '2026-04-07', score: 90 },
-        { id: 2, title: isRtl ? 'قراءة النصوص' : 'Text Reading', teacher: isRtl ? 'الأستاذة ليلى العسيري' : 'Ms. Layla Al-Assiri', date: '2026-04-05', score: 85 }
-      ],
-      timeline: [
-        { id: 1, text: isRtl ? 'حضر حصة اللغة العربية' : 'Attended Arabic class', teacher: isRtl ? 'المعلم الأستاذة ليلى العسيري' : 'Teacher Ms. Layla Al-Assiri', time: isRtl ? '2026-04-09 | 11:00 صباحاً' : '2026-04-09 | 11:00 AM', color: 'bg-emerald-500' },
-        { id: 2, text: isRtl ? 'حصل على شارة متميزة في الخط العربي' : 'Got badge "Excellent in Arabic Calligraphy"', teacher: isRtl ? 'المعلم الشيخ سامي العلي' : 'Teacher Sheikh Sami Al-Ali', time: isRtl ? '2026-04-10 | 09:30 صباحاً' : '2026-04-10 | 09:30 AM', color: 'bg-amber-500' }
-      ],
-      package: t('parentDashboard.home.advancedPackage'),
-      remainingClasses: 15
-    },
-    c3: {
-      id: 'c3',
-      name: t('parentDashboard.home.children.fatima'),
-      subject: t('parentDashboard.home.children.subject1'),
-      joinDate: '01-01-2025',
-      avatarInitial: 'ف',
-      totalClasses: 30,
-      attendanceRate: '98%',
-      averageRating: '95',
-      badges: [
-        { name: isRtl ? 'متميز في الحفظ' : 'Excellent in Memorization', color: 'bg-[#fdf8ee] text-[#c49d3f] border border-[#f8e6c7] dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/20', icon: '🏆' },
-        { name: isRtl ? 'حضور منتظم' : 'Regular Attendance', color: 'bg-[#e8f5f3] text-[#1b8876] border border-[#cbebe7] dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/20', icon: '⭐' },
-        { name: isRtl ? 'أفضل طالب الشهر' : 'Best Student of Month', color: 'bg-[#fdeeed] text-[#e05353] border border-[#fbd3d2] dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/20', icon: '🌟' }
-      ],
-      evaluations: [
-        { id: 1, title: isRtl ? 'حفظ سورة آل عمران' : 'Memorizing Surah Al-Imran', teacher: isRtl ? 'الشيخ أحمد منصور' : 'Sheikh Ahmed Mansour', date: '2026-04-06', score: 98 }
-      ],
-      timeline: [
-        { id: 1, text: isRtl ? 'حضر حصة حفظ القرآن' : 'Attended Quran Memorization class', teacher: isRtl ? 'المعلم الشيخ أحمد منصور' : 'Teacher Sheikh Ahmed Mansour', time: isRtl ? '2026-04-09 | 10:00 صباحاً' : '2026-04-09 | 10:00 AM', color: 'bg-emerald-500' }
-      ],
-      package: t('parentDashboard.home.advancedPackage'),
-      remainingClasses: 20
-    }
-  }), [t, isRtl]);
-
-  const child = childrenData[currentChildId] || childrenData.c1;
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const queryStudentId = searchParams.get('id') || searchParams.get('studentId') || '';
+  const initialStudentId = paramStudentId || queryStudentId || '';
+  const [activeStudentId, setActiveStudentId] = useState(initialStudentId);
+  const [allChildren, setAllChildren] = useState([]);
+  const [currentChild, setCurrentChild] = useState(null);
+  const [childEvaluations, setChildEvaluations] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEvaluationsLoading, setIsEvaluationsLoading] = useState(false);
+  const handleSelectChild = (newId) => {
+    setActiveStudentId(newId);
+    if (paramStudentId) {
+      navigate(`/dashboard/parent/children/${newId}`);
+    } else {
+      setSearchParams({ id: newId });
     }
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  const handleBack = () => {
+    navigate('/dashboard/parent/children');
   };
-
+  useEffect(() => {
+    let isMounted = true;
+    const loadAllChildren = async () => {
+      try {
+        const res = await parentApi.fetchStudents();
+        if (isMounted && res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setAllChildren(res.data);
+          if (!activeStudentId) {
+            const firstId = res.data[0]?.student_id || res.data[0]?.id || res.data[0]?.user_id;
+            setActiveStudentId(firstId);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load all children list:', err);
+      }
+    };
+    loadAllChildren();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  useEffect(() => {
+    if (!activeStudentId) return;
+    let isMounted = true;
+    const loadChildData = async () => {
+      setIsLoading(true);
+      try {
+        const res = await parentApi.fetchStudentById(activeStudentId);
+        if (isMounted && res?.success && res.data) {
+          setCurrentChild(res.data);
+        } else if (isMounted && allChildren.length > 0) {
+          const matched = allChildren.find((c) => String(c.student_id) === String(activeStudentId) || String(c.id) === String(activeStudentId) || String(c.user_id) === String(activeStudentId));
+          if (matched) setCurrentChild(matched);
+        }
+      } catch (err) {
+        console.error('Failed to load child by id:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    loadChildData();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeStudentId, allChildren]);
+  useEffect(() => {
+    if (!activeStudentId) return;
+    let isMounted = true;
+    const loadEvaluations = async () => {
+      setIsEvaluationsLoading(true);
+      try {
+        const res = await parentApi.fetchStudentEvaluations({ studentId: activeStudentId });
+        if (isMounted && res?.success && Array.isArray(res.data)) {
+          setChildEvaluations(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load child evaluations:', err);
+      } finally {
+        if (isMounted) setIsEvaluationsLoading(false);
+      }
+    };
+    loadEvaluations();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeStudentId]);
+  const sessionsBalance = currentChild?.sessionsBalance || {
+    total: currentChild?.totalClasses || 1,
+    used: currentChild?.usedClasses || 0,
+    remaining: currentChild?.remainingClasses || 0,
+  };
+  const attendanceRate = Number(currentChild?.attendanceRate ?? 0);
+  const averageRating = Number(currentChild?.averageRating ?? 0).toFixed(1);
+  const totalEvaluations = Number(currentChild?.totalEvaluations ?? 0);
+  const groupsList = Array.isArray(currentChild?.groups) ? currentChild.groups : [];
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="show" viewport={{ once: true, amount: 0.1 }}
-      className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 font-sans"
+    <div
+      className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-8 font-sans min-h-screen"
+      dir={isRtl ? 'rtl' : 'ltr'}
     >
-
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
-
-        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start w-full md:w-auto">
-          <div className="w-16 h-16 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white text-3xl font-bold shrink-0 shadow-sm">
-            {child.avatarInitial}
-          </div>
+      {/* Top Hero Profile Card */}
+      <ChildHeroCard
+        child={currentChild}
+        allChildren={allChildren}
+        onSelectChild={handleSelectChild}
+        onBack={handleBack}
+      />
+      {/* 4 Key Stat Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Sessions Balance */}
+        <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center justify-center sm:justify-start gap-2">
-              {child.name}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-0.5">
-              {child.subject}
+            <p className="text-xs font-semibold text-slate-400 mb-1">
+              {t('parentDashboard.childrenDetails.totalClasses', 'رصيد الحصص')}
             </p>
-            <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">
-              {t('parentDashboard.childrenDetails.joinDate', { date: child.joinDate })}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto justify-end">
-          <div className="w-full sm:w-40 relative">
-            <select
-              value={currentChildId}
-              onChange={(e) => handleChildSelect(e.target.value)}
-              className="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl py-2 px-3 pe-8 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow cursor-pointer text-sm font-bold"
-            >
-              <option value="c1">{t('parentDashboard.home.children.mohamed')}</option>
-              <option value="c2">{t('parentDashboard.home.children.aisha')}</option>
-              <option value="c3">{t('parentDashboard.home.children.fatima')}</option>
-            </select>
-            <div className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none">
-              ▼
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-slate-800 dark:text-white">
+                {sessionsBalance.remaining}
+              </span>
+              <span className="text-xs text-slate-400">
+                / {sessionsBalance.total} {t('parent.childrenList.remaining', 'متبقية')}
+              </span>
             </div>
           </div>
-
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <BookOpen className="w-6 h-6" />
+          </div>
+        </div>
+        {/* Attendance Rate */}
+        <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold text-slate-400 mb-1">
+              {t('parentDashboard.childrenDetails.attendanceRate', 'معدل الحضور')}
+            </p>
+            <div className="flex items-baseline gap-1">
+              <span className={`text-2xl font-black ${
+                attendanceRate >= 80 ? 'text-emerald-600 dark:text-emerald-400' : attendanceRate >= 50 ? 'text-amber-500' : 'text-rose-500'
+              }`}>
+                {attendanceRate}%
+              </span>
+              <span className="text-[10px] text-slate-400 font-bold">
+                {attendanceRate >= 80 ? (isRtl ? 'ممتاز' : 'Excellent') : (isRtl ? 'مستقر' : 'Normal')}
+              </span>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+            <TrendingUp className="w-6 h-6" />
+          </div>
+        </div>
+        {/* Average Rating */}
+        <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold text-slate-400 mb-1">
+              {t('parentDashboard.childrenDetails.averageRating', 'متوسط التقييم')}
+            </p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-amber-500">
+                {averageRating}
+              </span>
+              <span className="text-xs text-slate-400">/ 5</span>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+            <Star className="w-6 h-6 fill-amber-500" />
+          </div>
+        </div>
+        {/* Total Evaluations */}
+        <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold text-slate-400 mb-1">
+              {t('parent.childrenList.evaluationsCount', 'إجمالي التقييمات')}
+            </p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-slate-800 dark:text-white">
+                {totalEvaluations}
+              </span>
+              <span className="text-xs text-slate-400">
+                {t('parent.childrenList.classes', 'تقييم')}
+              </span>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+            <Award className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+      {/* Last Subscription Card if present */}
+      {currentChild?.lastSubscription && (
+        <ChildLastSubscriptionCard lastSubscription={currentChild.lastSubscription} />
+      )}
+      {/* Homework Stats Card if present */}
+      {(currentChild?.totalHomework !== undefined || currentChild?.completedHomework !== undefined) && (
+        <ChildHomeworkStatsCard
+          totalHomework={currentChild.totalHomework}
+          completedHomework={currentChild.completedHomework}
+          pendingHomework={currentChild.pendingHomework}
+          studentId={activeStudentId}
+        />
+      )}
+      {/* Enrolled Groups Section */}
+      <ChildGroupsList groups={groupsList} />
+      {/* Sessions Balance Card */}
+      <ChildSessionsBalanceCard sessionsBalance={sessionsBalance} />
+      {/* Rewards & Badges Section if present */}
+      {Array.isArray(currentChild?.rewards) && currentChild.rewards.length > 0 && (
+        <ChildRewardsSection rewards={currentChild.rewards} />
+      )}
+      {/* Session Transactions History Log if present */}
+      {Array.isArray(currentChild?.sessionTransactions) && currentChild.sessionTransactions.length > 0 && (
+        <ChildTransactionsLog transactions={currentChild.sessionTransactions} />
+      )}
+      {/* Recent Evaluations from Teachers */}
+      <div
+        className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4"
+        dir={isRtl ? 'rtl' : 'ltr'}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+            <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+            <span>{t('parent.childrenList.evaluationsTitle', 'تقييمات المعلمين الأخيرة للابن')}</span>
+          </h2>
           <button
-            onClick={() => navigate('/dashboard/parent/ratings')}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#d4a373] hover:bg-[#c39262] text-white rounded-xl font-bold transition-all shadow-sm text-sm active:translate-y-0.5"
+            type="button"
+            onClick={() => navigate(`/dashboard/parent/ratings?studentId=${activeStudentId}`)}
+            className="text-xs text-[#0f7a6c] dark:text-emerald-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
           >
-            {t('parentDashboard.childrenDetails.teacherEvaluation')}
+            <span>{t('common.viewAll', 'عرض الكل')}</span>
+            {isRtl ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
         </div>
-
-      </motion.div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <motion.div variants={itemVariants} className="h-full">
-          <StatCard
-            label={t('parentDashboard.childrenDetails.totalClasses')}
-            value={child.totalClasses}
-            icon={BookOpen}
-            color="text-[#0f7a6c] dark:text-[#3ab795]"
-            bgColor="bg-emerald-50 dark:bg-emerald-950/20"
-            layout="children"
-          />
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="h-full">
-          <StatCard
-            label={t('parentDashboard.childrenDetails.attendanceRate')}
-            value={child.attendanceRate}
-            icon={TrendingUp}
-            color="text-emerald-500"
-            bgColor="bg-emerald-50 dark:bg-emerald-950/20"
-            layout="children"
-          />
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="h-full">
-          <StatCard
-            label={t('parentDashboard.childrenDetails.averageRating')}
-            value={child.averageRating}
-            icon={Trophy}
-            color="text-amber-500"
-            bgColor="bg-amber-50 dark:bg-amber-950/20"
-            layout="children"
-          />
-        </motion.div>
+        {isEvaluationsLoading ? (
+          <div className="space-y-3">
+            {[1, 2].map((n) => (
+              <div key={n} className="h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 animate-pulse" />
+            ))}
+          </div>
+        ) : childEvaluations.length === 0 ? (
+          <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
+            {t('parent.childrenList.noEvaluations', 'لا توجد تقييمات مسجلة حتى الآن لهذا الابن')}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {childEvaluations.slice(0, 5).map((evalItem, eIdx) => {
+              const evalRating = Number(evalItem?.rating ?? evalItem?.score ?? 5);
+              const teacherRaw = evalItem?.teacher?.name || evalItem?.teacherName || evalItem?.teacher;
+              const teacherName = typeof teacherRaw === 'object' && teacherRaw !== null
+                ? (teacherRaw.name || teacherRaw.fullName || (isRtl ? 'المعلم' : 'Teacher'))
+                : String(teacherRaw || (isRtl ? 'المعلم' : 'Teacher'));
+              const evalDate = evalItem?.createdAt
+                ? new Date(evalItem.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                : String(evalItem?.date || '-');
+              const rawNotes = evalItem?.notes || evalItem?.feedback || evalItem?.title || '';
+              const safeNotes = typeof rawNotes === 'object' && rawNotes !== null
+                ? (rawNotes.ar || rawNotes.en || rawNotes.name || '')
+                : String(rawNotes || '');
+              return (
+                <div
+                  key={evalItem?.id || eIdx}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-amber-500/30 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-slate-800 dark:text-white">
+                        {teacherName}
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        {evalDate}
+                      </span>
+                    </div>
+                    {safeNotes && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                        {safeNotes}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0 self-start sm:self-auto">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${star <= evalRating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-
-      <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 text-start space-y-4">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-          {t('parentDashboard.childrenDetails.badgesTitle')}
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {child.badges.map((badge, idx) => (
-            <div
-              key={idx}
-              className={`flex flex-col items-center justify-center gap-3 p-6 rounded-2xl ${badge.color} transition-all hover:shadow-md hover:-translate-y-0.5`}
-            >
-              <span className="text-3xl select-none filter drop-shadow-sm">{badge.icon}</span>
-              <span className="font-bold text-sm text-center">{badge.name}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-center gap-1.5 mt-2">
-          <span className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-        </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="space-y-4 text-start">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-          {t('parentDashboard.childrenDetails.recentEvaluationsTitle')}
-        </h2>
-
-        <div className="space-y-3">
-          {child.evaluations.map((evalItem) => (
-            <div
-              key={evalItem.id}
-              className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4 transition-all hover:shadow-md"
-            >
-              <div className="space-y-1">
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">{evalItem.title}</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                  {evalItem.teacher}
-                </p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500">
-                  {evalItem.date}
-                </p>
-              </div>
-
-              <div className="text-2xl font-bold text-emerald-500">
-                {evalItem.score}
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="space-y-4 text-start">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-          {t('parentDashboard.childrenDetails.timelineTitle')}
-        </h2>
-
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 space-y-6 relative">
-          <div className="absolute top-8 bottom-8 start-9 w-0.5 bg-slate-100 dark:bg-slate-700" />
-
-          {child.timeline.map((item) => (
-            <div key={item.id} className="flex items-start gap-4 relative z-10">
-              <div className={`w-3.5 h-3.5 rounded-full shrink-0 mt-1.5 border-2 border-white dark:border-slate-800 ${item.color} shadow-sm`} />
-
-              <div className="space-y-0.5 flex-1">
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">{item.text}</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{item.teacher}</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                  <Clock size={10} />
-                  <span>{item.time}</span>
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="space-y-4 text-start">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-          {t('parentDashboard.childrenDetails.subscriptionSummaryTitle')}
-        </h2>
-
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-start">
-
-            <div className="space-y-1">
-              <span className="text-xs text-slate-400 dark:text-slate-500 block font-semibold">
-                {t('parentDashboard.childrenDetails.currentPackage')}
-              </span>
-              <span className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                {child.package}
-              </span>
-            </div>
-
-            <div className="h-px w-full sm:h-12 sm:w-px bg-slate-100 dark:bg-slate-700" />
-
-            <div className="space-y-1">
-              <span className="text-xs text-slate-400 dark:text-slate-500 block font-semibold">
-                {t('parentDashboard.childrenDetails.totalRemainingClasses')}
-              </span>
-              <span className="text-xl font-bold text-[#0f7a6c] dark:text-[#3ab795]">
-                {child.remainingClasses} {t('parentDashboard.home.classes')}
-              </span>
-            </div>
-
-            <button className="w-full sm:w-auto px-6 py-3 bg-[#d4a373] hover:bg-[#c39262] text-white rounded-xl font-bold transition-all shadow-sm text-sm active:translate-y-0.5">
-              {t('parentDashboard.childrenDetails.renewSubscription')}
-            </button>
-
+      {/* Attendance & Absence Summary Banner */}
+      <div
+        className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
+        dir={isRtl ? 'rtl' : 'ltr'}
+      >
+        <div className="flex items-center gap-4 text-center sm:text-start">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+            <Calendar className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="font-bold text-base text-slate-800 dark:text-white">
+              {t('parent.childrenList.attendanceTitle', 'تقرير الحضور والغياب')}
+            </h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+              {t('parent.childrenList.viewFullAttendance', 'يمكنك الاطلاع على الجدول الكامل لأيام الحضور والغياب الشهرية')}
+            </p>
           </div>
         </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-
-      </motion.div>
-
-    </motion.div>
+        <button
+          type="button"
+          onClick={() => navigate(`/dashboard/parent/attendance?studentId=${activeStudentId}`)}
+          className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
+        >
+          <span>{t('parent.childrenList.attendanceRecord', 'عرض سجل الحضور الكامل')}</span>
+        </button>
+      </div>
+    </div>
   );
 }

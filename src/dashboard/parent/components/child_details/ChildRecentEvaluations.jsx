@@ -50,10 +50,15 @@ export default function ChildRecentEvaluations({ childId, initialEvaluations }) 
       ) : (
         <div className="space-y-4">
           {evaluations.map((evalItem, idx) => {
-            const title = evalItem.sessionData?.title || evalItem.title || evalItem.subject || evalItem.notes || evalItem.comment || t('parentDashboard.childrenDetails.evaluation', 'تقييم الحصة');
-            const teacher = evalItem.teacherData?.name || evalItem.teacherName || evalItem.teacher;
-            const date = evalItem.sessionData?.date || evalItem.date || evalItem.createdAt?.slice(0, 10);
-            const ratingValue = evalItem.rating ?? evalItem.score ?? '-';
+            const rawTitle = evalItem.sessionData?.title || evalItem.title || evalItem.subject || evalItem.notes || evalItem.comment || t('parentDashboard.childrenDetails.evaluation', 'تقييم الحصة');
+            const safeTitle = typeof rawTitle === 'object' && rawTitle !== null ? (rawTitle.ar || rawTitle.en || rawTitle.name || '') : String(rawTitle || '');
+            const teacherRaw = evalItem.teacherData?.name || evalItem.teacherName || evalItem.teacher;
+            const safeTeacher = typeof teacherRaw === 'object' && teacherRaw !== null
+              ? (teacherRaw.name || teacherRaw.fullName || teacherRaw.ar || teacherRaw.en || '')
+              : String(teacherRaw || '');
+            const rawDate = evalItem.sessionData?.date || evalItem.date || evalItem.createdAt?.slice(0, 10);
+            const safeDate = typeof rawDate === 'object' && rawDate !== null ? '' : String(rawDate || '');
+            const ratingValue = typeof evalItem.rating === 'object' ? '-' : String(evalItem.rating ?? evalItem.score ?? '-');
             return (
               <div
                 key={evalItem.id || evalItem._id || idx}
@@ -61,15 +66,15 @@ export default function ChildRecentEvaluations({ childId, initialEvaluations }) 
               >
                 <div className="text-start">
                   <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">
-                    {title}
+                    {safeTitle}
                   </h4>
-                  {teacher && (
+                  {safeTeacher && (
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      {teacher}
+                      {safeTeacher}
                     </p>
                   )}
-                  {date && (
-                    <p className="text-[10px] text-slate-400 mt-0.5">{date}</p>
+                  {safeDate && (
+                    <p className="text-[10px] text-slate-400 mt-0.5">{safeDate}</p>
                   )}
                 </div>
                 <div className="text-emerald-500 font-bold text-xl">

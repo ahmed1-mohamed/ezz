@@ -4,6 +4,7 @@ import { Video, Clock, CheckCircle2, Radio } from 'lucide-react';
 import BeforeSessionTab from './components/BeforeSessionTab';
 import DuringSessionTab from './components/DuringSessionTab';
 import AfterSessionTab from './components/AfterSessionTab';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 const STAGES = [
   { id: 'before', labelKey: 'teacherLive.stageBefore', defaultLabel: 'قبل الجلسة', icon: Clock },
@@ -14,11 +15,15 @@ const STAGES = [
 export default function TeacherLive() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [activeStage, setActiveStage] = useState('before');
   const [currentLiveSession, setCurrentLiveSession] = useState(null);
 
   const handleStartSession = (session) => {
+    const check = checkCanJoinSession(session);
+    if (!check.canJoin) {
+      showSessionJoinAlert(check.message, isRtl);
+      return;
+    }
     setCurrentLiveSession(session);
     setActiveStage('during');
   };
@@ -29,6 +34,13 @@ export default function TeacherLive() {
 
   const handleBackToBefore = () => {
     setActiveStage('before');
+  };
+
+  const handleSelectStage = (stageId) => {
+    if (stageId === 'during') {
+      return;
+    }
+    setActiveStage(stageId);
   };
 
   return (
@@ -53,18 +65,27 @@ export default function TeacherLive() {
             {STAGES.map((stage) => {
               const StageIcon = stage.icon;
               const isActive = activeStage === stage.id;
+              const isDuring = stage.id === 'during';
               return (
                 <button
                   type="button"
                   key={stage.id}
-                  onClick={() => setActiveStage(stage.id)}
+                  onClick={() => handleSelectStage(stage.id)}
+                  disabled={isDuring && !isActive}
+                  title={
+                    isDuring && !isActive
+                      ? t('teacherLive.duringLockedHint', 'زر أثناء الجلسة غير مفعل مباشرة، يتم الفتح عبر زر بدء الجلسة فقط')
+                      : undefined
+                  }
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
+                      : isDuring
+                      ? 'text-slate-400 dark:text-slate-600 opacity-60 cursor-not-allowed select-none'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <StageIcon className={`w-4 h-4 ${isActive && stage.id === 'during' ? 'animate-pulse text-red-500' : ''}`} />
+                  <StageIcon className={`w-4 h-4 ${isActive && isDuring ? 'animate-pulse text-red-500' : ''}`} />
                   <span>{t(stage.labelKey, stage.defaultLabel)}</span>
                 </button>
               );

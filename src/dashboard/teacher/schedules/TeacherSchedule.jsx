@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { timetableApi } from '@/shared/services/api/timetableApi.js';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 import Spinner from '@/shared/components/Spinner.jsx';
 
 const DAY_KEYS = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
@@ -358,10 +359,19 @@ export default function TeacherSchedule() {
     const targetUrl = session.zoomStartUrl || session.zoomJoinUrl || (session.id ? `/dashboard/teacher/live?session=${session.id}` : null);
     if (targetUrl) {
       const isInternal = targetUrl.startsWith('/');
+      const handleSessionJoinClick = (e) => {
+        const check = checkCanJoinSession(session);
+        if (!check.canJoin) {
+          e.preventDefault();
+          showSessionJoinAlert(check.message, isRtl);
+          return false;
+        }
+      };
       if (isInternal) {
         return (
           <Link
             to={targetUrl}
+            onClick={handleSessionJoinClick}
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
           >
             <Video size={16} />
@@ -374,6 +384,7 @@ export default function TeacherSchedule() {
           href={targetUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleSessionJoinClick}
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
         >
           <Video size={16} />

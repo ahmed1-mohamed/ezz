@@ -7,7 +7,6 @@ export default function ChildTimeline({ childId, initialEvents }) {
   const [events, setEvents] = useState(initialEvents || []);
   const [isLoading, setIsLoading] = useState(!initialEvents);
   const [prevInitialEvents, setPrevInitialEvents] = useState(initialEvents);
-
   if (prevInitialEvents !== initialEvents) {
     setPrevInitialEvents(initialEvents);
     if (initialEvents && initialEvents.length > 0) {
@@ -15,10 +14,8 @@ export default function ChildTimeline({ childId, initialEvents }) {
       setIsLoading(false);
     }
   }
-
   useEffect(() => {
     if (initialEvents && initialEvents.length > 0) return;
-
     let isMounted = true;
     Promise.resolve().then(async () => {
       if (!isMounted) return;
@@ -33,16 +30,13 @@ export default function ChildTimeline({ childId, initialEvents }) {
         setIsLoading(false);
       }
     });
-
     return () => { isMounted = false; };
   }, [childId, initialEvents]);
-
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
       <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-6">
         {t('parentDashboard.childrenDetails.timelineTitle', 'سجل النشاط الزمني')}
       </h3>
-
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2].map((n) => (
@@ -56,22 +50,26 @@ export default function ChildTimeline({ childId, initialEvents }) {
       ) : (
         <div className="space-y-4">
           {events.map((event, idx) => {
-            const title = event.title || event.className || event.subject || t('parentDashboard.childrenDetails.sessionEvent', 'حصة دراسية');
-            const details = event.teacherName || event.teacher || event.details || '';
-            const date = event.date || (event.startTime ? `${event.dayName || ''} ${event.startTime}` : '');
+            const rawTitle = event.title || event.className || event.subject || t('parentDashboard.childrenDetails.sessionEvent', 'حصة دراسية');
+            const safeTitle = typeof rawTitle === 'object' && rawTitle !== null ? (rawTitle.ar || rawTitle.en || rawTitle.name || '') : String(rawTitle || '');
+            const teacherRaw = event.teacherName || event.teacher || event.details || '';
+            const safeDetails = typeof teacherRaw === 'object' && teacherRaw !== null
+              ? (teacherRaw.name || teacherRaw.fullName || teacherRaw.ar || teacherRaw.en || '')
+              : String(teacherRaw || '');
+            const rawDate = event.date || (event.startTime ? `${event.dayName || ''} ${event.startTime}` : '');
+            const safeDate = typeof rawDate === 'object' && rawDate !== null ? '' : String(rawDate || '');
             const color = event.status === 'completed' || event.status === 'attended'
               ? 'bg-emerald-500'
               : event.status === 'cancelled' || event.status === 'absent'
               ? 'bg-rose-500'
               : 'bg-amber-500';
-
             return (
               <div key={event.id || event._id || idx} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                 <div className={`w-3 h-3 rounded-full mt-1.5 shrink-0 ${color}`} />
                 <div className="text-start">
-                  <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">{title}</h4>
-                  {details && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{details}</p>}
-                  {date && <p className="text-[10px] text-slate-400 mt-1">{date}</p>}
+                  <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">{safeTitle}</h4>
+                  {safeDetails && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{safeDetails}</p>}
+                  {safeDate && <p className="text-[10px] text-slate-400 mt-1">{safeDate}</p>}
                 </div>
               </div>
             );

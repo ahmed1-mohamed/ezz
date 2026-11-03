@@ -2,16 +2,19 @@ import { useTranslation } from 'react-i18next';
 
 export default function ChildHeader({ name, subject, joinDate, avatarChar, onEvaluateClick }) {
   const { t } = useTranslation();
+  const safeName = typeof name === 'object' && name !== null ? (name.ar || name.en || '-') : String(name || '-');
+  const safeSubject = typeof subject === 'object' && subject !== null ? (subject.ar || subject.en || subject.name || '') : String(subject || '');
+  const safeJoinDate = typeof joinDate === 'object' && joinDate !== null ? (joinDate.ar || joinDate.en || '') : String(joinDate || '');
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
       <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
         <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shrink-0">
-          {avatarChar || name.charAt(0)}
+          {avatarChar || safeName.charAt(0)}
         </div>
         <div className="text-center md:text-start">
-          <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{name}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{subject}</p>
-          <p className="text-xs text-slate-400 mt-1">{t('parentDashboard.childrenDetails.joinDate', { date: joinDate })}</p>
+          <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{safeName}</h1>
+          {safeSubject && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{safeSubject}</p>}
+          {safeJoinDate && <p className="text-xs text-slate-400 mt-1">{t('parentDashboard.childrenDetails.joinDate', { date: safeJoinDate })}</p>}
         </div>
       </div>
       <button 

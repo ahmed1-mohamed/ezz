@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -12,9 +13,9 @@ import {
   AlertCircle,
   CheckCircle2,
   CalendarClock,
-  Users,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 import CountdownTimer from './CountdownTimer';
 import AttendanceList from './AttendanceList';
 import RescheduleSessionModal from './RescheduleSessionModal';
@@ -56,13 +57,19 @@ function formatSessionTime(timeValue) {
 export default function BeforeSessionTab({ onStartSession }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
+  const [searchParams] = useSearchParams();
+  const querySessionId = searchParams.get('session');
   const [offset, setOffset] = useState(0);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
 
   const { data: sessionData, isLoading, isError, refetch } = useQuery({
-    queryKey: ['teacher-session-next', offset],
-    queryFn: () => teacherSessionsApi.fetchNextSessionWithOffset(offset),
+    queryKey: ['teacher-session-detail-or-offset', querySessionId, offset],
+    queryFn: () => {
+      if (querySessionId && offset === 0) {
+        return teacherSessionsApi.fetchSessionDetails(querySessionId);
+      }
+      return teacherSessionsApi.fetchNextSessionWithOffset(offset);
+    },
   });
 
   const session = useMemo(() => {
@@ -99,6 +106,10 @@ export default function BeforeSessionTab({ onStartSession }) {
     return session?.date || session?.startTime || null;
   }, [session]);
 
+  const joinCheck = useMemo(() => {
+    return checkCanJoinSession(session);
+  }, [session]);
+
   const handlePrevSession = () => {
     setOffset((prev) => prev - 1);
   };
@@ -109,6 +120,15 @@ export default function BeforeSessionTab({ onStartSession }) {
 
   const handleResetOffset = () => {
     setOffset(0);
+  };
+
+  const handleStartSessionClick = () => {
+    const check = checkCanJoinSession(session);
+    if (!check.canJoin) {
+      showSessionJoinAlert(check.message, isRtl);
+      return;
+    }
+    onStartSession(session);
   };
 
   return (
@@ -271,15 +291,24 @@ export default function BeforeSessionTab({ onStartSession }) {
               )}
             </div>
 
+            {!isLive && !joinCheck.canJoin && joinCheck.isTooEarly && (
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/70 text-amber-800 dark:text-amber-200 text-xs sm:text-sm font-semibold">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>{joinCheck.message}</span>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => onStartSession(session)}
+                  onClick={handleStartSessionClick}
                   disabled={isCancelled}
                   className={`px-7 py-3 rounded-2xl font-bold text-sm shadow-md transition-all flex items-center gap-2.5 ${
                     isCancelled
                       ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                      : !joinCheck.canJoin
+                      ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-slate-700/20'
                       : 'bg-[#0f7a6c] hover:bg-[#0c6156] text-white shadow-[#0f7a6c]/25 hover:scale-[1.01]'
                   }`}
                 >

@@ -2,9 +2,11 @@ import { memo } from 'react';
 import { Play, Clock, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 export default memo(function TeacherNextSessionCard({ nextSession }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
 
   if (!nextSession || (!nextSession.title && !nextSession.group)) {
     return (
@@ -26,6 +28,15 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
   const timeStr = nextSession.timeStr || nextSession.time || '';
   const countdown = nextSession.countdown || '0:00';
   const countdownUnit = nextSession.countdownUnit || '';
+
+  const handleEnterClick = (e) => {
+    const check = checkCanJoinSession(nextSession);
+    if (!check.canJoin) {
+      e.preventDefault();
+      showSessionJoinAlert(check.message, isRtl);
+      return false;
+    }
+  };
 
   return (
     <div className="bg-[#00594C] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4">
@@ -58,6 +69,7 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
         {/* Button: دخول الجلسة > */}
         <Link
           to={nextSession.zoomJoinUrl || nextSession.joinUrl || (nextSession.id ? `/dashboard/teacher/live?session=${nextSession.id}` : '/dashboard/teacher/live')}
+          onClick={handleEnterClick}
           className="px-5 py-2.5 bg-white text-[#00594C] hover:bg-emerald-50 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-all cursor-pointer"
         >
           <span>{t('teacherDashboard.enterSession', 'دخول الجلسة')}</span>

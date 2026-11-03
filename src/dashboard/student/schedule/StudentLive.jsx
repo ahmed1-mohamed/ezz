@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
 import { showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 import StudentBeforeSessionView from './components/StudentBeforeSessionView.jsx';
 import StudentDuringSessionView from './components/StudentDuringSessionView.jsx';
 

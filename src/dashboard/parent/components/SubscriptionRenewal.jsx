@@ -142,6 +142,7 @@ const SubscriptionRenewal = memo(({ className = "", currentPackageName, remainin
               priceDisplay={pkg.priceDisplay}
               features={pkg.features}
               buttonText={t('parentDashboard.childrenDetails.subscriptionRenewal.subscribeNow')}
+              onClick={() => navigate('/dashboard/parent/packages')}
             />
           ))}
         </div>

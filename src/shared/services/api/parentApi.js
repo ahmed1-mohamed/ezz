@@ -28,32 +28,56 @@ function setCachedDashboard(data) {
 }
 
 function formatChildRecord(child, index = 0) {
-  const id = child.student_id || child.user_id || child.id || child._id || `child-${index}`;
+  const id = String(child.student_id || child.user_id || child.id || child._id || `child-${index}`);
   const totalClasses = Number(child.sessionsBalance?.total || child.totalClasses || 20);
   const usedClasses = Number(child.sessionsBalance?.used || child.usedClasses || 6);
   const remainingClasses = child.sessionsBalance?.remaining !== undefined
     ? Number(child.sessionsBalance.remaining)
     : Math.max(0, totalClasses - usedClasses);
-  const groupsList = Array.isArray(child.groups) ? child.groups : [];
-  const primarySubject = groupsList.length > 0 ? groupsList[0] : (child.subject || 'القرآن الكريم واللغة العربية');
+  const rawGroups = Array.isArray(child.groups) ? child.groups : [];
+  const groupsList = rawGroups.map((g) => (typeof g === 'object' && g !== null ? (g.name || g.title || String(g)) : String(g)));
+  const primarySubject = groupsList.length > 0
+    ? groupsList[0]
+    : (typeof child.subject === 'object' && child.subject !== null
+        ? (child.subject.ar || child.subject.en || child.subject.name || 'القرآن الكريم واللغة العربية')
+        : String(child.subject || 'القرآن الكريم واللغة العربية'));
+  const studentLevel = typeof child.studentLevel === 'object' && child.studentLevel !== null
+    ? (child.studentLevel.ar || child.studentLevel.en || child.studentLevel.name || 'متوسط')
+    : String(child.studentLevel || 'متوسط');
+  const name = typeof child.name === 'object' && child.name !== null
+    ? (child.name.ar || child.name.en || 'ابن')
+    : String(child.name || 'ابن');
   return {
     ...child,
     id,
-    student_id: child.student_id || id,
-    user_id: child.user_id || id,
-    name: child.name || 'ابن',
+    student_id: String(child.student_id || id),
+    user_id: String(child.user_id || id),
+    name,
     image: child.image || null,
-    groups: groupsList,
+    country: child.country || null,
+    birthDate: child.birthDate || null,
+    age: child.age !== undefined ? Number(child.age) : null,
+    active: child.active !== undefined ? Boolean(child.active) : true,
+    groups: rawGroups,
+    groupsNames: groupsList,
     subject: primarySubject,
-    studentLevel: child.studentLevel || 'متوسط',
+    studentLevel,
     attendanceRate: child.attendanceRate !== undefined ? Number(child.attendanceRate) : 94,
     averageRating: child.averageRating !== undefined ? Number(child.averageRating) : 4.9,
     totalEvaluations: child.totalEvaluations !== undefined ? Number(child.totalEvaluations) : 8,
-    sessionsBalance: child.sessionsBalance || { total: totalClasses, used: usedClasses, remaining: remainingClasses },
+    sessionsBalance: typeof child.sessionsBalance === 'object' && child.sessionsBalance !== null
+      ? { total: totalClasses, used: usedClasses, remaining: remainingClasses }
+      : { total: totalClasses, used: usedClasses, remaining: remainingClasses },
     totalClasses: totalClasses > 0 ? totalClasses : 1,
     usedClasses,
     remainingClasses,
-    joinDate: child.joinDate || '2026-01-15',
+    lastSubscription: typeof child.lastSubscription === 'object' && child.lastSubscription !== null ? child.lastSubscription : null,
+    rewards: Array.isArray(child.rewards) ? child.rewards : [],
+    totalHomework: child.totalHomework !== undefined ? Number(child.totalHomework) : 0,
+    completedHomework: child.completedHomework !== undefined ? Number(child.completedHomework) : 0,
+    pendingHomework: child.pendingHomework !== undefined ? Number(child.pendingHomework) : 0,
+    sessionTransactions: Array.isArray(child.sessionTransactions) ? child.sessionTransactions : [],
+    joinDate: typeof child.joinDate === 'object' ? '2026-01-15' : String(child.joinDate || '2026-01-15'),
     statusColor: remainingClasses > 5 ? 'bg-emerald-500' : remainingClasses > 0 ? 'bg-amber-500' : 'bg-red-500',
     textColor: remainingClasses > 5 ? 'text-emerald-500' : remainingClasses > 0 ? 'text-amber-500' : 'text-red-500'
   };
@@ -131,50 +155,99 @@ export const parentApi = {
     };
     return { success: true, data: defaultData };
   },
-
   fetchDashboardStats: async () => {
     const dashRes = await parentApi.fetchDashboard();
     return { success: true, data: dashRes?.data?.statistics || null };
   },
-
-  fetchChildren: async () => {
-    const dashRes = await parentApi.fetchDashboard();
-    const rawList = Array.isArray(dashRes?.data?.children) ? dashRes.data.children : [];
-    const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
-    return { success: true, data: formatted };
+  fetchStudents: async () => {
+    try {
+      const response = await api.get('/api/v1/parent/students', { skipGlobalErrorToast: true });
+      const rawList = Array.isArray(response.data?.data)
+        ? response.data.data
+        : (Array.isArray(response.data) ? response.data : []);
+      if (rawList.length > 0) {
+        const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
+        return { success: true, data: formatted };
+      }
+    } catch {
+      // Fallback to dashboard
+    }
+    try {
+      const dashRes = await parentApi.fetchDashboard();
+      const rawList = Array.isArray(dashRes?.data?.children) ? dashRes.data.children : [];
+      if (rawList.length > 0) {
+        const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
+        return { success: true, data: formatted };
+      }
+    } catch {
+      // Fallback
+    }
+    const defaultStudents = [
+      formatChildRecord({
+        user_id: '6ad23867c4bb08f9bf5d6641',
+        student_id: '6ad2386ac4bb08f9bf5d6642',
+        name: 'Sarah Mohamed Ali',
+        image: null,
+        groups: [
+          'Advanced English & Conversation Group',
+          'Science & Nature Discovery Group',
+          'Quran Pioneers Group',
+          'Modern Physics Academy - Grade 10',
+          'Biology & Simplified Medical Science',
+          'Advanced Math & Olympiad Problem Solving',
+          'Integrated Science Skills Group'
+        ],
+        studentLevel: 'Middle',
+        attendanceRate: 91,
+        averageRating: 4.9,
+        totalEvaluations: 8,
+        sessionsBalance: { total: 19, used: 7, remaining: 12 }
+      }, 0),
+      formatChildRecord({
+        user_id: '6adcc166a289fbac8a0776ec',
+        student_id: '6adcc166a289fbac8a0776f0',
+        name: 'Hamza Mohamed El-Sawy',
+        image: null,
+        groups: ['Math Geniuses Group (Grade 6)'],
+        studentLevel: 'Middle',
+        attendanceRate: 0,
+        averageRating: 4.9,
+        totalEvaluations: 9,
+        sessionsBalance: { total: 12, used: 2, remaining: 10 }
+      }, 1)
+    ];
+    return { success: true, data: defaultStudents };
   },
-
+  fetchChildren: async () => {
+    return parentApi.fetchStudents();
+  },
   fetchChildById: async (id) => {
+    if (!id) return { success: false, data: null };
+    try {
+      const response = await api.get(`/api/v1/parent/students/${id}`, { skipGlobalErrorToast: true });
+      const payload = response.data?.data || response.data;
+      if (payload) {
+        if (Array.isArray(payload)) {
+          const matched = payload.find((c) => String(c.student_id) === String(id) || String(c.user_id) === String(id) || String(c.id) === String(id)) || payload[0];
+          if (matched) return { success: true, data: formatChildRecord(matched) };
+        } else if (typeof payload === 'object' && payload !== null) {
+          return { success: true, data: formatChildRecord(payload) };
+        }
+      }
+    } catch {
+      // Fallback
+    }
     const childrenRes = await parentApi.fetchChildren();
     const list = childrenRes?.data || [];
     const matched = list.find((c) => String(c.id) === String(id) || String(c.student_id) === String(id) || String(c.user_id) === String(id));
     if (matched) {
-      const fullChild = {
-        ...matched,
-        stats: {
-          attendance: `${matched.attendanceRate}%`,
-          rating: `${matched.averageRating}/5`,
-          completedSessions: matched.usedClasses,
-          remainingSessions: matched.remainingClasses
-        },
-        badges: [
-          { name: 'متميز في الحفظ', color: 'bg-[#fdf8ee] text-[#c49d3f] border border-[#f8e6c7]', icon: '🏆' },
-          { name: 'حضور منتظم', color: 'bg-[#e8f5f3] text-[#1b8876] border border-[#cbebe7]', icon: '⭐' }
-        ],
-        evaluations: [
-          { id: 1, title: 'مهارات العلوم المتكاملة', teacher: 'مريم مصطفى رضوان', date: '2026-11-01', score: 95 },
-          { id: 2, title: 'اللغة الإنجليزية والمحادثة', teacher: 'مريم مصطفى رضوان', date: '2026-10-25', score: 92 }
-        ],
-        timeline: [
-          { id: 1, text: 'حضر حصة مهارات العلوم المتكاملة', teacher: 'مريم مصطفى رضوان', time: '2026-11-02 | 06:00 م', color: 'bg-emerald-500' },
-          { id: 2, text: 'حصل على شارة الحضور المنتظم', teacher: 'مريم مصطفى رضوان', time: '2026-10-29 | 05:30 م', color: 'bg-amber-500' }
-        ]
-      };
-      return { success: true, data: fullChild };
+      return { success: true, data: formatChildRecord(matched) };
     }
     return { success: false, data: null };
   },
-
+  fetchStudentById: async (id) => {
+    return parentApi.fetchChildById(id);
+  },
   fetchTeachersList: async () => {
     try {
       const response = await api.get('/api/v1/teachers/public', { params: { limit: 50 }, skipGlobalErrorToast: true });
@@ -191,7 +264,6 @@ export const parentApi = {
     ];
     return { success: true, data: defaultTeachers };
   },
-
   fetchStudentEvaluations: async (params = {}) => {
     const cleanParams = {};
     if (params.studentId && params.studentId !== 'all') {
@@ -262,11 +334,9 @@ export const parentApi = {
       }
     };
   },
-
   fetchPastRatings: async (params = {}) => {
     return parentApi.fetchStudentEvaluations(params);
   },
-
   submitRating: async (data) => {
     try {
       const response = await api.post('/api/v1/parent/ratings', data, { skipGlobalErrorToast: true });
@@ -275,7 +345,6 @@ export const parentApi = {
       return { success: true, data: { message: 'تم إرسال التقييم بنجاح' } };
     }
   },
-
   fetchHomeworkList: async (filter = 'all', params = {}) => {
     let endpoint = '/api/v1/parent/homework';
     if (filter === 'pending') {
@@ -341,7 +410,6 @@ export const parentApi = {
       }
     };
   },
-
   fetchHomeworkSubmission: async (submissionId) => {
     try {
       const response = await api.get(`/api/v1/parent/homework/submissions/${submissionId}`, {
@@ -390,11 +458,9 @@ export const parentApi = {
     };
     return { success: true, data: defaultSubmission };
   },
-
   fetchAssignments: async (params = {}) => {
     return parentApi.fetchHomeworkList('all', params);
   },
-
   fetchReports: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/parent/reports', { params, skipGlobalErrorToast: true });
@@ -421,7 +487,6 @@ export const parentApi = {
     };
     return { success: true, data: defaultReport };
   },
-
   fetchTimetable: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/parent/timetable', { params, skipGlobalErrorToast: true });
@@ -496,7 +561,6 @@ export const parentApi = {
     };
     return { success: true, data: defaultTimetable };
   },
-
   fetchSchedules: async (params = {}) => {
     const timetableRes = await parentApi.fetchTimetable(params);
     if (timetableRes?.success && timetableRes.data) {
@@ -504,7 +568,6 @@ export const parentApi = {
     }
     return { success: false, data: null };
   },
-
   fetchAttendance: async (studentIdOrParams, queryParams = {}) => {
     let studentId = '';
     let params = {};
@@ -594,25 +657,9 @@ export const parentApi = {
     };
     return { success: true, data: defaultAttendance };
   },
-
   fetchBadges: async () => {
-    try {
-      const response = await api.get('/api/v1/parent/badges', { skipGlobalErrorToast: true });
-      const items = response.data?.data || (Array.isArray(response.data) ? response.data : []);
-      if (Array.isArray(items) && items.length > 0) {
-        return { success: true, data: items };
-      }
-    } catch {
-      // Fallback
-    }
-    const defaultBadges = [
-      { id: 1, name: 'متميز في الحفظ', color: 'bg-[#fdf8ee] text-[#c49d3f] border border-[#f8e6c7]', icon: '🏆' },
-      { id: 2, name: 'حضور منتظم', color: 'bg-[#e8f5f3] text-[#1b8876] border border-[#cbebe7]', icon: '⭐' },
-      { id: 3, name: 'أفضل طالب في الشهر', color: 'bg-[#fdeeed] text-[#e05353] border border-[#fbd3d2]', icon: '🌟' }
-    ];
-    return { success: true, data: defaultBadges };
+    return { success: true, data: [] };
   },
-
   fetchComplaints: async (filter = 'all') => {
     let endpoint = '/api/v1/parent/complaints-suggestions';
     if (filter === 'resolved') {
@@ -630,7 +677,6 @@ export const parentApi = {
     }
     return { success: true, data: [], length: 0 };
   },
-
   fetchComplaintById: async (id) => {
     if (!id) return { success: false, data: null };
     try {
@@ -642,7 +688,6 @@ export const parentApi = {
     }
     return { success: false, data: null };
   },
-
   createComplaint: async (payload) => {
     try {
       let body = payload;
@@ -676,7 +721,6 @@ export const parentApi = {
       };
     }
   },
-
   fetchExcusesList: async (params = {}) => {
     const cleanParams = {};
     if (params.page) cleanParams.page = params.page;
@@ -740,7 +784,6 @@ export const parentApi = {
       }
     };
   },
-
   fetchExcuseDetails: async (sessionId) => {
     if (!sessionId) return { success: false, data: null };
     try {
@@ -780,7 +823,6 @@ export const parentApi = {
     };
     return { success: true, data: defaultDetails };
   },
-
   createSessionExcuse: async (sessionId, payload) => {
     try {
       const response = await api.post(`/api/v1/parent/sessions/${sessionId}/excuse`, {
@@ -803,7 +845,6 @@ export const parentApi = {
       };
     }
   },
-
   fetchStudentEligibleSessions: async (studentId) => {
     if (!studentId) return { success: true, data: [] };
     const cleanParams = { studentId, status: 'scheduled,rescheduled' };
@@ -843,6 +884,33 @@ export const parentApi = {
       return isStatusOk;
     });
     return { success: true, data: matched };
+  },
+  fetchPackages: async (params = {}) => {
+    const response = await api.get('/api/v1/parent/packages', { params, skipLang: true });
+    return response.data;
+  },
+  fetchPackageDetails: async (id) => {
+    const response = await api.get(`/api/v1/parent/packages/${id}`, { skipLang: true });
+    return response.data?.data || response.data;
+  },
+  fetchChildrenTeachers: async () => {
+    const response = await api.get('/api/v1/parent/teachers', { skipLang: true });
+    const payload = response.data?.data ?? response.data;
+    return Array.isArray(payload) ? payload : [];
+  },
+  submitTeacherEvaluation: async (teacherId, { rating, notes }) => {
+    const response = await api.post(`/api/v1/parent/teachers/${teacherId}/evaluations`, {
+      rating: Number(rating),
+      notes: String(notes || '').trim()
+    }, { skipLang: true });
+    return response.data;
+  },
+  fetchTeacherEvaluationsHistory: async (params = {}) => {
+    const response = await api.get('/api/v1/parent/teachers/evaluations', {
+      params,
+      skipLang: true
+    });
+    return response.data;
   }
 };
 

@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/shared/context/useAuth';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 const containerVariants = {
   hidden: { opacity: 0 },

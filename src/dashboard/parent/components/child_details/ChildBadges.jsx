@@ -10,7 +10,6 @@ export default function ChildBadges({ childId, initialBadges }) {
   const [badges, setBadges] = useState(initialBadges || []);
   const [isLoading, setIsLoading] = useState(!initialBadges);
   const [prevInitialBadges, setPrevInitialBadges] = useState(initialBadges);
-
   if (prevInitialBadges !== initialBadges) {
     setPrevInitialBadges(initialBadges);
     if (initialBadges && initialBadges.length > 0) {
@@ -18,28 +17,15 @@ export default function ChildBadges({ childId, initialBadges }) {
       setIsLoading(false);
     }
   }
-
   useEffect(() => {
-    if (initialBadges && initialBadges.length > 0) return;
-
-    let isMounted = true;
-    Promise.resolve().then(async () => {
-      if (!isMounted) return;
-      setIsLoading(true);
-      const res = await parentApi.fetchBadges(childId);
-      if (isMounted) {
-        if (res?.success && Array.isArray(res.data)) {
-          setBadges(res.data);
-        } else {
-          setBadges([]);
-        }
-        setIsLoading(false);
-      }
-    });
-
-    return () => { isMounted = false; };
-  }, [childId, initialBadges]);
-
+    if (initialBadges && initialBadges.length > 0) {
+      setBadges(initialBadges);
+      setIsLoading(false);
+      return;
+    }
+    setBadges([]);
+    setIsLoading(false);
+  }, [initialBadges]);
   const getBadgeTitle = (badge) => {
     if (!badge) return '';
     if (typeof badge.title === 'string') return badge.title;
@@ -49,13 +35,11 @@ export default function ChildBadges({ childId, initialBadges }) {
     }
     return '';
   };
-
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
       <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-6">
         {t('parentDashboard.childrenDetails.badgesTitle', 'الأوسمة والجوائز')}
       </h3>
-
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((n) => (
@@ -73,7 +57,6 @@ export default function ChildBadges({ childId, initialBadges }) {
             const title = getBadgeTitle(badge);
             const emoji = badge.emoji || badge.icon;
             const isEmoji = typeof emoji === 'string' && emoji.length <= 4;
-
             return (
               <div
                 key={badge.id || badge._id || idx}

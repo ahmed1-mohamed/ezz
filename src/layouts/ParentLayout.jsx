@@ -13,6 +13,7 @@ import {
   Globe,
   User,
   CalendarX,
+  Layers,
   Menu,
   X,
   LogOut,
@@ -22,6 +23,7 @@ import { useAuth } from '@/shared/context/useAuth';
 const navItems = [
   { path: '/dashboard/parent', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/parent/children', icon: Users, transKey: 'children' },
+  { path: '/dashboard/parent/packages', icon: Layers, transKey: 'packages' },
   { path: '/dashboard/parent/schedule', icon: Calendar, transKey: 'schedule' },
   { path: '/dashboard/parent/attendance', icon: CheckSquare, transKey: 'attendance' },
   { path: '/dashboard/parent/ratings', icon: Star, transKey: 'ratings' },

@@ -100,6 +100,7 @@ const ParentRatings = lazy(() => import('../dashboard/parent/students/ParentRati
 const ParentComplaints = lazy(() => import('../dashboard/parent/settings/ParentComplaints.jsx'))
 const ParentChildrenList = lazy(() => import('../dashboard/parent/students/ParentChildrenList.jsx'))
 const ParentChildren = lazy(() => import('../dashboard/parent/students/ParentChildren.jsx'))
+const ParentPackages = lazy(() => import('../dashboard/parent/packages/ParentPackages.jsx'))
 const ParentCheckout = lazy(() => import('../dashboard/parent/packages/ParentCheckout.jsx'))
 const ParentSchedule = lazy(() => import('../dashboard/parent/schedules/ParentSchedule.jsx'))
 const ParentAttendance = lazy(() => import('../dashboard/parent/schedules/ParentAttendance.jsx'))
@@ -580,7 +581,11 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/parent" element={<ParentDashboard />} />
                                     <Route path="/dashboard/parent/schedule" element={<ParentSchedule />} />
                                     <Route path="/dashboard/parent/children" element={<ParentChildrenList />} />
+                                    <Route path="/dashboard/parent/students" element={<ParentChildrenList />} />
                                     <Route path="/dashboard/parent/child-details" element={<ParentChildren />} />
+                                    <Route path="/dashboard/parent/children/:studentId" element={<ParentChildren />} />
+                                    <Route path="/dashboard/parent/students/:studentId" element={<ParentChildren />} />
+                                    <Route path="/dashboard/parent/child-details/:studentId" element={<ParentChildren />} />
                                     <Route path="/dashboard/parent/attendance" element={<ParentAttendance />} />
 
                                     <Route path="/dashboard/parent/ratings" element={<ParentRatings />} />
@@ -592,11 +597,13 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/parent/notifications" element={<ParentNotifications />} />
                                     <Route path="/dashboard/parent/profile" element={<ParentSettings />} />
                                     <Route path="/dashboard/parent/settings" element={<ParentSettings />} />
+                                    <Route path="/dashboard/parent/packages" element={<ParentPackages />} />
                                     <Route path="/dashboard/parent/checkout" element={<ParentCheckout />} />
                                 </Route>
                             </Route>
                         </Route>
-
+                        <Route path="/teacher/sessions" element={<Navigate to="/dashboard/teacher/sessions" replace />} />
+                        <Route path="/teacher/live" element={<Navigate to="/dashboard/teacher/live" replace />} />
                         <Route
                             path="/unauthorized"
                             element={

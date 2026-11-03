@@ -1,6 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, ChevronDown, CheckCircle2, XCircle, Clock, FileText, AlertCircle, Calendar, User, BookOpen } from 'lucide-react';
+import {
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileText,
+  AlertCircle,
+  Calendar,
+  User,
+  BookOpen,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { parentApi } from '@/shared/services/api/parentApi';
 
@@ -13,6 +25,43 @@ const itemVariants = {
   hidden: { opacity: 0, y: 15 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 320, damping: 26 } }
 };
+
+function extractSafeText(val, isRtl = true) {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val.trim();
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    const localized = isRtl ? (val.ar || val.en) : (val.en || val.ar);
+    if (localized && typeof localized === 'string') return localized.trim();
+    if (val.reason && typeof val.reason === 'string') return val.reason.trim();
+    if (val.name && typeof val.name === 'string') return val.name.trim();
+    if (val.title && typeof val.title === 'string') return val.title.trim();
+    if (val.notes && typeof val.notes === 'string') return val.notes.trim();
+    if (val.text && typeof val.text === 'string') return val.text.trim();
+    return '';
+  }
+  return '';
+}
+
+function extractExcuseDetails(excuse, isRtl = true) {
+  if (!excuse) return null;
+  if (typeof excuse === 'string') {
+    const trimmed = excuse.trim();
+    return trimmed ? { reason: trimmed, submittedBy: '', notes: '' } : null;
+  }
+  if (typeof excuse === 'object') {
+    const reason = extractSafeText(excuse.reason || excuse.text, isRtl);
+    const submittedBy = extractSafeText(excuse.submittedBy, isRtl);
+    const notes = extractSafeText(excuse.notes, isRtl);
+    if (!reason && !notes && !submittedBy) return null;
+    return {
+      reason: reason || notes,
+      submittedBy,
+      notes: notes !== reason ? notes : '',
+    };
+  }
+  return null;
+}
 
 export default function ParentAttendance() {
   const { t, i18n } = useTranslation();
@@ -27,7 +76,6 @@ export default function ParentAttendance() {
     statistics: null,
     days: []
   });
-
   const getAttendanceStatusBadge = (attendanceStatus, color) => {
     const raw = String(attendanceStatus || '').trim();
     if (raw === 'حاضر' || raw === 'attended' || color === 'green') {
@@ -64,7 +112,6 @@ export default function ParentAttendance() {
       dotClass: 'bg-slate-400'
     };
   };
-
   const getSessionStatusBadge = (sessionStatus) => {
     const raw = String(sessionStatus || '').trim();
     if (raw === 'ملغاة') {
@@ -75,7 +122,6 @@ export default function ParentAttendance() {
     }
     return 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400';
   };
-
   const loadStudents = useCallback(async () => {
     try {
       const res = await parentApi.fetchChildren();
@@ -89,7 +135,6 @@ export default function ParentAttendance() {
       console.error('Failed to load children for attendance:', err);
     }
   }, []);
-
   const loadAttendance = useCallback(async (studentId, monthParam) => {
     if (!studentId) return;
     setIsLoading(true);
@@ -118,33 +163,27 @@ export default function ParentAttendance() {
       setIsLoading(false);
     }
   }, []);
-
   useEffect(() => {
     loadStudents();
   }, [loadStudents]);
-
   useEffect(() => {
     if (selectedStudentId) {
       loadAttendance(selectedStudentId, monthQuery);
     }
   }, [loadAttendance, selectedStudentId, monthQuery]);
-
   const handlePrevMonth = () => {
     if (attendanceData.monthInfo?.previousMonth) {
       setMonthQuery(attendanceData.monthInfo.previousMonth);
     }
   };
-
   const handleNextMonth = () => {
     if (attendanceData.monthInfo?.nextMonth) {
       setMonthQuery(attendanceData.monthInfo.nextMonth);
     }
   };
-
   const handleCurrentMonth = () => {
     setMonthQuery(null);
   };
-
   const statsList = [
     {
       id: 'rate',
@@ -195,9 +234,9 @@ export default function ParentAttendance() {
       icon: AlertCircle
     }
   ];
-
   const totalSessionsCount = attendanceData.days.reduce((acc, d) => acc + (d.sessionsCount || d.sessions?.length || 0), 0);
-
+  const studentDisplayName = extractSafeText(attendanceData.student?.name, isRtl);
+  const monthLabelText = extractSafeText(attendanceData.monthInfo?.monthLabel, isRtl);
   return (
     <motion.div
       variants={containerVariants}
@@ -210,10 +249,9 @@ export default function ParentAttendance() {
         <div>
           <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100">{t('parent.attendance.title', 'سجل الحضور والغياب')}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {attendanceData.student?.name ? `متابعة حضور التلميذ ${attendanceData.student.name}` : 'متابعة سجل حضور وغياب الأبناء ونسب الالتزام بالحصص'}
+            {studentDisplayName ? `متابعة حضور التلميذ ${studentDisplayName}` : 'متابعة سجل حضور وغياب الأبناء ونسب الالتزام بالحصص'}
           </p>
         </div>
-
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           <div className="relative w-full sm:w-60">
             <select
@@ -223,7 +261,7 @@ export default function ParentAttendance() {
             >
               {studentsList.map((s) => {
                 const sId = s.student_id || s.id || s.user_id;
-                const sName = typeof s.name === 'object' ? (isRtl ? s.name.ar : s.name.en) : (s.name || sId);
+                const sName = extractSafeText(s.name, isRtl) || sId;
                 return <option key={sId} value={sId}>{sName}</option>;
               })}
             </select>
@@ -231,7 +269,6 @@ export default function ParentAttendance() {
           </div>
         </div>
       </motion.div>
-
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
         {statsList.map((st) => (
           <motion.div
@@ -247,7 +284,6 @@ export default function ParentAttendance() {
           </motion.div>
         ))}
       </div>
-
       {attendanceData.monthInfo && (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -256,7 +292,7 @@ export default function ParentAttendance() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{attendanceData.monthInfo.monthLabel}</span>
+                <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{monthLabelText}</span>
                 {attendanceData.monthInfo.isCurrentMonth && (
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-white">الشهر الحالي</span>
                 )}
@@ -266,30 +302,30 @@ export default function ParentAttendance() {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             {!attendanceData.monthInfo.isCurrentMonth && (
               <button
+                type="button"
                 onClick={handleCurrentMonth}
-                className="px-3 py-2 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 rounded-xl transition-colors"
+                className="px-3 py-2 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 rounded-xl transition-colors cursor-pointer"
               >
                 الشهر الحالي
               </button>
             )}
-
             <button
+              type="button"
               onClick={handlePrevMonth}
               disabled={!attendanceData.monthInfo.canGoPrevious && !attendanceData.monthInfo.previousMonth}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
               title="الشهر السابق"
             >
               {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
-
             <button
+              type="button"
               onClick={handleNextMonth}
               disabled={!attendanceData.monthInfo.canGoNext && !attendanceData.monthInfo.nextMonth}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
               title="الشهر القادم"
             >
               {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -297,7 +333,6 @@ export default function ParentAttendance() {
           </div>
         </motion.div>
       )}
-
       {isLoading ? (
         <div className="flex justify-center items-center py-24">
           <div className="w-9 h-9 rounded-full border-3 border-[#0f7a6c] border-t-transparent animate-spin" />
@@ -315,17 +350,22 @@ export default function ParentAttendance() {
           {attendanceData.days.map((dayGroup, dIdx) => (
             <motion.div variants={itemVariants} key={dayGroup.date || dIdx} className="space-y-3">
               <div className="flex items-center gap-2 ps-2">
-                <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{dayGroup.day}</span>
-                <span className="text-xs font-semibold text-slate-400">{dayGroup.formattedDate || dayGroup.date}</span>
+                <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{extractSafeText(dayGroup.day, isRtl)}</span>
+                <span className="text-xs font-semibold text-slate-400">{extractSafeText(dayGroup.formattedDate || dayGroup.date, isRtl)}</span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
                   {dayGroup.sessionsCount || dayGroup.sessions?.length || 0} حصة
                 </span>
               </div>
-
               <div className="grid grid-cols-1 gap-4">
                 {(dayGroup.sessions || []).map((session) => {
                   const attBadge = getAttendanceStatusBadge(session.attendanceStatus, session.color);
                   const sessStatusClass = getSessionStatusBadge(session.sessionStatus);
+                  const sessionTitle = extractSafeText(session.title, isRtl) || `الحصة رقم ${session.sessionNumber || ''}`;
+                  const groupTitle = extractSafeText(session.group, isRtl);
+                  const teacherName = extractSafeText(session.teacher, isRtl);
+                  const notesText = extractSafeText(session.notes, isRtl);
+                  const excuseInfo = extractExcuseDetails(session.excuse, isRtl);
+                  const timeDisplay = extractSafeText(session.timeRange || session.startTime, isRtl);
                   return (
                     <motion.div
                       whileHover={{ y: -2 }}
@@ -337,60 +377,74 @@ export default function ParentAttendance() {
                         <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/80 rounded-2xl px-4 py-3 shrink-0 min-w-[110px] text-center border border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold mb-1">
                             <Clock className="w-3.5 h-3.5" />
-                            <span>{session.timeRange || session.startTime}</span>
+                            <span>{timeDisplay}</span>
                           </div>
                           <span className="text-[11px] text-slate-400 font-medium">
-                            {session.durationMinutes ? `${session.durationMinutes} دقيقة` : (session.day || dayGroup.day)}
+                            {session.durationMinutes ? `${session.durationMinutes} دقيقة` : (extractSafeText(session.day, isRtl) || extractSafeText(dayGroup.day, isRtl))}
                           </span>
                         </div>
-
-                        <div className="space-y-1.5 flex-1">
+                        <div className="space-y-1.5 flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
-                              {session.title || `الحصة رقم ${session.sessionNumber || ''}`}
+                              {sessionTitle}
                             </h3>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${attBadge.badgeClass}`}>
                               {attBadge.label}
                             </span>
                             {session.sessionStatus && (
                               <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${sessStatusClass}`}>
-                                {session.sessionStatus}
+                                {extractSafeText(session.sessionStatus, isRtl)}
                               </span>
                             )}
                           </div>
-
                           <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                            {session.group && (
-                              <div className="flex items-center gap-1.5 text-[#0f7a6c] dark:text-emerald-400 font-bold">
-                                <BookOpen className="w-3.5 h-3.5" />
-                                <span>{session.group}</span>
+                            {groupTitle && (
+                              <div className="flex items-center gap-1.5 text-[#0f7a6c] dark:text-emerald-400 font-bold truncate">
+                                <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                                <span className="truncate">{groupTitle}</span>
                               </div>
                             )}
-                            {session.teacher && (
+                            {teacherName && (
                               <div className="flex items-center gap-1">
                                 <span className="text-slate-400">المعلم:</span>
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{session.teacher}</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{teacherName}</span>
                               </div>
                             )}
-                            {attendanceData.student?.name && (
+                            {studentDisplayName && (
                               <div className="flex items-center gap-1">
                                 <User className="w-3.5 h-3.5 text-slate-400" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{attendanceData.student.name}</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{studentDisplayName}</span>
                               </div>
                             )}
                           </div>
-
-                          {session.notes && (
+                          {Boolean(notesText) && (
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
                               <span className="font-bold text-slate-700 dark:text-slate-300">ملاحظات: </span>
-                              {session.notes}
+                              <span>{notesText}</span>
                             </p>
                           )}
-                          {session.excuse && (
-                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-2 bg-amber-50 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/30">
-                              <span className="font-bold">العذر المقبول: </span>
-                              {session.excuse}
-                            </p>
+                          {excuseInfo && (
+                            <div className="text-xs text-amber-800 dark:text-amber-300 mt-2 bg-amber-50 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/30 space-y-1">
+                              <div className="flex items-center gap-1.5 font-bold">
+                                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                                <span>العذر المقبول: </span>
+                                <span className="font-semibold text-amber-900 dark:text-amber-200">
+                                  {excuseInfo.reason}
+                                </span>
+                              </div>
+                              {excuseInfo.submittedBy && (
+                                <div className="text-[11px] text-amber-700/80 dark:text-amber-400/80 ps-5">
+                                  <span>مقدم العذر: </span>
+                                  <span className="font-semibold">{excuseInfo.submittedBy}</span>
+                                </div>
+                              )}
+                              {excuseInfo.notes && (
+                                <div className="text-[11px] text-amber-700/80 dark:text-amber-400/80 ps-5">
+                                  <span>ملاحظة الإدارة: </span>
+                                  <span className="font-semibold">{excuseInfo.notes}</span>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>

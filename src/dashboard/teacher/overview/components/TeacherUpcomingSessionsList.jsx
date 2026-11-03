@@ -2,11 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Video, Clock, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 export default React.memo(function TeacherUpcomingSessionsList({ upcomingSessions }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
+
+  const handleStartClick = (e, session) => {
+    const check = checkCanJoinSession(session);
+    if (!check.canJoin) {
+      e.preventDefault();
+      showSessionJoinAlert(check.message, isRtl);
+      return false;
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -68,6 +78,7 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
               {/* Left Action Button: ابدأ > */}
               <Link
                 to={session.joinUrl || '/dashboard/teacher/live'}
+                onClick={(e) => handleStartClick(e, session)}
                 className="px-4 py-2 rounded-xl bg-[#00594C] hover:bg-[#00473d] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs transition-colors shrink-0 cursor-pointer"
               >
                 <span>{t('teacherDashboard.start', 'ابدأ')}</span>
