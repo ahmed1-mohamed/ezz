@@ -22,6 +22,7 @@ export const SYSTEM_PERMISSIONS = [
           'teachers.add_certificate',
           'teachers.update_certificate',
           'teachers.delete_certificate',
+          'teachers.payouts',
           'teachers.write'
         ]
       }
@@ -222,6 +223,7 @@ export const SYSTEM_PERMISSIONS = [
           'packages.create',
           'packages.update',
           'packages.delete',
+          'packages.subscriptions',
           'packages.write',
           'faqs.create',
           'faqs.update',
@@ -417,7 +419,7 @@ export const SYSTEM_PERMISSIONS = [
         key: 'READ_REPORTS',
         labelAr: 'عرض التقارير والإحصائيات',
         labelEn: 'View Reports & Statistics',
-        aliases: ['reports.read']
+        aliases: ['reports.read', 'dashboard.reports.read']
       },
       {
         key: 'WRITE_REPORTS',
@@ -436,7 +438,7 @@ export const SYSTEM_PERMISSIONS = [
         key: 'READ_EARNINGS',
         labelAr: 'عرض الأرباح والمالية',
         labelEn: 'View Financial Earnings',
-        aliases: ['earnings.read']
+        aliases: ['earnings.read', 'dashboard.earnings.read']
       },
       {
         key: 'WRITE_EARNINGS',

@@ -321,7 +321,7 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/reports"
-                                        element={<PermissionRoute superAdminOnly><AdminReports /></PermissionRoute>}
+                                        element={<PermissionRoute permissions={['reports.read', 'dashboard.reports.read']}><AdminReports /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/settings"
@@ -410,7 +410,7 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/earnings"
-                                        element={<PermissionRoute superAdminOnly><AdminEarnings /></PermissionRoute>}
+                                        element={<PermissionRoute permissions={['earnings.read', 'dashboard.earnings.read']}><AdminEarnings /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/payments"
