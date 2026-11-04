@@ -460,3 +460,4 @@ export default function SubscriptionDetailsModal({
     document.body
   )
 }
+
