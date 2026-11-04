@@ -29,7 +29,11 @@ export default function StudentLive() {
         }
         const data = await studentPortalApi.fetchNextSession();
         if (isMounted) {
-          if (data && (data.id || data._id || data.title)) {
+          if (initialSession) {
+            // Keep the session the student clicked; next-session data only fills it in if it's the same one
+            const sameId = data && (data.id || data._id) === (initialSession.id || initialSession._id);
+            if (sameId) setSession({ ...initialSession, ...data });
+          } else if (data && (data.id || data._id || data.title)) {
             setSession(data);
           } else if (!initialSession) {
             setSession(null);

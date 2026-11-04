@@ -3,12 +3,10 @@ import {
   Video,
   Maximize2,
   Minimize2,
-  ExternalLink,
   Copy,
   RotateCcw,
   ShieldCheck,
   UserCheck,
-  Globe,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { showSuccessToast } from '@/shared/utils/sweetAlert.js';
@@ -17,14 +15,9 @@ export default function ZoomMeetingPlayer({
   meetingId,
   passcode,
   role = 0,
-  sdkSignature,
-  sdkKey = import.meta.env?.VITE_ZOOM_SDK_KEY || import.meta.env?.NEXT_PUBLIC_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ',
   startUrl,
   joinUrl,
-  zakToken,
-  leaveUrl,
   userName = '',
-  userEmail = import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com',
   sessionTitle = '',
   className = '',
 }) {
@@ -33,29 +26,46 @@ export default function ZoomMeetingPlayer({
   const containerRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [iframeKey, setIframeKey] = useState(1);
+  const [mountedAt] = useState(() => Date.now());
   const cleanMeetingId = String(meetingId || '').replace(/\s/g, '');
   const cleanPasscode = String(passcode || '');
   const isHost = Number(role) === 1;
-  const launchAppUrl = isHost ? (startUrl || joinUrl || '') : (joinUrl || '');
-  const webClientUrl = isHost
-    ? (startUrl || joinUrl || '')
-    : (cleanMeetingId
-      ? `https://us05web.zoom.us/wc/${cleanMeetingId}/join?prefer=1${cleanPasscode ? `&pwd=${encodeURIComponent(cleanPasscode)}` : ''}`
-      : (joinUrl || ''));
-  const params = new URLSearchParams();
-  if (cleanMeetingId) params.set('meetingId', cleanMeetingId);
-  if (cleanPasscode) params.set('passcode', cleanPasscode);
-  params.set('role', String(role));
-  if (sdkSignature) params.set('sdkSignature', sdkSignature);
-  if (sdkKey) params.set('sdkKey', sdkKey);
-  if (zakToken) params.set('zak', zakToken);
-  if (leaveUrl) params.set('leaveUrl', leaveUrl);
-  if (userName) params.set('userName', userName);
-  const effectiveUserEmail = userEmail || import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com';
-  params.set('userEmail', effectiveUserEmail);
-  if (startUrl) params.set('startUrl', startUrl);
-  if (joinUrl) params.set('joinUrl', joinUrl);
-  const embedUrl = `/zoom-embed.html?${params.toString()}`;
+
+  // Teacher: the backend start link (startUrl). Student: Zoom web client built from joinUrl.
+  const startZakExp = (() => {
+    try {
+      const zak = new URL(startUrl).searchParams.get('zak') || '';
+      const payload = JSON.parse(atob(zak.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return Number(payload.exp) || null;
+    } catch {
+      return null;
+    }
+  })();
+  const isStartLinkExpired = isHost && startZakExp !== null && startZakExp * 1000 < mountedAt;
+
+  const studentWebClientUrl = (() => {
+    if (!cleanMeetingId) return joinUrl || '';
+    let pwd;
+    try {
+      pwd = new URL(joinUrl).searchParams.get('pwd') || '';
+    } catch {
+      pwd = '';
+    }
+    const q = new URLSearchParams();
+    if (pwd) q.set('pwd', pwd);
+    else if (cleanPasscode) q.set('pwd', cleanPasscode);
+    q.set('prefer', '1');
+    if (userName) {
+      try {
+        q.set('un', btoa(unescape(encodeURIComponent(userName))));
+      } catch {
+        // name prefill is optional
+      }
+    }
+    return `https://app.zoom.us/wc/${cleanMeetingId}/join?${q.toString()}`;
+  })();
+
+  const embedUrl = isHost ? (startUrl || '') : studentWebClientUrl;
   const handleCopyMeetingInfo = () => {
     const lines = [];
     if (cleanMeetingId) lines.push(`Meeting ID: ${cleanMeetingId}`);
@@ -65,16 +75,6 @@ export default function ZoomMeetingPlayer({
     if (lines.length > 0) {
       navigator.clipboard.writeText(lines.join('\n'));
       showSuccessToast(t('teacherLive.copiedMeetingDetails', 'تم نسخ بيانات الاجتماع بنجاح'), isRtl);
-    }
-  };
-  const handleLaunchZoomApp = () => {
-    if (launchAppUrl) {
-      window.open(launchAppUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
-  const handleLaunchWebClient = () => {
-    if (webClientUrl) {
-      window.open(webClientUrl, '_blank', 'noopener,noreferrer');
     }
   };
   const handleToggleFullscreen = () => {
@@ -175,47 +175,42 @@ export default function ZoomMeetingPlayer({
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
-          {launchAppUrl && (
-            <button
-              type="button"
-              onClick={handleLaunchZoomApp}
-              className={`px-3.5 py-1.5 rounded-xl text-white text-xs font-bold shadow-md transition-colors flex items-center gap-1.5 cursor-pointer ${
-                isHost ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0f7a6c] hover:bg-[#0c6156]'
-              }`}
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>
-                {isHost
-                  ? t('teacherLive.startAsHostApp', 'بدء كمعلّم (Host)')
-                  : t('studentDashboard.live.joinAsStudentApp', 'انضمام كطالب (Zoom)')}
-              </span>
-            </button>
-          )}
-          {webClientUrl && (
-            <button
-              type="button"
-              onClick={handleLaunchWebClient}
-              className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>
-                {isHost
-                  ? t('teacherLive.startAsHostWeb', 'المتصفح (Host)')
-                  : t('studentDashboard.live.joinAsStudentWeb', 'المتصفح (طالب)')}
-              </span>
-            </button>
-          )}
         </div>
       </div>
       {/* Main Viewport Container */}
       <div className="relative w-full flex-1 min-h-[560px] bg-[#020508] overflow-hidden flex flex-col justify-center items-center">
-        <iframe
-          key={iframeKey}
-          src={embedUrl}
-          title="Zoom Live Meeting Stream"
-          className="w-full h-full min-h-[560px] border-0 relative z-10 flex-1"
-          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection"
-        />
+        {isStartLinkExpired || !embedUrl ? (
+          <div className="max-w-md mx-6 text-center flex flex-col items-center gap-3 p-6 rounded-3xl bg-[#0f172a] border border-white/10">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-300 flex items-center justify-center">
+              <Video className="w-6 h-6" />
+            </div>
+            <div className="font-black text-base">
+              {!embedUrl
+                ? t('teacherLive.noMeetingLink', 'لا يوجد رابط للحصة')
+                : t('teacherLive.startLinkExpired', 'انتهت صلاحية رابط بدء الحصة')}
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              {!embedUrl
+                ? t('teacherLive.noMeetingLinkHint', 'لم يُرسل الخادم رابط الحصة. حاول تحديث الصفحة.')
+                : t('teacherLive.startLinkExpiredHint', 'رابط Zoom لبدء الحصة كمعلّم صالح لمدة ساعتين فقط. يجب أن يُرجع الخادم رابطاً جديداً (startUrl) عند فتح الحصة.')}
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer"
+            >
+              {t('teacherLive.retry', 'إعادة المحاولة')}
+            </button>
+          </div>
+        ) : (
+          <iframe
+            key={iframeKey}
+            src={embedUrl}
+            title="Zoom Live Meeting Stream"
+            className="w-full h-full min-h-[560px] border-0 relative z-10 flex-1"
+            allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection"
+          />
+        )}
       </div>
       {/* Bottom Info Footer */}
       <div className="bg-[#0b131e] px-4 sm:px-6 py-2.5 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2 shrink-0">
@@ -228,20 +223,6 @@ export default function ZoomMeetingPlayer({
           </span>
         </div>
         <div className="flex items-center gap-3">
-          {launchAppUrl && (
-            <button
-              type="button"
-              onClick={handleLaunchZoomApp}
-              className="text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1 font-semibold cursor-pointer"
-            >
-              <span>
-                {isHost
-                  ? t('teacherLive.preferDesktopHost', 'بدء الحصة كـ Host عبر تطبيق Zoom')
-                  : t('studentDashboard.live.preferDesktopStudent', 'انضمام كطالب عبر تطبيق Zoom')}
-              </span>
-              <ExternalLink className="w-3 h-3" />
-            </button>
-          )}
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Video,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -65,7 +64,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
     }
     return user.name || user.fullName || 'المعلم';
   })();
-  const teacherEmail = user?.email || '';
   return (
     <div className="space-y-6">
       {/* Top Header Card: Session metadata & quick actions */}
@@ -102,18 +100,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
               </span>
               <ElapsedTimer />
             </div>
-            {joinData?.startUrl && (
-              <a
-                href={joinData.startUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
-                title={t('teacherLive.startAsHostApp', 'بدء كمعلّم (Host)')}
-              >
-                <Video className="w-4 h-4" />
-                <span>{t('teacherLive.startAsHostApp', 'بدء كمعلّم (Host)')}</span>
-              </a>
-            )}
             <button
               type="button"
               onClick={() => setIsRewardModalOpen(true)}
@@ -150,17 +136,17 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
         </div>
       ) : (
         <ZoomMeetingPlayer
-          meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId}
-          passcode={joinData?.passcode || joinData?.password || session?.passcode}
+          meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId || session?.meetingNumber}
+          passcode={joinData?.passcode || joinData?.password || session?.passcode || session?.password}
           role={joinData?.role !== undefined ? joinData.role : 1}
-          sdkSignature={joinData?.sdkSignature || session?.sdkSignature}
+          sdkSignature={joinData?.sdkSignature || session?.sdkSignature || joinData?.signature || session?.signature}
           sdkKey={joinData?.sdkKey || import.meta.env?.VITE_ZOOM_SDK_KEY || import.meta.env?.NEXT_PUBLIC_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ'}
-          startUrl={joinData?.startUrl || session?.startUrl || session?.zoomStartUrl}
-          joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl}
-          zakToken={joinData?.zak || joinData?.zakToken}
+          startUrl={joinData?.startUrl || session?.startUrl || session?.zoomStartUrl || session?.zoom_start_url}
+          joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl || session?.zoom_join_url}
+          zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token}
           leaveUrl="/teacher/sessions"
           userName={teacherName}
-          userEmail={joinData?.userEmail || joinData?.hostEmail || 'manartalezzacademy1@gmail.com'}
+          userEmail="manartalezzacademy1@gmail.com"
           sessionTitle={sessionTitle}
           className="w-full"
         />

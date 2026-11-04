@@ -68,7 +68,7 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
       <div className="flex items-end justify-between pt-2">
         {/* Button: دخول الجلسة > */}
         <Link
-          to={nextSession.zoomJoinUrl || nextSession.joinUrl || (nextSession.id ? `/dashboard/teacher/live?session=${nextSession.id}` : '/dashboard/teacher/live')}
+          to={nextSession.id ? `/dashboard/teacher/live?session=${nextSession.id}` : '/dashboard/teacher/live'}
           onClick={handleEnterClick}
           className="px-5 py-2.5 bg-white text-[#00594C] hover:bg-emerald-50 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-all cursor-pointer"
         >

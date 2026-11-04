@@ -152,7 +152,7 @@ function formatSessionCard(s, idx, isRtl, t) {
     timeStr,
     relativeBadge,
     badgeVariant,
-    joinUrl: s.zoomJoinUrl || s.joinUrl || (s.id ? `/dashboard/teacher/live?session=${s.id}` : '/dashboard/teacher/live'),
+    joinUrl: s.id ? `/dashboard/teacher/live?session=${s.id}` : '/dashboard/teacher/live',
   };
 }
 
@@ -305,7 +305,7 @@ export default function TeacherDashboard() {
       timeStr,
       countdown: rawNext.countdown || countdown,
       countdownUnit: rawNext.countdownUnit || countdownUnit,
-      joinUrl: rawNext.zoomJoinUrl || rawNext.joinUrl || (rawNext.id ? `/dashboard/teacher/live?session=${rawNext.id}` : '/dashboard/teacher/live'),
+      joinUrl: rawNext.id ? `/dashboard/teacher/live?session=${rawNext.id}` : '/dashboard/teacher/live',
     };
   }, [apiData.nextSession, nextSessionRes?.session, isRtl, t]);
   const groupsOverviewTable = useMemo(() => {

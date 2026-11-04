@@ -356,7 +356,8 @@ export default function TeacherSchedule() {
         </span>
       );
     }
-    const targetUrl = session.zoomStartUrl || session.zoomJoinUrl || (session.id ? `/dashboard/teacher/live?session=${session.id}` : null);
+    // Always open the session inside the dashboard (embedded Zoom), never the external Zoom app
+    const targetUrl = session.id ? `/dashboard/teacher/live?session=${session.id}` : null;
     if (targetUrl) {
       const isInternal = targetUrl.startsWith('/');
       const handleSessionJoinClick = (e) => {

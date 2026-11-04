@@ -3,7 +3,6 @@ import {
   X,
   Users,
   User,
-  Video,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -82,18 +81,6 @@ export default React.memo(function StudentDuringSessionView({
             <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
             <span>{t('studentDashboard.live.liveNow', 'مباشر الآن')}</span>
           </span>
-          {(joinData?.joinUrl || session?.joinUrl) && (
-            <a
-              href={joinData?.joinUrl || session?.joinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-[#00594C] hover:bg-[#00483d] text-white rounded-full text-xs font-black transition-colors cursor-pointer shadow-xs"
-              title={t('studentDashboard.live.joinAsStudentApp', 'انضمام كطالب (Zoom)')}
-            >
-              <Video size={14} />
-              <span>{t('studentDashboard.live.joinAsStudentApp', 'انضمام كطالب (Zoom)')}</span>
-            </a>
-          )}
           <button
             type="button"
             onClick={onLeaveSession}
@@ -106,14 +93,14 @@ export default React.memo(function StudentDuringSessionView({
       </header>
       {/* Embedded Zoom Meeting Player Inside Live Screen */}
       <ZoomMeetingPlayer
-        meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId}
-        passcode={joinData?.passcode || joinData?.password || session?.passcode}
+        meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId || session?.meetingNumber}
+        passcode={joinData?.passcode || joinData?.password || session?.passcode || session?.password}
         role={joinData?.role !== undefined ? joinData.role : 0}
-        sdkSignature={joinData?.sdkSignature || session?.sdkSignature}
+        sdkSignature={joinData?.sdkSignature || session?.sdkSignature || joinData?.signature || session?.signature}
         sdkKey={joinData?.sdkKey || import.meta.env?.VITE_ZOOM_SDK_KEY || import.meta.env?.NEXT_PUBLIC_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ'}
         startUrl=""
-        joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl}
-        zakToken={joinData?.zak || joinData?.zakToken}
+        joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl || session?.zoom_join_url}
+        zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token}
         leaveUrl="/dashboard/student/schedule"
         userName={studentName}
         userEmail={joinData?.userEmail || studentEmail || user?.email || 'manartalezzacademy1@gmail.com'}

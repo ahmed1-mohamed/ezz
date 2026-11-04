@@ -91,13 +91,9 @@ function NextSessionCard({ nextSession, isRtl }) {
 
   const canJoinNow = Boolean(nextSession.canJoinNow);
   const statusLabel = nextSession.status || (canJoinNow ? t('studentDashboard.home.nextSession.liveNow', 'جارية الآن') : t('studentDashboard.home.nextSession.statusScheduled', 'مجدولة'));
-  const zoomUrl = nextSession.zoom?.joinUrl || nextSession.joinUrl || nextSession.meetingUrl;
 
   const handleJoin = () => {
-    if (zoomUrl) {
-      window.open(zoomUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
+    // Open the session inside the dashboard (embedded Zoom), never the external Zoom app
     navigate('/dashboard/student/live', { state: { session: nextSession } });
   };
 

@@ -11,6 +11,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
 import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
@@ -175,15 +176,14 @@ export default function StudentSchedule() {
     }
     if (zoomUrl) {
       return (
-        <a
-          href={zoomUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/dashboard/student/live"
+          state={{ session }}
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
         >
           <Video size={16} />
           <span>{t('studentDashboard.schedule.joinLiveNow', 'انتقل إلى البث الآن')}</span>
-        </a>
+        </Link>
       );
     }
     return (

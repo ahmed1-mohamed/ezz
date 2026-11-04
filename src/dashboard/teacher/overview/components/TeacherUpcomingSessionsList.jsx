@@ -77,7 +77,7 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
 
               {/* Left Action Button: ابدأ > */}
               <Link
-                to={session.joinUrl || '/dashboard/teacher/live'}
+                to={session.id ? `/dashboard/teacher/live?session=${session.id}` : '/dashboard/teacher/live'}
                 onClick={(e) => handleStartClick(e, session)}
                 className="px-4 py-2 rounded-xl bg-[#00594C] hover:bg-[#00473d] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs transition-colors shrink-0 cursor-pointer"
               >
