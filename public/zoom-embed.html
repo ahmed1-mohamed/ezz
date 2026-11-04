@@ -337,7 +337,7 @@
         fallbackRetryBtn.addEventListener('click', function() {
           hideFallback();
           if (statusBox) statusBox.style.display = 'flex';
-          executeJoin();
+          startZoomJoin();
         });
       }
 
@@ -396,7 +396,7 @@
       }
 
       function executeJoin() {
-        if (!window.React || !window.ReactDOM || !window.ZoomMtgEmbedded) {
+        if (!window.ZoomMtgEmbedded) {
           showFallback(
             'مشغل Zoom متاح للانضمام',
             'يمكنك الدخول فوراً عبر تطبيق Zoom أو المتصفح بالضغط أدناه.'
@@ -414,6 +414,14 @@
 
         try {
           const client = getZoomClient();
+          if (!client) {
+            showFallback(
+              'مشغل Zoom متاح للانضمام',
+              'يمكنك الدخول فوراً عبر تطبيق Zoom أو المتصفح بالضغط أدناه.'
+            );
+            return;
+          }
+
           const meetingRoot = document.getElementById('meetingSDKElement');
           const leaveUrlParam = urlParams.get('leaveUrl');
           let leaveUrl = isHost
@@ -489,7 +497,29 @@
         }
       }
 
-      executeJoin();
+      function startZoomJoin() {
+        if (window.ZoomMtgEmbedded) {
+          executeJoin();
+        } else {
+          let attempts = 0;
+          const interval = setInterval(function() {
+            attempts++;
+            if (window.ZoomMtgEmbedded) {
+              clearInterval(interval);
+              executeJoin();
+            } else if (attempts >= 40) {
+              clearInterval(interval);
+              executeJoin();
+            }
+          }, 100);
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startZoomJoin);
+      } else {
+        startZoomJoin();
+      }
     })();
   </script>
 </body>
