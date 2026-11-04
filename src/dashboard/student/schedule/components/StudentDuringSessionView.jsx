@@ -116,7 +116,7 @@ export default React.memo(function StudentDuringSessionView({
         zakToken={joinData?.zak || joinData?.zakToken}
         leaveUrl="/dashboard/student/schedule"
         userName={studentName}
-        userEmail={joinData?.userEmail || studentEmail || user?.email || ''}
+        userEmail={joinData?.userEmail || studentEmail || user?.email || 'manartalezzacademy1@gmail.com'}
         sessionTitle={sessionTitle}
         className="w-full"
       />

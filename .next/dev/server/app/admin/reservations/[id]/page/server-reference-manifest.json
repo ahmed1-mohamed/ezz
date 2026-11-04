@@ -1,0 +1,20 @@
+{
+  "node": {
+    "401203ad2199217b8b8b08892499087b54e49dc7fe": {
+      "workers": {
+        "app/admin/reservations/[id]/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/reservations/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        }
+      },
+      "layer": {
+        "app/admin/reservations/[id]/page": "action-browser"
+      },
+      "exportedName": "setUserLocale",
+      "filename": "src/i18n/locale.ts"
+    }
+  },
+  "edge": {}
+}

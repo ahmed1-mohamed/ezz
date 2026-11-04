@@ -6,7 +6,6 @@ export default function ComplaintsTypeFilter({ activeType, onSelectType, t }) {
       {Object.values(COMPLAINT_TYPES).map((type) => {
         const Icon = type.icon
         const isActive = (activeType || '') === type.id
-
         return (
           <button
             type="button"

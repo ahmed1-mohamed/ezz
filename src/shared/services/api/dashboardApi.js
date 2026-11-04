@@ -11,6 +11,50 @@ export const dashboardApi = {
     }
   },
 
+  // GET /api/v1/dashboard/private/analytics?period=daily|weekly|monthly|yearly
+  fetchAnalytics: async (params = {}) => {
+    try {
+      let queryParams = {};
+      if (typeof params === 'string') {
+        queryParams = { period: params, timeframe: params, filter: params };
+      } else if (params && typeof params === 'object') {
+        const p = params.period || params.timeframe || params.filter || 'monthly';
+        queryParams = {
+          period: p,
+          timeframe: p,
+          filter: p,
+          ...params,
+        };
+      }
+      const response = await api.get('/api/v1/dashboard/private/analytics', {
+        params: queryParams,
+      });
+      return {
+        success: true,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      console.error('API fetchAnalytics failed:', error);
+      return { success: false, data: null, error };
+    }
+  },
+
+  // GET /api/v1/dashboard/private/reports/teacher-performance
+  fetchTeacherPerformance: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/dashboard/private/reports/teacher-performance', {
+        params,
+      });
+      return {
+        success: true,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      console.error('API fetchTeacherPerformance failed:', error);
+      return { success: false, data: null, error };
+    }
+  },
+
   fetchTeacherStatistics: async () => {
     try {
       const response = await api.get('/api/v1/teacher/dashboard/statistics');
@@ -64,3 +108,5 @@ export const dashboardApi = {
     }
   },
 };
+
+export default dashboardApi;

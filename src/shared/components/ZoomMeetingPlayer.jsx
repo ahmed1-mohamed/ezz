@@ -24,7 +24,7 @@ export default function ZoomMeetingPlayer({
   zakToken,
   leaveUrl,
   userName = '',
-  userEmail = '',
+  userEmail = import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com',
   sessionTitle = '',
   className = '',
 }) {
@@ -51,7 +51,8 @@ export default function ZoomMeetingPlayer({
   if (zakToken) params.set('zak', zakToken);
   if (leaveUrl) params.set('leaveUrl', leaveUrl);
   if (userName) params.set('userName', userName);
-  if (userEmail) params.set('userEmail', userEmail);
+  const effectiveUserEmail = userEmail || import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com';
+  params.set('userEmail', effectiveUserEmail);
   if (startUrl) params.set('startUrl', startUrl);
   if (joinUrl) params.set('joinUrl', joinUrl);
   const embedUrl = `/zoom-embed.html?${params.toString()}`;

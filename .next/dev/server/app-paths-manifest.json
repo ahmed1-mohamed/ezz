@@ -1,0 +1,11 @@
+{
+  "/admin/ads/create/page": "app/admin/ads/create/page.js",
+  "/admin/ads/page": "app/admin/ads/page.js",
+  "/admin/chat/page": "app/admin/chat/page.js",
+  "/admin/developers/create/page": "app/admin/developers/create/page.js",
+  "/admin/developers/page": "app/admin/developers/page.js",
+  "/admin/offers/page": "app/admin/offers/page.js",
+  "/admin/projects/create/page": "app/admin/projects/create/page.js",
+  "/admin/projects/page": "app/admin/projects/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
+}

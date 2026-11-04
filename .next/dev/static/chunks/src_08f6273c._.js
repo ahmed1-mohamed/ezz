@@ -1,0 +1,15321 @@
+(globalThis.TURBOPACK || (globalThis.TURBOPACK = [])).push([typeof document === "object" ? document.currentScript : undefined,
+"[project]/src/validators/propertiesSchema.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "propertiesSchema",
+    ()=>propertiesSchema
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__ = __turbopack_context__.i("[project]/node_modules/zod/v4/classic/external.js [app-client] (ecmascript) <export * as z>");
+;
+// Letters (any script), digits, "-" and "_" only: rejects spaces and URL-reserved characters
+// without blocking existing records whose slugs contain Arabic or uppercase letters.
+const SLUG_PATTERN = /^[\p{L}\p{N}_-]+$/u;
+const isHttpUrl = (value)=>{
+    const candidate = /^[a-z][a-z\d+.-]*:\/\//i.test(value) ? value : `https://${value}`;
+    try {
+        const url = new URL(candidate);
+        return (url.protocol === "http:" || url.protocol === "https:") && url.hostname.includes(".");
+    } catch  {
+        return false;
+    }
+};
+const propertiesSchema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].object({
+    property_name: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    property_name_en: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    property_type_id: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    property_subtype_id: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    project_id: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    size: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number({
+        message: "validation.required"
+    }).refine((val)=>!isNaN(val), {
+        message: "validation.required"
+    }).refine((val)=>val > 0, {
+        message: "validation.greater_than_zero"
+    }),
+    price: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number({
+        message: "validation.required"
+    }).refine((val)=>!isNaN(val), {
+        message: "validation.required"
+    }).refine((val)=>val >= 0, {
+        message: "validation.positive_number"
+    }),
+    status: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    availability_status: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    construction_status: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    finishing_status: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(1, "validation.required"),
+    property_no: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    building_name: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    plot_size: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || val >= 0, {
+        message: "validation.positive_number"
+    }).optional(),
+    bua_size: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || val >= 0, {
+        message: "validation.positive_number"
+    }).optional(),
+    bedrooms: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || Number.isInteger(val) && val >= 0, {
+        message: "validation.positive_integer"
+    }).optional(),
+    bathrooms: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || Number.isInteger(val) && val >= 0, {
+        message: "validation.positive_integer"
+    }).optional(),
+    parking_spaces: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || Number.isInteger(val) && val >= 0, {
+        message: "validation.positive_integer"
+    }).optional(),
+    ownership_type: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    maid_room: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].boolean().optional(),
+    furnish_status: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    description: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    reference_listed: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    broker_license: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    agent_license: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    zone_name: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    city_name: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    area_name: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    landmark: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    maps_url: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().refine((val)=>!val.trim() || isHttpUrl(val.trim()), {
+        message: "validation.url_invalid"
+    }).optional(),
+    latitude: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || val >= -90 && val <= 90, {
+        message: "validation.latitude_range"
+    }).optional(),
+    longitude: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || val >= -180 && val <= 180, {
+        message: "validation.longitude_range"
+    }).optional(),
+    dld_permit_number: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    dld_barcode: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    currency: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    price_per_m2: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].number().refine((val)=>isNaN(val) || val >= 0, {
+        message: "validation.positive_number"
+    }).optional(),
+    price_description: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    floor: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    view: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    slug: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().refine((val)=>!val || SLUG_PATTERN.test(val), {
+        message: "validation.slug_invalid"
+    }).optional(),
+    meta_title: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    meta_description: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().optional(),
+    payment_plans: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].any().optional()
+});
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/projects/utils/map-project.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "mapProject",
+    ()=>mapProject,
+    "unpackProjectsResponse",
+    ()=>unpackProjectsResponse
+]);
+function unpackProjectsResponse(rawData) {
+    let itemsArray = [];
+    if (!rawData) return {
+        itemsArray: [],
+        totalItems: 0
+    };
+    if (Array.isArray(rawData)) {
+        itemsArray = rawData;
+    } else if (typeof rawData === "object") {
+        const obj = rawData;
+        if (Array.isArray(obj.data)) {
+            itemsArray = obj.data;
+        } else if (Array.isArray(obj.projects)) {
+            itemsArray = obj.projects;
+        } else if (Array.isArray(obj.items)) {
+            itemsArray = obj.items;
+        } else if (obj.data && typeof obj.data === "object") {
+            if (Array.isArray(obj.data.data)) {
+                itemsArray = obj.data.data;
+            } else if (Array.isArray(obj.data.projects)) {
+                itemsArray = obj.data.projects;
+            } else if (Array.isArray(obj.data.items)) {
+                itemsArray = obj.data.items;
+            }
+        }
+    }
+    let totalItems = itemsArray.length;
+    if (Array.isArray(rawData)) {
+        totalItems = rawData.length;
+    } else if (rawData && typeof rawData.total === "number") {
+        totalItems = rawData.total;
+    } else if (rawData && typeof rawData.data?.total === "number") {
+        totalItems = rawData.data.total;
+    }
+    return {
+        itemsArray,
+        totalItems
+    };
+}
+function mapProject(p) {
+    const countryName = p.country_name || p.country?.name || p.country?.country_name || (p.country_id === 2 ? "UAE" : p.country_id === 1 ? "Egypt" : p.country_id === 3 ? "Oman" : "") || "";
+    const countryCode = p.country?.code || p.country?.country_code || (countryName.toLowerCase().includes("uae") || p.country_id === 2 ? "AE" : countryName.toLowerCase().includes("egypt") || p.country_id === 1 ? "EG" : countryName.toLowerCase().includes("oman") || p.country_id === 3 ? "OM" : "");
+    const developerName = p.developer_name || p.developer?.name || p.developer?.developer_name || (typeof p.developer === "string" ? p.developer : "") || "-";
+    const projectCurrency = p.project_currency || p.currency || "";
+    const countryCurrency = p.country_currency || "";
+    const effectiveCurrency = projectCurrency || countryCurrency || "";
+    return {
+        ...p,
+        id: p.project_id ?? p.id,
+        name: p.project_name ?? p.name ?? p.title,
+        developer_name: developerName,
+        country_name: countryName,
+        country_code: countryCode,
+        city_name: p.city?.name ?? p.city_name ?? p.city ?? "",
+        area_name: p.area?.name ?? p.area_name ?? p.area ?? "",
+        price_range: p.price_range ?? p.price ?? "",
+        price_range_SQ: p.price_range_SQ ?? p.price_range_sq ?? "",
+        project_currency: projectCurrency,
+        country_currency: countryCurrency,
+        currency: effectiveCurrency,
+        country_dimension_unit: p.country_dimension_unit ?? "",
+        location_landmark: p.location_landmark ?? "",
+        properties_count: p.properties_count ?? p.total_units ?? 0,
+        projectType: p.project_type ?? p.type ?? "",
+        is_active: Boolean(p.is_active),
+        is_favourite: Boolean(p.is_favourite),
+        status: p.status ?? "Ongoing",
+        created_at: p.created_at ?? ""
+    };
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/services/AdminPropertiesService.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "AdminPropertiesService",
+    ()=>AdminPropertiesService
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/apiClient.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$projects$2f$utils$2f$map$2d$project$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/projects/utils/map-project.ts [app-client] (ecmascript)");
+;
+;
+const AdminPropertiesService = {
+    getProperties: async (params)=>{
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append("page", params.page.toString());
+        if (params.per_page) queryParams.append("per_page", params.per_page.toString());
+        if (params.search) queryParams.append("property_name", params.search);
+        if (params.status) queryParams.append("availability_status", params.status);
+        if (params.sort_by) {
+            params.sort_by.forEach((s)=>queryParams.append("sort_by[]", s));
+        }
+        if (params.sort_order) {
+            params.sort_order.forEach((s)=>queryParams.append("sort_order[]", s));
+        }
+        if (Array.isArray(params.project_id)) {
+            params.project_id.forEach((id)=>queryParams.append("project_id[]", id.toString()));
+        } else if (params.project_id) {
+            queryParams.append("project_id", params.project_id.toString());
+        }
+        if (Array.isArray(params.country_id)) {
+            params.country_id.forEach((id)=>queryParams.append("country_id[]", id.toString()));
+        } else if (params.country_id) {
+            queryParams.append("country_id", params.country_id.toString());
+        }
+        if (Array.isArray(params.developer_id)) {
+            params.developer_id.forEach((id)=>queryParams.append("developer_id[]", id.toString()));
+        } else if (params.developer_id) {
+            queryParams.append("developer_id", params.developer_id.toString());
+        }
+        if (params.property_type_id) {
+            queryParams.append("property_type_id", params.property_type_id.toString());
+        }
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(`/dashboard/properties?${queryParams.toString()}`);
+        return response.data;
+    },
+    getPropertyTypes: async ()=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get("/dashboard/propertyTypes");
+        return response.data;
+    },
+    getPropertySubtypes: async ()=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get("/dashboard/propertySubtypes");
+        return response.data;
+    },
+    getAllProjects: async (search)=>{
+        try {
+            const params = new URLSearchParams({
+                page: "1",
+                per_page: "100"
+            });
+            if (search) params.append("search", search);
+            const firstRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(`/projects?${params.toString()}`);
+            const firstData = firstRes?.data ?? firstRes;
+            const { itemsArray, totalItems } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$projects$2f$utils$2f$map$2d$project$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unpackProjectsResponse"])(firstData);
+            const perPage = Number(firstData?.per_page || 100);
+            const total = Number(totalItems || firstData?.total || itemsArray.length);
+            const totalPages = Math.ceil(total / perPage);
+            if (!totalPages || totalPages <= 1) {
+                return itemsArray;
+            }
+            const pagePromises = [];
+            for(let p = 2; p <= totalPages; p++){
+                const pageParams = new URLSearchParams({
+                    page: p.toString(),
+                    per_page: perPage.toString()
+                });
+                if (search) pageParams.append("search", search);
+                pagePromises.push(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(`/projects?${pageParams.toString()}`).catch(()=>null));
+            }
+            const otherResponses = await Promise.all(pagePromises);
+            const allItems = [
+                ...itemsArray
+            ];
+            for (const res of otherResponses){
+                if (!res) continue;
+                const resData = res?.data ?? res;
+                const { itemsArray: batchItems } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$projects$2f$utils$2f$map$2d$project$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unpackProjectsResponse"])(resData);
+                allItems.push(...batchItems);
+            }
+            return allItems;
+        } catch  {
+            return [];
+        }
+    },
+    getProjects: async (page, perPage, search)=>{
+        if (page === undefined && perPage === undefined) {
+            return AdminPropertiesService.getAllProjects(search);
+        }
+        const params = new URLSearchParams();
+        if (page !== undefined) params.append("page", page.toString());
+        if (perPage !== undefined) params.append("per_page", perPage.toString());
+        if (search) params.append("search", search);
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(`/projects?${params.toString()}`);
+        return response.data;
+    },
+    createProperty: async (data)=>{
+        const payload = buildPayload(data);
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].post("/dashboard/properties", payload);
+        return response.data;
+    },
+    deleteProperty: async (propertyId)=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].delete(`/dashboard/properties/${propertyId}`);
+        return response.data;
+    },
+    getProperty: async (propertyId)=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(`/dashboard/properties/${propertyId}`);
+        return response.data;
+    },
+    updateProperty: async (propertyId, data)=>{
+        const payload = buildPayload(data);
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].put(`/dashboard/properties/${propertyId}`, payload);
+        return response.data;
+    },
+    addPropertyMedia: async (propertyId, file, isPrimary = false)=>{
+        const formData = new FormData();
+        formData.append("property_id", propertyId.toString());
+        formData.append("media_type", "image");
+        formData.append("media_url", file);
+        formData.append("is_primary", isPrimary ? "1" : "0");
+        formData.append("my_order", "1");
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].post("/dashboard/properties/medias", formData);
+        return response.data;
+    },
+    addPropertyFloorPlan: async (propertyId, file)=>{
+        const formData = new FormData();
+        formData.append("property_id", propertyId.toString());
+        formData.append("medias[0]", file);
+        formData.append("meta[0][media_type]", "floor_plan");
+        formData.append("meta[0][description]", "Floor Plan");
+        formData.append("meta[0][is_primary]", "0");
+        formData.append("meta[0][my_order]", "1");
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].post("/dashboard/properties/medias", formData);
+        return response.data;
+    },
+    deletePropertyMedia: async (mediaId)=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].delete(`/dashboard/properties/medias/${mediaId}`);
+        return response.data;
+    },
+    getAvailableFeatures: async ()=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get("/dashboard/features");
+        const raw = response.data;
+        if (Array.isArray(raw)) return raw;
+        if (Array.isArray(raw?.data)) return raw.data;
+        if (Array.isArray(raw?.data?.data)) return raw.data.data;
+        return [];
+    },
+    getPropertyFeature: async (propertyId, featureId)=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(`/dashboard/properties/${propertyId}/features/${featureId}`);
+        return response.data;
+    },
+    savePropertyFeatures: async (propertyId, features)=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].post("/dashboard/properties/features", {
+            property_id: propertyId,
+            features
+        });
+        return response.data;
+    },
+    deletePropertyFeature: async (propertyId, featureId)=>{
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].delete(`/dashboard/properties/${propertyId}/features/${featureId}`);
+        return response.data;
+    }
+};
+function buildPayload(data) {
+    const { property_name_en, ...rest } = data;
+    return Object.fromEntries(Object.entries(rest).filter(([, v])=>v !== undefined && v !== ""));
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/hooks/use-property-data.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useProjectsForSelect",
+    ()=>useProjectsForSelect,
+    "usePropertySubtypes",
+    ()=>usePropertySubtypes,
+    "usePropertyTypes",
+    ()=>usePropertyTypes
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useQuery.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/services/AdminPropertiesService.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$projects$2f$utils$2f$map$2d$project$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/projects/utils/map-project.ts [app-client] (ecmascript)");
+var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature(), _s2 = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+function usePropertyTypes() {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(2);
+    if ($[0] !== "2357cebd4a58546b3d7c40e7baf08698bff6cba839b41e56a31980ef0a0c90b8") {
+        for(let $i = 0; $i < 2; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "2357cebd4a58546b3d7c40e7baf08698bff6cba839b41e56a31980ef0a0c90b8";
+    }
+    let t0;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t0 = {
+            queryKey: [
+                "PropertiesType"
+            ],
+            queryFn: _temp,
+            select: _temp2
+        };
+        $[1] = t0;
+    } else {
+        t0 = $[1];
+    }
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])(t0);
+}
+_s(usePropertyTypes, "4ZpngI1uv+Uo3WQHEZmTQ5FNM+k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]
+    ];
+});
+function _temp2(response) {
+    let arr = response?.data || response || [];
+    if (arr && typeof arr === "object" && !Array.isArray(arr) && Array.isArray(arr.data)) {
+        arr = arr.data;
+    }
+    if (!Array.isArray(arr)) {
+        return [];
+    }
+    return arr.map(_usePropertyTypesAnonymousArrMap);
+}
+function _usePropertyTypesAnonymousArrMap(item) {
+    const raw = item?.data || item;
+    return {
+        ...raw,
+        id: raw.id ?? raw.property_type_id ?? raw.type_id,
+        name: (raw.name ?? raw.property_type_name ?? raw.type_name ?? String(raw.id ?? raw.property_type_id ?? raw.type_id ?? "")).trim()
+    };
+}
+function _temp() {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getPropertyTypes();
+}
+function usePropertySubtypes() {
+    _s1();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(2);
+    if ($[0] !== "2357cebd4a58546b3d7c40e7baf08698bff6cba839b41e56a31980ef0a0c90b8") {
+        for(let $i = 0; $i < 2; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "2357cebd4a58546b3d7c40e7baf08698bff6cba839b41e56a31980ef0a0c90b8";
+    }
+    let t0;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t0 = {
+            queryKey: [
+                "PropertiesSubtype"
+            ],
+            queryFn: _temp3,
+            select: _temp4
+        };
+        $[1] = t0;
+    } else {
+        t0 = $[1];
+    }
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])(t0);
+}
+_s1(usePropertySubtypes, "4ZpngI1uv+Uo3WQHEZmTQ5FNM+k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]
+    ];
+});
+function _temp4(response) {
+    const arr = response?.data || response || [];
+    if (!Array.isArray(arr)) {
+        return [];
+    }
+    return arr.map(_usePropertySubtypesAnonymousArrMap);
+}
+function _usePropertySubtypesAnonymousArrMap(item) {
+    const raw = item?.data || item;
+    return {
+        ...raw,
+        id: raw.id ?? raw.property_subtype_id,
+        name: (raw.name ?? raw.property_subtype_name ?? raw.subtype_name ?? String(raw.id ?? "")).trim(),
+        property_type_id: raw.property_type_id ?? raw.type_id
+    };
+}
+function _temp3() {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getPropertySubtypes();
+}
+function useProjectsForSelect(page, perPage, t0) {
+    _s2();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(12);
+    if ($[0] !== "2357cebd4a58546b3d7c40e7baf08698bff6cba839b41e56a31980ef0a0c90b8") {
+        for(let $i = 0; $i < 12; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "2357cebd4a58546b3d7c40e7baf08698bff6cba839b41e56a31980ef0a0c90b8";
+    }
+    const search = t0 === undefined ? "" : t0;
+    const t1 = page ?? "all";
+    const t2 = perPage ?? "all";
+    let t3;
+    if ($[1] !== search || $[2] !== t1 || $[3] !== t2) {
+        t3 = [
+            "Projects",
+            t1,
+            t2,
+            search
+        ];
+        $[1] = search;
+        $[2] = t1;
+        $[3] = t2;
+        $[4] = t3;
+    } else {
+        t3 = $[4];
+    }
+    let t4;
+    if ($[5] !== page || $[6] !== perPage || $[7] !== search) {
+        t4 = ()=>page !== undefined && perPage !== undefined ? __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getProjects(page, perPage, search) : __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getAllProjects(search);
+        $[5] = page;
+        $[6] = perPage;
+        $[7] = search;
+        $[8] = t4;
+    } else {
+        t4 = $[8];
+    }
+    let t5;
+    if ($[9] !== t3 || $[10] !== t4) {
+        t5 = {
+            queryKey: t3,
+            queryFn: t4,
+            staleTime: 300000,
+            gcTime: 1800000,
+            select: _temp5
+        };
+        $[9] = t3;
+        $[10] = t4;
+        $[11] = t5;
+    } else {
+        t5 = $[11];
+    }
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])(t5);
+}
+_s2(useProjectsForSelect, "4ZpngI1uv+Uo3WQHEZmTQ5FNM+k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]
+    ];
+});
+function _temp5(response) {
+    const { itemsArray } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$projects$2f$utils$2f$map$2d$project$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unpackProjectsResponse"])(response);
+    const rawList = itemsArray.length > 0 ? itemsArray : Array.isArray(response?.data) ? response.data : Array.isArray(response) ? response : [];
+    if (!Array.isArray(rawList)) {
+        return [];
+    }
+    return rawList.map(_useProjectsForSelectAnonymousRawListMap);
+}
+function _useProjectsForSelectAnonymousRawListMap(item) {
+    const raw = item?.data || item;
+    return {
+        ...raw,
+        project_id: raw.project_id ?? raw.id,
+        project_name: raw.project_name ?? raw.name ?? raw.title ?? String(raw.project_id ?? raw.id ?? "")
+    };
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/hooks/use-create-property.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "applyServerFieldErrors",
+    ()=>applyServerFieldErrors,
+    "default",
+    ()=>useCreateProperty,
+    "getServerFieldErrors",
+    ()=>getServerFieldErrors,
+    "isServerInternalMessage",
+    ()=>isServerInternalMessage
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useMutation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/services/AdminPropertiesService.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$validators$2f$propertiesSchema$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/validators/propertiesSchema.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/sonner/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+const INTERNAL_ERROR_PATTERN = /Target class \[|SQLSTATE|Call to |Undefined |Stack trace|\.php\b/i;
+function isServerInternalMessage(message) {
+    return typeof message === "string" && INTERNAL_ERROR_PATTERN.test(message);
+}
+function firstString(value) {
+    if (typeof value === "string") return value;
+    if (Array.isArray(value)) {
+        for (const item of value){
+            const found = firstString(item);
+            if (found) return found;
+        }
+    }
+    return undefined;
+}
+function collectStrings(value) {
+    if (typeof value === "string") return [
+        value
+    ];
+    if (Array.isArray(value)) return value.flatMap(collectStrings);
+    if (value && typeof value === "object") return Object.values(value).flatMap(collectStrings);
+    return [];
+}
+function getServerFieldErrors(error) {
+    const response = error?.response;
+    if (response?.status !== 422) return null;
+    const raw = response.data?.errors;
+    if (!raw || typeof raw !== "object") return null;
+    const entries = Array.isArray(raw) ? raw.flatMap((item)=>item && typeof item === "object" ? Object.entries(item) : []) : Object.entries(raw);
+    const result = {};
+    for (const [field, value] of entries){
+        const message = firstString(value);
+        if (message && !(field in result)) result[field] = message;
+    }
+    return Object.keys(result).length > 0 ? result : null;
+}
+function applyServerFieldErrors(error, { tabs, setError, onShowTab, getTabLabel, t }) {
+    const fieldErrors = getServerFieldErrors(error);
+    if (!fieldErrors) return false;
+    const formFields = Object.entries(fieldErrors).filter(([field])=>field in __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$validators$2f$propertiesSchema$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["propertiesSchema"].shape);
+    if (formFields.length === 0) {
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(Object.values(fieldErrors).join(", "));
+        return true;
+    }
+    formFields.forEach(([field, message])=>setError(field, {
+            type: "server",
+            message
+        }));
+    const [firstField] = formFields[0];
+    const targetTab = tabs.find((tab)=>tab.fields.includes(firstField));
+    if (targetTab) {
+        onShowTab(targetTab);
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.create.fillRequiredInTab", {
+            tab: getTabLabel(targetTab)
+        }));
+    } else {
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(formFields.map(([, message])=>message).join(", "));
+    }
+    setTimeout(()=>{
+        const element = document.getElementById(firstField) || document.getElementsByName(firstField)[0];
+        if (element) {
+            element.focus();
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+    }, 100);
+    return true;
+}
+function useCreateProperty() {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(14);
+    if ($[0] !== "b0890ca1f909c442b1c132d40cb7a41f73d4b02c9d7cb45fb8f5f6fa495c66e9") {
+        for(let $i = 0; $i < 14; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "b0890ca1f909c442b1c132d40cb7a41f73d4b02c9d7cb45fb8f5f6fa495c66e9";
+    }
+    const queryClient = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t0;
+    if ($[1] !== queryClient || $[2] !== t) {
+        t0 = async ()=>{
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(t("properties.messages.createSuccess"));
+            await queryClient.invalidateQueries({
+                queryKey: [
+                    "properties"
+                ]
+            });
+            queryClient.removeQueries({
+                queryKey: [
+                    "properties"
+                ]
+            });
+        };
+        $[1] = queryClient;
+        $[2] = t;
+        $[3] = t0;
+    } else {
+        t0 = $[3];
+    }
+    let t1;
+    if ($[4] !== t) {
+        t1 = (error)=>{
+            if (getServerFieldErrors(error)) {
+                throw error;
+            }
+            const status = error?.response?.status;
+            const flatMessages = collectStrings(error?.response?.data?.errors).join(", ");
+            const serverMessage = flatMessages || error?.response?.data?.message || "";
+            if (!error?.response || status !== undefined && status >= 500 || !serverMessage || isServerInternalMessage(serverMessage)) {
+                console.error("Failed to create property:", serverMessage || error?.message, error);
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.messages.createFailed"));
+            } else {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(serverMessage);
+            }
+            throw error;
+        };
+        $[4] = t;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== t0 || $[7] !== t1) {
+        t2 = {
+            mutationFn: _temp,
+            onSuccess: t0,
+            onError: t1
+        };
+        $[6] = t0;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    const mutation = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"])(t2);
+    let t3;
+    if ($[9] !== mutation.error || $[10] !== mutation.isPending || $[11] !== mutation.mutateAsync || $[12] !== mutation.reset) {
+        t3 = {
+            createProperty: mutation.mutateAsync,
+            isCreating: mutation.isPending,
+            error: mutation.error,
+            reset: mutation.reset
+        };
+        $[9] = mutation.error;
+        $[10] = mutation.isPending;
+        $[11] = mutation.mutateAsync;
+        $[12] = mutation.reset;
+        $[13] = t3;
+    } else {
+        t3 = $[13];
+    }
+    return t3;
+}
+_s(useCreateProperty, "zz/3z8g9foaK3q/fZxHejQ7MM+Q=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQueryClient"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"]
+    ];
+});
+function _temp(data) {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].createProperty(data);
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/edit/edit-property.types.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "EDIT_TABS",
+    ()=>EDIT_TABS
+]);
+const EDIT_TABS = [
+    {
+        id: "basic_info",
+        translationKey: "properties.create.tabLabels.basicInfo",
+        fields: [
+            "property_name",
+            "property_no",
+            "project_id",
+            "property_type_id",
+            "property_subtype_id",
+            "availability_status",
+            "construction_status",
+            "status",
+            "building_name",
+            "description",
+            "slug",
+            "meta_title",
+            "meta_description"
+        ]
+    },
+    {
+        id: "pricing_media",
+        translationKey: "properties.create.tabLabels.pricingMedia",
+        fields: [
+            "price",
+            "currency",
+            "price_per_m2",
+            "price_description"
+        ]
+    },
+    {
+        id: "unit_details",
+        translationKey: "properties.create.tabLabels.unitDetails",
+        fields: [
+            "size",
+            "bedrooms",
+            "bathrooms",
+            "floor",
+            "view",
+            "finishing_status",
+            "furnish_status",
+            "ownership_type",
+            "plot_size",
+            "bua_size",
+            "maid_room"
+        ]
+    },
+    {
+        id: "location",
+        translationKey: "properties.create.tabLabels.location",
+        fields: [
+            "zone_name",
+            "city_name",
+            "area_name",
+            "landmark",
+            "maps_url",
+            "latitude",
+            "longitude"
+        ]
+    },
+    {
+        id: "amenities",
+        translationKey: "properties.create.tabLabels.amenities",
+        fields: []
+    },
+    {
+        id: "payment_plans",
+        translationKey: "properties.create.tabLabels.paymentPlans",
+        fields: []
+    },
+    {
+        id: "licenses",
+        translationKey: "properties.create.tabLabels.licenses",
+        fields: [
+            "broker_license",
+            "agent_license",
+            "dld_permit_number",
+            "dld_barcode",
+            "reference_listed",
+            "parking_spaces"
+        ]
+    }
+];
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/edit/use-edit-property-payload.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useEditPropertyPayload",
+    ()=>useEditPropertyPayload
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var _s = __turbopack_context__.k.signature();
+;
+function useEditPropertyPayload({ propertyData, propertyId, projects, propertiesType, propertiesSubtype }) {
+    _s();
+    const formValues = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useMemo({
+        "useEditPropertyPayload.useMemo[formValues]": ()=>{
+            if (!propertyData) return undefined;
+            const raw = propertyData?.data?.property_name !== undefined || propertyData?.data?.property_id !== undefined ? propertyData.data : propertyData?.data ?? propertyData;
+            // Merge root and data to handle properties that might be siblings of data
+            const rootData = propertyData || {};
+            const rawData = raw || {};
+            const p = {
+                ...rootData,
+                ...rawData
+            };
+            if (!p.property_name && !p.property_id) return undefined;
+            let resolvedProjectId = "";
+            if (p.project_id != null && p.project_id !== "") resolvedProjectId = String(p.project_id);
+            else if (p.project && typeof p.project === "object") {
+                resolvedProjectId = String(p.project.project_id ?? p.project.id ?? "");
+            } else if (Array.isArray(p.project) && p.project[0]) {
+                resolvedProjectId = String(p.project[0].project_id ?? p.project[0].id ?? "");
+            }
+            let resolvedTypeId = "";
+            if (p.property_type_id != null && p.property_type_id !== "") resolvedTypeId = String(p.property_type_id);
+            else if (p.property_type && typeof p.property_type === "object") {
+                resolvedTypeId = String(p.property_type.id ?? p.property_type.property_type_id ?? "");
+            } else if (Array.isArray(p.property_type) && p.property_type[0]) {
+                resolvedTypeId = String(p.property_type[0].id ?? p.property_type[0].property_type_id ?? "");
+            }
+            let resolvedSubtypeId = "";
+            if (p.property_subtype_id != null && p.property_subtype_id !== "") resolvedSubtypeId = String(p.property_subtype_id);
+            else if (p.property_subtype && typeof p.property_subtype === "object") {
+                resolvedSubtypeId = String(p.property_subtype.id ?? p.property_subtype.property_subtype_id ?? "");
+            } else if (Array.isArray(p.property_subtype) && p.property_subtype[0]) {
+                resolvedSubtypeId = String(p.property_subtype[0].id ?? p.property_subtype[0].property_subtype_id ?? "");
+            }
+            const normalizeOption = {
+                "useEditPropertyPayload.useMemo[formValues].normalizeOption": (val, validValues)=>{
+                    if (!val || typeof val !== "string") return "";
+                    const clean = val.toLowerCase().trim();
+                    if (validValues.includes(clean)) return clean;
+                    const dashed = clean.replace(/[\s_]+/g, "-");
+                    if (validValues.includes(dashed)) return dashed;
+                    const match = validValues.find({
+                        "useEditPropertyPayload.useMemo[formValues].normalizeOption.match": (v)=>clean.includes(v) || v.includes(clean)
+                    }["useEditPropertyPayload.useMemo[formValues].normalizeOption.match"]);
+                    return match || clean;
+                }
+            }["useEditPropertyPayload.useMemo[formValues].normalizeOption"];
+            const resolvedAvailability = normalizeOption(p.availability_status || p.status, [
+                "available",
+                "reserved",
+                "sold"
+            ]) || "available";
+            const resolvedConstruction = normalizeOption(p.construction_status, [
+                "ready",
+                "under-construction",
+                "off-plan"
+            ]);
+            const resolvedStatus = p.status === 1 || p.status === "1" || String(p.status).toLowerCase() === "active" ? "active" : "inactive";
+            const resolvedFurnish = normalizeOption(p.furnish_status, [
+                "furnished",
+                "semi-furnished",
+                "unfurnished"
+            ]);
+            const resolvedFinishing = normalizeOption(p.finishing_status, [
+                "finished",
+                "semi-finished",
+                "unfinished"
+            ]);
+            const resolvedOwnership = normalizeOption(p.ownership_type, [
+                "freehold",
+                "leasehold"
+            ]);
+            const resolvedView = normalizeOption(p.view, [
+                "sea",
+                "city",
+                "garden"
+            ]);
+            const resolvedCurrency = normalizeOption(p.currency || p.project?.currency, [
+                "aed",
+                "usd",
+                "egp"
+            ]) || "aed";
+            const resolvedBuildingName = p.building_name ?? p.building?.building_name ?? "";
+            const resolvedParkingSpaces = p.parking_spaces != null && !isNaN(Number(p.parking_spaces)) ? Number(p.parking_spaces) : p.building?.parking_spaces != null && !isNaN(Number(p.building.parking_spaces)) ? Number(p.building.parking_spaces) : undefined;
+            return {
+                property_name: p.property_name ?? "",
+                property_no: p.property_no || p.unit_number || (p.property_id != null ? String(p.property_id) : "") || (propertyId ? String(propertyId) : ""),
+                floor: p.floor ?? "",
+                price: p.price != null && !isNaN(Number(p.price)) ? Number(p.price) : 0,
+                size: p.size != null && !isNaN(Number(p.size)) ? Number(p.size) : 0,
+                bedrooms: p.bedrooms != null && !isNaN(Number(p.bedrooms)) ? Number(p.bedrooms) : undefined,
+                bathrooms: p.bathrooms != null && !isNaN(Number(p.bathrooms)) ? Number(p.bathrooms) : undefined,
+                project_id: resolvedProjectId,
+                property_type_id: resolvedTypeId,
+                property_subtype_id: resolvedSubtypeId,
+                status: resolvedStatus,
+                availability_status: resolvedAvailability,
+                construction_status: resolvedConstruction,
+                furnish_status: resolvedFurnish,
+                finishing_status: resolvedFinishing,
+                view: resolvedView,
+                ownership_type: resolvedOwnership,
+                description: p.description ?? "",
+                maid_room: p.maid_room === 1 || p.maid_room === true,
+                bua_size: p.bua_size != null && !isNaN(Number(p.bua_size)) ? Number(p.bua_size) : undefined,
+                plot_size: p.plot_size != null && !isNaN(Number(p.plot_size)) ? Number(p.plot_size) : undefined,
+                parking_spaces: resolvedParkingSpaces,
+                currency: resolvedCurrency,
+                price_per_m2: p.price_per_m2 != null && !isNaN(Number(p.price_per_m2)) ? Number(p.price_per_m2) : undefined,
+                price_description: p.price_description ?? "",
+                reference_listed: p.reference_listed ?? "",
+                broker_license: p.broker_license ?? "",
+                agent_license: p.agent_license ?? "",
+                zone_name: p.zone_name ?? p.area_name ?? "",
+                city_name: p.city_name ?? p.city ?? p.location?.city ?? "",
+                area_name: p.area_name ?? p.area ?? p.location?.area ?? "",
+                landmark: p.landmark ?? p.location?.landmark ?? "",
+                maps_url: p.maps_url ?? p.google_map_link ?? p.location?.google_map_link ?? p.location?.google_maps_link ?? "",
+                latitude: p.latitude != null && !isNaN(Number(p.latitude)) ? Number(p.latitude) : p.location?.latitude != null && !isNaN(Number(p.location.latitude)) ? Number(p.location.latitude) : undefined,
+                longitude: p.longitude != null && !isNaN(Number(p.longitude)) ? Number(p.longitude) : p.location?.longitude != null && !isNaN(Number(p.location.longitude)) ? Number(p.location.longitude) : undefined,
+                dld_permit_number: p.dld_permit_number ?? p.permit_no ?? p.project?.permit_no ?? "",
+                dld_barcode: p.dld_barcode ?? p.barcode ?? p.project?.barcode ?? "",
+                building_name: resolvedBuildingName,
+                slug: p.slug ?? "",
+                meta_title: p.meta_title ?? "",
+                meta_description: p.meta_description ?? ""
+            };
+        }
+    }["useEditPropertyPayload.useMemo[formValues]"], [
+        propertyData,
+        propertyId
+    ]);
+    const mergedProjects = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useMemo({
+        "useEditPropertyPayload.useMemo[mergedProjects]": ()=>{
+            const list = [
+                ...projects
+            ];
+            const raw = propertyData?.data ?? propertyData;
+            const pProject = raw?.project;
+            if (pProject && typeof pProject === "object") {
+                const projId = pProject.project_id ?? pProject.id;
+                const projName = pProject.project_name ?? pProject.name ?? pProject.title;
+                if (projId && !list.some({
+                    "useEditPropertyPayload.useMemo[mergedProjects]": (item)=>String(item.project_id ?? item.id) === String(projId)
+                }["useEditPropertyPayload.useMemo[mergedProjects]"])) {
+                    list.unshift({
+                        ...pProject,
+                        project_id: projId,
+                        project_name: projName || `Project #${projId}`
+                    });
+                }
+            }
+            return list;
+        }
+    }["useEditPropertyPayload.useMemo[mergedProjects]"], [
+        projects,
+        propertyData
+    ]);
+    const mergedTypes = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useMemo({
+        "useEditPropertyPayload.useMemo[mergedTypes]": ()=>{
+            const list = [
+                ...propertiesType
+            ];
+            const raw = propertyData?.data ?? propertyData;
+            const pType = raw?.property_type;
+            if (pType && typeof pType === "object") {
+                const tId = pType.id ?? pType.property_type_id;
+                const tName = pType.name ?? pType.property_type_name;
+                if (tId && !list.some({
+                    "useEditPropertyPayload.useMemo[mergedTypes]": (item)=>String(item.id) === String(tId)
+                }["useEditPropertyPayload.useMemo[mergedTypes]"])) {
+                    list.unshift({
+                        ...pType,
+                        id: tId,
+                        name: (tName || `Type #${tId}`).trim()
+                    });
+                }
+            }
+            return list;
+        }
+    }["useEditPropertyPayload.useMemo[mergedTypes]"], [
+        propertiesType,
+        propertyData
+    ]);
+    const mergedSubtypes = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useMemo({
+        "useEditPropertyPayload.useMemo[mergedSubtypes]": ()=>{
+            const list = [
+                ...propertiesSubtype
+            ];
+            const raw = propertyData?.data ?? propertyData;
+            const pSubtype = raw?.property_subtype;
+            if (pSubtype && typeof pSubtype === "object") {
+                const sId = pSubtype.id ?? pSubtype.property_subtype_id;
+                const sName = pSubtype.name ?? pSubtype.property_subtype_name;
+                if (sId && !list.some({
+                    "useEditPropertyPayload.useMemo[mergedSubtypes]": (item)=>String(item.id) === String(sId)
+                }["useEditPropertyPayload.useMemo[mergedSubtypes]"])) {
+                    list.unshift({
+                        ...pSubtype,
+                        id: sId,
+                        name: (sName || `Subtype #${sId}`).trim()
+                    });
+                }
+            }
+            return list;
+        }
+    }["useEditPropertyPayload.useMemo[mergedSubtypes]"], [
+        propertiesSubtype,
+        propertyData
+    ]);
+    const propertyName = propertyData ? propertyData.data?.property_name ?? propertyData.property_name ?? "Property" : "Property";
+    return {
+        formValues,
+        mergedProjects,
+        mergedTypes,
+        mergedSubtypes,
+        propertyName
+    };
+}
+_s(useEditPropertyPayload, "scdeg4bijAIbqgDBuOp77Qii+/E=");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/edit/EditPropertyHeader.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>EditPropertyHeader
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-right.js [app-client] (ecmascript) <export default as ChevronRight>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+function EditPropertyHeader(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(41);
+    if ($[0] !== "d2fc95181de248d35c23e78e925d08db128dbeb3413f9e29eee2122f6deabbe8") {
+        for(let $i = 0; $i < 41; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "d2fc95181de248d35c23e78e925d08db128dbeb3413f9e29eee2122f6deabbe8";
+    }
+    const { routePrefix, propertyId, propertyName, onCancel } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] !== t) {
+        t1 = t("properties.edit.title");
+        $[1] = t;
+        $[2] = t1;
+    } else {
+        t1 = $[2];
+    }
+    let t2;
+    if ($[3] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+            className: "text-2xl font-bold text-gray-900 dark:text-white",
+            children: t1
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 41,
+            columnNumber: 10
+        }, this);
+        $[3] = t1;
+        $[4] = t2;
+    } else {
+        t2 = $[4];
+    }
+    const t3 = `${routePrefix}/home`;
+    let t4;
+    if ($[5] !== t) {
+        t4 = t("properties.breadcrumbs.home");
+        $[5] = t;
+        $[6] = t4;
+    } else {
+        t4 = $[6];
+    }
+    let t5;
+    if ($[7] !== t3 || $[8] !== t4) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            prefetch: false,
+            href: t3,
+            className: "hover:text-teal-600 dark:hover:text-teal-400 transition-colors",
+            children: t4
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 58,
+            columnNumber: 10
+        }, this);
+        $[7] = t3;
+        $[8] = t4;
+        $[9] = t5;
+    } else {
+        t5 = $[9];
+    }
+    let t6;
+    if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
+            className: "h-4 w-4 shrink-0 rtl:rotate-180"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 67,
+            columnNumber: 10
+        }, this);
+        $[10] = t6;
+    } else {
+        t6 = $[10];
+    }
+    const t7 = `${routePrefix}/properties`;
+    let t8;
+    if ($[11] !== t) {
+        t8 = t("properties.breadcrumbs.properties");
+        $[11] = t;
+        $[12] = t8;
+    } else {
+        t8 = $[12];
+    }
+    let t9;
+    if ($[13] !== t7 || $[14] !== t8) {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            prefetch: false,
+            href: t7,
+            className: "hover:text-teal-600 dark:hover:text-teal-400 transition-colors",
+            children: t8
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 83,
+            columnNumber: 10
+        }, this);
+        $[13] = t7;
+        $[14] = t8;
+        $[15] = t9;
+    } else {
+        t9 = $[15];
+    }
+    let t10;
+    if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
+            className: "h-4 w-4 shrink-0 rtl:rotate-180"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 92,
+            columnNumber: 11
+        }, this);
+        $[16] = t10;
+    } else {
+        t10 = $[16];
+    }
+    const t11 = `${routePrefix}/properties/${propertyId}`;
+    let t12;
+    if ($[17] !== propertyName || $[18] !== t11) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            prefetch: false,
+            href: t11,
+            className: "hover:text-teal-600 dark:hover:text-teal-400 transition-colors truncate max-w-[200px]",
+            children: propertyName
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 100,
+            columnNumber: 11
+        }, this);
+        $[17] = propertyName;
+        $[18] = t11;
+        $[19] = t12;
+    } else {
+        t12 = $[19];
+    }
+    let t13;
+    if ($[20] === Symbol.for("react.memo_cache_sentinel")) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
+            className: "h-4 w-4 shrink-0 rtl:rotate-180"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 109,
+            columnNumber: 11
+        }, this);
+        $[20] = t13;
+    } else {
+        t13 = $[20];
+    }
+    let t14;
+    if ($[21] !== t) {
+        t14 = t("properties.edit.title");
+        $[21] = t;
+        $[22] = t14;
+    } else {
+        t14 = $[22];
+    }
+    let t15;
+    if ($[23] !== t14) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-gray-900 dark:text-gray-200 font-medium truncate",
+            children: t14
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 124,
+            columnNumber: 11
+        }, this);
+        $[23] = t14;
+        $[24] = t15;
+    } else {
+        t15 = $[24];
+    }
+    let t16;
+    if ($[25] !== t12 || $[26] !== t15 || $[27] !== t5 || $[28] !== t9) {
+        t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-2",
+            children: [
+                t5,
+                t6,
+                t9,
+                t10,
+                t12,
+                t13,
+                t15
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 132,
+            columnNumber: 11
+        }, this);
+        $[25] = t12;
+        $[26] = t15;
+        $[27] = t5;
+        $[28] = t9;
+        $[29] = t16;
+    } else {
+        t16 = $[29];
+    }
+    let t17;
+    if ($[30] !== t16 || $[31] !== t2) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t2,
+                t16
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 143,
+            columnNumber: 11
+        }, this);
+        $[30] = t16;
+        $[31] = t2;
+        $[32] = t17;
+    } else {
+        t17 = $[32];
+    }
+    let t18;
+    if ($[33] !== t) {
+        t18 = t("properties.edit.cancel");
+        $[33] = t;
+        $[34] = t18;
+    } else {
+        t18 = $[34];
+    }
+    let t19;
+    if ($[35] !== onCancel || $[36] !== t18) {
+        t19 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: onCancel,
+            className: "border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200",
+            children: t18
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 160,
+            columnNumber: 11
+        }, this);
+        $[35] = onCancel;
+        $[36] = t18;
+        $[37] = t19;
+    } else {
+        t19 = $[37];
+    }
+    let t20;
+    if ($[38] !== t17 || $[39] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 px-6 py-4",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex items-center justify-between max-w-7xl mx-auto",
+                children: [
+                    t17,
+                    t19
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+                lineNumber: 169,
+                columnNumber: 116
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyHeader.tsx",
+            lineNumber: 169,
+            columnNumber: 11
+        }, this);
+        $[38] = t17;
+        $[39] = t19;
+        $[40] = t20;
+    } else {
+        t20 = $[40];
+    }
+    return t20;
+}
+_s(EditPropertyHeader, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = EditPropertyHeader;
+var _c;
+__turbopack_context__.k.register(_c, "EditPropertyHeader");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>EditPropertyTabsNav
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/edit-property.types.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+function EditPropertyTabsNav(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(10);
+    if ($[0] !== "1c04f0f4a58207a8f8a4a1c232f90a10c0c771b111aa52831cb5e0253eb088b4") {
+        for(let $i = 0; $i < 10; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "1c04f0f4a58207a8f8a4a1c232f90a10c0c771b111aa52831cb5e0253eb088b4";
+    }
+    const { activeTab, onTabChange, errors } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] !== errors) {
+        t1 = ({
+            "EditPropertyTabsNav[tabHasError]": (tab)=>tab.fields.some({
+                    "EditPropertyTabsNav[tabHasError > tab.fields.some()]": (field)=>!!errors[field]
+                }["EditPropertyTabsNav[tabHasError > tab.fields.some()]"])
+        })["EditPropertyTabsNav[tabHasError]"];
+        $[1] = errors;
+        $[2] = t1;
+    } else {
+        t1 = $[2];
+    }
+    const tabHasError = t1;
+    let t2;
+    if ($[3] !== activeTab || $[4] !== onTabChange || $[5] !== t || $[6] !== tabHasError) {
+        t2 = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"].map({
+            "EditPropertyTabsNav[EDIT_TABS.map()]": (tab_0)=>{
+                const isActive = activeTab === tab_0.id;
+                const hasError = tabHasError(tab_0);
+                const label = t(tab_0.translationKey);
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    type: "button",
+                    onClick: {
+                        "EditPropertyTabsNav[EDIT_TABS.map() > <button>.onClick]": ()=>onTabChange(tab_0.id)
+                    }["EditPropertyTabsNav[EDIT_TABS.map() > <button>.onClick]"],
+                    className: `pb-2.5 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 select-none shrink-0 ${isActive ? "border-[#008081] text-[#008081] dark:border-teal-400 dark:text-teal-400 font-bold -mb-px" : hasError ? "border-red-500 text-red-600 dark:text-red-400 font-medium -mb-px" : "border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-medium -mb-px"}`,
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            children: label
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx",
+                            lineNumber: 51,
+                            columnNumber: 493
+                        }, this),
+                        hasError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            className: "inline-block w-1.5 h-1.5 rounded-full bg-red-500 ms-1.5 align-middle"
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx",
+                            lineNumber: 51,
+                            columnNumber: 526
+                        }, this)
+                    ]
+                }, tab_0.id, true, {
+                    fileName: "[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx",
+                    lineNumber: 49,
+                    columnNumber: 16
+                }, this);
+            }
+        }["EditPropertyTabsNav[EDIT_TABS.map()]"]);
+        $[3] = activeTab;
+        $[4] = onTabChange;
+        $[5] = t;
+        $[6] = tabHasError;
+        $[7] = t2;
+    } else {
+        t2 = $[7];
+    }
+    let t3;
+    if ($[8] !== t2) {
+        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "border-b border-gray-200 dark:border-neutral-800 mb-6",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex items-center gap-5 sm:gap-6 lg:gap-8",
+                children: t2
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx",
+                lineNumber: 64,
+                columnNumber: 81
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx",
+            lineNumber: 64,
+            columnNumber: 10
+        }, this);
+        $[8] = t2;
+        $[9] = t3;
+    } else {
+        t3 = $[9];
+    }
+    return t3;
+}
+_s(EditPropertyTabsNav, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = EditPropertyTabsNav;
+var _c;
+__turbopack_context__.k.register(_c, "EditPropertyTabsNav");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>EditPropertyFormActions
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$left$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronLeft$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-left.js [app-client] (ecmascript) <export default as ChevronLeft>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-right.js [app-client] (ecmascript) <export default as ChevronRight>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/edit-property.types.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+function EditPropertyFormActions(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(36);
+    if ($[0] !== "7d013c7d8c065dc753ed58aae26101b8cbab67102c6ade6d05a522d7a5e29012") {
+        for(let $i = 0; $i < 36; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7d013c7d8c065dc753ed58aae26101b8cbab67102c6ade6d05a522d7a5e29012";
+    }
+    const { currentTabIndex, isUpdating, onPrev, onNext, onCancel } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const t1 = currentTabIndex === 0 || isUpdating;
+    let t2;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$left$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronLeft$3e$__["ChevronLeft"], {
+            className: "h-4 w-4 rtl:rotate-180"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 36,
+            columnNumber: 10
+        }, this);
+        $[1] = t2;
+    } else {
+        t2 = $[1];
+    }
+    let t3;
+    if ($[2] !== t) {
+        t3 = t("common.previous");
+        $[2] = t;
+        $[3] = t3;
+    } else {
+        t3 = $[3];
+    }
+    let t4;
+    if ($[4] !== t3) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            children: t3
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 51,
+            columnNumber: 10
+        }, this);
+        $[4] = t3;
+        $[5] = t4;
+    } else {
+        t4 = $[5];
+    }
+    let t5;
+    if ($[6] !== onPrev || $[7] !== t1 || $[8] !== t4) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: onPrev,
+            disabled: t1,
+            className: "gap-2 w-full sm:w-auto",
+            children: [
+                t2,
+                t4
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 59,
+            columnNumber: 10
+        }, this);
+        $[6] = onPrev;
+        $[7] = t1;
+        $[8] = t4;
+        $[9] = t5;
+    } else {
+        t5 = $[9];
+    }
+    let t6;
+    if ($[10] !== currentTabIndex || $[11] !== isUpdating || $[12] !== onNext || $[13] !== t) {
+        t6 = currentTabIndex < __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"].length - 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: onNext,
+            disabled: isUpdating,
+            className: "gap-2 w-full sm:w-auto text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    children: t("common.next")
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+                    lineNumber: 69,
+                    columnNumber: 279
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
+                    className: "h-4 w-4 rtl:rotate-180"
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+                    lineNumber: 69,
+                    columnNumber: 310
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 69,
+            columnNumber: 52
+        }, this);
+        $[10] = currentTabIndex;
+        $[11] = isUpdating;
+        $[12] = onNext;
+        $[13] = t;
+        $[14] = t6;
+    } else {
+        t6 = $[14];
+    }
+    let t7;
+    if ($[15] !== t5 || $[16] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2 w-full sm:w-auto",
+            children: [
+                t5,
+                t6
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 80,
+            columnNumber: 10
+        }, this);
+        $[15] = t5;
+        $[16] = t6;
+        $[17] = t7;
+    } else {
+        t7 = $[17];
+    }
+    let t8;
+    if ($[18] !== t) {
+        t8 = t("properties.edit.cancel");
+        $[18] = t;
+        $[19] = t8;
+    } else {
+        t8 = $[19];
+    }
+    let t9;
+    if ($[20] !== isUpdating || $[21] !== onCancel || $[22] !== t8) {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: onCancel,
+            disabled: isUpdating,
+            className: "w-full sm:w-auto",
+            children: t8
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 97,
+            columnNumber: 10
+        }, this);
+        $[20] = isUpdating;
+        $[21] = onCancel;
+        $[22] = t8;
+        $[23] = t9;
+    } else {
+        t9 = $[23];
+    }
+    let t10;
+    if ($[24] !== isUpdating || $[25] !== t) {
+        t10 = isUpdating ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                    className: "h-4 w-4 animate-spin"
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+                    lineNumber: 107,
+                    columnNumber: 26
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    children: t("properties.edit.saving")
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+                    lineNumber: 107,
+                    columnNumber: 70
+                }, this)
+            ]
+        }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            children: t("properties.edit.saveChanges")
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 107,
+            columnNumber: 118
+        }, this);
+        $[24] = isUpdating;
+        $[25] = t;
+        $[26] = t10;
+    } else {
+        t10 = $[26];
+    }
+    let t11;
+    if ($[27] !== isUpdating || $[28] !== t10) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "submit",
+            disabled: isUpdating,
+            className: "bg-teal-600 hover:bg-teal-700 text-white font-semibold gap-2 w-full sm:w-auto min-w-[140px] shadow-sm",
+            children: t10
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 116,
+            columnNumber: 11
+        }, this);
+        $[27] = isUpdating;
+        $[28] = t10;
+        $[29] = t11;
+    } else {
+        t11 = $[29];
+    }
+    let t12;
+    if ($[30] !== t11 || $[31] !== t9) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2 w-full sm:w-auto justify-end",
+            children: [
+                t9,
+                t11
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 125,
+            columnNumber: 11
+        }, this);
+        $[30] = t11;
+        $[31] = t9;
+        $[32] = t12;
+    } else {
+        t12 = $[32];
+    }
+    let t13;
+    if ($[33] !== t12 || $[34] !== t7) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3",
+            children: [
+                t7,
+                t12
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx",
+            lineNumber: 134,
+            columnNumber: 11
+        }, this);
+        $[33] = t12;
+        $[34] = t7;
+        $[35] = t13;
+    } else {
+        t13 = $[35];
+    }
+    return t13;
+}
+_s(EditPropertyFormActions, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = EditPropertyFormActions;
+var _c;
+__turbopack_context__.k.register(_c, "EditPropertyFormActions");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/edit/EditPropertyLoading.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>EditPropertyLoading
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+function EditPropertyLoading() {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(6);
+    if ($[0] !== "6767730d0588a9c2126605ee9f69a07d1cfe3fe832ba4b57186aa4463fa42170") {
+        for(let $i = 0; $i < 6; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "6767730d0588a9c2126605ee9f69a07d1cfe3fe832ba4b57186aa4463fa42170";
+    }
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t0;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t0 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+            className: "h-8 w-8 animate-spin text-teal-600 mx-auto"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyLoading.tsx",
+            lineNumber: 19,
+            columnNumber: 10
+        }, this);
+        $[1] = t0;
+    } else {
+        t0 = $[1];
+    }
+    let t1;
+    if ($[2] !== t) {
+        t1 = t("properties.loading");
+        $[2] = t;
+        $[3] = t1;
+    } else {
+        t1 = $[3];
+    }
+    let t2;
+    if ($[4] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex h-screen items-center justify-center text-gray-600 bg-gray-50 dark:bg-neutral-950",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "text-center",
+                children: [
+                    t0,
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-4 text-sm text-gray-600 dark:text-gray-400",
+                        children: t1
+                    }, void 0, false, {
+                        fileName: "[project]/src/features/properties/components/edit/EditPropertyLoading.tsx",
+                        lineNumber: 34,
+                        columnNumber: 147
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/features/properties/components/edit/EditPropertyLoading.tsx",
+                lineNumber: 34,
+                columnNumber: 114
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/edit/EditPropertyLoading.tsx",
+            lineNumber: 34,
+            columnNumber: 10
+        }, this);
+        $[4] = t1;
+        $[5] = t2;
+    } else {
+        t2 = $[5];
+    }
+    return t2;
+}
+_s(EditPropertyLoading, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = EditPropertyLoading;
+var _c;
+__turbopack_context__.k.register(_c, "EditPropertyLoading");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/label.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Label",
+    ()=>Label
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/class-variance-authority/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+const labelVariants = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cva"])("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
+const Label = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c = ({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])(labelVariants(), className),
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/label.tsx",
+        lineNumber: 15,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c1 = Label;
+Label.displayName = "Label";
+;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Label$React.forwardRef");
+__turbopack_context__.k.register(_c1, "Label");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/textarea.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Textarea",
+    ()=>Textarea
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+const Textarea = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c = ({ className, error, ...props }, ref)=>{
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex min-h-[80px] w-full rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", error && "border-red-500 focus-visible:ring-red-500", className),
+        ref: ref,
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/textarea.tsx",
+        lineNumber: 12,
+        columnNumber: 7
+    }, ("TURBOPACK compile-time value", void 0));
+});
+_c1 = Textarea;
+Textarea.displayName = "Textarea";
+;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Textarea$React.forwardRef");
+__turbopack_context__.k.register(_c1, "Textarea");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/select.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Select",
+    ()=>Select,
+    "SelectContent",
+    ()=>SelectContent,
+    "SelectGroup",
+    ()=>SelectGroup,
+    "SelectItem",
+    ()=>SelectItem,
+    "SelectLabel",
+    ()=>SelectLabel,
+    "SelectScrollDownButton",
+    ()=>SelectScrollDownButton,
+    "SelectScrollUpButton",
+    ()=>SelectScrollUpButton,
+    "SelectSeparator",
+    ()=>SelectSeparator,
+    "SelectTrigger",
+    ()=>SelectTrigger,
+    "SelectValue",
+    ()=>SelectValue
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@radix-ui/react-select/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-down.js [app-client] (ecmascript) <export default as ChevronDown>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUp$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-up.js [app-client] (ecmascript) <export default as ChevronUp>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+const Select = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Root"];
+const SelectGroup = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Group"];
+const SelectValue = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Value"];
+const SelectTrigger = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c = ({ className, children, error, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Trigger"], {
+        ref: ref,
+        "data-slot": "select-trigger",
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-9 w-full items-center justify-between rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-none ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-gray-900 dark:text-slate-200 text-start [&>span]:truncate [&>span]:block [&>span]:w-full", error && "border-red-500 focus:ring-red-500 text-red-900", className),
+        ...props,
+        children: [
+            children,
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Icon"], {
+                asChild: true,
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
+                    className: "h-4 w-4 opacity-50 shrink-0 ms-2"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/ui/select.tsx",
+                    lineNumber: 35,
+                    columnNumber: 7
+                }, ("TURBOPACK compile-time value", void 0))
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/select.tsx",
+                lineNumber: 34,
+                columnNumber: 5
+            }, ("TURBOPACK compile-time value", void 0))
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 23,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c1 = SelectTrigger;
+SelectTrigger.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Trigger"].displayName;
+const SelectScrollUpButton = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollUpButton"], {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex cursor-default items-center justify-center py-1", className),
+        ...props,
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUp$3e$__["ChevronUp"], {
+            className: "h-4 w-4"
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/select.tsx",
+            lineNumber: 53,
+            columnNumber: 5
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 45,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c2 = SelectScrollUpButton;
+SelectScrollUpButton.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollUpButton"].displayName;
+const SelectScrollDownButton = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollDownButton"], {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex cursor-default items-center justify-center py-1", className),
+        ...props,
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
+            className: "h-4 w-4"
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/select.tsx",
+            lineNumber: 70,
+            columnNumber: 5
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 62,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c3 = SelectScrollDownButton;
+SelectScrollDownButton.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollDownButton"].displayName;
+const SelectContent = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c4 = ({ className, children, position = "popper", ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Portal"], {
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Content"], {
+            ref: ref,
+            "data-slot": "select-content",
+            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-popover-foreground dark:text-slate-200 shadow-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2", position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className),
+            position: position,
+            ...props,
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SelectScrollUpButton, {}, void 0, false, {
+                    fileName: "[project]/src/components/ui/select.tsx",
+                    lineNumber: 93,
+                    columnNumber: 7
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Viewport"], {
+                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("p-1", position === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"),
+                    children: children
+                }, void 0, false, {
+                    fileName: "[project]/src/components/ui/select.tsx",
+                    lineNumber: 94,
+                    columnNumber: 7
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SelectScrollDownButton, {}, void 0, false, {
+                    fileName: "[project]/src/components/ui/select.tsx",
+                    lineNumber: 103,
+                    columnNumber: 7
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/select.tsx",
+            lineNumber: 81,
+            columnNumber: 5
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 80,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c5 = SelectContent;
+SelectContent.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Content"].displayName;
+const SelectLabel = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c6 = ({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("px-2 py-1.5 text-sm font-semibold", className),
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 113,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c7 = SelectLabel;
+SelectLabel.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"].displayName;
+const SelectItem = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c8 = ({ className, children, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Item"], {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 ps-2 pe-8 text-sm outline-none focus:bg-gray-100 dark:focus:bg-slate-700 focus:text-accent-foreground dark:focus:text-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:text-slate-200", className),
+        ...props,
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                className: "absolute end-2 flex h-3.5 w-3.5 items-center justify-center",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ItemIndicator"], {
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                        className: "h-4 w-4"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/ui/select.tsx",
+                        lineNumber: 135,
+                        columnNumber: 9
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/src/components/ui/select.tsx",
+                    lineNumber: 134,
+                    columnNumber: 7
+                }, ("TURBOPACK compile-time value", void 0))
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/select.tsx",
+                lineNumber: 133,
+                columnNumber: 5
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ItemText"], {
+                children: children
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/select.tsx",
+                lineNumber: 138,
+                columnNumber: 5
+            }, ("TURBOPACK compile-time value", void 0))
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 125,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c9 = SelectItem;
+SelectItem.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Item"].displayName;
+const SelectSeparator = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c10 = ({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("-mx-1 my-1 h-px bg-muted", className),
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/select.tsx",
+        lineNumber: 147,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c11 = SelectSeparator;
+SelectSeparator.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"].displayName;
+;
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9, _c10, _c11;
+__turbopack_context__.k.register(_c, "SelectTrigger$React.forwardRef");
+__turbopack_context__.k.register(_c1, "SelectTrigger");
+__turbopack_context__.k.register(_c2, "SelectScrollUpButton");
+__turbopack_context__.k.register(_c3, "SelectScrollDownButton");
+__turbopack_context__.k.register(_c4, "SelectContent$React.forwardRef");
+__turbopack_context__.k.register(_c5, "SelectContent");
+__turbopack_context__.k.register(_c6, "SelectLabel$React.forwardRef");
+__turbopack_context__.k.register(_c7, "SelectLabel");
+__turbopack_context__.k.register(_c8, "SelectItem$React.forwardRef");
+__turbopack_context__.k.register(_c9, "SelectItem");
+__turbopack_context__.k.register(_c10, "SelectSeparator$React.forwardRef");
+__turbopack_context__.k.register(_c11, "SelectSeparator");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/popover.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Popover",
+    ()=>Popover,
+    "PopoverAnchor",
+    ()=>PopoverAnchor,
+    "PopoverContent",
+    ()=>PopoverContent,
+    "PopoverDescription",
+    ()=>PopoverDescription,
+    "PopoverHeader",
+    ()=>PopoverHeader,
+    "PopoverTitle",
+    ()=>PopoverTitle,
+    "PopoverTrigger",
+    ()=>PopoverTrigger
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$popover$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__Popover$3e$__ = __turbopack_context__.i("[project]/node_modules/@radix-ui/react-popover/dist/index.mjs [app-client] (ecmascript) <export * as Popover>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+;
+function Popover(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$popover$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__Popover$3e$__["Popover"].Root, {
+            "data-slot": "popover",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 27,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c = Popover;
+function PopoverTrigger(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$popover$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__Popover$3e$__["Popover"].Trigger, {
+            "data-slot": "popover-trigger",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 55,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c1 = PopoverTrigger;
+function PopoverContent(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(13);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 13; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let className;
+    let props;
+    let t1;
+    let t2;
+    if ($[1] !== t0) {
+        ({ className, align: t1, sideOffset: t2, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+        $[4] = t1;
+        $[5] = t2;
+    } else {
+        className = $[2];
+        props = $[3];
+        t1 = $[4];
+        t2 = $[5];
+    }
+    const align = t1 === undefined ? "center" : t1;
+    const sideOffset = t2 === undefined ? 4 : t2;
+    let t3;
+    if ($[6] !== className) {
+        t3 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-none outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95", className);
+        $[6] = className;
+        $[7] = t3;
+    } else {
+        t3 = $[7];
+    }
+    let t4;
+    if ($[8] !== align || $[9] !== props || $[10] !== sideOffset || $[11] !== t3) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$popover$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__Popover$3e$__["Popover"].Portal, {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$popover$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__Popover$3e$__["Popover"].Content, {
+                "data-slot": "popover-content",
+                align: align,
+                sideOffset: sideOffset,
+                className: t3,
+                ...props
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/popover.tsx",
+                lineNumber: 105,
+                columnNumber: 35
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 105,
+            columnNumber: 10
+        }, this);
+        $[8] = align;
+        $[9] = props;
+        $[10] = sideOffset;
+        $[11] = t3;
+        $[12] = t4;
+    } else {
+        t4 = $[12];
+    }
+    return t4;
+}
+_c2 = PopoverContent;
+function PopoverAnchor(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$popover$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__Popover$3e$__["Popover"].Anchor, {
+            "data-slot": "popover-anchor",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 136,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c3 = PopoverAnchor;
+function PopoverHeader(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col gap-1 text-sm", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            "data-slot": "popover-header",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 176,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c4 = PopoverHeader;
+function PopoverTitle(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("font-medium", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            "data-slot": "popover-title",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 217,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c5 = PopoverTitle;
+function PopoverDescription(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "7835b6c82c80886936fa1934bf94e84ecf7b80bafd5dab936c7419b36054dad6";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("text-muted-foreground", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            "data-slot": "popover-description",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/popover.tsx",
+            lineNumber: 258,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c6 = PopoverDescription;
+;
+var _c, _c1, _c2, _c3, _c4, _c5, _c6;
+__turbopack_context__.k.register(_c, "Popover");
+__turbopack_context__.k.register(_c1, "PopoverTrigger");
+__turbopack_context__.k.register(_c2, "PopoverContent");
+__turbopack_context__.k.register(_c3, "PopoverAnchor");
+__turbopack_context__.k.register(_c4, "PopoverHeader");
+__turbopack_context__.k.register(_c5, "PopoverTitle");
+__turbopack_context__.k.register(_c6, "PopoverDescription");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/dialog.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Dialog",
+    ()=>Dialog,
+    "DialogClose",
+    ()=>DialogClose,
+    "DialogContent",
+    ()=>DialogContent,
+    "DialogDescription",
+    ()=>DialogDescription,
+    "DialogFooter",
+    ()=>DialogFooter,
+    "DialogHeader",
+    ()=>DialogHeader,
+    "DialogOverlay",
+    ()=>DialogOverlay,
+    "DialogPortal",
+    ()=>DialogPortal,
+    "DialogTitle",
+    ()=>DialogTitle,
+    "DialogTrigger",
+    ()=>DialogTrigger
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@radix-ui/react-dialog/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+function Dialog(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Root"], {
+            "data-slot": "dialog",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 29,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c = Dialog;
+function DialogTrigger(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Trigger"], {
+            "data-slot": "dialog-trigger",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 57,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c1 = DialogTrigger;
+function DialogPortal(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Portal"], {
+            "data-slot": "dialog-portal",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 85,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c2 = DialogPortal;
+function DialogClose(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Close"], {
+            "data-slot": "dialog-close",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 113,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c3 = DialogClose;
+function DialogOverlay(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Overlay"], {
+            "data-slot": "dialog-overlay",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 153,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c4 = DialogOverlay;
+function DialogContent(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(18);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 18; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let children;
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, children, ...props } = t0);
+        $[1] = t0;
+        $[2] = children;
+        $[3] = className;
+        $[4] = props;
+    } else {
+        children = $[2];
+        className = $[3];
+        props = $[4];
+    }
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DialogOverlay, {}, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 193,
+            columnNumber: 10
+        }, this);
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== className) {
+        t2 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 sm:rounded-lg", className);
+        $[6] = className;
+        $[7] = t2;
+    } else {
+        t2 = $[7];
+    }
+    let t3;
+    if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
+        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+            className: "h-4 w-4"
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 208,
+            columnNumber: 10
+        }, this);
+        $[8] = t3;
+    } else {
+        t3 = $[8];
+    }
+    let t4;
+    if ($[9] !== t) {
+        t4 = t("common.close");
+        $[9] = t;
+        $[10] = t4;
+    } else {
+        t4 = $[10];
+    }
+    let t5;
+    if ($[11] !== t4) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Close"], {
+            className: "absolute end-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500",
+            children: [
+                t3,
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    className: "sr-only",
+                    children: t4
+                }, void 0, false, {
+                    fileName: "[project]/src/components/ui/dialog.tsx",
+                    lineNumber: 223,
+                    columnNumber: 310
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 223,
+            columnNumber: 10
+        }, this);
+        $[11] = t4;
+        $[12] = t5;
+    } else {
+        t5 = $[12];
+    }
+    let t6;
+    if ($[13] !== children || $[14] !== props || $[15] !== t2 || $[16] !== t5) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DialogPortal, {
+            children: [
+                t1,
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Content"], {
+                    "data-slot": "dialog-content",
+                    className: t2,
+                    ...props,
+                    children: [
+                        children,
+                        t5
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/ui/dialog.tsx",
+                    lineNumber: 231,
+                    columnNumber: 28
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 231,
+            columnNumber: 10
+        }, this);
+        $[13] = children;
+        $[14] = props;
+        $[15] = t2;
+        $[16] = t5;
+        $[17] = t6;
+    } else {
+        t6 = $[17];
+    }
+    return t6;
+}
+_s(DialogContent, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c5 = DialogContent;
+function DialogHeader(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col space-y-1.5 text-center sm:text-start", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            "data-slot": "dialog-header",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 274,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c6 = DialogHeader;
+function DialogFooter(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            "data-slot": "dialog-footer",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 315,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c7 = DialogFooter;
+function DialogTitle(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("text-lg font-semibold leading-none tracking-tight", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Title"], {
+            "data-slot": "dialog-title",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 356,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c8 = DialogTitle;
+function DialogDescription(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "37398a58a0cb085dd48c4b81a8b8921d7a6f4590447a6067271c64a861c37b17";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("text-sm text-gray-500", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Description"], {
+            "data-slot": "dialog-description",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/dialog.tsx",
+            lineNumber: 397,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c9 = DialogDescription;
+;
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9;
+__turbopack_context__.k.register(_c, "Dialog");
+__turbopack_context__.k.register(_c1, "DialogTrigger");
+__turbopack_context__.k.register(_c2, "DialogPortal");
+__turbopack_context__.k.register(_c3, "DialogClose");
+__turbopack_context__.k.register(_c4, "DialogOverlay");
+__turbopack_context__.k.register(_c5, "DialogContent");
+__turbopack_context__.k.register(_c6, "DialogHeader");
+__turbopack_context__.k.register(_c7, "DialogFooter");
+__turbopack_context__.k.register(_c8, "DialogTitle");
+__turbopack_context__.k.register(_c9, "DialogDescription");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/command.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Command",
+    ()=>Command,
+    "CommandDialog",
+    ()=>CommandDialog,
+    "CommandEmpty",
+    ()=>CommandEmpty,
+    "CommandGroup",
+    ()=>CommandGroup,
+    "CommandInput",
+    ()=>CommandInput,
+    "CommandItem",
+    ()=>CommandItem,
+    "CommandList",
+    ()=>CommandList,
+    "CommandSeparator",
+    ()=>CommandSeparator,
+    "CommandShortcut",
+    ()=>CommandShortcut
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/cmdk/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__SearchIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/search.js [app-client] (ecmascript) <export default as SearchIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/dialog.tsx [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+;
+function Command(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"], {
+            "data-slot": "command",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 41,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c = Command;
+function CommandDialog(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(26);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 26; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let children;
+    let className;
+    let props;
+    let t1;
+    let t2;
+    let t3;
+    if ($[1] !== t0) {
+        ({ title: t1, description: t2, children, className, showCloseButton: t3, ...props } = t0);
+        $[1] = t0;
+        $[2] = children;
+        $[3] = className;
+        $[4] = props;
+        $[5] = t1;
+        $[6] = t2;
+        $[7] = t3;
+    } else {
+        children = $[2];
+        className = $[3];
+        props = $[4];
+        t1 = $[5];
+        t2 = $[6];
+        t3 = $[7];
+    }
+    const title = t1 === undefined ? "Command Palette" : t1;
+    const description = t2 === undefined ? "Search for a command to run..." : t2;
+    t3 === undefined ? true : t3;
+    let t4;
+    if ($[8] !== title) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogTitle"], {
+            children: title
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 93,
+            columnNumber: 10
+        }, this);
+        $[8] = title;
+        $[9] = t4;
+    } else {
+        t4 = $[9];
+    }
+    let t5;
+    if ($[10] !== description) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
+            children: description
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 101,
+            columnNumber: 10
+        }, this);
+        $[10] = description;
+        $[11] = t5;
+    } else {
+        t5 = $[11];
+    }
+    let t6;
+    if ($[12] !== t4 || $[13] !== t5) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogHeader"], {
+            className: "sr-only",
+            children: [
+                t4,
+                t5
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 109,
+            columnNumber: 10
+        }, this);
+        $[12] = t4;
+        $[13] = t5;
+        $[14] = t6;
+    } else {
+        t6 = $[14];
+    }
+    let t7;
+    if ($[15] !== className) {
+        t7 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("overflow-hidden p-0", className);
+        $[15] = className;
+        $[16] = t7;
+    } else {
+        t7 = $[16];
+    }
+    let t8;
+    if ($[17] !== children) {
+        t8 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Command, {
+            className: "**:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5",
+            children: children
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 126,
+            columnNumber: 10
+        }, this);
+        $[17] = children;
+        $[18] = t8;
+    } else {
+        t8 = $[18];
+    }
+    let t9;
+    if ($[19] !== t7 || $[20] !== t8) {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogContent"], {
+            className: t7,
+            children: t8
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 134,
+            columnNumber: 10
+        }, this);
+        $[19] = t7;
+        $[20] = t8;
+        $[21] = t9;
+    } else {
+        t9 = $[21];
+    }
+    let t10;
+    if ($[22] !== props || $[23] !== t6 || $[24] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
+            ...props,
+            children: [
+                t6,
+                t9
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 143,
+            columnNumber: 11
+        }, this);
+        $[22] = props;
+        $[23] = t6;
+        $[24] = t9;
+        $[25] = t10;
+    } else {
+        t10 = $[25];
+    }
+    return t10;
+}
+_c1 = CommandDialog;
+function CommandInput(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(10);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 10; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__SearchIcon$3e$__["SearchIcon"], {
+            className: "size-4 shrink-0 opacity-50"
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 177,
+            columnNumber: 10
+        }, this);
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    let t2;
+    if ($[5] !== className) {
+        t2 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50", className);
+        $[5] = className;
+        $[6] = t2;
+    } else {
+        t2 = $[6];
+    }
+    let t3;
+    if ($[7] !== props || $[8] !== t2) {
+        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            "data-slot": "command-input-wrapper",
+            className: "flex h-9 items-center gap-2 border-b px-3",
+            children: [
+                t1,
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"].Input, {
+                    "data-slot": "command-input",
+                    className: t2,
+                    ...props
+                }, void 0, false, {
+                    fileName: "[project]/src/components/ui/command.tsx",
+                    lineNumber: 192,
+                    columnNumber: 107
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 192,
+            columnNumber: 10
+        }, this);
+        $[7] = props;
+        $[8] = t2;
+        $[9] = t3;
+    } else {
+        t3 = $[9];
+    }
+    return t3;
+}
+_c2 = CommandInput;
+function CommandList(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"].List, {
+            "data-slot": "command-list",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 233,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c3 = CommandList;
+function CommandEmpty(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(5);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 5; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let props;
+    if ($[1] !== t0) {
+        ({ ...props } = t0);
+        $[1] = t0;
+        $[2] = props;
+    } else {
+        props = $[2];
+    }
+    let t1;
+    if ($[3] !== props) {
+        t1 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"].Empty, {
+            "data-slot": "command-empty",
+            className: "py-6 text-center text-sm",
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 262,
+            columnNumber: 10
+        }, this);
+        $[3] = props;
+        $[4] = t1;
+    } else {
+        t1 = $[4];
+    }
+    return t1;
+}
+_c4 = CommandEmpty;
+function CommandGroup(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"].Group, {
+            "data-slot": "command-group",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 302,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c5 = CommandGroup;
+function CommandSeparator(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("-mx-1 h-px bg-border", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"].Separator, {
+            "data-slot": "command-separator",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 343,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c6 = CommandSeparator;
+function CommandItem(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cmdk$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"].Item, {
+            "data-slot": "command-item",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 384,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c7 = CommandItem;
+function CommandShortcut(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(9);
+    if ($[0] !== "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28") {
+        for(let $i = 0; $i < 9; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "bb6f03276a73941fd761fb9c5a34cf27ce3f32f6f88678cfd9fed7e0c2a5dc28";
+    }
+    let className;
+    let props;
+    if ($[1] !== t0) {
+        ({ className, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+    } else {
+        className = $[2];
+        props = $[3];
+    }
+    let t1;
+    if ($[4] !== className) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("ms-auto text-xs tracking-widest text-muted-foreground", className);
+        $[4] = className;
+        $[5] = t1;
+    } else {
+        t1 = $[5];
+    }
+    let t2;
+    if ($[6] !== props || $[7] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            "data-slot": "command-shortcut",
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/command.tsx",
+            lineNumber: 425,
+            columnNumber: 10
+        }, this);
+        $[6] = props;
+        $[7] = t1;
+        $[8] = t2;
+    } else {
+        t2 = $[8];
+    }
+    return t2;
+}
+_c8 = CommandShortcut;
+;
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8;
+__turbopack_context__.k.register(_c, "Command");
+__turbopack_context__.k.register(_c1, "CommandDialog");
+__turbopack_context__.k.register(_c2, "CommandInput");
+__turbopack_context__.k.register(_c3, "CommandList");
+__turbopack_context__.k.register(_c4, "CommandEmpty");
+__turbopack_context__.k.register(_c5, "CommandGroup");
+__turbopack_context__.k.register(_c6, "CommandSeparator");
+__turbopack_context__.k.register(_c7, "CommandItem");
+__turbopack_context__.k.register(_c8, "CommandShortcut");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/constants.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "availabilityStatusOptions",
+    ()=>availabilityStatusOptions,
+    "constructionStatusOptions",
+    ()=>constructionStatusOptions,
+    "currencyOptions",
+    ()=>currencyOptions,
+    "finishingStatusOptions",
+    ()=>finishingStatusOptions,
+    "furnishStatusOptions",
+    ()=>furnishStatusOptions,
+    "ownershipTypeOptions",
+    ()=>ownershipTypeOptions,
+    "statusOptions",
+    ()=>statusOptions,
+    "viewOptions",
+    ()=>viewOptions
+]);
+const constructionStatusOptions = [
+    {
+        label: "Ready",
+        value: "ready"
+    },
+    {
+        label: "Under Construction",
+        value: "under-construction"
+    },
+    {
+        label: "Off Plan",
+        value: "off-plan"
+    }
+];
+const availabilityStatusOptions = [
+    {
+        label: "Available",
+        value: "available"
+    },
+    {
+        label: "Reserved",
+        value: "reserved"
+    },
+    {
+        label: "Sold",
+        value: "sold"
+    }
+];
+const statusOptions = [
+    {
+        label: "Active",
+        value: "active"
+    },
+    {
+        label: "Inactive",
+        value: "inactive"
+    }
+];
+const furnishStatusOptions = [
+    {
+        label: "Furnished",
+        value: "furnished"
+    },
+    {
+        label: "Semi-Furnished",
+        value: "semi-furnished"
+    },
+    {
+        label: "Unfurnished",
+        value: "unfurnished"
+    }
+];
+const finishingStatusOptions = [
+    {
+        label: "Finished",
+        value: "finished"
+    },
+    {
+        label: "Semi-Finished",
+        value: "semi-finished"
+    },
+    {
+        label: "Unfinished",
+        value: "unfinished"
+    }
+];
+const ownershipTypeOptions = [
+    {
+        label: "Freehold",
+        value: "freehold"
+    },
+    {
+        label: "Leasehold",
+        value: "leasehold"
+    }
+];
+const viewOptions = [
+    {
+        label: "Sea View",
+        value: "sea"
+    },
+    {
+        label: "City View",
+        value: "city"
+    },
+    {
+        label: "Garden View",
+        value: "garden"
+    }
+];
+const currencyOptions = [
+    {
+        label: "AED",
+        value: "aed"
+    },
+    {
+        label: "USD",
+        value: "usd"
+    },
+    {
+        label: "EGP",
+        value: "egp"
+    }
+];
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>SeoSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/textarea.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+function SeoSection(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(90);
+    if ($[0] !== "0a7918e127608c8126a2ac8517a3e10137880b575ace2f3e68d35a22bd978f86") {
+        for(let $i = 0; $i < 90; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "0a7918e127608c8126a2ac8517a3e10137880b575ace2f3e68d35a22bd978f86";
+    }
+    const { register, setValue, watch, errors } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] !== setValue || $[2] !== watch) {
+        t1 = ({
+            "SeoSection[handleGenerateSlug]": ()=>{
+                if (!setValue || !watch) {
+                    return;
+                }
+                const propertyName = watch("property_name") || "";
+                if (!propertyName) {
+                    return;
+                }
+                const generatedSlug = propertyName.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+                setValue("slug", generatedSlug, {
+                    shouldValidate: true
+                });
+            }
+        })["SeoSection[handleGenerateSlug]"];
+        $[1] = setValue;
+        $[2] = watch;
+        $[3] = t1;
+    } else {
+        t1 = $[3];
+    }
+    const handleGenerateSlug = t1;
+    let t2;
+    if ($[4] !== t) {
+        t2 = t("properties.create.seo.title");
+        $[4] = t;
+        $[5] = t2;
+    } else {
+        t2 = $[5];
+    }
+    let t3;
+    if ($[6] !== t2) {
+        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                children: t2
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+                lineNumber: 68,
+                columnNumber: 15
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 68,
+            columnNumber: 10
+        }, this);
+        $[6] = t2;
+        $[7] = t3;
+    } else {
+        t3 = $[7];
+    }
+    let t4;
+    if ($[8] !== t) {
+        t4 = t("properties.create.form.seoSlug");
+        $[8] = t;
+        $[9] = t4;
+    } else {
+        t4 = $[9];
+    }
+    let t5;
+    if ($[10] !== t4) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "slug",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t4
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 84,
+            columnNumber: 10
+        }, this);
+        $[10] = t4;
+        $[11] = t5;
+    } else {
+        t5 = $[11];
+    }
+    let t6;
+    if ($[12] === Symbol.for("react.memo_cache_sentinel")) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "ps-3 pe-2 text-xs text-gray-400 dark:text-gray-500 font-mono select-none",
+            children: "/"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 92,
+            columnNumber: 10
+        }, this);
+        $[12] = t6;
+    } else {
+        t6 = $[12];
+    }
+    let t7;
+    if ($[13] !== register) {
+        t7 = register("slug");
+        $[13] = register;
+        $[14] = t7;
+    } else {
+        t7 = $[14];
+    }
+    let t8;
+    if ($[15] !== t) {
+        t8 = t("properties.create.seo.slugPlaceholder");
+        $[15] = t;
+        $[16] = t8;
+    } else {
+        t8 = $[16];
+    }
+    let t9;
+    if ($[17] !== t7 || $[18] !== t8) {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "relative flex-1 flex items-center rounded-md border border-input dark:border-neutral-700 bg-white dark:bg-neutral-950 h-9 shadow-2xs focus-within:ring-1 focus-within:ring-ring",
+            children: [
+                t6,
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                    id: "slug",
+                    ...t7,
+                    placeholder: t8,
+                    className: "w-full bg-transparent py-1.5 pe-3 text-xs outline-none placeholder:text-muted-foreground dark:text-gray-100"
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+                    lineNumber: 115,
+                    columnNumber: 207
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 115,
+            columnNumber: 10
+        }, this);
+        $[17] = t7;
+        $[18] = t8;
+        $[19] = t9;
+    } else {
+        t9 = $[19];
+    }
+    let t10;
+    if ($[20] !== t) {
+        t10 = t("properties.create.form.seoGenerate");
+        $[20] = t;
+        $[21] = t10;
+    } else {
+        t10 = $[21];
+    }
+    let t11;
+    if ($[22] !== handleGenerateSlug || $[23] !== t10) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: handleGenerateSlug,
+            className: "border-[#008081] dark:border-teal-500 text-[#008081] dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/40 text-xs px-3.5 h-9 shadow-2xs shrink-0 font-medium",
+            children: t10
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 132,
+            columnNumber: 11
+        }, this);
+        $[22] = handleGenerateSlug;
+        $[23] = t10;
+        $[24] = t11;
+    } else {
+        t11 = $[24];
+    }
+    let t12;
+    if ($[25] !== t11 || $[26] !== t9) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2 mt-1",
+            children: [
+                t9,
+                t11
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 141,
+            columnNumber: 11
+        }, this);
+        $[25] = t11;
+        $[26] = t9;
+        $[27] = t12;
+    } else {
+        t12 = $[27];
+    }
+    let t13;
+    if ($[28] !== errors || $[29] !== t) {
+        t13 = errors?.slug && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.slug.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 150,
+            columnNumber: 27
+        }, this);
+        $[28] = errors;
+        $[29] = t;
+        $[30] = t13;
+    } else {
+        t13 = $[30];
+    }
+    let t14;
+    if ($[31] !== t) {
+        t14 = t("properties.create.form.seoSlugHelp");
+        $[31] = t;
+        $[32] = t14;
+    } else {
+        t14 = $[32];
+    }
+    let t15;
+    if ($[33] !== t14) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-[11px] text-gray-500 dark:text-gray-400 mt-1",
+            children: t14
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 167,
+            columnNumber: 11
+        }, this);
+        $[33] = t14;
+        $[34] = t15;
+    } else {
+        t15 = $[34];
+    }
+    let t16;
+    if ($[35] !== t12 || $[36] !== t13 || $[37] !== t15 || $[38] !== t5) {
+        t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t5,
+                t12,
+                t13,
+                t15
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 175,
+            columnNumber: 11
+        }, this);
+        $[35] = t12;
+        $[36] = t13;
+        $[37] = t15;
+        $[38] = t5;
+        $[39] = t16;
+    } else {
+        t16 = $[39];
+    }
+    let t17;
+    if ($[40] !== t) {
+        t17 = t("properties.create.seo.metaTitle");
+        $[40] = t;
+        $[41] = t17;
+    } else {
+        t17 = $[41];
+    }
+    let t18;
+    if ($[42] !== t17) {
+        t18 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "meta_title",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t17
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 194,
+            columnNumber: 11
+        }, this);
+        $[42] = t17;
+        $[43] = t18;
+    } else {
+        t18 = $[43];
+    }
+    let t19;
+    if ($[44] !== register) {
+        t19 = register("meta_title");
+        $[44] = register;
+        $[45] = t19;
+    } else {
+        t19 = $[45];
+    }
+    let t20;
+    if ($[46] !== t) {
+        t20 = t("properties.create.seo.metaTitlePlaceholder");
+        $[46] = t;
+        $[47] = t20;
+    } else {
+        t20 = $[47];
+    }
+    let t21;
+    if ($[48] !== t19 || $[49] !== t20) {
+        t21 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "meta_title",
+            ...t19,
+            placeholder: t20,
+            className: "mt-1 h-9 text-xs dark:bg-neutral-950 dark:border-neutral-700"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 218,
+            columnNumber: 11
+        }, this);
+        $[48] = t19;
+        $[49] = t20;
+        $[50] = t21;
+    } else {
+        t21 = $[50];
+    }
+    let t22;
+    if ($[51] !== errors || $[52] !== t) {
+        t22 = errors?.meta_title && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.meta_title.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 227,
+            columnNumber: 33
+        }, this);
+        $[51] = errors;
+        $[52] = t;
+        $[53] = t22;
+    } else {
+        t22 = $[53];
+    }
+    let t23;
+    if ($[54] !== t18 || $[55] !== t21 || $[56] !== t22) {
+        t23 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t18,
+                t21,
+                t22
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 236,
+            columnNumber: 11
+        }, this);
+        $[54] = t18;
+        $[55] = t21;
+        $[56] = t22;
+        $[57] = t23;
+    } else {
+        t23 = $[57];
+    }
+    let t24;
+    if ($[58] !== t) {
+        t24 = t("properties.create.seo.metaDescription");
+        $[58] = t;
+        $[59] = t24;
+    } else {
+        t24 = $[59];
+    }
+    let t25;
+    if ($[60] !== t24) {
+        t25 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "meta_description",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t24
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 254,
+            columnNumber: 11
+        }, this);
+        $[60] = t24;
+        $[61] = t25;
+    } else {
+        t25 = $[61];
+    }
+    let t26;
+    if ($[62] !== t) {
+        t26 = t("properties.create.seo.metaDescriptionHint");
+        $[62] = t;
+        $[63] = t26;
+    } else {
+        t26 = $[63];
+    }
+    let t27;
+    if ($[64] !== t26) {
+        t27 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-[11px] text-gray-400 dark:text-gray-500",
+            children: t26
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 270,
+            columnNumber: 11
+        }, this);
+        $[64] = t26;
+        $[65] = t27;
+    } else {
+        t27 = $[65];
+    }
+    let t28;
+    if ($[66] !== t25 || $[67] !== t27) {
+        t28 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center justify-between mb-1",
+            children: [
+                t25,
+                t27
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 278,
+            columnNumber: 11
+        }, this);
+        $[66] = t25;
+        $[67] = t27;
+        $[68] = t28;
+    } else {
+        t28 = $[68];
+    }
+    let t29;
+    if ($[69] !== register) {
+        t29 = register("meta_description");
+        $[69] = register;
+        $[70] = t29;
+    } else {
+        t29 = $[70];
+    }
+    let t30;
+    if ($[71] !== t) {
+        t30 = t("properties.create.form.seoMetaDescriptionPlaceholder");
+        $[71] = t;
+        $[72] = t30;
+    } else {
+        t30 = $[72];
+    }
+    let t31;
+    if ($[73] !== t29 || $[74] !== t30) {
+        t31 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
+            id: "meta_description",
+            ...t29,
+            placeholder: t30,
+            rows: 2,
+            className: "min-h-[70px] text-xs resize-none bg-white dark:bg-neutral-950 border-input dark:border-neutral-700 dark:text-gray-100"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 303,
+            columnNumber: 11
+        }, this);
+        $[73] = t29;
+        $[74] = t30;
+        $[75] = t31;
+    } else {
+        t31 = $[75];
+    }
+    let t32;
+    if ($[76] !== errors || $[77] !== t) {
+        t32 = errors?.meta_description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.meta_description.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 312,
+            columnNumber: 39
+        }, this);
+        $[76] = errors;
+        $[77] = t;
+        $[78] = t32;
+    } else {
+        t32 = $[78];
+    }
+    let t33;
+    if ($[79] !== t28 || $[80] !== t31 || $[81] !== t32) {
+        t33 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t28,
+                t31,
+                t32
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 321,
+            columnNumber: 11
+        }, this);
+        $[79] = t28;
+        $[80] = t31;
+        $[81] = t32;
+        $[82] = t33;
+    } else {
+        t33 = $[82];
+    }
+    let t34;
+    if ($[83] !== t16 || $[84] !== t23 || $[85] !== t33) {
+        t34 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-3.5",
+            children: [
+                t16,
+                t23,
+                t33
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 331,
+            columnNumber: 11
+        }, this);
+        $[83] = t16;
+        $[84] = t23;
+        $[85] = t33;
+        $[86] = t34;
+    } else {
+        t34 = $[86];
+    }
+    let t35;
+    if ($[87] !== t3 || $[88] !== t34) {
+        t35 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-3.5 shadow-2xs",
+            children: [
+                t3,
+                t34
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/SeoSection.tsx",
+            lineNumber: 341,
+            columnNumber: 11
+        }, this);
+        $[87] = t3;
+        $[88] = t34;
+        $[89] = t35;
+    } else {
+        t35 = $[89];
+    }
+    return t35;
+}
+_s(SeoSection, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = SeoSection;
+var _c;
+__turbopack_context__.k.register(_c, "SeoSection");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>BasicInfoTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hook-form/dist/index.esm.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/textarea.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/select.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-down.js [app-client] (ecmascript) <export default as ChevronDown>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/popover.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/command.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/constants.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function BasicInfoTab(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(230);
+    if ($[0] !== "9a814ed828c9f13dcfd86272bb379686fda784df3b778a1cf5f4d0fa0e33be86") {
+        for(let $i = 0; $i < 230; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "9a814ed828c9f13dcfd86272bb379686fda784df3b778a1cf5f4d0fa0e33be86";
+    }
+    const { register, control, errors, propertiesType, propertiesSubtype, projects, setValue, watch } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const [projectSearch, setProjectSearch] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [isProjectOpen, setIsProjectOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    let t1;
+    if ($[1] !== projectSearch || $[2] !== projects) {
+        bb0: {
+            const search = projectSearch.trim().toLowerCase();
+            if (!search) {
+                t1 = projects;
+                break bb0;
+            }
+            t1 = projects.filter({
+                "BasicInfoTab[projects.filter()]": (p)=>{
+                    const pName = (p?.project_name ?? p?.name ?? p?.title ?? "").toString().toLowerCase();
+                    return pName.includes(search);
+                }
+            }["BasicInfoTab[projects.filter()]"]);
+        }
+        $[1] = projectSearch;
+        $[2] = projects;
+        $[3] = t1;
+    } else {
+        t1 = $[3];
+    }
+    const filteredProjects = t1;
+    let t2;
+    if ($[4] !== t) {
+        t2 = t("properties.create.basicInfo.title");
+        $[4] = t;
+        $[5] = t2;
+    } else {
+        t2 = $[5];
+    }
+    let t3;
+    if ($[6] !== t2) {
+        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                children: t2
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                lineNumber: 91,
+                columnNumber: 15
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 91,
+            columnNumber: 10
+        }, this);
+        $[6] = t2;
+        $[7] = t3;
+    } else {
+        t3 = $[7];
+    }
+    let t4;
+    if ($[8] !== t) {
+        t4 = t("properties.create.form.propertyName");
+        $[8] = t;
+        $[9] = t4;
+    } else {
+        t4 = $[9];
+    }
+    let t5;
+    if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 107,
+            columnNumber: 10
+        }, this);
+        $[10] = t5;
+    } else {
+        t5 = $[10];
+    }
+    let t6;
+    if ($[11] !== t4) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "property_name",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t4,
+                " ",
+                t5
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 114,
+            columnNumber: 10
+        }, this);
+        $[11] = t4;
+        $[12] = t6;
+    } else {
+        t6 = $[12];
+    }
+    let t7;
+    if ($[13] !== register) {
+        t7 = register("property_name");
+        $[13] = register;
+        $[14] = t7;
+    } else {
+        t7 = $[14];
+    }
+    let t8;
+    if ($[15] !== t) {
+        t8 = t("properties.create.basicInfo.propertyNamePlaceholder");
+        $[15] = t;
+        $[16] = t8;
+    } else {
+        t8 = $[16];
+    }
+    const t9 = !!errors.property_name;
+    let t10;
+    if ($[17] !== t7 || $[18] !== t8 || $[19] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "property_name",
+            ...t7,
+            placeholder: t8,
+            className: "mt-1.5",
+            error: t9
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 139,
+            columnNumber: 11
+        }, this);
+        $[17] = t7;
+        $[18] = t8;
+        $[19] = t9;
+        $[20] = t10;
+    } else {
+        t10 = $[20];
+    }
+    let t11;
+    if ($[21] !== errors.property_name || $[22] !== t) {
+        t11 = errors.property_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.property_name.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 149,
+            columnNumber: 35
+        }, this);
+        $[21] = errors.property_name;
+        $[22] = t;
+        $[23] = t11;
+    } else {
+        t11 = $[23];
+    }
+    let t12;
+    if ($[24] !== t10 || $[25] !== t11 || $[26] !== t6) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t6,
+                t10,
+                t11
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 158,
+            columnNumber: 11
+        }, this);
+        $[24] = t10;
+        $[25] = t11;
+        $[26] = t6;
+        $[27] = t12;
+    } else {
+        t12 = $[27];
+    }
+    let t13;
+    if ($[28] !== t) {
+        t13 = t("properties.create.basicInfo.propertyNameEn");
+        $[28] = t;
+        $[29] = t13;
+    } else {
+        t13 = $[29];
+    }
+    let t14;
+    if ($[30] !== t13) {
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "property_name_en",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t13
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 176,
+            columnNumber: 11
+        }, this);
+        $[30] = t13;
+        $[31] = t14;
+    } else {
+        t14 = $[31];
+    }
+    let t15;
+    if ($[32] !== register) {
+        t15 = register("property_name_en");
+        $[32] = register;
+        $[33] = t15;
+    } else {
+        t15 = $[33];
+    }
+    let t16;
+    if ($[34] !== t) {
+        t16 = t("properties.create.basicInfo.propertyNamePlaceholder");
+        $[34] = t;
+        $[35] = t16;
+    } else {
+        t16 = $[35];
+    }
+    let t17;
+    if ($[36] !== t15 || $[37] !== t16) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "property_name_en",
+            ...t15,
+            placeholder: t16,
+            className: "mt-1.5"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 200,
+            columnNumber: 11
+        }, this);
+        $[36] = t15;
+        $[37] = t16;
+        $[38] = t17;
+    } else {
+        t17 = $[38];
+    }
+    let t18;
+    if ($[39] !== t14 || $[40] !== t17) {
+        t18 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t14,
+                t17
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 209,
+            columnNumber: 11
+        }, this);
+        $[39] = t14;
+        $[40] = t17;
+        $[41] = t18;
+    } else {
+        t18 = $[41];
+    }
+    let t19;
+    if ($[42] !== t) {
+        t19 = t("properties.create.form.propertyNo");
+        $[42] = t;
+        $[43] = t19;
+    } else {
+        t19 = $[43];
+    }
+    let t20;
+    if ($[44] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "property_no",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t19
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 226,
+            columnNumber: 11
+        }, this);
+        $[44] = t19;
+        $[45] = t20;
+    } else {
+        t20 = $[45];
+    }
+    let t21;
+    if ($[46] !== register) {
+        t21 = register("property_no");
+        $[46] = register;
+        $[47] = t21;
+    } else {
+        t21 = $[47];
+    }
+    let t22;
+    if ($[48] !== t21) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "property_no",
+            ...t21,
+            placeholder: "e.g. B4307",
+            className: "mt-1.5"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 242,
+            columnNumber: 11
+        }, this);
+        $[48] = t21;
+        $[49] = t22;
+    } else {
+        t22 = $[49];
+    }
+    let t23;
+    if ($[50] !== errors.property_no || $[51] !== t) {
+        t23 = errors?.property_no && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.property_no.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 250,
+            columnNumber: 34
+        }, this);
+        $[50] = errors.property_no;
+        $[51] = t;
+        $[52] = t23;
+    } else {
+        t23 = $[52];
+    }
+    let t24;
+    if ($[53] !== t20 || $[54] !== t22 || $[55] !== t23) {
+        t24 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t20,
+                t22,
+                t23
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 259,
+            columnNumber: 11
+        }, this);
+        $[53] = t20;
+        $[54] = t22;
+        $[55] = t23;
+        $[56] = t24;
+    } else {
+        t24 = $[56];
+    }
+    let t25;
+    if ($[57] !== t) {
+        t25 = t("properties.create.basicInfo.project");
+        $[57] = t;
+        $[58] = t25;
+    } else {
+        t25 = $[58];
+    }
+    let t26;
+    if ($[59] === Symbol.for("react.memo_cache_sentinel")) {
+        t26 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 277,
+            columnNumber: 11
+        }, this);
+        $[59] = t26;
+    } else {
+        t26 = $[59];
+    }
+    let t27;
+    if ($[60] !== t25) {
+        t27 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t25,
+                " ",
+                t26
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 284,
+            columnNumber: 11
+        }, this);
+        $[60] = t25;
+        $[61] = t27;
+    } else {
+        t27 = $[61];
+    }
+    let t28;
+    if ($[62] !== errors.project_id || $[63] !== filteredProjects || $[64] !== isProjectOpen || $[65] !== projectSearch || $[66] !== projects || $[67] !== t) {
+        t28 = ({
+            "BasicInfoTab[<Controller>.render]": (t29)=>{
+                const { field } = t29;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Popover"], {
+                    open: isProjectOpen,
+                    onOpenChange: {
+                        "BasicInfoTab[<Controller>.render > <Popover>.onOpenChange]": (open)=>{
+                            setIsProjectOpen(open);
+                            if (!open) {
+                                setProjectSearch("");
+                            }
+                        }
+                    }["BasicInfoTab[<Controller>.render > <Popover>.onOpenChange]"],
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PopoverTrigger"], {
+                            asChild: true,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                id: "project_id",
+                                role: "combobox",
+                                "aria-expanded": isProjectOpen,
+                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-9 w-full items-center justify-between rounded-md border border-input dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm shadow-xs transition-colors mt-1.5 text-gray-900 dark:text-gray-100", "hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring", "disabled:cursor-not-allowed disabled:opacity-50", errors.project_id && "border-red-500 focus-visible:ring-red-500", !field.value && "text-muted-foreground"),
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "truncate",
+                                        children: field.value ? projects.find({
+                                            "BasicInfoTab[<Controller>.render > projects.find()]": (p_0)=>String(p_0.project_id ?? p_0.id) === String(field.value)
+                                        }["BasicInfoTab[<Controller>.render > projects.find()]"])?.project_name || field.value : t("properties.create.form.selectProject")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 304,
+                                        columnNumber: 700
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
+                                        className: "h-4 w-4 opacity-50 shrink-0"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 306,
+                                        columnNumber: 155
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 304,
+                                columnNumber: 105
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 304,
+                            columnNumber: 74
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PopoverContent"], {
+                            className: "w-[--radix-popover-trigger-width] p-0 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800",
+                            align: "start",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Command"], {
+                                shouldFilter: false,
+                                className: "dark:bg-neutral-900",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommandInput"], {
+                                        placeholder: t("properties.create.basicInfo.searchProject"),
+                                        value: projectSearch,
+                                        onValueChange: setProjectSearch,
+                                        className: "dark:text-gray-100"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 306,
+                                        columnNumber: 454
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommandList"], {
+                                        className: "max-h-64 overflow-y-auto dark:bg-neutral-900",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommandEmpty"], {
+                                                className: "dark:text-gray-400",
+                                                children: t("properties.create.basicInfo.noProjectFound")
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                                lineNumber: 306,
+                                                columnNumber: 687
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommandGroup"], {
+                                                children: filteredProjects.map({
+                                                    "BasicInfoTab[<Controller>.render > filteredProjects.map()]": (project)=>{
+                                                        const projId = String(project.project_id ?? project.id);
+                                                        const isSelected = String(field.value) === projId;
+                                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommandItem"], {
+                                                            value: project.project_name || projId,
+                                                            onSelect: {
+                                                                "BasicInfoTab[<Controller>.render > filteredProjects.map() > <CommandItem>.onSelect]": ()=>{
+                                                                    field.onChange(projId);
+                                                                    setIsProjectOpen(false);
+                                                                    setProjectSearch("");
+                                                                }
+                                                            }["BasicInfoTab[<Controller>.render > filteredProjects.map() > <CommandItem>.onSelect]"],
+                                                            className: "dark:text-gray-200 dark:hover:bg-neutral-800 cursor-pointer",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("me-2 h-4 w-4 text-teal-600 dark:text-teal-400", isSelected ? "opacity-100" : "opacity-0")
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                                                    lineNumber: 316,
+                                                                    columnNumber: 185
+                                                                }, this),
+                                                                project.project_name
+                                                            ]
+                                                        }, projId, true, {
+                                                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                                            lineNumber: 310,
+                                                            columnNumber: 30
+                                                        }, this);
+                                                    }
+                                                }["BasicInfoTab[<Controller>.render > filteredProjects.map()]"])
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                                lineNumber: 306,
+                                                columnNumber: 796
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 306,
+                                        columnNumber: 617
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 306,
+                                columnNumber: 392
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 306,
+                            columnNumber: 236
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                    lineNumber: 297,
+                    columnNumber: 16
+                }, this);
+            }
+        })["BasicInfoTab[<Controller>.render]"];
+        $[62] = errors.project_id;
+        $[63] = filteredProjects;
+        $[64] = isProjectOpen;
+        $[65] = projectSearch;
+        $[66] = projects;
+        $[67] = t;
+        $[68] = t28;
+    } else {
+        t28 = $[68];
+    }
+    let t29;
+    if ($[69] !== control || $[70] !== t28) {
+        t29 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "project_id",
+            control: control,
+            render: t28
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 333,
+            columnNumber: 11
+        }, this);
+        $[69] = control;
+        $[70] = t28;
+        $[71] = t29;
+    } else {
+        t29 = $[71];
+    }
+    let t30;
+    if ($[72] !== errors.project_id || $[73] !== t) {
+        t30 = errors.project_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.project_id.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 342,
+            columnNumber: 32
+        }, this);
+        $[72] = errors.project_id;
+        $[73] = t;
+        $[74] = t30;
+    } else {
+        t30 = $[74];
+    }
+    let t31;
+    if ($[75] !== t27 || $[76] !== t29 || $[77] !== t30) {
+        t31 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t27,
+                t29,
+                t30
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 351,
+            columnNumber: 11
+        }, this);
+        $[75] = t27;
+        $[76] = t29;
+        $[77] = t30;
+        $[78] = t31;
+    } else {
+        t31 = $[78];
+    }
+    let t32;
+    if ($[79] !== t) {
+        t32 = t("properties.create.basicInfo.propertyType");
+        $[79] = t;
+        $[80] = t32;
+    } else {
+        t32 = $[80];
+    }
+    let t33;
+    if ($[81] === Symbol.for("react.memo_cache_sentinel")) {
+        t33 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 369,
+            columnNumber: 11
+        }, this);
+        $[81] = t33;
+    } else {
+        t33 = $[81];
+    }
+    let t34;
+    if ($[82] !== t32) {
+        t34 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t32,
+                " ",
+                t33
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 376,
+            columnNumber: 11
+        }, this);
+        $[82] = t32;
+        $[83] = t34;
+    } else {
+        t34 = $[83];
+    }
+    let t35;
+    if ($[84] !== errors.property_type_id || $[85] !== propertiesType || $[86] !== t) {
+        t35 = ({
+            "BasicInfoTab[<Controller>.render]": (t36)=>{
+                const { field: field_0 } = t36;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_0.onChange,
+                    value: field_0.value ? String(field_0.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "property_type_id",
+                            className: "mt-1.5",
+                            error: !!errors.property_type_id,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.basicInfo.selectPropertyType"),
+                                children: field_0.value && propertiesType.find({
+                                    "BasicInfoTab[<Controller>.render > propertiesType.find()]": (t_0)=>String(t_0.id) === String(field_0.value)
+                                }["BasicInfoTab[<Controller>.render > propertiesType.find()]"])?.name
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 389,
+                                columnNumber: 224
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 389,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: propertiesType.map(_BasicInfoTabControllerRenderPropertiesTypeMap)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 391,
+                            columnNumber: 115
+                        }, this)
+                    ]
+                }, field_0.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                    lineNumber: 389,
+                    columnNumber: 16
+                }, this);
+            }
+        })["BasicInfoTab[<Controller>.render]"];
+        $[84] = errors.property_type_id;
+        $[85] = propertiesType;
+        $[86] = t;
+        $[87] = t35;
+    } else {
+        t35 = $[87];
+    }
+    let t36;
+    if ($[88] !== control || $[89] !== t35) {
+        t36 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "property_type_id",
+            control: control,
+            render: t35
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 403,
+            columnNumber: 11
+        }, this);
+        $[88] = control;
+        $[89] = t35;
+        $[90] = t36;
+    } else {
+        t36 = $[90];
+    }
+    let t37;
+    if ($[91] !== errors.property_type_id || $[92] !== t) {
+        t37 = errors.property_type_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.property_type_id.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 412,
+            columnNumber: 38
+        }, this);
+        $[91] = errors.property_type_id;
+        $[92] = t;
+        $[93] = t37;
+    } else {
+        t37 = $[93];
+    }
+    let t38;
+    if ($[94] !== t34 || $[95] !== t36 || $[96] !== t37) {
+        t38 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t34,
+                t36,
+                t37
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 421,
+            columnNumber: 11
+        }, this);
+        $[94] = t34;
+        $[95] = t36;
+        $[96] = t37;
+        $[97] = t38;
+    } else {
+        t38 = $[97];
+    }
+    let t39;
+    if ($[98] !== t) {
+        t39 = t("properties.create.form.status");
+        $[98] = t;
+        $[99] = t39;
+    } else {
+        t39 = $[99];
+    }
+    let t40;
+    if ($[100] === Symbol.for("react.memo_cache_sentinel")) {
+        t40 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 439,
+            columnNumber: 11
+        }, this);
+        $[100] = t40;
+    } else {
+        t40 = $[100];
+    }
+    let t41;
+    if ($[101] !== t39) {
+        t41 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t39,
+                " ",
+                t40
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 446,
+            columnNumber: 11
+        }, this);
+        $[101] = t39;
+        $[102] = t41;
+    } else {
+        t41 = $[102];
+    }
+    let t42;
+    if ($[103] !== errors.status || $[104] !== t) {
+        t42 = ({
+            "BasicInfoTab[<Controller>.render]": (t43)=>{
+                const { field: field_1 } = t43;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_1.onChange,
+                    value: field_1.value ? String(field_1.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "status",
+                            className: "mt-1.5",
+                            error: !!errors.status,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.form.selectStatus"),
+                                children: field_1.value && (t(`properties.create.options.status.${field_1.value}`) || __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["statusOptions"].find({
+                                    "BasicInfoTab[<Controller>.render > statusOptions.find()]": (o)=>o.value === field_1.value
+                                }["BasicInfoTab[<Controller>.render > statusOptions.find()]"])?.label)
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 459,
+                                columnNumber: 204
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 459,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["statusOptions"].map({
+                                "BasicInfoTab[<Controller>.render > statusOptions.map()]": (option)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option.value,
+                                        children: t(`properties.create.options.status.${option.value}`) || option.label
+                                    }, option.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 462,
+                                        columnNumber: 84
+                                    }, this)
+                            }["BasicInfoTab[<Controller>.render > statusOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 461,
+                            columnNumber: 116
+                        }, this)
+                    ]
+                }, field_1.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                    lineNumber: 459,
+                    columnNumber: 16
+                }, this);
+            }
+        })["BasicInfoTab[<Controller>.render]"];
+        $[103] = errors.status;
+        $[104] = t;
+        $[105] = t42;
+    } else {
+        t42 = $[105];
+    }
+    let t43;
+    if ($[106] !== control || $[107] !== t42) {
+        t43 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "status",
+            control: control,
+            render: t42
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 474,
+            columnNumber: 11
+        }, this);
+        $[106] = control;
+        $[107] = t42;
+        $[108] = t43;
+    } else {
+        t43 = $[108];
+    }
+    let t44;
+    if ($[109] !== errors.status || $[110] !== t) {
+        t44 = errors.status && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.status.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 483,
+            columnNumber: 28
+        }, this);
+        $[109] = errors.status;
+        $[110] = t;
+        $[111] = t44;
+    } else {
+        t44 = $[111];
+    }
+    let t45;
+    if ($[112] !== t41 || $[113] !== t43 || $[114] !== t44) {
+        t45 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t41,
+                t43,
+                t44
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 492,
+            columnNumber: 11
+        }, this);
+        $[112] = t41;
+        $[113] = t43;
+        $[114] = t44;
+        $[115] = t45;
+    } else {
+        t45 = $[115];
+    }
+    let t46;
+    if ($[116] !== t) {
+        t46 = t("properties.create.form.unitSubType");
+        $[116] = t;
+        $[117] = t46;
+    } else {
+        t46 = $[117];
+    }
+    let t47;
+    if ($[118] === Symbol.for("react.memo_cache_sentinel")) {
+        t47 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 510,
+            columnNumber: 11
+        }, this);
+        $[118] = t47;
+    } else {
+        t47 = $[118];
+    }
+    let t48;
+    if ($[119] !== t46) {
+        t48 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t46,
+                " ",
+                t47
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 517,
+            columnNumber: 11
+        }, this);
+        $[119] = t46;
+        $[120] = t48;
+    } else {
+        t48 = $[120];
+    }
+    let t49;
+    if ($[121] !== errors.property_subtype_id || $[122] !== propertiesSubtype || $[123] !== t) {
+        t49 = ({
+            "BasicInfoTab[<Controller>.render]": (t50)=>{
+                const { field: field_2 } = t50;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_2.onChange,
+                    value: field_2.value ? String(field_2.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "property_subtype_id",
+                            className: "mt-1.5",
+                            error: !!errors.property_subtype_id,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.basicInfo.selectSubType"),
+                                children: field_2.value && propertiesSubtype.find({
+                                    "BasicInfoTab[<Controller>.render > propertiesSubtype.find()]": (t_1)=>String(t_1.id) === String(field_2.value)
+                                }["BasicInfoTab[<Controller>.render > propertiesSubtype.find()]"])?.name
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 530,
+                                columnNumber: 230
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 530,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: propertiesSubtype.map(_BasicInfoTabControllerRenderPropertiesSubtypeMap)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 532,
+                            columnNumber: 118
+                        }, this)
+                    ]
+                }, field_2.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                    lineNumber: 530,
+                    columnNumber: 16
+                }, this);
+            }
+        })["BasicInfoTab[<Controller>.render]"];
+        $[121] = errors.property_subtype_id;
+        $[122] = propertiesSubtype;
+        $[123] = t;
+        $[124] = t49;
+    } else {
+        t49 = $[124];
+    }
+    let t50;
+    if ($[125] !== control || $[126] !== t49) {
+        t50 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "property_subtype_id",
+            control: control,
+            render: t49
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 544,
+            columnNumber: 11
+        }, this);
+        $[125] = control;
+        $[126] = t49;
+        $[127] = t50;
+    } else {
+        t50 = $[127];
+    }
+    let t51;
+    if ($[128] !== errors.property_subtype_id || $[129] !== t) {
+        t51 = errors.property_subtype_id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.property_subtype_id.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 553,
+            columnNumber: 41
+        }, this);
+        $[128] = errors.property_subtype_id;
+        $[129] = t;
+        $[130] = t51;
+    } else {
+        t51 = $[130];
+    }
+    let t52;
+    if ($[131] !== t48 || $[132] !== t50 || $[133] !== t51) {
+        t52 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t48,
+                t50,
+                t51
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 562,
+            columnNumber: 11
+        }, this);
+        $[131] = t48;
+        $[132] = t50;
+        $[133] = t51;
+        $[134] = t52;
+    } else {
+        t52 = $[134];
+    }
+    let t53;
+    if ($[135] !== t) {
+        t53 = t("properties.create.basicInfo.buildingName");
+        $[135] = t;
+        $[136] = t53;
+    } else {
+        t53 = $[136];
+    }
+    let t54;
+    if ($[137] !== t53) {
+        t54 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "building_name",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t53
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 580,
+            columnNumber: 11
+        }, this);
+        $[137] = t53;
+        $[138] = t54;
+    } else {
+        t54 = $[138];
+    }
+    let t55;
+    if ($[139] !== register) {
+        t55 = register("building_name");
+        $[139] = register;
+        $[140] = t55;
+    } else {
+        t55 = $[140];
+    }
+    let t56;
+    if ($[141] !== t) {
+        t56 = t("properties.create.basicInfo.buildingNameInputPlaceholder");
+        $[141] = t;
+        $[142] = t56;
+    } else {
+        t56 = $[142];
+    }
+    let t57;
+    if ($[143] !== t55 || $[144] !== t56) {
+        t57 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "building_name",
+            ...t55,
+            placeholder: t56,
+            className: "mt-1.5"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 604,
+            columnNumber: 11
+        }, this);
+        $[143] = t55;
+        $[144] = t56;
+        $[145] = t57;
+    } else {
+        t57 = $[145];
+    }
+    let t58;
+    if ($[146] !== errors.building_name || $[147] !== t) {
+        t58 = errors?.building_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.building_name.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 613,
+            columnNumber: 36
+        }, this);
+        $[146] = errors.building_name;
+        $[147] = t;
+        $[148] = t58;
+    } else {
+        t58 = $[148];
+    }
+    let t59;
+    if ($[149] !== t54 || $[150] !== t57 || $[151] !== t58) {
+        t59 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t54,
+                t57,
+                t58
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 622,
+            columnNumber: 11
+        }, this);
+        $[149] = t54;
+        $[150] = t57;
+        $[151] = t58;
+        $[152] = t59;
+    } else {
+        t59 = $[152];
+    }
+    let t60;
+    if ($[153] !== t) {
+        t60 = t("properties.create.form.constructionStatus");
+        $[153] = t;
+        $[154] = t60;
+    } else {
+        t60 = $[154];
+    }
+    let t61;
+    if ($[155] === Symbol.for("react.memo_cache_sentinel")) {
+        t61 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 640,
+            columnNumber: 11
+        }, this);
+        $[155] = t61;
+    } else {
+        t61 = $[155];
+    }
+    let t62;
+    if ($[156] !== t60) {
+        t62 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t60,
+                " ",
+                t61
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 647,
+            columnNumber: 11
+        }, this);
+        $[156] = t60;
+        $[157] = t62;
+    } else {
+        t62 = $[157];
+    }
+    let t63;
+    if ($[158] !== errors.construction_status || $[159] !== t) {
+        t63 = ({
+            "BasicInfoTab[<Controller>.render]": (t64)=>{
+                const { field: field_3 } = t64;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_3.onChange,
+                    value: field_3.value ? String(field_3.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "construction_status",
+                            className: "mt-1.5",
+                            error: !!errors.construction_status,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.form.selectConstructionStatus"),
+                                children: field_3.value && (t(`properties.create.options.constructionStatus.${field_3.value}`) || __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["constructionStatusOptions"].find({
+                                    "BasicInfoTab[<Controller>.render > constructionStatusOptions.find()]": (o_0)=>o_0.value === field_3.value
+                                }["BasicInfoTab[<Controller>.render > constructionStatusOptions.find()]"])?.label)
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 660,
+                                columnNumber: 230
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 660,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["constructionStatusOptions"].map({
+                                "BasicInfoTab[<Controller>.render > constructionStatusOptions.map()]": (option_0)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option_0.value,
+                                        children: t(`properties.create.options.constructionStatus.${option_0.value}`) || option_0.label
+                                    }, option_0.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 663,
+                                        columnNumber: 98
+                                    }, this)
+                            }["BasicInfoTab[<Controller>.render > constructionStatusOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 662,
+                            columnNumber: 128
+                        }, this)
+                    ]
+                }, field_3.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                    lineNumber: 660,
+                    columnNumber: 16
+                }, this);
+            }
+        })["BasicInfoTab[<Controller>.render]"];
+        $[158] = errors.construction_status;
+        $[159] = t;
+        $[160] = t63;
+    } else {
+        t63 = $[160];
+    }
+    let t64;
+    if ($[161] !== control || $[162] !== t63) {
+        t64 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "construction_status",
+            control: control,
+            render: t63
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 675,
+            columnNumber: 11
+        }, this);
+        $[161] = control;
+        $[162] = t63;
+        $[163] = t64;
+    } else {
+        t64 = $[163];
+    }
+    let t65;
+    if ($[164] !== errors.construction_status || $[165] !== t) {
+        t65 = errors.construction_status && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.construction_status.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 684,
+            columnNumber: 41
+        }, this);
+        $[164] = errors.construction_status;
+        $[165] = t;
+        $[166] = t65;
+    } else {
+        t65 = $[166];
+    }
+    let t66;
+    if ($[167] !== t62 || $[168] !== t64 || $[169] !== t65) {
+        t66 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t62,
+                t64,
+                t65
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 693,
+            columnNumber: 11
+        }, this);
+        $[167] = t62;
+        $[168] = t64;
+        $[169] = t65;
+        $[170] = t66;
+    } else {
+        t66 = $[170];
+    }
+    let t67;
+    if ($[171] !== t) {
+        t67 = t("properties.create.basicInfo.availabilityStatus");
+        $[171] = t;
+        $[172] = t67;
+    } else {
+        t67 = $[172];
+    }
+    let t68;
+    if ($[173] === Symbol.for("react.memo_cache_sentinel")) {
+        t68 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 711,
+            columnNumber: 11
+        }, this);
+        $[173] = t68;
+    } else {
+        t68 = $[173];
+    }
+    let t69;
+    if ($[174] !== t67) {
+        t69 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t67,
+                " ",
+                t68
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 718,
+            columnNumber: 11
+        }, this);
+        $[174] = t67;
+        $[175] = t69;
+    } else {
+        t69 = $[175];
+    }
+    let t70;
+    if ($[176] !== errors.availability_status || $[177] !== t) {
+        t70 = ({
+            "BasicInfoTab[<Controller>.render]": (t71)=>{
+                const { field: field_4 } = t71;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_4.onChange,
+                    value: field_4.value ? String(field_4.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "availability_status",
+                            className: "mt-1.5",
+                            error: !!errors.availability_status,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.form.selectAvailabilityStatus"),
+                                children: field_4.value && (t(`properties.create.options.availabilityStatus.${field_4.value}`) || __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["availabilityStatusOptions"].find({
+                                    "BasicInfoTab[<Controller>.render > availabilityStatusOptions.find()]": (o_1)=>o_1.value === field_4.value
+                                }["BasicInfoTab[<Controller>.render > availabilityStatusOptions.find()]"])?.label)
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                lineNumber: 731,
+                                columnNumber: 230
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 731,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["availabilityStatusOptions"].map({
+                                "BasicInfoTab[<Controller>.render > availabilityStatusOptions.map()]": (option_1)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option_1.value,
+                                        children: t(`properties.create.options.availabilityStatus.${option_1.value}`) || option_1.label
+                                    }, option_1.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                                        lineNumber: 734,
+                                        columnNumber: 98
+                                    }, this)
+                            }["BasicInfoTab[<Controller>.render > availabilityStatusOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                            lineNumber: 733,
+                            columnNumber: 128
+                        }, this)
+                    ]
+                }, field_4.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+                    lineNumber: 731,
+                    columnNumber: 16
+                }, this);
+            }
+        })["BasicInfoTab[<Controller>.render]"];
+        $[176] = errors.availability_status;
+        $[177] = t;
+        $[178] = t70;
+    } else {
+        t70 = $[178];
+    }
+    let t71;
+    if ($[179] !== control || $[180] !== t70) {
+        t71 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "availability_status",
+            control: control,
+            render: t70
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 746,
+            columnNumber: 11
+        }, this);
+        $[179] = control;
+        $[180] = t70;
+        $[181] = t71;
+    } else {
+        t71 = $[181];
+    }
+    let t72;
+    if ($[182] !== errors.availability_status || $[183] !== t) {
+        t72 = errors.availability_status && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.availability_status.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 755,
+            columnNumber: 41
+        }, this);
+        $[182] = errors.availability_status;
+        $[183] = t;
+        $[184] = t72;
+    } else {
+        t72 = $[184];
+    }
+    let t73;
+    if ($[185] !== t69 || $[186] !== t71 || $[187] !== t72) {
+        t73 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t69,
+                t71,
+                t72
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 764,
+            columnNumber: 11
+        }, this);
+        $[185] = t69;
+        $[186] = t71;
+        $[187] = t72;
+        $[188] = t73;
+    } else {
+        t73 = $[188];
+    }
+    let t74;
+    if ($[189] !== t) {
+        t74 = t("properties.create.form.description");
+        $[189] = t;
+        $[190] = t74;
+    } else {
+        t74 = $[190];
+    }
+    let t75;
+    if ($[191] !== t74) {
+        t75 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "description",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t74
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 782,
+            columnNumber: 11
+        }, this);
+        $[191] = t74;
+        $[192] = t75;
+    } else {
+        t75 = $[192];
+    }
+    let t76;
+    if ($[193] !== register) {
+        t76 = register("description");
+        $[193] = register;
+        $[194] = t76;
+    } else {
+        t76 = $[194];
+    }
+    let t77;
+    if ($[195] !== t) {
+        t77 = t("properties.create.form.descriptionPlaceholder");
+        $[195] = t;
+        $[196] = t77;
+    } else {
+        t77 = $[196];
+    }
+    let t78;
+    if ($[197] !== t76 || $[198] !== t77) {
+        t78 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
+            id: "description",
+            ...t76,
+            placeholder: t77,
+            className: "mt-1.5 min-h-[110px] bg-white dark:bg-neutral-950 border-input dark:border-neutral-700 dark:text-gray-100"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 806,
+            columnNumber: 11
+        }, this);
+        $[197] = t76;
+        $[198] = t77;
+        $[199] = t78;
+    } else {
+        t78 = $[199];
+    }
+    let t79;
+    if ($[200] !== errors.description || $[201] !== t) {
+        t79 = errors?.description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.description.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 815,
+            columnNumber: 34
+        }, this);
+        $[200] = errors.description;
+        $[201] = t;
+        $[202] = t79;
+    } else {
+        t79 = $[202];
+    }
+    let t80;
+    if ($[203] !== t75 || $[204] !== t78 || $[205] !== t79) {
+        t80 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "md:col-span-2",
+            children: [
+                t75,
+                t78,
+                t79
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 824,
+            columnNumber: 11
+        }, this);
+        $[203] = t75;
+        $[204] = t78;
+        $[205] = t79;
+        $[206] = t80;
+    } else {
+        t80 = $[206];
+    }
+    let t81;
+    if ($[207] !== t12 || $[208] !== t18 || $[209] !== t24 || $[210] !== t31 || $[211] !== t38 || $[212] !== t45 || $[213] !== t52 || $[214] !== t59 || $[215] !== t66 || $[216] !== t73 || $[217] !== t80) {
+        t81 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5",
+            children: [
+                t12,
+                t18,
+                t24,
+                t31,
+                t38,
+                t45,
+                t52,
+                t59,
+                t66,
+                t73,
+                t80
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 834,
+            columnNumber: 11
+        }, this);
+        $[207] = t12;
+        $[208] = t18;
+        $[209] = t24;
+        $[210] = t31;
+        $[211] = t38;
+        $[212] = t45;
+        $[213] = t52;
+        $[214] = t59;
+        $[215] = t66;
+        $[216] = t73;
+        $[217] = t80;
+        $[218] = t81;
+    } else {
+        t81 = $[218];
+    }
+    let t82;
+    if ($[219] !== t3 || $[220] !== t81) {
+        t82 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+            children: [
+                t3,
+                t81
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 852,
+            columnNumber: 11
+        }, this);
+        $[219] = t3;
+        $[220] = t81;
+        $[221] = t82;
+    } else {
+        t82 = $[221];
+    }
+    let t83;
+    if ($[222] !== errors || $[223] !== register || $[224] !== setValue || $[225] !== watch) {
+        t83 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            register: register,
+            setValue: setValue,
+            watch: watch,
+            errors: errors
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 861,
+            columnNumber: 11
+        }, this);
+        $[222] = errors;
+        $[223] = register;
+        $[224] = setValue;
+        $[225] = watch;
+        $[226] = t83;
+    } else {
+        t83 = $[226];
+    }
+    let t84;
+    if ($[227] !== t82 || $[228] !== t83) {
+        t84 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-4",
+            children: [
+                t82,
+                t83
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+            lineNumber: 872,
+            columnNumber: 11
+        }, this);
+        $[227] = t82;
+        $[228] = t83;
+        $[229] = t84;
+    } else {
+        t84 = $[229];
+    }
+    return t84;
+}
+_s(BasicInfoTab, "VHwbaq58BLX260iYugtXxRbOw0E=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = BasicInfoTab;
+function _BasicInfoTabControllerRenderPropertiesSubtypeMap(subtype) {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+        value: String(subtype.id),
+        children: subtype.name
+    }, subtype.id, false, {
+        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+        lineNumber: 882,
+        columnNumber: 10
+    }, this);
+}
+function _BasicInfoTabControllerRenderPropertiesTypeMap(type) {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+        value: String(type.id),
+        children: type.name
+    }, type.id, false, {
+        fileName: "[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx",
+        lineNumber: 885,
+        columnNumber: 10
+    }, this);
+}
+var _c;
+__turbopack_context__.k.register(_c, "BasicInfoTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>PricingMediaTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hook-form/dist/index.esm.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/select.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/upload.js [app-client] (ecmascript) <export default as Upload>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/constants.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function PricingMediaTab(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(139);
+    if ($[0] !== "fc343baea89b9d3bf4564d2d5df0764608a2ddd5de3ec998070cf66cce56bb23") {
+        for(let $i = 0; $i < 139; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "fc343baea89b9d3bf4564d2d5df0764608a2ddd5de3ec998070cf66cce56bb23";
+    }
+    const { register, control, errors, imagePreviews, onImageUpload, onRemoveImage, floorPlanPreview, onFloorPlanUpload, onRemoveFloorPlan, setValue, watch } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const [localFloorPlanPreview, setLocalFloorPlanPreview] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const imagesInputRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const floorPlanInputRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const currentFloorPlanPreview = floorPlanPreview !== undefined ? floorPlanPreview : localFloorPlanPreview;
+    let t1;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = ({
+            "PricingMediaTab[handleBrowseImagesClick]": ()=>{
+                imagesInputRef.current?.click();
+            }
+        })["PricingMediaTab[handleBrowseImagesClick]"];
+        $[1] = t1;
+    } else {
+        t1 = $[1];
+    }
+    const handleBrowseImagesClick = t1;
+    let t2;
+    if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
+        t2 = ({
+            "PricingMediaTab[handleBrowseFloorPlanClick]": ()=>{
+                floorPlanInputRef.current?.click();
+            }
+        })["PricingMediaTab[handleBrowseFloorPlanClick]"];
+        $[2] = t2;
+    } else {
+        t2 = $[2];
+    }
+    const handleBrowseFloorPlanClick = t2;
+    let t3;
+    if ($[3] !== onFloorPlanUpload) {
+        t3 = ({
+            "PricingMediaTab[handleFloorPlanFileChange]": (e)=>{
+                const file = e.target.files?.[0];
+                if (!file) {
+                    return;
+                }
+                if (onFloorPlanUpload) {
+                    onFloorPlanUpload(e);
+                }
+                const reader = new FileReader();
+                reader.onloadend = ()=>{
+                    setLocalFloorPlanPreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        })["PricingMediaTab[handleFloorPlanFileChange]"];
+        $[3] = onFloorPlanUpload;
+        $[4] = t3;
+    } else {
+        t3 = $[4];
+    }
+    const handleFloorPlanFileChange = t3;
+    let t4;
+    if ($[5] !== onRemoveFloorPlan) {
+        t4 = ({
+            "PricingMediaTab[handleRemoveFloorPlanInternal]": ()=>{
+                if (onRemoveFloorPlan) {
+                    onRemoveFloorPlan();
+                }
+                setLocalFloorPlanPreview(null);
+                if (floorPlanInputRef.current) {
+                    floorPlanInputRef.current.value = "";
+                }
+            }
+        })["PricingMediaTab[handleRemoveFloorPlanInternal]"];
+        $[5] = onRemoveFloorPlan;
+        $[6] = t4;
+    } else {
+        t4 = $[6];
+    }
+    const handleRemoveFloorPlanInternal = t4;
+    const handleDragOver = _PricingMediaTabHandleDragOver;
+    let t5;
+    if ($[7] !== onImageUpload) {
+        t5 = ({
+            "PricingMediaTab[handleDropImages]": (e_1)=>{
+                e_1.preventDefault();
+                e_1.stopPropagation();
+                if (e_1.dataTransfer.files && e_1.dataTransfer.files.length > 0) {
+                    const fakeEvent = {
+                        target: {
+                            files: e_1.dataTransfer.files
+                        }
+                    };
+                    onImageUpload(fakeEvent);
+                }
+            }
+        })["PricingMediaTab[handleDropImages]"];
+        $[7] = onImageUpload;
+        $[8] = t5;
+    } else {
+        t5 = $[8];
+    }
+    const handleDropImages = t5;
+    let t6;
+    if ($[9] !== handleFloorPlanFileChange) {
+        t6 = ({
+            "PricingMediaTab[handleDropFloorPlan]": (e_2)=>{
+                e_2.preventDefault();
+                e_2.stopPropagation();
+                if (e_2.dataTransfer.files && e_2.dataTransfer.files.length > 0) {
+                    const fakeEvent_0 = {
+                        target: {
+                            files: e_2.dataTransfer.files
+                        }
+                    };
+                    handleFloorPlanFileChange(fakeEvent_0);
+                }
+            }
+        })["PricingMediaTab[handleDropFloorPlan]"];
+        $[9] = handleFloorPlanFileChange;
+        $[10] = t6;
+    } else {
+        t6 = $[10];
+    }
+    const handleDropFloorPlan = t6;
+    let t7;
+    if ($[11] !== t) {
+        t7 = t("properties.create.pricing.title");
+        $[11] = t;
+        $[12] = t7;
+    } else {
+        t7 = $[12];
+    }
+    let t8;
+    if ($[13] !== t7) {
+        t8 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                children: t7
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                lineNumber: 177,
+                columnNumber: 15
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 177,
+            columnNumber: 10
+        }, this);
+        $[13] = t7;
+        $[14] = t8;
+    } else {
+        t8 = $[14];
+    }
+    let t9;
+    if ($[15] !== t) {
+        t9 = t("properties.create.pricing.currency");
+        $[15] = t;
+        $[16] = t9;
+    } else {
+        t9 = $[16];
+    }
+    let t10;
+    if ($[17] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "currency",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t9
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 193,
+            columnNumber: 11
+        }, this);
+        $[17] = t9;
+        $[18] = t10;
+    } else {
+        t10 = $[18];
+    }
+    let t11;
+    if ($[19] !== t) {
+        t11 = ({
+            "PricingMediaTab[<Controller>.render]": (t12)=>{
+                const { field } = t12;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field.onChange,
+                    value: field.value || "aed",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "currency",
+                            className: "mt-1 h-9 bg-white dark:bg-neutral-950 text-xs",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.pricing.selectCurrency")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                lineNumber: 206,
+                                columnNumber: 198
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                            lineNumber: 206,
+                            columnNumber: 111
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["currencyOptions"].map({
+                                "PricingMediaTab[<Controller>.render > currencyOptions.map()]": (option)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option.value,
+                                        children: t(`properties.create.options.currency.${option.value}`) || option.label
+                                    }, option.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                        lineNumber: 207,
+                                        columnNumber: 89
+                                    }, this)
+                            }["PricingMediaTab[<Controller>.render > currencyOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                            lineNumber: 206,
+                            columnNumber: 289
+                        }, this)
+                    ]
+                }, field.value || "aed", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                    lineNumber: 206,
+                    columnNumber: 16
+                }, this);
+            }
+        })["PricingMediaTab[<Controller>.render]"];
+        $[19] = t;
+        $[20] = t11;
+    } else {
+        t11 = $[20];
+    }
+    let t12;
+    if ($[21] !== control || $[22] !== t11) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "currency",
+            control: control,
+            render: t11
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 218,
+            columnNumber: 11
+        }, this);
+        $[21] = control;
+        $[22] = t11;
+        $[23] = t12;
+    } else {
+        t12 = $[23];
+    }
+    let t13;
+    if ($[24] !== t10 || $[25] !== t12) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t10,
+                t12
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 227,
+            columnNumber: 11
+        }, this);
+        $[24] = t10;
+        $[25] = t12;
+        $[26] = t13;
+    } else {
+        t13 = $[26];
+    }
+    let t14;
+    if ($[27] !== t) {
+        t14 = t("properties.create.pricing.price");
+        $[27] = t;
+        $[28] = t14;
+    } else {
+        t14 = $[28];
+    }
+    let t15;
+    if ($[29] === Symbol.for("react.memo_cache_sentinel")) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 244,
+            columnNumber: 11
+        }, this);
+        $[29] = t15;
+    } else {
+        t15 = $[29];
+    }
+    let t16;
+    if ($[30] !== t14) {
+        t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "price",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t14,
+                " ",
+                t15
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 251,
+            columnNumber: 11
+        }, this);
+        $[30] = t14;
+        $[31] = t16;
+    } else {
+        t16 = $[31];
+    }
+    let t17;
+    if ($[32] !== register) {
+        t17 = register("price", {
+            valueAsNumber: true
+        });
+        $[32] = register;
+        $[33] = t17;
+    } else {
+        t17 = $[33];
+    }
+    let t18;
+    if ($[34] !== t) {
+        t18 = t("properties.create.pricing.pricePlaceholder");
+        $[34] = t;
+        $[35] = t18;
+    } else {
+        t18 = $[35];
+    }
+    const t19 = !!errors.price;
+    let t20;
+    if ($[36] !== t17 || $[37] !== t18 || $[38] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "price",
+            type: "number",
+            ...t17,
+            placeholder: t18,
+            className: "mt-1 h-9 text-xs",
+            error: t19
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 278,
+            columnNumber: 11
+        }, this);
+        $[36] = t17;
+        $[37] = t18;
+        $[38] = t19;
+        $[39] = t20;
+    } else {
+        t20 = $[39];
+    }
+    let t21;
+    if ($[40] !== errors.price || $[41] !== t) {
+        t21 = errors.price && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.price.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 288,
+            columnNumber: 27
+        }, this);
+        $[40] = errors.price;
+        $[41] = t;
+        $[42] = t21;
+    } else {
+        t21 = $[42];
+    }
+    let t22;
+    if ($[43] !== t16 || $[44] !== t20 || $[45] !== t21) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t16,
+                t20,
+                t21
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 297,
+            columnNumber: 11
+        }, this);
+        $[43] = t16;
+        $[44] = t20;
+        $[45] = t21;
+        $[46] = t22;
+    } else {
+        t22 = $[46];
+    }
+    let t23;
+    if ($[47] !== t) {
+        t23 = t("properties.create.pricing.pricePerM2");
+        $[47] = t;
+        $[48] = t23;
+    } else {
+        t23 = $[48];
+    }
+    let t24;
+    if ($[49] !== t23) {
+        t24 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "price-per-m2",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t23
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 315,
+            columnNumber: 11
+        }, this);
+        $[49] = t23;
+        $[50] = t24;
+    } else {
+        t24 = $[50];
+    }
+    let t25;
+    if ($[51] !== register) {
+        t25 = register("price_per_m2", {
+            valueAsNumber: true
+        });
+        $[51] = register;
+        $[52] = t25;
+    } else {
+        t25 = $[52];
+    }
+    let t26;
+    if ($[53] !== t) {
+        t26 = t("properties.create.pricing.pricePerM2Placeholder");
+        $[53] = t;
+        $[54] = t26;
+    } else {
+        t26 = $[54];
+    }
+    const t27 = !!errors.price_per_m2;
+    let t28;
+    if ($[55] !== t25 || $[56] !== t26 || $[57] !== t27) {
+        t28 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "price-per-m2",
+            type: "number",
+            ...t25,
+            placeholder: t26,
+            className: "mt-1 h-9 text-xs",
+            error: t27
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 342,
+            columnNumber: 11
+        }, this);
+        $[55] = t25;
+        $[56] = t26;
+        $[57] = t27;
+        $[58] = t28;
+    } else {
+        t28 = $[58];
+    }
+    let t29;
+    if ($[59] !== errors.price_per_m2 || $[60] !== t) {
+        t29 = errors.price_per_m2 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.price_per_m2.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 352,
+            columnNumber: 34
+        }, this);
+        $[59] = errors.price_per_m2;
+        $[60] = t;
+        $[61] = t29;
+    } else {
+        t29 = $[61];
+    }
+    let t30;
+    if ($[62] !== t24 || $[63] !== t28 || $[64] !== t29) {
+        t30 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t24,
+                t28,
+                t29
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 361,
+            columnNumber: 11
+        }, this);
+        $[62] = t24;
+        $[63] = t28;
+        $[64] = t29;
+        $[65] = t30;
+    } else {
+        t30 = $[65];
+    }
+    let t31;
+    if ($[66] !== t13 || $[67] !== t22 || $[68] !== t30) {
+        t31 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-1 md:grid-cols-3 gap-4",
+            children: [
+                t13,
+                t22,
+                t30
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 371,
+            columnNumber: 11
+        }, this);
+        $[66] = t13;
+        $[67] = t22;
+        $[68] = t30;
+        $[69] = t31;
+    } else {
+        t31 = $[69];
+    }
+    let t32;
+    if ($[70] !== t31 || $[71] !== t8) {
+        t32 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+            children: [
+                t8,
+                t31
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 381,
+            columnNumber: 11
+        }, this);
+        $[70] = t31;
+        $[71] = t8;
+        $[72] = t32;
+    } else {
+        t32 = $[72];
+    }
+    let t33;
+    if ($[73] !== t) {
+        t33 = t("properties.create.images.title");
+        $[73] = t;
+        $[74] = t33;
+    } else {
+        t33 = $[74];
+    }
+    let t34;
+    if ($[75] !== t33) {
+        t34 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                children: t33
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                lineNumber: 398,
+                columnNumber: 16
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 398,
+            columnNumber: 11
+        }, this);
+        $[75] = t33;
+        $[76] = t34;
+    } else {
+        t34 = $[76];
+    }
+    let t35;
+    if ($[77] !== onImageUpload) {
+        t35 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+            ref: imagesInputRef,
+            type: "file",
+            multiple: true,
+            accept: "image/*",
+            onChange: onImageUpload,
+            className: "sr-only",
+            id: "unit-images-upload"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 406,
+            columnNumber: 11
+        }, this);
+        $[77] = onImageUpload;
+        $[78] = t35;
+    } else {
+        t35 = $[78];
+    }
+    let t36;
+    if ($[79] === Symbol.for("react.memo_cache_sentinel")) {
+        t36 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
+            className: "h-7 w-7 text-gray-400 dark:text-gray-500 stroke-[1.5] mb-1"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 414,
+            columnNumber: 11
+        }, this);
+        $[79] = t36;
+    } else {
+        t36 = $[79];
+    }
+    let t37;
+    if ($[80] !== t) {
+        t37 = t("properties.create.images.clickToUpload");
+        $[80] = t;
+        $[81] = t37;
+    } else {
+        t37 = $[81];
+    }
+    let t38;
+    if ($[82] !== t37) {
+        t38 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-sm font-semibold text-gray-900 dark:text-gray-100",
+            children: t37
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 429,
+            columnNumber: 11
+        }, this);
+        $[82] = t37;
+        $[83] = t38;
+    } else {
+        t38 = $[83];
+    }
+    let t39;
+    if ($[84] !== t) {
+        t39 = t("properties.create.images.supportText");
+        $[84] = t;
+        $[85] = t39;
+    } else {
+        t39 = $[85];
+    }
+    let t40;
+    if ($[86] !== t39) {
+        t40 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-xs text-gray-400 dark:text-gray-500",
+            children: t39
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 445,
+            columnNumber: 11
+        }, this);
+        $[86] = t39;
+        $[87] = t40;
+    } else {
+        t40 = $[87];
+    }
+    let t41;
+    if ($[88] !== handleDropImages || $[89] !== t35 || $[90] !== t38 || $[91] !== t40) {
+        t41 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            onClick: handleBrowseImagesClick,
+            onDragOver: handleDragOver,
+            onDrop: handleDropImages,
+            className: "border border-dashed border-gray-300 dark:border-neutral-700 hover:border-teal-500 dark:hover:border-teal-400 bg-white dark:bg-neutral-950/30 hover:bg-gray-50/50 dark:hover:bg-neutral-800/30 transition-all rounded-xl py-12 px-4 text-center cursor-pointer flex flex-col items-center justify-center gap-1.5 select-none",
+            children: [
+                t35,
+                t36,
+                t38,
+                t40
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 453,
+            columnNumber: 11
+        }, this);
+        $[88] = handleDropImages;
+        $[89] = t35;
+        $[90] = t38;
+        $[91] = t40;
+        $[92] = t41;
+    } else {
+        t41 = $[92];
+    }
+    let t42;
+    if ($[93] !== imagePreviews || $[94] !== onRemoveImage || $[95] !== t) {
+        t42 = imagePreviews.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-3 pt-1",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-medium",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            children: [
+                                imagePreviews.length,
+                                " ",
+                                t("properties.create.images.imagesUploaded")
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                            lineNumber: 464,
+                            columnNumber: 175
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            className: "text-teal-600 dark:text-teal-400",
+                            children: t("properties.create.images.primaryHint")
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                            lineNumber: 464,
+                            columnNumber: 257
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                    lineNumber: 464,
+                    columnNumber: 71
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3",
+                    children: imagePreviews.map({
+                        "PricingMediaTab[imagePreviews.map()]": (preview, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "relative group rounded-lg overflow-hidden border border-gray-200 dark:border-neutral-700 bg-gray-100 dark:bg-neutral-800 aspect-video shadow-xs",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                        src: preview,
+                                        alt: t("properties.create.images.previewAlt", {
+                                            index: index + 1
+                                        }),
+                                        className: "w-full h-full object-cover"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                        lineNumber: 465,
+                                        columnNumber: 244
+                                    }, this),
+                                    index === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "absolute bottom-2 start-2 bg-teal-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded shadow-xs",
+                                        children: t("properties.create.images.primary")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                        lineNumber: 467,
+                                        columnNumber: 74
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        type: "button",
+                                        onClick: {
+                                            "PricingMediaTab[imagePreviews.map() > <button>.onClick]": (e_3)=>{
+                                                e_3.stopPropagation();
+                                                onRemoveImage(index);
+                                            }
+                                        }["PricingMediaTab[imagePreviews.map() > <button>.onClick]"],
+                                        className: "absolute top-1.5 end-1.5 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-700",
+                                        "aria-label": t("properties.create.images.removeImage"),
+                                        title: t("properties.create.images.removeImage"),
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                                            className: "h-3.5 w-3.5"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                            lineNumber: 472,
+                                            columnNumber: 336
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                        lineNumber: 467,
+                                        columnNumber: 246
+                                    }, this)
+                                ]
+                            }, index, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                                lineNumber: 465,
+                                columnNumber: 71
+                            }, this)
+                    }["PricingMediaTab[imagePreviews.map()]"])
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                    lineNumber: 464,
+                    columnNumber: 364
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 464,
+            columnNumber: 39
+        }, this);
+        $[93] = imagePreviews;
+        $[94] = onRemoveImage;
+        $[95] = t;
+        $[96] = t42;
+    } else {
+        t42 = $[96];
+    }
+    let t43;
+    if ($[97] !== t34 || $[98] !== t41 || $[99] !== t42) {
+        t43 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+            children: [
+                t34,
+                t41,
+                t42
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 483,
+            columnNumber: 11
+        }, this);
+        $[97] = t34;
+        $[98] = t41;
+        $[99] = t42;
+        $[100] = t43;
+    } else {
+        t43 = $[100];
+    }
+    let t44;
+    if ($[101] !== t) {
+        t44 = t("properties.create.floorPlan.title");
+        $[101] = t;
+        $[102] = t44;
+    } else {
+        t44 = $[102];
+    }
+    let t45;
+    if ($[103] !== t44) {
+        t45 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                children: t44
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                lineNumber: 501,
+                columnNumber: 16
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 501,
+            columnNumber: 11
+        }, this);
+        $[103] = t44;
+        $[104] = t45;
+    } else {
+        t45 = $[104];
+    }
+    let t46;
+    if ($[105] !== handleFloorPlanFileChange) {
+        t46 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+            ref: floorPlanInputRef,
+            type: "file",
+            accept: "image/*",
+            onChange: handleFloorPlanFileChange,
+            className: "sr-only",
+            id: "floor-plan-upload"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 509,
+            columnNumber: 11
+        }, this);
+        $[105] = handleFloorPlanFileChange;
+        $[106] = t46;
+    } else {
+        t46 = $[106];
+    }
+    let t47;
+    if ($[107] === Symbol.for("react.memo_cache_sentinel")) {
+        t47 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
+            className: "h-7 w-7 text-gray-400 dark:text-gray-500 stroke-[1.5] mb-1"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 517,
+            columnNumber: 11
+        }, this);
+        $[107] = t47;
+    } else {
+        t47 = $[107];
+    }
+    let t48;
+    if ($[108] !== t) {
+        t48 = t("properties.create.floorPlan.uploadText");
+        $[108] = t;
+        $[109] = t48;
+    } else {
+        t48 = $[109];
+    }
+    let t49;
+    if ($[110] !== t48) {
+        t49 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-sm font-semibold text-gray-900 dark:text-gray-100",
+            children: t48
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 532,
+            columnNumber: 11
+        }, this);
+        $[110] = t48;
+        $[111] = t49;
+    } else {
+        t49 = $[111];
+    }
+    let t50;
+    if ($[112] !== t) {
+        t50 = t("properties.create.floorPlan.supportText");
+        $[112] = t;
+        $[113] = t50;
+    } else {
+        t50 = $[113];
+    }
+    let t51;
+    if ($[114] !== t50) {
+        t51 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-xs text-gray-400 dark:text-gray-500",
+            children: t50
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 548,
+            columnNumber: 11
+        }, this);
+        $[114] = t50;
+        $[115] = t51;
+    } else {
+        t51 = $[115];
+    }
+    let t52;
+    if ($[116] !== handleDropFloorPlan || $[117] !== t46 || $[118] !== t49 || $[119] !== t51) {
+        t52 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            onClick: handleBrowseFloorPlanClick,
+            onDragOver: handleDragOver,
+            onDrop: handleDropFloorPlan,
+            className: "border border-dashed border-gray-300 dark:border-neutral-700 hover:border-teal-500 dark:hover:border-teal-400 bg-white dark:bg-neutral-950/30 hover:bg-gray-50/50 dark:hover:bg-neutral-800/30 transition-all rounded-xl py-12 px-4 text-center cursor-pointer flex flex-col items-center justify-center gap-1.5 select-none",
+            children: [
+                t46,
+                t47,
+                t49,
+                t51
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 556,
+            columnNumber: 11
+        }, this);
+        $[116] = handleDropFloorPlan;
+        $[117] = t46;
+        $[118] = t49;
+        $[119] = t51;
+        $[120] = t52;
+    } else {
+        t52 = $[120];
+    }
+    let t53;
+    if ($[121] !== currentFloorPlanPreview || $[122] !== handleRemoveFloorPlanInternal || $[123] !== t) {
+        t53 = currentFloorPlanPreview && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "pt-1",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "relative inline-block group rounded-lg overflow-hidden border border-gray-200 dark:border-neutral-700 bg-gray-100 dark:bg-neutral-800 max-w-xs shadow-xs",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                        src: currentFloorPlanPreview,
+                        alt: t("properties.create.floorPlan.previewAlt"),
+                        className: "w-full h-44 object-contain p-2 bg-white dark:bg-neutral-900"
+                    }, void 0, false, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                        lineNumber: 567,
+                        columnNumber: 230
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: {
+                            "PricingMediaTab[<button>.onClick]": (e_4)=>{
+                                e_4.stopPropagation();
+                                handleRemoveFloorPlanInternal();
+                            }
+                        }["PricingMediaTab[<button>.onClick]"],
+                        className: "absolute top-1.5 end-1.5 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-700",
+                        "aria-label": t("properties.create.floorPlan.remove"),
+                        title: t("properties.create.floorPlan.remove"),
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                            className: "h-3.5 w-3.5"
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                            lineNumber: 572,
+                            columnNumber: 306
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                        lineNumber: 567,
+                        columnNumber: 389
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+                lineNumber: 567,
+                columnNumber: 60
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 567,
+            columnNumber: 38
+        }, this);
+        $[121] = currentFloorPlanPreview;
+        $[122] = handleRemoveFloorPlanInternal;
+        $[123] = t;
+        $[124] = t53;
+    } else {
+        t53 = $[124];
+    }
+    let t54;
+    if ($[125] !== t45 || $[126] !== t52 || $[127] !== t53) {
+        t54 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+            children: [
+                t45,
+                t52,
+                t53
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 582,
+            columnNumber: 11
+        }, this);
+        $[125] = t45;
+        $[126] = t52;
+        $[127] = t53;
+        $[128] = t54;
+    } else {
+        t54 = $[128];
+    }
+    let t55;
+    if ($[129] !== errors || $[130] !== register || $[131] !== setValue || $[132] !== watch) {
+        t55 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            register: register,
+            setValue: setValue,
+            watch: watch,
+            errors: errors
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 592,
+            columnNumber: 11
+        }, this);
+        $[129] = errors;
+        $[130] = register;
+        $[131] = setValue;
+        $[132] = watch;
+        $[133] = t55;
+    } else {
+        t55 = $[133];
+    }
+    let t56;
+    if ($[134] !== t32 || $[135] !== t43 || $[136] !== t54 || $[137] !== t55) {
+        t56 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-4",
+            children: [
+                t32,
+                t43,
+                t54,
+                t55
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx",
+            lineNumber: 603,
+            columnNumber: 11
+        }, this);
+        $[134] = t32;
+        $[135] = t43;
+        $[136] = t54;
+        $[137] = t55;
+        $[138] = t56;
+    } else {
+        t56 = $[138];
+    }
+    return t56;
+}
+_s(PricingMediaTab, "3aMChIIu462TQdP0lypyJGHk+CU=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = PricingMediaTab;
+function _PricingMediaTabHandleDragOver(e_0) {
+    e_0.preventDefault();
+    e_0.stopPropagation();
+}
+var _c;
+__turbopack_context__.k.register(_c, "PricingMediaTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/checkbox.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Checkbox",
+    ()=>Checkbox
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$checkbox$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@radix-ui/react-checkbox/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+const Checkbox = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c = ({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$checkbox$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Root"], {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("peer h-4 w-4 shrink-0 rounded-sm border border-gray-300 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#008081] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-[#008081] data-[state=checked]:border-[#008081] data-[state=checked]:text-white", className),
+        ...props,
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$checkbox$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Indicator"], {
+            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex items-center justify-center text-current"),
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                className: "h-4 w-4"
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/checkbox.tsx",
+                lineNumber: 24,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0))
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/checkbox.tsx",
+            lineNumber: 21,
+            columnNumber: 5
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/checkbox.tsx",
+        lineNumber: 13,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c1 = Checkbox;
+Checkbox.displayName = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$checkbox$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Root"].displayName;
+;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Checkbox$React.forwardRef");
+__turbopack_context__.k.register(_c1, "Checkbox");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>UnitDetailsTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hook-form/dist/index.esm.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$checkbox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/checkbox.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/select.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/constants.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function UnitDetailsTab(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(210);
+    if ($[0] !== "b46e194b4893e474369c6e0b84def1468b4b5a498a87a452dd58833fc4af842e") {
+        for(let $i = 0; $i < 210; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "b46e194b4893e474369c6e0b84def1468b4b5a498a87a452dd58833fc4af842e";
+    }
+    const { register, control, errors, setValue, watch } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] !== t) {
+        t1 = t("properties.create.unitDetails.title");
+        $[1] = t;
+        $[2] = t1;
+    } else {
+        t1 = $[2];
+    }
+    let t2;
+    if ($[3] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                children: t1
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                lineNumber: 48,
+                columnNumber: 15
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 48,
+            columnNumber: 10
+        }, this);
+        $[3] = t1;
+        $[4] = t2;
+    } else {
+        t2 = $[4];
+    }
+    let t3;
+    if ($[5] !== t) {
+        t3 = t("properties.create.unitDetails.unitSize");
+        $[5] = t;
+        $[6] = t3;
+    } else {
+        t3 = $[6];
+    }
+    let t4;
+    if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 64,
+            columnNumber: 10
+        }, this);
+        $[7] = t4;
+    } else {
+        t4 = $[7];
+    }
+    let t5;
+    if ($[8] !== t3) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "size",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t3,
+                " ",
+                t4
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 71,
+            columnNumber: 10
+        }, this);
+        $[8] = t3;
+        $[9] = t5;
+    } else {
+        t5 = $[9];
+    }
+    let t6;
+    if ($[10] !== register) {
+        t6 = register("size", {
+            valueAsNumber: true
+        });
+        $[10] = register;
+        $[11] = t6;
+    } else {
+        t6 = $[11];
+    }
+    let t7;
+    if ($[12] !== t) {
+        t7 = t("properties.create.unitDetails.unitSizePlaceholder");
+        $[12] = t;
+        $[13] = t7;
+    } else {
+        t7 = $[13];
+    }
+    const t8 = !!errors.size;
+    let t9;
+    if ($[14] !== t6 || $[15] !== t7 || $[16] !== t8) {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "size",
+            type: "number",
+            ...t6,
+            placeholder: t7,
+            className: "mt-1 h-9 text-xs",
+            error: t8
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 98,
+            columnNumber: 10
+        }, this);
+        $[14] = t6;
+        $[15] = t7;
+        $[16] = t8;
+        $[17] = t9;
+    } else {
+        t9 = $[17];
+    }
+    let t10;
+    if ($[18] !== errors.size || $[19] !== t) {
+        t10 = errors.size && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.size.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 108,
+            columnNumber: 26
+        }, this);
+        $[18] = errors.size;
+        $[19] = t;
+        $[20] = t10;
+    } else {
+        t10 = $[20];
+    }
+    let t11;
+    if ($[21] !== t10 || $[22] !== t5 || $[23] !== t9) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t5,
+                t9,
+                t10
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 117,
+            columnNumber: 11
+        }, this);
+        $[21] = t10;
+        $[22] = t5;
+        $[23] = t9;
+        $[24] = t11;
+    } else {
+        t11 = $[24];
+    }
+    let t12;
+    if ($[25] !== t) {
+        t12 = t("properties.create.unitDetails.bedrooms");
+        $[25] = t;
+        $[26] = t12;
+    } else {
+        t12 = $[26];
+    }
+    let t13;
+    if ($[27] === Symbol.for("react.memo_cache_sentinel")) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 135,
+            columnNumber: 11
+        }, this);
+        $[27] = t13;
+    } else {
+        t13 = $[27];
+    }
+    let t14;
+    if ($[28] !== t12) {
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "bedrooms",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t12,
+                " ",
+                t13
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 142,
+            columnNumber: 11
+        }, this);
+        $[28] = t12;
+        $[29] = t14;
+    } else {
+        t14 = $[29];
+    }
+    let t15;
+    if ($[30] !== register) {
+        t15 = register("bedrooms", {
+            valueAsNumber: true
+        });
+        $[30] = register;
+        $[31] = t15;
+    } else {
+        t15 = $[31];
+    }
+    let t16;
+    if ($[32] !== t) {
+        t16 = t("properties.create.unitDetails.bedrooms");
+        $[32] = t;
+        $[33] = t16;
+    } else {
+        t16 = $[33];
+    }
+    const t17 = !!errors.bedrooms;
+    let t18;
+    if ($[34] !== t15 || $[35] !== t16 || $[36] !== t17) {
+        t18 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "bedrooms",
+            type: "number",
+            ...t15,
+            placeholder: t16,
+            className: "mt-1 h-9 text-xs",
+            error: t17
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 169,
+            columnNumber: 11
+        }, this);
+        $[34] = t15;
+        $[35] = t16;
+        $[36] = t17;
+        $[37] = t18;
+    } else {
+        t18 = $[37];
+    }
+    let t19;
+    if ($[38] !== errors.bedrooms || $[39] !== t) {
+        t19 = errors.bedrooms && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.bedrooms.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 179,
+            columnNumber: 30
+        }, this);
+        $[38] = errors.bedrooms;
+        $[39] = t;
+        $[40] = t19;
+    } else {
+        t19 = $[40];
+    }
+    let t20;
+    if ($[41] !== t14 || $[42] !== t18 || $[43] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t14,
+                t18,
+                t19
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 188,
+            columnNumber: 11
+        }, this);
+        $[41] = t14;
+        $[42] = t18;
+        $[43] = t19;
+        $[44] = t20;
+    } else {
+        t20 = $[44];
+    }
+    let t21;
+    if ($[45] !== t) {
+        t21 = t("properties.create.unitDetails.bathrooms");
+        $[45] = t;
+        $[46] = t21;
+    } else {
+        t21 = $[46];
+    }
+    let t22;
+    if ($[47] === Symbol.for("react.memo_cache_sentinel")) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 206,
+            columnNumber: 11
+        }, this);
+        $[47] = t22;
+    } else {
+        t22 = $[47];
+    }
+    let t23;
+    if ($[48] !== t21) {
+        t23 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "bathrooms",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t21,
+                " ",
+                t22
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 213,
+            columnNumber: 11
+        }, this);
+        $[48] = t21;
+        $[49] = t23;
+    } else {
+        t23 = $[49];
+    }
+    let t24;
+    if ($[50] !== register) {
+        t24 = register("bathrooms", {
+            valueAsNumber: true
+        });
+        $[50] = register;
+        $[51] = t24;
+    } else {
+        t24 = $[51];
+    }
+    let t25;
+    if ($[52] !== t) {
+        t25 = t("properties.create.unitDetails.bathrooms");
+        $[52] = t;
+        $[53] = t25;
+    } else {
+        t25 = $[53];
+    }
+    const t26 = !!errors.bathrooms;
+    let t27;
+    if ($[54] !== t24 || $[55] !== t25 || $[56] !== t26) {
+        t27 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "bathrooms",
+            type: "number",
+            ...t24,
+            placeholder: t25,
+            className: "mt-1 h-9 text-xs",
+            error: t26
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 240,
+            columnNumber: 11
+        }, this);
+        $[54] = t24;
+        $[55] = t25;
+        $[56] = t26;
+        $[57] = t27;
+    } else {
+        t27 = $[57];
+    }
+    let t28;
+    if ($[58] !== errors.bathrooms || $[59] !== t) {
+        t28 = errors.bathrooms && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.bathrooms.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 250,
+            columnNumber: 31
+        }, this);
+        $[58] = errors.bathrooms;
+        $[59] = t;
+        $[60] = t28;
+    } else {
+        t28 = $[60];
+    }
+    let t29;
+    if ($[61] !== t23 || $[62] !== t27 || $[63] !== t28) {
+        t29 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t23,
+                t27,
+                t28
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 259,
+            columnNumber: 11
+        }, this);
+        $[61] = t23;
+        $[62] = t27;
+        $[63] = t28;
+        $[64] = t29;
+    } else {
+        t29 = $[64];
+    }
+    let t30;
+    if ($[65] !== t) {
+        t30 = t("properties.create.unitDetails.floor");
+        $[65] = t;
+        $[66] = t30;
+    } else {
+        t30 = $[66];
+    }
+    let t31;
+    if ($[67] !== t30) {
+        t31 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "floor",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t30
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 277,
+            columnNumber: 11
+        }, this);
+        $[67] = t30;
+        $[68] = t31;
+    } else {
+        t31 = $[68];
+    }
+    let t32;
+    if ($[69] !== register) {
+        t32 = register("floor");
+        $[69] = register;
+        $[70] = t32;
+    } else {
+        t32 = $[70];
+    }
+    let t33;
+    if ($[71] !== t) {
+        t33 = t("properties.create.unitDetails.floor");
+        $[71] = t;
+        $[72] = t33;
+    } else {
+        t33 = $[72];
+    }
+    let t34;
+    if ($[73] !== t32 || $[74] !== t33) {
+        t34 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "floor",
+            ...t32,
+            placeholder: t33,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 301,
+            columnNumber: 11
+        }, this);
+        $[73] = t32;
+        $[74] = t33;
+        $[75] = t34;
+    } else {
+        t34 = $[75];
+    }
+    let t35;
+    if ($[76] !== errors.floor || $[77] !== t) {
+        t35 = errors?.floor && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.floor.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 310,
+            columnNumber: 28
+        }, this);
+        $[76] = errors.floor;
+        $[77] = t;
+        $[78] = t35;
+    } else {
+        t35 = $[78];
+    }
+    let t36;
+    if ($[79] !== t31 || $[80] !== t34 || $[81] !== t35) {
+        t36 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t31,
+                t34,
+                t35
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 319,
+            columnNumber: 11
+        }, this);
+        $[79] = t31;
+        $[80] = t34;
+        $[81] = t35;
+        $[82] = t36;
+    } else {
+        t36 = $[82];
+    }
+    let t37;
+    if ($[83] !== t) {
+        t37 = t("properties.create.unitDetails.view");
+        $[83] = t;
+        $[84] = t37;
+    } else {
+        t37 = $[84];
+    }
+    let t38;
+    if ($[85] !== t37) {
+        t38 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t37
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 337,
+            columnNumber: 11
+        }, this);
+        $[85] = t37;
+        $[86] = t38;
+    } else {
+        t38 = $[86];
+    }
+    let t39;
+    if ($[87] !== t) {
+        t39 = ({
+            "UnitDetailsTab[<Controller>.render]": (t40)=>{
+                const { field } = t40;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field.onChange,
+                    value: field.value ? String(field.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            className: "mt-1 h-9 bg-white dark:bg-neutral-950 text-xs",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.unitDetails.selectView")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                lineNumber: 350,
+                                columnNumber: 199
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 350,
+                            columnNumber: 126
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["viewOptions"].map({
+                                "UnitDetailsTab[<Controller>.render > viewOptions.map()]": (option)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option.value,
+                                        children: t(`properties.create.options.view.${option.value}`) || option.label
+                                    }, option.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                        lineNumber: 351,
+                                        columnNumber: 84
+                                    }, this)
+                            }["UnitDetailsTab[<Controller>.render > viewOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 350,
+                            columnNumber: 290
+                        }, this)
+                    ]
+                }, field.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                    lineNumber: 350,
+                    columnNumber: 16
+                }, this);
+            }
+        })["UnitDetailsTab[<Controller>.render]"];
+        $[87] = t;
+        $[88] = t39;
+    } else {
+        t39 = $[88];
+    }
+    let t40;
+    if ($[89] !== control || $[90] !== t39) {
+        t40 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "view",
+            control: control,
+            render: t39
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 362,
+            columnNumber: 11
+        }, this);
+        $[89] = control;
+        $[90] = t39;
+        $[91] = t40;
+    } else {
+        t40 = $[91];
+    }
+    let t41;
+    if ($[92] !== t38 || $[93] !== t40) {
+        t41 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t38,
+                t40
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 371,
+            columnNumber: 11
+        }, this);
+        $[92] = t38;
+        $[93] = t40;
+        $[94] = t41;
+    } else {
+        t41 = $[94];
+    }
+    let t42;
+    if ($[95] !== t) {
+        t42 = t("properties.create.unitDetails.finishingType");
+        $[95] = t;
+        $[96] = t42;
+    } else {
+        t42 = $[96];
+    }
+    let t43;
+    if ($[97] === Symbol.for("react.memo_cache_sentinel")) {
+        t43 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-red-500",
+            children: "*"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 388,
+            columnNumber: 11
+        }, this);
+        $[97] = t43;
+    } else {
+        t43 = $[97];
+    }
+    let t44;
+    if ($[98] !== t42) {
+        t44 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: [
+                t42,
+                " ",
+                t43
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 395,
+            columnNumber: 11
+        }, this);
+        $[98] = t42;
+        $[99] = t44;
+    } else {
+        t44 = $[99];
+    }
+    let t45;
+    if ($[100] !== errors.finishing_status || $[101] !== t) {
+        t45 = ({
+            "UnitDetailsTab[<Controller>.render]": (t46)=>{
+                const { field: field_0 } = t46;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_0.onChange,
+                    value: field_0.value ? String(field_0.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            id: "finishing_status",
+                            className: "mt-1 h-9 bg-white dark:bg-neutral-950 text-xs",
+                            error: !!errors.finishing_status,
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.unitDetails.selectFinishing")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                lineNumber: 408,
+                                columnNumber: 263
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 408,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["finishingStatusOptions"].map({
+                                "UnitDetailsTab[<Controller>.render > finishingStatusOptions.map()]": (option_0)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option_0.value,
+                                        children: t(`properties.create.options.finishingStatus.${option_0.value}`) || option_0.label
+                                    }, option_0.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                        lineNumber: 409,
+                                        columnNumber: 97
+                                    }, this)
+                            }["UnitDetailsTab[<Controller>.render > finishingStatusOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 408,
+                            columnNumber: 359
+                        }, this)
+                    ]
+                }, field_0.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                    lineNumber: 408,
+                    columnNumber: 16
+                }, this);
+            }
+        })["UnitDetailsTab[<Controller>.render]"];
+        $[100] = errors.finishing_status;
+        $[101] = t;
+        $[102] = t45;
+    } else {
+        t45 = $[102];
+    }
+    let t46;
+    if ($[103] !== control || $[104] !== t45) {
+        t46 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "finishing_status",
+            control: control,
+            render: t45
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 421,
+            columnNumber: 11
+        }, this);
+        $[103] = control;
+        $[104] = t45;
+        $[105] = t46;
+    } else {
+        t46 = $[105];
+    }
+    let t47;
+    if ($[106] !== errors.finishing_status || $[107] !== t) {
+        t47 = errors.finishing_status && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.finishing_status.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 430,
+            columnNumber: 38
+        }, this);
+        $[106] = errors.finishing_status;
+        $[107] = t;
+        $[108] = t47;
+    } else {
+        t47 = $[108];
+    }
+    let t48;
+    if ($[109] !== t44 || $[110] !== t46 || $[111] !== t47) {
+        t48 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t44,
+                t46,
+                t47
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 439,
+            columnNumber: 11
+        }, this);
+        $[109] = t44;
+        $[110] = t46;
+        $[111] = t47;
+        $[112] = t48;
+    } else {
+        t48 = $[112];
+    }
+    let t49;
+    if ($[113] !== t) {
+        t49 = t("properties.create.unitDetails.furnishStatus");
+        $[113] = t;
+        $[114] = t49;
+    } else {
+        t49 = $[114];
+    }
+    let t50;
+    if ($[115] !== t49) {
+        t50 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t49
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 457,
+            columnNumber: 11
+        }, this);
+        $[115] = t49;
+        $[116] = t50;
+    } else {
+        t50 = $[116];
+    }
+    let t51;
+    if ($[117] !== t) {
+        t51 = ({
+            "UnitDetailsTab[<Controller>.render]": (t52)=>{
+                const { field: field_1 } = t52;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_1.onChange,
+                    value: field_1.value ? String(field_1.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            className: "mt-1 h-9 bg-white dark:bg-neutral-950 text-xs",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.unitDetails.selectFurnish")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                lineNumber: 470,
+                                columnNumber: 207
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 470,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["furnishStatusOptions"].map({
+                                "UnitDetailsTab[<Controller>.render > furnishStatusOptions.map()]": (option_1)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option_1.value,
+                                        children: t(`properties.create.options.furnishStatus.${option_1.value}`) || option_1.label
+                                    }, option_1.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                        lineNumber: 471,
+                                        columnNumber: 95
+                                    }, this)
+                            }["UnitDetailsTab[<Controller>.render > furnishStatusOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 470,
+                            columnNumber: 301
+                        }, this)
+                    ]
+                }, field_1.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                    lineNumber: 470,
+                    columnNumber: 16
+                }, this);
+            }
+        })["UnitDetailsTab[<Controller>.render]"];
+        $[117] = t;
+        $[118] = t51;
+    } else {
+        t51 = $[118];
+    }
+    let t52;
+    if ($[119] !== control || $[120] !== t51) {
+        t52 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "furnish_status",
+            control: control,
+            render: t51
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 482,
+            columnNumber: 11
+        }, this);
+        $[119] = control;
+        $[120] = t51;
+        $[121] = t52;
+    } else {
+        t52 = $[121];
+    }
+    let t53;
+    if ($[122] !== t50 || $[123] !== t52) {
+        t53 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t50,
+                t52
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 491,
+            columnNumber: 11
+        }, this);
+        $[122] = t50;
+        $[123] = t52;
+        $[124] = t53;
+    } else {
+        t53 = $[124];
+    }
+    let t54;
+    if ($[125] !== t) {
+        t54 = t("properties.create.unitDetails.ownershipType");
+        $[125] = t;
+        $[126] = t54;
+    } else {
+        t54 = $[126];
+    }
+    let t55;
+    if ($[127] !== t54) {
+        t55 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t54
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 508,
+            columnNumber: 11
+        }, this);
+        $[127] = t54;
+        $[128] = t55;
+    } else {
+        t55 = $[128];
+    }
+    let t56;
+    if ($[129] !== t) {
+        t56 = ({
+            "UnitDetailsTab[<Controller>.render]": (t57)=>{
+                const { field: field_2 } = t57;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                    onValueChange: field_2.onChange,
+                    value: field_2.value ? String(field_2.value) : "",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                            className: "mt-1 h-9 bg-white dark:bg-neutral-950 text-xs",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                placeholder: t("properties.create.unitDetails.selectOwnership")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                lineNumber: 521,
+                                columnNumber: 207
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 521,
+                            columnNumber: 134
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                            children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ownershipTypeOptions"].map({
+                                "UnitDetailsTab[<Controller>.render > ownershipTypeOptions.map()]": (option_2)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                        value: option_2.value,
+                                        children: t(`properties.create.options.ownershipType.${option_2.value}`) || option_2.label
+                                    }, option_2.value, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                                        lineNumber: 522,
+                                        columnNumber: 95
+                                    }, this)
+                            }["UnitDetailsTab[<Controller>.render > ownershipTypeOptions.map()]"])
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 521,
+                            columnNumber: 303
+                        }, this)
+                    ]
+                }, field_2.value || "", true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                    lineNumber: 521,
+                    columnNumber: 16
+                }, this);
+            }
+        })["UnitDetailsTab[<Controller>.render]"];
+        $[129] = t;
+        $[130] = t56;
+    } else {
+        t56 = $[130];
+    }
+    let t57;
+    if ($[131] !== control || $[132] !== t56) {
+        t57 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "ownership_type",
+            control: control,
+            render: t56
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 533,
+            columnNumber: 11
+        }, this);
+        $[131] = control;
+        $[132] = t56;
+        $[133] = t57;
+    } else {
+        t57 = $[133];
+    }
+    let t58;
+    if ($[134] !== t55 || $[135] !== t57) {
+        t58 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t55,
+                t57
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 542,
+            columnNumber: 11
+        }, this);
+        $[134] = t55;
+        $[135] = t57;
+        $[136] = t58;
+    } else {
+        t58 = $[136];
+    }
+    let t59;
+    if ($[137] !== t) {
+        t59 = t("properties.create.unitDetails.plotSize");
+        $[137] = t;
+        $[138] = t59;
+    } else {
+        t59 = $[138];
+    }
+    let t60;
+    if ($[139] !== t59) {
+        t60 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "plot_size",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t59
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 559,
+            columnNumber: 11
+        }, this);
+        $[139] = t59;
+        $[140] = t60;
+    } else {
+        t60 = $[140];
+    }
+    let t61;
+    if ($[141] !== register) {
+        t61 = register("plot_size", {
+            valueAsNumber: true
+        });
+        $[141] = register;
+        $[142] = t61;
+    } else {
+        t61 = $[142];
+    }
+    let t62;
+    if ($[143] !== t) {
+        t62 = t("properties.create.unitDetails.plotSizePlaceholder");
+        $[143] = t;
+        $[144] = t62;
+    } else {
+        t62 = $[144];
+    }
+    const t63 = !!errors.plot_size;
+    let t64;
+    if ($[145] !== t61 || $[146] !== t62 || $[147] !== t63) {
+        t64 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "plot_size",
+            type: "number",
+            ...t61,
+            placeholder: t62,
+            className: "mt-1 h-9 text-xs",
+            error: t63
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 586,
+            columnNumber: 11
+        }, this);
+        $[145] = t61;
+        $[146] = t62;
+        $[147] = t63;
+        $[148] = t64;
+    } else {
+        t64 = $[148];
+    }
+    let t65;
+    if ($[149] !== errors.plot_size || $[150] !== t) {
+        t65 = errors.plot_size && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.plot_size.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 596,
+            columnNumber: 31
+        }, this);
+        $[149] = errors.plot_size;
+        $[150] = t;
+        $[151] = t65;
+    } else {
+        t65 = $[151];
+    }
+    let t66;
+    if ($[152] !== t60 || $[153] !== t64 || $[154] !== t65) {
+        t66 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t60,
+                t64,
+                t65
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 605,
+            columnNumber: 11
+        }, this);
+        $[152] = t60;
+        $[153] = t64;
+        $[154] = t65;
+        $[155] = t66;
+    } else {
+        t66 = $[155];
+    }
+    let t67;
+    if ($[156] !== t) {
+        t67 = t("properties.create.unitDetails.builtSize");
+        $[156] = t;
+        $[157] = t67;
+    } else {
+        t67 = $[157];
+    }
+    let t68;
+    if ($[158] !== t67) {
+        t68 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "bua_size",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t67
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 623,
+            columnNumber: 11
+        }, this);
+        $[158] = t67;
+        $[159] = t68;
+    } else {
+        t68 = $[159];
+    }
+    let t69;
+    if ($[160] !== register) {
+        t69 = register("bua_size", {
+            valueAsNumber: true
+        });
+        $[160] = register;
+        $[161] = t69;
+    } else {
+        t69 = $[161];
+    }
+    let t70;
+    if ($[162] !== t) {
+        t70 = t("properties.create.unitDetails.builtSizePlaceholder");
+        $[162] = t;
+        $[163] = t70;
+    } else {
+        t70 = $[163];
+    }
+    const t71 = !!errors.bua_size;
+    let t72;
+    if ($[164] !== t69 || $[165] !== t70 || $[166] !== t71) {
+        t72 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "bua_size",
+            type: "number",
+            ...t69,
+            placeholder: t70,
+            className: "mt-1 h-9 text-xs",
+            error: t71
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 650,
+            columnNumber: 11
+        }, this);
+        $[164] = t69;
+        $[165] = t70;
+        $[166] = t71;
+        $[167] = t72;
+    } else {
+        t72 = $[167];
+    }
+    let t73;
+    if ($[168] !== errors.bua_size || $[169] !== t) {
+        t73 = errors.bua_size && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.bua_size.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 660,
+            columnNumber: 30
+        }, this);
+        $[168] = errors.bua_size;
+        $[169] = t;
+        $[170] = t73;
+    } else {
+        t73 = $[170];
+    }
+    let t74;
+    if ($[171] !== t68 || $[172] !== t72 || $[173] !== t73) {
+        t74 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t68,
+                t72,
+                t73
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 669,
+            columnNumber: 11
+        }, this);
+        $[171] = t68;
+        $[172] = t72;
+        $[173] = t73;
+        $[174] = t74;
+    } else {
+        t74 = $[174];
+    }
+    let t75;
+    if ($[175] !== t) {
+        t75 = t("properties.create.unitDetails.maidRoomLabel");
+        $[175] = t;
+        $[176] = t75;
+    } else {
+        t75 = $[176];
+    }
+    let t76;
+    if ($[177] !== t75) {
+        t76 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            className: "text-xs font-semibold text-transparent select-none invisible",
+            children: t75
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 687,
+            columnNumber: 11
+        }, this);
+        $[177] = t75;
+        $[178] = t76;
+    } else {
+        t76 = $[178];
+    }
+    let t77;
+    if ($[179] !== t) {
+        t77 = ({
+            "UnitDetailsTab[<Controller>.render]": (t78)=>{
+                const { field: field_3 } = t78;
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center gap-3 bg-gray-50/70 dark:bg-neutral-800/40 border border-gray-200 dark:border-neutral-700 rounded-lg px-3.5 h-9 mt-1",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$checkbox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Checkbox"], {
+                            id: "maid_room",
+                            checked: field_3.value,
+                            onCheckedChange: field_3.onChange
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 700,
+                            columnNumber: 168
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                            htmlFor: "maid_room",
+                            className: "text-xs font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none",
+                            children: t("properties.create.unitDetails.maidRoom")
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                            lineNumber: 700,
+                            columnNumber: 254
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+                    lineNumber: 700,
+                    columnNumber: 16
+                }, this);
+            }
+        })["UnitDetailsTab[<Controller>.render]"];
+        $[179] = t;
+        $[180] = t77;
+    } else {
+        t77 = $[180];
+    }
+    let t78;
+    if ($[181] !== control || $[182] !== t77) {
+        t78 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
+            name: "maid_room",
+            control: control,
+            render: t77
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 710,
+            columnNumber: 11
+        }, this);
+        $[181] = control;
+        $[182] = t77;
+        $[183] = t78;
+    } else {
+        t78 = $[183];
+    }
+    let t79;
+    if ($[184] !== t76 || $[185] !== t78) {
+        t79 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t76,
+                t78
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 719,
+            columnNumber: 11
+        }, this);
+        $[184] = t76;
+        $[185] = t78;
+        $[186] = t79;
+    } else {
+        t79 = $[186];
+    }
+    let t80;
+    if ($[187] !== t11 || $[188] !== t20 || $[189] !== t29 || $[190] !== t36 || $[191] !== t41 || $[192] !== t48 || $[193] !== t53 || $[194] !== t58 || $[195] !== t66 || $[196] !== t74 || $[197] !== t79) {
+        t80 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-1 md:grid-cols-3 gap-4",
+            children: [
+                t11,
+                t20,
+                t29,
+                t36,
+                t41,
+                t48,
+                t53,
+                t58,
+                t66,
+                t74,
+                t79
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 728,
+            columnNumber: 11
+        }, this);
+        $[187] = t11;
+        $[188] = t20;
+        $[189] = t29;
+        $[190] = t36;
+        $[191] = t41;
+        $[192] = t48;
+        $[193] = t53;
+        $[194] = t58;
+        $[195] = t66;
+        $[196] = t74;
+        $[197] = t79;
+        $[198] = t80;
+    } else {
+        t80 = $[198];
+    }
+    let t81;
+    if ($[199] !== t2 || $[200] !== t80) {
+        t81 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+            children: [
+                t2,
+                t80
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 746,
+            columnNumber: 11
+        }, this);
+        $[199] = t2;
+        $[200] = t80;
+        $[201] = t81;
+    } else {
+        t81 = $[201];
+    }
+    let t82;
+    if ($[202] !== errors || $[203] !== register || $[204] !== setValue || $[205] !== watch) {
+        t82 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            register: register,
+            setValue: setValue,
+            watch: watch,
+            errors: errors
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 755,
+            columnNumber: 11
+        }, this);
+        $[202] = errors;
+        $[203] = register;
+        $[204] = setValue;
+        $[205] = watch;
+        $[206] = t82;
+    } else {
+        t82 = $[206];
+    }
+    let t83;
+    if ($[207] !== t81 || $[208] !== t82) {
+        t83 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-4",
+            children: [
+                t81,
+                t82
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx",
+            lineNumber: 766,
+            columnNumber: 11
+        }, this);
+        $[207] = t81;
+        $[208] = t82;
+        $[209] = t83;
+    } else {
+        t83 = $[209];
+    }
+    return t83;
+}
+_s(UnitDetailsTab, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = UnitDetailsTab;
+var _c;
+__turbopack_context__.k.register(_c, "UnitDetailsTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/**
+ * Utility to extract latitude and longitude from various Google Maps URLs or direct coordinate strings.
+ */ __turbopack_context__.s([
+    "buildGoogleMapsUrl",
+    ()=>buildGoogleMapsUrl,
+    "isValidLatLng",
+    ()=>isValidLatLng,
+    "resolveGoogleMapsUrl",
+    ()=>resolveGoogleMapsUrl
+]);
+function extractDirectCoordinates(input) {
+    if (!input || typeof input !== "string") return null;
+    const trimmed = input.trim();
+    // 1. Direct "lat, lng" or "lat,lng" string
+    const directMatch = trimmed.match(/^(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)$/);
+    if (directMatch) {
+        const lat = parseFloat(directMatch[1]);
+        const lng = parseFloat(directMatch[2]);
+        if (isValidLatLng(lat, lng)) {
+            return {
+                lat,
+                lng
+            };
+        }
+    }
+    // 2. Decode URI if needed
+    let decoded = trimmed;
+    try {
+        decoded = decodeURIComponent(trimmed);
+    } catch  {
+        decoded = trimmed;
+    }
+    // 3. Various Google Maps URL patterns
+    const patterns = [
+        // /@25.2048,55.2708,17z
+        {
+            regex: /@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // ?q=25.2048,55.2708 or &q=25.2048,55.2708
+        {
+            regex: /[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // ?ll=25.2048,55.2708
+        {
+            regex: /[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // ?center=25.2048,55.2708
+        {
+            regex: /[?&]center=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // ?sll=25.2048,55.2708
+        {
+            regex: /[?&]sll=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // !3d25.2048!4d55.2708
+        {
+            regex: /!3d(-?\d+\.?\d*).*?!4d(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // !4d55.2708!3d25.2048
+        {
+            regex: /!4d(-?\d+\.?\d*).*?!3d(-?\d+\.?\d*)/,
+            latFirst: false
+        },
+        // place/.../@25.2048,55.2708
+        {
+            regex: /place\/.*?@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // data=...3d25.2048...4d55.2708
+        {
+            regex: /data=.*?3d(-?\d+\.?\d*).*?4d(-?\d+\.?\d*)/,
+            latFirst: true
+        },
+        // pb=...2d55.2708...3d25.2048
+        {
+            regex: /pb=.*?2d(-?\d+\.?\d*).*?3d(-?\d+\.?\d*)/,
+            latFirst: false
+        }
+    ];
+    for (const { regex, latFirst } of patterns){
+        const match = decoded.match(regex);
+        if (match) {
+            const lat = parseFloat(latFirst ? match[1] : match[2]);
+            const lng = parseFloat(latFirst ? match[2] : match[1]);
+            if (isValidLatLng(lat, lng)) {
+                return {
+                    lat,
+                    lng
+                };
+            }
+        }
+    }
+    return null;
+}
+async function resolveGoogleMapsUrl(url) {
+    const direct = extractDirectCoordinates(url);
+    if (direct) return direct;
+    const trimmed = url.trim();
+    // Check if it's a short URL (goo.gl, maps.app.goo.gl)
+    if (trimmed.includes("goo.gl") || trimmed.includes("maps.app")) {
+        try {
+            const res = await fetch(`/api/expand-url?shortUrl=${encodeURIComponent(trimmed)}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.longUrl) {
+                    const fromExpanded = extractDirectCoordinates(data.longUrl);
+                    if (fromExpanded) return fromExpanded;
+                }
+            }
+        } catch (err) {
+            console.error("Failed to expand short Google Maps URL:", err);
+        }
+    }
+    return null;
+}
+function isValidLatLng(lat, lng) {
+    return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0);
+}
+function buildGoogleMapsUrl(lat, lng) {
+    return `https://www.google.com/maps?q=${lat},${lng}`;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/shared/InteractiveMapPicker.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "InteractiveMapPicker",
+    ()=>InteractiveMapPicker
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$crosshair$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Crosshair$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/crosshair.js [app-client] (ecmascript) <export default as Crosshair>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/external-link.js [app-client] (ecmascript) <export default as ExternalLink>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+function InteractiveMapPicker({ latitude, longitude, defaultCenter, onLocationSelect, height = "h-[420px]", readOnly = false, className = "", defaultZoom = 13, showControls = true, showBadges = true, attributionControl = true }) {
+    _s();
+    const { t, language } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const isAr = language === "ar";
+    const mapContainerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const mapInstanceRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const markerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const leafletRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const lastUserActionCoordsRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const [currentCoords, setCurrentCoords] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(latitude && longitude && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latitude, longitude) ? {
+        lat: latitude,
+        lng: longitude
+    } : null);
+    const [isLocating, setIsLocating] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isGeocoding, setIsGeocoding] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const reverseGeocode = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "InteractiveMapPicker.useCallback[reverseGeocode]": async (lat, lng)=>{
+            try {
+                setIsGeocoding(true);
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+                    headers: {
+                        "Accept-Language": isAr ? "ar,en" : "en,ar"
+                    }
+                });
+                if (!res.ok) throw new Error("Nominatim request failed");
+                const data = await res.json();
+                const addr = data.address || {};
+                const city = addr.city || addr.town || addr.municipality || addr.governorate || addr.state || "";
+                const area = addr.suburb || addr.neighbourhood || addr.quarter || addr.district || "";
+                const landmark = data.display_name?.split(",").slice(0, 3).join(", ") || "";
+                const country = addr.country || "";
+                return {
+                    city,
+                    area,
+                    landmark,
+                    country
+                };
+            } catch (err) {
+                console.warn("Reverse geocode failed, returning coordinates only:", err);
+                return {
+                    city: "",
+                    area: "",
+                    landmark: "",
+                    country: ""
+                };
+            } finally{
+                setIsGeocoding(false);
+            }
+        }
+    }["InteractiveMapPicker.useCallback[reverseGeocode]"], [
+        isAr
+    ]);
+    const handleCoordsChange = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "InteractiveMapPicker.useCallback[handleCoordsChange]": async (lat_0, lng_0, shouldGeocode = true)=>{
+            const roundedLat = Number(lat_0.toFixed(6));
+            const roundedLng = Number(lng_0.toFixed(6));
+            lastUserActionCoordsRef.current = {
+                lat: roundedLat,
+                lng: roundedLng
+            };
+            setCurrentCoords({
+                lat: roundedLat,
+                lng: roundedLng
+            });
+            let details = {
+                city: "",
+                area: "",
+                landmark: "",
+                country: ""
+            };
+            if (shouldGeocode) {
+                details = await reverseGeocode(roundedLat, roundedLng);
+            }
+            const googleMapLink = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(roundedLat, roundedLng);
+            onLocationSelect?.({
+                lat: roundedLat,
+                lng: roundedLng,
+                googleMapLink,
+                ...details
+            });
+        }
+    }["InteractiveMapPicker.useCallback[handleCoordsChange]"], [
+        onLocationSelect,
+        reverseGeocode
+    ]);
+    // Helper for pin icon
+    const getCustomPinIcon = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "InteractiveMapPicker.useCallback[getCustomPinIcon]": (L)=>{
+            return L.divIcon({
+                className: "custom-map-pin-container",
+                html: `
+        <div style="position: relative; width: 34px; height: 42px; transform: translate(-50%, -100%); cursor: pointer;">
+          <svg width="34" height="42" viewBox="0 0 34 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));">
+            <path d="M17 0C7.61116 0 0 7.61116 0 17C0 27.5 17 42 17 42C17 42 34 27.5 34 17C34 7.61116 26.3888 0 17 0Z" fill="#008081"/>
+            <circle cx="17" cy="17" r="6.5" fill="white"/>
+            <circle cx="17" cy="17" r="3" fill="#008081"/>
+          </svg>
+          <div style="position: absolute; bottom: -2px; left: 50%; width: 14px; height: 4px; background: rgba(0,0,0,0.25); border-radius: 50%; transform: translateX(-50%); filter: blur(1px);"></div>
+        </div>
+      `,
+                iconSize: [
+                    34,
+                    42
+                ],
+                iconAnchor: [
+                    17,
+                    42
+                ]
+            });
+        }
+    }["InteractiveMapPicker.useCallback[getCustomPinIcon]"], []);
+    // Initialize Leaflet Map
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>{
+            let isMounted = true;
+            async function initMap() {
+                if (!mapContainerRef.current) return;
+                if (mapInstanceRef.current) return;
+                const L_0 = (await __turbopack_context__.A("[project]/node_modules/leaflet/dist/leaflet-src.js [app-client] (ecmascript, async loader)")).default;
+                if (!isMounted || !mapContainerRef.current) return;
+                leafletRef.current = L_0;
+                const initialLat = latitude && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latitude, longitude || 0) ? latitude : defaultCenter && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(defaultCenter.lat, defaultCenter.lng) ? defaultCenter.lat : 25.2048;
+                const initialLng = longitude && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latitude || 0, longitude) ? longitude : defaultCenter && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(defaultCenter.lat, defaultCenter.lng) ? defaultCenter.lng : 55.2708;
+                const initialZoom = latitude && longitude && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latitude, longitude) ? 15 : defaultZoom;
+                const map = L_0.map(mapContainerRef.current, {
+                    center: [
+                        initialLat,
+                        initialLng
+                    ],
+                    zoom: initialZoom,
+                    zoomControl: true,
+                    attributionControl: attributionControl
+                });
+                mapInstanceRef.current = map;
+                L_0.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    maxZoom: 19,
+                    subdomains: [
+                        "a",
+                        "b",
+                        "c"
+                    ]
+                }).addTo(map);
+                const customPinIcon = getCustomPinIcon(L_0);
+                if (latitude && longitude && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latitude, longitude)) {
+                    const marker = L_0.marker([
+                        latitude,
+                        longitude
+                    ], {
+                        icon: customPinIcon,
+                        draggable: !readOnly
+                    }).addTo(map);
+                    marker.on("dragend", {
+                        "InteractiveMapPicker.useEffect.initMap": ()=>{
+                            const pos = marker.getLatLng();
+                            handleCoordsChange(pos.lat, pos.lng, true);
+                        }
+                    }["InteractiveMapPicker.useEffect.initMap"]);
+                    markerRef.current = marker;
+                }
+                if (!readOnly) {
+                    map.on("click", {
+                        "InteractiveMapPicker.useEffect.initMap": (e)=>{
+                            const lat_1 = e.latlng.lat;
+                            const lng_1 = e.latlng.lng;
+                            if (markerRef.current) {
+                                markerRef.current.setLatLng([
+                                    lat_1,
+                                    lng_1
+                                ]);
+                            } else {
+                                const marker_0 = L_0.marker([
+                                    lat_1,
+                                    lng_1
+                                ], {
+                                    icon: customPinIcon,
+                                    draggable: true
+                                }).addTo(map);
+                                marker_0.on("dragend", {
+                                    "InteractiveMapPicker.useEffect.initMap": ()=>{
+                                        const pos_0 = marker_0.getLatLng();
+                                        handleCoordsChange(pos_0.lat, pos_0.lng, true);
+                                    }
+                                }["InteractiveMapPicker.useEffect.initMap"]);
+                                markerRef.current = marker_0;
+                            }
+                            handleCoordsChange(lat_1, lng_1, true);
+                        }
+                    }["InteractiveMapPicker.useEffect.initMap"]);
+                }
+                [
+                    100,
+                    300,
+                    600,
+                    1000
+                ].forEach({
+                    "InteractiveMapPicker.useEffect.initMap": (delay)=>{
+                        setTimeout({
+                            "InteractiveMapPicker.useEffect.initMap": ()=>{
+                                if (mapInstanceRef.current) {
+                                    mapInstanceRef.current.invalidateSize();
+                                }
+                            }
+                        }["InteractiveMapPicker.useEffect.initMap"], delay);
+                    }
+                }["InteractiveMapPicker.useEffect.initMap"]);
+                if (typeof ResizeObserver !== "undefined" && mapContainerRef.current) {
+                    const resizeObserver = new ResizeObserver({
+                        "InteractiveMapPicker.useEffect.initMap": ()=>{
+                            if (mapInstanceRef.current) {
+                                mapInstanceRef.current.invalidateSize();
+                            }
+                        }
+                    }["InteractiveMapPicker.useEffect.initMap"]);
+                    resizeObserver.observe(mapContainerRef.current);
+                }
+            }
+            initMap();
+            return ({
+                "InteractiveMapPicker.useEffect": ()=>{
+                    isMounted = false;
+                    if (mapInstanceRef.current) {
+                        mapInstanceRef.current.remove();
+                        mapInstanceRef.current = null;
+                        markerRef.current = null;
+                    }
+                }
+            })["InteractiveMapPicker.useEffect"];
+        }
+    }["InteractiveMapPicker.useEffect"], []);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>{
+            if (!mapInstanceRef.current || !leafletRef.current) return;
+            const L_1 = leafletRef.current;
+            const map_0 = mapInstanceRef.current;
+            if (latitude && longitude && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latitude, longitude)) {
+                const isFromUserAction = lastUserActionCoordsRef.current && Math.abs(lastUserActionCoordsRef.current.lat - latitude) < 0.0001 && Math.abs(lastUserActionCoordsRef.current.lng - longitude) < 0.0001;
+                setCurrentCoords({
+                    lat: latitude,
+                    lng: longitude
+                });
+                if (markerRef.current) {
+                    markerRef.current.setLatLng([
+                        latitude,
+                        longitude
+                    ]);
+                } else {
+                    const customPinIcon_0 = getCustomPinIcon(L_1);
+                    const marker_1 = L_1.marker([
+                        latitude,
+                        longitude
+                    ], {
+                        icon: customPinIcon_0,
+                        draggable: !readOnly
+                    }).addTo(map_0);
+                    marker_1.on("dragend", {
+                        "InteractiveMapPicker.useEffect": ()=>{
+                            const pos_1 = marker_1.getLatLng();
+                            handleCoordsChange(pos_1.lat, pos_1.lng, true);
+                        }
+                    }["InteractiveMapPicker.useEffect"]);
+                    markerRef.current = marker_1;
+                }
+                // Only fly/pan if the change was external (e.g. from input, city change, url parse)
+                if (!isFromUserAction) {
+                    map_0.flyTo([
+                        latitude,
+                        longitude
+                    ], 15, {
+                        duration: 0.8
+                    });
+                }
+                setTimeout({
+                    "InteractiveMapPicker.useEffect": ()=>map_0.invalidateSize()
+                }["InteractiveMapPicker.useEffect"], 150);
+            } else if (defaultCenter && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(defaultCenter.lat, defaultCenter.lng)) {
+                // Pan to default center (e.g. when country or city was selected)
+                map_0.panTo([
+                    defaultCenter.lat,
+                    defaultCenter.lng
+                ], {
+                    duration: 0.8
+                });
+                setTimeout({
+                    "InteractiveMapPicker.useEffect": ()=>map_0.invalidateSize()
+                }["InteractiveMapPicker.useEffect"], 150);
+            }
+        }
+    }["InteractiveMapPicker.useEffect"], [
+        latitude,
+        longitude,
+        defaultCenter?.lat,
+        defaultCenter?.lng,
+        readOnly,
+        handleCoordsChange,
+        getCustomPinIcon
+    ]);
+    const handleLocateMe = ()=>{
+        if (!navigator.geolocation) {
+            alert(t("locations.mapPicker.geolocationUnsupported"));
+            return;
+        }
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition((pos_2)=>{
+            setIsLocating(false);
+            const lat_2 = pos_2.coords.latitude;
+            const lng_2 = pos_2.coords.longitude;
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.flyTo([
+                    lat_2,
+                    lng_2
+                ], 15, {
+                    duration: 1.2
+                });
+            }
+            handleCoordsChange(lat_2, lng_2, true);
+        }, (err_0)=>{
+            setIsLocating(false);
+            console.warn("Geolocation failed:", err_0);
+        }, {
+            timeout: 10000,
+            enableHighAccuracy: true
+        });
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: `relative w-full rounded-xl overflow-hidden border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900 shadow-sm ${className}`,
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                ref: mapContainerRef,
+                className: `w-full min-w-full ${height} z-0`,
+                style: {
+                    minHeight: "340px"
+                }
+            }, void 0, false, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 296,
+                columnNumber: 7
+            }, this),
+            showControls && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "absolute top-2.5 right-2.5 z-[1000] flex items-center gap-1.5 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md p-1 rounded-lg border border-gray-200/80 dark:border-neutral-800",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: handleLocateMe,
+                        disabled: isLocating,
+                        title: t("locations.mapPicker.locateMeTitle"),
+                        className: "p-1.5 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-1 text-xs font-medium",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$crosshair$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Crosshair$3e$__["Crosshair"], {
+                                className: `h-3.5 w-3.5 text-[#008081] ${isLocating ? "animate-spin" : ""}`
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 303,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "hidden sm:inline",
+                                children: t("locations.mapPicker.myLocation")
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 304,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 302,
+                        columnNumber: 11
+                    }, this),
+                    currentCoords && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                        href: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(currentCoords.lat, currentCoords.lng),
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        title: t("locations.mapPicker.openInGoogleMaps"),
+                        className: "p-1.5 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-1 text-xs font-medium",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
+                                className: "h-3.5 w-3.5 text-gray-500"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 308,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "hidden sm:inline",
+                                children: t("locations.mapPicker.maps")
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 309,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 307,
+                        columnNumber: 29
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 301,
+                columnNumber: 24
+            }, this),
+            showBadges && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "absolute bottom-2 left-2 right-2 z-[1000] flex flex-wrap items-center justify-between gap-2 pointer-events-none",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "pointer-events-auto bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-gray-200/80 dark:border-neutral-800 text-[11px] font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
+                                className: "h-3 w-3 text-[#008081] shrink-0"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 316,
+                                columnNumber: 13
+                            }, this),
+                            currentCoords ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "font-mono",
+                                children: [
+                                    currentCoords.lat.toFixed(5),
+                                    ", ",
+                                    currentCoords.lng.toFixed(5)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 317,
+                                columnNumber: 30
+                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                children: t("locations.mapPicker.clickToPinpoint")
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 319,
+                                columnNumber: 25
+                            }, this),
+                            isGeocoding && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "flex items-center gap-1 text-[#008081] text-[10px]",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                        className: "h-2.5 w-2.5 animate-spin"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                        lineNumber: 322,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        children: t("locations.mapPicker.detectingAddress")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                        lineNumber: 323,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 321,
+                                columnNumber: 29
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 315,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "pointer-events-auto bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-gray-500 dark:text-gray-400 border border-gray-200/80 dark:border-neutral-800",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            children: t("locations.mapPicker.dragHint")
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                            lineNumber: 328,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 327,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 314,
+                columnNumber: 22
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+        lineNumber: 294,
+        columnNumber: 10
+    }, this);
+}
+_s(InteractiveMapPicker, "VZ+PXdDtfMq0BipH6CkY0DzRzzg=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = InteractiveMapPicker;
+var _c;
+__turbopack_context__.k.register(_c, "InteractiveMapPicker");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/LocationTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>LocationTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/plus.js [app-client] (ecmascript) <export default as Plus>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/trash-2.js [app-client] (ecmascript) <export default as Trash2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/sonner/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$InteractiveMapPicker$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/shared/InteractiveMapPicker.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function LocationTab({ register, setValue, watch, projects = [], errors, isActive = true }) {
+    _s();
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    // Latch: mount the map on first activation, then keep it mounted.
+    const [hasActivated, setHasActivated] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(isActive);
+    if (isActive && !hasActivated) setHasActivated(true);
+    const watchedLat = watch?.("latitude");
+    const watchedLng = watch?.("longitude");
+    const watchedMapsUrl = watch?.("maps_url");
+    const [googleMapsUrl, setGoogleMapsUrl] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(watchedMapsUrl || "");
+    const [isFetchingFromUrl, setIsFetchingFromUrl] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    // Synchronize googleMapsUrl if external value changes
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LocationTab.useEffect": ()=>{
+            if (watchedMapsUrl && watchedMapsUrl !== googleMapsUrl) {
+                setGoogleMapsUrl(watchedMapsUrl);
+            }
+        }
+    }["LocationTab.useEffect"], [
+        watchedMapsUrl
+    ]);
+    // Initial / current coordinates
+    const [mapCoords, setMapCoords] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "LocationTab.useState": ()=>{
+            if (watchedLat && watchedLng && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(Number(watchedLat), Number(watchedLng))) {
+                return {
+                    lat: Number(watchedLat),
+                    lng: Number(watchedLng)
+                };
+            }
+            return null;
+        }
+    }["LocationTab.useState"]);
+    // Direct string inputs for Latitude and Longitude (formatted e.g. 30.0500000)
+    const [latInput, setLatInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "LocationTab.useState": ()=>{
+            if (watchedLat != null && !isNaN(Number(watchedLat))) {
+                return Number(watchedLat).toFixed(7);
+            }
+            return "";
+        }
+    }["LocationTab.useState"]);
+    const [lngInput, setLngInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "LocationTab.useState": ()=>{
+            if (watchedLng != null && !isNaN(Number(watchedLng))) {
+                return Number(watchedLng).toFixed(7);
+            }
+            return "";
+        }
+    }["LocationTab.useState"]);
+    // When external watch values change (e.g. initial load in edit mode)
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LocationTab.useEffect": ()=>{
+            if (watchedLat != null && watchedLng != null && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(Number(watchedLat), Number(watchedLng))) {
+                const latNum = Number(watchedLat);
+                const lngNum = Number(watchedLng);
+                setMapCoords({
+                    lat: latNum,
+                    lng: lngNum
+                });
+                setLatInput(latNum.toFixed(7));
+                setLngInput(lngNum.toFixed(7));
+            }
+        }
+    }["LocationTab.useEffect"], [
+        watchedLat,
+        watchedLng
+    ]);
+    const handleMapSelect = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "LocationTab.useCallback[handleMapSelect]": (data)=>{
+            const formattedLat = Number(data.lat.toFixed(7));
+            const formattedLng = Number(data.lng.toFixed(7));
+            setMapCoords({
+                lat: formattedLat,
+                lng: formattedLng
+            });
+            setLatInput(data.lat.toFixed(7));
+            setLngInput(data.lng.toFixed(7));
+            setGoogleMapsUrl(data.googleMapLink);
+            setValue?.("maps_url", data.googleMapLink, {
+                shouldDirty: true
+            });
+            setValue?.("latitude", formattedLat, {
+                shouldDirty: true
+            });
+            setValue?.("longitude", formattedLng, {
+                shouldDirty: true
+            });
+            if (data.city && !watch?.("city_name")) {
+                setValue?.("city_name", data.city, {
+                    shouldDirty: true
+                });
+            }
+            if (data.area && !watch?.("area_name")) {
+                setValue?.("area_name", data.area, {
+                    shouldDirty: true
+                });
+            }
+            if (data.landmark && !watch?.("landmark")) {
+                setValue?.("landmark", data.landmark, {
+                    shouldDirty: true
+                });
+            }
+        }
+    }["LocationTab.useCallback[handleMapSelect]"], [
+        setValue,
+        watch
+    ]);
+    const handleFetchFromUrl = async ()=>{
+        if (!googleMapsUrl.trim()) return;
+        setIsFetchingFromUrl(true);
+        try {
+            const coords = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resolveGoogleMapsUrl"])(googleMapsUrl);
+            if (!coords) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.create.location.coordsExtractFailed"));
+                return;
+            }
+            const formattedLat_0 = Number(coords.lat.toFixed(7));
+            const formattedLng_0 = Number(coords.lng.toFixed(7));
+            setMapCoords({
+                lat: formattedLat_0,
+                lng: formattedLng_0
+            });
+            setLatInput(coords.lat.toFixed(7));
+            setLngInput(coords.lng.toFixed(7));
+            setValue?.("latitude", formattedLat_0, {
+                shouldDirty: true
+            });
+            setValue?.("longitude", formattedLng_0, {
+                shouldDirty: true
+            });
+            setValue?.("maps_url", googleMapsUrl, {
+                shouldDirty: true
+            });
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(t("properties.create.location.locationPinned"));
+        } catch (err) {
+            console.error("Error fetching map coordinates:", err);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.create.location.urlParseFailed"));
+        } finally{
+            setIsFetchingFromUrl(false);
+        }
+    };
+    const handleUseParentProjectCoordinates = ()=>{
+        const selectedProjectId = watch?.("project_id");
+        if (!selectedProjectId) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].info(t("properties.create.location.selectProjectFirst"));
+            return;
+        }
+        const parent = projects?.find((p)=>String(p.project_id ?? p.id) === String(selectedProjectId));
+        if (!parent) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.create.location.projectNotFound"));
+            return;
+        }
+        const loc = parent.location || (Array.isArray(parent.locations) ? parent.locations[0] : null);
+        const rawLat = loc?.latitude ?? parent.latitude;
+        const rawLng = loc?.longitude ?? parent.longitude;
+        const pLat = parseFloat(String(rawLat));
+        const pLng = parseFloat(String(rawLng));
+        if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(pLat, pLng)) {
+            const formattedLat_1 = Number(pLat.toFixed(7));
+            const formattedLng_1 = Number(pLng.toFixed(7));
+            setMapCoords({
+                lat: formattedLat_1,
+                lng: formattedLng_1
+            });
+            setLatInput(pLat.toFixed(7));
+            setLngInput(pLng.toFixed(7));
+            setValue?.("latitude", formattedLat_1, {
+                shouldDirty: true
+            });
+            setValue?.("longitude", formattedLng_1, {
+                shouldDirty: true
+            });
+            const link = loc?.google_map_link || loc?.google_maps_link || parent.google_map_link || (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(formattedLat_1, formattedLng_1);
+            if (link) {
+                setGoogleMapsUrl(link);
+                setValue?.("maps_url", link, {
+                    shouldDirty: true
+                });
+            }
+            if (loc?.landmark && !watch?.("landmark")) {
+                setValue?.("landmark", loc.landmark, {
+                    shouldDirty: true
+                });
+            }
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(t("properties.create.location.projectCoordsApplied"));
+        } else {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.create.location.projectNoCoords"));
+        }
+    };
+    const handleLatChange = (val)=>{
+        setLatInput(val);
+        const latNum_0 = parseFloat(val);
+        if (!isNaN(latNum_0)) {
+            setValue?.("latitude", latNum_0, {
+                shouldDirty: true
+            });
+            const lngNum_0 = parseFloat(lngInput);
+            if (!isNaN(lngNum_0) && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latNum_0, lngNum_0)) {
+                setMapCoords({
+                    lat: latNum_0,
+                    lng: lngNum_0
+                });
+            }
+        }
+    };
+    const handleLngChange = (val_0)=>{
+        setLngInput(val_0);
+        const lngNum_1 = parseFloat(val_0);
+        if (!isNaN(lngNum_1)) {
+            setValue?.("longitude", lngNum_1, {
+                shouldDirty: true
+            });
+            const latNum_1 = parseFloat(latInput);
+            if (!isNaN(latNum_1) && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(latNum_1, lngNum_1)) {
+                setMapCoords({
+                    lat: latNum_1,
+                    lng: lngNum_1
+                });
+            }
+        }
+    };
+    const nextPointId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(3);
+    const [nearbyPoints, setNearbyPoints] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([
+        {
+            id: 0,
+            name: t("properties.create.location.defaultTransit"),
+            distance: t("properties.create.location.minutes", {
+                count: 5
+            })
+        },
+        {
+            id: 1,
+            name: t("properties.create.location.defaultAirport"),
+            distance: t("properties.create.location.minutes", {
+                count: 20
+            })
+        },
+        {
+            id: 2,
+            name: t("properties.create.location.defaultMall"),
+            distance: t("properties.create.location.minutes", {
+                count: 10
+            })
+        }
+    ]);
+    const handleAddPoint = ()=>{
+        const id = nextPointId.current++;
+        setNearbyPoints((prev)=>[
+                ...prev,
+                {
+                    id,
+                    name: "",
+                    distance: ""
+                }
+            ]);
+    };
+    const handleRemovePoint = (index)=>{
+        setNearbyPoints((prev_0)=>prev_0.filter((_, i)=>i !== index));
+    };
+    const handleUpdatePoint = (index_0, field, value)=>{
+        setNearbyPoints((prev_1)=>prev_1.map((item, i_0)=>i_0 === index_0 ? {
+                    ...item,
+                    [field]: value
+                } : item));
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "space-y-4",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+                        children: t("properties.create.location.propertyLocation")
+                    }, void 0, false, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 287,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "bg-[#f0fdfa] dark:bg-teal-950/20 border border-[#ccfbf1] dark:border-teal-900/40 rounded-lg p-3 sm:px-4 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-xs sm:text-sm text-[#0f766e] dark:text-teal-200",
+                                children: t("properties.create.location.unitInsideProject")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 292,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                onClick: handleUseParentProjectCoordinates,
+                                className: "bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-neutral-700 text-xs font-medium px-3.5 py-1.5 rounded-md shadow-none transition-colors shrink-0",
+                                children: t("properties.create.location.useProjectCoords")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 295,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 291,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "space-y-1",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                htmlFor: "maps_url",
+                                className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+                                children: t("properties.create.location.mapsLinkLabel")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 302,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex gap-2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                        id: "maps_url",
+                                        value: googleMapsUrl,
+                                        onChange: (e)=>{
+                                            const val_1 = e.target.value;
+                                            setGoogleMapsUrl(val_1);
+                                            setValue?.("maps_url", val_1, {
+                                                shouldDirty: true
+                                            });
+                                        },
+                                        onKeyDown: (e_0)=>{
+                                            if (e_0.key === "Enter") {
+                                                e_0.preventDefault();
+                                                handleFetchFromUrl();
+                                            }
+                                        },
+                                        placeholder: "https://www.google.com/maps/@30.05,31.24,15z",
+                                        className: "flex-1 bg-white dark:bg-neutral-950 text-xs h-9 border-gray-300 dark:border-neutral-700"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 306,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        type: "button",
+                                        onClick: handleFetchFromUrl,
+                                        disabled: isFetchingFromUrl || !googleMapsUrl.trim(),
+                                        className: "border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700 disabled:opacity-50 text-gray-800 dark:text-gray-200 text-xs font-medium px-4 h-9 rounded-md shadow-none transition-colors shrink-0 flex items-center gap-1.5",
+                                        children: [
+                                            isFetchingFromUrl && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                                className: "h-3.5 w-3.5 animate-spin text-teal-600"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                                lineNumber: 319,
+                                                columnNumber: 37
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                children: t("properties.create.location.generate")
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                                lineNumber: 320,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 318,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 305,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-[11px] text-gray-400 dark:text-gray-500",
+                                children: t("properties.create.location.mapsLinkHint")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 323,
+                                columnNumber: 11
+                            }, this),
+                            errors?.maps_url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-red-500 text-xs mt-1",
+                                children: t(errors.maps_url.message)
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 326,
+                                columnNumber: 32
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 301,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "space-y-1 pt-1",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+                                children: t("properties.create.location.locationOnMap")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 331,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-[11px] text-gray-500 dark:text-gray-400 pb-1",
+                                children: t("properties.create.location.mapHint")
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 334,
+                                columnNumber: 11
+                            }, this),
+                            hasActivated && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$InteractiveMapPicker$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["InteractiveMapPicker"], {
+                                latitude: mapCoords?.lat,
+                                longitude: mapCoords?.lng,
+                                onLocationSelect: handleMapSelect,
+                                height: "h-[360px]",
+                                attributionControl: true,
+                                showControls: false,
+                                showBadges: false
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 339,
+                                columnNumber: 28
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 330,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                        htmlFor: "latitude",
+                                        className: "text-xs font-medium text-gray-700 dark:text-gray-300 block mb-1",
+                                        children: t("properties.create.location.latitude")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 345,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                        id: "latitude",
+                                        type: "text",
+                                        value: latInput,
+                                        onChange: (e_1)=>handleLatChange(e_1.target.value),
+                                        placeholder: "30.0500000",
+                                        className: "bg-white dark:bg-neutral-950 text-xs font-mono h-9 border-gray-300 dark:border-neutral-700"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 348,
+                                        columnNumber: 13
+                                    }, this),
+                                    errors?.latitude && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-red-500 text-xs mt-1",
+                                        children: t(errors.latitude.message)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 349,
+                                        columnNumber: 34
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 344,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                        htmlFor: "longitude",
+                                        className: "text-xs font-medium text-gray-700 dark:text-gray-300 block mb-1",
+                                        children: t("properties.create.location.longitude")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 352,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                        id: "longitude",
+                                        type: "text",
+                                        value: lngInput,
+                                        onChange: (e_2)=>handleLngChange(e_2.target.value),
+                                        placeholder: "31.2400000",
+                                        className: "bg-white dark:bg-neutral-950 text-xs font-mono h-9 border-gray-300 dark:border-neutral-700"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 355,
+                                        columnNumber: 13
+                                    }, this),
+                                    errors?.longitude && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-red-500 text-xs mt-1",
+                                        children: t(errors.longitude.message)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 356,
+                                        columnNumber: 35
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 351,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 343,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "pt-4 border-t border-gray-100 dark:border-neutral-800",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "grid grid-cols-1 sm:grid-cols-2 gap-4",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: "zone_name",
+                                            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+                                            children: t("properties.create.license.zoneName")
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 364,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: "zone_name",
+                                            ...register("zone_name"),
+                                            placeholder: t("properties.create.license.zoneName"),
+                                            className: "mt-1 text-xs h-9"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 367,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors?.zone_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-red-500 text-xs mt-1",
+                                            children: t(errors.zone_name.message)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 368,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                    lineNumber: 363,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: "city_name",
+                                            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+                                            children: t("properties.create.location.city")
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 372,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: "city_name",
+                                            ...register("city_name"),
+                                            placeholder: t("properties.create.location.cityPlaceholder"),
+                                            className: "mt-1 text-xs h-9"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 375,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors?.city_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-red-500 text-xs mt-1",
+                                            children: t(errors.city_name.message)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 376,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                    lineNumber: 371,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: "area_name",
+                                            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+                                            children: t("properties.create.location.area")
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 380,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: "area_name",
+                                            ...register("area_name"),
+                                            placeholder: t("properties.create.location.areaPlaceholder"),
+                                            className: "mt-1 text-xs h-9"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 383,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors?.area_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-red-500 text-xs mt-1",
+                                            children: t(errors.area_name.message)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 384,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                    lineNumber: 379,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: "landmark",
+                                            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+                                            children: t("properties.create.location.landmark")
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 388,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: "landmark",
+                                            ...register("landmark"),
+                                            placeholder: t("properties.create.location.landmarkPlaceholder"),
+                                            className: "mt-1 text-xs h-9"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 391,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors?.landmark && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-red-500 text-xs mt-1",
+                                            children: t(errors.landmark.message)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 392,
+                                            columnNumber: 36
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                    lineNumber: 387,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                            lineNumber: 362,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 361,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                lineNumber: 286,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-6 space-y-4",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-3",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                        className: "text-sm font-semibold text-gray-900 dark:text-gray-100",
+                                        children: t("properties.create.location.nearbyTitle")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 402,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-xs text-gray-500 dark:text-gray-400 mt-0.5",
+                                        children: t("properties.create.location.nearbySubtitle")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 405,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 401,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                type: "button",
+                                variant: "outline",
+                                size: "sm",
+                                onClick: handleAddPoint,
+                                className: "gap-1.5 text-xs text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 hover:bg-teal-100 dark:hover:bg-teal-900/50 shadow-none",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
+                                        className: "h-3.5 w-3.5"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 410,
+                                        columnNumber: 13
+                                    }, this),
+                                    t("properties.create.location.addNearby")
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 409,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 400,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "space-y-3",
+                        children: nearbyPoints.map((point, index_1)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center gap-3",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex-1",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            value: point.name,
+                                            onChange: (e_3)=>handleUpdatePoint(index_1, "name", e_3.target.value),
+                                            placeholder: t("properties.create.location.destinationPlaceholder"),
+                                            className: "text-xs h-9"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 418,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 417,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "w-36 sm:w-44",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            value: point.distance,
+                                            onChange: (e_4)=>handleUpdatePoint(index_1, "distance", e_4.target.value),
+                                            placeholder: t("properties.create.location.distancePlaceholder"),
+                                            className: "text-xs h-9"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 421,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 420,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                        type: "button",
+                                        variant: "ghost",
+                                        size: "icon",
+                                        onClick: ()=>handleRemovePoint(index_1),
+                                        className: "h-9 w-9 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                            className: "h-4 w-4"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                            lineNumber: 424,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                        lineNumber: 423,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, point.id, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                                lineNumber: 416,
+                                columnNumber: 49
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                        lineNumber: 415,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                lineNumber: 399,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                register: register,
+                setValue: setValue,
+                watch: watch,
+                errors: errors
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+                lineNumber: 430,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/features/properties/components/create/tabs/LocationTab.tsx",
+        lineNumber: 284,
+        columnNumber: 10
+    }, this);
+}
+_s(LocationTab, "HnrrSJiRvCKjKHiQ/BYH5XjYCMw=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = LocationTab;
+var _c;
+__turbopack_context__.k.register(_c, "LocationTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/badge.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Badge",
+    ()=>Badge,
+    "badgeVariants",
+    ()=>badgeVariants
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/class-variance-authority/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+const badgeVariants = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cva"])("inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", {
+    variants: {
+        variant: {
+            default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+            secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+            destructive: "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
+            outline: "text-foreground",
+            success: "border-transparent bg-green-500 text-white shadow hover:bg-green-600",
+            warning: "border-transparent bg-yellow-500 text-yellow-950 shadow hover:bg-yellow-600",
+            info: "border-transparent bg-blue-500 text-white shadow hover:bg-blue-600"
+        }
+    },
+    defaultVariants: {
+        variant: "default"
+    }
+});
+function Badge(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(11);
+    if ($[0] !== "131defe38b2c408d35282d118a2c53fca224aae57d57a4f5f58a63132ce0704b") {
+        for(let $i = 0; $i < 11; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "131defe38b2c408d35282d118a2c53fca224aae57d57a4f5f58a63132ce0704b";
+    }
+    let className;
+    let props;
+    let variant;
+    if ($[1] !== t0) {
+        ({ className, variant, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = props;
+        $[4] = variant;
+    } else {
+        className = $[2];
+        props = $[3];
+        variant = $[4];
+    }
+    let t1;
+    if ($[5] !== className || $[6] !== variant) {
+        t1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])(badgeVariants({
+            variant
+        }), className);
+        $[5] = className;
+        $[6] = variant;
+        $[7] = t1;
+    } else {
+        t1 = $[7];
+    }
+    let t2;
+    if ($[8] !== props || $[9] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: t1,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/badge.tsx",
+            lineNumber: 61,
+            columnNumber: 10
+        }, this);
+        $[8] = props;
+        $[9] = t1;
+        $[10] = t2;
+    } else {
+        t2 = $[10];
+    }
+    return t2;
+}
+_c = Badge;
+;
+var _c;
+__turbopack_context__.k.register(_c, "Badge");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/skeleton.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Skeleton",
+    ()=>Skeleton
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+function Skeleton(t0) {
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(19);
+    if ($[0] !== "d58dcb7d3606f712084eb295450fc6d49359563ef6b5b134b056a01e985f0e0b") {
+        for(let $i = 0; $i < 19; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "d58dcb7d3606f712084eb295450fc6d49359563ef6b5b134b056a01e985f0e0b";
+    }
+    let className;
+    let height;
+    let props;
+    let t1;
+    let width;
+    if ($[1] !== t0) {
+        ({ className, variant: t1, width, height, ...props } = t0);
+        $[1] = t0;
+        $[2] = className;
+        $[3] = height;
+        $[4] = props;
+        $[5] = t1;
+        $[6] = width;
+    } else {
+        className = $[2];
+        height = $[3];
+        props = $[4];
+        t1 = $[5];
+        width = $[6];
+    }
+    const variant = t1 === undefined ? "rectangular" : t1;
+    const t2 = variant === "text" && "h-4 rounded";
+    const t3 = variant === "circular" && "rounded-full";
+    const t4 = variant === "rectangular" && "rounded-md";
+    let t5;
+    if ($[7] !== className || $[8] !== t2 || $[9] !== t3 || $[10] !== t4) {
+        t5 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("animate-pulse bg-gray-200", t2, t3, t4, className);
+        $[7] = className;
+        $[8] = t2;
+        $[9] = t3;
+        $[10] = t4;
+        $[11] = t5;
+    } else {
+        t5 = $[11];
+    }
+    let t6;
+    if ($[12] !== height || $[13] !== width) {
+        t6 = {
+            width,
+            height
+        };
+        $[12] = height;
+        $[13] = width;
+        $[14] = t6;
+    } else {
+        t6 = $[14];
+    }
+    let t7;
+    if ($[15] !== props || $[16] !== t5 || $[17] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: t5,
+            style: t6,
+            ...props
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/skeleton.tsx",
+            lineNumber: 71,
+            columnNumber: 10
+        }, this);
+        $[15] = props;
+        $[16] = t5;
+        $[17] = t6;
+        $[18] = t7;
+    } else {
+        t7 = $[18];
+    }
+    return t7;
+}
+_c = Skeleton;
+var _c;
+__turbopack_context__.k.register(_c, "Skeleton");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>AmenitiesTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useQuery.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/services/AdminPropertiesService.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/search.js [app-client] (ecmascript) <export default as Search>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/sparkles.js [app-client] (ecmascript) <export default as Sparkles>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$waves$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Waves$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/waves.js [app-client] (ecmascript) <export default as Waves>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/layers.js [app-client] (ecmascript) <export default as Layers>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/refresh-cw.js [app-client] (ecmascript) <export default as RefreshCw>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/badge.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/skeleton.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function AmenitiesTab(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(139);
+    if ($[0] !== "d08019f9d839c775f55738d474090f823111d55731493bae990aaad6fd681065") {
+        for(let $i = 0; $i < 139; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "d08019f9d839c775f55738d474090f823111d55731493bae990aaad6fd681065";
+    }
+    const { register, setValue, watch, selectedFeatures: controlledSelectedFeatures, onChangeFeatures, errors, isActive: t1 } = t0;
+    const isActive = t1 === undefined ? true : t1;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const [hasActivated, setHasActivated] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(isActive);
+    if (isActive && !hasActivated) {
+        setHasActivated(true);
+    }
+    let t2;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t2 = [];
+        $[1] = t2;
+    } else {
+        t2 = $[1];
+    }
+    const [internalSelected, setInternalSelected] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(t2);
+    const selectedFeatures = controlledSelectedFeatures ?? internalSelected;
+    let t3;
+    if ($[2] !== onChangeFeatures || $[3] !== selectedFeatures) {
+        t3 = ({
+            "AmenitiesTab[updateSelectedFeatures]": (updater)=>{
+                const next = updater(selectedFeatures);
+                if (onChangeFeatures) {
+                    onChangeFeatures(next);
+                } else {
+                    setInternalSelected(next);
+                }
+            }
+        })["AmenitiesTab[updateSelectedFeatures]"];
+        $[2] = onChangeFeatures;
+        $[3] = selectedFeatures;
+        $[4] = t3;
+    } else {
+        t3 = $[4];
+    }
+    const updateSelectedFeatures = t3;
+    const [activeTab, setActiveTab] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("all");
+    const [searchQuery, setSearchQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    let t4;
+    if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
+        t4 = [
+            "available-features"
+        ];
+        $[5] = t4;
+    } else {
+        t4 = $[5];
+    }
+    let t5;
+    if ($[6] !== hasActivated) {
+        t5 = {
+            queryKey: t4,
+            queryFn: _temp,
+            staleTime: 300000,
+            enabled: hasActivated
+        };
+        $[6] = hasActivated;
+        $[7] = t5;
+    } else {
+        t5 = $[7];
+    }
+    const { data: t6, isLoading, isError, refetch } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])(t5);
+    let t7;
+    if ($[8] !== t6) {
+        t7 = t6 === undefined ? [] : t6;
+        $[8] = t6;
+        $[9] = t7;
+    } else {
+        t7 = $[9];
+    }
+    const allFeatures = t7;
+    let t8;
+    if ($[10] !== activeTab || $[11] !== allFeatures || $[12] !== searchQuery) {
+        let t9;
+        if ($[14] !== activeTab || $[15] !== searchQuery) {
+            t9 = ({
+                "AmenitiesTab[allFeatures.filter()]": (f)=>{
+                    const matchesTab = activeTab === "all" ? true : activeTab === "amenities" ? f.is_amenity === 1 : f.is_amenity === 0;
+                    const matchesSearch = !searchQuery.trim() || f.feature_name.toLowerCase().includes(searchQuery.toLowerCase().trim());
+                    return matchesTab && matchesSearch;
+                }
+            })["AmenitiesTab[allFeatures.filter()]"];
+            $[14] = activeTab;
+            $[15] = searchQuery;
+            $[16] = t9;
+        } else {
+            t9 = $[16];
+        }
+        t8 = allFeatures.filter(t9);
+        $[10] = activeTab;
+        $[11] = allFeatures;
+        $[12] = searchQuery;
+        $[13] = t8;
+    } else {
+        t8 = $[13];
+    }
+    const filteredFeatures = t8;
+    let t9;
+    if ($[17] !== allFeatures) {
+        t9 = allFeatures.filter(_AmenitiesTabAllFeaturesFilter);
+        $[17] = allFeatures;
+        $[18] = t9;
+    } else {
+        t9 = $[18];
+    }
+    const amenitiesCount = t9.length;
+    let t10;
+    if ($[19] !== allFeatures) {
+        t10 = allFeatures.filter(_AmenitiesTabAllFeaturesFilter2);
+        $[19] = allFeatures;
+        $[20] = t10;
+    } else {
+        t10 = $[20];
+    }
+    const featuresOnlyCount = t10.length;
+    const selectedCount = selectedFeatures.length;
+    let t11;
+    if ($[21] !== allFeatures || $[22] !== selectedFeatures) {
+        let t12;
+        if ($[24] !== allFeatures) {
+            t12 = ({
+                "AmenitiesTab[selectedFeatures.filter()]": (sf)=>{
+                    const found = allFeatures.find({
+                        "AmenitiesTab[selectedFeatures.filter() > allFeatures.find()]": (f_2)=>f_2.feature_id === sf.feature_id
+                    }["AmenitiesTab[selectedFeatures.filter() > allFeatures.find()]"]);
+                    return found ? found.is_amenity === 1 : sf.is_amenity === 1;
+                }
+            })["AmenitiesTab[selectedFeatures.filter()]"];
+            $[24] = allFeatures;
+            $[25] = t12;
+        } else {
+            t12 = $[25];
+        }
+        t11 = selectedFeatures.filter(t12);
+        $[21] = allFeatures;
+        $[22] = selectedFeatures;
+        $[23] = t11;
+    } else {
+        t11 = $[23];
+    }
+    const selectedAmenitiesCount = t11.length;
+    const selectedFeaturesOnlyCount = selectedCount - selectedAmenitiesCount;
+    let t12;
+    if ($[26] !== updateSelectedFeatures) {
+        t12 = ({
+            "AmenitiesTab[toggleFeature]": (feature)=>{
+                updateSelectedFeatures({
+                    "AmenitiesTab[toggleFeature > updateSelectedFeatures()]": (prev)=>{
+                        const exists = prev.some({
+                            "AmenitiesTab[toggleFeature > updateSelectedFeatures() > prev.some()]": (item)=>item.feature_id === feature.feature_id
+                        }["AmenitiesTab[toggleFeature > updateSelectedFeatures() > prev.some()]"]);
+                        if (exists) {
+                            return prev.filter({
+                                "AmenitiesTab[toggleFeature > updateSelectedFeatures() > prev.filter()]": (item_0)=>item_0.feature_id !== feature.feature_id
+                            }["AmenitiesTab[toggleFeature > updateSelectedFeatures() > prev.filter()]"]);
+                        }
+                        return [
+                            ...prev,
+                            {
+                                feature_id: feature.feature_id,
+                                value: feature.feature_name,
+                                feature_name: feature.feature_name,
+                                is_amenity: feature.is_amenity,
+                                icons: feature.icons
+                            }
+                        ];
+                    }
+                }["AmenitiesTab[toggleFeature > updateSelectedFeatures()]"]);
+            }
+        })["AmenitiesTab[toggleFeature]"];
+        $[26] = updateSelectedFeatures;
+        $[27] = t12;
+    } else {
+        t12 = $[27];
+    }
+    const toggleFeature = t12;
+    let t13;
+    if ($[28] !== filteredFeatures || $[29] !== updateSelectedFeatures) {
+        t13 = ({
+            "AmenitiesTab[selectAllFiltered]": ()=>{
+                updateSelectedFeatures({
+                    "AmenitiesTab[selectAllFiltered > updateSelectedFeatures()]": (prev_0)=>{
+                        const prevIds = new Set(prev_0.map(_AmenitiesTabSelectAllFilteredUpdateSelectedFeaturesPrev_0Map));
+                        const newAdditions = filteredFeatures.filter({
+                            "AmenitiesTab[selectAllFiltered > updateSelectedFeatures() > filteredFeatures.filter()]": (f_3)=>!prevIds.has(f_3.feature_id)
+                        }["AmenitiesTab[selectAllFiltered > updateSelectedFeatures() > filteredFeatures.filter()]"]).map(_AmenitiesTabSelectAllFilteredUpdateSelectedFeaturesAnonymous);
+                        return [
+                            ...prev_0,
+                            ...newAdditions
+                        ];
+                    }
+                }["AmenitiesTab[selectAllFiltered > updateSelectedFeatures()]"]);
+            }
+        })["AmenitiesTab[selectAllFiltered]"];
+        $[28] = filteredFeatures;
+        $[29] = updateSelectedFeatures;
+        $[30] = t13;
+    } else {
+        t13 = $[30];
+    }
+    const selectAllFiltered = t13;
+    let t14;
+    if ($[31] !== filteredFeatures || $[32] !== updateSelectedFeatures) {
+        t14 = ({
+            "AmenitiesTab[clearFiltered]": ()=>{
+                const filteredIds = new Set(filteredFeatures.map(_AmenitiesTabClearFilteredFilteredFeaturesMap));
+                updateSelectedFeatures({
+                    "AmenitiesTab[clearFiltered > updateSelectedFeatures()]": (prev_1)=>prev_1.filter({
+                            "AmenitiesTab[clearFiltered > updateSelectedFeatures() > prev_1.filter()]": (p_0)=>!filteredIds.has(p_0.feature_id)
+                        }["AmenitiesTab[clearFiltered > updateSelectedFeatures() > prev_1.filter()]"])
+                }["AmenitiesTab[clearFiltered > updateSelectedFeatures()]"]);
+            }
+        })["AmenitiesTab[clearFiltered]"];
+        $[31] = filteredFeatures;
+        $[32] = updateSelectedFeatures;
+        $[33] = t14;
+    } else {
+        t14 = $[33];
+    }
+    const clearFiltered = t14;
+    let t15;
+    if ($[34] === Symbol.for("react.memo_cache_sentinel")) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__["Sparkles"], {
+            className: "w-5 h-5 text-teal-600 dark:text-teal-400"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 268,
+            columnNumber: 11
+        }, this);
+        $[34] = t15;
+    } else {
+        t15 = $[34];
+    }
+    let t16;
+    if ($[35] !== t) {
+        t16 = t("properties.create.amenities.title");
+        $[35] = t;
+        $[36] = t16;
+    } else {
+        t16 = $[36];
+    }
+    let t17;
+    if ($[37] !== t16) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+            className: "text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2",
+            children: [
+                t15,
+                t16
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 283,
+            columnNumber: 11
+        }, this);
+        $[37] = t16;
+        $[38] = t17;
+    } else {
+        t17 = $[38];
+    }
+    let t18;
+    if ($[39] !== t) {
+        t18 = t("properties.create.amenities.subtitle");
+        $[39] = t;
+        $[40] = t18;
+    } else {
+        t18 = $[40];
+    }
+    let t19;
+    if ($[41] !== t18) {
+        t19 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5",
+            children: t18
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 299,
+            columnNumber: 11
+        }, this);
+        $[41] = t18;
+        $[42] = t19;
+    } else {
+        t19 = $[42];
+    }
+    let t20;
+    if ($[43] !== t17 || $[44] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t17,
+                t19
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 307,
+            columnNumber: 11
+        }, this);
+        $[43] = t17;
+        $[44] = t19;
+        $[45] = t20;
+    } else {
+        t20 = $[45];
+    }
+    let t21;
+    if ($[46] !== selectedAmenitiesCount || $[47] !== selectedCount || $[48] !== selectedFeaturesOnlyCount || $[49] !== t) {
+        t21 = t("properties.create.amenities.selectedSummary", {
+            selected: selectedCount,
+            amenities: selectedAmenitiesCount,
+            features: selectedFeaturesOnlyCount
+        });
+        $[46] = selectedAmenitiesCount;
+        $[47] = selectedCount;
+        $[48] = selectedFeaturesOnlyCount;
+        $[49] = t;
+        $[50] = t21;
+    } else {
+        t21 = $[50];
+    }
+    let t22;
+    if ($[51] !== t21) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2 flex-wrap",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                variant: "outline",
+                className: "bg-teal-50/60 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800 font-medium px-2.5 py-1 text-xs",
+                children: t21
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                lineNumber: 331,
+                columnNumber: 62
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 331,
+            columnNumber: 11
+        }, this);
+        $[51] = t21;
+        $[52] = t22;
+    } else {
+        t22 = $[52];
+    }
+    let t23;
+    if ($[53] !== t20 || $[54] !== t22) {
+        t23 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-neutral-800 pb-4",
+            children: [
+                t20,
+                t22
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 339,
+            columnNumber: 11
+        }, this);
+        $[53] = t20;
+        $[54] = t22;
+        $[55] = t23;
+    } else {
+        t23 = $[55];
+    }
+    let t24;
+    if ($[56] === Symbol.for("react.memo_cache_sentinel")) {
+        t24 = ({
+            "AmenitiesTab[<button>.onClick]": ()=>setActiveTab("all")
+        })["AmenitiesTab[<button>.onClick]"];
+        $[56] = t24;
+    } else {
+        t24 = $[56];
+    }
+    const t25 = `px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === "all" ? "bg-white dark:bg-neutral-900 text-gray-900 dark:text-gray-100 shadow-2xs font-semibold" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"}`;
+    let t26;
+    if ($[57] === Symbol.for("react.memo_cache_sentinel")) {
+        t26 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__["Layers"], {
+            className: "w-3.5 h-3.5"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 358,
+            columnNumber: 11
+        }, this);
+        $[57] = t26;
+    } else {
+        t26 = $[57];
+    }
+    let t27;
+    if ($[58] !== t) {
+        t27 = t("common.all");
+        $[58] = t;
+        $[59] = t27;
+    } else {
+        t27 = $[59];
+    }
+    let t28;
+    if ($[60] !== t27) {
+        t28 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            children: t27
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 373,
+            columnNumber: 11
+        }, this);
+        $[60] = t27;
+        $[61] = t28;
+    } else {
+        t28 = $[61];
+    }
+    let t29;
+    if ($[62] !== allFeatures.length) {
+        t29 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-[10px] px-1.5 py-0.2 bg-gray-200 dark:bg-neutral-700 rounded-full",
+            children: allFeatures.length
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 381,
+            columnNumber: 11
+        }, this);
+        $[62] = allFeatures.length;
+        $[63] = t29;
+    } else {
+        t29 = $[63];
+    }
+    let t30;
+    if ($[64] !== t25 || $[65] !== t28 || $[66] !== t29) {
+        t30 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            type: "button",
+            onClick: t24,
+            className: t25,
+            children: [
+                t26,
+                t28,
+                t29
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 389,
+            columnNumber: 11
+        }, this);
+        $[64] = t25;
+        $[65] = t28;
+        $[66] = t29;
+        $[67] = t30;
+    } else {
+        t30 = $[67];
+    }
+    let t31;
+    if ($[68] === Symbol.for("react.memo_cache_sentinel")) {
+        t31 = ({
+            "AmenitiesTab[<button>.onClick]": ()=>setActiveTab("amenities")
+        })["AmenitiesTab[<button>.onClick]"];
+        $[68] = t31;
+    } else {
+        t31 = $[68];
+    }
+    const t32 = `px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === "amenities" ? "bg-white dark:bg-neutral-900 text-teal-700 dark:text-teal-300 shadow-2xs font-semibold" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"}`;
+    let t33;
+    if ($[69] === Symbol.for("react.memo_cache_sentinel")) {
+        t33 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$waves$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Waves$3e$__["Waves"], {
+            className: "w-3.5 h-3.5 text-teal-500"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 409,
+            columnNumber: 11
+        }, this);
+        $[69] = t33;
+    } else {
+        t33 = $[69];
+    }
+    let t34;
+    if ($[70] !== t) {
+        t34 = t("properties.create.amenities.filterAmenities");
+        $[70] = t;
+        $[71] = t34;
+    } else {
+        t34 = $[71];
+    }
+    let t35;
+    if ($[72] !== t34) {
+        t35 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            children: t34
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 424,
+            columnNumber: 11
+        }, this);
+        $[72] = t34;
+        $[73] = t35;
+    } else {
+        t35 = $[73];
+    }
+    let t36;
+    if ($[74] !== amenitiesCount) {
+        t36 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-[10px] px-1.5 py-0.2 bg-gray-200 dark:bg-neutral-700 rounded-full",
+            children: amenitiesCount
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 432,
+            columnNumber: 11
+        }, this);
+        $[74] = amenitiesCount;
+        $[75] = t36;
+    } else {
+        t36 = $[75];
+    }
+    let t37;
+    if ($[76] !== t32 || $[77] !== t35 || $[78] !== t36) {
+        t37 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            type: "button",
+            onClick: t31,
+            className: t32,
+            children: [
+                t33,
+                t35,
+                t36
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 440,
+            columnNumber: 11
+        }, this);
+        $[76] = t32;
+        $[77] = t35;
+        $[78] = t36;
+        $[79] = t37;
+    } else {
+        t37 = $[79];
+    }
+    let t38;
+    if ($[80] === Symbol.for("react.memo_cache_sentinel")) {
+        t38 = ({
+            "AmenitiesTab[<button>.onClick]": ()=>setActiveTab("features")
+        })["AmenitiesTab[<button>.onClick]"];
+        $[80] = t38;
+    } else {
+        t38 = $[80];
+    }
+    const t39 = `px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === "features" ? "bg-white dark:bg-neutral-900 text-indigo-700 dark:text-indigo-300 shadow-2xs font-semibold" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"}`;
+    let t40;
+    if ($[81] === Symbol.for("react.memo_cache_sentinel")) {
+        t40 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__["Sparkles"], {
+            className: "w-3.5 h-3.5 text-indigo-500"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 460,
+            columnNumber: 11
+        }, this);
+        $[81] = t40;
+    } else {
+        t40 = $[81];
+    }
+    let t41;
+    if ($[82] !== t) {
+        t41 = t("properties.create.amenities.filterFeatures");
+        $[82] = t;
+        $[83] = t41;
+    } else {
+        t41 = $[83];
+    }
+    let t42;
+    if ($[84] !== t41) {
+        t42 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            children: t41
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 475,
+            columnNumber: 11
+        }, this);
+        $[84] = t41;
+        $[85] = t42;
+    } else {
+        t42 = $[85];
+    }
+    let t43;
+    if ($[86] !== featuresOnlyCount) {
+        t43 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-[10px] px-1.5 py-0.2 bg-gray-200 dark:bg-neutral-700 rounded-full",
+            children: featuresOnlyCount
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 483,
+            columnNumber: 11
+        }, this);
+        $[86] = featuresOnlyCount;
+        $[87] = t43;
+    } else {
+        t43 = $[87];
+    }
+    let t44;
+    if ($[88] !== t39 || $[89] !== t42 || $[90] !== t43) {
+        t44 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            type: "button",
+            onClick: t38,
+            className: t39,
+            children: [
+                t40,
+                t42,
+                t43
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 491,
+            columnNumber: 11
+        }, this);
+        $[88] = t39;
+        $[89] = t42;
+        $[90] = t43;
+        $[91] = t44;
+    } else {
+        t44 = $[91];
+    }
+    let t45;
+    if ($[92] !== t30 || $[93] !== t37 || $[94] !== t44) {
+        t45 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-1.5 p-1 bg-gray-100/80 dark:bg-neutral-800/80 rounded-lg w-fit",
+            children: [
+                t30,
+                t37,
+                t44
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 501,
+            columnNumber: 11
+        }, this);
+        $[92] = t30;
+        $[93] = t37;
+        $[94] = t44;
+        $[95] = t45;
+    } else {
+        t45 = $[95];
+    }
+    let t46;
+    if ($[96] === Symbol.for("react.memo_cache_sentinel")) {
+        t46 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
+            className: "w-4 h-4 text-gray-400 absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 511,
+            columnNumber: 11
+        }, this);
+        $[96] = t46;
+    } else {
+        t46 = $[96];
+    }
+    let t47;
+    if ($[97] !== t) {
+        t47 = t("properties.create.amenities.searchFeatures");
+        $[97] = t;
+        $[98] = t47;
+    } else {
+        t47 = $[98];
+    }
+    let t48;
+    if ($[99] === Symbol.for("react.memo_cache_sentinel")) {
+        t48 = ({
+            "AmenitiesTab[<Input>.onChange]": (e)=>setSearchQuery(e.target.value)
+        })["AmenitiesTab[<Input>.onChange]"];
+        $[99] = t48;
+    } else {
+        t48 = $[99];
+    }
+    let t49;
+    if ($[100] !== searchQuery || $[101] !== t47) {
+        t49 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            type: "text",
+            placeholder: t47,
+            value: searchQuery,
+            onChange: t48,
+            className: "ps-9 pe-8 h-9 text-xs dark:bg-neutral-900 dark:border-neutral-700"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 535,
+            columnNumber: 11
+        }, this);
+        $[100] = searchQuery;
+        $[101] = t47;
+        $[102] = t49;
+    } else {
+        t49 = $[102];
+    }
+    let t50;
+    if ($[103] !== searchQuery) {
+        t50 = searchQuery && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            type: "button",
+            onClick: {
+                "AmenitiesTab[<button>.onClick]": ()=>setSearchQuery("")
+            }["AmenitiesTab[<button>.onClick]"],
+            className: "absolute end-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                className: "w-3.5 h-3.5"
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                lineNumber: 546,
+                columnNumber: 161
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 544,
+            columnNumber: 26
+        }, this);
+        $[103] = searchQuery;
+        $[104] = t50;
+    } else {
+        t50 = $[104];
+    }
+    let t51;
+    if ($[105] !== t49 || $[106] !== t50) {
+        t51 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "relative w-full sm:w-64",
+            children: [
+                t46,
+                t49,
+                t50
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 554,
+            columnNumber: 11
+        }, this);
+        $[105] = t49;
+        $[106] = t50;
+        $[107] = t51;
+    } else {
+        t51 = $[107];
+    }
+    let t52;
+    if ($[108] !== clearFiltered || $[109] !== filteredFeatures.length || $[110] !== selectAllFiltered || $[111] !== t) {
+        t52 = filteredFeatures.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-1.5 shrink-0",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                    type: "button",
+                    variant: "outline",
+                    size: "sm",
+                    onClick: selectAllFiltered,
+                    className: "h-9 text-xs px-2.5 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-800",
+                    children: t("properties.create.amenities.selectAll")
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                    lineNumber: 563,
+                    columnNumber: 94
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                    type: "button",
+                    variant: "ghost",
+                    size: "sm",
+                    onClick: clearFiltered,
+                    className: "h-9 text-xs px-2.5 text-gray-500 hover:text-red-600 dark:hover:text-red-400",
+                    children: t("properties.create.amenities.clear")
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                    lineNumber: 563,
+                    columnNumber: 323
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 563,
+            columnNumber: 42
+        }, this);
+        $[108] = clearFiltered;
+        $[109] = filteredFeatures.length;
+        $[110] = selectAllFiltered;
+        $[111] = t;
+        $[112] = t52;
+    } else {
+        t52 = $[112];
+    }
+    let t53;
+    if ($[113] !== t51 || $[114] !== t52) {
+        t53 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2",
+            children: [
+                t51,
+                t52
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 574,
+            columnNumber: 11
+        }, this);
+        $[113] = t51;
+        $[114] = t52;
+        $[115] = t53;
+    } else {
+        t53 = $[115];
+    }
+    let t54;
+    if ($[116] !== t45 || $[117] !== t53) {
+        t54 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex flex-col md:flex-row md:items-center justify-between gap-3",
+            children: [
+                t45,
+                t53
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 583,
+            columnNumber: 11
+        }, this);
+        $[116] = t45;
+        $[117] = t53;
+        $[118] = t54;
+    } else {
+        t54 = $[118];
+    }
+    let t55;
+    if ($[119] !== filteredFeatures || $[120] !== isError || $[121] !== isLoading || $[122] !== refetch || $[123] !== selectedFeatures || $[124] !== t || $[125] !== toggleFeature) {
+        t55 = isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-2",
+            children: Array.from({
+                length: 18
+            }).map(_AmenitiesTabAnonymous)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 592,
+            columnNumber: 23
+        }, this) : isError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "p-6 text-center rounded-xl bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-300",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "text-sm font-medium",
+                    children: t("properties.create.amenities.loadFailed")
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                    lineNumber: 594,
+                    columnNumber: 209
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                    type: "button",
+                    variant: "outline",
+                    size: "sm",
+                    onClick: {
+                        "AmenitiesTab[<Button>.onClick]": ()=>refetch()
+                    }["AmenitiesTab[<Button>.onClick]"],
+                    className: "mt-2 text-xs border-red-300 dark:border-red-800 hover:bg-red-100/50 dark:hover:bg-red-900/30",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                            className: "w-3.5 h-3.5 me-1"
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                            lineNumber: 596,
+                            columnNumber: 149
+                        }, this),
+                        t("properties.create.amenities.retry")
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                    lineNumber: 594,
+                    columnNumber: 293
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 594,
+            columnNumber: 57
+        }, this) : filteredFeatures.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "py-8 text-center text-gray-500 dark:text-gray-400 border border-dashed border-gray-200 dark:border-neutral-800 rounded-xl",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
+                    className: "w-6 h-6 mx-auto mb-2 text-gray-300 dark:text-neutral-600"
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                    lineNumber: 596,
+                    columnNumber: 420
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "text-xs sm:text-sm font-medium",
+                    children: t("properties.create.amenities.noResults")
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                    lineNumber: 596,
+                    columnNumber: 499
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 596,
+            columnNumber: 281
+        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-1 max-h-[360px] overflow-y-auto pe-1",
+            children: filteredFeatures.map({
+                "AmenitiesTab[filteredFeatures.map()]": (feature_0)=>{
+                    const isSelected = selectedFeatures.some({
+                        "AmenitiesTab[filteredFeatures.map() > selectedFeatures.some()]": (sf_0)=>sf_0.feature_id === feature_0.feature_id
+                    }["AmenitiesTab[filteredFeatures.map() > selectedFeatures.some()]"]);
+                    const isAmenity = feature_0.is_amenity === 1;
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: {
+                            "AmenitiesTab[filteredFeatures.map() > <button>.onClick]": ()=>toggleFeature(feature_0)
+                        }["AmenitiesTab[filteredFeatures.map() > <button>.onClick]"],
+                        className: `group relative flex items-center justify-between gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-all cursor-pointer select-none text-start text-balance ${isSelected ? isAmenity ? "bg-teal-50 border-teal-500 text-teal-900 dark:bg-teal-950/40 dark:border-teal-500 dark:text-teal-200 shadow-2xs" : "bg-indigo-50 border-indigo-500 text-indigo-900 dark:bg-indigo-950/40 dark:border-indigo-500 dark:text-indigo-200 shadow-2xs" : "bg-white dark:bg-neutral-900/90 border-gray-200 dark:border-neutral-700/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-800/60"}`,
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center gap-1.5 min-w-0",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "shrink-0 text-sm leading-none",
+                                        children: feature_0.icons || (isAmenity ? "\uD83C\uDFCA" : "\u2728")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                                        lineNumber: 604,
+                                        columnNumber: 789
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "truncate",
+                                        title: feature_0.feature_name,
+                                        children: feature_0.feature_name
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                                        lineNumber: 604,
+                                        columnNumber: 904
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                                lineNumber: 604,
+                                columnNumber: 738
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: `shrink-0 w-4 h-4 rounded-full flex items-center justify-center transition-all ${isSelected ? isAmenity ? "bg-teal-600 text-white" : "bg-indigo-600 text-white" : "border border-gray-300 dark:border-neutral-600 opacity-40 group-hover:opacity-100"}`,
+                                children: isSelected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                    className: "w-2.5 h-2.5 stroke-[3]"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                                    lineNumber: 604,
+                                    columnNumber: 1280
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                                lineNumber: 604,
+                                columnNumber: 999
+                            }, this)
+                        ]
+                    }, feature_0.feature_id, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+                        lineNumber: 602,
+                        columnNumber: 18
+                    }, this);
+                }
+            }["AmenitiesTab[filteredFeatures.map()]"])
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 596,
+            columnNumber: 602
+        }, this);
+        $[119] = filteredFeatures;
+        $[120] = isError;
+        $[121] = isLoading;
+        $[122] = refetch;
+        $[123] = selectedFeatures;
+        $[124] = t;
+        $[125] = toggleFeature;
+        $[126] = t55;
+    } else {
+        t55 = $[126];
+    }
+    let t56;
+    if ($[127] !== t23 || $[128] !== t54 || $[129] !== t55) {
+        t56 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-5 shadow-xs",
+            children: [
+                t23,
+                t54,
+                t55
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 620,
+            columnNumber: 11
+        }, this);
+        $[127] = t23;
+        $[128] = t54;
+        $[129] = t55;
+        $[130] = t56;
+    } else {
+        t56 = $[130];
+    }
+    let t57;
+    if ($[131] !== errors || $[132] !== register || $[133] !== setValue || $[134] !== watch) {
+        t57 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            register: register,
+            setValue: setValue,
+            watch: watch,
+            errors: errors
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 630,
+            columnNumber: 11
+        }, this);
+        $[131] = errors;
+        $[132] = register;
+        $[133] = setValue;
+        $[134] = watch;
+        $[135] = t57;
+    } else {
+        t57 = $[135];
+    }
+    let t58;
+    if ($[136] !== t56 || $[137] !== t57) {
+        t58 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-6",
+            children: [
+                t56,
+                t57
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+            lineNumber: 641,
+            columnNumber: 11
+        }, this);
+        $[136] = t56;
+        $[137] = t57;
+        $[138] = t58;
+    } else {
+        t58 = $[138];
+    }
+    return t58;
+}
+_s(AmenitiesTab, "V/CwIEiRVvdLnKLsndDkKoSqKJE=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]
+    ];
+});
+_c = AmenitiesTab;
+function _AmenitiesTabAnonymous(_, i) {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
+        className: "h-9 rounded-lg"
+    }, i, false, {
+        fileName: "[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx",
+        lineNumber: 651,
+        columnNumber: 10
+    }, this);
+}
+function _AmenitiesTabClearFilteredFilteredFeaturesMap(f_5) {
+    return f_5.feature_id;
+}
+function _AmenitiesTabSelectAllFilteredUpdateSelectedFeaturesAnonymous(f_4) {
+    return {
+        feature_id: f_4.feature_id,
+        value: f_4.feature_name,
+        feature_name: f_4.feature_name,
+        is_amenity: f_4.is_amenity,
+        icons: f_4.icons
+    };
+}
+function _AmenitiesTabSelectAllFilteredUpdateSelectedFeaturesPrev_0Map(p) {
+    return p.feature_id;
+}
+function _AmenitiesTabAllFeaturesFilter2(f_1) {
+    return f_1.is_amenity === 0;
+}
+function _AmenitiesTabAllFeaturesFilter(f_0) {
+    return f_0.is_amenity === 1;
+}
+function _temp() {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getAvailableFeatures();
+}
+var _c;
+__turbopack_context__.k.register(_c, "AmenitiesTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/payment-plans/payment-plans.types.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "PAYMENT_PERIOD_OPTIONS",
+    ()=>PAYMENT_PERIOD_OPTIONS,
+    "PRESET_PLAN_TEMPLATES",
+    ()=>PRESET_PLAN_TEMPLATES,
+    "getPaymentPeriodLabel",
+    ()=>getPaymentPeriodLabel
+]);
+const PAYMENT_PERIOD_OPTIONS = [
+    {
+        value: "Monthly",
+        labelKey: "properties.create.paymentPlans.periods.monthly"
+    },
+    {
+        value: "Quarterly",
+        labelKey: "properties.create.paymentPlans.periods.quarterly"
+    },
+    {
+        value: "Semi-Annually",
+        labelKey: "properties.create.paymentPlans.periods.semiAnnually"
+    },
+    {
+        value: "Yearly",
+        labelKey: "properties.create.paymentPlans.periods.yearly"
+    },
+    {
+        value: "During Construction",
+        labelKey: "properties.create.paymentPlans.periods.duringConstruction"
+    },
+    {
+        value: "Post Handover (2 Years)",
+        labelKey: "properties.create.paymentPlans.periods.postHandover2"
+    },
+    {
+        value: "Post Handover (3 Years)",
+        labelKey: "properties.create.paymentPlans.periods.postHandover3"
+    },
+    {
+        value: "Immediate",
+        labelKey: "properties.create.paymentPlans.periods.immediate"
+    }
+];
+function getPaymentPeriodLabel(period, t) {
+    const option = PAYMENT_PERIOD_OPTIONS.find((o)=>o.value === period);
+    return option ? t(option.labelKey) : period;
+}
+const PRESET_PLAN_TEMPLATES = [
+    {
+        id: "plan_50_50",
+        name: "50/50 On Handover",
+        nameKey: "properties.create.paymentPlans.presets.plan50_50",
+        description: "20% Down payment, 30% during construction, 50% on handover",
+        descriptionKey: "properties.create.paymentPlans.presetDescriptions.plan50_50",
+        down_payment_percentage: 20,
+        installments_count: 4,
+        period: "Quarterly",
+        handover_percentage: 50
+    },
+    {
+        id: "plan_60_40",
+        name: "60/40 Payment Plan",
+        nameKey: "properties.create.paymentPlans.presets.plan60_40",
+        description: "20% Down payment, 40% during construction, 40% on handover",
+        descriptionKey: "properties.create.paymentPlans.presetDescriptions.plan60_40",
+        down_payment_percentage: 20,
+        installments_count: 6,
+        period: "Quarterly",
+        handover_percentage: 40
+    },
+    {
+        id: "plan_70_30",
+        name: "70/30 Standard",
+        nameKey: "properties.create.paymentPlans.presets.plan70_30",
+        description: "15% Down payment, 55% during construction, 30% on handover",
+        descriptionKey: "properties.create.paymentPlans.presetDescriptions.plan70_30",
+        down_payment_percentage: 15,
+        installments_count: 8,
+        period: "Quarterly",
+        handover_percentage: 30
+    },
+    {
+        id: "plan_80_20",
+        name: "80/20 Post Handover (2 Yrs)",
+        nameKey: "properties.create.paymentPlans.presets.plan80_20",
+        description: "20% Down payment, 60% construction, 10% handover, 10% post-handover",
+        descriptionKey: "properties.create.paymentPlans.presetDescriptions.plan80_20",
+        down_payment_percentage: 20,
+        installments_count: 12,
+        period: "Monthly",
+        handover_percentage: 10
+    },
+    {
+        id: "plan_cash",
+        name: "100% Cash / Lump Sum",
+        nameKey: "properties.create.paymentPlans.presets.cash",
+        description: "Full payment upfront with maximum discount",
+        descriptionKey: "properties.create.paymentPlans.presetDescriptions.cash",
+        down_payment_percentage: 100,
+        installments_count: 1,
+        period: "Immediate",
+        handover_percentage: 0
+    }
+];
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/modal.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ConfirmModal",
+    ()=>ConfirmModal,
+    "Modal",
+    ()=>Modal
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/dialog.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+const sizeClasses = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+    "2xl": "max-w-2xl",
+    "3xl": "max-w-3xl",
+    full: "max-w-full w-[95vw]"
+};
+function Modal(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(24);
+    if ($[0] !== "91588273ba3c98ae6702173bdb5fb451cf3bf417a41352056fb2cbdd6c29ba0f") {
+        for(let $i = 0; $i < 24; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "91588273ba3c98ae6702173bdb5fb451cf3bf417a41352056fb2cbdd6c29ba0f";
+    }
+    const { isOpen, onClose, title, description, children, footer, size: t1, showCloseButton: t2, scrollable: t3 } = t0;
+    const size = t1 === undefined ? "lg" : t1;
+    t2 === undefined ? true : t2;
+    const scrollable = t3 === undefined ? false : t3;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const t4 = `${sizeClasses[size]} ${scrollable ? "max-h-[85vh] flex flex-col" : ""}`;
+    let t5;
+    if ($[1] !== title) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogTitle"], {
+            children: title
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 56,
+            columnNumber: 10
+        }, this);
+        $[1] = title;
+        $[2] = t5;
+    } else {
+        t5 = $[2];
+    }
+    let t6;
+    if ($[3] !== description || $[4] !== t || $[5] !== title) {
+        t6 = description ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
+            children: description
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 64,
+            columnNumber: 24
+        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
+            className: "sr-only",
+            children: t("common.modalDescription", {
+                title: typeof title === "string" ? title : t("common.dialog")
+            })
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 64,
+            columnNumber: 79
+        }, this);
+        $[3] = description;
+        $[4] = t;
+        $[5] = title;
+        $[6] = t6;
+    } else {
+        t6 = $[6];
+    }
+    let t7;
+    if ($[7] !== t5 || $[8] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogHeader"], {
+            children: [
+                t5,
+                t6
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 76,
+            columnNumber: 10
+        }, this);
+        $[7] = t5;
+        $[8] = t6;
+        $[9] = t7;
+    } else {
+        t7 = $[9];
+    }
+    const t8 = `py-4 ${scrollable ? "flex-1 overflow-y-auto" : ""}`;
+    let t9;
+    if ($[10] !== children || $[11] !== t8) {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: t8,
+            children: children
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 86,
+            columnNumber: 10
+        }, this);
+        $[10] = children;
+        $[11] = t8;
+        $[12] = t9;
+    } else {
+        t9 = $[12];
+    }
+    let t10;
+    if ($[13] !== footer) {
+        t10 = footer && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
+            children: footer
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 95,
+            columnNumber: 21
+        }, this);
+        $[13] = footer;
+        $[14] = t10;
+    } else {
+        t10 = $[14];
+    }
+    let t11;
+    if ($[15] !== t10 || $[16] !== t4 || $[17] !== t7 || $[18] !== t9) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogContent"], {
+            className: t4,
+            children: [
+                t7,
+                t9,
+                t10
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 103,
+            columnNumber: 11
+        }, this);
+        $[15] = t10;
+        $[16] = t4;
+        $[17] = t7;
+        $[18] = t9;
+        $[19] = t11;
+    } else {
+        t11 = $[19];
+    }
+    let t12;
+    if ($[20] !== isOpen || $[21] !== onClose || $[22] !== t11) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
+            open: isOpen,
+            onOpenChange: onClose,
+            children: t11
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 114,
+            columnNumber: 11
+        }, this);
+        $[20] = isOpen;
+        $[21] = onClose;
+        $[22] = t11;
+        $[23] = t12;
+    } else {
+        t12 = $[23];
+    }
+    return t12;
+}
+_s(Modal, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = Modal;
+function ConfirmModal(t0) {
+    _s1();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(35);
+    if ($[0] !== "91588273ba3c98ae6702173bdb5fb451cf3bf417a41352056fb2cbdd6c29ba0f") {
+        for(let $i = 0; $i < 35; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "91588273ba3c98ae6702173bdb5fb451cf3bf417a41352056fb2cbdd6c29ba0f";
+    }
+    const { isOpen, onClose, onConfirm, title, description, confirmText, cancelText, variant: t1, isLoading: t2 } = t0;
+    const variant = t1 === undefined ? "default" : t1;
+    const isLoading = t2 === undefined ? false : t2;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t3;
+    if ($[1] !== title) {
+        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogTitle"], {
+            children: title
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 161,
+            columnNumber: 10
+        }, this);
+        $[1] = title;
+        $[2] = t3;
+    } else {
+        t3 = $[2];
+    }
+    let t4;
+    if ($[3] !== description) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
+            children: description
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 169,
+            columnNumber: 10
+        }, this);
+        $[3] = description;
+        $[4] = t4;
+    } else {
+        t4 = $[4];
+    }
+    let t5;
+    if ($[5] !== t3 || $[6] !== t4) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogHeader"], {
+            children: [
+                t3,
+                t4
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 177,
+            columnNumber: 10
+        }, this);
+        $[5] = t3;
+        $[6] = t4;
+        $[7] = t5;
+    } else {
+        t5 = $[7];
+    }
+    let t6;
+    if ($[8] !== cancelText || $[9] !== t) {
+        t6 = cancelText ?? t("common.cancel");
+        $[8] = cancelText;
+        $[9] = t;
+        $[10] = t6;
+    } else {
+        t6 = $[10];
+    }
+    let t7;
+    if ($[11] !== isLoading || $[12] !== onClose || $[13] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            variant: "outline",
+            onClick: onClose,
+            disabled: isLoading,
+            children: t6
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 195,
+            columnNumber: 10
+        }, this);
+        $[11] = isLoading;
+        $[12] = onClose;
+        $[13] = t6;
+        $[14] = t7;
+    } else {
+        t7 = $[14];
+    }
+    const t8 = variant === "destructive" ? "destructive" : "default";
+    const t9 = variant === "default" ? "bg-teal-600 hover:bg-teal-700 text-white" : "";
+    let t10;
+    if ($[15] !== confirmText || $[16] !== isLoading || $[17] !== t) {
+        t10 = isLoading ? t("common.loading") : confirmText ?? t("common.confirm");
+        $[15] = confirmText;
+        $[16] = isLoading;
+        $[17] = t;
+        $[18] = t10;
+    } else {
+        t10 = $[18];
+    }
+    let t11;
+    if ($[19] !== isLoading || $[20] !== onConfirm || $[21] !== t10 || $[22] !== t8 || $[23] !== t9) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            onClick: onConfirm,
+            variant: t8,
+            disabled: isLoading,
+            className: t9,
+            children: t10
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 217,
+            columnNumber: 11
+        }, this);
+        $[19] = isLoading;
+        $[20] = onConfirm;
+        $[21] = t10;
+        $[22] = t8;
+        $[23] = t9;
+        $[24] = t11;
+    } else {
+        t11 = $[24];
+    }
+    let t12;
+    if ($[25] !== t11 || $[26] !== t7) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
+            className: "gap-2",
+            children: [
+                t7,
+                t11
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 229,
+            columnNumber: 11
+        }, this);
+        $[25] = t11;
+        $[26] = t7;
+        $[27] = t12;
+    } else {
+        t12 = $[27];
+    }
+    let t13;
+    if ($[28] !== t12 || $[29] !== t5) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogContent"], {
+            className: "max-w-md",
+            children: [
+                t5,
+                t12
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 238,
+            columnNumber: 11
+        }, this);
+        $[28] = t12;
+        $[29] = t5;
+        $[30] = t13;
+    } else {
+        t13 = $[30];
+    }
+    let t14;
+    if ($[31] !== isOpen || $[32] !== onClose || $[33] !== t13) {
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
+            open: isOpen,
+            onOpenChange: onClose,
+            children: t13
+        }, void 0, false, {
+            fileName: "[project]/src/components/ui/modal.tsx",
+            lineNumber: 247,
+            columnNumber: 11
+        }, this);
+        $[31] = isOpen;
+        $[32] = onClose;
+        $[33] = t13;
+        $[34] = t14;
+    } else {
+        t14 = $[34];
+    }
+    return t14;
+}
+_s1(ConfirmModal, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c1 = ConfirmModal;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Modal");
+__turbopack_context__.k.register(_c1, "ConfirmModal");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "AddPropertyPaymentPlanModal",
+    ()=>AddPropertyPaymentPlanModal
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$modal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/modal.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/textarea.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/select.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$percent$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Percent$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/percent.js [app-client] (ecmascript) <export default as Percent>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/payment-plans/payment-plans.types.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function AddPropertyPaymentPlanModal(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(132);
+    if ($[0] !== "367b8d11348709420fc144e0ac913db5b4edb50c4929a11fc33f5e3154e45d0b") {
+        for(let $i = 0; $i < 132; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "367b8d11348709420fc144e0ac913db5b4edb50c4929a11fc33f5e3154e45d0b";
+    }
+    const { isOpen, onClose, onSave, initialData } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const [name, setName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [description, setDescription] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [downPayment, setDownPayment] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(20);
+    const [installmentsCount, setInstallmentsCount] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(4);
+    const [period, setPeriod] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("Quarterly");
+    const [handoverPercentage, setHandoverPercentage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(40);
+    let t1;
+    if ($[1] !== initialData) {
+        t1 = ({
+            "AddPropertyPaymentPlanModal[useEffect()]": ()=>{
+                if (initialData) {
+                    setName(initialData.name || "");
+                    setDescription(initialData.description || "");
+                    setDownPayment(initialData.down_payment_percentage ?? 20);
+                    setInstallmentsCount(initialData.installments_count ?? 4);
+                    setPeriod(initialData.period || "Quarterly");
+                    setHandoverPercentage(initialData.handover_percentage ?? 40);
+                } else {
+                    setName("");
+                    setDescription("");
+                    setDownPayment(20);
+                    setInstallmentsCount(4);
+                    setPeriod("Quarterly");
+                    setHandoverPercentage(40);
+                }
+            }
+        })["AddPropertyPaymentPlanModal[useEffect()]"];
+        $[1] = initialData;
+        $[2] = t1;
+    } else {
+        t1 = $[2];
+    }
+    let t2;
+    if ($[3] !== initialData || $[4] !== isOpen) {
+        t2 = [
+            initialData,
+            isOpen
+        ];
+        $[3] = initialData;
+        $[4] = isOpen;
+        $[5] = t2;
+    } else {
+        t2 = $[5];
+    }
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])(t1, t2);
+    let t3;
+    if ($[6] !== description || $[7] !== downPayment || $[8] !== handoverPercentage || $[9] !== initialData?.id || $[10] !== installmentsCount || $[11] !== name || $[12] !== onClose || $[13] !== onSave || $[14] !== period) {
+        t3 = ({
+            "AddPropertyPaymentPlanModal[handleSubmit]": (e)=>{
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                if (!name.trim()) {
+                    return;
+                }
+                onSave({
+                    id: initialData?.id || `plan_${Date.now()}`,
+                    name: name.trim(),
+                    description: description.trim() || undefined,
+                    down_payment_percentage: Number(downPayment) || 0,
+                    installments_count: Number(installmentsCount) || 1,
+                    period: period || "Monthly",
+                    handover_percentage: Number(handoverPercentage) || 0
+                });
+                onClose();
+            }
+        })["AddPropertyPaymentPlanModal[handleSubmit]"];
+        $[6] = description;
+        $[7] = downPayment;
+        $[8] = handoverPercentage;
+        $[9] = initialData?.id;
+        $[10] = installmentsCount;
+        $[11] = name;
+        $[12] = onClose;
+        $[13] = onSave;
+        $[14] = period;
+        $[15] = t3;
+    } else {
+        t3 = $[15];
+    }
+    const handleSubmit = t3;
+    let t4;
+    if ($[16] !== initialData || $[17] !== t) {
+        t4 = initialData ? t("properties.create.paymentPlans.editPlanTitle") : t("properties.create.paymentPlans.addPlanTitle");
+        $[16] = initialData;
+        $[17] = t;
+        $[18] = t4;
+    } else {
+        t4 = $[18];
+    }
+    let t5;
+    if ($[19] !== t) {
+        t5 = t("properties.create.paymentPlans.modalDescription");
+        $[19] = t;
+        $[20] = t5;
+    } else {
+        t5 = $[20];
+    }
+    let t6;
+    if ($[21] !== t) {
+        t6 = t("properties.create.paymentPlans.planName");
+        $[21] = t;
+        $[22] = t6;
+    } else {
+        t6 = $[22];
+    }
+    let t7;
+    if ($[23] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "plan_name",
+            className: "text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
+            children: [
+                t6,
+                " *"
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 143,
+            columnNumber: 10
+        }, this);
+        $[23] = t6;
+        $[24] = t7;
+    } else {
+        t7 = $[24];
+    }
+    let t8;
+    if ($[25] === Symbol.for("react.memo_cache_sentinel")) {
+        t8 = ({
+            "AddPropertyPaymentPlanModal[<Input>.onChange]": (e_0)=>setName(e_0.target.value)
+        })["AddPropertyPaymentPlanModal[<Input>.onChange]"];
+        $[25] = t8;
+    } else {
+        t8 = $[25];
+    }
+    let t9;
+    if ($[26] !== t) {
+        t9 = t("properties.create.paymentPlans.planNamePlaceholder");
+        $[26] = t;
+        $[27] = t9;
+    } else {
+        t9 = $[27];
+    }
+    let t10;
+    if ($[28] !== name || $[29] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "plan_name",
+            value: name,
+            onChange: t8,
+            placeholder: t9,
+            required: true,
+            className: "mt-1 text-xs h-8"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 168,
+            columnNumber: 11
+        }, this);
+        $[28] = name;
+        $[29] = t9;
+        $[30] = t10;
+    } else {
+        t10 = $[30];
+    }
+    let t11;
+    if ($[31] !== t10 || $[32] !== t7) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t7,
+                t10
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 177,
+            columnNumber: 11
+        }, this);
+        $[31] = t10;
+        $[32] = t7;
+        $[33] = t11;
+    } else {
+        t11 = $[33];
+    }
+    let t12;
+    if ($[34] !== t) {
+        t12 = t("properties.create.paymentPlans.description");
+        $[34] = t;
+        $[35] = t12;
+    } else {
+        t12 = $[35];
+    }
+    let t13;
+    if ($[36] !== t12) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "plan_desc",
+            className: "text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
+            children: t12
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 194,
+            columnNumber: 11
+        }, this);
+        $[36] = t12;
+        $[37] = t13;
+    } else {
+        t13 = $[37];
+    }
+    let t14;
+    if ($[38] === Symbol.for("react.memo_cache_sentinel")) {
+        t14 = ({
+            "AddPropertyPaymentPlanModal[<Textarea>.onChange]": (e_1)=>setDescription(e_1.target.value)
+        })["AddPropertyPaymentPlanModal[<Textarea>.onChange]"];
+        $[38] = t14;
+    } else {
+        t14 = $[38];
+    }
+    let t15;
+    if ($[39] !== t) {
+        t15 = t("properties.create.paymentPlans.descriptionPlaceholder");
+        $[39] = t;
+        $[40] = t15;
+    } else {
+        t15 = $[40];
+    }
+    let t16;
+    if ($[41] !== description || $[42] !== t15) {
+        t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
+            id: "plan_desc",
+            value: description,
+            onChange: t14,
+            placeholder: t15,
+            rows: 2,
+            className: "mt-1 text-xs min-h-[60px]"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 219,
+            columnNumber: 11
+        }, this);
+        $[41] = description;
+        $[42] = t15;
+        $[43] = t16;
+    } else {
+        t16 = $[43];
+    }
+    let t17;
+    if ($[44] !== t13 || $[45] !== t16) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t13,
+                t16
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 228,
+            columnNumber: 11
+        }, this);
+        $[44] = t13;
+        $[45] = t16;
+        $[46] = t17;
+    } else {
+        t17 = $[46];
+    }
+    let t18;
+    if ($[47] !== t) {
+        t18 = t("properties.create.paymentPlans.downPayment");
+        $[47] = t;
+        $[48] = t18;
+    } else {
+        t18 = $[48];
+    }
+    let t19;
+    if ($[49] !== t18) {
+        t19 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "down_payment",
+            className: "text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
+            children: [
+                t18,
+                " (%) *"
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 245,
+            columnNumber: 11
+        }, this);
+        $[49] = t18;
+        $[50] = t19;
+    } else {
+        t19 = $[50];
+    }
+    let t20;
+    if ($[51] === Symbol.for("react.memo_cache_sentinel")) {
+        t20 = ({
+            "AddPropertyPaymentPlanModal[<Input>.onChange]": (e_2)=>setDownPayment(Number(e_2.target.value))
+        })["AddPropertyPaymentPlanModal[<Input>.onChange]"];
+        $[51] = t20;
+    } else {
+        t20 = $[51];
+    }
+    let t21;
+    if ($[52] !== downPayment) {
+        t21 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "down_payment",
+            type: "number",
+            min: "0",
+            max: "100",
+            value: downPayment,
+            onChange: t20,
+            required: true,
+            className: "pe-7 text-xs h-8"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 262,
+            columnNumber: 11
+        }, this);
+        $[52] = downPayment;
+        $[53] = t21;
+    } else {
+        t21 = $[53];
+    }
+    let t22;
+    if ($[54] === Symbol.for("react.memo_cache_sentinel")) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$percent$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Percent$3e$__["Percent"], {
+            className: "absolute end-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 270,
+            columnNumber: 11
+        }, this);
+        $[54] = t22;
+    } else {
+        t22 = $[54];
+    }
+    let t23;
+    if ($[55] !== t21) {
+        t23 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "relative mt-1",
+            children: [
+                t21,
+                t22
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 277,
+            columnNumber: 11
+        }, this);
+        $[55] = t21;
+        $[56] = t23;
+    } else {
+        t23 = $[56];
+    }
+    let t24;
+    if ($[57] !== t19 || $[58] !== t23) {
+        t24 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t19,
+                t23
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 285,
+            columnNumber: 11
+        }, this);
+        $[57] = t19;
+        $[58] = t23;
+        $[59] = t24;
+    } else {
+        t24 = $[59];
+    }
+    let t25;
+    if ($[60] !== t) {
+        t25 = t("properties.create.paymentPlans.onHandover");
+        $[60] = t;
+        $[61] = t25;
+    } else {
+        t25 = $[61];
+    }
+    let t26;
+    if ($[62] !== t25) {
+        t26 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "handover_perc",
+            className: "text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
+            children: [
+                t25,
+                " (%)"
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 302,
+            columnNumber: 11
+        }, this);
+        $[62] = t25;
+        $[63] = t26;
+    } else {
+        t26 = $[63];
+    }
+    let t27;
+    if ($[64] === Symbol.for("react.memo_cache_sentinel")) {
+        t27 = ({
+            "AddPropertyPaymentPlanModal[<Input>.onChange]": (e_3)=>setHandoverPercentage(Number(e_3.target.value))
+        })["AddPropertyPaymentPlanModal[<Input>.onChange]"];
+        $[64] = t27;
+    } else {
+        t27 = $[64];
+    }
+    let t28;
+    if ($[65] !== handoverPercentage) {
+        t28 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "handover_perc",
+            type: "number",
+            min: "0",
+            max: "100",
+            value: handoverPercentage,
+            onChange: t27,
+            className: "pe-7 text-xs h-8"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 319,
+            columnNumber: 11
+        }, this);
+        $[65] = handoverPercentage;
+        $[66] = t28;
+    } else {
+        t28 = $[66];
+    }
+    let t29;
+    if ($[67] === Symbol.for("react.memo_cache_sentinel")) {
+        t29 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$percent$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Percent$3e$__["Percent"], {
+            className: "absolute end-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 327,
+            columnNumber: 11
+        }, this);
+        $[67] = t29;
+    } else {
+        t29 = $[67];
+    }
+    let t30;
+    if ($[68] !== t28) {
+        t30 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "relative mt-1",
+            children: [
+                t28,
+                t29
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 334,
+            columnNumber: 11
+        }, this);
+        $[68] = t28;
+        $[69] = t30;
+    } else {
+        t30 = $[69];
+    }
+    let t31;
+    if ($[70] !== t26 || $[71] !== t30) {
+        t31 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t26,
+                t30
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 342,
+            columnNumber: 11
+        }, this);
+        $[70] = t26;
+        $[71] = t30;
+        $[72] = t31;
+    } else {
+        t31 = $[72];
+    }
+    let t32;
+    if ($[73] !== t) {
+        t32 = t("properties.create.paymentPlans.installmentsCount");
+        $[73] = t;
+        $[74] = t32;
+    } else {
+        t32 = $[74];
+    }
+    let t33;
+    if ($[75] !== t32) {
+        t33 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "installments_count",
+            className: "text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
+            children: [
+                t32,
+                " *"
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 359,
+            columnNumber: 11
+        }, this);
+        $[75] = t32;
+        $[76] = t33;
+    } else {
+        t33 = $[76];
+    }
+    let t34;
+    if ($[77] === Symbol.for("react.memo_cache_sentinel")) {
+        t34 = ({
+            "AddPropertyPaymentPlanModal[<Input>.onChange]": (e_4)=>setInstallmentsCount(Number(e_4.target.value))
+        })["AddPropertyPaymentPlanModal[<Input>.onChange]"];
+        $[77] = t34;
+    } else {
+        t34 = $[77];
+    }
+    let t35;
+    if ($[78] !== installmentsCount) {
+        t35 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "installments_count",
+            type: "number",
+            min: "1",
+            max: "120",
+            value: installmentsCount,
+            onChange: t34,
+            required: true,
+            className: "mt-1 text-xs h-8"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 376,
+            columnNumber: 11
+        }, this);
+        $[78] = installmentsCount;
+        $[79] = t35;
+    } else {
+        t35 = $[79];
+    }
+    let t36;
+    if ($[80] !== t33 || $[81] !== t35) {
+        t36 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t33,
+                t35
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 384,
+            columnNumber: 11
+        }, this);
+        $[80] = t33;
+        $[81] = t35;
+        $[82] = t36;
+    } else {
+        t36 = $[82];
+    }
+    let t37;
+    if ($[83] !== t) {
+        t37 = t("properties.create.paymentPlans.period");
+        $[83] = t;
+        $[84] = t37;
+    } else {
+        t37 = $[84];
+    }
+    let t38;
+    if ($[85] !== t37) {
+        t38 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "period_select",
+            className: "text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
+            children: [
+                t37,
+                " *"
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 401,
+            columnNumber: 11
+        }, this);
+        $[85] = t37;
+        $[86] = t38;
+    } else {
+        t38 = $[86];
+    }
+    let t39;
+    if ($[87] !== t) {
+        t39 = t("properties.create.paymentPlans.selectPeriod");
+        $[87] = t;
+        $[88] = t39;
+    } else {
+        t39 = $[88];
+    }
+    let t40;
+    if ($[89] !== t39) {
+        t40 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+            id: "period_select",
+            className: "mt-1 text-xs h-8",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
+                placeholder: t39
+            }, void 0, false, {
+                fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+                lineNumber: 417,
+                columnNumber: 74
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 417,
+            columnNumber: 11
+        }, this);
+        $[89] = t39;
+        $[90] = t40;
+    } else {
+        t40 = $[90];
+    }
+    let t41;
+    if ($[91] !== t) {
+        t41 = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PAYMENT_PERIOD_OPTIONS"].map({
+            "AddPropertyPaymentPlanModal[PAYMENT_PERIOD_OPTIONS.map()]": (option)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                    value: option.value,
+                    className: "text-xs",
+                    children: t(option.labelKey)
+                }, option.value, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+                    lineNumber: 426,
+                    columnNumber: 78
+                }, this)
+        }["AddPropertyPaymentPlanModal[PAYMENT_PERIOD_OPTIONS.map()]"]);
+        $[91] = t;
+        $[92] = t41;
+    } else {
+        t41 = $[92];
+    }
+    let t42;
+    if ($[93] !== t41) {
+        t42 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+            children: t41
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 435,
+            columnNumber: 11
+        }, this);
+        $[93] = t41;
+        $[94] = t42;
+    } else {
+        t42 = $[94];
+    }
+    let t43;
+    if ($[95] !== period || $[96] !== t40 || $[97] !== t42) {
+        t43 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+            value: period,
+            onValueChange: setPeriod,
+            children: [
+                t40,
+                t42
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 443,
+            columnNumber: 11
+        }, this);
+        $[95] = period;
+        $[96] = t40;
+        $[97] = t42;
+        $[98] = t43;
+    } else {
+        t43 = $[98];
+    }
+    let t44;
+    if ($[99] !== t38 || $[100] !== t43) {
+        t44 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t38,
+                t43
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 453,
+            columnNumber: 11
+        }, this);
+        $[99] = t38;
+        $[100] = t43;
+        $[101] = t44;
+    } else {
+        t44 = $[101];
+    }
+    let t45;
+    if ($[102] !== t24 || $[103] !== t31 || $[104] !== t36 || $[105] !== t44) {
+        t45 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-1 sm:grid-cols-2 gap-3",
+            children: [
+                t24,
+                t31,
+                t36,
+                t44
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 462,
+            columnNumber: 11
+        }, this);
+        $[102] = t24;
+        $[103] = t31;
+        $[104] = t36;
+        $[105] = t44;
+        $[106] = t45;
+    } else {
+        t45 = $[106];
+    }
+    let t46;
+    if ($[107] !== t) {
+        t46 = t("common.cancel");
+        $[107] = t;
+        $[108] = t46;
+    } else {
+        t46 = $[108];
+    }
+    let t47;
+    if ($[109] !== onClose || $[110] !== t46) {
+        t47 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            size: "sm",
+            onClick: onClose,
+            className: "text-xs h-8",
+            children: t46
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 481,
+            columnNumber: 11
+        }, this);
+        $[109] = onClose;
+        $[110] = t46;
+        $[111] = t47;
+    } else {
+        t47 = $[111];
+    }
+    let t48;
+    if ($[112] !== initialData || $[113] !== t) {
+        t48 = initialData ? t("common.saveChanges") : t("properties.create.paymentPlans.addPlanBtn");
+        $[112] = initialData;
+        $[113] = t;
+        $[114] = t48;
+    } else {
+        t48 = $[114];
+    }
+    let t49;
+    if ($[115] !== handleSubmit || $[116] !== t48) {
+        t49 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            size: "sm",
+            onClick: handleSubmit,
+            className: "bg-teal-600 hover:bg-teal-700 text-white text-xs h-8",
+            children: t48
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 499,
+            columnNumber: 11
+        }, this);
+        $[115] = handleSubmit;
+        $[116] = t48;
+        $[117] = t49;
+    } else {
+        t49 = $[117];
+    }
+    let t50;
+    if ($[118] !== t47 || $[119] !== t49) {
+        t50 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800",
+            children: [
+                t47,
+                t49
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 508,
+            columnNumber: 11
+        }, this);
+        $[118] = t47;
+        $[119] = t49;
+        $[120] = t50;
+    } else {
+        t50 = $[120];
+    }
+    let t51;
+    if ($[121] !== t11 || $[122] !== t17 || $[123] !== t45 || $[124] !== t50) {
+        t51 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-3 pt-1",
+            children: [
+                t11,
+                t17,
+                t45,
+                t50
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 517,
+            columnNumber: 11
+        }, this);
+        $[121] = t11;
+        $[122] = t17;
+        $[123] = t45;
+        $[124] = t50;
+        $[125] = t51;
+    } else {
+        t51 = $[125];
+    }
+    let t52;
+    if ($[126] !== isOpen || $[127] !== onClose || $[128] !== t4 || $[129] !== t5 || $[130] !== t51) {
+        t52 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$modal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Modal"], {
+            isOpen: isOpen,
+            onClose: onClose,
+            title: t4,
+            description: t5,
+            size: "lg",
+            children: t51
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx",
+            lineNumber: 528,
+            columnNumber: 11
+        }, this);
+        $[126] = isOpen;
+        $[127] = onClose;
+        $[128] = t4;
+        $[129] = t5;
+        $[130] = t51;
+        $[131] = t52;
+    } else {
+        t52 = $[131];
+    }
+    return t52;
+}
+_s(AddPropertyPaymentPlanModal, "ryFVLmk1igaFoWek01P2V99RHqM=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = AddPropertyPaymentPlanModal;
+var _c;
+__turbopack_context__.k.register(_c, "AddPropertyPaymentPlanModal");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BulkAddPropertyPaymentPlansModal",
+    ()=>BulkAddPropertyPaymentPlansModal
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$modal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/modal.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$checkbox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/checkbox.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/layers.js [app-client] (ecmascript) <export default as Layers>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-client] (ecmascript) <export default as CheckCircle2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/payment-plans/payment-plans.types.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+function BulkAddPropertyPaymentPlansModal(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(58);
+    if ($[0] !== "2f7a64e1359b671896aa404577a5770109959efe39a71b84448c731cf938f90a") {
+        for(let $i = 0; $i < 58; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "2f7a64e1359b671896aa404577a5770109959efe39a71b84448c731cf938f90a";
+    }
+    const { isOpen, onClose, onAddBulk } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = [
+            "plan_50_50",
+            "plan_60_40"
+        ];
+        $[1] = t1;
+    } else {
+        t1 = $[1];
+    }
+    const [selectedIds, setSelectedIds] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(t1);
+    let t2;
+    if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
+        t2 = ({
+            "BulkAddPropertyPaymentPlansModal[toggleSelect]": (id)=>{
+                setSelectedIds({
+                    "BulkAddPropertyPaymentPlansModal[toggleSelect > setSelectedIds()]": (prev)=>prev.includes(id) ? prev.filter({
+                            "BulkAddPropertyPaymentPlansModal[toggleSelect > setSelectedIds() > prev.filter()]": (item)=>item !== id
+                        }["BulkAddPropertyPaymentPlansModal[toggleSelect > setSelectedIds() > prev.filter()]"]) : [
+                            ...prev,
+                            id
+                        ]
+                }["BulkAddPropertyPaymentPlansModal[toggleSelect > setSelectedIds()]"]);
+            }
+        })["BulkAddPropertyPaymentPlansModal[toggleSelect]"];
+        $[2] = t2;
+    } else {
+        t2 = $[2];
+    }
+    const toggleSelect = t2;
+    let t3;
+    if ($[3] !== selectedIds.length) {
+        t3 = ({
+            "BulkAddPropertyPaymentPlansModal[handleSelectAll]": ()=>{
+                if (selectedIds.length === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PRESET_PLAN_TEMPLATES"].length) {
+                    setSelectedIds([]);
+                } else {
+                    setSelectedIds(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PRESET_PLAN_TEMPLATES"].map(_BulkAddPropertyPaymentPlansModalHandleSelectAllPRESET_PLAN_TEMPLATESMap));
+                }
+            }
+        })["BulkAddPropertyPaymentPlansModal[handleSelectAll]"];
+        $[3] = selectedIds.length;
+        $[4] = t3;
+    } else {
+        t3 = $[4];
+    }
+    const handleSelectAll = t3;
+    let t4;
+    if ($[5] !== onAddBulk || $[6] !== onClose || $[7] !== selectedIds) {
+        t4 = ({
+            "BulkAddPropertyPaymentPlansModal[handleConfirm]": ()=>{
+                const selectedTemplates = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PRESET_PLAN_TEMPLATES"].filter({
+                    "BulkAddPropertyPaymentPlansModal[handleConfirm > PRESET_PLAN_TEMPLATES.filter()]": (p_0)=>selectedIds.includes(p_0.id)
+                }["BulkAddPropertyPaymentPlansModal[handleConfirm > PRESET_PLAN_TEMPLATES.filter()]"]);
+                const newPlans = selectedTemplates.map(_BulkAddPropertyPaymentPlansModalHandleConfirmSelectedTemplatesMap);
+                onAddBulk(newPlans);
+                onClose();
+            }
+        })["BulkAddPropertyPaymentPlansModal[handleConfirm]"];
+        $[5] = onAddBulk;
+        $[6] = onClose;
+        $[7] = selectedIds;
+        $[8] = t4;
+    } else {
+        t4 = $[8];
+    }
+    const handleConfirm = t4;
+    let t5;
+    if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__["Layers"], {
+            className: "h-5 w-5 text-teal-600 dark:text-teal-400"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 95,
+            columnNumber: 10
+        }, this);
+        $[9] = t5;
+    } else {
+        t5 = $[9];
+    }
+    let t6;
+    if ($[10] !== t) {
+        t6 = t("properties.create.paymentPlans.bulkAddTitle");
+        $[10] = t;
+        $[11] = t6;
+    } else {
+        t6 = $[11];
+    }
+    let t7;
+    if ($[12] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2",
+            children: [
+                t5,
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    children: t6
+                }, void 0, false, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                    lineNumber: 110,
+                    columnNumber: 55
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 110,
+            columnNumber: 10
+        }, this);
+        $[12] = t6;
+        $[13] = t7;
+    } else {
+        t7 = $[13];
+    }
+    let t8;
+    if ($[14] !== t) {
+        t8 = t("properties.create.paymentPlans.bulkAddSubtitle");
+        $[14] = t;
+        $[15] = t8;
+    } else {
+        t8 = $[15];
+    }
+    let t9;
+    if ($[16] !== t) {
+        t9 = t("properties.create.paymentPlans.availableTemplates");
+        $[16] = t;
+        $[17] = t9;
+    } else {
+        t9 = $[17];
+    }
+    let t10;
+    if ($[18] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: "text-[11px] font-semibold text-gray-500 uppercase tracking-wider",
+            children: [
+                t9,
+                " (",
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PRESET_PLAN_TEMPLATES"].length,
+                ")"
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 134,
+            columnNumber: 11
+        }, this);
+        $[18] = t9;
+        $[19] = t10;
+    } else {
+        t10 = $[19];
+    }
+    let t11;
+    if ($[20] !== selectedIds.length || $[21] !== t) {
+        t11 = selectedIds.length === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PRESET_PLAN_TEMPLATES"].length ? t("common.deselectAll") : t("common.selectAll");
+        $[20] = selectedIds.length;
+        $[21] = t;
+        $[22] = t11;
+    } else {
+        t11 = $[22];
+    }
+    let t12;
+    if ($[23] !== handleSelectAll || $[24] !== t11) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "ghost",
+            size: "sm",
+            onClick: handleSelectAll,
+            className: "text-xs text-teal-600 hover:text-teal-700 h-6 px-1.5",
+            children: t11
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 151,
+            columnNumber: 11
+        }, this);
+        $[23] = handleSelectAll;
+        $[24] = t11;
+        $[25] = t12;
+    } else {
+        t12 = $[25];
+    }
+    let t13;
+    if ($[26] !== t10 || $[27] !== t12) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-neutral-800",
+            children: [
+                t10,
+                t12
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 160,
+            columnNumber: 11
+        }, this);
+        $[26] = t10;
+        $[27] = t12;
+        $[28] = t13;
+    } else {
+        t13 = $[28];
+    }
+    let t14;
+    if ($[29] !== selectedIds || $[30] !== t) {
+        t14 = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PRESET_PLAN_TEMPLATES"].map({
+            "BulkAddPropertyPaymentPlansModal[PRESET_PLAN_TEMPLATES.map()]": (template)=>{
+                const isSelected = selectedIds.includes(template.id);
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    onClick: {
+                        "BulkAddPropertyPaymentPlansModal[PRESET_PLAN_TEMPLATES.map() > <div>.onClick]": ()=>toggleSelect(template.id)
+                    }["BulkAddPropertyPaymentPlansModal[PRESET_PLAN_TEMPLATES.map() > <div>.onClick]"],
+                    className: `flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition-all ${isSelected ? "bg-teal-50/70 dark:bg-teal-950/30 border-teal-500 dark:border-teal-500/70 shadow-2xs" : "bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 hover:border-gray-300 dark:hover:border-neutral-700"}`,
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "pt-0.5",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$checkbox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Checkbox"], {
+                                checked: isSelected,
+                                onCheckedChange: {
+                                    "BulkAddPropertyPaymentPlansModal[PRESET_PLAN_TEMPLATES.map() > <Checkbox>.onCheckedChange]": ()=>toggleSelect(template.id)
+                                }["BulkAddPropertyPaymentPlansModal[PRESET_PLAN_TEMPLATES.map() > <Checkbox>.onCheckedChange]"]
+                            }, void 0, false, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                lineNumber: 174,
+                                columnNumber: 438
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                            lineNumber: 174,
+                            columnNumber: 414
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex-1 min-w-0",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center justify-between",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                            className: "text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 truncate",
+                                            children: t(template.nameKey)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                            lineNumber: 176,
+                                            columnNumber: 201
+                                        }, this),
+                                        isSelected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
+                                            className: "h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                            lineNumber: 176,
+                                            columnNumber: 333
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                    lineNumber: 176,
+                                    columnNumber: 150
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2",
+                                    children: t(template.descriptionKey)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                    lineNumber: 176,
+                                    columnNumber: 422
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center gap-1.5 mt-1.5 text-[10px] font-medium text-gray-600 dark:text-gray-300",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "bg-gray-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded",
+                                            children: t("properties.create.paymentPlans.templateDown", {
+                                                percent: template.down_payment_percentage
+                                            })
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                            lineNumber: 176,
+                                            columnNumber: 641
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "bg-gray-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded",
+                                            children: t("properties.create.paymentPlans.templateInstallments", {
+                                                count: template.installments_count,
+                                                period: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getPaymentPeriodLabel"])(template.period, t)
+                                            })
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                            lineNumber: 178,
+                                            columnNumber: 27
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                                    lineNumber: 176,
+                                    columnNumber: 534
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                            lineNumber: 176,
+                            columnNumber: 118
+                        }, this)
+                    ]
+                }, template.id, true, {
+                    fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+                    lineNumber: 172,
+                    columnNumber: 16
+                }, this);
+            }
+        }["BulkAddPropertyPaymentPlansModal[PRESET_PLAN_TEMPLATES.map()]"]);
+        $[29] = selectedIds;
+        $[30] = t;
+        $[31] = t14;
+    } else {
+        t14 = $[31];
+    }
+    let t15;
+    if ($[32] !== t14) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pe-1",
+            children: t14
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 192,
+            columnNumber: 11
+        }, this);
+        $[32] = t14;
+        $[33] = t15;
+    } else {
+        t15 = $[33];
+    }
+    let t16;
+    if ($[34] !== t) {
+        t16 = t("common.cancel");
+        $[34] = t;
+        $[35] = t16;
+    } else {
+        t16 = $[35];
+    }
+    let t17;
+    if ($[36] !== onClose || $[37] !== t16) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            size: "sm",
+            onClick: onClose,
+            className: "text-xs h-8",
+            children: t16
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 208,
+            columnNumber: 11
+        }, this);
+        $[36] = onClose;
+        $[37] = t16;
+        $[38] = t17;
+    } else {
+        t17 = $[38];
+    }
+    const t18 = selectedIds.length === 0;
+    let t19;
+    if ($[39] !== t) {
+        t19 = t("properties.create.paymentPlans.addSelectedPlans");
+        $[39] = t;
+        $[40] = t19;
+    } else {
+        t19 = $[40];
+    }
+    let t20;
+    if ($[41] !== handleConfirm || $[42] !== t18 || $[43] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            size: "sm",
+            disabled: t18,
+            onClick: handleConfirm,
+            className: "bg-teal-600 hover:bg-teal-700 text-white text-xs h-8",
+            children: t19
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 226,
+            columnNumber: 11
+        }, this);
+        $[41] = handleConfirm;
+        $[42] = t18;
+        $[43] = t19;
+        $[44] = t20;
+    } else {
+        t20 = $[44];
+    }
+    let t21;
+    if ($[45] !== t17 || $[46] !== t20) {
+        t21 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800",
+            children: [
+                t17,
+                t20
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 236,
+            columnNumber: 11
+        }, this);
+        $[45] = t17;
+        $[46] = t20;
+        $[47] = t21;
+    } else {
+        t21 = $[47];
+    }
+    let t22;
+    if ($[48] !== t13 || $[49] !== t15 || $[50] !== t21) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-3 pt-1",
+            children: [
+                t13,
+                t15,
+                t21
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 245,
+            columnNumber: 11
+        }, this);
+        $[48] = t13;
+        $[49] = t15;
+        $[50] = t21;
+        $[51] = t22;
+    } else {
+        t22 = $[51];
+    }
+    let t23;
+    if ($[52] !== isOpen || $[53] !== onClose || $[54] !== t22 || $[55] !== t7 || $[56] !== t8) {
+        t23 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$modal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Modal"], {
+            isOpen: isOpen,
+            onClose: onClose,
+            title: t7,
+            description: t8,
+            size: "xl",
+            children: t22
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx",
+            lineNumber: 255,
+            columnNumber: 11
+        }, this);
+        $[52] = isOpen;
+        $[53] = onClose;
+        $[54] = t22;
+        $[55] = t7;
+        $[56] = t8;
+        $[57] = t23;
+    } else {
+        t23 = $[57];
+    }
+    return t23;
+}
+_s(BulkAddPropertyPaymentPlansModal, "zbqDKf3ucyVngiatVE7v7hCR+NA=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = BulkAddPropertyPaymentPlansModal;
+function _BulkAddPropertyPaymentPlansModalHandleConfirmSelectedTemplatesMap(p_1, idx) {
+    return {
+        id: `bulk_${Date.now()}_${idx}`,
+        name: p_1.name,
+        description: p_1.description,
+        down_payment_percentage: p_1.down_payment_percentage,
+        installments_count: p_1.installments_count,
+        period: p_1.period,
+        handover_percentage: p_1.handover_percentage
+    };
+}
+function _BulkAddPropertyPaymentPlansModalHandleSelectAllPRESET_PLAN_TEMPLATESMap(p) {
+    return p.id;
+}
+var _c;
+__turbopack_context__.k.register(_c, "BulkAddPropertyPaymentPlansModal");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>PaymentPlansTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/plus.js [app-client] (ecmascript) <export default as Plus>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/layers.js [app-client] (ecmascript) <export default as Layers>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pen$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Edit2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/pen.js [app-client] (ecmascript) <export default as Edit2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/trash-2.js [app-client] (ecmascript) <export default as Trash2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/payment-plans/payment-plans.types.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$AddPropertyPaymentPlanModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/payment-plans/AddPropertyPaymentPlanModal.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$BulkAddPropertyPaymentPlansModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/payment-plans/BulkAddPropertyPaymentPlansModal.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function PaymentPlansTab(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(69);
+    if ($[0] !== "4a852cc1079864c6e2f530d6d9a0dedc3ac1be5693accea14cb5af883b6752d3") {
+        for(let $i = 0; $i < 69; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "4a852cc1079864c6e2f530d6d9a0dedc3ac1be5693accea14cb5af883b6752d3";
+    }
+    const { register, setValue, watch, plans: externalPlans, setPlans: externalSetPlans, errors } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = [];
+        $[1] = t1;
+    } else {
+        t1 = $[1];
+    }
+    const [internalPlans, setInternalPlans] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(t1);
+    const plans = externalPlans ?? internalPlans;
+    const setPlans = externalSetPlans ?? setInternalPlans;
+    const [isAddModalOpen, setIsAddModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isBulkModalOpen, setIsBulkModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [editingPlan, setEditingPlan] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    let t2;
+    if ($[2] !== editingPlan || $[3] !== plans || $[4] !== setPlans || $[5] !== setValue) {
+        t2 = ({
+            "PaymentPlansTab[handleSavePlan]": (plan)=>{
+                let next;
+                if (editingPlan) {
+                    next = plans.map({
+                        "PaymentPlansTab[handleSavePlan > plans.map()]": (p)=>p.id === plan.id ? plan : p
+                    }["PaymentPlansTab[handleSavePlan > plans.map()]"]);
+                    setEditingPlan(null);
+                } else {
+                    next = [
+                        ...plans,
+                        plan
+                    ];
+                }
+                setPlans(next);
+                setValue?.("payment_plans", next, {
+                    shouldDirty: true
+                });
+            }
+        })["PaymentPlansTab[handleSavePlan]"];
+        $[2] = editingPlan;
+        $[3] = plans;
+        $[4] = setPlans;
+        $[5] = setValue;
+        $[6] = t2;
+    } else {
+        t2 = $[6];
+    }
+    const handleSavePlan = t2;
+    let t3;
+    if ($[7] !== plans || $[8] !== setPlans || $[9] !== setValue) {
+        t3 = ({
+            "PaymentPlansTab[handleAddBulkPlans]": (newPlans)=>{
+                const next_0 = [
+                    ...plans,
+                    ...newPlans
+                ];
+                setPlans(next_0);
+                setValue?.("payment_plans", next_0, {
+                    shouldDirty: true
+                });
+            }
+        })["PaymentPlansTab[handleAddBulkPlans]"];
+        $[7] = plans;
+        $[8] = setPlans;
+        $[9] = setValue;
+        $[10] = t3;
+    } else {
+        t3 = $[10];
+    }
+    const handleAddBulkPlans = t3;
+    let t4;
+    if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
+        t4 = ({
+            "PaymentPlansTab[handleEditPlan]": (plan_0)=>{
+                setEditingPlan(plan_0);
+                setIsAddModalOpen(true);
+            }
+        })["PaymentPlansTab[handleEditPlan]"];
+        $[11] = t4;
+    } else {
+        t4 = $[11];
+    }
+    const handleEditPlan = t4;
+    let t5;
+    if ($[12] !== plans || $[13] !== setPlans || $[14] !== setValue) {
+        t5 = ({
+            "PaymentPlansTab[handleDeletePlan]": (id)=>{
+                const next_1 = plans.filter({
+                    "PaymentPlansTab[handleDeletePlan > plans.filter()]": (p_0)=>p_0.id !== id
+                }["PaymentPlansTab[handleDeletePlan > plans.filter()]"]);
+                setPlans(next_1);
+                setValue?.("payment_plans", next_1, {
+                    shouldDirty: true
+                });
+            }
+        })["PaymentPlansTab[handleDeletePlan]"];
+        $[12] = plans;
+        $[13] = setPlans;
+        $[14] = setValue;
+        $[15] = t5;
+    } else {
+        t5 = $[15];
+    }
+    const handleDeletePlan = t5;
+    let t6;
+    if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
+        t6 = ({
+            "PaymentPlansTab[handleOpenAddModal]": ()=>{
+                setEditingPlan(null);
+                setIsAddModalOpen(true);
+            }
+        })["PaymentPlansTab[handleOpenAddModal]"];
+        $[16] = t6;
+    } else {
+        t6 = $[16];
+    }
+    const handleOpenAddModal = t6;
+    let t7;
+    if ($[17] !== t) {
+        t7 = t("properties.create.paymentPlans.title");
+        $[17] = t;
+        $[18] = t7;
+    } else {
+        t7 = $[18];
+    }
+    let t8;
+    if ($[19] !== t7) {
+        t8 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+            className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+            children: t7
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 158,
+            columnNumber: 10
+        }, this);
+        $[19] = t7;
+        $[20] = t8;
+    } else {
+        t8 = $[20];
+    }
+    let t9;
+    if ($[21] !== t) {
+        t9 = t("properties.create.paymentPlans.subtitle");
+        $[21] = t;
+        $[22] = t9;
+    } else {
+        t9 = $[22];
+    }
+    let t10;
+    if ($[23] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed",
+            children: t9
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 174,
+            columnNumber: 11
+        }, this);
+        $[23] = t9;
+        $[24] = t10;
+    } else {
+        t10 = $[24];
+    }
+    let t11;
+    if ($[25] !== t10 || $[26] !== t8) {
+        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t8,
+                t10
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 182,
+            columnNumber: 11
+        }, this);
+        $[25] = t10;
+        $[26] = t8;
+        $[27] = t11;
+    } else {
+        t11 = $[27];
+    }
+    let t12;
+    if ($[28] !== handleDeletePlan || $[29] !== plans || $[30] !== t) {
+        t12 = plans.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "rounded-lg border border-dashed border-gray-200 dark:border-neutral-800 py-6 px-4 text-center text-xs text-gray-400 dark:text-gray-500",
+            children: t("properties.create.paymentPlans.noPlans")
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 191,
+            columnNumber: 32
+        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-2",
+            children: plans.map({
+                "PaymentPlansTab[plans.map()]": (plan_1)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-950/40 hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "space-y-0.5",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center gap-2",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                className: "text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100",
+                                                children: plan_1.name
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                lineNumber: 192,
+                                                columnNumber: 348
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "text-[11px] px-1.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 font-medium",
+                                                children: t("properties.create.paymentPlans.downBadge", {
+                                                    percent: plan_1.down_payment_percentage
+                                                })
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                lineNumber: 192,
+                                                columnNumber: 448
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                        lineNumber: 192,
+                                        columnNumber: 307
+                                    }, this),
+                                    plan_1.description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-[11px] text-gray-500 dark:text-gray-400",
+                                        children: plan_1.description
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                        lineNumber: 194,
+                                        columnNumber: 56
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-400 pt-0.5",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                children: t("properties.create.paymentPlans.installmentsCountLabel", {
+                                                    count: plan_1.installments_count
+                                                })
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                lineNumber: 194,
+                                                columnNumber: 234
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                children: "•"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                lineNumber: 196,
+                                                columnNumber: 27
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                children: t("properties.create.paymentPlans.periodLabel", {
+                                                    period: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$payment$2d$plans$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getPaymentPeriodLabel"])(plan_1.period, t)
+                                                })
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                lineNumber: 196,
+                                                columnNumber: 41
+                                            }, this),
+                                            plan_1.handover_percentage !== undefined && plan_1.handover_percentage > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "•"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                        lineNumber: 198,
+                                                        columnNumber: 108
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: t("properties.create.paymentPlans.handoverLabel", {
+                                                            percent: plan_1.handover_percentage
+                                                        })
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                                        lineNumber: 198,
+                                                        columnNumber: 122
+                                                    }, this)
+                                                ]
+                                            }, void 0, true)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                        lineNumber: 194,
+                                        columnNumber: 141
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                lineNumber: 192,
+                                columnNumber: 278
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center gap-1 shrink-0",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                        type: "button",
+                                        variant: "ghost",
+                                        size: "icon",
+                                        onClick: {
+                                            "PaymentPlansTab[plans.map() > <Button>.onClick]": ()=>handleEditPlan(plan_1)
+                                        }["PaymentPlansTab[plans.map() > <Button>.onClick]"],
+                                        className: "h-7 w-7 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pen$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Edit2$3e$__["Edit2"], {
+                                            className: "h-3.5 w-3.5"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                            lineNumber: 202,
+                                            columnNumber: 146
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                        lineNumber: 200,
+                                        columnNumber: 95
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                        type: "button",
+                                        variant: "ghost",
+                                        size: "icon",
+                                        onClick: {
+                                            "PaymentPlansTab[plans.map() > <Button>.onClick]": ()=>handleDeletePlan(plan_1.id)
+                                        }["PaymentPlansTab[plans.map() > <Button>.onClick]"],
+                                        className: "h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                            className: "h-3.5 w-3.5"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                            lineNumber: 204,
+                                            columnNumber: 161
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                        lineNumber: 202,
+                                        columnNumber: 188
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                                lineNumber: 200,
+                                columnNumber: 45
+                            }, this)
+                        ]
+                    }, plan_1.id, true, {
+                        fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+                        lineNumber: 192,
+                        columnNumber: 51
+                    }, this)
+            }["PaymentPlansTab[plans.map()]"])
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 191,
+            columnNumber: 238
+        }, this);
+        $[28] = handleDeletePlan;
+        $[29] = plans;
+        $[30] = t;
+        $[31] = t12;
+    } else {
+        t12 = $[31];
+    }
+    let t13;
+    if ($[32] === Symbol.for("react.memo_cache_sentinel")) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
+            className: "h-3.5 w-3.5"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 215,
+            columnNumber: 11
+        }, this);
+        $[32] = t13;
+    } else {
+        t13 = $[32];
+    }
+    let t14;
+    if ($[33] !== t) {
+        t14 = t("properties.create.paymentPlans.addPlan");
+        $[33] = t;
+        $[34] = t14;
+    } else {
+        t14 = $[34];
+    }
+    let t15;
+    if ($[35] !== t14) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: handleOpenAddModal,
+            className: "gap-1.5 text-xs h-7 sm:h-8 px-2.5 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-800 font-medium",
+            children: [
+                t13,
+                t14
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 230,
+            columnNumber: 11
+        }, this);
+        $[35] = t14;
+        $[36] = t15;
+    } else {
+        t15 = $[36];
+    }
+    let t16;
+    if ($[37] === Symbol.for("react.memo_cache_sentinel")) {
+        t16 = ({
+            "PaymentPlansTab[<Button>.onClick]": ()=>setIsBulkModalOpen(true)
+        })["PaymentPlansTab[<Button>.onClick]"];
+        $[37] = t16;
+    } else {
+        t16 = $[37];
+    }
+    let t17;
+    if ($[38] === Symbol.for("react.memo_cache_sentinel")) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__["Layers"], {
+            className: "h-3.5 w-3.5"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 247,
+            columnNumber: 11
+        }, this);
+        $[38] = t17;
+    } else {
+        t17 = $[38];
+    }
+    let t18;
+    if ($[39] !== t) {
+        t18 = t("properties.create.paymentPlans.bulkAdd");
+        $[39] = t;
+        $[40] = t18;
+    } else {
+        t18 = $[40];
+    }
+    let t19;
+    if ($[41] !== t18) {
+        t19 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+            type: "button",
+            variant: "outline",
+            onClick: t16,
+            className: "gap-1.5 text-xs h-7 sm:h-8 px-2.5 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-800 font-medium",
+            children: [
+                t17,
+                t18
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 262,
+            columnNumber: 11
+        }, this);
+        $[41] = t18;
+        $[42] = t19;
+    } else {
+        t19 = $[42];
+    }
+    let t20;
+    if ($[43] !== t15 || $[44] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2 pt-0.5",
+            children: [
+                t15,
+                t19
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 270,
+            columnNumber: 11
+        }, this);
+        $[43] = t15;
+        $[44] = t19;
+        $[45] = t20;
+    } else {
+        t20 = $[45];
+    }
+    let t21;
+    if ($[46] !== t11 || $[47] !== t12 || $[48] !== t20) {
+        t21 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-4 sm:p-5 space-y-3.5 shadow-2xs",
+            children: [
+                t11,
+                t12,
+                t20
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 279,
+            columnNumber: 11
+        }, this);
+        $[46] = t11;
+        $[47] = t12;
+        $[48] = t20;
+        $[49] = t21;
+    } else {
+        t21 = $[49];
+    }
+    let t22;
+    if ($[50] !== errors || $[51] !== register || $[52] !== setValue || $[53] !== watch) {
+        t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            register: register,
+            setValue: setValue,
+            watch: watch,
+            errors: errors
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 289,
+            columnNumber: 11
+        }, this);
+        $[50] = errors;
+        $[51] = register;
+        $[52] = setValue;
+        $[53] = watch;
+        $[54] = t22;
+    } else {
+        t22 = $[54];
+    }
+    let t23;
+    if ($[55] === Symbol.for("react.memo_cache_sentinel")) {
+        t23 = ({
+            "PaymentPlansTab[<AddPropertyPaymentPlanModal>.onClose]": ()=>{
+                setIsAddModalOpen(false);
+                setEditingPlan(null);
+            }
+        })["PaymentPlansTab[<AddPropertyPaymentPlanModal>.onClose]"];
+        $[55] = t23;
+    } else {
+        t23 = $[55];
+    }
+    let t24;
+    if ($[56] !== editingPlan || $[57] !== handleSavePlan || $[58] !== isAddModalOpen) {
+        t24 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$AddPropertyPaymentPlanModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AddPropertyPaymentPlanModal"], {
+            isOpen: isAddModalOpen,
+            onClose: t23,
+            onSave: handleSavePlan,
+            initialData: editingPlan
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 312,
+            columnNumber: 11
+        }, this);
+        $[56] = editingPlan;
+        $[57] = handleSavePlan;
+        $[58] = isAddModalOpen;
+        $[59] = t24;
+    } else {
+        t24 = $[59];
+    }
+    let t25;
+    if ($[60] === Symbol.for("react.memo_cache_sentinel")) {
+        t25 = ({
+            "PaymentPlansTab[<BulkAddPropertyPaymentPlansModal>.onClose]": ()=>setIsBulkModalOpen(false)
+        })["PaymentPlansTab[<BulkAddPropertyPaymentPlansModal>.onClose]"];
+        $[60] = t25;
+    } else {
+        t25 = $[60];
+    }
+    let t26;
+    if ($[61] !== handleAddBulkPlans || $[62] !== isBulkModalOpen) {
+        t26 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$payment$2d$plans$2f$BulkAddPropertyPaymentPlansModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BulkAddPropertyPaymentPlansModal"], {
+            isOpen: isBulkModalOpen,
+            onClose: t25,
+            onAddBulk: handleAddBulkPlans
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 331,
+            columnNumber: 11
+        }, this);
+        $[61] = handleAddBulkPlans;
+        $[62] = isBulkModalOpen;
+        $[63] = t26;
+    } else {
+        t26 = $[63];
+    }
+    let t27;
+    if ($[64] !== t21 || $[65] !== t22 || $[66] !== t24 || $[67] !== t26) {
+        t27 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-3.5",
+            children: [
+                t21,
+                t22,
+                t24,
+                t26
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx",
+            lineNumber: 340,
+            columnNumber: 11
+        }, this);
+        $[64] = t21;
+        $[65] = t22;
+        $[66] = t24;
+        $[67] = t26;
+        $[68] = t27;
+    } else {
+        t27 = $[68];
+    }
+    return t27;
+}
+_s(PaymentPlansTab, "v1tEhBOX3vVWEHyXFwfeq4yVQFM=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = PaymentPlansTab;
+var _c;
+__turbopack_context__.k.register(_c, "PaymentPlansTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/features/properties/components/create/tabs/LicensesTab.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>LicensesTab
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/SeoSection.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+function LicensesTab(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(138);
+    if ($[0] !== "0ba37047a17213247f05c184378274f94ab4471e7a471c8acbadff2490ca1729") {
+        for(let $i = 0; $i < 138; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "0ba37047a17213247f05c184378274f94ab4471e7a471c8acbadff2490ca1729";
+    }
+    const { register, setValue, watch, errors } = t0;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let t1;
+    if ($[1] !== t) {
+        t1 = t("properties.create.license.title");
+        $[1] = t;
+        $[2] = t1;
+    } else {
+        t1 = $[2];
+    }
+    let t2;
+    if ($[3] !== t1) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+            className: "text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100",
+            children: t1
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 43,
+            columnNumber: 10
+        }, this);
+        $[3] = t1;
+        $[4] = t2;
+    } else {
+        t2 = $[4];
+    }
+    let t3;
+    if ($[5] !== t) {
+        t3 = t("properties.create.license.subtitle");
+        $[5] = t;
+        $[6] = t3;
+    } else {
+        t3 = $[6];
+    }
+    let t4;
+    if ($[7] !== t3) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-xs text-gray-500 dark:text-gray-400 mt-0.5",
+            children: t3
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 59,
+            columnNumber: 10
+        }, this);
+        $[7] = t3;
+        $[8] = t4;
+    } else {
+        t4 = $[8];
+    }
+    let t5;
+    if ($[9] !== t2 || $[10] !== t4) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t2,
+                t4
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 67,
+            columnNumber: 10
+        }, this);
+        $[9] = t2;
+        $[10] = t4;
+        $[11] = t5;
+    } else {
+        t5 = $[11];
+    }
+    let t6;
+    if ($[12] !== t) {
+        t6 = t("properties.create.license.brokerLicense");
+        $[12] = t;
+        $[13] = t6;
+    } else {
+        t6 = $[13];
+    }
+    let t7;
+    if ($[14] !== t6) {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "broker_license",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t6
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 84,
+            columnNumber: 10
+        }, this);
+        $[14] = t6;
+        $[15] = t7;
+    } else {
+        t7 = $[15];
+    }
+    let t8;
+    if ($[16] !== register) {
+        t8 = register("broker_license");
+        $[16] = register;
+        $[17] = t8;
+    } else {
+        t8 = $[17];
+    }
+    let t9;
+    if ($[18] !== t) {
+        t9 = t("properties.create.license.brokerLicense");
+        $[18] = t;
+        $[19] = t9;
+    } else {
+        t9 = $[19];
+    }
+    let t10;
+    if ($[20] !== t8 || $[21] !== t9) {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "broker_license",
+            ...t8,
+            placeholder: t9,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 108,
+            columnNumber: 11
+        }, this);
+        $[20] = t8;
+        $[21] = t9;
+        $[22] = t10;
+    } else {
+        t10 = $[22];
+    }
+    let t11;
+    if ($[23] !== errors || $[24] !== t) {
+        t11 = errors?.broker_license && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.broker_license.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 117,
+            columnNumber: 37
+        }, this);
+        $[23] = errors;
+        $[24] = t;
+        $[25] = t11;
+    } else {
+        t11 = $[25];
+    }
+    let t12;
+    if ($[26] !== t10 || $[27] !== t11 || $[28] !== t7) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t7,
+                t10,
+                t11
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 126,
+            columnNumber: 11
+        }, this);
+        $[26] = t10;
+        $[27] = t11;
+        $[28] = t7;
+        $[29] = t12;
+    } else {
+        t12 = $[29];
+    }
+    let t13;
+    if ($[30] !== t) {
+        t13 = t("properties.create.license.agentLicense");
+        $[30] = t;
+        $[31] = t13;
+    } else {
+        t13 = $[31];
+    }
+    let t14;
+    if ($[32] !== t13) {
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "agent_license",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t13
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 144,
+            columnNumber: 11
+        }, this);
+        $[32] = t13;
+        $[33] = t14;
+    } else {
+        t14 = $[33];
+    }
+    let t15;
+    if ($[34] !== register) {
+        t15 = register("agent_license");
+        $[34] = register;
+        $[35] = t15;
+    } else {
+        t15 = $[35];
+    }
+    let t16;
+    if ($[36] !== t) {
+        t16 = t("properties.create.license.agentLicense");
+        $[36] = t;
+        $[37] = t16;
+    } else {
+        t16 = $[37];
+    }
+    let t17;
+    if ($[38] !== t15 || $[39] !== t16) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "agent_license",
+            ...t15,
+            placeholder: t16,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 168,
+            columnNumber: 11
+        }, this);
+        $[38] = t15;
+        $[39] = t16;
+        $[40] = t17;
+    } else {
+        t17 = $[40];
+    }
+    let t18;
+    if ($[41] !== errors || $[42] !== t) {
+        t18 = errors?.agent_license && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.agent_license.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 177,
+            columnNumber: 36
+        }, this);
+        $[41] = errors;
+        $[42] = t;
+        $[43] = t18;
+    } else {
+        t18 = $[43];
+    }
+    let t19;
+    if ($[44] !== t14 || $[45] !== t17 || $[46] !== t18) {
+        t19 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t14,
+                t17,
+                t18
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 186,
+            columnNumber: 11
+        }, this);
+        $[44] = t14;
+        $[45] = t17;
+        $[46] = t18;
+        $[47] = t19;
+    } else {
+        t19 = $[47];
+    }
+    let t20;
+    if ($[48] !== t) {
+        t20 = t("properties.create.license.dldPermitNumber");
+        $[48] = t;
+        $[49] = t20;
+    } else {
+        t20 = $[49];
+    }
+    let t21;
+    if ($[50] !== t20) {
+        t21 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "dld_permit_number",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t20
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 204,
+            columnNumber: 11
+        }, this);
+        $[50] = t20;
+        $[51] = t21;
+    } else {
+        t21 = $[51];
+    }
+    let t22;
+    if ($[52] !== register) {
+        t22 = register("dld_permit_number");
+        $[52] = register;
+        $[53] = t22;
+    } else {
+        t22 = $[53];
+    }
+    let t23;
+    if ($[54] !== t) {
+        t23 = t("properties.create.license.dldPermitNumber");
+        $[54] = t;
+        $[55] = t23;
+    } else {
+        t23 = $[55];
+    }
+    let t24;
+    if ($[56] !== t22 || $[57] !== t23) {
+        t24 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "dld_permit_number",
+            ...t22,
+            placeholder: t23,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 228,
+            columnNumber: 11
+        }, this);
+        $[56] = t22;
+        $[57] = t23;
+        $[58] = t24;
+    } else {
+        t24 = $[58];
+    }
+    let t25;
+    if ($[59] !== errors || $[60] !== t) {
+        t25 = errors?.dld_permit_number && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.dld_permit_number.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 237,
+            columnNumber: 40
+        }, this);
+        $[59] = errors;
+        $[60] = t;
+        $[61] = t25;
+    } else {
+        t25 = $[61];
+    }
+    let t26;
+    if ($[62] !== t21 || $[63] !== t24 || $[64] !== t25) {
+        t26 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t21,
+                t24,
+                t25
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 246,
+            columnNumber: 11
+        }, this);
+        $[62] = t21;
+        $[63] = t24;
+        $[64] = t25;
+        $[65] = t26;
+    } else {
+        t26 = $[65];
+    }
+    let t27;
+    if ($[66] !== t) {
+        t27 = t("properties.create.license.dldBarcode");
+        $[66] = t;
+        $[67] = t27;
+    } else {
+        t27 = $[67];
+    }
+    let t28;
+    if ($[68] !== t27) {
+        t28 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "dld_barcode",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t27
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 264,
+            columnNumber: 11
+        }, this);
+        $[68] = t27;
+        $[69] = t28;
+    } else {
+        t28 = $[69];
+    }
+    let t29;
+    if ($[70] !== register) {
+        t29 = register("dld_barcode");
+        $[70] = register;
+        $[71] = t29;
+    } else {
+        t29 = $[71];
+    }
+    let t30;
+    if ($[72] !== t) {
+        t30 = t("properties.create.license.dldBarcode");
+        $[72] = t;
+        $[73] = t30;
+    } else {
+        t30 = $[73];
+    }
+    let t31;
+    if ($[74] !== t29 || $[75] !== t30) {
+        t31 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "dld_barcode",
+            ...t29,
+            placeholder: t30,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 288,
+            columnNumber: 11
+        }, this);
+        $[74] = t29;
+        $[75] = t30;
+        $[76] = t31;
+    } else {
+        t31 = $[76];
+    }
+    let t32;
+    if ($[77] !== errors || $[78] !== t) {
+        t32 = errors?.dld_barcode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.dld_barcode.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 297,
+            columnNumber: 34
+        }, this);
+        $[77] = errors;
+        $[78] = t;
+        $[79] = t32;
+    } else {
+        t32 = $[79];
+    }
+    let t33;
+    if ($[80] !== t28 || $[81] !== t31 || $[82] !== t32) {
+        t33 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t28,
+                t31,
+                t32
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 306,
+            columnNumber: 11
+        }, this);
+        $[80] = t28;
+        $[81] = t31;
+        $[82] = t32;
+        $[83] = t33;
+    } else {
+        t33 = $[83];
+    }
+    let t34;
+    if ($[84] !== t) {
+        t34 = t("properties.create.license.referenceListed");
+        $[84] = t;
+        $[85] = t34;
+    } else {
+        t34 = $[85];
+    }
+    let t35;
+    if ($[86] !== t34) {
+        t35 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "reference_listed",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t34
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 324,
+            columnNumber: 11
+        }, this);
+        $[86] = t34;
+        $[87] = t35;
+    } else {
+        t35 = $[87];
+    }
+    let t36;
+    if ($[88] !== register) {
+        t36 = register("reference_listed");
+        $[88] = register;
+        $[89] = t36;
+    } else {
+        t36 = $[89];
+    }
+    let t37;
+    if ($[90] !== t) {
+        t37 = t("properties.create.license.referenceListed");
+        $[90] = t;
+        $[91] = t37;
+    } else {
+        t37 = $[91];
+    }
+    let t38;
+    if ($[92] !== t36 || $[93] !== t37) {
+        t38 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "reference_listed",
+            ...t36,
+            placeholder: t37,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 348,
+            columnNumber: 11
+        }, this);
+        $[92] = t36;
+        $[93] = t37;
+        $[94] = t38;
+    } else {
+        t38 = $[94];
+    }
+    let t39;
+    if ($[95] !== errors || $[96] !== t) {
+        t39 = errors?.reference_listed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.reference_listed.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 357,
+            columnNumber: 39
+        }, this);
+        $[95] = errors;
+        $[96] = t;
+        $[97] = t39;
+    } else {
+        t39 = $[97];
+    }
+    let t40;
+    if ($[98] !== t35 || $[99] !== t38 || $[100] !== t39) {
+        t40 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t35,
+                t38,
+                t39
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 366,
+            columnNumber: 11
+        }, this);
+        $[98] = t35;
+        $[99] = t38;
+        $[100] = t39;
+        $[101] = t40;
+    } else {
+        t40 = $[101];
+    }
+    let t41;
+    if ($[102] !== t) {
+        t41 = t("properties.create.license.parkingSpaces");
+        $[102] = t;
+        $[103] = t41;
+    } else {
+        t41 = $[103];
+    }
+    let t42;
+    if ($[104] !== t41) {
+        t42 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+            htmlFor: "parking_spaces",
+            className: "text-xs font-semibold text-gray-700 dark:text-gray-300",
+            children: t41
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 384,
+            columnNumber: 11
+        }, this);
+        $[104] = t41;
+        $[105] = t42;
+    } else {
+        t42 = $[105];
+    }
+    let t43;
+    if ($[106] !== register) {
+        t43 = register("parking_spaces", {
+            valueAsNumber: true
+        });
+        $[106] = register;
+        $[107] = t43;
+    } else {
+        t43 = $[107];
+    }
+    let t44;
+    if ($[108] !== t) {
+        t44 = t("properties.create.license.parkingSpacesPlaceholder");
+        $[108] = t;
+        $[109] = t44;
+    } else {
+        t44 = $[109];
+    }
+    let t45;
+    if ($[110] !== t43 || $[111] !== t44) {
+        t45 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+            id: "parking_spaces",
+            type: "number",
+            ...t43,
+            placeholder: t44,
+            className: "mt-1 h-9 text-xs"
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 410,
+            columnNumber: 11
+        }, this);
+        $[110] = t43;
+        $[111] = t44;
+        $[112] = t45;
+    } else {
+        t45 = $[112];
+    }
+    let t46;
+    if ($[113] !== errors || $[114] !== t) {
+        t46 = errors?.parking_spaces && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "text-red-500 text-xs mt-1",
+            children: t(errors.parking_spaces.message)
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 419,
+            columnNumber: 37
+        }, this);
+        $[113] = errors;
+        $[114] = t;
+        $[115] = t46;
+    } else {
+        t46 = $[115];
+    }
+    let t47;
+    if ($[116] !== t42 || $[117] !== t45 || $[118] !== t46) {
+        t47 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: [
+                t42,
+                t45,
+                t46
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 428,
+            columnNumber: 11
+        }, this);
+        $[116] = t42;
+        $[117] = t45;
+        $[118] = t46;
+        $[119] = t47;
+    } else {
+        t47 = $[119];
+    }
+    let t48;
+    if ($[120] !== t12 || $[121] !== t19 || $[122] !== t26 || $[123] !== t33 || $[124] !== t40 || $[125] !== t47) {
+        t48 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "grid grid-cols-1 md:grid-cols-3 gap-4",
+            children: [
+                t12,
+                t19,
+                t26,
+                t33,
+                t40,
+                t47
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 438,
+            columnNumber: 11
+        }, this);
+        $[120] = t12;
+        $[121] = t19;
+        $[122] = t26;
+        $[123] = t33;
+        $[124] = t40;
+        $[125] = t47;
+        $[126] = t48;
+    } else {
+        t48 = $[126];
+    }
+    let t49;
+    if ($[127] !== t48 || $[128] !== t5) {
+        t49 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-5 sm:p-6 space-y-4 shadow-2xs",
+            children: [
+                t5,
+                t48
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 451,
+            columnNumber: 11
+        }, this);
+        $[127] = t48;
+        $[128] = t5;
+        $[129] = t49;
+    } else {
+        t49 = $[129];
+    }
+    let t50;
+    if ($[130] !== errors || $[131] !== register || $[132] !== setValue || $[133] !== watch) {
+        t50 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$SeoSection$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            register: register,
+            setValue: setValue,
+            watch: watch,
+            errors: errors
+        }, void 0, false, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 460,
+            columnNumber: 11
+        }, this);
+        $[130] = errors;
+        $[131] = register;
+        $[132] = setValue;
+        $[133] = watch;
+        $[134] = t50;
+    } else {
+        t50 = $[134];
+    }
+    let t51;
+    if ($[135] !== t49 || $[136] !== t50) {
+        t51 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "space-y-4",
+            children: [
+                t49,
+                t50
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/features/properties/components/create/tabs/LicensesTab.tsx",
+            lineNumber: 471,
+            columnNumber: 11
+        }, this);
+        $[135] = t49;
+        $[136] = t50;
+        $[137] = t51;
+    } else {
+        t51 = $[137];
+    }
+    return t51;
+}
+_s(LicensesTab, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = LicensesTab;
+var _c;
+__turbopack_context__.k.register(_c, "LicensesTab");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/app/admin/properties/[id]/edit/page.client.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>EditPropertyPage
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hook-form/dist/index.esm.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$hookform$2f$resolvers$2f$zod$2f$dist$2f$zod$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@hookform/resolvers/zod/dist/zod.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next-auth/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useQuery.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/sonner/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$validators$2f$propertiesSchema$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/validators/propertiesSchema.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/use-property-data.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/services/AdminPropertiesService.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$create$2d$property$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/use-create-property.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/edit-property.types.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$use$2d$edit$2d$property$2d$payload$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/use-edit-property-payload.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyHeader$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/EditPropertyHeader.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyTabsNav$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/EditPropertyTabsNav.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyFormActions$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/EditPropertyFormActions.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyLoading$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/edit/EditPropertyLoading.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$BasicInfoTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/BasicInfoTab.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$PricingMediaTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/PricingMediaTab.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$UnitDetailsTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/UnitDetailsTab.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$LocationTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/LocationTab.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$AmenitiesTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/AmenitiesTab.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$PaymentPlansTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/PaymentPlansTab.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$LicensesTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/features/properties/components/create/tabs/LicensesTab.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function EditPropertyPage({ params }) {
+    _s();
+    const { id } = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].use(params);
+    const propertyId = Number(id);
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
+    const routePrefix = pathname.startsWith("/developer") ? "/developer" : "/admin";
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const queryClient = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    const { data: session } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSession"])();
+    const token = session?.user?.accessToken;
+    const [activeTab, setActiveTab] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("basic_info");
+    const [, setImages] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [imagePreviews, setImagePreviews] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [floorPlan, setFloorPlan] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [floorPlanPreview, setFloorPlanPreview] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [selectedFeatures, setSelectedFeatures] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [paymentPlans, setPaymentPlans] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [isUpdating, setIsUpdating] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const { data: propertiesType = [] } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyTypes"])();
+    const { data: propertiesSubtype = [] } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertySubtypes"])();
+    const { data: projects = [] } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useProjectsForSelect"])();
+    const { data: propertyData, isLoading: propertyLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "property-detail",
+            propertyId
+        ],
+        queryFn: {
+            "EditPropertyPage.useQuery": ()=>__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getProperty(propertyId)
+        }["EditPropertyPage.useQuery"],
+        enabled: !!token && !!propertyId
+    });
+    const { formValues, mergedProjects, mergedTypes, mergedSubtypes, propertyName } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$use$2d$edit$2d$property$2d$payload$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEditPropertyPayload"])({
+        propertyData,
+        propertyId,
+        projects,
+        propertiesType,
+        propertiesSubtype
+    });
+    const { register, handleSubmit, control, trigger, setValue, setError, watch, reset, formState: { errors } } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useForm"])({
+        resolver: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$hookform$2f$resolvers$2f$zod$2f$dist$2f$zod$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["zodResolver"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$validators$2f$propertiesSchema$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["propertiesSchema"]),
+        values: formValues,
+        defaultValues: {
+            property_name: "",
+            property_no: "",
+            floor: "",
+            price: 0,
+            size: 0,
+            bedrooms: undefined,
+            bathrooms: undefined,
+            project_id: "",
+            property_type_id: "",
+            property_subtype_id: "",
+            status: "active",
+            availability_status: "available",
+            construction_status: "",
+            furnish_status: "",
+            finishing_status: "",
+            view: "",
+            ownership_type: "",
+            description: "",
+            maid_room: false,
+            currency: "aed",
+            bua_size: undefined,
+            plot_size: undefined,
+            parking_spaces: undefined,
+            price_per_m2: undefined,
+            price_description: "",
+            reference_listed: "",
+            broker_license: "",
+            agent_license: "",
+            zone_name: "",
+            dld_permit_number: "",
+            dld_barcode: "",
+            building_name: "",
+            slug: "",
+            meta_title: "",
+            meta_description: ""
+        }
+    });
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "EditPropertyPage.useEffect": ()=>{
+            if (formValues) {
+                reset(formValues);
+            }
+        }
+    }["EditPropertyPage.useEffect"], [
+        formValues,
+        reset
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "EditPropertyPage.useEffect": ()=>{
+            if (!propertyData) return;
+            const raw = propertyData?.data?.property_name !== undefined || propertyData?.data?.property_id !== undefined ? propertyData.data : propertyData?.data ?? propertyData;
+            const p = raw || {};
+            const existingPlans = p.paymentPlans || p.payment_plans || [];
+            if (Array.isArray(existingPlans) && existingPlans.length > 0) {
+                setPaymentPlans(existingPlans.map({
+                    "EditPropertyPage.useEffect": (ep)=>({
+                            id: String(ep.payment_plan_id || ep.id || Math.random()),
+                            name: ep.name || "",
+                            description: ep.description || "",
+                            down_payment_percentage: Number(ep.down_payment_percentage || 0),
+                            installments_count: Number(ep.installments_count || 1),
+                            period: ep.period || "Quarterly",
+                            handover_percentage: Number(ep.handover_percentage || 0)
+                        })
+                }["EditPropertyPage.useEffect"]));
+            }
+            const existingMedia = p.medias || p.media || p.images || [];
+            if (Array.isArray(existingMedia) && existingMedia.length > 0) {
+                const urls = existingMedia.map({
+                    "EditPropertyPage.useEffect.urls": (m)=>typeof m === "string" ? m : m.url || m.image_url || m.file_path || ""
+                }["EditPropertyPage.useEffect.urls"]).filter(Boolean);
+                if (urls.length > 0) {
+                    setImagePreviews(urls);
+                }
+            }
+            // Pre-populate floor plan preview from existing URL
+            const existingFloorPlanUrl = p.floor_plan_url;
+            if (existingFloorPlanUrl) {
+                setFloorPlanPreview(existingFloorPlanUrl);
+            }
+            // Pre-populate features from property data
+            const existingFeatures = p.features || p.feature || [];
+            if (Array.isArray(existingFeatures) && existingFeatures.length > 0) {
+                const mappedFeatures = existingFeatures.map({
+                    "EditPropertyPage.useEffect.mappedFeatures": (f)=>({
+                            feature_id: Number(f.feature_id ?? f.id),
+                            value: f.value || f.pivot?.value || f.feature_name || f.name || "",
+                            feature_name: f.feature_name || f.name || "",
+                            is_amenity: f.is_amenity !== undefined ? Number(f.is_amenity) : undefined,
+                            icons: f.icons || f.icon || null
+                        })
+                }["EditPropertyPage.useEffect.mappedFeatures"]);
+                setSelectedFeatures(mappedFeatures);
+                // Fetch detail for each feature from /api/dashboard/properties/:property_id/features/:feature_id
+                mappedFeatures.forEach({
+                    "EditPropertyPage.useEffect": async (feat)=>{
+                        if (!feat.value && propertyId && feat.feature_id) {
+                            try {
+                                const detailRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].getPropertyFeature(propertyId, feat.feature_id);
+                                const d = detailRes?.data ?? detailRes;
+                                const detailedVal = d?.value || d?.pivot?.value || d?.feature_name;
+                                if (detailedVal) {
+                                    setSelectedFeatures({
+                                        "EditPropertyPage.useEffect": (current)=>current.map({
+                                                "EditPropertyPage.useEffect": (item)=>item.feature_id === feat.feature_id ? {
+                                                        ...item,
+                                                        value: detailedVal
+                                                    } : item
+                                            }["EditPropertyPage.useEffect"])
+                                    }["EditPropertyPage.useEffect"]);
+                                }
+                            } catch  {
+                            // non-blocking
+                            }
+                        }
+                    }
+                }["EditPropertyPage.useEffect"]);
+            }
+        }
+    }["EditPropertyPage.useEffect"], [
+        propertyData,
+        propertyId
+    ]);
+    const currentTabIndex = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"].findIndex((tab)=>tab.id === activeTab);
+    const handleFormSubmit = async (formData)=>{
+        setIsUpdating(true);
+        try {
+            const data = {
+                ...formData,
+                payment_plans: paymentPlans,
+                parking_spaces: formData.parking_spaces ? Number(formData.parking_spaces) : undefined,
+                bua_size: formData.bua_size ? Number(formData.bua_size) : undefined,
+                plot_size: formData.plot_size ? Number(formData.plot_size) : undefined
+            };
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].updateProperty(propertyId, data);
+            // Save property features via POST /api/dashboard/properties/features
+            try {
+                await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].savePropertyFeatures(propertyId, selectedFeatures.map((sf)=>({
+                        feature_id: sf.feature_id,
+                        value: sf.value || sf.feature_name || ""
+                    })));
+            } catch (featErr) {
+                console.error("Failed to save property features:", featErr);
+            }
+            if (floorPlan) {
+                try {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$services$2f$AdminPropertiesService$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AdminPropertiesService"].addPropertyFloorPlan(propertyId, floorPlan);
+                } catch (fpErr) {
+                    console.error("Failed to upload floor plan:", fpErr);
+                }
+            }
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(t("properties.messages.updateSuccess"));
+            queryClient.invalidateQueries({
+                queryKey: [
+                    "properties"
+                ]
+            });
+            queryClient.removeQueries({
+                queryKey: [
+                    "properties"
+                ]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [
+                    "property-detail",
+                    propertyId
+                ]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [
+                    "propertyDetails",
+                    String(propertyId)
+                ]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [
+                    "propertyDetails",
+                    propertyId
+                ]
+            });
+            router.push(`${routePrefix}/properties/${propertyId}`);
+            router.refresh();
+        } catch (err) {
+            const handled = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$create$2d$property$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyServerFieldErrors"])(err, {
+                tabs: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"],
+                setError,
+                onShowTab: (tab_0)=>setActiveTab(tab_0.id),
+                getTabLabel: (tab_1)=>t(tab_1.translationKey),
+                t
+            });
+            if (!handled) {
+                console.error(err);
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("properties.messages.updateFailed"));
+            }
+        } finally{
+            setIsUpdating(false);
+        }
+    };
+    const handleInvalid = (errs)=>{
+        const errorKeys = Object.keys(errs);
+        if (errorKeys.length > 0) {
+            const firstErrorKey = errorKeys[0];
+            const targetTab = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"].find((tab_2)=>tab_2.fields.includes(firstErrorKey));
+            if (targetTab && targetTab.id !== activeTab) {
+                setActiveTab(targetTab.id);
+            }
+            const errorObj = errs[firstErrorKey];
+            if (errorObj?.message) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t(errorObj.message));
+            }
+            setTimeout(()=>{
+                const errorElement = document.getElementById(firstErrorKey) || document.getElementsByName(firstErrorKey)[0];
+                if (errorElement) {
+                    errorElement.focus();
+                    errorElement.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                }
+            }, 100);
+        }
+    };
+    const handleNextTab = async ()=>{
+        const currentTabFields = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"][currentTabIndex]?.fields || [];
+        if (currentTabFields.length > 0) {
+            const isValid = await trigger(currentTabFields);
+            if (!isValid) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(t("validation.fillRequiredFields"));
+                return;
+            }
+        }
+        if (currentTabIndex < __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"].length - 1) {
+            setActiveTab(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"][currentTabIndex + 1].id);
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+    };
+    const handlePrevTab = ()=>{
+        if (currentTabIndex > 0) {
+            setActiveTab(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$edit$2d$property$2e$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EDIT_TABS"][currentTabIndex - 1].id);
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+    };
+    const handleImageUpload = (e)=>{
+        const files = Array.from(e.target.files || []);
+        setImages((prev)=>[
+                ...prev,
+                ...files
+            ]);
+        files.forEach((file)=>{
+            const reader = new FileReader();
+            reader.onloadend = ()=>{
+                setImagePreviews((prev_0)=>[
+                        ...prev_0,
+                        reader.result
+                    ]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+    const handleRemoveImage = (index)=>{
+        setImages((prev_1)=>prev_1.filter((_, i)=>i !== index));
+        setImagePreviews((prev_2)=>prev_2.filter((__0, i_0)=>i_0 !== index));
+    };
+    const handleFloorPlanUpload = (e_0)=>{
+        const file_0 = e_0.target.files?.[0];
+        if (!file_0) return;
+        setFloorPlan(file_0);
+        const reader_0 = new FileReader();
+        reader_0.onloadend = ()=>{
+            setFloorPlanPreview(reader_0.result);
+        };
+        reader_0.readAsDataURL(file_0);
+    };
+    const handleRemoveFloorPlan = ()=>{
+        setFloorPlan(null);
+        setFloorPlanPreview(null);
+    };
+    if (propertyLoading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyLoading$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+            fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+            lineNumber: 353,
+            columnNumber: 12
+        }, this);
+    }
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "min-h-screen bg-gray-50/70 dark:bg-neutral-950 pb-16 transition-colors",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyHeader$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                routePrefix: routePrefix,
+                propertyId: propertyId,
+                propertyName: propertyName,
+                onCancel: ()=>router.push(`${routePrefix}/properties/${propertyId}`)
+            }, void 0, false, {
+                fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                lineNumber: 356,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
+                    onSubmit: handleSubmit(handleFormSubmit, handleInvalid),
+                    className: "space-y-6",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyTabsNav$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                            activeTab: activeTab,
+                            onTabChange: setActiveTab,
+                            errors: errors
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                            lineNumber: 360,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "basic_info" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$BasicInfoTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        control: control,
+                                        errors: errors,
+                                        propertiesType: mergedTypes,
+                                        propertiesSubtype: mergedSubtypes,
+                                        projects: mergedProjects,
+                                        setValue: setValue,
+                                        watch: watch
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 364,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 363,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "pricing_media" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$PricingMediaTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        control: control,
+                                        errors: errors,
+                                        imagePreviews: imagePreviews,
+                                        onImageUpload: handleImageUpload,
+                                        onRemoveImage: handleRemoveImage,
+                                        floorPlanPreview: floorPlanPreview,
+                                        onFloorPlanUpload: handleFloorPlanUpload,
+                                        onRemoveFloorPlan: handleRemoveFloorPlan,
+                                        setValue: setValue,
+                                        watch: watch
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 368,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 367,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "unit_details" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$UnitDetailsTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        control: control,
+                                        errors: errors,
+                                        setValue: setValue,
+                                        watch: watch
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 372,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 371,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "location" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$LocationTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        errors: errors,
+                                        setValue: setValue,
+                                        watch: watch,
+                                        projects: projects,
+                                        isActive: activeTab === "location"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 376,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 375,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "amenities" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$AmenitiesTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        errors: errors,
+                                        setValue: setValue,
+                                        watch: watch,
+                                        selectedFeatures: selectedFeatures,
+                                        onChangeFeatures: setSelectedFeatures,
+                                        isActive: activeTab === "amenities"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 380,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 379,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "payment_plans" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$PaymentPlansTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        errors: errors,
+                                        setValue: setValue,
+                                        watch: watch,
+                                        plans: paymentPlans,
+                                        setPlans: setPaymentPlans
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 384,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 383,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: activeTab === "licenses" ? "block" : "hidden",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$create$2f$tabs$2f$LicensesTab$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        register: register,
+                                        errors: errors,
+                                        setValue: setValue,
+                                        watch: watch
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                        lineNumber: 388,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                                    lineNumber: 387,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                            lineNumber: 362,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$EditPropertyFormActions$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                            currentTabIndex: currentTabIndex,
+                            isUpdating: isUpdating,
+                            onPrev: handlePrevTab,
+                            onNext: handleNextTab,
+                            onCancel: ()=>router.push(`${routePrefix}/properties/${propertyId}`)
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                            lineNumber: 392,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                    lineNumber: 359,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+                lineNumber: 358,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/app/admin/properties/[id]/edit/page.client.tsx",
+        lineNumber: 355,
+        columnNumber: 10
+    }, this);
+}
+_s(EditPropertyPage, "bLGCWOVAMU4Rw2MuVRXmdEmY2LA=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQueryClient"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSession"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyTypes"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertySubtypes"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$property$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useProjectsForSelect"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$properties$2f$components$2f$edit$2f$use$2d$edit$2d$property$2d$payload$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEditPropertyPayload"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useForm"]
+    ];
+});
+_c = EditPropertyPage;
+var _c;
+__turbopack_context__.k.register(_c, "EditPropertyPage");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+]);
+
+//# sourceMappingURL=src_08f6273c._.js.map

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Plus, Package } from 'lucide-react'
+import { Plus, Package, CreditCard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
 import { adminPackagesApi } from '@/shared/services/api/adminPackagesApi'
@@ -205,6 +206,7 @@ export default function AdminPackages() {
     const canCreatePackage = hasPermission('packages.create') || isSuperAdmin
     const canUpdatePackage = hasPermission('packages.update') || isSuperAdmin
     const canDeletePackage = hasPermission('packages.delete') || isSuperAdmin
+    const canViewSubscriptions = hasPermission('packages.subscriptions') || isSuperAdmin
 
     const canViewFaqs = hasPermission('faqs.read') || hasPermission('packages_faqs.read') || isSuperAdmin
     const canCreateFaq = hasPermission('faqs.create') || isSuperAdmin
@@ -241,19 +243,30 @@ export default function AdminPackages() {
         <div className="space-y-8">
             {canViewPackages && (
                 <section>
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
                             {filteredPackages.length} {p('available')}
                         </p>
-                        {canCreatePackage && (
-                            <button
-                                onClick={() => { setEditingPkg(null); setPkgPanelOpen(true) }}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20"
-                            >
-                                <Plus size={16} />
-                                {p('createPackage')}
-                            </button>
-                        )}
+                        <div className="flex items-center gap-2.5">
+                            {canViewSubscriptions && (
+                                <Link
+                                    to="/dashboard/admin/payments"
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-[#0f7a6c]/30 text-[#0f7a6c] dark:text-emerald-400 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm"
+                                >
+                                    <CreditCard size={16} />
+                                    <span>{isRtl ? 'عرض الاشتراكات والمدفوعات' : 'View Subscriptions & Payments'}</span>
+                                </Link>
+                            )}
+                            {canCreatePackage && (
+                                <button
+                                    onClick={() => { setEditingPkg(null); setPkgPanelOpen(true) }}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-[#0f7a6c] text-white rounded-xl text-sm font-semibold hover:bg-[#0d6b5e] transition-colors shadow-sm shadow-[#0f7a6c]/20 cursor-pointer"
+                                >
+                                    <Plus size={16} />
+                                    {p('createPackage')}
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-5 scrollbar-none">

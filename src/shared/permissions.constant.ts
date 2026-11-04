@@ -26,6 +26,7 @@ export const PERMISSIONS_LIST: Record<string, PermissionGroupDefinition> = {
       { key: 'teachers.update_certificate', label: { ar: 'تحديث شهادة معلم', en: 'Update Teacher Certificate' } },
       { key: 'teachers.delete_certificate', label: { ar: 'حذف شهادة معلم', en: 'Delete Teacher Certificate' } },
       { key: 'teachers.delete', label: { ar: 'حذف معلم', en: 'Delete Teacher' } },
+      { key: 'teachers.payouts', label: { ar: 'إدارة مدفوعات المعلمين وعرض حساباتهم', en: 'Manage Teacher Payouts & Payment Accounts' } },
     ],
   },
 
@@ -46,6 +47,15 @@ export const PERMISSIONS_LIST: Record<string, PermissionGroupDefinition> = {
       { key: 'students.create', label: { ar: 'إضافة طالب', en: 'Add Student' } },
       { key: 'students.update', label: { ar: 'تحديث طالب', en: 'Update Student' } },
       { key: 'students.delete', label: { ar: 'حذف طالب', en: 'Delete Student' } },
+    ],
+  },
+
+  dashboard: {
+    name: { ar: 'لوحة تحكم الأدمن', en: 'Admin Dashboard' },
+    actions: [
+      { key: 'dashboard.earnings.read', label: { ar: 'عرض أرباح المنصة', en: 'View Platform Earnings' } },
+      { key: 'dashboard.analytics.read', label: { ar: 'عرض تحليلات المنصة', en: 'View Platform Analytics' } },
+      { key: 'dashboard.reports.read', label: { ar: 'عرض تقارير أداء المعلمين', en: 'View Teacher Performance Reports' } },
     ],
   },
 
@@ -126,6 +136,7 @@ export const PERMISSIONS_LIST: Record<string, PermissionGroupDefinition> = {
       { key: 'packages.create', label: { ar: 'إضافة باقة', en: 'Add Package' } },
       { key: 'packages.update', label: { ar: 'تحديث باقة', en: 'Update Package' } },
       { key: 'packages.delete', label: { ar: 'حذف باقة', en: 'Delete Package' } },
+      { key: 'packages.subscriptions', label: { ar: 'عرض مدفوعات واشتراكات الباقات والإيرادات', en: 'View Package Payments, Subscriptions & Revenue' } },
     ],
   },
 

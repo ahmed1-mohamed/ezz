@@ -1,0 +1,70 @@
+{
+  "node": {
+    "401203ad2199217b8b8b08892499087b54e49dc7fe": {
+      "workers": {
+        "app/admin/ads/create/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/ads/create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/ads/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/ads/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/chat/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/chat/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/developers/create/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/developers/create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/developers/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/developers/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/offers/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/offers/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/projects/create/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/projects/create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        },
+        "app/admin/projects/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/projects/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        }
+      },
+      "layer": {
+        "app/admin/ads/create/page": "action-browser",
+        "app/admin/ads/page": "action-browser",
+        "app/admin/chat/page": "action-browser",
+        "app/admin/developers/create/page": "action-browser",
+        "app/admin/developers/page": "action-browser",
+        "app/admin/offers/page": "action-browser",
+        "app/admin/projects/create/page": "action-browser",
+        "app/admin/projects/page": "action-browser"
+      },
+      "filename": "src/i18n/locale.ts",
+      "exportedName": "setUserLocale"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "ZP/KwmqBTlThtqWsSb4uI8DMCC0f3ETKBWVlpSmlS04="
+}

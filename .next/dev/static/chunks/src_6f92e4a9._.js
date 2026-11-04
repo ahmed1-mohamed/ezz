@@ -1,0 +1,2480 @@
+(globalThis.TURBOPACK || (globalThis.TURBOPACK = [])).push([typeof document === "object" ? document.currentScript : undefined,
+"[project]/src/lib/utils.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "cn",
+    ()=>cn,
+    "extractErrorMessage",
+    ()=>extractErrorMessage
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/clsx/dist/clsx.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$tailwind$2d$merge$2f$dist$2f$bundle$2d$mjs$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/tailwind-merge/dist/bundle-mjs.mjs [app-client] (ecmascript)");
+;
+;
+function cn(...inputs) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$tailwind$2d$merge$2f$dist$2f$bundle$2d$mjs$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["twMerge"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clsx"])(inputs));
+}
+function extractErrorMessage(error, fallbackMessage = "Something went wrong. Please try again.") {
+    if (!error) return fallbackMessage;
+    const err = error;
+    const data = err?.response?.data || err?.data || (typeof err === "object" ? err : null);
+    // 1. Check if backend returned structured validation errors -> extract exactly 1st message
+    if (data?.errors) {
+        if (Array.isArray(data.errors) && data.errors.length > 0) {
+            const first = data.errors[0];
+            if (typeof first === "string" && first.trim()) return cleanMessageText(first.trim());
+            if (typeof first === "object" && first !== null) {
+                const val = Object.values(first)[0];
+                if (typeof val === "string" && val.trim()) return cleanMessageText(val.trim());
+            }
+        } else if (typeof data.errors === "object" && data.errors !== null) {
+            const values = Object.values(data.errors);
+            if (values.length > 0) {
+                const firstVal = values[0];
+                if (Array.isArray(firstVal) && firstVal.length > 0 && typeof firstVal[0] === "string" && firstVal[0].trim()) {
+                    return cleanMessageText(firstVal[0].trim());
+                }
+                if (typeof firstVal === "string" && firstVal.trim()) {
+                    return cleanMessageText(firstVal.trim());
+                }
+            }
+        }
+    }
+    // 2. Check for data.message
+    if (typeof data?.message === "string" && data.message.trim()) {
+        const msg = data.message.trim();
+        if (!isGenericStatusMessage(msg)) {
+            return cleanMessageText(msg);
+        }
+    }
+    // 3. Check for data.error
+    if (typeof data?.error === "string" && data.error.trim()) {
+        const msg = data.error.trim();
+        if (!isGenericStatusMessage(msg)) {
+            return cleanMessageText(msg);
+        }
+    }
+    // 4. Check for top-level Error message
+    if (typeof err?.message === "string" && err.message.trim()) {
+        const msg = err.message.trim();
+        if (!isGenericStatusMessage(msg)) {
+            return cleanMessageText(msg);
+        }
+    }
+    return fallbackMessage;
+}
+function isGenericStatusMessage(msg) {
+    const lower = msg.toLowerCase();
+    return lower.startsWith("request failed with status") || lower.includes("status code") || lower === "operation failed" || lower === "internal server error" || lower === "bad request" || lower === "unprocessable entity";
+}
+function cleanMessageText(msg) {
+    // Strip any leading "field_name: " or "Status 422: "
+    return msg.replace(/^([a-zA-Z0-9_.-]+:\s*)+/, "").trim() || msg;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/input.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Input",
+    ()=>Input
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+const Input = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].forwardRef(_c = ({ className, type, error, ...props }, ref)=>{
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+        type: type,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-10 w-full rounded-[8px] border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5 text-base transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-[#6A7282] placeholder:text-[14px] placeholder:font-[400] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", "autofill:bg-[#F9FAFB] autofill:text-white", "dark:bg-background dark:border-border dark:text-white dark:placeholder:text-white", "dark:autofill:bg-background dark:autofill:shadow-[inset_0_0_0px_1000px_var(--background)] dark:autofill:![-webkit-text-fill-color:white]", error && "border-red-500 focus-visible:ring-red-500", className),
+        ref: ref,
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/input.tsx",
+        lineNumber: 10,
+        columnNumber: 7
+    }, ("TURBOPACK compile-time value", void 0));
+});
+_c1 = Input;
+Input.displayName = "Input";
+;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Input$React.forwardRef");
+__turbopack_context__.k.register(_c1, "Input");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/label.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Label",
+    ()=>Label
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/class-variance-authority/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+const labelVariants = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cva"])("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
+const Label = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c = ({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+        ref: ref,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])(labelVariants(), className),
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/label.tsx",
+        lineNumber: 15,
+        columnNumber: 3
+    }, ("TURBOPACK compile-time value", void 0)));
+_c1 = Label;
+Label.displayName = "Label";
+;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Label$React.forwardRef");
+__turbopack_context__.k.register(_c1, "Label");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/ui/button.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Button",
+    ()=>Button,
+    "buttonVariants",
+    ()=>buttonVariants
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@radix-ui/react-slot/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/class-variance-authority/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+;
+const buttonVariants = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$class$2d$variance$2d$authority$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cva"])("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", {
+    variants: {
+        variant: {
+            default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+            destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+            outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+            secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+            ghost: "hover:bg-accent hover:text-accent-foreground",
+            link: "text-primary underline-offset-4 hover:underline"
+        },
+        size: {
+            default: "h-9 px-4 py-2",
+            sm: "h-8 rounded-md px-3 text-xs",
+            lg: "h-10 rounded-md px-8",
+            icon: "h-9 w-9"
+        }
+    },
+    defaultVariants: {
+        variant: "default",
+        size: "default"
+    }
+});
+const Button = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c = ({ className, variant, size, asChild = false, ...props }, ref)=>{
+    const Comp = asChild ? __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Slot"] : "button";
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Comp, {
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])(buttonVariants({
+            variant,
+            size,
+            className
+        })),
+        ref: ref,
+        ...props
+    }, void 0, false, {
+        fileName: "[project]/src/components/ui/button.tsx",
+        lineNumber: 47,
+        columnNumber: 7
+    }, ("TURBOPACK compile-time value", void 0));
+});
+_c1 = Button;
+Button.displayName = "Button";
+;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "Button$React.forwardRef");
+__turbopack_context__.k.register(_c1, "Button");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "buildGoogleMapsUrl",
+    ()=>buildGoogleMapsUrl,
+    "extractCoordinates",
+    ()=>extractCoordinates,
+    "isCoordinateText",
+    ()=>isCoordinateText,
+    "isShortMapsUrl",
+    ()=>isShortMapsUrl,
+    "isValidLatLng",
+    ()=>isValidLatLng,
+    "parseCoordinateInput",
+    ()=>parseCoordinateInput,
+    "resolveGoogleMapsUrl",
+    ()=>resolveGoogleMapsUrl,
+    "roundCoordinate",
+    ()=>roundCoordinate,
+    "toCoordinate",
+    ()=>toCoordinate,
+    "toLatLng",
+    ()=>toLatLng
+]);
+const NUM = "(-?\\d{1,3}(?:\\.\\d+)?)";
+const SEP = "\\s*(?:,|%2C)\\s*\\+?\\s*";
+/**
+ * Patterns in priority order. The `!3d…!4d` data block is the exact place pin, so it wins over
+ * `@lat,lng`, which is only the viewport centre of the page.
+ */ const URL_PATTERNS = [
+    {
+        regex: new RegExp(`!3d${NUM}!4d${NUM}`),
+        latFirst: true
+    },
+    {
+        regex: new RegExp(`!4d${NUM}!3d${NUM}`),
+        latFirst: false
+    },
+    {
+        regex: new RegExp(`[?&](?:q|query|destination|daddr|saddr|ll|sll|center|viewpoint)=(?:loc:)?${NUM}${SEP}${NUM}`),
+        latFirst: true
+    },
+    {
+        regex: new RegExp(`/(?:search|place|dir)/${NUM}${SEP}${NUM}`),
+        latFirst: true
+    },
+    {
+        regex: new RegExp(`@${NUM}${SEP}${NUM}`),
+        latFirst: true
+    },
+    {
+        regex: new RegExp(`!2d${NUM}!3d${NUM}`),
+        latFirst: false
+    }
+];
+function isValidLatLng(lat, lng) {
+    return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0);
+}
+function roundCoordinate(value) {
+    return Math.round(value * 1e6) / 1e6;
+}
+function parseCoordinateInput(value) {
+    const trimmed = value.trim().replace(",", ".");
+    if (!/^-?\d+(\.\d+)?$/.test(trimmed)) return null;
+    const num = Number(trimmed);
+    return Number.isFinite(num) ? num : null;
+}
+function toCoordinate(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const num = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(num) ? num : null;
+}
+function toLatLng(lat, lng) {
+    const a = toCoordinate(lat);
+    const b = toCoordinate(lng);
+    return a !== null && b !== null && isValidLatLng(a, b) ? {
+        lat: a,
+        lng: b
+    } : null;
+}
+function buildGoogleMapsUrl(lat, lng) {
+    return `https://www.google.com/maps/search/?api=1&query=${roundCoordinate(lat)},${roundCoordinate(lng)}`;
+}
+function extractCoordinates(input) {
+    if (!input || typeof input !== "string") return null;
+    const trimmed = input.trim();
+    const direct = trimmed.match(/^\(?\s*(-?\d{1,2}(?:\.\d+)?)\s*[,\s]\s*(-?\d{1,3}(?:\.\d+)?)\s*\)?$/);
+    if (direct) {
+        const lat = Number(direct[1]);
+        const lng = Number(direct[2]);
+        return isValidLatLng(lat, lng) ? {
+            lat,
+            lng
+        } : null;
+    }
+    let decoded = trimmed;
+    try {
+        decoded = decodeURIComponent(trimmed.replace(/\+/g, " "));
+    } catch  {
+        decoded = trimmed;
+    }
+    for (const { regex, latFirst } of URL_PATTERNS){
+        const match = decoded.match(regex) ?? trimmed.match(regex);
+        if (!match) continue;
+        const lat = Number(latFirst ? match[1] : match[2]);
+        const lng = Number(latFirst ? match[2] : match[1]);
+        if (isValidLatLng(lat, lng)) return {
+            lat,
+            lng
+        };
+    }
+    return null;
+}
+function isShortMapsUrl(input) {
+    try {
+        const host = new URL(input.trim()).hostname.toLowerCase();
+        return host === "goo.gl" || host === "maps.app.goo.gl" || host === "g.co" || host.endsWith(".page.link");
+    } catch  {
+        return false;
+    }
+}
+function isCoordinateText(input) {
+    return !/^https?:\/\//i.test(input.trim()) && extractCoordinates(input) !== null;
+}
+async function resolveGoogleMapsUrl(input, signal) {
+    const direct = extractCoordinates(input);
+    if (direct) return direct;
+    if (!isShortMapsUrl(input)) return null;
+    const res = await fetch(`/api/expand-url?shortUrl=${encodeURIComponent(input.trim())}`, {
+        signal
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(()=>null);
+    return typeof data?.longUrl === "string" ? extractCoordinates(data.longUrl) : null;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/lib/maps/geocoding.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "EMPTY_DETAILS",
+    ()=>EMPTY_DETAILS,
+    "googleReverseGeocode",
+    ()=>googleReverseGeocode,
+    "isAbortError",
+    ()=>isAbortError,
+    "lookupAddress",
+    ()=>lookupAddress,
+    "reverseGeocode",
+    ()=>reverseGeocode,
+    "searchPlaces",
+    ()=>searchPlaces
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+;
+const EMPTY_DETAILS = {
+    address: "",
+    city: "",
+    area: "",
+    country: "",
+    countryCode: ""
+};
+const CACHE_LIMIT = 100;
+function remember(cache, key, value) {
+    cache.set(key, value);
+    if (cache.size > CACHE_LIMIT) {
+        const oldest = cache.keys().next().value;
+        if (oldest !== undefined) cache.delete(oldest);
+    }
+}
+function abortError() {
+    return new DOMException("Aborted", "AbortError");
+}
+function isAbortError(error) {
+    return error instanceof DOMException && error.name === "AbortError";
+}
+/* ── Reverse geocoding (OpenStreetMap Nominatim) ──────────────────────────────
+ * Nominatim's usage policy allows at most 1 request per second, so requests are queued
+ * and spaced, cached by rounded coordinates, and skipped when cancelled while waiting. */ const NOMINATIM_GAP_MS = 1100;
+const reverseCache = new Map();
+let nominatimQueue = Promise.resolve();
+let lastNominatimAt = 0;
+function scheduleNominatim(task, signal) {
+    const run = nominatimQueue.then(async ()=>{
+        if (signal?.aborted) throw abortError();
+        const wait = lastNominatimAt + NOMINATIM_GAP_MS - Date.now();
+        if (wait > 0) await new Promise((resolve)=>setTimeout(resolve, wait));
+        if (signal?.aborted) throw abortError();
+        lastNominatimAt = Date.now();
+        return task();
+    });
+    nominatimQueue = run.catch(()=>undefined);
+    return run;
+}
+function shortAddress(displayName) {
+    return (displayName || "").split(",").slice(0, 3).map((p)=>p.trim()).filter(Boolean).join(", ");
+}
+async function reverseGeocode(lat, lng, options = {}) {
+    const language = options.language === "ar" ? "ar,en" : "en,ar";
+    const key = `${(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(lat).toFixed(5)},${(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(lng).toFixed(5)}|${language}`;
+    const cached = reverseCache.get(key);
+    if (cached) return cached;
+    return scheduleNominatim(async ()=>{
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18` + `&lat=${lat}&lon=${lng}&accept-language=${encodeURIComponent(language)}`;
+        const res = await fetch(url, {
+            signal: options.signal
+        });
+        if (!res.ok) throw new Error(`Reverse geocoding failed (${res.status})`);
+        const data = await res.json();
+        const a = data?.address || {};
+        const details = {
+            address: shortAddress(data?.display_name),
+            city: a.city || a.town || a.municipality || a.village || a.county || a.state || "",
+            area: a.suburb || a.neighbourhood || a.quarter || a.city_district || a.district || a.residential || "",
+            country: a.country || "",
+            countryCode: (a.country_code || "").toUpperCase()
+        };
+        remember(reverseCache, key, details);
+        return details;
+    }, options.signal);
+}
+/* ── Place search / autocomplete (Photon by komoot, OpenStreetMap data) ────────
+ * Photon is built for search-as-you-type (unlike Nominatim). Callers debounce input,
+ * pass an AbortSignal, and results are cached per query. */ const searchCache = new Map();
+const PHOTON_LANGUAGES = new Set([
+    "en",
+    "de",
+    "fr",
+    "it"
+]);
+function photonDetails(p) {
+    const street = [
+        p.street,
+        p.housenumber
+    ].filter(Boolean).join(" ");
+    return {
+        address: [
+            p.name,
+            street,
+            p.district || p.locality
+        ].filter(Boolean).join(", "),
+        city: p.city || p.county || p.state || "",
+        area: p.district || p.locality || (p.type === "district" || p.type === "locality" ? p.name : "") || "",
+        country: p.country || "",
+        countryCode: (p.countrycode || "").toUpperCase()
+    };
+}
+async function searchPlaces(query, options = {}) {
+    const q = query.trim();
+    if (q.length < 3) return [];
+    const lang = options.language && PHOTON_LANGUAGES.has(options.language) ? options.language : "default";
+    const near = options.near ? `${options.near.lat.toFixed(2)},${options.near.lng.toFixed(2)}` : "";
+    const key = `${q.toLowerCase()}|${lang}|${near}`;
+    const cached = searchCache.get(key);
+    if (cached) return cached;
+    const params = new URLSearchParams({
+        q,
+        limit: String(options.limit ?? 6),
+        lang
+    });
+    if (options.near) {
+        params.set("lat", String(options.near.lat));
+        params.set("lon", String(options.near.lng));
+    }
+    const res = await fetch(`https://photon.komoot.io/api/?${params.toString()}`, {
+        signal: options.signal
+    });
+    if (!res.ok) throw new Error(`Place search failed (${res.status})`);
+    const data = await res.json();
+    const seen = new Set();
+    const suggestions = [];
+    for (const feature of data?.features ?? []){
+        const [lng, lat] = feature?.geometry?.coordinates ?? [];
+        const p = feature?.properties ?? {};
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+        const name = p.name || [
+            p.street,
+            p.housenumber
+        ].filter(Boolean).join(" ") || p.city || "";
+        if (!name) continue;
+        const subtitle = [
+            p.district || p.locality,
+            p.city,
+            p.state,
+            p.country
+        ].filter((part, i, all)=>part && part !== name && all.indexOf(part) === i).join(", ");
+        const dedupeKey = `${name}|${subtitle}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+        suggestions.push({
+            id: `${p.osm_type || "x"}${p.osm_id || suggestions.length}`,
+            name,
+            subtitle,
+            lat,
+            lng,
+            kind: p.osm_value || p.type || "",
+            details: photonDetails(p)
+        });
+    }
+    remember(searchCache, key, suggestions);
+    return suggestions;
+}
+async function googleReverseGeocode(lat, lng, options = {}) {
+    const params = new URLSearchParams({
+        lat: String(lat),
+        lng: String(lng),
+        language: options.language === "ar" ? "ar" : "en"
+    });
+    const res = await fetch(`/api/geocode?${params.toString()}`, {
+        signal: options.signal
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(()=>null);
+    return data?.details ?? null;
+}
+async function lookupAddress(lat, lng, options = {}) {
+    if (options.preferGoogle) {
+        try {
+            const google = await googleReverseGeocode(lat, lng, options);
+            if (google && (google.city || google.address)) return google;
+        } catch (error) {
+            if (isAbortError(error)) throw error;
+        }
+    }
+    try {
+        return await reverseGeocode(lat, lng, options);
+    } catch (error) {
+        if (isAbortError(error)) throw error;
+        return EMPTY_DETAILS;
+    }
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/shared/maps/MapSearchBox.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "MapSearchBox",
+    ()=>MapSearchBox
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/search.js [app-client] (ecmascript) <export default as Search>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/geocoding.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+const DEBOUNCE_MS = 350;
+const MIN_CHARS = 3;
+function MapSearchBox({ onSelect, onCoordinates, getBias, className }) {
+    _s();
+    const { t, language } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const listId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"])();
+    const [query, setQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [results, setResults] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [status, setStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("idle");
+    const [open, setOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [active, setActive] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(-1);
+    const rootRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const getBiasRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(getBias);
+    getBiasRef.current = getBias;
+    const coordinateMatch = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["extractCoordinates"])(query);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "MapSearchBox.useEffect": ()=>{
+            const q = query.trim();
+            if (q.length < MIN_CHARS || (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["extractCoordinates"])(q)) {
+                setResults([]);
+                setStatus("idle");
+                return;
+            }
+            const controller = new AbortController();
+            const timer = window.setTimeout({
+                "MapSearchBox.useEffect.timer": async ()=>{
+                    setStatus("loading");
+                    try {
+                        const found = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["searchPlaces"])(q, {
+                            language,
+                            near: getBiasRef.current(),
+                            signal: controller.signal
+                        });
+                        setResults(found);
+                        setActive(found.length ? 0 : -1);
+                        setStatus("done");
+                    } catch (error) {
+                        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isAbortError"])(error)) setStatus("error");
+                    }
+                }
+            }["MapSearchBox.useEffect.timer"], DEBOUNCE_MS);
+            return ({
+                "MapSearchBox.useEffect": ()=>{
+                    window.clearTimeout(timer);
+                    controller.abort();
+                }
+            })["MapSearchBox.useEffect"];
+        }
+    }["MapSearchBox.useEffect"], [
+        query,
+        language
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "MapSearchBox.useEffect": ()=>{
+            if (!open) return;
+            const onPointerDown = {
+                "MapSearchBox.useEffect.onPointerDown": (e)=>{
+                    if (!rootRef.current?.contains(e.target)) setOpen(false);
+                }
+            }["MapSearchBox.useEffect.onPointerDown"];
+            document.addEventListener("pointerdown", onPointerDown);
+            return ({
+                "MapSearchBox.useEffect": ()=>document.removeEventListener("pointerdown", onPointerDown)
+            })["MapSearchBox.useEffect"];
+        }
+    }["MapSearchBox.useEffect"], [
+        open
+    ]);
+    const choose = (suggestion)=>{
+        onSelect(suggestion);
+        setQuery(suggestion.name);
+        setOpen(false);
+    };
+    const goToCoordinates = ()=>{
+        if (!coordinateMatch) return;
+        onCoordinates(coordinateMatch);
+        setOpen(false);
+    };
+    const onKeyDown = (e_0)=>{
+        if (e_0.key === "Enter") {
+            e_0.preventDefault();
+            if (coordinateMatch) goToCoordinates();
+            else if (results[active]) choose(results[active]);
+            return;
+        }
+        if (e_0.key === "Escape") {
+            setOpen(false);
+            return;
+        }
+        if (!results.length) return;
+        if (e_0.key === "ArrowDown") {
+            e_0.preventDefault();
+            setOpen(true);
+            setActive((i)=>(i + 1) % results.length);
+        } else if (e_0.key === "ArrowUp") {
+            e_0.preventDefault();
+            setActive((i_0)=>(i_0 - 1 + results.length) % results.length);
+        }
+    };
+    const showPanel = open && query.trim().length >= MIN_CHARS;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        ref: rootRef,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("relative", className),
+        onClick: (e_1)=>e_1.stopPropagation(),
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white/95 px-2.5 shadow-md backdrop-blur-md focus-within:border-[#008081] focus-within:ring-2 focus-within:ring-[#008081]/20 dark:border-neutral-700 dark:bg-neutral-900/95",
+                children: [
+                    status === "loading" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                        className: "h-4 w-4 shrink-0 animate-spin text-[#008081]"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                        lineNumber: 115,
+                        columnNumber: 33
+                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
+                        className: "h-4 w-4 shrink-0 text-gray-400"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                        lineNumber: 115,
+                        columnNumber: 104
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                        type: "text",
+                        value: query,
+                        onChange: (e_2)=>{
+                            setQuery(e_2.target.value);
+                            setOpen(true);
+                        },
+                        onFocus: ()=>setOpen(true),
+                        onKeyDown: onKeyDown,
+                        placeholder: t("locations.mapPicker.searchPlaceholder"),
+                        "aria-label": t("locations.mapPicker.searchPlaceholder"),
+                        role: "combobox",
+                        "aria-expanded": showPanel,
+                        "aria-controls": listId,
+                        "aria-autocomplete": "list",
+                        className: "min-w-0 flex-1 bg-transparent text-xs text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                        lineNumber: 116,
+                        columnNumber: 9
+                    }, this),
+                    query && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: ()=>{
+                            setQuery("");
+                            setResults([]);
+                        },
+                        "aria-label": t("locations.mapPicker.clearSearch"),
+                        className: "rounded p-0.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                            className: "h-3.5 w-3.5"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                            lineNumber: 124,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                        lineNumber: 120,
+                        columnNumber: 19
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                lineNumber: 114,
+                columnNumber: 7
+            }, this),
+            showPanel && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                id: listId,
+                role: "listbox",
+                className: "absolute inset-x-0 top-full z-[1100] mt-1 max-h-72 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-xl dark:border-neutral-700 dark:bg-neutral-900",
+                children: coordinateMatch ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    type: "button",
+                    onClick: goToCoordinates,
+                    className: "flex w-full items-center gap-2 px-3 py-2 text-start text-xs hover:bg-gray-50 dark:hover:bg-neutral-800",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
+                            className: "h-3.5 w-3.5 shrink-0 text-[#008081]"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                            lineNumber: 130,
+                            columnNumber: 15
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            className: "font-mono text-gray-800 dark:text-gray-200",
+                            children: [
+                                coordinateMatch.lat.toFixed(6),
+                                ", ",
+                                coordinateMatch.lng.toFixed(6)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                            lineNumber: 131,
+                            columnNumber: 15
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                    lineNumber: 129,
+                    columnNumber: 30
+                }, this) : status === "error" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "px-3 py-2 text-xs text-red-500",
+                    children: t("locations.mapPicker.searchFailed")
+                }, void 0, false, {
+                    fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                    lineNumber: 134,
+                    columnNumber: 46
+                }, this) : status === "done" && results.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "px-3 py-2 text-xs text-gray-500 dark:text-gray-400",
+                    children: t("locations.mapPicker.noResults")
+                }, void 0, false, {
+                    fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                    lineNumber: 134,
+                    columnNumber: 182
+                }, this) : results.map((r, i_1)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        role: "option",
+                        "aria-selected": i_1 === active,
+                        onMouseEnter: ()=>setActive(i_1),
+                        onClick: ()=>choose(r),
+                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex w-full items-start gap-2 px-3 py-2 text-start", i_1 === active ? "bg-teal-50 dark:bg-teal-950/40" : "hover:bg-gray-50 dark:hover:bg-neutral-800"),
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
+                                className: "mt-0.5 h-3.5 w-3.5 shrink-0 text-[#008081]"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                                lineNumber: 135,
+                                columnNumber: 17
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "min-w-0",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "block truncate text-xs font-medium text-gray-900 dark:text-gray-100",
+                                        children: r.name
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                                        lineNumber: 137,
+                                        columnNumber: 19
+                                    }, this),
+                                    r.subtitle && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "block truncate text-[11px] text-gray-500 dark:text-gray-400",
+                                        children: r.subtitle
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                                        lineNumber: 138,
+                                        columnNumber: 34
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                                lineNumber: 136,
+                                columnNumber: 17
+                            }, this)
+                        ]
+                    }, r.id, true, {
+                        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                        lineNumber: 134,
+                        columnNumber: 315
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+                lineNumber: 128,
+                columnNumber: 21
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/shared/maps/MapSearchBox.tsx",
+        lineNumber: 113,
+        columnNumber: 10
+    }, this);
+}
+_s(MapSearchBox, "voLqIcBPd844ioncAPs8OMSqiFs=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"]
+    ];
+});
+_c = MapSearchBox;
+var _c;
+__turbopack_context__.k.register(_c, "MapSearchBox");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/shared/InteractiveMapPicker.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "InteractiveMapPicker",
+    ()=>InteractiveMapPicker
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-alert.js [app-client] (ecmascript) <export default as AlertCircle>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/copy.js [app-client] (ecmascript) <export default as Copy>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$crosshair$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Crosshair$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/crosshair.js [app-client] (ecmascript) <export default as Crosshair>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/external-link.js [app-client] (ecmascript) <export default as ExternalLink>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$maximize$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Maximize2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/maximize-2.js [app-client] (ecmascript) <export default as Maximize2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$minimize$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Minimize2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/minimize-2.js [app-client] (ecmascript) <export default as Minimize2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/geocoding.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$maps$2f$MapSearchBox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/shared/maps/MapSearchBox.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+const FALLBACK_CENTER = {
+    lat: 25.2048,
+    lng: 55.2708
+};
+const SELECTED_ZOOM = 16;
+const NOTICE_MS = 5000;
+const PIN_HTML = `
+  <div class="map-pin">
+    <svg width="34" height="42" viewBox="0 0 34 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17 0C7.611 0 0 7.611 0 17c0 10.5 17 25 17 25s17-14.5 17-25C34 7.611 26.389 0 17 0Z" fill="#008081"/>
+      <circle cx="17" cy="17" r="6.5" fill="white"/>
+      <circle cx="17" cy="17" r="3" fill="#008081"/>
+    </svg>
+  </div>`;
+function validPoint(lat, lng) {
+    return typeof lat === "number" && typeof lng === "number" && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(lat, lng) ? {
+        lat,
+        lng
+    } : null;
+}
+function samePoint(a, b) {
+    return !!a && !!b && Math.abs(a.lat - b.lat) < 1e-6 && Math.abs(a.lng - b.lng) < 1e-6;
+}
+function InteractiveMapPicker({ latitude, longitude, defaultCenter, onLocationSelect, height = "h-[320px] sm:h-[420px]", readOnly = false, className = "", defaultZoom = 12, showControls = true, showBadges = true, searchable = !readOnly, markerLabel }) {
+    _s();
+    const { t, language } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const isRtl = language === "ar";
+    const wrapperRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const containerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const mapRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const markerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const leafletRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const lastEmittedRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const lookupRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const noticeTimerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    // Latest values for Leaflet event handlers, which are registered once.
+    const latest = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])({
+        onLocationSelect,
+        language,
+        readOnly,
+        markerLabel
+    });
+    latest.current = {
+        onLocationSelect,
+        language,
+        readOnly,
+        markerLabel
+    };
+    const point = validPoint(latitude, longitude);
+    const center = defaultCenter && (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(defaultCenter.lat, defaultCenter.lng) ? defaultCenter : null;
+    const initial = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])({
+        point,
+        center,
+        defaultZoom
+    });
+    initial.current = {
+        point,
+        center,
+        defaultZoom
+    };
+    const [mapReady, setMapReady] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [coords, setCoords] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(point);
+    const [address, setAddress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [isGeocoding, setIsGeocoding] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isLocating, setIsLocating] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [expanded, setExpanded] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [copied, setCopied] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [notice, setNotice] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const showNotice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "InteractiveMapPicker.useCallback[showNotice]": (message)=>{
+            setNotice(message);
+            if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+            noticeTimerRef.current = window.setTimeout({
+                "InteractiveMapPicker.useCallback[showNotice]": ()=>setNotice(null)
+            }["InteractiveMapPicker.useCallback[showNotice]"], NOTICE_MS);
+        }
+    }["InteractiveMapPicker.useCallback[showNotice]"], []);
+    const placeMarker = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "InteractiveMapPicker.useCallback[placeMarker]": (lat, lng)=>{
+            const L = leafletRef.current;
+            const map = mapRef.current;
+            if (!L || !map) return;
+            if (markerRef.current) {
+                markerRef.current.setLatLng([
+                    lat,
+                    lng
+                ]);
+                return;
+            }
+            const marker = L.marker([
+                lat,
+                lng
+            ], {
+                icon: L.divIcon({
+                    className: "map-pin-icon",
+                    html: PIN_HTML,
+                    iconSize: [
+                        34,
+                        42
+                    ],
+                    iconAnchor: [
+                        17,
+                        42
+                    ]
+                }),
+                draggable: !latest.current.readOnly,
+                keyboard: true,
+                autoPan: true
+            }).addTo(map);
+            marker.on("dragend", {
+                "InteractiveMapPicker.useCallback[placeMarker]": ()=>{
+                    const pos = marker.getLatLng();
+                    selectRef.current(pos.lat, pos.lng, "map");
+                }
+            }["InteractiveMapPicker.useCallback[placeMarker]"]);
+            if (latest.current.markerLabel) {
+                marker.bindTooltip(latest.current.markerLabel, {
+                    direction: "top",
+                    offset: [
+                        0,
+                        -40
+                    ]
+                });
+            }
+            markerRef.current = marker;
+        }
+    }["InteractiveMapPicker.useCallback[placeMarker]"], []);
+    const emit = (data)=>latest.current.onLocationSelect?.(data);
+    /** Moves the pin, reports the coordinates right away, then reports the address once known. */ const select = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "InteractiveMapPicker.useCallback[select]": async (rawLat, rawLng, source, preset)=>{
+            const lat = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(rawLat);
+            const lng = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(rawLng);
+            if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(lat, lng)) return;
+            const base = {
+                lat,
+                lng,
+                googleMapLink: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(lat, lng),
+                source
+            };
+            lastEmittedRef.current = {
+                lat,
+                lng
+            };
+            setCoords({
+                lat,
+                lng
+            });
+            placeMarker(lat, lng);
+            lookupRef.current?.abort();
+            if (preset) {
+                setAddress(preset.address);
+                emit({
+                    ...base,
+                    detailsLoaded: true,
+                    ...preset,
+                    landmark: preset.address
+                });
+                return;
+            }
+            emit({
+                ...base,
+                detailsLoaded: false
+            });
+            const controller = new AbortController();
+            lookupRef.current = controller;
+            setIsGeocoding(true);
+            try {
+                const details = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["lookupAddress"])(lat, lng, {
+                    language: latest.current.language,
+                    signal: controller.signal
+                });
+                setAddress(details.address);
+                if (!details.address && !details.city) showNotice(t("locations.mapPicker.addressNotFound"));
+                emit({
+                    ...base,
+                    detailsLoaded: true,
+                    ...details,
+                    landmark: details.address
+                });
+            } catch (error) {
+                if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isAbortError"])(error)) emit({
+                    ...base,
+                    detailsLoaded: true
+                });
+            } finally{
+                if (lookupRef.current === controller) {
+                    lookupRef.current = null;
+                    setIsGeocoding(false);
+                }
+            }
+        }
+    }["InteractiveMapPicker.useCallback[select]"], // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+        placeMarker,
+        showNotice,
+        t
+    ]);
+    const selectRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(select);
+    selectRef.current = select;
+    // Create the map only once it is (about to be) visible: hidden tabs and modals don't pay for it.
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>{
+            const wrapper = wrapperRef.current;
+            if (!wrapper) return;
+            let cancelled = false;
+            let resizeObserver = null;
+            const init = {
+                "InteractiveMapPicker.useEffect.init": async ()=>{
+                    const L = (await __turbopack_context__.A("[project]/node_modules/leaflet/dist/leaflet-src.js [app-client] (ecmascript, async loader)")).default;
+                    if (cancelled || !containerRef.current || mapRef.current) return;
+                    leafletRef.current = L;
+                    const { point: startPoint, center: startCenter, defaultZoom: zoom } = initial.current;
+                    const start = startPoint ?? startCenter ?? FALLBACK_CENTER;
+                    const map = L.map(containerRef.current, {
+                        center: [
+                            start.lat,
+                            start.lng
+                        ],
+                        zoom: startPoint ? SELECTED_ZOOM : zoom,
+                        zoomControl: false,
+                        scrollWheelZoom: false,
+                        attributionControl: true
+                    });
+                    mapRef.current = map;
+                    map.attributionControl.setPrefix(false);
+                    L.control.zoom({
+                        position: isRtl ? "bottomleft" : "bottomright"
+                    }).addTo(map);
+                    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+                    }).addTo(map);
+                    // Scrolling the page shouldn't zoom the map until the user interacts with it.
+                    map.on("focus click", {
+                        "InteractiveMapPicker.useEffect.init": ()=>map.scrollWheelZoom.enable()
+                    }["InteractiveMapPicker.useEffect.init"]);
+                    map.on("blur mouseout", {
+                        "InteractiveMapPicker.useEffect.init": ()=>map.scrollWheelZoom.disable()
+                    }["InteractiveMapPicker.useEffect.init"]);
+                    map.on("click", {
+                        "InteractiveMapPicker.useEffect.init": (e)=>{
+                            if (!latest.current.readOnly) selectRef.current(e.latlng.lat, e.latlng.lng, "map");
+                        }
+                    }["InteractiveMapPicker.useEffect.init"]);
+                    if (startPoint) placeMarker(startPoint.lat, startPoint.lng);
+                    resizeObserver = new ResizeObserver({
+                        "InteractiveMapPicker.useEffect.init": ()=>map.invalidateSize()
+                    }["InteractiveMapPicker.useEffect.init"]);
+                    resizeObserver.observe(containerRef.current);
+                    setMapReady(true);
+                }
+            }["InteractiveMapPicker.useEffect.init"];
+            let visibility = null;
+            if (typeof IntersectionObserver === "undefined") {
+                init();
+            } else {
+                visibility = new IntersectionObserver({
+                    "InteractiveMapPicker.useEffect": (entries)=>{
+                        if (entries.some({
+                            "InteractiveMapPicker.useEffect": (entry)=>entry.isIntersecting
+                        }["InteractiveMapPicker.useEffect"])) {
+                            visibility?.disconnect();
+                            init();
+                        }
+                    }
+                }["InteractiveMapPicker.useEffect"], {
+                    rootMargin: "200px"
+                });
+                visibility.observe(wrapper);
+            }
+            return ({
+                "InteractiveMapPicker.useEffect": ()=>{
+                    cancelled = true;
+                    visibility?.disconnect();
+                    resizeObserver?.disconnect();
+                    lookupRef.current?.abort();
+                    mapRef.current?.remove();
+                    mapRef.current = null;
+                    markerRef.current = null;
+                }
+            })["InteractiveMapPicker.useEffect"];
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+    }["InteractiveMapPicker.useEffect"], []);
+    // Follow coordinates set from outside (typed, pasted link, loaded record) without echoing our own picks.
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>{
+            const map = mapRef.current;
+            if (!mapReady || !map) return;
+            if (point) {
+                setCoords(point);
+                placeMarker(point.lat, point.lng);
+                if (!samePoint(point, lastEmittedRef.current)) {
+                    lastEmittedRef.current = point;
+                    setAddress("");
+                    map.flyTo([
+                        point.lat,
+                        point.lng
+                    ], Math.max(map.getZoom(), SELECTED_ZOOM), {
+                        duration: 0.6
+                    });
+                }
+            } else {
+                markerRef.current?.remove();
+                markerRef.current = null;
+                lastEmittedRef.current = null;
+                setCoords(null);
+                setAddress("");
+            }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+    }["InteractiveMapPicker.useEffect"], [
+        mapReady,
+        point?.lat,
+        point?.lng
+    ]);
+    // Without a pin, show the region the user chose (country / city).
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>{
+            const map = mapRef.current;
+            if (!mapReady || !map || point || !center) return;
+            map.flyTo([
+                center.lat,
+                center.lng
+            ], defaultZoom, {
+                duration: 0.6
+            });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+    }["InteractiveMapPicker.useEffect"], [
+        mapReady,
+        center?.lat,
+        center?.lng
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>{
+            if (!mapReady) return;
+            const timer = window.setTimeout({
+                "InteractiveMapPicker.useEffect.timer": ()=>mapRef.current?.invalidateSize()
+            }["InteractiveMapPicker.useEffect.timer"], 50);
+            if (!expanded) return ({
+                "InteractiveMapPicker.useEffect": ()=>window.clearTimeout(timer)
+            })["InteractiveMapPicker.useEffect"];
+            const onKey = {
+                "InteractiveMapPicker.useEffect.onKey": (e)=>e.key === "Escape" && setExpanded(false)
+            }["InteractiveMapPicker.useEffect.onKey"];
+            const previousOverflow = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            window.addEventListener("keydown", onKey);
+            return ({
+                "InteractiveMapPicker.useEffect": ()=>{
+                    window.clearTimeout(timer);
+                    document.body.style.overflow = previousOverflow;
+                    window.removeEventListener("keydown", onKey);
+                }
+            })["InteractiveMapPicker.useEffect"];
+        }
+    }["InteractiveMapPicker.useEffect"], [
+        expanded,
+        mapReady
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InteractiveMapPicker.useEffect": ()=>({
+                "InteractiveMapPicker.useEffect": ()=>{
+                    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+                }
+            })["InteractiveMapPicker.useEffect"]
+    }["InteractiveMapPicker.useEffect"], []);
+    const handleLocateMe = ()=>{
+        if (!("geolocation" in navigator) || !window.isSecureContext) {
+            showNotice(t("locations.mapPicker.geolocationUnsupported"));
+            return;
+        }
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition((pos)=>{
+            setIsLocating(false);
+            mapRef.current?.flyTo([
+                pos.coords.latitude,
+                pos.coords.longitude
+            ], SELECTED_ZOOM, {
+                duration: 0.8
+            });
+            select(pos.coords.latitude, pos.coords.longitude, "geolocation");
+        }, (err)=>{
+            setIsLocating(false);
+            const key = err.code === err.PERMISSION_DENIED ? "geolocationDenied" : err.code === err.TIMEOUT ? "geolocationTimeout" : "geolocationUnavailable";
+            showNotice(t(`locations.mapPicker.${key}`));
+        }, {
+            timeout: 10000,
+            enableHighAccuracy: true,
+            maximumAge: 60000
+        });
+    };
+    const copyCoordinates = async ()=>{
+        if (!coords) return;
+        try {
+            await navigator.clipboard.writeText(`${coords.lat}, ${coords.lng}`);
+            setCopied(true);
+            window.setTimeout(()=>setCopied(false), 1500);
+        } catch  {
+            showNotice(t("locations.mapPicker.copyFailed"));
+        }
+    };
+    const controlButton = "flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-60 dark:text-gray-200 dark:hover:bg-neutral-800";
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        ref: wrapperRef,
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("map-picker relative w-full overflow-hidden border border-gray-200 bg-gray-100 dark:border-neutral-800 dark:bg-neutral-900", expanded ? "fixed inset-0 z-[70] h-dvh rounded-none" : (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-xl shadow-sm", height), className),
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                ref: containerRef,
+                className: "absolute inset-0 z-0"
+            }, void 0, false, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 398,
+                columnNumber: 7
+            }, this),
+            !mapReady && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "absolute inset-0 z-[5] flex items-center justify-center",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                    className: "h-6 w-6 animate-spin text-[#008081]"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                    lineNumber: 401,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 400,
+                columnNumber: 21
+            }, this),
+            (searchable || showControls) && mapReady && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "pointer-events-none absolute inset-x-2.5 top-2.5 z-[1000] flex items-start gap-2",
+                children: [
+                    searchable && !readOnly && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$maps$2f$MapSearchBox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MapSearchBox"], {
+                        className: "pointer-events-auto min-w-0 flex-1 sm:max-w-sm",
+                        getBias: ()=>{
+                            const c = mapRef.current?.getCenter();
+                            return c ? {
+                                lat: c.lat,
+                                lng: c.lng
+                            } : null;
+                        },
+                        onSelect: (s)=>{
+                            mapRef.current?.flyTo([
+                                s.lat,
+                                s.lng
+                            ], SELECTED_ZOOM, {
+                                duration: 0.8
+                            });
+                            select(s.lat, s.lng, "search", s.details);
+                        },
+                        onCoordinates: (c)=>{
+                            mapRef.current?.flyTo([
+                                c.lat,
+                                c.lng
+                            ], SELECTED_ZOOM, {
+                                duration: 0.8
+                            });
+                            select(c.lat, c.lng, "coordinates");
+                        }
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 405,
+                        columnNumber: 39
+                    }, this),
+                    showControls && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "pointer-events-auto ms-auto flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white/95 p-0.5 shadow-md backdrop-blur-md dark:border-neutral-700 dark:bg-neutral-900/95",
+                        children: [
+                            !readOnly && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                onClick: handleLocateMe,
+                                disabled: isLocating,
+                                title: t("locations.mapPicker.locateMeTitle"),
+                                "aria-label": t("locations.mapPicker.locateMeTitle"),
+                                className: controlButton,
+                                children: [
+                                    isLocating ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                        className: "h-3.5 w-3.5 animate-spin text-[#008081]"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                        lineNumber: 424,
+                                        columnNumber: 33
+                                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$crosshair$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Crosshair$3e$__["Crosshair"], {
+                                        className: "h-3.5 w-3.5 text-[#008081]"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                        lineNumber: 424,
+                                        columnNumber: 99
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "hidden md:inline",
+                                        children: t("locations.mapPicker.myLocation")
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                        lineNumber: 425,
+                                        columnNumber: 19
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 423,
+                                columnNumber: 29
+                            }, this),
+                            coords && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(coords.lat, coords.lng),
+                                target: "_blank",
+                                rel: "noopener noreferrer",
+                                title: t("locations.mapPicker.openInGoogleMaps"),
+                                "aria-label": t("locations.mapPicker.openInGoogleMaps"),
+                                className: controlButton,
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
+                                    className: "h-3.5 w-3.5 text-gray-500"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                    lineNumber: 428,
+                                    columnNumber: 19
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 427,
+                                columnNumber: 26
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                onClick: ()=>setExpanded((v)=>!v),
+                                title: t(expanded ? "locations.mapPicker.exitFullscreen" : "locations.mapPicker.fullscreen"),
+                                "aria-label": t(expanded ? "locations.mapPicker.exitFullscreen" : "locations.mapPicker.fullscreen"),
+                                className: controlButton,
+                                children: expanded ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$minimize$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Minimize2$3e$__["Minimize2"], {
+                                    className: "h-3.5 w-3.5"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                    lineNumber: 431,
+                                    columnNumber: 29
+                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$maximize$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Maximize2$3e$__["Maximize2"], {
+                                    className: "h-3.5 w-3.5"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                    lineNumber: 431,
+                                    columnNumber: 69
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                lineNumber: 430,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 422,
+                        columnNumber: 28
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 404,
+                columnNumber: 52
+            }, this),
+            notice && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                role: "status",
+                className: "absolute inset-x-2.5 top-14 z-[1000] mx-auto flex max-w-sm items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/95 px-3 py-2 text-xs text-amber-800 shadow-md dark:border-amber-900 dark:bg-amber-950/90 dark:text-amber-200",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
+                        className: "mt-0.5 h-3.5 w-3.5 shrink-0"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 437,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        children: notice
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                        lineNumber: 438,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 436,
+                columnNumber: 18
+            }, this),
+            showBadges && mapReady && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "pointer-events-none absolute bottom-2 start-2 z-[1000] max-w-[calc(100%-4.5rem)]",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "pointer-events-auto flex min-w-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white/95 px-2.5 py-1.5 text-[11px] text-gray-700 shadow-md backdrop-blur-md dark:border-neutral-700 dark:bg-neutral-900/95 dark:text-gray-300",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
+                            className: "h-3.5 w-3.5 shrink-0 text-[#008081]"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                            lineNumber: 443,
+                            columnNumber: 13
+                        }, this),
+                        coords ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "min-w-0",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center gap-1",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "font-mono",
+                                            dir: "ltr",
+                                            children: [
+                                                coords.lat.toFixed(6),
+                                                ", ",
+                                                coords.lng.toFixed(6)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                            lineNumber: 446,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            type: "button",
+                                            onClick: copyCoordinates,
+                                            title: t("locations.mapPicker.copyCoordinates"),
+                                            "aria-label": t("locations.mapPicker.copyCoordinates"),
+                                            className: "rounded p-0.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200",
+                                            children: copied ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                className: "h-3 w-3 text-emerald-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                                lineNumber: 450,
+                                                columnNumber: 31
+                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__["Copy"], {
+                                                className: "h-3 w-3"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                                lineNumber: 450,
+                                                columnNumber: 80
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                            lineNumber: 449,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                    lineNumber: 445,
+                                    columnNumber: 17
+                                }, this),
+                                isGeocoding ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "flex items-center gap-1 text-[10px] text-[#008081]",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                            className: "h-2.5 w-2.5 animate-spin"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                            lineNumber: 454,
+                                            columnNumber: 21
+                                        }, this),
+                                        t("locations.mapPicker.detectingAddress")
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                    lineNumber: 453,
+                                    columnNumber: 32
+                                }, this) : address ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "block truncate text-[10px] text-gray-500 dark:text-gray-400",
+                                    children: address
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                                    lineNumber: 456,
+                                    columnNumber: 39
+                                }, this) : null
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                            lineNumber: 444,
+                            columnNumber: 23
+                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            children: t(readOnly ? "locations.mapPicker.noLocation" : "locations.mapPicker.clickToPinpoint")
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                            lineNumber: 457,
+                            columnNumber: 24
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                    lineNumber: 442,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+                lineNumber: 441,
+                columnNumber: 34
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/shared/InteractiveMapPicker.tsx",
+        lineNumber: 397,
+        columnNumber: 10
+    }, this);
+}
+_s(InteractiveMapPicker, "LIZMAjx52IMiEtEAe/Ex5/E9GhQ=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = InteractiveMapPicker;
+var _c;
+__turbopack_context__.k.register(_c, "InteractiveMapPicker");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/lib/maps/location-lookup.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "lookupLocationFromLink",
+    ()=>lookupLocationFromLink,
+    "matchCountry",
+    ()=>matchCountry,
+    "matchOptionByName",
+    ()=>matchOptionByName
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/geocoding.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+;
+;
+async function lookupLocationFromLink(input, options = {}) {
+    const raw = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resolveGoogleMapsUrl"])(input, options.signal);
+    if (!raw) return null;
+    const coords = {
+        lat: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(raw.lat),
+        lng: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(raw.lng)
+    };
+    const details = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["lookupAddress"])(coords.lat, coords.lng, {
+        ...options,
+        preferGoogle: true
+    });
+    return {
+        coords,
+        details
+    };
+}
+const COUNTRY_ALIASES = {
+    UAE: [
+        "ae",
+        "uae",
+        "united arab emirates",
+        "emirates",
+        "الإمارات",
+        "الامارات"
+    ],
+    Egypt: [
+        "eg",
+        "egypt",
+        "مصر"
+    ],
+    Oman: [
+        "om",
+        "oman",
+        "عمان",
+        "سلطنة عمان"
+    ],
+    "Saudi Arabia": [
+        "sa",
+        "saudi arabia",
+        "ksa",
+        "السعودية"
+    ]
+};
+function matchCountry(details, values) {
+    const candidates = [
+        details.countryCode,
+        details.country
+    ].map((v)=>v.trim().toLowerCase()).filter(Boolean);
+    for (const value of values){
+        const aliases = COUNTRY_ALIASES[value] ?? [
+            value.toLowerCase()
+        ];
+        if (candidates.some((c)=>aliases.includes(c))) return value;
+    }
+    return null;
+}
+function normalizeName(value) {
+    return value.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/^(al|el)[\s-]+/, "").replace(/\b(city|emirate|governorate|district|area)\b/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+function matchOptionByName(name, options) {
+    const needle = normalizeName(name);
+    if (!needle) return null;
+    const normalized = options.map((option)=>({
+            option,
+            label: normalizeName(option.label),
+            value: normalizeName(option.value)
+        }));
+    const exact = normalized.find((o)=>o.label === needle || o.value === needle);
+    if (exact) return exact.option;
+    const wordMatch = (haystack, word)=>word.length >= 3 && new RegExp(`(^|\\s)${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\s|$)`).test(haystack);
+    const partial = normalized.find((o)=>wordMatch(o.label, needle) || wordMatch(needle, o.label));
+    return partial?.option ?? null;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/shared/maps/LocationPickerField.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "LocationPickerField",
+    ()=>LocationPickerField
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$link$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Link2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/link-2.js [app-client] (ecmascript) <export default as Link2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/trash-2.js [app-client] (ecmascript) <export default as Trash2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$InteractiveMapPicker$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/shared/InteractiveMapPicker.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/geocoding.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$location$2d$lookup$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/location-lookup.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+const TYPING_DEBOUNCE_MS = 600;
+function formatCoordinate(value) {
+    return value === null || !Number.isFinite(value) ? "" : String((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(value));
+}
+function LocationPickerField({ value, onChange, defaultCenter, mapHeight, showLinkInput = true, showCoordinateInputs = true, required = false, errors, className, idPrefix = "location" }) {
+    _s();
+    const { t, language } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    const onChangeRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(onChange);
+    onChangeRef.current = onChange;
+    const [linkInput, setLinkInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(value.mapLink);
+    const [linkError, setLinkError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [isResolving, setIsResolving] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [latInput, setLatInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(formatCoordinate(value.latitude));
+    const [lngInput, setLngInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(formatCoordinate(value.longitude));
+    const [coordError, setCoordError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const editingRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const requestRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const typingTimerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LocationPickerField.useEffect": ()=>{
+            if (editingRef.current !== "link") setLinkInput(value.mapLink);
+        }
+    }["LocationPickerField.useEffect"], [
+        value.mapLink
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LocationPickerField.useEffect": ()=>{
+            if (editingRef.current === "coords") return;
+            setLatInput(formatCoordinate(value.latitude));
+            setLngInput(formatCoordinate(value.longitude));
+            setCoordError(null);
+        }
+    }["LocationPickerField.useEffect"], [
+        value.latitude,
+        value.longitude
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LocationPickerField.useEffect": ()=>({
+                "LocationPickerField.useEffect": ()=>{
+                    requestRef.current?.abort();
+                    if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current);
+                }
+            })["LocationPickerField.useEffect"]
+    }["LocationPickerField.useEffect"], []);
+    const startRequest = ()=>{
+        requestRef.current?.abort();
+        const controller = new AbortController();
+        requestRef.current = controller;
+        return controller;
+    };
+    const resolveLink = async (raw)=>{
+        const input = raw.trim();
+        if (!input) return;
+        const controller_0 = startRequest();
+        setIsResolving(true);
+        setLinkError(null);
+        try {
+            const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$location$2d$lookup$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["lookupLocationFromLink"])(input, {
+                language,
+                signal: controller_0.signal
+            });
+            if (!result) {
+                setLinkError(t("locations.mapPicker.linkInvalid"));
+                return;
+            }
+            const mapLink = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isCoordinateText"])(input) ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(result.coords.lat, result.coords.lng) : input;
+            editingRef.current = null;
+            setLinkInput(mapLink);
+            onChangeRef.current({
+                latitude: result.coords.lat,
+                longitude: result.coords.lng,
+                mapLink,
+                source: "link",
+                details: result.details
+            });
+        } catch (error) {
+            if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isAbortError"])(error)) setLinkError(t("locations.mapPicker.linkFailed"));
+        } finally{
+            if (requestRef.current === controller_0) {
+                requestRef.current = null;
+                setIsResolving(false);
+            }
+        }
+    };
+    const handleMapSelect = (data)=>{
+        requestRef.current?.abort();
+        editingRef.current = null;
+        setLinkError(null);
+        onChangeRef.current({
+            latitude: data.lat,
+            longitude: data.lng,
+            mapLink: data.googleMapLink,
+            source: data.source,
+            details: data.detailsLoaded ? {
+                address: data.landmark || "",
+                city: data.city || "",
+                area: data.area || "",
+                country: data.country || "",
+                countryCode: data.countryCode || ""
+            } : undefined
+        });
+    };
+    const applyTypedCoordinates = (latText, lngText)=>{
+        if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current);
+        if (!latText.trim() && !lngText.trim()) {
+            setCoordError(null);
+            requestRef.current?.abort();
+            onChangeRef.current({
+                latitude: null,
+                longitude: null,
+                mapLink: "",
+                source: "clear"
+            });
+            return;
+        }
+        const lat = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["parseCoordinateInput"])(latText);
+        const lng = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["parseCoordinateInput"])(lngText);
+        if (lat === null || lng === null || !(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidLatLng"])(lat, lng)) {
+            const incomplete = !latText.trim() || !lngText.trim();
+            setCoordError(incomplete ? null : t("locations.mapPicker.invalidCoordinates"));
+            return;
+        }
+        setCoordError(null);
+        typingTimerRef.current = window.setTimeout(async ()=>{
+            const point = {
+                latitude: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(lat),
+                longitude: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["roundCoordinate"])(lng)
+            };
+            const mapLink_0 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(point.latitude, point.longitude);
+            onChangeRef.current({
+                ...point,
+                mapLink: mapLink_0,
+                source: "coordinates"
+            });
+            const controller_1 = startRequest();
+            try {
+                const details = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$geocoding$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["lookupAddress"])(point.latitude, point.longitude, {
+                    language,
+                    signal: controller_1.signal
+                });
+                onChangeRef.current({
+                    ...point,
+                    mapLink: mapLink_0,
+                    source: "coordinates",
+                    details
+                });
+            } catch  {}
+        }, TYPING_DEBOUNCE_MS);
+    };
+    const clearLocation = ()=>{
+        requestRef.current?.abort();
+        editingRef.current = null;
+        setLinkInput("");
+        setLinkError(null);
+        setCoordError(null);
+        onChangeRef.current({
+            latitude: null,
+            longitude: null,
+            mapLink: "",
+            source: "clear"
+        });
+    };
+    const hasPoint = value.latitude !== null && value.longitude !== null;
+    const linkErrorText = linkError || errors?.mapLink;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("space-y-3", className),
+        children: [
+            showLinkInput && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "space-y-1.5",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                        htmlFor: `${idPrefix}-map-link`,
+                        className: "text-xs font-medium text-gray-700 dark:text-gray-300",
+                        children: [
+                            t("locations.mapPicker.linkLabel"),
+                            required && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-red-500",
+                                children: " *"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                lineNumber: 216,
+                                columnNumber: 26
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                        lineNumber: 214,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "relative min-w-0 flex-1",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$link$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Link2$3e$__["Link2"], {
+                                        className: "pointer-events-none absolute start-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                        lineNumber: 220,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                        id: `${idPrefix}-map-link`,
+                                        value: linkInput,
+                                        onFocus: ()=>editingRef.current = "link",
+                                        onBlur: ()=>editingRef.current = null,
+                                        onChange: (e)=>{
+                                            setLinkInput(e.target.value);
+                                            setLinkError(null);
+                                        },
+                                        onPaste: (e_0)=>{
+                                            const pasted = e_0.clipboardData.getData("text");
+                                            if (pasted.trim()) {
+                                                e_0.preventDefault();
+                                                setLinkInput(pasted.trim());
+                                                resolveLink(pasted);
+                                            }
+                                        },
+                                        onKeyDown: (e_1)=>{
+                                            if (e_1.key === "Enter") {
+                                                e_1.preventDefault();
+                                                resolveLink(linkInput);
+                                            }
+                                        },
+                                        placeholder: t("locations.mapPicker.linkPlaceholder"),
+                                        "aria-invalid": !!linkErrorText,
+                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("h-9 bg-white ps-8 text-xs dark:bg-neutral-950", linkErrorText && "border-red-400 focus-visible:ring-red-200"),
+                                        dir: "ltr"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                        lineNumber: 221,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                lineNumber: 219,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                type: "button",
+                                variant: "outline",
+                                onClick: ()=>resolveLink(linkInput),
+                                disabled: isResolving || !linkInput.trim(),
+                                className: "h-9 shrink-0 border-teal-600 px-4 text-xs font-medium text-teal-700 hover:bg-teal-50 dark:border-teal-500 dark:text-teal-400 dark:hover:bg-teal-950/40",
+                                children: isResolving ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                    className: "h-3.5 w-3.5 animate-spin"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                    lineNumber: 239,
+                                    columnNumber: 30
+                                }, this) : t("locations.mapPicker.findOnMap")
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                lineNumber: 238,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                        lineNumber: 218,
+                        columnNumber: 11
+                    }, this),
+                    linkErrorText ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-xs text-red-500",
+                        children: linkErrorText
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                        lineNumber: 242,
+                        columnNumber: 28
+                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-[11px] text-gray-400 dark:text-gray-500",
+                        children: t("locations.mapPicker.linkHint")
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                        lineNumber: 242,
+                        columnNumber: 86
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                lineNumber: 213,
+                columnNumber: 25
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$InteractiveMapPicker$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["InteractiveMapPicker"], {
+                latitude: value.latitude,
+                longitude: value.longitude,
+                defaultCenter: defaultCenter,
+                onLocationSelect: handleMapSelect,
+                height: mapHeight
+            }, void 0, false, {
+                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                lineNumber: 245,
+                columnNumber: 7
+            }, this),
+            showCoordinateInputs && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "space-y-1.5",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end",
+                        children: [
+                            [
+                                "latitude",
+                                "longitude"
+                            ].map((field)=>{
+                                const isLat = field === "latitude";
+                                const fieldError = errors?.[field];
+                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: `${idPrefix}-${field}`,
+                                            className: "mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300",
+                                            children: [
+                                                t(`locations.mapPicker.${field}`),
+                                                required && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "text-red-500",
+                                                    children: " *"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                                    lineNumber: 255,
+                                                    columnNumber: 34
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                            lineNumber: 253,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: `${idPrefix}-${field}`,
+                                            inputMode: "decimal",
+                                            dir: "ltr",
+                                            value: isLat ? latInput : lngInput,
+                                            onFocus: ()=>editingRef.current = "coords",
+                                            onBlur: ()=>editingRef.current = null,
+                                            onChange: (e_2)=>{
+                                                const next = e_2.target.value;
+                                                if (isLat) setLatInput(next);
+                                                else setLngInput(next);
+                                                applyTypedCoordinates(isLat ? next : latInput, isLat ? lngInput : next);
+                                            },
+                                            placeholder: isLat ? "25.204800" : "55.270800",
+                                            "aria-invalid": !!(fieldError || coordError),
+                                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("h-9 bg-white font-mono text-xs dark:bg-neutral-950", (fieldError || coordError) && "border-red-400 focus-visible:ring-red-200")
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                            lineNumber: 257,
+                                            columnNumber: 19
+                                        }, this),
+                                        fieldError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "mt-1 text-xs text-red-500",
+                                            children: fieldError
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                            lineNumber: 262,
+                                            columnNumber: 34
+                                        }, this)
+                                    ]
+                                }, field, true, {
+                                    fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                    lineNumber: 252,
+                                    columnNumber: 18
+                                }, this);
+                            }),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                type: "button",
+                                variant: "ghost",
+                                onClick: clearLocation,
+                                disabled: !hasPoint && !linkInput,
+                                className: "h-9 gap-1.5 text-xs text-gray-500 hover:text-red-600",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                        className: "h-3.5 w-3.5"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                        lineNumber: 266,
+                                        columnNumber: 15
+                                    }, this),
+                                    t("locations.mapPicker.clearLocation")
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                                lineNumber: 265,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                        lineNumber: 248,
+                        columnNumber: 11
+                    }, this),
+                    coordError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-xs text-red-500",
+                        children: coordError
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                        lineNumber: 270,
+                        columnNumber: 26
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+                lineNumber: 247,
+                columnNumber: 32
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/shared/maps/LocationPickerField.tsx",
+        lineNumber: 212,
+        columnNumber: 10
+    }, this);
+}
+_s(LocationPickerField, "4oY/yYPpf/WwNUN4vt3hmUovYJM=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = LocationPickerField;
+var _c;
+__turbopack_context__.k.register(_c, "LocationPickerField");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/components/shared/maps/LocationMapPreview.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "LocationMapPreview",
+    ()=>LocationMapPreview
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/external-link.js [app-client] (ecmascript) <export default as ExternalLink>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2d$off$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPinOff$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin-off.js [app-client] (ecmascript) <export default as MapPinOff>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/contexts/LanguageContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$InteractiveMapPicker$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/shared/InteractiveMapPicker.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/maps/parse-map-url.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+function LocationMapPreview(t0) {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(21);
+    if ($[0] !== "979bef8404b49b164c4dd126fb51762a89bf4ec1d062dea9e19cab6a86d5c903") {
+        for(let $i = 0; $i < 21; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "979bef8404b49b164c4dd126fb51762a89bf4ec1d062dea9e19cab6a86d5c903";
+    }
+    const { latitude, longitude, mapLink, label, height: t1, className } = t0;
+    const height = t1 === undefined ? "h-56 sm:h-64" : t1;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
+    let point;
+    let t2;
+    if ($[1] !== latitude || $[2] !== longitude || $[3] !== mapLink) {
+        point = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toLatLng"])(latitude, longitude);
+        t2 = mapLink?.trim() || (point ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$maps$2f$parse$2d$map$2d$url$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildGoogleMapsUrl"])(point.lat, point.lng) : "");
+        $[1] = latitude;
+        $[2] = longitude;
+        $[3] = mapLink;
+        $[4] = point;
+        $[5] = t2;
+    } else {
+        point = $[4];
+        t2 = $[5];
+    }
+    const href = t2;
+    let t3;
+    if ($[6] !== className) {
+        t3 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("space-y-3", className);
+        $[6] = className;
+        $[7] = t3;
+    } else {
+        t3 = $[7];
+    }
+    let t4;
+    if ($[8] !== height || $[9] !== href || $[10] !== label || $[11] !== point || $[12] !== t) {
+        t4 = point ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$InteractiveMapPicker$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["InteractiveMapPicker"], {
+            latitude: point.lat,
+            longitude: point.lng,
+            readOnly: true,
+            markerLabel: label,
+            height: height
+        }, void 0, false, {
+            fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+            lineNumber: 64,
+            columnNumber: 18
+        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-gray-200 bg-gray-50 text-center dark:border-neutral-800 dark:bg-neutral-900/50", href ? "py-6" : height),
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2d$off$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPinOff$3e$__["MapPinOff"], {
+                    className: "h-6 w-6 text-gray-300 dark:text-neutral-600"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+                    lineNumber: 64,
+                    columnNumber: 353
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "text-xs text-gray-400 dark:text-gray-500",
+                    children: t("locations.mapPicker.noLocation")
+                }, void 0, false, {
+                    fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+                    lineNumber: 64,
+                    columnNumber: 422
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+            lineNumber: 64,
+            columnNumber: 140
+        }, this);
+        $[8] = height;
+        $[9] = href;
+        $[10] = label;
+        $[11] = point;
+        $[12] = t;
+        $[13] = t4;
+    } else {
+        t4 = $[13];
+    }
+    let t5;
+    if ($[14] !== href || $[15] !== t) {
+        t5 = href && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+            href: href,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 py-2.5 text-sm font-medium text-teal-700 transition-colors hover:bg-teal-50 dark:border-teal-900 dark:text-teal-400 dark:hover:bg-teal-950/40",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
+                    className: "h-4 w-4"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+                    lineNumber: 76,
+                    columnNumber: 309
+                }, this),
+                t("locations.mapPicker.openInGoogleMaps")
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+            lineNumber: 76,
+            columnNumber: 18
+        }, this);
+        $[14] = href;
+        $[15] = t;
+        $[16] = t5;
+    } else {
+        t5 = $[16];
+    }
+    let t6;
+    if ($[17] !== t3 || $[18] !== t4 || $[19] !== t5) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: t3,
+            children: [
+                t4,
+                t5
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/shared/maps/LocationMapPreview.tsx",
+            lineNumber: 85,
+            columnNumber: 10
+        }, this);
+        $[17] = t3;
+        $[18] = t4;
+        $[19] = t5;
+        $[20] = t6;
+    } else {
+        t6 = $[20];
+    }
+    return t6;
+}
+_s(LocationMapPreview, "NOb/gJCLVjznRzrG0IpBeuqUR5k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
+    ];
+});
+_c = LocationMapPreview;
+var _c;
+__turbopack_context__.k.register(_c, "LocationMapPreview");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/app/auth/map-preview-test/page.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>MapPreviewTest
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+// TEMPORARY visual check for the map components — delete after review.
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$maps$2f$LocationPickerField$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/shared/maps/LocationPickerField.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$maps$2f$LocationMapPreview$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/shared/maps/LocationMapPreview.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+function MapPreviewTest() {
+    _s();
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(13);
+    if ($[0] !== "aafcb2f632cc98c8ef78bdb98b9d812eb92f8217d644ba9ea3bbdf8f788fa8da") {
+        for(let $i = 0; $i < 13; $i += 1){
+            $[$i] = Symbol.for("react.memo_cache_sentinel");
+        }
+        $[0] = "aafcb2f632cc98c8ef78bdb98b9d812eb92f8217d644ba9ea3bbdf8f788fa8da";
+    }
+    let t0;
+    if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        t0 = {
+            latitude: 25.197197,
+            longitude: 55.274376,
+            mapLink: ""
+        };
+        $[1] = t0;
+    } else {
+        t0 = $[1];
+    }
+    const [value, setValue] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(t0);
+    const [last, setLast] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    let t1;
+    if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = ({
+            "MapPreviewTest[<LocationPickerField>.onChange]": (c)=>{
+                setValue({
+                    latitude: c.latitude,
+                    longitude: c.longitude,
+                    mapLink: c.mapLink
+                });
+                setLast(c);
+            }
+        })["MapPreviewTest[<LocationPickerField>.onChange]"];
+        $[2] = t1;
+    } else {
+        t1 = $[2];
+    }
+    let t2;
+    if ($[3] !== value) {
+        t2 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$maps$2f$LocationPickerField$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LocationPickerField"], {
+            value: value,
+            onChange: t1,
+            required: true
+        }, void 0, false, {
+            fileName: "[project]/src/app/auth/map-preview-test/page.tsx",
+            lineNumber: 47,
+            columnNumber: 10
+        }, this);
+        $[3] = value;
+        $[4] = t2;
+    } else {
+        t2 = $[4];
+    }
+    let t3;
+    if ($[5] !== last) {
+        t3 = JSON.stringify(last);
+        $[5] = last;
+        $[6] = t3;
+    } else {
+        t3 = $[6];
+    }
+    let t4;
+    if ($[7] !== t3) {
+        t4 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
+            id: "last-change",
+            className: "whitespace-pre-wrap text-xs",
+            children: t3
+        }, void 0, false, {
+            fileName: "[project]/src/app/auth/map-preview-test/page.tsx",
+            lineNumber: 63,
+            columnNumber: 10
+        }, this);
+        $[7] = t3;
+        $[8] = t4;
+    } else {
+        t4 = $[8];
+    }
+    let t5;
+    if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
+        t5 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "w-80",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$shared$2f$maps$2f$LocationMapPreview$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LocationMapPreview"], {
+                latitude: "25.0786",
+                longitude: "55.1352",
+                label: "Dubai Marina"
+            }, void 0, false, {
+                fileName: "[project]/src/app/auth/map-preview-test/page.tsx",
+                lineNumber: 71,
+                columnNumber: 32
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/app/auth/map-preview-test/page.tsx",
+            lineNumber: 71,
+            columnNumber: 10
+        }, this);
+        $[9] = t5;
+    } else {
+        t5 = $[9];
+    }
+    let t6;
+    if ($[10] !== t2 || $[11] !== t4) {
+        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "mx-auto max-w-3xl space-y-6 bg-white p-6 dark:bg-neutral-950",
+            children: [
+                t2,
+                t4,
+                t5
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/auth/map-preview-test/page.tsx",
+            lineNumber: 78,
+            columnNumber: 10
+        }, this);
+        $[10] = t2;
+        $[11] = t4;
+        $[12] = t6;
+    } else {
+        t6 = $[12];
+    }
+    return t6;
+}
+_s(MapPreviewTest, "HpbzHajxx5uZXTY/M+ZMRNFz3II=");
+_c = MapPreviewTest;
+var _c;
+__turbopack_context__.k.register(_c, "MapPreviewTest");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+]);
+
+//# sourceMappingURL=src_6f92e4a9._.js.map

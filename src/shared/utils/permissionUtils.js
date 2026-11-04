@@ -10,6 +10,7 @@ export const PERMISSION_MAPPINGS = {
     'teachers.add_certificate',
     'teachers.update_certificate',
     'teachers.delete_certificate',
+    'teachers.payouts',
     'teachers.write'
   ],
 
@@ -80,6 +81,7 @@ export const PERMISSION_MAPPINGS = {
     'packages.create',
     'packages.update',
     'packages.delete',
+    'packages.subscriptions',
     'packages.write',
     'packages_faqs.read',
     'faqs.read',
@@ -180,16 +182,19 @@ export const PERMISSION_MAPPINGS = {
   ],
 
   // Reports
-  READ_REPORTS: ['reports.read'],
-  WRITE_REPORTS: ['reports.read', 'reports.write'],
+  READ_REPORTS: ['reports.read', 'dashboard.reports.read'],
+  WRITE_REPORTS: ['reports.read', 'reports.write', 'dashboard.reports.read'],
 
   // Earnings & Finance
-  READ_EARNINGS: ['earnings.read'],
-  WRITE_EARNINGS: ['earnings.read', 'earnings.write'],
+  READ_EARNINGS: ['earnings.read', 'dashboard.earnings.read'],
+  WRITE_EARNINGS: ['earnings.read', 'earnings.write', 'dashboard.earnings.read'],
+
+  // Dashboard & Analytics
+  READ_DASHBOARD: ['dashboard.analytics.read', 'dashboard.earnings.read', 'dashboard.reports.read'],
 
   // Payments
-  READ_PAYMENTS: ['payments.read'],
-  WRITE_PAYMENTS: ['payments.read', 'payments.write'],
+  READ_PAYMENTS: ['payments.read', 'packages.subscriptions'],
+  WRITE_PAYMENTS: ['payments.read', 'payments.write', 'packages.subscriptions'],
 };
 
 // Build reverse map for instant lookups

@@ -1,0 +1,31 @@
+{
+  "[project]/src/components/table/table-settings.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/components/table/table-settings.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_b4cb5387._.js",
+      "static/chunks/src_components_table_table-settings_tsx_ff5d5a6a._.js"
+    ]
+  },
+  "[project]/src/features/users/components/UsersTable.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/features/users/components/UsersTable.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_df27f97c._.js",
+      "static/chunks/src_features_users_components_UsersTable_tsx_ff5d5a6a._.js"
+    ]
+  },
+  "[project]/src/features/users/components/UsersModals.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/features/users/components/UsersModals.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/src_components_modals_users_2ed34e8c._.js",
+      "static/chunks/src_features_users_components_UsersModals_tsx_0a54a6ee._.js",
+      "static/chunks/src_features_users_components_UsersModals_tsx_ff5d5a6a._.js"
+    ]
+  },
+  "[project]/src/features/users/components/UsersDeleteDialog.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/features/users/components/UsersDeleteDialog.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_16e0f6dd._.js",
+      "static/chunks/src_features_users_components_UsersDeleteDialog_tsx_ff5d5a6a._.js"
+    ]
+  }
+}

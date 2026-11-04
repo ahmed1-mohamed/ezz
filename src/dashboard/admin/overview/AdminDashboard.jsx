@@ -5,6 +5,7 @@ import { BookOpen, GraduationCap, Users, Calendar, Layers, Activity, Clock, Radi
 import StatsCard from '@/shared/components/StatsCard.jsx'
 import DataTable from '@/shared/components/DataTable.jsx'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
+import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi.js'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 
 function utcToLocalTime(utcValue) {
@@ -31,7 +32,6 @@ function utcToLocalDate(utcValue) {
 
 function formatElapsedTime(session, t) {
     if (!session) return t('admin.statusLive', 'مباشرة الآن');
-
     const timestamp = session.startedAt || session.startTime;
     if (timestamp) {
         const started = new Date(timestamp);
@@ -43,29 +43,29 @@ function formatElapsedTime(session, t) {
             return t('adminDashboard.elapsedHours', { defaultValue: 'منذ {{count}} ساعة', count: Math.floor(diffMin / 60) });
         }
     }
-
     return t('admin.statusLive', 'مباشرة الآن');
 }
 
 export default function AdminDashboard() {
     const { t } = useTranslation()
     const { hasPermission } = useAdminPermissions()
-
     const { data: statsRes, isLoading: isLoadingStats } = useQuery({
         queryKey: ['dashboard-stats'],
         queryFn: () => dashboardApi.fetchStatistics(),
         staleTime: 5 * 60 * 1000,
     });
-
+    const { data: scheduledSessionsRes } = useQuery({
+        queryKey: ['admin-scheduled-sessions-count'],
+        queryFn: () => adminSessionsApi.fetchSessions({ status: 'scheduled', limit: 1 }),
+        staleTime: 2 * 60 * 1000,
+    });
     const apiData = statsRes?.data?.data ?? statsRes?.data ?? {};
-
     const rawLatest =
         apiData?.latestSessions ??
         apiData?.recentSessions ??
         apiData?.statistics?.latestSessions ??
         [];
     const sessionsList = Array.isArray(rawLatest) ? rawLatest : [];
-
     const rawLive =
         apiData?.liveSessions ??
         apiData?.activeSessions ??
@@ -77,12 +77,10 @@ export default function AdminDashboard() {
             const st = (s.status || '').toLowerCase();
             return st === 'live' || st === 'in_progress' || st === 'in-progress';
         });
-
     const statsData =
         apiData?.statistics ??
         apiData?.stats ??
         apiData ?? {};
-
     const dashboardStats = {
         students:            statsData.students            ?? statsData.totalStudents        ?? '...',
         teachers:            statsData.teachers            ?? statsData.totalTeachers        ?? '...',
@@ -91,7 +89,6 @@ export default function AdminDashboard() {
         todayActiveSessions: statsData.todayActiveSessions ?? statsData.activeSessionsToday ?? statsData.activeSessions ?? '...',
         platformRating:      statsData.platformRating      ?? statsData.rating              ?? '4.8',
     };
-
     const stats = [
         {
             title: t('admin.totalStudents'),
@@ -140,7 +137,6 @@ export default function AdminDashboard() {
             accent: 'bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]'
         }
     ];
-
     const renderStatusBadge = (status) => {
         const normalized = (status || '').toLowerCase().trim();
         if (normalized === 'live' || normalized === 'in_progress' || normalized === 'in-progress' || normalized === 'مباشرة الآن') {
@@ -181,27 +177,22 @@ export default function AdminDashboard() {
             </span>
         );
     };
-
     const rows = sessionsList.map((session, idx) => {
         const groupName =
             (typeof session.group === 'object' ? session.group?.name : session.group) ||
             session.groupName ||
             session.title ||
             t('sessions.defaultGroup', 'مجموعة دراسية');
-
         const teacherName =
             (typeof session.teacher === 'object' ? session.teacher?.name : session.teacher) ||
             session.teacherName ||
             t('sessions.defaultTeacher', 'غير محدد');
-
         const localDate = utcToLocalDate(session.startTime || session.date);
-
         const startStr = utcToLocalTime(session.startTime);
         const endStr = utcToLocalTime(session.endTime);
         const localTime = startStr !== '—'
             ? (endStr !== '—' ? `${startStr} – ${endStr}` : startStr)
             : (session.time || session.startTime || '—');
-
         return [
             groupName,
             teacherName,
@@ -212,16 +203,19 @@ export default function AdminDashboard() {
             </div>,
         ];
     });
-
     const upcomingSessionsCount =
+        scheduledSessionsRes?.statistics?.scheduled ??
+        scheduledSessionsRes?.pagination?.totalCount ??
+        statsData?.upcomingSessionsToday ??
         statsData?.upcomingSessions ??
         statsData?.scheduledSessions ??
+        statsData?.scheduled ??
         apiData?.upcomingSessions ??
+        apiData?.scheduled ??
         sessionsList.filter((s) => {
             const st = (s.status || '').toLowerCase();
             return st === 'scheduled' || st === 'upcoming';
         }).length;
-
     return (
         <>
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -248,7 +242,6 @@ export default function AdminDashboard() {
                     );
                 })}
             </section>
-
             <div className="space-y-4 sm:space-y-6 pt-6">
                 <div>
                     <div className="flex items-center justify-between mb-4 px-1">
@@ -278,7 +271,6 @@ export default function AdminDashboard() {
                     />
                 </div>
             </div>
-
             <div className="space-y-4 sm:space-y-6 pt-6">
                 <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/90 p-4 sm:p-6 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
                     <div className="flex items-center justify-between mb-4">
@@ -300,7 +292,6 @@ export default function AdminDashboard() {
                             </Link>
                         )}
                     </div>
-
                     {isLoadingStats && liveList.length === 0 ? (
                         <div className="py-8 flex items-center justify-center gap-2 text-slate-500 text-sm">
                             <div className="w-5 h-5 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
@@ -314,19 +305,11 @@ export default function AdminDashboard() {
                                     liveSession.title ||
                                     (typeof liveSession.group === 'object' ? liveSession.group?.name : liveSession.group) ||
                                     t('sessions.defaultGroup', 'مجموعة دراسية');
-
                                 const teacherTitle =
                                     (typeof liveSession.teacher === 'object' ? liveSession.teacher?.name : liveSession.teacher) ||
                                     liveSession.teacherName ||
                                     t('sessions.defaultTeacher', 'غير محدد');
-
-                                const studentCount =
-                                    liveSession.studentsCount ??
-                                    liveSession.students?.length ??
-                                    liveSession.attendance?.length ?? 0;
-
                                 const elapsed = formatElapsedTime(liveSession, t);
-
                                 const sessionCardContent = (
                                     <>
                                         <div className="space-y-1 min-w-0">
@@ -336,19 +319,12 @@ export default function AdminDashboard() {
                                             <p className="text-xs text-slate-400 dark:text-slate-500 font-medium truncate">
                                                 {teacherTitle}
                                             </p>
-                                            <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs mt-1">
-                                                <Users size={12} className="shrink-0" />
-                                                <span>
-                                                    {studentCount} {t('adminDashboard.studentsCount', 'طلاب')}
-                                                </span>
-                                            </div>
                                         </div>
                                         <span className="text-xs text-red-500 font-bold shrink-0">
                                             {elapsed}
                                         </span>
                                     </>
                                 );
-
                                 return hasPermission('sessions.read') ? (
                                     <Link
                                         key={liveSession.id || liveSession._id || idx}
@@ -380,18 +356,24 @@ export default function AdminDashboard() {
                             </p>
                         </div>
                     )}
-
-                    <div className="bg-slate-100 dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200/40 dark:border-slate-700/30">
-                        <Clock size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
-                        <span>
-                            {upcomingSessionsCount > 0
-                                ? t('adminDashboard.upcomingSessionsCount', {
-                                      defaultValue: '{{count}} حصص قادمة اليوم',
-                                      count: upcomingSessionsCount,
-                                  })
-                                : t('adminDashboard.noUpcomingToday', 'لا توجد حصص قادمة اليوم')}
-                        </span>
-                    </div>
+                    {upcomingSessionsCount > 0 ? (
+                        <div className="bg-slate-100 dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200/40 dark:border-slate-700/30">
+                            <Clock size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
+                            <span>
+                                {t('adminDashboard.upcomingSessionsCount', {
+                                    defaultValue: '{{count}} حصص قادمة اليوم',
+                                    count: upcomingSessionsCount,
+                                })}
+                            </span>
+                        </div>
+                    ) : (
+                        liveList.length === 0 && (
+                            <div className="bg-slate-100 dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200/40 dark:border-slate-700/30">
+                                <Clock size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
+                                <span>{t('adminDashboard.noUpcomingToday', 'لا توجد حصص قادمة اليوم')}</span>
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
         </>

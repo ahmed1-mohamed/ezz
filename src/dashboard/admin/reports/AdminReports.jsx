@@ -17,6 +17,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
+import AnalyticsChartSection from './components/AnalyticsChartSection';
+import TeacherPerformanceRanking from './components/TeacherPerformanceRanking';
 
 export default function AdminReports() {
   const { t, i18n } = useTranslation();
@@ -86,8 +88,8 @@ export default function AdminReports() {
 
   const quickLinks = useMemo(() => [
     {
-      title: t('adminReports.viewEarnings', 'عرض الأرباح'),
-      desc: t('adminReports.financialOverview', 'الملخص المالي ومؤشرات الدخل'),
+      title: t('adminReports.viewEarnings', 'عرض الأرباح والمكاسب'),
+      desc: t('adminReports.financialOverview', 'الملخص المالي ومؤشرات الدخل وأرباح المعلمين التراكمية والشهرية'),
       icon: DollarSign,
       path: '/dashboard/admin/earnings',
       badge: 'Financial',
@@ -96,7 +98,7 @@ export default function AdminReports() {
     },
     {
       title: t('adminReports.viewPayments', 'عرض المدفوعات'),
-      desc: t('adminReports.transactionsOverview', 'إدارة المعاملات والاشتراكات'),
+      desc: t('adminReports.transactionsOverview', 'إدارة المعاملات المالية واشتراكات الباقات'),
       icon: CreditCard,
       path: '/dashboard/admin/payments',
       badge: 'Billing',
@@ -104,8 +106,8 @@ export default function AdminReports() {
       bg: 'bg-blue-50 dark:bg-blue-950/30',
     },
     {
-      title: t('adminReports.viewLogs', 'سجل الأنشطة'),
-      desc: t('adminReports.logsOverview', 'متابعة العمليات وسجل مديري النظام'),
+      title: t('adminReports.viewLogs', 'سجل الأنشطة والعمليات'),
+      desc: t('adminReports.logsOverview', 'متابعة العمليات وسجل أنشطة مسؤولي النظام'),
       icon: FileText,
       path: '/dashboard/admin/logs',
       badge: 'Audit',
@@ -116,28 +118,30 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Top Welcome & Summary Header */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 mb-3">
             <Activity size={14} />
-            <span>{t('adminReports.platformHealth', 'أداء المنصة')}</span>
+            <span>{t('adminReports.platformHealth', 'التحليلات والتقارير')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
             {t('adminReports.title', 'تقارير المنصة ومؤشرات الأداء')}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl font-medium">
-            {t('adminReports.description', 'متابعة مؤشرات الأداء، وسير العملية التعليمية، والإحصائيات الشاملة')}
+            {t('adminReports.description', 'متابعة مؤشرات الأداء، وسير العملية التعليمية، وتحليلات النشاط الزمني، وترتيب كفاءة المعلمين')}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
             <TrendingUp size={14} className="text-[#00594C]" />
-            <span>Live Data</span>
+            <span>مؤشرات مباشرة</span>
           </span>
         </div>
       </div>
 
+      {/* Primary KPI Metrics Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
@@ -169,6 +173,14 @@ export default function AdminReports() {
             })}
       </div>
 
+      {/* 1. Analytics Chart Section: GET /api/v1/dashboard/private/analytics */}
+      <AnalyticsChartSection />
+
+      {/* 2. Teacher Performance Ranking: GET /api/v1/dashboard/private/reports/teacher-performance
+          Protected: only visible when user has both 'dashboard.analytics.read' and 'dashboard.reports.read' */}
+      <TeacherPerformanceRanking />
+
+      {/* Specialized Reports Quick Links */}
       <div className="space-y-4">
         <h2 className="text-lg font-black text-slate-800 dark:text-white">
           {t('adminReports.financialOverview', 'التقارير المتخصصة وسجلات النظام')}
@@ -180,7 +192,7 @@ export default function AdminReports() {
               <Link
                 key={idx}
                 to={link.path}
-                className="group bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 hover:border-[#00594C]/30 dark:hover:border-emerald-500/30 transition-all hover:shadow-md flex flex-col justify-between h-44"
+                className="group bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 hover:border-[#00594C]/30 dark:hover:border-emerald-500/30 transition-all hover:shadow-md flex flex-col justify-between h-44 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <div className={`p-3 rounded-2xl ${link.bg} ${link.color}`}>

@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zoom Live Meeting | منصة منارة العز التعليمية</title>
-  <link rel="stylesheet" href="https://source.zoom.us/zoom-meeting-embedded-3.11.2.css">
   <style>
     * {
       box-sizing: border-box;
@@ -176,9 +175,13 @@
       border: 1px solid rgba(15, 122, 108, 0.35);
     }
   </style>
-  <!-- React 18 & ReactDOM 18 for Zoom Meeting SDK Embedded -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- Official Vendor Dependencies for Zoom Meeting SDK Embedded -->
+  <script src="https://source.zoom.us/3.11.2/lib/vendor/react.min.js"></script>
+  <script src="https://source.zoom.us/3.11.2/lib/vendor/react-dom.min.js"></script>
+  <script src="https://source.zoom.us/3.11.2/lib/vendor/redux.min.js"></script>
+  <script src="https://source.zoom.us/3.11.2/lib/vendor/redux-thunk.min.js"></script>
+  <script src="https://source.zoom.us/3.11.2/lib/vendor/react-redux.min.js"></script>
+  <script src="https://source.zoom.us/3.11.2/lib/vendor/lodash.min.js"></script>
   <!-- Zoom Meeting SDK Embedded -->
   <script src="https://source.zoom.us/zoom-meeting-embedded-3.11.2.min.js"></script>
 </head>
@@ -244,6 +247,7 @@
   <script>
     (function() {
       const DEFAULT_SDK_KEY = 'O3n0tKuQ0WS9yk0N9JeqQ';
+      const DEFAULT_ZOOM_EMAIL = 'manartalezzacademy1@gmail.com';
       const urlParams = new URLSearchParams(window.location.search);
       const rawMeetingId = urlParams.get('meetingId') || '';
       const meetingId = rawMeetingId.replace(/\D/g, '') || rawMeetingId.replace(/\s/g, '');
@@ -252,7 +256,7 @@
       const sdkSignature = urlParams.get('sdkSignature') || '';
       const sdkKeyFromParam = urlParams.get('sdkKey') || '';
       const userName = urlParams.get('userName') || (role === 1 ? 'المعلم' : 'الطالب');
-      const userEmail = urlParams.get('userEmail') || '';
+      const userEmail = urlParams.get('userEmail') || DEFAULT_ZOOM_EMAIL;
       const startUrl = urlParams.get('startUrl') || '';
       const joinUrl = urlParams.get('joinUrl') || '';
 
@@ -467,9 +471,7 @@
               joinConfig.zak = zakToken;
             }
 
-            if (userEmail && String(userEmail).trim()) {
-              joinConfig.userEmail = String(userEmail).trim();
-            }
+            joinConfig.userEmail = (userEmail && String(userEmail).trim()) ? String(userEmail).trim() : DEFAULT_ZOOM_EMAIL;
 
             console.log('Initiating Zoom Meeting join...', {
               meetingNumber: joinConfig.meetingNumber,

@@ -6,6 +6,7 @@ import { teachersApi } from '@/shared/services/api/teachersApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import { getApiErrorText } from '@/shared/utils/errorHandler'
 import TeacherDetailsHeaderCard from './details/TeacherDetailsHeaderCard'
+import TeacherDetailsPayoutsCard from './details/TeacherDetailsPayoutsCard'
 import TeacherDetailsPersonalInfoCard from './details/TeacherDetailsPersonalInfoCard'
 import TeacherDetailsAcademicCard from './details/TeacherDetailsAcademicCard'
  import TeacherDetailsCertificatesCard from './details/TeacherDetailsCertificatesCard'
@@ -153,6 +154,11 @@ export default function TeacherDetailsScreen({
         teacher={currentTeacher}
         isRtl={isRtl}
         onOpenHourlyRateModal={() => setIsHourlyRateModalOpen(true)}
+      />
+
+       <TeacherDetailsPayoutsCard
+        teacher={currentTeacher}
+        isRtl={isRtl}
       />
 
        <TeacherDetailsPersonalInfoCard

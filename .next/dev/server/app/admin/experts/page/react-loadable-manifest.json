@@ -1,0 +1,11 @@
+{
+  "[project]/src/components/modals/experts/bulk-import-experts-modal.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/components/modals/experts/bulk-import-experts-modal.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_fe4787df._.js",
+      "static/chunks/src_974721a1._.js",
+      "static/chunks/node_modules_cd2beabe._.js",
+      "static/chunks/src_components_modals_experts_bulk-import-experts-modal_tsx_2ba005e9._.js"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "[project]/src/app/admin/subscriptions/tabs/customer-plans-tab.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/app/admin/subscriptions/tabs/customer-plans-tab.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/src_components_modals_subscriptions_82883feb._.js",
+      "static/chunks/src_3ae3ac7f._.js",
+      "static/chunks/node_modules_1941c8a3._.js",
+      "static/chunks/src_app_admin_subscriptions_tabs_customer-plans-tab_tsx_4c4accb0._.js"
+    ]
+  },
+  "[project]/src/app/admin/subscriptions/tabs/developer-packages-tab.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/app/admin/subscriptions/tabs/developer-packages-tab.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/src_components_modals_subscriptions_35a97e67._.js",
+      "static/chunks/src_8869ba9c._.js",
+      "static/chunks/node_modules_a7ee9a2b._.js",
+      "static/chunks/src_app_admin_subscriptions_tabs_developer-packages-tab_tsx_4c4accb0._.js"
+    ]
+  },
+  "[project]/src/app/admin/subscriptions/tabs/features-tab.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/app/admin/subscriptions/tabs/features-tab.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/src_components_modals_subscriptions_54e3337c._.js",
+      "static/chunks/src_97eef467._.js",
+      "static/chunks/node_modules_0c95fe6c._.js",
+      "static/chunks/src_app_admin_subscriptions_tabs_features-tab_tsx_4c4accb0._.js"
+    ]
+  },
+  "[project]/src/app/admin/subscriptions/tabs/addons-tab.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/app/admin/subscriptions/tabs/addons-tab.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/src_components_modals_subscriptions_d6c8621f._.js",
+      "static/chunks/src_87e3ff53._.js",
+      "static/chunks/node_modules_0c95fe6c._.js",
+      "static/chunks/src_app_admin_subscriptions_tabs_addons-tab_tsx_4c4accb0._.js"
+    ]
+  }
+}

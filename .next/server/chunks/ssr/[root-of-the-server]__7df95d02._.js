@@ -1,0 +1,3 @@
+module.exports=[193695,(a,b,c)=>{b.exports=a.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},650645,a=>{a.n(a.i(827572))},923576,a=>{a.n(a.i(104858))},825210,a=>{a.n(a.i(402747))},517537,a=>{a.n(a.i(903363))},13718,a=>{a.n(a.i(685523))},118198,a=>{a.n(a.i(545518))},262212,a=>{a.n(a.i(866114))},704384,a=>{a.n(a.i(642050))},736982,a=>{"use strict";var b=a.i(907997);function c(){return(0,b.jsx)("div",{children:"page"})}a.s(["default",()=>c,"metadata",0,{title:"Reset Password",description:"Set a new password for your Property Adviser account."}])}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__7df95d02._.js.map

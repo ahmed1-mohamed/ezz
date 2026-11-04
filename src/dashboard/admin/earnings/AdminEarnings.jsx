@@ -1,5 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Calendar, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  TrendingUp,
+  Clock,
+  Layers,
+  Sparkles,
+  ShieldCheck,
+  RotateCcw,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { adminEarningsApi } from '@/shared/services/api/adminEarningsApi'
@@ -8,29 +19,58 @@ import TeacherEarningsList from './components/TeacherEarningsList'
 import WithdrawalRequests from './components/WithdrawalRequests'
 
 export default function AdminEarnings() {
-  const { i18n } = useTranslation()
-  const isRtl = i18n.language.startsWith('ar')
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language?.startsWith('ar') ?? true
 
+  // Mode: 'monthly' (الأرباح الشهرية) vs 'all-time' (الكل حتى الآن)
+  const [mode, setMode] = useState('monthly')
   const [currentDate, setCurrentDate] = useState(() => new Date())
-  const [stats, setStats] = useState(null)
-  const [teachers, setTeachers] = useState([])
+  const [earningsData, setEarningsData] = useState(null)
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+
   const loadData = useCallback(async () => {
     setLoading(true)
-    const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
-    const [statsRes, teachersRes, requestsRes] = await Promise.all([
-      adminEarningsApi.fetchEarningsStats(monthStr),
-      adminEarningsApi.fetchTeacherEarnings(monthStr),
-      adminEarningsApi.fetchWithdrawalRequests(),
-    ])
+    try {
+      let earningsPromise
+      if (mode === 'all-time') {
+        // GET /api/v1/dashboard/private/earnings
+        earningsPromise = adminEarningsApi.fetchAllTimeEarnings()
+      } else {
+        // GET /api/v1/dashboard/private/earnings/monthly?month=YYYY-MM
+        earningsPromise = adminEarningsApi.fetchMonthlyEarnings(monthStr)
+      }
 
-    if (statsRes?.data) setStats(statsRes.data)
-    if (teachersRes?.data) setTeachers(teachersRes.data)
-    if (requestsRes?.data) setRequests(requestsRes.data)
-    setLoading(false)
-  }, [currentDate])
+      const [earningsRes, requestsRes] = await Promise.all([
+        earningsPromise,
+        adminEarningsApi.fetchWithdrawalRequests(),
+      ])
+
+      if (earningsRes?.data) {
+        setEarningsData(earningsRes.data)
+      } else if (earningsRes?.success === false) {
+        // Fallback to stats if custom shape
+        const fallbackStats = await adminEarningsApi.fetchEarningsStats(monthStr)
+        const fallbackTeachers = await adminEarningsApi.fetchTeacherEarnings(monthStr)
+        setEarningsData({
+          currency: fallbackStats?.data?.currency || 'USD',
+          platform: fallbackStats?.data?.platform || fallbackStats?.data,
+          teachers: Array.isArray(fallbackTeachers?.data) ? fallbackTeachers.data : [],
+          period: { type: mode, month: monthStr },
+        })
+      }
+
+      if (requestsRes?.data) {
+        setRequests(requestsRes.data)
+      }
+    } catch (err) {
+      console.error('Failed to load admin earnings:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [mode, monthStr])
 
   useEffect(() => {
     let isMounted = true
@@ -73,57 +113,136 @@ export default function AdminEarnings() {
     }
   }
 
-  if (loading && !stats) {
-    return (
-      <div className="flex items-center justify-center h-60">
-        <Spinner />
-      </div>
-    )
-  }
+  const platform = earningsData?.platform || {}
+  const teachers = earningsData?.teachers || []
+  const currency = earningsData?.currency || 'USD'
+  const period = earningsData?.period || {}
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <button
-          aria-label={isRtl ? 'اختر التاريخ' : 'Select Date'}
-          className="p-2.5 bg-teal-50 dark:bg-teal-950/20 text-[#0f7a6c] dark:text-emerald-400 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm"
-        >
-          <Calendar size={20} />
-        </button>
+    <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Top Header Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 mb-3">
+            <TrendingUp size={14} />
+            <span>{t('adminDashboard.earnings.badge', 'المالية والأرباح')}</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
+            {t('adminDashboard.earnings.pageTitle', 'الأرباح والمكاسب')}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl font-medium">
+            {mode === 'all-time'
+              ? t('adminDashboard.earnings.allTimeSub', 'عرض إجمالي الإيرادات وصافي الأرباح التراكمية ومستحقات المعلمين حتى الآن')
+              : t('adminDashboard.earnings.monthlySub', 'متابعة أرباح المنصة الشهرية، ومصروفات بوابات الدفع، والمسحوبات')}
+          </p>
+        </div>
 
-        <div className="flex items-center gap-4 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-100 dark:border-slate-800/60 shadow-sm">
+        {/* Mode Switcher & Month Navigation Controls */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Toggle Button: الشهري vs الكل حتى الآن */}
+          <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
+            <button
+              type="button"
+              onClick={() => setMode('monthly')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                mode === 'monthly'
+                  ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
+            >
+              <Calendar size={14} />
+              <span>الشهري</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMode('all-time')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                mode === 'all-time'
+                  ? 'bg-[#0f7a6c] text-white shadow-md shadow-[#0f7a6c]/20'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
+            >
+              <Sparkles size={14} />
+              <span>الكل حتى الآن</span>
+            </button>
+          </div>
+
+          {/* Month Navigator (visible when in monthly mode) */}
+          {mode === 'monthly' ? (
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+              <button
+                type="button"
+                onClick={isRtl ? handlePrevMonth : handleNextMonth}
+                disabled={loading}
+                aria-label={isRtl ? 'الشهر السابق' : 'Previous Month'}
+                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <ChevronRight size={18} />
+              </button>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-white min-w-[100px] text-center flex items-center justify-center gap-1.5">
+                {loading && <Loader2 size={13} className="animate-spin text-[#0f7a6c]" />}
+                {formatMonth()}
+              </span>
+              <button
+                type="button"
+                onClick={isRtl ? handleNextMonth : handlePrevMonth}
+                disabled={loading}
+                aria-label={isRtl ? 'الشهر التالي' : 'Next Month'}
+                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-teal-100 dark:border-teal-900/40 text-xs font-bold">
+              <ShieldCheck size={14} />
+              <span>إجمالي تراكمي شامل</span>
+            </div>
+          )}
+
           <button
-            onClick={isRtl ? handlePrevMonth : handleNextMonth}
+            type="button"
+            onClick={loadData}
             disabled={loading}
-            aria-label={isRtl ? 'الشهر السابق' : 'Previous Month'}
-            className="p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
+            title="تحديث البيانات"
+            className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
           >
-            <ChevronRight size={18} />
-          </button>
-          <span className="text-sm font-bold text-slate-800 dark:text-white min-w-[90px] text-center flex items-center justify-center gap-1.5">
-            {loading && <Loader2 size={14} className="animate-spin text-[#0f7a6c]" />}
-            {formatMonth()}
-          </span>
-          <button
-            onClick={isRtl ? handleNextMonth : handlePrevMonth}
-            disabled={loading}
-            aria-label={isRtl ? 'الشهر التالي' : 'Next Month'}
-            className="p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
-          >
-            <ChevronLeft size={18} />
+            <RotateCcw size={16} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
 
-      {stats && <EarningsStats stats={stats} />}
+      {/* Main Content Area */}
+      {loading && !earningsData ? (
+        <div className="flex items-center justify-center h-60">
+          <Spinner />
+        </div>
+      ) : (
+        <>
+          {/* Platform Financial Metrics Cards */}
+          <EarningsStats
+            platform={platform}
+            currency={currency}
+            mode={mode}
+          />
 
-      {teachers.length > 0 && <TeacherEarningsList teachers={teachers} />}
+          {/* Teacher Earnings Breakdown & Balances */}
+          <TeacherEarningsList
+            teachers={teachers}
+            mode={mode}
+            currency={currency}
+            periodInfo={period}
+          />
 
-      <WithdrawalRequests
-        requests={requests}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+          {/* Withdrawal Requests Section */}
+          <WithdrawalRequests
+            requests={requests}
+            onApprove={handleApprove}
+            onReject={handleReject}
+          />
+        </>
+      )}
     </div>
   )
 }

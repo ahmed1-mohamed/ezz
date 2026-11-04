@@ -1,0 +1,20 @@
+{
+  "node": {
+    "401203ad2199217b8b8b08892499087b54e49dc7fe": {
+      "workers": {
+        "app/expert/reviews/page": {
+          "moduleId": "[project]/.next-internal/server/app/expert/reviews/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/i18n/locale.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        }
+      },
+      "layer": {
+        "app/expert/reviews/page": "action-browser"
+      },
+      "exportedName": "setUserLocale",
+      "filename": "src/i18n/locale.ts"
+    }
+  },
+  "edge": {}
+}

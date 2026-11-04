@@ -629,5 +629,74 @@ export const teachersApi = {
       console.error('API fetchCountries failed:', error);
       throw error;
     }
+  },
+
+  // GET /api/v1/teachers/private/:id/payment-methods (Admin - عرض طرق دفع معلم + رصيده)
+  fetchTeacherPaymentMethods: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/teachers/private/${id}/payment-methods`);
+      return response.data;
+    } catch (error) {
+      console.error('API fetchTeacherPaymentMethods failed:', error);
+      throw error;
+    }
+  },
+
+  // POST /api/v1/teachers/private/:id/payouts (Admin - تسجيل تحويل مالي يدوي لمعلم مع إثبات الدفع)
+  createTeacherPayout: async (id, payoutData) => {
+    try {
+      let body = payoutData;
+      let headers = {};
+
+      if (payoutData instanceof FormData) {
+        body = payoutData;
+        headers = { 'Content-Type': 'multipart/form-data' };
+      } else if (payoutData && typeof payoutData === 'object') {
+        const fd = new FormData();
+        if (payoutData.amount !== undefined) fd.append('amount', String(payoutData.amount));
+        const methodId = payoutData.methodId || payoutData.paymentMethodId || payoutData.paymentMethod;
+        if (methodId) fd.append('methodId', methodId);
+        if (payoutData.referenceNumber) fd.append('referenceNumber', String(payoutData.referenceNumber).trim());
+        if (payoutData.notes) fd.append('notes', String(payoutData.notes).trim());
+        if (payoutData.paidAt) fd.append('paidAt', payoutData.paidAt);
+
+        if (payoutData.proofImage instanceof File) {
+          fd.append('proofImage', payoutData.proofImage);
+        } else if (payoutData.proofImage && typeof payoutData.proofImage === 'string') {
+          fd.append('proofImage', payoutData.proofImage);
+        }
+
+        body = fd;
+        headers = { 'Content-Type': 'multipart/form-data' };
+      }
+
+      const response = await api.post(`/api/v1/teachers/private/${id}/payouts`, body, { headers });
+      return response.data;
+    } catch (error) {
+      console.error('API createTeacherPayout failed:', error);
+      throw error;
+    }
+  },
+
+  // GET /api/v1/teachers/private/:id/payouts (Admin - سجل التحويلات المالية لمعلم محدد)
+  fetchTeacherPayouts: async (id, params = {}) => {
+    try {
+      const response = await api.get(`/api/v1/teachers/private/${id}/payouts`, { params });
+      return response.data;
+    } catch (error) {
+      console.error('API fetchTeacherPayouts failed:', error);
+      throw error;
+    }
+  },
+
+  // GET /api/v1/teachers/private/payouts (Admin - سجل التحويلات المالية لكل المعلمين)
+  fetchAllTeachersPayouts: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/teachers/private/payouts', { params });
+      return response.data;
+    } catch (error) {
+      console.error('API fetchAllTeachersPayouts failed:', error);
+      throw error;
+    }
   }
 };

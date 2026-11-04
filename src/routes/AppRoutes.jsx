@@ -80,6 +80,7 @@ const CreateHomework = lazy(() => import('../dashboard/teacher/homework/CreateHo
 const HomeworkSubmissions = lazy(() => import('../dashboard/teacher/homework/HomeworkSubmissions.jsx'))
 const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 const TeacherCurricula = lazy(() => import('../dashboard/teacher/curricula/TeacherCurricula.jsx'))
+const TeacherEarnings = lazy(() => import('../dashboard/teacher/earnings/TeacherEarnings.jsx'))
 
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
 const StudentSchedule = lazy(() => import('../dashboard/student/schedule/StudentSchedule.jsx'))
@@ -320,7 +321,7 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/reports"
-                                        element={<PermissionRoute superAdminOnly><AdminReports /></PermissionRoute>}
+                                        element={<PermissionRoute permissions={['reports.read', 'dashboard.reports.read']}><AdminReports /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/settings"
@@ -409,11 +410,11 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/earnings"
-                                        element={<PermissionRoute superAdminOnly><AdminEarnings /></PermissionRoute>}
+                                        element={<PermissionRoute permissions={['earnings.read', 'dashboard.earnings.read']}><AdminEarnings /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/payments"
-                                        element={<PermissionRoute superAdminOnly><AdminPayments /></PermissionRoute>}
+                                        element={<PermissionRoute permissions={['packages.subscriptions', 'payments.read']}><AdminPayments /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/rewards"
@@ -554,6 +555,18 @@ export default function AppRoutes() {
                                      <Route
                                          path="/dashboard/teacher/curricula"
                                          element={<TeacherCurricula />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/earnings"
+                                         element={<TeacherEarnings />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/withdrawals"
+                                         element={<TeacherEarnings />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/payment-methods"
+                                         element={<TeacherEarnings />}
                                      />
                                 </Route>
                             </Route>

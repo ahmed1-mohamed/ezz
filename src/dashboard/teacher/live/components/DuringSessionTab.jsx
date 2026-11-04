@@ -160,7 +160,7 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
           zakToken={joinData?.zak || joinData?.zakToken}
           leaveUrl="/teacher/sessions"
           userName={teacherName}
-          userEmail={joinData?.userEmail || joinData?.hostEmail || teacherEmail || ''}
+          userEmail={joinData?.userEmail || joinData?.hostEmail || 'manartalezzacademy1@gmail.com'}
           sessionTitle={sessionTitle}
           className="w-full"
         />

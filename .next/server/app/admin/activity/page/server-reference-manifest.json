@@ -1,0 +1,20 @@
+{
+  "node": {
+    "40e733aeebb4708802e2ab98eb47131a75e3b07570": {
+      "workers": {
+        "app/admin/activity/page": {
+          "moduleId": 170681,
+          "async": false,
+          "exportedName": "setUserLocale",
+          "filename": "src/i18n/locale.ts"
+        }
+      },
+      "layer": {
+        "app/admin/activity/page": "action-browser"
+      },
+      "exportedName": "setUserLocale",
+      "filename": "src/i18n/locale.ts"
+    }
+  },
+  "edge": {}
+}

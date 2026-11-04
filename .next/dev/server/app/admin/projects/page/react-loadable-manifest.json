@@ -1,0 +1,25 @@
+{
+  "[project]/src/components/table/table-settings.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/components/table/table-settings.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_221380ad._.js",
+      "static/chunks/src_components_table_table-settings_tsx_094e26b4._.js"
+    ]
+  },
+  "[project]/src/components/modals/projects/bulk-import-projects-modal.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/components/modals/projects/bulk-import-projects-modal.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_44182ec2._.js",
+      "static/chunks/src_a68c846f._.js",
+      "static/chunks/node_modules_c92d8c75._.js",
+      "static/chunks/src_components_modals_projects_bulk-import-projects-modal_tsx_094e26b4._.js"
+    ]
+  },
+  "[project]/src/features/projects/components/DeleteProjectDialog.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/features/projects/components/DeleteProjectDialog.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_43a208fe._.js",
+      "static/chunks/src_features_projects_components_DeleteProjectDialog_tsx_094e26b4._.js"
+    ]
+  }
+}

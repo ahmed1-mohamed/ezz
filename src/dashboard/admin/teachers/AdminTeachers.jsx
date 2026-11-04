@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Coins } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
@@ -9,6 +10,7 @@ import TeachersList from './components/TeachersList'
 import TeacherProfileCard from './components/TeacherProfileCard'
 import AddEditTeacherScreen from './components/AddEditTeacherScreen'
 import TeacherDetailsScreen from './components/TeacherDetailsScreen'
+import AllTeachersPayoutsModal from './components/AllTeachersPayoutsModal'
 import Spinner from '@/shared/components/Spinner'
 
 export default function AdminTeachers() {
@@ -21,6 +23,7 @@ export default function AdminTeachers() {
   const [selectedTeacherId, setSelectedTeacherId] = useState(null)
   const [selectedTeacherRecord, setSelectedTeacherRecord] = useState(null)
   const [isSavingTeacher, setIsSavingTeacher] = useState(false)
+  const [isAllPayoutsOpen, setIsAllPayoutsOpen] = useState(false)
 
   const [currentPage, setCurrentPage] = useState(1)
   const [searchVal, setSearchVal] = useState('')
@@ -194,13 +197,24 @@ export default function AdminTeachers() {
 
       {viewMode === 'list' && (
         <>
-          <div className="text-start">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-              {t('adminDashboard.teachers.title', 'إدارة المعلمين')}
-            </h1>
-            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
-              {t('adminDashboard.teachers.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-start">
+              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+                {t('adminDashboard.teachers.title', 'إدارة المعلمين')}
+              </h1>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+                {t('adminDashboard.teachers.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsAllPayoutsOpen(true)}
+              className="flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-[#005953] dark:text-emerald-400 border border-[#005953]/20 font-bold text-sm shadow-soft transition-all active:scale-95 cursor-pointer"
+            >
+              <Coins size={18} className="text-[#005953] dark:text-emerald-400" />
+              <span>{isRtl ? 'سجل تحويلات المعلمين' : 'All Teachers Payouts'}</span>
+            </button>
           </div>
 
            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -346,6 +360,12 @@ export default function AdminTeachers() {
           }}
         />
       )}
+
+      <AllTeachersPayoutsModal
+        isOpen={isAllPayoutsOpen}
+        onClose={() => setIsAllPayoutsOpen(false)}
+        isRtl={isRtl}
+      />
     </div>
   )
 }

@@ -279,5 +279,35 @@ export const adminPackagesApi = {
       console.error(`API fetchPackageById failed for ${id}:`, error);
       throw error;
     }
+  },
+
+  fetchSubscriptions: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/packages-faqs/private/subscriptions', { params });
+      return response.data;
+    } catch (error) {
+      console.error('API fetchSubscriptions failed:', error);
+      throw error;
+    }
+  },
+
+  fetchSubscriptionsStats: async () => {
+    try {
+      const response = await api.get('/api/v1/packages-faqs/private/subscriptions/statistics');
+      return response.data;
+    } catch (error) {
+      console.error('API fetchSubscriptionsStats failed:', error);
+      throw error;
+    }
+  },
+
+  fetchSubscriptionById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/packages-faqs/private/subscriptions/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`API fetchSubscriptionById(${id}) failed:`, error);
+      throw error;
+    }
   }
 };

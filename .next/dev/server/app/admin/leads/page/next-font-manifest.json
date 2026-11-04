@@ -1,0 +1,14 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/src/app/admin/leads/page": [
+      "static/media/caa3a2e1cccd8315-s.p.3b6cae6d.woff2",
+      "static/media/797e433ab948586e-s.p.29207c2f.woff2",
+      "static/media/4b676bcffc00356a-s.p.c22aaca1.woff2",
+      "static/media/d54db18e8cd5f74f-s.p.0e8eb956.woff2",
+      "static/media/48e6fa8a5baca31f-s.p.33d01b36.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}
