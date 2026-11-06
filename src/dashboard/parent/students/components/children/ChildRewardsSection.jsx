@@ -3,8 +3,7 @@ import {
   Award,
   Sparkles,
   User,
-  ShieldCheck,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 export default function ChildRewardsSection({ rewards = [] }) {
   const { t, i18n } = useTranslation();

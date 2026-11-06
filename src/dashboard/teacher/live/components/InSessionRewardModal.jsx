@@ -17,22 +17,18 @@ function resolveStudentName(student, isRtl) {
 export default function InSessionRewardModal({ isOpen, onClose, session }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [selectedRewardId, setSelectedRewardId] = useState('');
   const [validationError, setValidationError] = useState('');
-
   const { data: rewardsData, isLoading: isLoadingRewards } = useQuery({
     queryKey: ['teacher-live-rewards-list'],
     queryFn: () => teacherRewardsApi.fetchRewards(),
     enabled: isOpen,
   });
-
   const rewardsList = useMemo(() => {
     if (!rewardsData?.data) return [];
     return Array.isArray(rewardsData.data) ? rewardsData.data : [];
   }, [rewardsData]);
-
   const studentsList = useMemo(() => {
     if (!session) return [];
     const raw = Array.isArray(session.attendance)
@@ -49,14 +45,12 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
       return { id, name, avatar: studentObj.avatar || null };
     });
   }, [session, isRtl]);
-
   const handleClose = () => {
     setSelectedStudentId('');
     setSelectedRewardId('');
     setValidationError('');
     onClose();
   };
-
   const mutation = useMutation({
     mutationFn: async () => {
       return teacherRewardsApi.awardRewardToStudent(selectedStudentId, selectedRewardId);
@@ -74,7 +68,6 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
       toast.error(serverMsg || t('teacherLive.rewardError', 'تعذر منح المكافأة'));
     },
   });
-
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!selectedStudentId || !selectedRewardId) {
@@ -84,9 +77,7 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
     setValidationError('');
     mutation.mutate();
   };
-
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
       <div
@@ -115,7 +106,6 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {validationError && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
@@ -123,7 +113,6 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
               <span>{validationError}</span>
             </div>
           )}
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {t('teacherLive.chooseStudentLabel', 'اختر الطالب')} *
@@ -142,7 +131,6 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
               ))}
             </select>
           </div>
-
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {t('teacherLive.chooseRewardLabel', 'اختر المكافأة')} *
@@ -196,7 +184,6 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
               </div>
             )}
           </div>
-
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

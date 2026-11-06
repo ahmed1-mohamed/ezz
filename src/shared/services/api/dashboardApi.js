@@ -11,7 +11,6 @@ export const dashboardApi = {
     }
   },
 
-  // GET /api/v1/dashboard/private/analytics?period=daily|weekly|monthly|yearly
   fetchAnalytics: async (params = {}) => {
     try {
       let queryParams = {};
@@ -39,7 +38,6 @@ export const dashboardApi = {
     }
   },
 
-  // GET /api/v1/dashboard/private/reports/teacher-performance
   fetchTeacherPerformance: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/dashboard/private/reports/teacher-performance', {

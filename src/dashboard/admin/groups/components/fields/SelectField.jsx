@@ -16,7 +16,6 @@ const toSafeString = (val, isRtl) => {
 
 export default function SelectField({ label, value, onChange, options = [], placeholder, isRtl, error, required, disabled = false }) {
   const [open, setOpen] = useState(false)
-
   const displayLabel = (() => {
     if (value === null || value === undefined || value === '') return toSafeString(placeholder, isRtl)
     const found = options.find((opt) => {
@@ -30,7 +29,6 @@ export default function SelectField({ label, value, onChange, options = [], plac
     }
     return toSafeString(value, isRtl)
   })()
-
   return (
     <div className="relative">
       <label className={`block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 ${isRtl ? 'text-end' : 'text-start'}`}>
@@ -62,7 +60,6 @@ export default function SelectField({ label, value, onChange, options = [], plac
               const optValue = typeof opt === 'object' && opt !== null ? (opt.value ?? opt.id ?? opt) : opt
               const optLabel = toSafeString(typeof opt === 'object' && opt !== null ? (opt.label ?? opt.name ?? opt.value) : opt, isRtl)
               const isSelected = value === optValue || value === optLabel
-
               return (
                 <button
                   key={typeof opt === 'object' && opt !== null ? (opt.id ?? opt.value ?? idx) : opt}

@@ -33,25 +33,21 @@ export default function AdminPrivateGroups() {
   const isRtl = i18n.language.startsWith('ar')
   const { id: routeGroupId } = useParams()
   const navigate = useNavigate()
-
   const [viewMode, setViewMode] = useState('list')
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [showStudentsModal, setShowStudentsModal] = useState(false)
   const [showAddStudentsModal, setShowAddStudentsModal] = useState(false)
   const [showChangeTeacherModal, setShowChangeTeacherModal] = useState(false)
   const [groupForTeacherChange, setGroupForTeacherChange] = useState(null)
-
   const [groups, setGroups] = useState([])
   const [statistics, setStatistics] = useState(null)
   const [pagination, setPagination] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-
   const [activeTab, setActiveTab] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
-
   useEffect(() => {
     let active = true
     if (routeGroupId) {
@@ -88,7 +84,6 @@ export default function AdminPrivateGroups() {
     }
     return () => { active = false }
   }, [routeGroupId, navigate, isRtl, t])
-
   const STATUS_TABS = useMemo(() => [
     { key: 'all', label: t('adminDashboard.privateGroups.tabs.all', 'الكل') },
     { key: 'pending', label: t('adminDashboard.privateGroups.tabs.pending', 'قيد الانتظار') },
@@ -96,23 +91,19 @@ export default function AdminPrivateGroups() {
     { key: 'stopped', label: t('adminDashboard.privateGroups.tabs.stopped', 'متوقفة') },
     { key: 'completed', label: t('adminDashboard.privateGroups.tabs.completed', 'مكتملة') },
   ], [t])
-
   const TYPE_LABELS = useMemo(() => ({
     all: t('adminDashboard.privateGroups.typeAll', 'الكل'),
     public: t('adminDashboard.groups.typePublic', 'عامة'),
     private: t('adminDashboard.groups.typePrivate', 'خاصة'),
   }), [t])
-
   const loadGroups = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = { page: currentPage, limit: itemsPerPage }
       if (searchQuery.trim()) params.search = searchQuery.trim()
       if (typeFilter !== 'all') params.type = typeFilter
-
       const fetcher = TAB_API_MAP[activeTab] ?? TAB_API_MAP.all
       const res = await fetcher(params)
-
       const rawData = res?.data
       const items = Array.isArray(rawData)
         ? rawData
@@ -122,10 +113,8 @@ export default function AdminPrivateGroups() {
             ? res.data.data
             : (Array.isArray(res?.data?.groups) ? res.data.groups : [])))
       setGroups(items)
-
       if (res?.pagination) setPagination(res.pagination)
       else setPagination(null)
-
       if (res?.statistics) setStatistics(res.statistics)
     } catch (err) {
       console.error('Failed to fetch private groups:', err)
@@ -133,17 +122,14 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }, [activeTab, currentPage, searchQuery, typeFilter])
-
   useEffect(() => {
     loadGroups()
   }, [loadGroups])
-
   const totalCount = pagination?.totalCount ?? groups.length
   const totalPages = pagination?.numberOfPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage))
   const isPaginationDimmed = totalPages <= 1
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
-
   const metrics = useMemo(() => ({
     total: statistics?.total ?? totalCount,
     pending: statistics?.pending ?? 0,
@@ -151,17 +137,14 @@ export default function AdminPrivateGroups() {
     stopped: statistics?.stopped ?? 0,
     completed: statistics?.completed ?? 0,
   }), [statistics, totalCount])
-
   const handleTabChange = useCallback((tabKey) => {
     setActiveTab(tabKey)
     setCurrentPage(1)
   }, [])
-
   const handleTypeChange = useCallback((typeVal) => {
     setTypeFilter(typeVal)
     setCurrentPage(1)
   }, [])
-
   const handleSaveGroup = async (formData) => {
     setIsLoading(true)
     try {
@@ -193,7 +176,6 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }
-
   const handleDeleteGroup = async (group) => {
     const isConfirmed = await showDeleteConfirm(isRtl, getLocalizedValue(group.name, isRtl))
     if (!isConfirmed) return
@@ -212,7 +194,6 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }
-
   const handleEditGroup = async (group) => {
     setIsLoading(true)
     const groupId = group.id || group._id
@@ -236,7 +217,6 @@ export default function AdminPrivateGroups() {
       navigate(`/dashboard/admin/private-groups/edit/${groupId}`); setViewMode('edit-group')
     }
   }
-
   const handleViewStudents = async (group) => {
     setSelectedGroup(group)
     setShowStudentsModal(true)
@@ -250,7 +230,6 @@ export default function AdminPrivateGroups() {
       console.warn('Could not load detailed localized group data:', err)
     }
   }
-
   const handleAddSingleStudent = async (groupId, student) => {
     try {
       setIsLoading(true)
@@ -270,7 +249,6 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }
-
   const handleAddStudents = async (students) => {
     if (!students || students.length === 0) return
     setIsLoading(true)
@@ -294,7 +272,6 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }
-
   const handleTransferStudent = async (groupId, studentId, targetGroupId) => {
     setIsLoading(true)
     try {
@@ -316,7 +293,6 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }
-
   const handleRemoveStudent = async (groupId, studentId, studentName) => {
     const isConfirmed = await showDeleteConfirm(isRtl, studentName)
     if (!isConfirmed) return
@@ -341,12 +317,10 @@ export default function AdminPrivateGroups() {
       showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.removeStudentError', 'فشل إزالة الطالب من المجموعة'), isRtl)
     }
   }
-
   const handleOpenChangeTeacher = useCallback((group) => {
     setGroupForTeacherChange(group)
     setShowChangeTeacherModal(true)
   }, [])
-
   const handleChangeTeacher = async (teacherId, teacherObj) => {
     if (!groupForTeacherChange) return
     const groupId = groupForTeacherChange.id || groupForTeacherChange._id
@@ -376,7 +350,6 @@ export default function AdminPrivateGroups() {
       setIsLoading(false)
     }
   }
-
   if (viewMode === 'add-group' || viewMode === 'edit-group') {
     return (
       <AddEditGroupScreen
@@ -392,7 +365,6 @@ export default function AdminPrivateGroups() {
       />
     )
   }
-
   return (
     <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && (
@@ -400,7 +372,6 @@ export default function AdminPrivateGroups() {
           <Spinner />
         </div>
       )}
-
       <div className="text-start">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
           {t('adminDashboard.privateGroups.title', 'المجموعات الدراسية')}
@@ -409,7 +380,6 @@ export default function AdminPrivateGroups() {
           {t('adminDashboard.groups.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
           { label: t('adminDashboard.privateGroups.tabs.all', 'الكل'), value: metrics.total, cls: 'text-slate-700 dark:text-slate-200', tab: 'all' },
@@ -433,7 +403,6 @@ export default function AdminPrivateGroups() {
           </button>
         ))}
       </div>
-
       <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
@@ -444,7 +413,6 @@ export default function AdminPrivateGroups() {
               <Plus size={18} />
               <span>{t('adminDashboard.groups.addGroup', 'إضافة مجموعة')}</span>
             </button>
-
             <div className="flex items-center gap-1.5 flex-wrap">
               {TYPE_FILTER_VALUES.map((typeVal) => (
                 <button
@@ -461,7 +429,6 @@ export default function AdminPrivateGroups() {
               ))}
             </div>
           </div>
-
           <div className="relative w-full sm:w-64">
             <Search
               size={16}
@@ -479,7 +446,6 @@ export default function AdminPrivateGroups() {
             />
           </div>
         </div>
-
         <div className="flex items-center gap-1.5 flex-wrap border-t border-slate-100 dark:border-slate-800 pt-3">
           {STATUS_TABS.map((tab) => (
             <button
@@ -496,7 +462,6 @@ export default function AdminPrivateGroups() {
           ))}
         </div>
       </div>
-
       {groups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60">
           <Layers size={48} strokeWidth={1.5} />
@@ -518,7 +483,6 @@ export default function AdminPrivateGroups() {
           ))}
         </div>
       )}
-
       <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${
           isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
@@ -547,7 +511,6 @@ export default function AdminPrivateGroups() {
             </>
           )}
         </div>
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -570,7 +533,6 @@ export default function AdminPrivateGroups() {
           </button>
         </div>
       </div>
-
       {showStudentsModal && selectedGroup && (
         <GroupDetailsModal
           group={selectedGroup}
@@ -589,7 +551,6 @@ export default function AdminPrivateGroups() {
           isRtl={isRtl}
         />
       )}
-
       {showAddStudentsModal && selectedGroup && (
         <AddStudentsModal
           group={selectedGroup}
@@ -598,7 +559,6 @@ export default function AdminPrivateGroups() {
           onCancel={() => setShowAddStudentsModal(false)}
         />
       )}
-
       {showChangeTeacherModal && groupForTeacherChange && (
         <ChangeTeacherModal
           group={groupForTeacherChange}

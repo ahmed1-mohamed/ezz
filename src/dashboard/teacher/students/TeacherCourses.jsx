@@ -1,4 +1,4 @@
-﻿import { useMemo, useEffect } from 'react';
+﻿import { useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +11,6 @@ export default function TeacherCourses() {
     const [searchParams] = useSearchParams();
     const statusParam = searchParams.get('status') || 'all';
     const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
-
     const {
         data: responseData,
         isLoading,
@@ -22,7 +21,6 @@ export default function TeacherCourses() {
         queryFn: () => teacherGroupsApi.fetchGroupsByStatus(statusParam),
         staleTime: 60 * 1000,
     });
-
     const coursesList = useMemo(() => {
         let list = [];
         if (Array.isArray(responseData)) {
@@ -41,17 +39,13 @@ export default function TeacherCourses() {
             const name = typeof g.name === 'object' && g.name !== null
                 ? (isRtl ? g.name.ar || g.name.en : g.name.en || g.name.ar)
                 : g.name || `${t('teacherCourses.group', 'مجموعة')} ${idx + 1}`;
-
             const curriculum = typeof g.curriculum === 'object' && g.curriculum !== null
                 ? (isRtl ? g.curriculum.name?.ar || g.curriculum.name?.en : g.curriculum.name?.en || g.curriculum.name?.ar)
                 : (g.curriculum?.name || g.curriculum || '-');
-
             const level = typeof g.level === 'object' && g.level !== null
                 ? (isRtl ? g.level.name?.ar || g.level.name?.en || g.level.name : g.level.name?.en || g.level.name?.ar || g.level.name)
                 : (g.level || '-');
-
             const studentsCount = Array.isArray(g.students) ? g.students.length : (g.currentStudentsCount ?? 0);
-
             return {
                 id: g.id || g._id || `course-${idx}`,
                 name,
@@ -62,7 +56,6 @@ export default function TeacherCourses() {
             };
         });
     }, [responseData, isRtl, t]);
-
     return (
         <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -79,7 +72,6 @@ export default function TeacherCourses() {
                         </p>
                     </div>
                 </div>
-
                 <Link
                     to="/dashboard/teacher/groups"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#00594C] hover:bg-[#00483d] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all self-start sm:self-center cursor-pointer"
@@ -88,7 +80,6 @@ export default function TeacherCourses() {
                     <span>{t('teacherDashboard.viewAllGroups', 'عرض كل المجموعات')}</span>
                 </Link>
             </div>
-
             {isLoading ? (
                 <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-3">
                     {[1, 2, 3, 4, 5].map((i) => (

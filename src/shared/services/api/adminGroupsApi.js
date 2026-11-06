@@ -69,7 +69,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // Edit form source: English response gives the enum values (day/status/type) the write endpoints expect.
   fetchGroupForEdit: async (id) => {
     const response = await api.get(`/api/v1/groups/private/${id}`, {
       headers: { 'Accept-Language': 'en' },
@@ -90,8 +89,6 @@ export const adminGroupsApi = {
     return adminGroupsApi.fetchGroupByIdLocalized(id, params);
   },
 
-  // POST /groups/private (multipart): name[ar], name[en], image(file), country, curriculum, studentLevel,
-  // language, maxStudents, teacher, type, startDate, endDate, status, weeklySchedule[i][day|startTime|endTime]
   createGroup: async (groupData) => {
     const response = await api.post('/api/v1/groups/private', buildGroupFormData(groupData, CREATE_FIELDS), {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -99,8 +96,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // PATCH /groups/private/:id only accepts name, image, country, maxStudents, startDate, endDate.
-  // Schedule, status and teacher have their own endpoints.
   updateGroup: async (id, groupData) => {
     const response = await api.patch(`/api/v1/groups/private/${id}`, buildGroupFormData(groupData, UPDATE_FIELDS), {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -142,7 +137,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // PATCH /groups/private/:id/schedule { weeklySchedule: [{ day: 'sunday', startTime: 'HH:mm', endTime: 'HH:mm' }] }
   updateGroupSchedule: async (groupId, weeklySchedule) => {
     const body = {
       weeklySchedule: (weeklySchedule || []).map((s) => ({
@@ -155,7 +149,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // PATCH /groups/private/:id/status { status: 'active' | 'pending' | 'stopped' | 'completed' }
   updateGroupStatus: async (groupId, status) => {
     const response = await api.patch(`/api/v1/groups/private/${groupId}/status`, { status });
     return response.data;

@@ -48,23 +48,17 @@ export default function StudentDetailsScreen({
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
-
   if (!student) return null
-
   const isActive = student.active === true || String(student.active) === 'true'
   const isSuspended = !isActive
-
   const studentDisplayName = typeof student.name === 'string'
     ? student.name
     : (student.name?.ar || student.name?.en || '-')
-
   const rawParent = typeof student.parent === 'object' && student.parent !== null ? student.parent : {}
   const rawParentName = typeof rawParent.name === 'object' && rawParent.name !== null
     ? (rawParent.name.ar || rawParent.name.en || '-')
     : (rawParent.name || '-')
-
   const parentInfo = {
     id: rawParent.parent_id || rawParent.id || '',
     name: String(rawParentName || '-'),
@@ -72,7 +66,6 @@ export default function StudentDetailsScreen({
     email: rawParent.email || '-',
     initial: String(rawParentName || '?').trim().charAt(0) || '?'
   }
-
   const handlePasswordUpdate = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
     if (!newPassword || !confirmPassword) {
@@ -91,7 +84,6 @@ export default function StudentDetailsScreen({
       showErrorToast(isRtl ? 'تعذر تحديد معرّف المستخدم للطالب' : 'Could not resolve the student user ID', isRtl)
       return
     }
-
     try {
       setIsUpdatingPassword(true)
       await studentsApi.changeStudentPassword(student.user_id, { password: newPassword, confirmPassword })
@@ -104,31 +96,24 @@ export default function StudentDetailsScreen({
       setIsUpdatingPassword(false)
     }
   }
-
   const handleAddSessions = async (studentId, count, reason) => {
     setIsAddingSessions(true)
     try {
       await onAddSessions(studentId, count, reason)
       setIsAddSessionsOpen(false)
     } catch {
-      // error toast is shown by the caller; keep the modal open so the admin can retry
     } finally {
       setIsAddingSessions(false)
     }
   }
-
   const sessionsBalance = getRemainingSessions(student.sessionsBalance)
-
   const attendanceRate = student.attendanceRate !== undefined && student.attendanceRate !== null
     ? `${Number(student.attendanceRate).toFixed(1)}%`
     : (isRtl ? 'غير محدد' : 'N/A')
-
   const totalEvaluations = Number(student.totalEvaluations ?? 0)
-
   const averageRating = student.averageRating !== undefined && student.averageRating !== null
     ? `${Number(student.averageRating).toFixed(1)} / 5.0`
     : (isRtl ? 'لا يوجد' : 'N/A')
-
   const stats = [
     {
       label: isRtl ? 'رصيد الحصص المتبقي' : 'Remaining Sessions',
@@ -149,15 +134,12 @@ export default function StudentDetailsScreen({
       iconColor: 'text-amber-500'
     }
   ]
-
   const levelVal = typeof student.studentLevel === 'object' && student.studentLevel !== null
     ? (student.studentLevel.name?.ar || student.studentLevel.name?.en || student.studentLevel.name || '')
     : String(student.studentLevel || student.levelName || '')
-
   const ageValue = student.age !== undefined && student.age !== null
     ? `${student.age} ${isRtl ? 'سنة' : 'years'}`
     : '-'
-
   const detailsItems = [
     {
       label: isRtl ? 'الدولة' : 'Country',
@@ -211,10 +193,8 @@ export default function StudentDetailsScreen({
       bgClass: isActive ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : 'bg-rose-50/30 dark:bg-rose-900/10'
     }
   ]
-
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -235,7 +215,6 @@ export default function StudentDetailsScreen({
             </h1>
           </div>
         </div>
-
         <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-3">
           <button
             type="button"
@@ -245,7 +224,6 @@ export default function StudentDetailsScreen({
             <Plus size={16} />
             <span>{isRtl ? 'إضافة حصص' : 'Add Sessions'}</span>
           </button>
-
           <button
             type="button"
             onClick={onEdit}
@@ -254,7 +232,6 @@ export default function StudentDetailsScreen({
             <Pencil size={15} />
             <span>{t('adminDashboard.students.details.editData', 'تعديل البيانات')}</span>
           </button>
-
           <button
             type="button"
             onClick={() => onToggleStatus(student)}
@@ -274,7 +251,6 @@ export default function StudentDetailsScreen({
           </button>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
@@ -298,26 +274,22 @@ export default function StudentDetailsScreen({
           )
         })}
       </div>
-
       <StudentProfileCard
         student={student}
         isRtl={isRtl}
         detailsItems={detailsItems}
       />
-
       <StudentAchievementsCard
         student={student}
         isRtl={isRtl}
         t={t}
       />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           <StudentSubscriptionCard
             student={student}
             isRtl={isRtl}
           />
-
           <StudentGroupCard
             student={student}
             isRtl={isRtl}
@@ -325,7 +297,6 @@ export default function StudentDetailsScreen({
             t={t}
           />
         </div>
-
         <div className="space-y-6">
           <StudentSecurityCard
             isRtl={isRtl}
@@ -336,14 +307,12 @@ export default function StudentDetailsScreen({
             handlePasswordUpdate={handlePasswordUpdate}
             isUpdating={isUpdatingPassword}
           />
-
           <StudentParentCard
             isRtl={isRtl}
             parentInfo={parentInfo}
           />
         </div>
       </div>
-
       {isAddSessionsOpen && (
         <AddSessionsModal
           isOpen={isAddSessionsOpen}
@@ -354,7 +323,6 @@ export default function StudentDetailsScreen({
           onAddSessions={handleAddSessions}
         />
       )}
-
       <Suspense fallback={null}>
         {isChangeGroupOpen && (
           <ChangeGroupModal

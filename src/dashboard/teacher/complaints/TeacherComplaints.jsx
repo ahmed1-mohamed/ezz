@@ -53,16 +53,13 @@ function formatTime(val) {
 export default function TeacherComplaints() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [selectedItemForDetails, setSelectedItemForDetails] = useState(null);
-
   const {
     data: responseData,
     isLoading,
@@ -78,12 +75,10 @@ export default function TeacherComplaints() {
         status: statusFilter !== 'all' ? statusFilter : undefined,
       }),
   });
-
   const rawList = useMemo(() => {
     const list = responseData?.data || (Array.isArray(responseData) ? responseData : []);
     return Array.isArray(list) ? list : [];
   }, [responseData]);
-
   const filteredList = useMemo(() => {
     return rawList.filter((item) => {
       const itemStatus = (item.status || '').toLowerCase();
@@ -107,7 +102,6 @@ export default function TeacherComplaints() {
           itemStatus.includes('مرفوض');
         if (!isRejected) return false;
       }
-
       if (typeFilter !== 'all') {
         const itemType = (item.type || '').toLowerCase();
         if (typeFilter === 'reschedule') {
@@ -127,7 +121,6 @@ export default function TeacherComplaints() {
           return false;
         }
       }
-
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const titleMatch = item.title?.toLowerCase().includes(q);
@@ -137,27 +130,22 @@ export default function TeacherComplaints() {
           : item.group?.name?.toLowerCase().includes(q);
         return titleMatch || detailsMatch || groupMatch;
       }
-
       return true;
     });
   }, [rawList, statusFilter, typeFilter, searchQuery]);
-
   const serverTotalPages =
     responseData?.pagination?.numberOfPages ||
     responseData?.pagination?.totalPages ||
     responseData?.totalPages;
-
   const totalPages = useMemo(() => {
     if (serverTotalPages && serverTotalPages > 0) return serverTotalPages;
     return Math.max(1, Math.ceil(filteredList.length / itemsPerPage));
   }, [serverTotalPages, filteredList.length, itemsPerPage]);
-
   const paginatedList = useMemo(() => {
     if (serverTotalPages && serverTotalPages > 1) return filteredList;
     const start = (currentPage - 1) * itemsPerPage;
     return filteredList.slice(start, start + itemsPerPage);
   }, [filteredList, currentPage, itemsPerPage, serverTotalPages]);
-
   const getTypeBadge = (type) => {
     if (type === 'reschedule_request' || type === 'reschedule' || type === 'postpone') {
       return (
@@ -182,7 +170,6 @@ export default function TeacherComplaints() {
       </span>
     );
   };
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'resolved':
@@ -211,7 +198,6 @@ export default function TeacherComplaints() {
         );
     }
   };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="space-y-6">
@@ -229,7 +215,6 @@ export default function TeacherComplaints() {
               {t('teacher.complaintsDescription', 'تقديم ومتابعة الشكاوى والمقترحات وطلبات تأجيل الحصص')}
             </p>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               onClick={() => refetch()}
@@ -239,7 +224,6 @@ export default function TeacherComplaints() {
             >
               <Sparkles size={16} className={isFetching ? 'animate-spin' : ''} />
             </button>
-
             <button
               onClick={() => setIsNewModalOpen(true)}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer"
@@ -249,7 +233,6 @@ export default function TeacherComplaints() {
             </button>
           </div>
         </div>
-
         <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-slate-800 pb-2 overflow-x-auto">
           {[
             { id: 'all', label: t('teacher.statusAll', 'الكل') },
@@ -277,7 +260,6 @@ export default function TeacherComplaints() {
             );
           })}
         </div>
-
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200/80 bg-white/95 dark:border-slate-800 dark:bg-slate-900/90 shadow-soft">
           <div className="relative flex-1 max-w-md">
             <Search
@@ -306,7 +288,6 @@ export default function TeacherComplaints() {
               </button>
             )}
           </div>
-
           <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 shrink-0 self-start md:self-auto overflow-x-auto max-w-full">
             <button
               onClick={() => setTypeFilter('all')}
@@ -354,7 +335,6 @@ export default function TeacherComplaints() {
             </button>
           </div>
         </div>
-
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -408,7 +388,6 @@ export default function TeacherComplaints() {
                 item.type === 'reschedule_request' ||
                 item.type === 'reschedule' ||
                 item.type === 'postpone';
-
               return (
                 <div
                   key={item.id}
@@ -430,7 +409,6 @@ export default function TeacherComplaints() {
                         {item.title}
                       </h3>
                     </div>
-
                     <button
                       onClick={() => setSelectedItemForDetails(item)}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
@@ -439,11 +417,9 @@ export default function TeacherComplaints() {
                       <span>{t('teacher.viewComplaintDetails', 'عرض التفاصيل')}</span>
                     </button>
                   </div>
-
                   <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                     {item.details}
                   </p>
-
                   {isReschedule && (
                     <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                       {item.group && (
@@ -455,7 +431,6 @@ export default function TeacherComplaints() {
                           </span>
                         </span>
                       )}
-
                       {item.session && (
                         <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
                           <Calendar size={13} className="text-amber-600" />
@@ -465,7 +440,6 @@ export default function TeacherComplaints() {
                           </span>
                         </span>
                       )}
-
                       {item.proposedNewDate && (
                         <span className="flex items-center gap-1 text-amber-800 dark:text-amber-300 font-bold">
                           <CalendarClock size={13} />
@@ -479,7 +453,6 @@ export default function TeacherComplaints() {
                       )}
                     </div>
                   )}
-
                   {item.notes && (
                     <div className="p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/50 dark:border-indigo-900/30 text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
                       <span className="font-bold shrink-0">{t('teacher.adminResponse', 'رد الإدارة')}:</span>
@@ -489,7 +462,6 @@ export default function TeacherComplaints() {
                 </div>
               );
             })}
-
             <div className="flex flex-col sm:flex-row items-center justify-between pt-5 border-t border-slate-200/80 dark:border-slate-800 text-xs gap-3">
               <span className="text-slate-500 dark:text-slate-400 font-semibold">
                 {t('teacher.paginationInfo', 'عرض صفحة {{currentPage}} من {{totalPages}} (إجمالي {{total}} طلب)', {
@@ -508,7 +480,6 @@ export default function TeacherComplaints() {
                 >
                   {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                 </button>
-
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     const pageNum = i + 1;
@@ -529,7 +500,6 @@ export default function TeacherComplaints() {
                     );
                   })}
                 </div>
-
                 <button
                   type="button"
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
@@ -543,11 +513,9 @@ export default function TeacherComplaints() {
             </div>
           </div>
         )}
-
         {isNewModalOpen && (
           <TeacherNewComplaintModal onClose={() => setIsNewModalOpen(false)} />
         )}
-
         {selectedItemForDetails && (
           <TeacherComplaintDetailsModal
             item={selectedItemForDetails}

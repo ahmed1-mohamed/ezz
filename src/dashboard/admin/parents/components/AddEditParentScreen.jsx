@@ -18,7 +18,6 @@ import {
 export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, onCancel }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
-
   const [apiCountries, setApiCountries] = useState([])
   const [selectedCountryCode, setSelectedCountryCode] = useState(null)
   const [phoneVal, setPhoneVal] = useState('')
@@ -31,7 +30,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
   const [studentSearch, setStudentSearch] = useState('')
   const [selectedStudents, setSelectedStudents] = useState([])
   const [showStudentSearch, setShowStudentSearch] = useState(false)
-
   const [formData, setFormData] = useState({
     name: '',
     nameEn: '',
@@ -42,7 +40,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
     profileImage: null,
     profileImageFile: null,
   })
-
   useEffect(() => {
     let isMounted = true
     fetchCountries().then((list) => {
@@ -51,7 +48,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
       setApiCountries(normalized)
       setSelectedCountryCode((prev) => prev || toDialCodeOptions(normalized).find((c) => c.code === DEFAULT_DIAL_CODE) || null)
     })
-
     studentsApi.fetchAllLocalizedStudents({ limit: 1000 })
       .then((res) => {
         if (!isMounted) return
@@ -59,17 +55,13 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
         setApiStudents(list.map((s) => ({ ...s, id: s.student_id })))
       })
       .catch((err) => console.error('Failed to load students:', err))
-
     return () => {
       isMounted = false
     }
   }, [isRtl])
-
   const dialCodes = useMemo(() => sortCountryCodes(toDialCodeOptions(apiCountries), isRtl), [apiCountries, isRtl])
-
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))
-
   const handleImageSelect = (e) => {
     const file = e.target.files[0]
     e.target.value = ''
@@ -84,7 +76,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
     }
     setFormData((prev) => ({ ...prev, profileImage: URL.createObjectURL(file), profileImageFile: file }))
   }
-
   const filteredStudents = apiStudents.filter((s) => {
     const query = studentSearch.toLowerCase()
     const nameStr = typeof s.name === 'object' ? (s.name?.ar || s.name?.en || '') : (s.name || '')
@@ -93,7 +84,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
     if (studentSearchTab === 'phone') return (s.phone || '').includes(query)
     return true
   })
-
   const toggleStudentSelect = (student) => {
     setSelectedStudents((prev) =>
       prev.find((s) => s.id === student.id)
@@ -101,16 +91,13 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
         : [...prev, student]
     )
   }
-
   const isStudentSelected = (id) => selectedStudents.some((s) => s.id === id)
-
   const handleSave = (e) => {
     e.preventDefault()
     const nameAr = formData.name.trim()
     const nameEn = formData.nameEn.trim()
     const phone = joinPhoneNumber(selectedCountryCode?.code, phoneVal)
     const fail = (ar, en) => showErrorToast(isRtl ? ar : en, isRtl)
-
     if (nameAr.length < 2 || nameAr.length > 50) return fail('الاسم بالعربية يجب أن يكون بين 2 و 50 حرفًا', 'Arabic name must be 2–50 characters')
     if (nameEn.length < 2 || nameEn.length > 50) return fail('الاسم بالإنجليزية يجب أن يكون بين 2 و 50 حرفًا', 'English name must be 2–50 characters')
     if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) return fail('الرجاء إدخال بريد إلكتروني صالح', 'Please enter a valid email')
@@ -118,7 +105,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
     if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
     if (formData.password.length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
     if (formData.password !== formData.confirmPassword) return fail('كلمة المرور وتأكيدها غير متطابقتين', 'Passwords do not match')
-
     onSave({
       name: { ar: nameAr, en: nameEn },
       email: formData.email.trim(),
@@ -130,9 +116,7 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
       childrenIds: selectedStudents.map((s) => s.id),
     })
   }
-
   const initial = formData.name ? formData.name.trim().charAt(0) : '?'
-
   return (
     <div className="space-y-6 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -160,7 +144,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
           {isRtl ? 'إلغاء' : 'Cancel'}
         </button>
       </div>
-
       <form onSubmit={handleSave} className="space-y-6 max-w-4xl mx-auto">
         <ParentPersonalInfo
           formData={formData}
@@ -180,7 +163,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
           dynamicCountryCodes={dialCodes}
           initial={initial}
         />
-
         <ParentSecurity
           formData={formData}
           handleChange={handleChange}
@@ -190,7 +172,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
           showConfirmPassword={showConfirmPassword}
           setShowConfirmPassword={setShowConfirmPassword}
         />
-
         <ParentStudentLinkage
           isRtl={isRtl}
           showStudentSearch={showStudentSearch}
@@ -204,7 +185,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
           filteredStudents={filteredStudents}
           isStudentSelected={isStudentSelected}
         />
-
         <div className="flex justify-end pt-4">
           <button
             type="submit"

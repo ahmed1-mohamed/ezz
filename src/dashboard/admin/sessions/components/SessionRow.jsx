@@ -2,7 +2,7 @@ import { RefreshCw, UserX, X, Users, Clock, Video } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import ReschedulePanel from './ReschedulePanel'
 import ChangeTeacherPanel from './ChangeTeacherPanel'
-import { formatTime12h, formatTimeRange12h } from '@/shared/services/api/adminSessionsApi'
+import { formatTimeRange12h } from '@/shared/services/api/adminSessionsApi'
 import { useTranslation } from 'react-i18next'
 
 const safeText = (val, fallback = '') => {
@@ -30,7 +30,6 @@ export default function SessionRow({
   const isCompleted = session.status === 'completed'
   const { i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
-
   const groupName = safeText(session.groupName, 'مجموعة دراسية')
   const sessionTitle = safeText(session.title)
   const sessionNum = safeText(session.sessionNumber)
@@ -40,7 +39,6 @@ export default function SessionRow({
   const day = safeText(session.day)
   const time = formatTimeRange12h(session.startTime || session.time, session.endTime, session.durationMinutes, isRtl)
   const studentsCount = Number(session.studentsCount) || 0
-
   return (
     <div className="group">
       <div className="hidden md:grid grid-cols-[2.5fr_1.8fr_1.3fr_1.4fr_0.9fr_1.1fr_2.2fr] gap-3 items-center px-5 py-4 hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
@@ -67,7 +65,6 @@ export default function SessionRow({
             )}
           </div>
         </div>
-
         <div className="text-start min-w-0">
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
             {teacher}
@@ -78,7 +75,6 @@ export default function SessionRow({
             </p>
           )}
         </div>
-
         <div className="text-start">
           <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {date}
@@ -89,7 +85,6 @@ export default function SessionRow({
             </p>
           )}
         </div>
-
         <div className="text-start">
           <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
             <Clock size={13} className="text-slate-400 shrink-0" />
@@ -104,16 +99,13 @@ export default function SessionRow({
             </p>
           )}
         </div>
-
         <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <Users size={14} className="text-slate-400" />
           <span>{studentsCount}</span>
         </div>
-
         <div className="flex justify-center">
           <StatusBadge status={session.status} />
         </div>
-
         <div className="flex items-center justify-end gap-1.5 flex-wrap">
           {session.zoomJoinUrl && !isCancelled && (
             <a
@@ -127,7 +119,6 @@ export default function SessionRow({
               <span>{t('adminDashboard.sessions.zoom', 'زووم')}</span>
             </a>
           )}
-
           {!isCancelled && !isCompleted && (
             <>
               <button
@@ -169,7 +160,6 @@ export default function SessionRow({
           )}
         </div>
       </div>
-
       <div className="md:hidden flex flex-col gap-3 px-4 py-4 border-b border-slate-100 dark:border-slate-800 text-start">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
@@ -185,13 +175,11 @@ export default function SessionRow({
           </div>
           <StatusBadge status={session.status} />
         </div>
-
         {sessionTitle && (
           <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {sessionTitle}
           </p>
         )}
-
         <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl">
           <div>
             <span className="text-slate-400 text-[11px] block">{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
@@ -210,7 +198,6 @@ export default function SessionRow({
             <span className="font-medium text-slate-700 dark:text-slate-300">{time}</span>
           </div>
         </div>
-
         <div className="flex items-center gap-2 flex-wrap pt-1">
           {session.zoomJoinUrl && !isCancelled && (
             <a
@@ -253,7 +240,6 @@ export default function SessionRow({
           )}
         </div>
       </div>
-
       {isExpanded && expandedPanel === 'reschedule' && (
         <ReschedulePanel
           session={session}

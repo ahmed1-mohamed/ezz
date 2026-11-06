@@ -14,7 +14,6 @@ export default function ContactForm() {
     const { t } = useTranslation()
     const dispatch = useDispatch()
     const { contactInfo, messageSubmitStatus, error: submitError } = useSelector((state) => state.landing)
-
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -24,11 +23,9 @@ export default function ContactForm() {
     })
     const [errors, setErrors] = useState({})
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
-
     useEffect(() => {
         dispatch(fetchContactInfo())
     }, [dispatch])
-
     useEffect(() => {
         if (messageSubmitStatus === 'success') {
             setTimeout(() => {
@@ -65,7 +62,6 @@ export default function ContactForm() {
             }, 0);
         }
     }, [messageSubmitStatus, submitError, dispatch, t])
-
     useEffect(() => {
         if (toast.show) {
             const timer = setTimeout(() => {
@@ -74,7 +70,6 @@ export default function ContactForm() {
             return () => clearTimeout(timer)
         }
     }, [toast.show])
-
     const handleInputChange = (e) => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
@@ -82,14 +77,12 @@ export default function ContactForm() {
             setErrors(prev => ({ ...prev, [name]: '' }))
         }
     }
-
     const handlePhoneChange = (newPhone) => {
         setFormData(prev => ({ ...prev, phone: newPhone }))
         if (errors.phone) {
             setErrors(prev => ({ ...prev, phone: '' }))
         }
     }
-
     const validateForm = () => {
         const newErrors = {}
         if (!formData.name.trim()) {
@@ -97,19 +90,16 @@ export default function ContactForm() {
         } else if (formData.name.trim().length < 3) {
             newErrors.name = t('contact.validation.nameMin', 'الاسم يجب أن يكون 3 أحرف على الأقل')
         }
-
         if (!formData.email.trim()) {
             newErrors.email = t('contact.validation.emailRequired', 'البريد الإلكتروني مطلوب')
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = t('contact.validation.emailInvalid', 'البريد الإلكتروني غير صحيح')
         }
-
         if (!formData.title.trim()) {
             newErrors.title = t('contact.validation.titleRequired', 'موضوع الرسالة مطلوب')
         } else if (formData.title.trim().length < 5) {
             newErrors.title = t('contact.validation.titleMin', 'موضوع الرسالة يجب أن يكون 5 أحرف على الأقل')
         }
-
         const phoneVal = formData.phone.trim()
         if (!phoneVal) {
             newErrors.phone = t('contact.validation.phoneRequired', 'رقم الهاتف مطلوب')
@@ -129,22 +119,18 @@ export default function ContactForm() {
                 }
             }
         }
-
         if (!formData.message.trim()) {
             newErrors.message = t('contact.validation.messageRequired', 'محتوى الرسالة مطلوب')
         } else if (formData.message.trim().length < 10) {
             newErrors.message = t('contact.validation.messageMin', 'الرسالة يجب أن تكون 10 أحرف على الأقل')
         }
-
         setErrors(newErrors)
-
         if (Object.keys(newErrors).length > 0) {
             setToast({
                 show: true,
                 message: t('contact.validation.formError', 'خطأ في نموذج التواصل: يرجى تصحيح الحقول المحددة'),
                 type: 'error'
             })
-
             const firstErrorField = Object.keys(newErrors)[0]
             setTimeout(() => {
                 const element = document.getElementsByName(firstErrorField)[0]
@@ -153,12 +139,10 @@ export default function ContactForm() {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                 }
             }, 100)
-
             return false
         }
         return true
     }
-
     const handleSubmit = (e) => {
         e.preventDefault()
         if (validateForm()) {
@@ -172,11 +156,9 @@ export default function ContactForm() {
             dispatch(sendMessage(payload))
         }
     }
-
     return (
         <section className="max-w-5xl mx-auto mb-24 px-4 sm:px-6 lg:px-8">
             <ContactBanner />
-
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -200,7 +182,6 @@ export default function ContactForm() {
                             />
                             {errors.name && <span className="text-xs text-red-500 font-bold px-1 block">{errors.name}</span>}
                         </div>
-
                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                                 {t('contact.form.email', 'البريد الإلكتروني')}
@@ -216,7 +197,6 @@ export default function ContactForm() {
                             />
                             {errors.email && <span className="text-xs text-red-500 font-bold px-1 block">{errors.email}</span>}
                         </div>
-
                         <div className="space-y-2 text-start">
                             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                                 {t('contact.form.subject', 'موضوع الرسالة')}
@@ -231,7 +211,6 @@ export default function ContactForm() {
                             />
                             {errors.title && <span className="text-xs text-red-500 font-bold px-1 block">{errors.title}</span>}
                         </div>
-
                         <CountryPhoneInput
                             value={formData.phone}
                             onChange={handlePhoneChange}
@@ -240,7 +219,6 @@ export default function ContactForm() {
                             defaultDialCode="+971"
                         />
                     </div>
-
                     <div className="space-y-2 text-start">
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 px-1">
                             {t('contact.form.message', 'رسالتك')}
@@ -255,7 +233,6 @@ export default function ContactForm() {
                         ></textarea>
                         {errors.message && <span className="text-xs text-red-500 font-bold px-1 block">{errors.message}</span>}
                     </div>
-
                     <div className="flex justify-center pt-4">
                         <button
                             type="submit"
@@ -267,10 +244,8 @@ export default function ContactForm() {
                         </button>
                     </div>
                 </form>
-
                 <ContactInfoCards contactInfo={contactInfo} />
             </motion.div>
-
             <AnimatePresence>
                 {toast.show && (
                     <motion.div

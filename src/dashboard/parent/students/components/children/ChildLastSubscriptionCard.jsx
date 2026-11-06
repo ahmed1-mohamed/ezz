@@ -4,9 +4,6 @@ import {
   Package,
   Calendar,
   Layers,
-  Sparkles,
-  ArrowRight,
-  ArrowLeft,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -109,7 +106,6 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
           <span>{t('parent.packages.manageSubscriptions', 'تجديد أو ترقية الباقة')}</span>
         </button>
       </div>
-      {/* 4 Info Pills Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {price !== null && (
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">

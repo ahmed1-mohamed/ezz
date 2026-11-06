@@ -105,14 +105,12 @@ export const adminRewardsApi = {
       } else if (status === 'rejected') {
         endpoint = '/api/v1/suggested-rewards/private/rejected';
       }
-
       const response = await api.get(endpoint, { skipLang: true });
       const resData = response.data;
       const data = Array.isArray(resData?.data)
         ? resData.data
         : (Array.isArray(resData) ? resData : []);
       const stats = resData?.stats || null;
-
       return { success: true, data, stats };
     } catch (error) {
       console.error(`API fetchSuggestions (${status}) failed:`, error);

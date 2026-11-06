@@ -22,7 +22,6 @@ export default function WebsiteStatsForm({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [errors, setErrors] = useState({});
-
   const onSave = () => {
     const result = statsSchema.safeParse(stats);
     if (!result.success) {
@@ -36,13 +35,11 @@ export default function WebsiteStatsForm({
     setErrors({});
     handleSaveStats();
   };
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">
         {t('adminDashboard.website.statsTitle', isRtl ? 'إضافة الأرقام الاحصائيه للموقع الإلكتروني' : 'Website Statistics')}
       </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-6">
         <div className="space-y-2 text-start">
           <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
@@ -62,7 +59,6 @@ export default function WebsiteStatsForm({
           />
           {errors.classes && <p className="text-xs text-red-500 font-medium">{errors.classes}</p>}
         </div>
-
         <div className="space-y-2 text-start">
           <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.teachersLabel', isRtl ? 'عدد المعلمين' : 'Teachers Count')}
@@ -81,7 +77,6 @@ export default function WebsiteStatsForm({
           />
           {errors.teachers && <p className="text-xs text-red-500 font-medium">{errors.teachers}</p>}
         </div>
-
         <div className="space-y-2 text-start">
           <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 block px-1">
             {t('adminDashboard.website.studentsLabel', isRtl ? 'عدد الطلاب' : 'Students Count')}
@@ -101,7 +96,6 @@ export default function WebsiteStatsForm({
           {errors.students && <p className="text-xs text-red-500 font-medium">{errors.students}</p>}
         </div>
       </div>
-
       {canUpdate && (
         <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
           <Button

@@ -2,12 +2,9 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
   X,
-  CreditCard,
   User,
   Users,
   Package,
-  Calendar,
-  Clock,
   Tag,
   CheckCircle2,
   AlertCircle,
@@ -16,8 +13,6 @@ import {
   Copy,
   Receipt,
   Check,
-  ShieldCheck,
-  DollarSign,
   Percent,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
@@ -54,7 +49,6 @@ export default function SubscriptionDetailsModal({
   isRtl = true,
 }) {
   const [copiedKey, setCopiedKey] = React.useState(null)
-
   useEffect(() => {
     if (!isOpen) return
     const prevOverflow = document.body.style.overflow
@@ -63,19 +57,14 @@ export default function SubscriptionDetailsModal({
       document.body.style.overflow = prevOverflow
     }
   }, [isOpen])
-
-  // Fetch full details if subscriptionId provided
   const { data: res, isLoading } = useQuery({
     queryKey: ['subscription-details', subscriptionId],
     queryFn: () => adminPaymentsApi.fetchSubscriptionById(subscriptionId),
     enabled: Boolean(isOpen && subscriptionId),
     staleTime: 60 * 1000,
   })
-
   if (!isOpen) return null
-
   const sub = res?.data || initialData || {}
-
   const handleCopy = (text, key) => {
     if (!text) return
     navigator.clipboard.writeText(text)
@@ -83,7 +72,6 @@ export default function SubscriptionDetailsModal({
     toast.success(isRtl ? 'تم النسخ إلى الحافظة' : 'Copied to clipboard')
     setTimeout(() => setCopiedKey(null), 2000)
   }
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'paid':
@@ -115,9 +103,7 @@ export default function SubscriptionDetailsModal({
         )
     }
   }
-
   const currency = sub.currency || 'USD'
-
   return createPortal(
     <div
       onClick={(e) => {
@@ -130,7 +116,6 @@ export default function SubscriptionDetailsModal({
         onClick={(e) => e.stopPropagation()}
         className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] text-start"
       >
-        {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-[#005953]/10 dark:bg-emerald-950/50 text-[#005953] dark:text-emerald-400 flex items-center justify-center font-bold">
@@ -148,7 +133,6 @@ export default function SubscriptionDetailsModal({
               </p>
             </div>
           </div>
-
           <button
             type="button"
             onClick={onClose}
@@ -157,8 +141,6 @@ export default function SubscriptionDetailsModal({
             <X size={20} />
           </button>
         </div>
-
-        {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6">
           {isLoading && !sub.id ? (
             <div className="py-16 flex flex-col items-center justify-center space-y-3">
@@ -169,7 +151,6 @@ export default function SubscriptionDetailsModal({
             </div>
           ) : (
             <>
-              {/* Financial Highlight Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40">
                   <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 block">
@@ -179,7 +160,6 @@ export default function SubscriptionDetailsModal({
                     {formatVal(sub.finalAmount, currency)}
                   </span>
                 </div>
-
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                   <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
                     {isRtl ? 'السعر الأساسي' : 'Base Amount'}
@@ -188,7 +168,6 @@ export default function SubscriptionDetailsModal({
                     {formatVal(sub.baseAmount, currency)}
                   </span>
                 </div>
-
                 <div className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40">
                   <span className="text-[11px] font-bold text-purple-800 dark:text-purple-300 block">
                     {isRtl ? 'الخصم' : 'Discount'}
@@ -197,7 +176,6 @@ export default function SubscriptionDetailsModal({
                     {formatVal(sub.discountAmount, currency)}
                   </span>
                 </div>
-
                 <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300 block">
                     {isRtl ? 'الضريبة' : 'Tax'} ({sub.taxPercentage || 0}%)
@@ -207,32 +185,25 @@ export default function SubscriptionDetailsModal({
                   </span>
                 </div>
               </div>
-
-              {/* Parent & Package 2-Column Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Parent Info Card */}
                 <div className="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3.5">
                   <div className="flex items-center gap-2.5 text-[#005953] dark:text-emerald-400 font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2.5">
                     <User size={18} />
                     <span>{isRtl ? 'بيانات ولي الأمر' : 'Parent Information'}</span>
                   </div>
-
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'الاسم:' : 'Name:'}</span>
                       <span className="font-bold text-slate-800 dark:text-slate-100">{sub.parent?.name || '-'}</span>
                     </div>
-
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'البريد الإلكتروني:' : 'Email:'}</span>
                       <span className="font-semibold text-slate-700 dark:text-slate-300 font-mono text-[11px]">{sub.parent?.email || '-'}</span>
                     </div>
-
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'رقم الهاتف:' : 'Phone:'}</span>
                       <span className="font-semibold text-slate-700 dark:text-slate-300 font-mono" dir="ltr">{sub.parent?.phone || '-'}</span>
                     </div>
-
                     {sub.parent?.id && (
                       <div className="flex items-center justify-between">
                         <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'معرف الحساب:' : 'Parent ID:'}</span>
@@ -241,20 +212,16 @@ export default function SubscriptionDetailsModal({
                     )}
                   </div>
                 </div>
-
-                {/* Package Info Card */}
                 <div className="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3.5">
                   <div className="flex items-center gap-2.5 text-[#005953] dark:text-emerald-400 font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2.5">
                     <Package size={18} />
                     <span>{isRtl ? 'بيانات الباقة المشترك بها' : 'Package Information'}</span>
                   </div>
-
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'اسم الباقة:' : 'Package:'}</span>
                       <span className="font-bold text-slate-800 dark:text-slate-100">{sub.package?.name || '-'}</span>
                     </div>
-
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'نوع الباقة:' : 'Type:'}</span>
                       <span className="font-semibold">
@@ -269,12 +236,10 @@ export default function SubscriptionDetailsModal({
                         )}
                       </span>
                     </div>
-
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'الحصص لكل طالب:' : 'Sessions per student:'}</span>
                       <span className="font-bold text-slate-700 dark:text-slate-300">{sub.package?.sessionsPerStudent ?? '-'}</span>
                     </div>
-
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">{isRtl ? 'إجمالي الحصص الممنوحة:' : 'Total sessions granted:'}</span>
                       <span className="font-extrabold text-[#005953] dark:text-emerald-400">
@@ -284,8 +249,6 @@ export default function SubscriptionDetailsModal({
                   </div>
                 </div>
               </div>
-
-              {/* Subscribed Students Section */}
               <div className="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
                   <div className="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-sm">
@@ -296,7 +259,6 @@ export default function SubscriptionDetailsModal({
                     ({(sub.students || []).length} {isRtl ? 'طلاب' : 'students'})
                   </span>
                 </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {(sub.students || []).length === 0 ? (
                     <p className="text-xs text-slate-400 italic py-2">
@@ -323,7 +285,6 @@ export default function SubscriptionDetailsModal({
                             )}
                           </div>
                         </div>
-
                         {sub.coupon?.appliedToStudentId === student.id && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-[10px] font-bold">
                             <Tag size={10} />
@@ -335,8 +296,6 @@ export default function SubscriptionDetailsModal({
                   )}
                 </div>
               </div>
-
-              {/* Coupon Info (If Applied) */}
               {sub.coupon && (
                 <div className="p-4 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2.5">
@@ -352,14 +311,11 @@ export default function SubscriptionDetailsModal({
                       </span>
                     </div>
                   </div>
-
                   <span className="font-bold text-purple-800 dark:text-purple-300">
                     -{formatVal(sub.discountAmount, currency)}
                   </span>
                 </div>
               )}
-
-              {/* Timestamps */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                   <span className="text-slate-400 dark:text-slate-500 font-medium block">
@@ -369,7 +325,6 @@ export default function SubscriptionDetailsModal({
                     {formatDate(sub.createdAt, isRtl)}
                   </span>
                 </div>
-
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                   <span className="text-slate-400 dark:text-slate-500 font-medium block">
                     {isRtl ? 'تاريخ الدفع الفعلي:' : 'Paid At:'}
@@ -378,7 +333,6 @@ export default function SubscriptionDetailsModal({
                     {formatDate(sub.paidAt, isRtl)}
                   </span>
                 </div>
-
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                   <span className="text-slate-400 dark:text-slate-500 font-medium block">
                     {isRtl ? 'انتهاء صلاحية الرابط:' : 'Expires At:'}
@@ -388,14 +342,11 @@ export default function SubscriptionDetailsModal({
                   </span>
                 </div>
               </div>
-
-              {/* Stripe Gateways References */}
               {(sub.stripeSessionId || sub.stripePaymentIntentId || sub.checkoutUrl) && (
                 <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800 space-y-2 text-xs">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block">
                     {isRtl ? 'بيانات بوابة الدفع (Stripe)' : 'Payment Gateway Data (Stripe)'}
                   </span>
-
                   {sub.stripeSessionId && (
                     <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                       <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
@@ -411,7 +362,6 @@ export default function SubscriptionDetailsModal({
                       </button>
                     </div>
                   )}
-
                   {sub.stripePaymentIntentId && (
                     <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                       <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
@@ -427,7 +377,6 @@ export default function SubscriptionDetailsModal({
                       </button>
                     </div>
                   )}
-
                   {sub.checkoutUrl && (
                     <a
                       href={sub.checkoutUrl}
@@ -444,8 +393,6 @@ export default function SubscriptionDetailsModal({
             </>
           )}
         </div>
-
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end bg-slate-50/50 dark:bg-slate-800/30">
           <button
             type="button"

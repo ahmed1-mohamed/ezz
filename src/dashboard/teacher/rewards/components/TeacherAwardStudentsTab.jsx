@@ -34,27 +34,22 @@ export default function TeacherAwardStudentsTab() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
-
   const [selectedGroupId, setSelectedGroupId] = useState('all');
   const [selectedGroupName, setSelectedGroupName] = useState('');
   const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
-
   const [studentAwards, setStudentAwards] = useState({});
   const [isGrantingRewards, setIsGrantingRewards] = useState(false);
-
   const { data: rewardsRes, isLoading: isLoadingRewards } = useQuery({
     queryKey: ['teacher-rewards'],
     queryFn: () => teacherRewardsApi.fetchRewards(),
     staleTime: 5 * 60 * 1000,
   });
-
   const { data: activeGroupsRes } = useQuery({
     queryKey: ['teacher-active-groups-rewards'],
     queryFn: () => teacherRewardsApi.fetchActiveGroups(),
     staleTime: 5 * 60 * 1000,
   });
-
   const activeGroups = useMemo(() => {
     const list = activeGroupsRes?.data;
     if (Array.isArray(list) && list.length > 0) {
@@ -66,7 +61,6 @@ export default function TeacherAwardStudentsTab() {
     }
     return [];
   }, [activeGroupsRes]);
-
   const { data: teacherStudentsRes, isLoading: isLoadingStudents } = useQuery({
     queryKey: ['teacher-students', selectedGroupId],
     queryFn: () =>
@@ -75,18 +69,15 @@ export default function TeacherAwardStudentsTab() {
       ),
     staleTime: 5 * 60 * 1000,
   });
-
   const { data: groupDetailsRes } = useQuery({
     queryKey: ['teacher-active-group-details', selectedGroupId],
     queryFn: () => teacherGroupsApi.fetchGroupDetails(selectedGroupId),
     enabled: Boolean(selectedGroupId && selectedGroupId !== 'all' && /^[0-9a-fA-F]{24}$/.test(selectedGroupId)),
     staleTime: 5 * 60 * 1000,
   });
-
   const rewardsList = useMemo(() => {
     const apiList = rewardsRes?.data;
     const list = Array.isArray(apiList) ? apiList : [];
-
     return list.map((r) => {
       let nameStr = r.name;
       if (typeof nameStr === 'object' && nameStr !== null) {
@@ -97,7 +88,6 @@ export default function TeacherAwardStudentsTab() {
         descStr = descStr.ar || descStr.en || '';
       }
       const iconStr = resolveRewardIcon(r.icon);
-
       return {
         id: r.id || r._id,
         name: nameStr,
@@ -108,7 +98,6 @@ export default function TeacherAwardStudentsTab() {
       };
     });
   }, [rewardsRes]);
-
   const studentRewardItems = useMemo(() => {
     return rewardsList.map((r) => ({
       id: r.id,
@@ -117,16 +106,13 @@ export default function TeacherAwardStudentsTab() {
       backgroundColor: r.backgroundColor,
     }));
   }, [rewardsList]);
-
   const studentsList = useMemo(() => {
     let rawList = [];
-
     if (Array.isArray(teacherStudentsRes?.data) && teacherStudentsRes.data.length > 0) {
       rawList = teacherStudentsRes.data;
     } else if (Array.isArray(groupDetailsRes?.data?.students) && groupDetailsRes.data.students.length > 0) {
       rawList = groupDetailsRes.data.students;
     }
-
     let mapped = rawList.map((s, idx) => {
       const studentId = s.id || s._id || s.student_id || `st-${idx + 1}`;
       let name = s.name;
@@ -135,12 +121,10 @@ export default function TeacherAwardStudentsTab() {
       }
       name = name || `طالب ${idx + 1}`;
       const initial = name.replace(/^أ\.\s*/, '').trim().charAt(0) || 'ط';
-
       let gName = s.groupName || s.group?.name || '';
       if (typeof gName === 'object' && gName !== null) {
         gName = gName.ar || gName.en || '';
       }
-
       return {
         student_id: String(studentId),
         name,
@@ -151,40 +135,33 @@ export default function TeacherAwardStudentsTab() {
         recentRewards: Array.isArray(s.rewards) ? s.rewards : (Array.isArray(s.badges) ? s.badges : []),
       };
     });
-
     if (selectedGroupId !== 'all') {
       mapped = mapped.filter((s) => {
         if (!s.groupId) return true;
         return String(s.groupId) === String(selectedGroupId);
       });
     }
-
     if (studentSearchQuery.trim()) {
       const q = studentSearchQuery.trim().toLowerCase();
       mapped = mapped.filter((s) => s.name.toLowerCase().includes(q));
     }
-
     return mapped;
   }, [teacherStudentsRes, groupDetailsRes, selectedGroupId, studentSearchQuery]);
-
   const totalSelectedCount = useMemo(() => {
     return Object.values(studentAwards).reduce(
       (acc, list) => acc + (Array.isArray(list) ? list.length : 0),
       0
     );
   }, [studentAwards]);
-
   const awardedStudentsCount = useMemo(() => {
     return Object.values(studentAwards).filter(
       (list) => Array.isArray(list) && list.length > 0
     ).length;
   }, [studentAwards]);
-
   const handleToggleReward = (studentId, rewardId) => {
     setStudentAwards((prev) => {
       const currentList = prev[studentId] || [];
       const isAlreadySelected = currentList.includes(rewardId);
-
       if (isAlreadySelected) {
         const nextList = currentList.filter((id) => id !== rewardId);
         const next = { ...prev };
@@ -195,28 +172,23 @@ export default function TeacherAwardStudentsTab() {
         }
         return next;
       }
-
       const currentTotal = Object.values(prev).reduce(
         (acc, list) => acc + (Array.isArray(list) ? list.length : 0),
         0
       );
-
       if (currentTotal >= 3) {
         toast.error(t('teacher.max3RewardsToast', 'يمكنك منح حد أقصى 3 مكافآت في الجلسة الواحدة'));
         return prev;
       }
-
       return {
         ...prev,
         [studentId]: [...currentList, rewardId],
       };
     });
   };
-
   const handleClearAllSelections = () => {
     setStudentAwards({});
   };
-
   const handleGrantAllRewards = async () => {
     const pairs = [];
     Object.entries(studentAwards).forEach(([studentId, rewardIds]) => {
@@ -224,16 +196,13 @@ export default function TeacherAwardStudentsTab() {
         pairs.push({ studentId, rewardId });
       });
     });
-
     if (pairs.length === 0) {
       toast.error(t('teacher.selectAtLeastOneRewardToast', 'يرجى اختيار مكافأة واحدة على الأقل لمنحها'));
       return;
     }
-
     setIsGrantingRewards(true);
     let successCount = 0;
     let lastMessage = '';
-
     for (const pair of pairs) {
       const res = await teacherRewardsApi.awardRewardToStudent(pair.studentId, pair.rewardId);
       if (res.success) {
@@ -242,7 +211,6 @@ export default function TeacherAwardStudentsTab() {
       }
     }
     setIsGrantingRewards(false);
-
     if (successCount > 0) {
       toast.success(
         lastMessage || t('teacher.grantSuccessToast', 'تم منح المكافآت للطلاب بنجاح وسيتم إشعار أولياء أمورهم')
@@ -254,7 +222,6 @@ export default function TeacherAwardStudentsTab() {
       toast.error(t('teacher.grantErrorToast', 'تعذر منح المكافآت، يرجى المحاولة مرة أخرى'));
     }
   };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-[#f6eedd] dark:bg-amber-950/30 border border-[#ecd9b8] dark:border-amber-800/40 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
@@ -269,7 +236,6 @@ export default function TeacherAwardStudentsTab() {
             {t('teacher.currentSessionRewardsNotice', 'يمكنك منح حد أقصى 3 مكافآت في الجلسة الواحدة لتعزيز المنافسة الإيجابية بين الطلاب')}
           </p>
         </div>
-
         <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
           <div className="px-4 py-2 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-[#ecd9b8] dark:border-amber-800/40 flex items-center gap-2">
             <Award size={16} className="text-[#cca332]" />
@@ -277,13 +243,11 @@ export default function TeacherAwardStudentsTab() {
               تم اختيار <span className="font-mono font-black text-sm text-[#00594C] dark:text-emerald-400">{totalSelectedCount}</span> / 3
             </span>
           </div>
-
           <div className="w-12 h-12 rounded-2xl bg-[#cca332] text-white flex items-center justify-center font-bold shadow-xs shrink-0">
             <Gift size={24} />
           </div>
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-7 text-start">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div>
@@ -297,7 +261,6 @@ export default function TeacherAwardStudentsTab() {
               {t('teacher.filterActiveGroupsSubtitle', 'اختر المجموعة أو ابحث عن الطالب ثم انقر على المكافأة المناسبة لمنحها')}
             </p>
           </div>
-
           <div className="flex items-center gap-3 flex-wrap">
             <div className="relative">
               <button
@@ -320,13 +283,11 @@ export default function TeacherAwardStudentsTab() {
                   }`}
                 />
               </button>
-
               {isGroupDropdownOpen && (
                 <div className="absolute top-full mt-2 start-0 w-64 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-2xl shadow-xl z-30 py-2 space-y-1">
                   <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800">
                     {t('teacher.activeGroupsOnly', 'المجموعات النشطة فقط')} ({activeGroups.length})
                   </div>
-
                   <button
                     type="button"
                     onClick={() => {
@@ -343,7 +304,6 @@ export default function TeacherAwardStudentsTab() {
                     <span>{t('teacher.allActiveGroups', 'جميع المجموعات النشطة')}</span>
                     {selectedGroupId === 'all' && <CheckCircle2 size={14} className="text-[#00594C]" />}
                   </button>
-
                   {activeGroups.map((grp) => (
                     <button
                       key={grp.id}
@@ -368,7 +328,6 @@ export default function TeacherAwardStudentsTab() {
                 </div>
               )}
             </div>
-
             <div className="relative w-full sm:w-64">
               <input
                 type="text"
@@ -390,7 +349,6 @@ export default function TeacherAwardStudentsTab() {
             </div>
           </div>
         </div>
-
         <div className="space-y-3.5">
           <div className="flex items-center justify-between">
             <h3 className="text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 flex items-center gap-2">
@@ -401,7 +359,6 @@ export default function TeacherAwardStudentsTab() {
               {rewardsList.length} مكافأة معتمدة
             </span>
           </div>
-
           {isLoadingRewards ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
@@ -453,7 +410,6 @@ export default function TeacherAwardStudentsTab() {
             </div>
           )}
         </div>
-
         <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -465,7 +421,6 @@ export default function TeacherAwardStudentsTab() {
                 انقر على اسم المكافأة أسفل اسم كل طالب لتحديدها له
               </p>
             </div>
-
             {totalSelectedCount > 0 && (
               <button
                 type="button"
@@ -477,7 +432,6 @@ export default function TeacherAwardStudentsTab() {
               </button>
             )}
           </div>
-
           {isLoadingStudents ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {[1, 2, 3, 4].map((i) => (
@@ -498,7 +452,6 @@ export default function TeacherAwardStudentsTab() {
               {studentsList.map((student) => {
                 const awardedList = studentAwards[student.student_id] || [];
                 const isSelected = awardedList.length > 0;
-
                 return (
                   <div
                     key={student.student_id}
@@ -524,7 +477,6 @@ export default function TeacherAwardStudentsTab() {
                           )}
                         </div>
                       </div>
-
                       <div className="flex items-center gap-2 shrink-0">
                         {isSelected && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#00594C] text-white flex items-center gap-1 shadow-xs">
@@ -537,7 +489,6 @@ export default function TeacherAwardStudentsTab() {
                         </span>
                       </div>
                     </div>
-
                     {studentRewardItems.length === 0 ? (
                       <p className="text-xs text-slate-400 font-medium py-1">
                         {t('teacher.noAvailableRewards', 'لا توجد مكافآت متاحة حالياً')}
@@ -546,7 +497,6 @@ export default function TeacherAwardStudentsTab() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {studentRewardItems.map((rew) => {
                           const isAwarded = awardedList.includes(rew.id);
-
                           return (
                             <button
                               key={rew.id}
@@ -571,7 +521,6 @@ export default function TeacherAwardStudentsTab() {
             </div>
           )}
         </div>
-
         <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold text-start">
             {totalSelectedCount > 0 ? (
@@ -582,7 +531,6 @@ export default function TeacherAwardStudentsTab() {
               <span>اختر الطلاب والمكافآت لتفعيل زر المنح</span>
             )}
           </div>
-
           <div className="flex items-center gap-3">
             {totalSelectedCount > 0 && (
               <button
@@ -593,7 +541,6 @@ export default function TeacherAwardStudentsTab() {
                 إلغاء التحديد
               </button>
             )}
-
             <button
               type="button"
               onClick={handleGrantAllRewards}

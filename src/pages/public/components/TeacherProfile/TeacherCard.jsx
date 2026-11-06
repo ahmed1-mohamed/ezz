@@ -17,15 +17,12 @@ export default function TeacherCard({ teacher, t, isRtl }) {
     const navigate = useNavigate()
     const [hasImgError, setHasImgError] = useState(false)
     const [prevImg, setPrevImg] = useState(teacher?.image)
-
     if (prevImg !== teacher?.image) {
         setPrevImg(teacher?.image)
         setHasImgError(false)
     }
-
     const imgUrl = hasImgError ? null : getImageUrl(teacher?.image)
     const teacherInitial = teacher?.name ? teacher.name.trim().charAt(0) : 'م'
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -51,20 +48,17 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                     </div>
                 )}
             </div>
-
             <h1 className="text-2xl sm:text-[28px] font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-1">
                 {teacher?.name}
             </h1>
             <p className="text-slate-600 dark:text-slate-300 font-semibold text-center mb-6 text-sm sm:text-base">
                 {teacher?.title}
             </p>
-
             <div className="flex items-center gap-4 mb-8 w-full">
                 <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 font-bold">
                     <span className="text-lg">{teacher?.rating || '5.0'}</span>
                     <Star className="w-5 h-5 fill-[#9B7B16] dark:fill-amber-400" />
                 </div>
-
                 <div className="flex-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
                     {(teacher?.tags || []).map((tag, i) => (
                         <span key={i} className="whitespace-nowrap bg-[#F2F2F2] dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-full text-sm font-bold">
@@ -73,7 +67,6 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                     ))}
                 </div>
             </div>
-
             <div className="w-full space-y-3">
                 <button
                     onClick={() => navigate('/contact')}

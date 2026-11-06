@@ -18,11 +18,9 @@ export default function ChangeGroupModal({
   const [isLoadingGroups, setIsLoadingGroups] = useState(true)
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
   const currentGroups = Array.isArray(student?.groups) ? student.groups : []
   const currentGroup = currentGroups[0] || null
   const studentDisplayName = textOf(student?.name) || '-'
-
   useEffect(() => {
     let isMounted = true
     adminGroupsApi.fetchLocalizedActiveGroups({ limit: 100 })
@@ -37,7 +35,6 @@ export default function ChangeGroupModal({
       isMounted = false
     }
   }, [])
-
   const filteredGroups = useMemo(() => {
     const currentIds = currentGroups.map((g) => g.id)
     const available = groups.filter((g) => !currentIds.includes(g.id))
@@ -47,9 +44,7 @@ export default function ChangeGroupModal({
       textOf(g.name).toLowerCase().includes(query) || textOf(g.teacher).toLowerCase().includes(query)
     )
   }, [groups, currentGroups, searchQuery])
-
   if (!isOpen || !student) return null
-
   const handleConfirmChange = async () => {
     if (!selectedGroup) {
       showErrorToast(isRtl ? 'الرجاء اختيار مجموعة جديدة!' : 'Please select a new group!', isRtl)
@@ -60,18 +55,14 @@ export default function ChangeGroupModal({
       await onChangeGroup(currentGroup?.id || null, selectedGroup.id)
       onClose()
     } catch {
-      // error toast is shown by the caller
     } finally {
       setIsSubmitting(false)
     }
   }
-
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
-
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
-
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             {isRtl ? 'تغيير المجموعة للطالب' : 'Change Group for Student'}
@@ -84,7 +75,6 @@ export default function ChangeGroupModal({
             <X size={20} />
           </button>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -97,7 +87,6 @@ export default function ChangeGroupModal({
               className="w-full bg-[#f3f7f6] dark:bg-slate-950/60 border border-slate-100/40 dark:border-slate-800/40 text-slate-500 dark:text-slate-400 rounded-2xl py-3 px-4 outline-none font-semibold text-sm cursor-not-allowed"
             />
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'المجموعة الحالية' : 'Current Group'}
@@ -110,12 +99,10 @@ export default function ChangeGroupModal({
             />
           </div>
         </div>
-
         <div className="space-y-4">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
             {isRtl ? 'اختر المجموعة الجديدة' : 'Select New Group'}
           </label>
-
           <div className="relative">
             <div className={`absolute inset-y-0 ${isRtl ? 'left-3.5' : 'right-3.5'} flex items-center pointer-events-none text-slate-400`}>
               <Search size={16} />
@@ -128,7 +115,6 @@ export default function ChangeGroupModal({
               className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} outline-none transition-all text-sm`}
             />
           </div>
-
           <div className="space-y-3 max-h-[35vh] overflow-y-auto pe-1">
             {isLoadingGroups ? (
               <div className="flex justify-center py-6">
@@ -182,7 +168,6 @@ export default function ChangeGroupModal({
             )}
           </div>
         </div>
-
         <button
           type="button"
           onClick={handleConfirmChange}

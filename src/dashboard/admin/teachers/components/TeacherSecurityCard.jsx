@@ -1,5 +1,3 @@
-// Password fields for creating a teacher. Changing an existing teacher's password is a separate
-// action on the details page (ChangeTeacherPasswordModal → PATCH /users/:userId/change-password).
 export default function TeacherSecurityCard({
   formData,
   onChange,
@@ -12,7 +10,6 @@ export default function TeacherSecurityCard({
           {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
         </h2>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -28,7 +25,6 @@ export default function TeacherSecurityCard({
             required
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'تأكيد كلمة المرور *' : 'Confirm Password *'}

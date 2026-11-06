@@ -20,7 +20,6 @@ export default function StudentStep1({
     () => sortCountryCodes(countryCodes, isRtl),
     [countryCodes, isRtl]
   )
-
   const sortedCountries = useMemo(
     () => sortCountries(countries, isRtl),
     [countries, isRtl]
@@ -30,7 +29,6 @@ export default function StudentStep1({
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
         {isRtl ? 'البيانات الشخصية' : 'Personal Details'}
       </h3>
-
       <div className="flex flex-col items-center justify-center space-y-2 py-2">
         <label htmlFor="profileImageInput" className="relative cursor-pointer group flex flex-col items-center justify-center w-36 h-36 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 bg-[#f3f7f6] dark:bg-slate-950/20 transition-all overflow-hidden">
           {formData.profileImage ? (
@@ -68,7 +66,6 @@ export default function StudentStep1({
           {isRtl ? 'صورة شخصية (اختياري)' : 'Profile Picture (Optional)'}
         </span>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -97,7 +94,6 @@ export default function StudentStep1({
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -140,7 +136,6 @@ export default function StudentStep1({
             />
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'البريد الإلكتروني *' : 'Email Address *'}
@@ -156,7 +151,6 @@ export default function StudentStep1({
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -179,7 +173,6 @@ export default function StudentStep1({
             })}
           </select>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
             <Calendar size={14} />
@@ -194,7 +187,6 @@ export default function StudentStep1({
           />
         </div>
       </div>
-
       <div>
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {isRtl ? 'المستوى التعليمي للطالب *' : 'Student Educational Level *'}

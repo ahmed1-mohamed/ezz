@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Building2,
   Smartphone,
   Zap,
   Globe,
+  Banknote,
   Star,
   ShieldCheck,
   Clock,
@@ -15,15 +16,16 @@ import {
   CreditCard,
   Eye,
   Wallet,
-} from 'lucide-react'
+} from 'lucide-react';
 
 const getMethodIcon = (type) => {
-  if (type === 'bank_transfer') return Building2
-  if (type === 'mobile_wallet') return Smartphone
-  if (type === 'instapay') return Zap
-  if (type === 'paypal') return Globe
-  return CreditCard
-}
+  if (type === 'bank_transfer') return Building2;
+  if (type === 'instapay') return Zap;
+  if (type === 'mobile_wallet') return Smartphone;
+  if (type === 'paypal') return Globe;
+  if (type === 'western_union') return Banknote;
+  return CreditCard;
+};
 
 const getWalletProviderName = (provider, t) => {
   const map = {
@@ -31,10 +33,11 @@ const getWalletProviderName = (provider, t) => {
     orange_cash: t('teacher.earnings.methods.walletProviders.orange_cash', 'أورنج كاش'),
     etisalat_cash: t('teacher.earnings.methods.walletProviders.etisalat_cash', 'اتصالات كاش'),
     we_pay: t('teacher.earnings.methods.walletProviders.we_pay', 'وي باي (WE Pay)'),
+    stc_pay: t('teacher.earnings.methods.walletProviders.stc_pay', 'STC Pay (إس تي سي باي)'),
     smart_wallet: t('teacher.earnings.methods.walletProviders.smart_wallet', 'محفظة ذكية'),
-  }
-  return map[provider] || provider || t('teacher.earnings.methods.walletProviders.other', 'محفظة إلكترونية')
-}
+  };
+  return map[provider] || provider || t('teacher.earnings.methods.walletProviders.other', 'محفظة إلكترونية');
+};
 
 export default function TeacherPaymentMethodsList({
   methods = [],
@@ -46,15 +49,15 @@ export default function TeacherPaymentMethodsList({
   onViewProof,
   t,
 }) {
-  const [copiedField, setCopiedField] = useState(null)
+  const [copiedField, setCopiedField] = useState(null);
   const handleCopy = (key, text) => {
-    if (!text) return
-    navigator.clipboard?.writeText(String(text))
-    setCopiedField(key)
+    if (!text) return;
+    navigator.clipboard?.writeText(String(text));
+    setCopiedField(key);
     setTimeout(() => {
-      setCopiedField(null)
-    }, 2000)
-  }
+      setCopiedField(null);
+    }, 2000);
+  };
   if (isLoading && methods.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -73,7 +76,7 @@ export default function TeacherPaymentMethodsList({
           </div>
         ))}
       </div>
-    )
+    );
   }
   if (methods.length === 0) {
     return (
@@ -98,7 +101,7 @@ export default function TeacherPaymentMethodsList({
           <span>{t('teacher.earnings.methods.addBtn', 'إضافة طريقة دفع')}</span>
         </button>
       </div>
-    )
+    );
   }
   return (
     <div className="space-y-4">
@@ -122,20 +125,23 @@ export default function TeacherPaymentMethodsList({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {methods.map((item) => {
-          const Icon = getMethodIcon(item.type)
-          const isBank = item.type === 'bank_transfer'
-          const isWallet = item.type === 'mobile_wallet'
-          const isInstapay = item.type === 'instapay'
-          const isPaypal = item.type === 'paypal'
+          const Icon = getMethodIcon(item.type);
+          const isBank = item.type === 'bank_transfer';
+          const isInstapay = item.type === 'instapay';
+          const isWallet = item.type === 'mobile_wallet';
+          const isPaypal = item.type === 'paypal';
+          const isWesternUnion = item.type === 'western_union';
           const methodTitle = isBank
             ? item.bankName || t('teacher.earnings.methods.types.bank_transfer', 'حساب بنكي')
-            : isWallet
-            ? getWalletProviderName(item.walletProvider, t)
             : isInstapay
             ? t('teacher.earnings.methods.types.instapay', 'إنستاباي (InstaPay)')
+            : isWallet
+            ? getWalletProviderName(item.walletProvider, t)
             : isPaypal
             ? t('teacher.earnings.methods.types.paypal', 'باي بال (PayPal)')
-            : t('teacher.earnings.methods.types.other', 'طريقة أخرى')
+            : isWesternUnion
+            ? t('teacher.earnings.methods.types.western_union', 'ويسترن يونيون (Western Union)')
+            : t('teacher.earnings.methods.types.other', 'طريقة أخرى');
           return (
             <div
               key={item.id}
@@ -155,9 +161,11 @@ export default function TeacherPaymentMethodsList({
                       <h3 className="text-base font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
                         <span>{methodTitle}</span>
                       </h3>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
-                        {item.accountHolderName}
-                      </p>
+                      {item.accountHolderName && (
+                        <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
+                          {item.accountHolderName}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -180,6 +188,7 @@ export default function TeacherPaymentMethodsList({
                     )}
                   </div>
                 </div>
+
                 <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2 text-xs">
                   {isBank && (
                     <>
@@ -237,6 +246,36 @@ export default function TeacherPaymentMethodsList({
                       )}
                     </>
                   )}
+
+                  {isInstapay && (
+                    <>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-slate-400 dark:text-slate-500 font-medium">
+                          {t('teacher.earnings.methods.instapayAddress', 'عنوان IPA')}:
+                        </span>
+                        <div className="flex items-center gap-1.5 font-bold font-mono text-slate-800 dark:text-white">
+                          <span dir="ltr">{item.instapayAddress}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(`insta_${item.id}`, item.instapayAddress)}
+                            className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                            title={t('teacher.earnings.methods.copySuccess', 'نسخ')}
+                          >
+                            {copiedField === `insta_${item.id}` ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                          </button>
+                        </div>
+                      </div>
+                      {item.bankName && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-400 dark:text-slate-500 font-medium">
+                            {t('teacher.earnings.methods.instapayBankName', 'البنك / المحفظة المربوطة')}:
+                          </span>
+                          <span className="font-bold text-slate-800 dark:text-white">{item.bankName}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   {isWallet && (
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">
@@ -255,33 +294,7 @@ export default function TeacherPaymentMethodsList({
                       </div>
                     </div>
                   )}
-                  {isInstapay && (
-                    <>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-slate-400 dark:text-slate-500 font-medium">
-                          {t('teacher.earnings.methods.instapayAddress', 'عنوان IPA')}:
-                        </span>
-                        <div className="flex items-center gap-1.5 font-bold font-mono text-slate-800 dark:text-white">
-                          <span dir="ltr">{item.instapayAddress}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(`insta_${item.id}`, item.instapayAddress)}
-                            className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                          >
-                            {copiedField === `insta_${item.id}` ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                          </button>
-                        </div>
-                      </div>
-                      {item.phoneNumber && (
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-slate-400 dark:text-slate-500 font-medium">
-                            {t('teacher.earnings.modal.phoneNumberLabel', 'الهاتف')}:
-                          </span>
-                          <span className="font-bold font-mono text-slate-800 dark:text-white" dir="ltr">{item.phoneNumber}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
+
                   {isPaypal && (
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-slate-400 dark:text-slate-500 font-medium">
@@ -293,13 +306,50 @@ export default function TeacherPaymentMethodsList({
                           type="button"
                           onClick={() => handleCopy(`pp_${item.id}`, item.paypalEmail)}
                           className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
+                          title={t('teacher.earnings.methods.copySuccess', 'نسخ')}
                         >
                           {copiedField === `pp_${item.id}` ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                         </button>
                       </div>
                     </div>
                   )}
+
+                  {isWesternUnion && (
+                    <>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-slate-400 dark:text-slate-500 font-medium">
+                          {t('teacher.earnings.methods.country', 'الدولة والمدينة')}:
+                        </span>
+                        <span className="font-bold text-slate-800 dark:text-white">{item.country}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-slate-400 dark:text-slate-500 font-medium">
+                          {t('teacher.earnings.methods.phoneNumber', 'رقم الهاتف')}:
+                        </span>
+                        <div className="flex items-center gap-1.5 font-bold font-mono text-slate-800 dark:text-white">
+                          <span dir="ltr">{item.phoneNumber}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(`wu_phone_${item.id}`, item.phoneNumber)}
+                            className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                            title={t('teacher.earnings.methods.copySuccess', 'نسخ')}
+                          >
+                            {copiedField === `wu_phone_${item.id}` ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                          </button>
+                        </div>
+                      </div>
+                      {item.nationalIdOrPassport && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-400 dark:text-slate-500 font-medium">
+                            {t('teacher.earnings.methods.nationalIdOrPassport', 'رقم الهوية أو الجواز')}:
+                          </span>
+                          <span className="font-bold font-mono text-slate-800 dark:text-white" dir="ltr">{item.nationalIdOrPassport}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
+
                 {item.notes && (
                   <p className="text-xs text-slate-500 dark:text-slate-400 italic line-clamp-2 px-1">
                     &quot;{item.notes}&quot;
@@ -316,6 +366,7 @@ export default function TeacherPaymentMethodsList({
                   </button>
                 )}
               </div>
+
               <div className="flex items-center justify-between gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
                 {!item.isDefault ? (
                   <button
@@ -341,7 +392,7 @@ export default function TeacherPaymentMethodsList({
                   <button
                     type="button"
                     onClick={() => onDelete(item)}
-                    className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                    className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                     title={t('teacher.earnings.methods.deleteBtn', 'حذف')}
                   >
                     <Trash2 size={16} />
@@ -349,10 +400,9 @@ export default function TeacherPaymentMethodsList({
                 </div>
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
-

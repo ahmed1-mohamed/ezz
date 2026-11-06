@@ -43,7 +43,6 @@ export default function TeachersFilterBar({
             </button>
           </div>
         </div>
-
         <div className="w-full md:w-64 space-y-2 text-start">
           <label htmlFor="subject-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
             {t('teacher.subjectLabel', 'التخصص / المادة')}
@@ -67,7 +66,6 @@ export default function TeachersFilterBar({
             <BookOpen className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
           </div>
         </div>
-
         <div className="w-full md:w-64 space-y-2 text-start">
           <label htmlFor="country-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
             {t('teacher.countryLabel', 'الدولة')}
@@ -94,7 +92,6 @@ export default function TeachersFilterBar({
             <Award className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
           </div>
         </div>
-
         <button
           type="button"
           onClick={onResetFilters}

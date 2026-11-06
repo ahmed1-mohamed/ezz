@@ -24,20 +24,16 @@ export const complaintsApi = {
       const pendingCount = filtered.filter((i) => i.status === 'pending').length
       const resolvedCount = filtered.filter((i) => i.status === 'resolved').length
       const rejectedCount = filtered.filter((i) => i.status === 'rejected').length
-
       if (status && status !== 'all') {
         filtered = filtered.filter((i) => i.status === status)
       }
-
       if (type && type !== 'all') {
         filtered = filtered.filter((i) => matchesType(i.type, type))
       }
-
       const pageNum = Number(page || 1)
       const limitNum = Number(limit || 10)
       const startIndex = (pageNum - 1) * limitNum
       const paginatedItems = filtered.slice(startIndex, startIndex + limitNum)
-
       return {
         data: paginatedItems,
         pagination: {
@@ -54,13 +50,11 @@ export const complaintsApi = {
         },
       }
     }
-
      const urlsToTry = []
     if (status && status !== 'all') {
       urlsToTry.push(`${BASE_URL}/${status}`)
     }
     urlsToTry.push(BASE_URL)
-
     for (const url of urlsToTry) {
       try {
         const isSubpath = url !== BASE_URL
@@ -71,19 +65,16 @@ export const complaintsApi = {
           limit,
           ...otherParams,
         })
-
         const response = await api.get(url, {
           params: queryParams,
           skipLang: true,
         })
-
         const resData = response.data
         const items = Array.isArray(resData?.data)
           ? resData.data
           : Array.isArray(resData)
           ? resData
           : []
-
         if (type && type !== 'all') {
           const typeFiltered = items.filter((i) => matchesType(i.type, type))
           return {
@@ -94,7 +85,6 @@ export const complaintsApi = {
               : undefined,
           }
         }
-
         return resData
       } catch (err) {
          if (err.response?.status === 400 || err.response?.status === 404) {
@@ -103,20 +93,17 @@ export const complaintsApi = {
         throw err
       }
     }
-
      try {
       const fallbackResponse = await api.get(BASE_URL, {
         params: { limit: 200 },
         skipLang: true,
       })
-
       const resData = fallbackResponse.data
       const allItems = Array.isArray(resData?.data)
         ? resData.data
         : Array.isArray(resData)
         ? resData
         : []
-
       return applyInMemoryFilters(allItems, resData?.statistics)
     } catch {
        const simpleRes = await api.get(BASE_URL, { skipLang: true })

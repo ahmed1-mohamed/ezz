@@ -84,7 +84,6 @@ const normalizeScheduleList = (rawList) => {
   if (!Array.isArray(rawList) || rawList.length === 0) {
     return []
   }
-
   return rawList.map((s) => {
     if (!s) return null
     let day = 'sunday'
@@ -104,7 +103,6 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
   const isRtlResolved = isRtl !== undefined ? isRtl : i18n.language.startsWith('ar')
   const BackArrow = isRtlResolved ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
-
   const [formData, setFormData] = useState({
     name: safeExtractName(group?.name, 'ar'),
     nameAr: safeExtractName(group?.name, 'ar') || safeExtractName(group?.nameAr, 'ar'),
@@ -122,13 +120,10 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     image: group?.image || null,
     imageFile: null,
   })
-
   const [schedule, setSchedule] = useState(() => {
     return normalizeScheduleList(group?.weeklySchedule || group?.schedule)
   })
-
   const [prevGroup, setPrevGroup] = useState(group)
-
   if (prevGroup !== group) {
     setPrevGroup(group)
     if (group) {
@@ -152,18 +147,15 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       setSchedule(normalizeScheduleList(group.weeklySchedule || group.schedule))
     }
   }
-
   const [newDay, setNewDay] = useState('sunday')
   const [newTimeFrom, setNewTimeFrom] = useState('16:00')
   const [newTimeTo, setNewTimeTo] = useState('17:30')
   const [errors, setErrors] = useState({})
-
   const [countries, setCountries] = useState([])
   const [curricula, setCurricula] = useState([])
   const [levels, setLevels] = useState([])
   const [teachers, setTeachers] = useState([])
   const [languages, setLanguages] = useState([])
-
   useEffect(() => {
     let isMounted = true
     const loadSelectOptions = async () => {
@@ -175,9 +167,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           teachersApi.fetchTeachersList(),
           explanationLanguagesApi.fetchLanguages(),
         ])
-
         if (!isMounted) return
-
         const extractArray = (res) => {
           if (!res) return []
           if (Array.isArray(res)) return res
@@ -186,7 +176,6 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           if (Array.isArray(res.items)) return res.items
           return []
         }
-
         if (cRes.status === 'fulfilled' && cRes.value) {
           const list = normalizeCountries(extractArray(cRes.value))
           if (list.length > 0) setCountries(list)
@@ -211,13 +200,11 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
         console.warn('Could not load options for group form:', err)
       }
     }
-
     loadSelectOptions()
     return () => {
       isMounted = false
     }
   }, [])
-
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
     if (errors[key]) {
@@ -228,7 +215,6 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       })
     }
   }
-
   const handleImageSelect = (e) => {
     const file = e.target.files[0]
     e.target.value = ''
@@ -243,7 +229,6 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     }
     setFormData((prev) => ({ ...prev, image: URL.createObjectURL(file), imageFile: file }))
   }
-
   const handleAddSchedule = () => {
     const exists = schedule.find((s) => s.day === newDay && s.startTime === newTimeFrom)
     if (exists) return
@@ -256,24 +241,20 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       })
     }
   }
-
   const handleRemoveSchedule = (day, index) => {
     setSchedule((prev) => prev.filter((_, idx) => idx !== index))
   }
-
   const handleSave = (e) => {
     e.preventDefault()
     const newErrors = {}
     const nameAr = (formData.nameAr || formData.name || '').trim()
     const nameEn = (formData.nameEn || '').trim()
-
     if (!nameAr) {
       newErrors.nameAr = t('adminDashboard.groups.enterGroupNameArError', 'الرجاء إدخال اسم المجموعة باللغة العربية!')
     }
     if (!nameEn) {
       newErrors.nameEn = t('adminDashboard.groups.enterGroupNameEnError', 'الرجاء إدخال اسم المجموعة باللغة الإنجليزية!')
     }
-
     if (!formData.country) {
       newErrors.country = t('adminDashboard.groups.selectCountryError', 'الرجاء اختيار الدولة!')
     }
@@ -289,16 +270,13 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
     if (!formData.teacher) {
       newErrors.teacher = t('adminDashboard.groups.selectTeacherError', 'الرجاء اختيار المعلم!')
     }
-
     const maxStudentsNum = Number(formData.maxStudents)
     if (!formData.maxStudents || isNaN(maxStudentsNum) || maxStudentsNum < 1) {
       newErrors.maxStudents = t('adminDashboard.groups.maxStudentsError', 'الحد الأقصى للطلاب يجب أن يكون 1 على الأقل!')
     }
-
     if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
       newErrors.endDate = t('adminDashboard.groups.dateOrderError', 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء!')
     }
-
     if (schedule && schedule.length > 0) {
       const invalidSlot = schedule.find((s) => !s.day || !s.startTime || !s.endTime)
       if (invalidSlot) {
@@ -310,15 +288,12 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
         }
       }
     }
-
     setErrors(newErrors)
-
     const firstError = Object.values(newErrors)[0]
     if (firstError) {
       showErrorToast(firstError, isRtlResolved)
       return
     }
-
     const payload = {
       name: {
         ar: nameAr,
@@ -341,10 +316,8 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
       ...(group && { status: formData.status || 'active' }),
       ...(formData.imageFile ? { imageFile: formData.imageFile } : {}),
     }
-
     onSave(payload)
   }
-
   return (
     <div className="space-y-6" dir={isRtlResolved ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between">
@@ -356,16 +329,13 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           <BackArrow size={18} />
           <span>{t('common.cancel', 'إلغاء')}</span>
         </button>
-
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">
           {group
             ? t('adminDashboard.groups.editDetails', 'تعديل بيانات المجموعة')
             : t('adminDashboard.groups.createNewGroup', 'إنشاء مجموعة جديدة')}
         </h2>
-
         <div className="w-16" />
       </div>
-
       <form onSubmit={handleSave} className="space-y-6">
         <GroupInfoCard
           formData={formData}
@@ -382,7 +352,6 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           isEditing={Boolean(group)}
           errors={errors}
         />
-
         <GroupScheduleCard
           schedule={schedule}
           newDay={newDay}
@@ -397,7 +366,6 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           isRtl={isRtlResolved}
           error={errors.schedule}
         />
-
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="button"

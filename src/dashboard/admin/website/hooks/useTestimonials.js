@@ -5,7 +5,6 @@ import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
 export default function useTestimonials(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
-
   const [testimonials, setTestimonials] = useState([]);
   const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -18,7 +17,6 @@ export default function useTestimonials(showNotification, enabled = true) {
     image: null,
     previewImage: null
   });
-
   useEffect(() => {
     if (!enabled) return;
     async function loadTestimonials() {
@@ -36,7 +34,6 @@ export default function useTestimonials(showNotification, enabled = true) {
     }
     loadTestimonials();
   }, [enabled]);
-
   const handleOpenAddTestimonial = () => {
     setCurrentTestimonial({
       id: null,
@@ -49,7 +46,6 @@ export default function useTestimonials(showNotification, enabled = true) {
     });
     setIsTestimonialModalOpen(true);
   };
-
   const handleOpenEditTestimonial = (testimonial) => {
     setCurrentTestimonial({
       id: testimonial.id || testimonial._id,
@@ -62,16 +58,13 @@ export default function useTestimonials(showNotification, enabled = true) {
     });
     setIsTestimonialModalOpen(true);
   };
-
   const handleDeleteTestimonial = async (testimonial) => {
     const parentNameStr = typeof testimonial.parentName === 'string'
       ? testimonial.parentName
       : (testimonial.parentName?.ar || testimonial.parentName?.en || 'ولي أمر');
-
     const isRtl = i18n.language.startsWith('ar');
     const isConfirmed = await showDeleteConfirm(isRtl, parentNameStr);
     if (!isConfirmed) return;
-
     try {
       const id = testimonial.id || testimonial._id;
       await landingApi.deletePrivateTestimonial(id);
@@ -82,7 +75,6 @@ export default function useTestimonials(showNotification, enabled = true) {
       showNotification(t('adminDashboard.website.testimonialDeleteError', 'فشل حذف الرأي'), 'error');
     }
   };
-
   const handleSaveTestimonialSubmit = async (e) => {
     e.preventDefault();
     if (!currentTestimonial.parentNameAr?.trim() || !currentTestimonial.reviewAr?.trim()) {
@@ -93,14 +85,12 @@ export default function useTestimonials(showNotification, enabled = true) {
       showNotification(t('adminDashboard.website.imageRequired', 'الصورة الشخصية إجبارية'), 'error');
       return;
     }
-
     setIsSaving(true);
     const formData = new FormData();
     if (currentTestimonial.parentNameEn?.trim()) formData.append('parentName[en]', currentTestimonial.parentNameEn.trim());
     formData.append('parentName[ar]', currentTestimonial.parentNameAr.trim());
     if (currentTestimonial.reviewEn?.trim()) formData.append('review[en]', currentTestimonial.reviewEn.trim());
     formData.append('review[ar]', currentTestimonial.reviewAr.trim());
-
     if (currentTestimonial.image && currentTestimonial.image instanceof File) {
       formData.append('image', currentTestimonial.image);
     } else if (typeof currentTestimonial.image === 'string' && currentTestimonial.image.trim()) {
@@ -114,7 +104,6 @@ export default function useTestimonials(showNotification, enabled = true) {
         console.warn('Failed to fetch existing image to convert to file:', err);
       }
     }
-
     try {
       let updatedOrAdded;
       if (currentTestimonial.id === null) {
@@ -138,7 +127,6 @@ export default function useTestimonials(showNotification, enabled = true) {
       setIsSaving(false);
     }
   };
-
   return {
     testimonials,
     isTestimonialModalOpen,

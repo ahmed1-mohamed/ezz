@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Clock, AlertCircle, FileText, ChevronDown, User, GraduationCap, Users, Calendar, Award, MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Clock, FileText, ChevronDown, User, GraduationCap, Users, Calendar, Award, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { parentApi } from '@/shared/services/api/parentApi';

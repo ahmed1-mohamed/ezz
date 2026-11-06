@@ -161,19 +161,9 @@ export default function StudentProfile() {
   const academicLevel = useMemo(() => {
     return p.level || p.grade || p.studentLevel || t('teacherCurricula.intermediate', 'متوسط');
   }, [p.level, p.grade, p.studentLevel, t]);
-  const attendanceRate = useMemo(() => {
-    if (statsData?.attendanceRate !== undefined) return `${statsData.attendanceRate}%`;
-    if (p.attendanceRate !== undefined) return `${p.attendanceRate}%`;
-    return '94%';
-  }, [statsData?.attendanceRate, p.attendanceRate]);
-  const averageRating = useMemo(() => {
-    if (statsData?.averageRating) return Number(statsData.averageRating).toFixed(1);
-    if (p.averageRating) return Number(p.averageRating).toFixed(1);
-    return '4.9';
-  }, [statsData?.averageRating, p.averageRating]);
-  const totalEvaluations = useMemo(() => {
-    return statsData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
-  }, [statsData?.totalEvaluations, p.evaluationsCount, p.totalReviews]);
+  const attendanceRate = statsData?.attendanceRate !== undefined ? `${statsData.attendanceRate}%` : p.attendanceRate !== undefined ? `${p.attendanceRate}%` : '94%';
+  const averageRating = statsData?.averageRating ? Number(statsData.averageRating).toFixed(1) : p.averageRating ? Number(p.averageRating).toFixed(1) : '4.9';
+  const totalEvaluations = statsData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
   const sessionBalanceData = useMemo(() => {
     if (p.sessionsBalance || p.sessionBalance) {
       return p.sessionsBalance || p.sessionBalance;

@@ -55,37 +55,29 @@ const SectionSkeleton = () => <div className="h-40 rounded-2xl bg-slate-100 dark
 export default memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
-
     const dispatch = useDispatch()
     const { landingData } = useSelector((state) => state.landing)
-
     const [localData] = useState(readLocalStorage)
-
     useEffect(() => {
         dispatch(fetchLandingPage(i18n.language))
     }, [dispatch, i18n.language])
-
     const heroInitial = { opacity: 0, scale: 0.92, x: isRtl ? 30 : -30 }
     const heroAnimate = { opacity: 1, scale: 1, x: 0 }
     const heroTransition = { duration: 0.7, ease: 'easeOut', delay: 0.2 }
-
     return (
         <div>
             <div className="space-y-8 sm:space-y-12 lg:space-y-16">
                 <section id="hero-section" className="overflow-hidden rounded-2xl sm:rounded-[40px] border border-slate-100 bg-white dark:bg-slate-900/90 dark:border-slate-800 px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-20 shadow-sm">
                     <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
-
                         <motion.div
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
                             className="space-y-6 sm:space-y-8 w-full lg:w-1/2 flex flex-col lg:items-start items-center text-center lg:text-start"
                         >
-
                             <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-gold-dark bg-[#735C00] px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm">
                                 {t('home.badge', 'أكاديمية تعليمية متكاملة')}
                             </motion.div>
-
                             <motion.div variants={itemVariants} className="space-y-2 sm:space-y-4">
                                 <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-extrabold leading-[1.2] sm:leading-[1.3] text-slate-900 dark:text-white">
                                     <span className="block">{t('home.titleLine1', 'تُنير العقول،')}</span>
@@ -97,18 +89,15 @@ export default memo(function Home() {
                                     </span>
                                 </h1>
                             </motion.div>
-
                             <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600 dark:text-slate-300">
                                 {t('home.description', 'القرآن الكريم، واللغة العربية، والمواد الدراسية، والمناهج الدولية... في منصة واحدة تُنمّي قدراته وتُرسّخ قيمه.')}
                             </motion.p>
-
                             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center lg:justify-start w-full">
                                 <Link to="/about" className="w-full sm:w-auto">
                                     <Button variant="secondary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform">
                                         {t('home.ctaSecondary', 'تعرف علينا')}
                                     </Button>
                                 </Link>
-
                                 <Link to="/login" className="w-full sm:w-auto">
                                     <Button variant="primary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform">
                                         {t('home.ctaPrimary', 'انضم الآن')}
@@ -116,7 +105,6 @@ export default memo(function Home() {
                                 </Link>
                             </motion.div>
                         </motion.div>
-
                         <motion.div
                             initial={heroInitial}
                             animate={heroAnimate}
@@ -124,7 +112,6 @@ export default memo(function Home() {
                             className="w-full lg:w-1/2 flex justify-center"
                         >
                             <div className="relative flex items-center justify-center w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl">
-
                                 <div
                                     className="absolute z-0 h-[300px] w-[300px] sm:h-[400px] sm:w-[400px] lg:h-[500px] lg:w-[500px] xl:h-[540px] xl:w-[540px]"
                                     style={{
@@ -134,7 +121,6 @@ export default memo(function Home() {
                                     }}
                                     aria-hidden="true"
                                 />
-
                                 <motion.div
                                     animate={heroImageAnimation.animate}
                                     transition={heroImageAnimation.transition}
@@ -151,14 +137,11 @@ export default memo(function Home() {
                                         className="w-full rounded-lg h-auto max-h-[340px] sm:max-h-[440px] lg:max-h-[500px] xl:max-h-[540px] object-cover aspect-[3/2]"
                                     />
                                 </motion.div>
-
                             </div>
                         </motion.div>
-
                     </div>
                 </section>
             </div>
-
             <Suspense fallback={<SectionSkeleton />}>
                 <StatisticsBanner data={localData.stats || landingData?.statistics} />
             </Suspense>

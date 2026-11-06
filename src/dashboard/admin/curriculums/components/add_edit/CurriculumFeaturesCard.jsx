@@ -27,12 +27,10 @@ export default function CurriculumFeaturesCard({
             </p>
           </div>
         </div>
-
         <span className="text-[11px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 px-2.5 py-1 rounded-full">
           {isRtl ? 'مطلوب ميزة واحدة كحد أدنى' : 'Min 1 feature required'}
         </span>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
@@ -43,7 +41,6 @@ export default function CurriculumFeaturesCard({
               {featuresAr.length} {isRtl ? 'عناصر' : 'items'}
             </span>
           </div>
-
           <div className="space-y-2.5">
             {featuresAr.map((feature, idx) => (
               <div key={`feat-ar-${idx}`} className="flex items-center gap-2">
@@ -69,7 +66,6 @@ export default function CurriculumFeaturesCard({
               </div>
             ))}
           </div>
-
           <button
             type="button"
             onClick={onAddFeatureAr}
@@ -79,7 +75,6 @@ export default function CurriculumFeaturesCard({
             <span>{isRtl ? 'إضافة ميزة بالعربية' : 'Add Arabic Feature'}</span>
           </button>
         </div>
-
         <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
@@ -89,7 +84,6 @@ export default function CurriculumFeaturesCard({
               {featuresEn.length} {isRtl ? 'عناصر' : 'items'}
             </span>
           </div>
-
           <div className="space-y-2.5">
             {featuresEn.map((feature, idx) => (
               <div key={`feat-en-${idx}`} className="flex items-center gap-2">
@@ -115,7 +109,6 @@ export default function CurriculumFeaturesCard({
               </div>
             ))}
           </div>
-
           <button
             type="button"
             onClick={onAddFeatureEn}

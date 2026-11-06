@@ -18,7 +18,6 @@ import {
 import { useAuth } from '@/shared/context/useAuth';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -56,7 +55,6 @@ function StatCard({ label, value, icon: Icon, color }) {
 function NextSessionCard({ nextSession, isRtl }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
   if (!nextSession) {
     return (
       <motion.div
@@ -75,28 +73,21 @@ function NextSessionCard({ nextSession, isRtl }) {
       </motion.div>
     );
   }
-
   const sessionTitle = nextSession.title || (nextSession.sessionNumber ? `${t('studentDashboard.home.nextSession.sessionNum', 'الحصة رقم')} ${nextSession.sessionNumber}` : t('studentDashboard.home.nextSession.sessionName', 'حصة دراسية'));
   const groupName = nextSession.group || '';
   const teacherName = typeof nextSession.teacher === 'string'
     ? nextSession.teacher
     : (nextSession.teacher?.name || nextSession.teacherName || t('studentDashboard.home.nextSession.teacherFallback', 'معلم المادة'));
-
   const dayStr = nextSession.day || '';
   const dateStr = nextSession.date || nextSession.formattedDate || '';
   const displayDate = dayStr && dateStr ? `${dayStr}، ${dateStr}` : (dateStr || dayStr || t('studentDashboard.home.nextSession.today', 'اليوم'));
-
   const timeStr = nextSession.timeRange || (nextSession.startTime && nextSession.endTime ? `${nextSession.startTime} - ${nextSession.endTime}` : (nextSession.startTime || '-'));
   const durationStr = nextSession.durationTime ? `${nextSession.durationTime} ${t('common.minutes', 'دقيقة')}` : '';
-
   const canJoinNow = Boolean(nextSession.canJoinNow);
   const statusLabel = nextSession.status || (canJoinNow ? t('studentDashboard.home.nextSession.liveNow', 'جارية الآن') : t('studentDashboard.home.nextSession.statusScheduled', 'مجدولة'));
-
   const handleJoin = () => {
-    // Open the session inside the dashboard (embedded Zoom), never the external Zoom app
     navigate('/dashboard/student/live', { state: { session: nextSession } });
   };
-
   return (
     <motion.div
       variants={itemVariants}
@@ -111,7 +102,6 @@ function NextSessionCard({ nextSession, isRtl }) {
             {t('studentDashboard.home.nextSession.title', 'الحصة القادمة')}
           </h2>
         </div>
-
         {canJoinNow ? (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -123,7 +113,6 @@ function NextSessionCard({ nextSession, isRtl }) {
           </span>
         )}
       </div>
-
       <div className="space-y-4">
         {groupName && (
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-100 dark:border-slate-800">
@@ -131,11 +120,9 @@ function NextSessionCard({ nextSession, isRtl }) {
             <span>{groupName}</span>
           </div>
         )}
-
         <h3 className="text-xl font-black text-slate-800 dark:text-white leading-tight">
           {sessionTitle}
         </h3>
-
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
           <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
             <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -150,7 +137,6 @@ function NextSessionCard({ nextSession, isRtl }) {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
             <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <Calendar size={18} />
@@ -164,7 +150,6 @@ function NextSessionCard({ nextSession, isRtl }) {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
             <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-[#00594C] dark:text-emerald-400 flex items-center justify-center shrink-0">
               <Clock size={18} />
@@ -179,7 +164,6 @@ function NextSessionCard({ nextSession, isRtl }) {
             </div>
           </div>
         </div>
-
         <div className="pt-2">
           {canJoinNow ? (
             <button
@@ -237,10 +221,8 @@ export default function StudentHome() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const { user } = useAuth();
-
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
-
   useEffect(() => {
     let isMounted = true;
     const loadDashboard = async () => {
@@ -260,7 +242,6 @@ export default function StudentHome() {
     loadDashboard();
     return () => { isMounted = false; };
   }, []);
-
   const studentName = useMemo(() => {
     if (!user) return '';
     const resolveName = (val) => {
@@ -278,17 +259,14 @@ export default function StudentHome() {
       ''
     );
   }, [user, isRtl]);
-
   const rawStats = dashboardData?.statistics || dashboardData || {};
   const nextSession = dashboardData?.nextSession || null;
-
   const remainingSessions = rawStats?.remainingSessions ?? rawStats?.sessionsBalance ?? 0;
   const attendanceRate = rawStats?.attendanceRate !== undefined ? `${rawStats.attendanceRate}%` : '0%';
   const averageRating = rawStats?.averageRating ? Number(rawStats.averageRating).toFixed(1) : '5.0';
   const pendingHomeworks = rawStats?.pendingHomeworks ?? rawStats?.pendingAssignments ?? 0;
   const rewardsCount = rawStats?.rewardsCount ?? 0;
   const totalLearningHours = rawStats?.totalLearningHours !== undefined ? `${rawStats.totalLearningHours}` : '0';
-
   const statsList = [
     {
       label: t('studentDashboard.home.stats.remainingSessions', 'الحصص المتبقية'),
@@ -327,7 +305,6 @@ export default function StudentHome() {
       color: 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400',
     },
   ];
-
   const quickAccessList = [
     {
       label: t('studentDashboard.home.quickAccess.schedule', 'الجدول الدراسي'),
@@ -364,7 +341,6 @@ export default function StudentHome() {
       bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
     },
   ];
-
   if (loading && !dashboardData) {
     return (
       <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6 flex items-center justify-center">
@@ -372,7 +348,6 @@ export default function StudentHome() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
@@ -389,15 +364,12 @@ export default function StudentHome() {
             {t('studentDashboard.home.greetingSubtitle', 'إليك نظرة عامة على نشاطك وجدولك التعليمي اليوم')}
           </p>
         </motion.div>
-
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {statsList.map((stat, idx) => (
             <StatCard key={idx} {...stat} />
           ))}
         </div>
-
         <NextSessionCard nextSession={nextSession} isRtl={isRtl} />
-
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {quickAccessList.map((card, idx) => (
             <QuickAccessCard key={idx} {...card} />

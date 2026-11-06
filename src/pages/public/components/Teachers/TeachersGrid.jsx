@@ -32,7 +32,6 @@ export default function TeachersGrid({
       </div>
     )
   }
-
   if (isLoading && filteredTeachers.length === 0) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
@@ -42,7 +41,6 @@ export default function TeachersGrid({
       </div>
     )
   }
-
   if (filteredTeachers.length > 0) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-8">
@@ -59,7 +57,6 @@ export default function TeachersGrid({
       </div>
     )
   }
-
   return (
     <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
       <p className="text-[#00695C] dark:text-emerald-400 font-bold text-xl">

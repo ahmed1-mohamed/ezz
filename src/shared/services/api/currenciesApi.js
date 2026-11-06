@@ -22,7 +22,6 @@ export function parseExchangeRateData(res) {
   const exchangeRate = typeof rawRate === 'number' && rawRate > 0
     ? rawRate
     : (Number(rawRate) > 0 ? Number(rawRate) : 1);
-
   return {
     symbol: typeof symbol === 'string' && symbol.trim() ? symbol.trim() : '$',
     exchangeRate,

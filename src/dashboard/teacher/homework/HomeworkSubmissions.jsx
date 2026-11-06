@@ -17,10 +17,8 @@ import SubmissionDetailsView from './components/SubmissionDetailsView.jsx';
 export default function HomeworkSubmissions() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -50,20 +48,16 @@ export default function HomeworkSubmissions() {
         setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   const { id: paramId } = useParams();
   const navigate = useNavigate();
-
   const [statusFilter, setStatusFilter] = useState('all');
   const [evaluationFilter, setEvaluationFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-
   const apiStatus = useMemo(() => {
     if (statusFilter === 'pending') return 'pending';
     if (statusFilter === 'submitted') return 'submitted';
@@ -71,13 +65,11 @@ export default function HomeworkSubmissions() {
     if (statusFilter === 'overdue') return 'overdue';
     return 'all';
   }, [statusFilter]);
-
   const { data: submissionsRes, isLoading } = useQuery({
     queryKey: ['teacher-homework-submissions', apiStatus],
     queryFn: () => teacherHomeworkApi.fetchSubmissions(apiStatus),
     staleTime: 30 * 1000,
   });
-
   const formatSubmissionTime = (rawDate) => {
     if (!rawDate) return t('teacherHomework.notSubmitted', 'لم يتم التسليم');
     const date = new Date(rawDate);
@@ -100,7 +92,6 @@ export default function HomeworkSubmissions() {
       return date.toLocaleDateString();
     }
   };
-
   const normalizeSubmissionStatus = (item) => {
     const st = (
       item.submissionStatus ||
@@ -109,7 +100,6 @@ export default function HomeworkSubmissions() {
       ''
     ).toLowerCase();
     const isLate = Boolean(item.isLate || item.submittedLate || st.includes('late'));
-
     if (st === 'overdue' || st === 'late_not_submitted' || st.includes('متأخرة')) {
       return 'overdue';
     }
@@ -124,7 +114,6 @@ export default function HomeworkSubmissions() {
     }
     return 'pending';
   };
-
   const rawSubmissions = useMemo(() => {
     const apiList = submissionsRes?.data;
     if (Array.isArray(apiList)) {
@@ -134,7 +123,6 @@ export default function HomeworkSubmissions() {
           item.isEvaluated ||
           item.rawEvaluationStatus === 'evaluated' ||
           (item.grade !== null && item.grade !== undefined);
-
         const subDate = item.submittedAt || item.submissionDate || item.date || item.createdAt || null;
         const hwId =
           item.homework?._id ||
@@ -142,7 +130,6 @@ export default function HomeworkSubmissions() {
           (typeof item.homework === 'string' ? item.homework : null) ||
           item.homeworkId ||
           null;
-
         return {
           id: item.id || item._id || `submission-${idx + 1}`,
           homeworkId: hwId,
@@ -169,10 +156,8 @@ export default function HomeworkSubmissions() {
         };
       });
     }
-
     return [];
   }, [submissionsRes, isRtl, t]);
-
   useEffect(() => {
     if (paramId && rawSubmissions.length > 0 && !selectedSubmission) {
       const found = rawSubmissions.find((s) => s.id === paramId || s.homeworkId === paramId);
@@ -183,37 +168,31 @@ export default function HomeworkSubmissions() {
       }
     }
   }, [paramId, rawSubmissions, selectedSubmission]);
-
   const stats = useMemo(() => {
     let all = rawSubmissions.length;
     let pending = 0;
     let submitted = 0;
     let submitted_late = 0;
     let overdue = 0;
-
     rawSubmissions.forEach((s) => {
       if (s.rawStatus === 'pending') pending += 1;
       else if (s.rawStatus === 'submitted') submitted += 1;
       else if (s.rawStatus === 'submitted_late') submitted_late += 1;
       else if (s.rawStatus === 'overdue') overdue += 1;
     });
-
     return { all, pending, submitted, submitted_late, overdue };
   }, [rawSubmissions]);
-
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((item) => {
       if (statusFilter !== 'all' && item.rawStatus !== statusFilter) {
         return false;
       }
-
       if (evaluationFilter === 'evaluated' && item.rawEvaluationStatus !== 'evaluated') {
         return false;
       }
       if (evaluationFilter === 'not_evaluated' && item.rawEvaluationStatus === 'evaluated') {
         return false;
       }
-
       if (searchTerm.trim()) {
         const term = searchTerm.toLowerCase();
         const sName = (item.studentName || '').toLowerCase();
@@ -221,11 +200,9 @@ export default function HomeworkSubmissions() {
         const gName = (item.groupName || '').toLowerCase();
         return sName.includes(term) || hTitle.includes(term) || gName.includes(term);
       }
-
       return true;
     });
   }, [rawSubmissions, statusFilter, evaluationFilter, searchTerm]);
-
   if (selectedSubmission) {
     return (
       <SubmissionDetailsView
@@ -241,7 +218,6 @@ export default function HomeworkSubmissions() {
       />
     );
   }
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -253,19 +229,16 @@ export default function HomeworkSubmissions() {
             {t('teacherHomework.submissionsSubtitle', 'تابع تسليمات الواجبات وتصحيحها لطلاب المجموعات')}
           </p>
         </div>
-
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
-
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />
             <span>{currentDateStr}</span>
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <div
           onClick={() => setStatusFilter('all')}
@@ -280,7 +253,6 @@ export default function HomeworkSubmissions() {
           </div>
           <div className="text-xs font-bold text-slate-400">{t('teacherHomework.allSubmissions', 'الكل')}</div>
         </div>
-
         <div
           onClick={() => setStatusFilter('pending')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-amber-500 ${
@@ -294,7 +266,6 @@ export default function HomeworkSubmissions() {
           </div>
           <div className="text-xs font-bold text-slate-400">{t('teacherHomework.pendingReview', 'في الانتظار')}</div>
         </div>
-
         <div
           onClick={() => setStatusFilter('submitted')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-emerald-600 ${
@@ -308,7 +279,6 @@ export default function HomeworkSubmissions() {
           </div>
           <div className="text-xs font-bold text-slate-400">{t('teacherHomework.submittedOnTime', 'تم التسليم في الموعد')}</div>
         </div>
-
         <div
           onClick={() => setStatusFilter('submitted_late')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-orange-500 ${
@@ -322,7 +292,6 @@ export default function HomeworkSubmissions() {
           </div>
           <div className="text-xs font-bold text-slate-400">{t('teacherHomework.submittedLate', 'تسليم متأخر')}</div>
         </div>
-
         <div
           onClick={() => setStatusFilter('overdue')}
           className={`cursor-pointer bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all text-center space-y-1 shadow-xs hover:border-rose-500 ${
@@ -337,7 +306,6 @@ export default function HomeworkSubmissions() {
           <div className="text-xs font-bold text-slate-400">{t('teacherHomework.overdue', 'متأخرة ولم يتم التسليم')}</div>
         </div>
       </div>
-
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {[
@@ -362,7 +330,6 @@ export default function HomeworkSubmissions() {
             );
           })}
         </div>
-
         <div className="relative w-full sm:w-80">
           <input
             type="text"
@@ -377,7 +344,6 @@ export default function HomeworkSubmissions() {
           />
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-xs border border-slate-100 dark:border-slate-800">
         <div className="overflow-x-auto">
           <table className="w-full text-start border-collapse">
@@ -407,7 +373,6 @@ export default function HomeworkSubmissions() {
               ) : (
                 filteredSubmissions.map((sub) => {
                   const isEval = sub.rawEvaluationStatus === 'evaluated';
-
                   return (
                     <tr
                       key={sub.id}
@@ -428,15 +393,12 @@ export default function HomeworkSubmissions() {
                           </div>
                         </div>
                       </td>
-
                       <td className="py-4 px-4 font-bold text-slate-700 dark:text-slate-200">
                         {sub.homeworkTitle}
                       </td>
-
                       <td className="py-4 px-4 text-slate-400 text-xs font-semibold whitespace-nowrap">
                         {sub.timeText}
                       </td>
-
                       <td className="py-4 px-4 text-center whitespace-nowrap">
                         {sub.rawStatus === 'submitted' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -463,7 +425,6 @@ export default function HomeworkSubmissions() {
                           </span>
                         )}
                       </td>
-
                       <td className="py-4 px-4 text-center whitespace-nowrap">
                         {isEval ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -479,7 +440,6 @@ export default function HomeworkSubmissions() {
                           </span>
                         )}
                       </td>
-
                       <td className="py-4 px-6 text-center">
                         <button
                           type="button"

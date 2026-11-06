@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Search,
   Download,
@@ -8,9 +7,7 @@ import {
   CheckCircle2,
   Clock3,
   AlertCircle,
-  Filter,
-  Package,
-} from 'lucide-react'
+  } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function PaymentsFilters({
@@ -29,30 +26,24 @@ export default function PaymentsFilters({
 }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const paidCount = stats.paid?.count ?? 0
   const pendingCount = stats.pending?.count ?? 0
   const expiredCount = stats.expired?.count ?? 0
   const totalCount = paidCount + pendingCount + expiredCount
-
   const statusOptions = [
     { key: 'all', label: isRtl ? 'الكل' : 'All', count: totalCount, icon: null },
     { key: 'paid', label: isRtl ? 'مدفوعة' : 'Paid', count: paidCount, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },
     { key: 'pending', label: isRtl ? 'معلقة' : 'Pending', count: pendingCount, icon: Clock3, activeClass: 'bg-amber-600 text-white' },
     { key: 'expired', label: isRtl ? 'منتهية' : 'Expired', count: expiredCount, icon: AlertCircle, activeClass: 'bg-rose-600 text-white' },
   ]
-
   const typeOptions = [
     { key: 'all', label: isRtl ? 'كافة الباقات' : 'All Types' },
     { key: 'individual', label: isRtl ? 'باقات فردية' : 'Individual' },
     { key: 'family', label: isRtl ? 'باقات عائلية' : 'Family' },
   ]
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-soft space-y-4 text-start">
-      {/* Top Row: Search + Actions */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search Input */}
         <div className="w-full md:max-w-lg relative">
           <div className="absolute inset-y-0 start-3 flex items-center pointer-events-none text-slate-400">
             <Search size={16} />
@@ -78,8 +69,6 @@ export default function PaymentsFilters({
             </button>
           )}
         </div>
-
-        {/* Right Action Buttons */}
         <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
           {onRefresh && (
             <button
@@ -92,7 +81,6 @@ export default function PaymentsFilters({
               <RotateCcw size={16} className={isFetching ? 'animate-spin text-[#005953]' : ''} />
             </button>
           )}
-
           <button
             type="button"
             onClick={onExport}
@@ -104,10 +92,7 @@ export default function PaymentsFilters({
           </button>
         </div>
       </div>
-
-      {/* Bottom Row: Status Filter Tabs + Package Type Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-        {/* Status Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {statusOptions.map((opt) => {
             const Icon = opt.icon
@@ -138,8 +123,6 @@ export default function PaymentsFilters({
             )
           })}
         </div>
-
-        {/* Package Type Pills */}
         <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-auto">
           {typeOptions.map((opt) => (
             <button

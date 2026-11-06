@@ -13,12 +13,9 @@ export default function QuestionBuilder({ questions = [], onChange }) {
   const [activeQuestionId, setActiveQuestionId] = useState(
     questions.length > 0 ? questions[0].id : null
   );
-
   const canAddMore = questions.length < 20;
-
   const handleAddQuestion = (type = 'multiple_choice') => {
     if (!canAddMore) return;
-
     const newQ = {
       id: `q_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       type,
@@ -27,12 +24,10 @@ export default function QuestionBuilder({ questions = [], onChange }) {
       options: type === 'multiple_choice' ? ['', '', '', ''] : [],
       correctOptionIndex: 0,
     };
-
     const nextList = [...questions, newQ];
     onChange(nextList);
     setActiveQuestionId(newQ.id);
   };
-
   const handleUpdateQuestion = (id, field, value) => {
     const nextList = questions.map((q) => {
       if (q.id === id) {
@@ -42,7 +37,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
     });
     onChange(nextList);
   };
-
   const handleUpdateOption = (qId, optionIdx, value) => {
     const nextList = questions.map((q) => {
       if (q.id === qId) {
@@ -54,25 +48,20 @@ export default function QuestionBuilder({ questions = [], onChange }) {
     });
     onChange(nextList);
   };
-
   const handleAddOption = (qId) => {
     const targetQ = questions.find((q) => q.id === qId);
     if (!targetQ || (targetQ.options && targetQ.options.length >= 4)) return;
-
     const nextOptions = [...(targetQ.options || []), ''];
     handleUpdateQuestion(qId, 'options', nextOptions);
   };
-
   const handleRemoveOption = (qId, optionIdx) => {
     const targetQ = questions.find((q) => q.id === qId);
     if (!targetQ || !targetQ.options || targetQ.options.length <= 2) return;
-
     const nextOptions = targetQ.options.filter((_, idx) => idx !== optionIdx);
     let nextCorrect = targetQ.correctOptionIndex || 0;
     if (nextCorrect >= nextOptions.length) {
       nextCorrect = nextOptions.length - 1;
     }
-
     const nextList = questions.map((q) => {
       if (q.id === qId) {
         return {
@@ -85,7 +74,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
     });
     onChange(nextList);
   };
-
   const handleDeleteQuestion = (id) => {
     const nextList = questions.filter((q) => q.id !== id);
     onChange(nextList);
@@ -93,9 +81,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
       setActiveQuestionId(nextList.length > 0 ? nextList[0].id : null);
     }
   };
-
   const totalPoints = questions.reduce((acc, q) => acc + (Number(q.points) || 0), 0);
-
   return (
     <div className="space-y-6 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800">
@@ -108,18 +94,15 @@ export default function QuestionBuilder({ questions = [], onChange }) {
             {t('teacherHomework.quizBankDesc', 'يمكنك إضافة حتى 20 سؤالاً (اختياري بأربعة خيارات كحد أقصى، أو مقالي) مع تحديد درجات كل سؤال')}
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">
             {t('teacherHomework.questionsCount', '{{count}} / 20 سؤال', { count: questions.length })}
           </span>
-
           <span className="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs font-black text-amber-700 dark:text-amber-300">
             {t('teacherHomework.totalPoints', 'إجمالي الدرجات: {{points}}', { points: totalPoints })}
           </span>
         </div>
       </div>
-
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {questions.map((q, idx) => (
           <button
@@ -144,7 +127,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
             </span>
           </button>
         ))}
-
         {canAddMore && (
           <div className="flex items-center gap-1.5 shrink-0">
             <button
@@ -155,7 +137,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               <Plus size={14} />
               <span>{t('teacherHomework.addMultipleChoice', '+ سؤال اختياري')}</span>
             </button>
-
             <button
               type="button"
               onClick={() => handleAddQuestion('essay')}
@@ -167,7 +148,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
           </div>
         )}
       </div>
-
       {questions.length === 0 ? (
         <div className="p-12 text-center bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-[#00594C]/10 text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 mx-auto flex items-center justify-center">
@@ -181,7 +161,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               {t('teacherHomework.noQuestionsYetDesc', 'أضف أسئلة اختيار من متعدد أو أسئلة مقالية لاختبار استيعاب الطلاب لما تم شرحه')}
             </p>
           </div>
-
           <div className="flex items-center justify-center gap-3 pt-2">
             <button
               type="button"
@@ -191,7 +170,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
               <Plus size={16} />
               <span>{t('teacherHomework.addMultipleChoiceBtn', 'إضافة سؤال اختياري (Multiple Choice)')}</span>
             </button>
-
             <button
               type="button"
               onClick={() => handleAddQuestion('essay')}
@@ -207,7 +185,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
           .filter((q) => q.id === activeQuestionId)
           .map((currentQ) => {
             const questionIndex = questions.findIndex((q) => q.id === currentQ.id) + 1;
-
             return (
               <div
                 key={currentQ.id}
@@ -218,7 +195,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                     <span className="w-8 h-8 rounded-xl bg-[#00594C] text-white font-black text-sm flex items-center justify-center">
                       {questionIndex}
                     </span>
-
                     <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                       <button
                         type="button"
@@ -236,7 +212,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                       >
                         {t('teacherHomework.multipleChoice', 'اختيار من متعدد')}
                       </button>
-
                       <button
                         type="button"
                         onClick={() => handleUpdateQuestion(currentQ.id, 'type', 'essay')}
@@ -250,7 +225,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                       </button>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <label className="text-xs font-bold text-slate-500">
@@ -274,7 +248,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                         {t('teacherHomework.pointsUnit', 'درجات')}
                       </span>
                     </div>
-
                     <button
                       type="button"
                       onClick={() => handleDeleteQuestion(currentQ.id)}
@@ -285,7 +258,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                     </button>
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     {t('teacherHomework.questionText', 'نص السؤال')} <span className="text-rose-500">*</span>
@@ -302,7 +274,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                     className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
                   />
                 </div>
-
                 {currentQ.type === 'multiple_choice' && (
                   <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between">
@@ -313,11 +284,9 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                         {t('teacherHomework.optionsCount', '{{count}} من 4 خيارات', { count: (currentQ.options || []).length })}
                       </span>
                     </div>
-
                     <div className="space-y-2.5">
                       {(currentQ.options || []).map((opt, optIdx) => {
                         const isCorrect = (currentQ.correctOptionIndex ?? 0) === optIdx;
-
                         return (
                           <div
                             key={optIdx}
@@ -341,7 +310,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                             >
                               {isCorrect && <CheckCircle2 size={14} className="text-white" />}
                             </button>
-
                             <input
                               type="text"
                               value={opt}
@@ -351,7 +319,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                               placeholder={t('teacherHomework.optionPlaceholder', 'الخيار {{num}}', { num: optIdx + 1 })}
                               className="flex-1 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none"
                             />
-
                             {currentQ.options.length > 2 && (
                               <button
                                 type="button"
@@ -365,7 +332,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                         );
                       })}
                     </div>
-
                     {(currentQ.options || []).length < 4 && (
                       <button
                         type="button"
@@ -378,7 +344,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                     )}
                   </div>
                 )}
-
                 {currentQ.type === 'essay' && (
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-500 space-y-1">
                     <p className="font-bold text-slate-700 dark:text-slate-300">

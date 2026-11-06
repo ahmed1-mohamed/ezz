@@ -7,8 +7,6 @@ export const getLocalizedValue = (val, isRtl) => {
 const normalizeSchedule = (list = []) =>
   JSON.stringify((list || []).map((s) => [String(s.day || '').toLowerCase(), s.startTime, s.endTime]))
 
-// Applies an edit-form submission: general fields go to PATCH /groups/private/:id,
-// while schedule, status and teacher each use their dedicated endpoint (only when changed).
 export const saveGroupEdits = async (adminGroupsApi, group, formData) => {
   const groupId = group.id || group._id
   const res = await adminGroupsApi.updateGroup(groupId, {
@@ -19,20 +17,16 @@ export const saveGroupEdits = async (adminGroupsApi, group, formData) => {
     endDate: formData.endDate,
     imageFile: formData.imageFile,
   })
-
   if (Array.isArray(formData.weeklySchedule) && normalizeSchedule(formData.weeklySchedule) !== normalizeSchedule(group.weeklySchedule)) {
     await adminGroupsApi.updateGroupSchedule(groupId, formData.weeklySchedule)
   }
-
   if (formData.status && formData.status !== group.status) {
     await adminGroupsApi.updateGroupStatus(groupId, formData.status)
   }
-
   const currentTeacherId = String(group.teacher?.teacher_id || group.teacher?.id || group.teacher?._id || (typeof group.teacher === 'string' ? group.teacher : ''))
   const newTeacherId = String(formData.teacher || '')
   if (newTeacherId && newTeacherId !== currentTeacherId) {
     await adminGroupsApi.changeTeacher(groupId, newTeacherId)
   }
-
   return res
 }

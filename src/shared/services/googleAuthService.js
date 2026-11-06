@@ -1,18 +1,11 @@
-/**
- * Google Authentication Service
- * Integrates Google Identity Services (GIS) for Login, Account Linking, and Unlinking.
- */
 
-export const GOOGLE_CLIENT_ID = '871377694681-7afrn0hvc1ter1a121nlj5eu10sch44q.apps.googleusercontent.com';
+export const GOOGLE_CLIENT_ID = import.meta.env?.VITE_GOOGLE_CLIENT_ID || '669089500047-98g0u7is9m00d96qrnkk038u5vg4qc27.apps.googleusercontent.com';
+export const GOOGLE_CLIENT_SECRET = import.meta.env?.VITE_GOOGLE_CLIENT_SECRET || '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';
 export const GOOGLE_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
 export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
 
 let scriptPromise = null;
 
-/**
- * Loads the Google Identity Services client script dynamically if not present.
- * @returns {Promise<object>} Google accounts API object
- */
 export function loadGoogleScript() {
   if (typeof window === 'undefined') {
     return Promise.reject(new Error('Window environment is not available'));
@@ -41,11 +34,6 @@ export function loadGoogleScript() {
   return scriptPromise;
 }
 
-/**
- * Decodes a Google JWT credential token payload.
- * @param {string} token - Base64 encoded JWT
- * @returns {object|null} Decoded JSON payload or null
- */
 export function decodeGoogleCredential(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -63,11 +51,6 @@ export function decodeGoogleCredential(token) {
   }
 }
 
-/**
- * Triggers Google OAuth popup using Token Client and fetches the user profile.
- * Resolves with googleId (sub), email, name, and image.
- * @returns {Promise<{googleId: string, email: string, name: string, image: string, accessToken: string}>}
- */
 export async function triggerGoogleAuth() {
   await loadGoogleScript();
   return new Promise((resolve, reject) => {
@@ -110,12 +93,6 @@ export async function triggerGoogleAuth() {
   });
 }
 
-/**
- * Renders the official Google Sign-In button into a container element.
- * @param {HTMLElement} container - DOM container
- * @param {Function} onCredentialSuccess - Callback with decoded user data
- * @param {object} options - Optional button appearance options
- */
 export async function renderGoogleSignInButton(container, onCredentialSuccess, options = {}) {
   await loadGoogleScript();
   if (!window.google?.accounts?.id || !container) {

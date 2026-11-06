@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   Eye,
   Copy,
@@ -10,9 +10,7 @@ import {
   Users,
   Tag,
   DollarSign,
-  User,
-  Package,
-} from 'lucide-react'
+  } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
 
@@ -42,7 +40,6 @@ export default function PaymentsTable({
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const [copiedId, setCopiedId] = useState(null)
-
   const handleCopyId = (id, e) => {
     e.stopPropagation()
     if (!id) return
@@ -51,7 +48,6 @@ export default function PaymentsTable({
     toast.success(isRtl ? 'تم نسخ رقم المعاملة' : 'Transaction ID copied')
     setTimeout(() => setCopiedId(null), 2000)
   }
-
   const renderStatus = (status) => {
     switch (status) {
       case 'paid':
@@ -83,7 +79,6 @@ export default function PaymentsTable({
         )
     }
   }
-
   if (subscriptions.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-12 text-center space-y-3">
@@ -101,7 +96,6 @@ export default function PaymentsTable({
       </div>
     )
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft overflow-hidden text-start">
       <div className="overflow-x-auto">
@@ -122,14 +116,12 @@ export default function PaymentsTable({
               const currency = sub.currency || 'USD'
               const shortId = sub.id ? `${sub.id.slice(0, 8)}...${sub.id.slice(-4)}` : '-'
               const studentNames = (sub.students || []).map((s) => s.name).filter(Boolean)
-
               return (
                 <tr
                   key={sub.id}
                   onClick={() => onViewDetails?.(sub)}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
                 >
-                  {/* Transaction ID */}
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-1.5">
                       <span className="font-mono text-slate-600 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-[11px]">
@@ -145,8 +137,6 @@ export default function PaymentsTable({
                       </button>
                     </div>
                   </td>
-
-                  {/* Parent */}
                   <td className="py-4 px-4">
                     <div>
                       <span className="font-bold text-slate-800 dark:text-slate-100 block group-hover:text-[#005953] dark:group-hover:text-emerald-400 transition-colors">
@@ -157,8 +147,6 @@ export default function PaymentsTable({
                       </span>
                     </div>
                   </td>
-
-                  {/* Package & Students */}
                   <td className="py-4 px-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5">
@@ -175,7 +163,6 @@ export default function PaymentsTable({
                           </span>
                         )}
                       </div>
-
                       {studentNames.length > 0 && (
                         <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                           <Users size={12} className="shrink-0 text-slate-400" />
@@ -189,14 +176,11 @@ export default function PaymentsTable({
                       )}
                     </div>
                   </td>
-
-                  {/* Amount & Coupon */}
                   <td className="py-4 px-4">
                     <div>
                       <span className="font-extrabold text-[#005953] dark:text-emerald-400 text-sm block">
                         {formatVal(sub.finalAmount, currency)}
                       </span>
-
                       {sub.coupon && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-[10px] font-bold mt-0.5">
                           <Tag size={10} />
@@ -205,8 +189,6 @@ export default function PaymentsTable({
                       )}
                     </div>
                   </td>
-
-                  {/* Date */}
                   <td className="py-4 px-4">
                     <span className="text-slate-600 dark:text-slate-300 font-medium block">
                       {formatDate(sub.paidAt || sub.createdAt, isRtl)}
@@ -217,13 +199,9 @@ export default function PaymentsTable({
                       </span>
                     )}
                   </td>
-
-                  {/* Status */}
                   <td className="py-4 px-4">
                     {renderStatus(sub.status)}
                   </td>
-
-                  {/* Actions */}
                   <td className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-2">
                       <button
@@ -234,7 +212,6 @@ export default function PaymentsTable({
                       >
                         <Eye size={15} />
                       </button>
-
                       {sub.checkoutUrl && (
                         <a
                           href={sub.checkoutUrl}

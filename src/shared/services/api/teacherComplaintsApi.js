@@ -23,7 +23,6 @@ export const teacherComplaintsApi = {
       if (filterOrParams.page) queryParams.page = filterOrParams.page;
       if (filterOrParams.limit) queryParams.limit = filterOrParams.limit;
     }
-
     try {
       const response = await api.get('/api/v1/teacher/complaints-suggestions', {
         params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
@@ -48,7 +47,6 @@ export const teacherComplaintsApi = {
     return response.data?.data || response.data;
   },
 
-  // Attachments are uploaded files (multipart, repeated `attachments` field)
   createComplaintOrSuggestion: async (payload) => {
     const response = await api.post('/api/v1/teacher/complaints-suggestions', toMultipart(payload), {
       headers: { 'Content-Type': 'multipart/form-data' },

@@ -18,7 +18,6 @@ import StudentStep2 from './steps/StudentStep2'
 
 const getLevelName = (lvl) => (typeof lvl?.name === 'object' && lvl?.name !== null ? [lvl.name.ar, lvl.name.en] : [lvl?.name])
 
-// The regular student endpoint returns the level as its name, so it is mapped back to the ID the update endpoint expects.
 const resolveLevelId = (levels, ...labels) => {
   const values = labels.filter(Boolean)
   const match = levels.find((lvl) => getLevelName(lvl).some((n) => n && values.includes(n)))
@@ -34,19 +33,16 @@ export default function AddEditStudentScreen({
 }) {
   const isEdit = Boolean(student)
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
-
   const [countriesList, setCountriesList] = useState([])
   const [countryCodesList, setCountryCodesList] = useState([])
   const [levelsList, setLevelsList] = useState([])
   const [parentsList, setParentsList] = useState([])
-
   const [selectedCountryCode, setSelectedCountryCode] = useState(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [phoneVal, setPhoneVal] = useState('')
   const [parentSearch, setParentSearch] = useState('')
   const [selectedParentId, setSelectedParentId] = useState(student?.parent?.parent_id || '')
   const [selectedParentName, setSelectedParentName] = useState(student?.parent?.name || '')
-
   const [formData, setFormData] = useState({
     name: student?.name?.ar || '',
     nameEn: student?.name?.en || '',
@@ -59,11 +55,9 @@ export default function AddEditStudentScreen({
     profileImageFile: null,
     profileImage: student?.image || null
   })
-
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
-
   useEffect(() => {
     api.get('/api/v1/countries')
       .then((res) => {
@@ -74,14 +68,12 @@ export default function AddEditStudentScreen({
         setCountryCodesList(sortCountryCodes(toDialCodeOptions(normalized), isRtl))
       })
       .catch((err) => console.error('Error fetching countries:', err))
-
     adminLevelsApi.fetchLevels()
       .then((res) => {
         const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : [])
         setLevelsList(list)
       })
       .catch((err) => console.error('Error fetching student levels:', err))
-
     api.get('/api/v1/parents/localized/all', { params: { limit: 1000 } })
       .then((res) => {
         const rawParents = res.data?.data || []
@@ -100,8 +92,6 @@ export default function AddEditStudentScreen({
       })
       .catch((err) => console.error('Error fetching parents:', err))
   }, [isRtl])
-
-  // Default phone country (UAE) for new students; for edits, split the stored phone into code + number.
   useEffect(() => {
     if (countryCodesList.length === 0) return
     if (student?.phone) {
@@ -112,13 +102,11 @@ export default function AddEditStudentScreen({
       setSelectedCountryCode((prev) => prev || countryCodesList.find((c) => c.code === DEFAULT_DIAL_CODE) || null)
     }
   }, [student, countryCodesList])
-
   useEffect(() => {
     if (!student || countriesList.length === 0) return
     const countryId = resolveCountryIdFromLabel(countriesList, student.countryAr, student.countryEn, student.country)
     if (countryId) setFormData((prev) => ({ ...prev, country: countryId }))
   }, [student, countriesList])
-
   useEffect(() => {
     if (levelsList.length === 0) return
     if (student) {
@@ -128,12 +116,10 @@ export default function AddEditStudentScreen({
       setFormData((prev) => (prev.studentLevel ? prev : { ...prev, studentLevel: levelsList[0].id || levelsList[0]._id }))
     }
   }, [student, levelsList])
-
   const handleParentSelect = (parentId, parentName) => {
     setSelectedParentId(parentId)
     setSelectedParentName(parentName)
   }
-
   const handleSave = () => {
     const nameAr = formData.name.trim()
     const nameEn = formData.nameEn.trim()
@@ -141,7 +127,6 @@ export default function AddEditStudentScreen({
       showErrorToast(isRtl ? ar : en, isRtl)
       return false
     }
-
     const isValid = (() => {
       if (nameAr.length < 2 || nameAr.length > 50) return fail('الاسم بالعربية يجب أن يكون بين 2 و 50 حرفًا', 'Arabic name must be 2–50 characters')
       if (nameEn.length < 2 || nameEn.length > 50) return fail('الاسم بالإنجليزية يجب أن يكون بين 2 و 50 حرفًا', 'English name must be 2–50 characters')
@@ -159,7 +144,6 @@ export default function AddEditStudentScreen({
       return true
     })()
     if (!isValid) return
-
     onSave({
       name: { ar: nameAr, en: nameEn },
       email: formData.email.trim(),
@@ -172,12 +156,10 @@ export default function AddEditStudentScreen({
       profileImageFile: formData.profileImageFile
     })
   }
-
   const selectCountryCode = (country) => {
     setSelectedCountryCode(country)
     setIsDropdownOpen(false)
   }
-
   const filteredParents = parentsList.filter((p) => {
     if (!parentSearch.trim()) return true
     const q = parentSearch.toLowerCase()
@@ -187,7 +169,6 @@ export default function AddEditStudentScreen({
       (p.phone && p.phone.includes(q))
     )
   })
-
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn max-w-5xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-3">
@@ -212,7 +193,6 @@ export default function AddEditStudentScreen({
           </p>
         </div>
       </div>
-
       <StudentStep1
         formData={formData}
         handleChange={handleChange}
@@ -228,7 +208,6 @@ export default function AddEditStudentScreen({
         selectCountryCode={selectCountryCode}
         isEdit={isEdit}
       />
-
       <StudentStep2
         formData={formData}
         handleChange={handleChange}
@@ -241,7 +220,6 @@ export default function AddEditStudentScreen({
         filteredParents={filteredParents}
         isEdit={isEdit}
       />
-
       <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="button"
@@ -251,7 +229,6 @@ export default function AddEditStudentScreen({
         >
           {isRtl ? 'إلغاء' : 'Cancel'}
         </button>
-
         <button
           type="button"
           onClick={handleSave}

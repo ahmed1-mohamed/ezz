@@ -7,7 +7,6 @@ import coreValuesImage from '@/images/about/core-values.svg'
 export default React.memo(function AboutCoreValues() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n?.language?.startsWith('ar') ?? true
-
     const values = useMemo(() => [
         {
             title: t('curriculum.coreValues.v1.title', t('about.values.v1.title', 'الأمانة العلمية')),
@@ -28,7 +27,6 @@ export default React.memo(function AboutCoreValues() {
             delay: 0.3
         }
     ], [t])
-
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-12">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -51,7 +49,6 @@ export default React.memo(function AboutCoreValues() {
                         />
                     </div>
                 </motion.div>
-
                 <motion.div
                     initial={{ opacity: 0, x: isRtl ? 20 : 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -62,7 +59,6 @@ export default React.memo(function AboutCoreValues() {
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 text-start">
                         {t('curriculum.coreValues.title', t('about.values.mainTitle', 'قيمنا الجوهرية'))}
                     </h2>
-
                     <div className="space-y-8">
                         {values.map((item, index) => (
                             <motion.div

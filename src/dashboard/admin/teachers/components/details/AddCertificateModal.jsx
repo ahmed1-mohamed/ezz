@@ -16,13 +16,10 @@ export default function AddCertificateModal({
   const [filePreview, setFilePreview] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef(null)
-
   if (!isOpen) return null
-
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     setSelectedFile(file)
     if (file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file)
@@ -31,7 +28,6 @@ export default function AddCertificateModal({
       setFilePreview(null)
     }
   }
-
   const handleReset = () => {
     setNameAr('')
     setNameEn('')
@@ -39,20 +35,16 @@ export default function AddCertificateModal({
     if (filePreview) URL.revokeObjectURL(filePreview)
     setFilePreview(null)
   }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (!nameAr.trim()) {
       toast.error(isRtl ? 'يرجى إدخال اسم الشهادة بالعربية' : 'Please enter certificate name in Arabic')
       return
     }
-
     if (!selectedFile) {
       toast.error(isRtl ? 'يرجى اختيار ملف الشهادة' : 'Please choose a certificate file')
       return
     }
-
     try {
       setIsSubmitting(true)
       await teachersApi.addTeacherCertificate(teacherId, {
@@ -64,7 +56,6 @@ export default function AddCertificateModal({
         nameEn: (nameEn || nameAr).trim(),
         file: selectedFile
       })
-
       toast.success(isRtl ? 'تمت إضافة الشهادة بنجاح!' : 'Certificate added successfully!')
       handleReset()
       if (onSuccess) onSuccess()
@@ -80,7 +71,6 @@ export default function AddCertificateModal({
       setIsSubmitting(false)
     }
   }
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
@@ -113,7 +103,6 @@ export default function AddCertificateModal({
             <X size={18} />
           </button>
         </div>
-
          <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -128,7 +117,6 @@ export default function AddCertificateModal({
               className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
             />
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {isRtl ? 'اسم الشهادة (بالإنجليزية - اختياري)' : 'Certificate Name (English - Optional)'}
@@ -141,7 +129,6 @@ export default function AddCertificateModal({
               className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
             />
           </div>
-
            <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {isRtl ? 'ملف الشهادة (PDF أو صورة)' : 'Certificate File (PDF or Image)'} *
@@ -161,7 +148,6 @@ export default function AddCertificateModal({
                 className="hidden"
                 onChange={handleFileChange}
               />
-
               {selectedFile ? (
                 <div className="flex items-center justify-center gap-3">
                   {filePreview ? (
@@ -197,7 +183,6 @@ export default function AddCertificateModal({
               )}
             </div>
           </div>
-
            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

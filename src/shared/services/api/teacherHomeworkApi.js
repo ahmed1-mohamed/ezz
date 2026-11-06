@@ -42,7 +42,6 @@ export const teacherHomeworkApi = {
     try {
       let endpoint = '/api/v1/teacher/homework/submissions';
       const normalizedStatus = (status || 'all').toLowerCase();
-
       if (normalizedStatus === 'pending') {
         endpoint = '/api/v1/teacher/homework/submissions/pending';
       } else if (normalizedStatus === 'submitted') {
@@ -52,7 +51,6 @@ export const teacherHomeworkApi = {
       } else if (normalizedStatus === 'overdue') {
         endpoint = '/api/v1/teacher/homework/submissions/overdue';
       }
-
       const response = await api.get(endpoint, { params, skipLang: true });
       const resData = response.data || {};
       const list = Array.isArray(resData?.data)
@@ -60,7 +58,6 @@ export const teacherHomeworkApi = {
         : Array.isArray(resData)
           ? resData
           : [];
-
       return {
         success: true,
         data: list,
@@ -86,11 +83,9 @@ export const teacherHomeworkApi = {
   fetchSubmissionDetails: async (submissionId, homeworkId) => {
     const validSubId = submissionId && /^[0-9a-fA-F]{24}$/.test(String(submissionId)) ? String(submissionId) : null;
     const validHwId = homeworkId && /^[0-9a-fA-F]{24}$/.test(String(homeworkId)) ? String(homeworkId) : null;
-
     if (!validSubId && !validHwId) {
       return { success: true, data: null };
     }
-
     if (validSubId) {
       try {
         const response = await api.get(`/api/v1/teacher/homework/submissions/${validSubId}`, {
@@ -101,9 +96,7 @@ export const teacherHomeworkApi = {
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
       } catch {
-        // try alternatives silently
       }
-
       try {
         const response = await api.get(`/api/v1/teacher/submissions/${validSubId}`, {
           skipLang: true,
@@ -113,10 +106,8 @@ export const teacherHomeworkApi = {
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
       } catch {
-        // try next
       }
     }
-
     if (validHwId) {
       try {
         const response = await api.get(`/api/v1/teacher/homework/${validHwId}`, {
@@ -127,10 +118,8 @@ export const teacherHomeworkApi = {
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
       } catch {
-        // ignore
       }
     }
-
     return { success: true, data: null };
   },
 

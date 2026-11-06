@@ -6,7 +6,6 @@ import api from '@/shared/services/api/axiosConfig'
 
 export default function Footer() {
     const { t } = useTranslation()
-
     const { data: contactResponse } = useQuery({
         queryKey: ['public-contact-footer'],
         queryFn: async () => {
@@ -15,9 +14,7 @@ export default function Footer() {
         },
         staleTime: 60 * 60 * 1000,
     })
-
     const contactData = contactResponse;
-
     const email = contactData?.email || "info@manaratezz.edu.sa"
     const phone = contactData?.phone || "+971501234567"
     const whatsapp = contactData?.whatsapp || "+971501234567"
@@ -27,7 +24,6 @@ export default function Footer() {
         { label: t('public.footer.refund', 'سياسة الاسترجاع'), href: '/refund' },
         { label: t('public.footer.support', 'الدعم الفني'), href: '/support' },
     ]
-
     return (
         <footer className="bg-white text-slate-900 border-t border-slate-200 dark:bg-slate-950 dark:text-slate-100 dark:border-slate-850">
             <div className="container mx-auto px-6 py-10">
@@ -38,7 +34,6 @@ export default function Footer() {
                             {t('public.footer.description', 'نقدم محتوى تعليمي متخصص لغرس القيم وبناء جيل متسلح بالعلم والإيمان.')}
                         </p>
                     </div>
-
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold text-[#00695C] dark:text-emerald-400">{t('public.footer.policies', 'السياسات')}</h2>
                         <nav aria-label={t('public.footer.policies', 'السياسات')}>
@@ -53,7 +48,6 @@ export default function Footer() {
                             </ul>
                         </nav>
                     </div>
-
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold text-[#00695C] dark:text-emerald-400">{t('public.footer.quickLinks', 'روابط سريعة')}</h2>
                         <nav aria-label={t('public.footer.quickLinks', 'روابط سريعة')}>
@@ -73,7 +67,6 @@ export default function Footer() {
                             </ul>
                         </nav>
                     </div>
-
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold text-[#00695C] dark:text-emerald-400">{t('public.contact.title', 'تواصل معنا')}</h2>
                         <ul className="space-y-3">
@@ -95,7 +88,6 @@ export default function Footer() {
                     </div>
                 </div>
             </div>
-
             <div className="border-t border-slate-200 dark:border-slate-800 py-4">
                 <p className="text-center text-gray-500 dark:text-slate-400 text-sm">
                     {t('public.footer.copyright', 'جميع الحقوق محفوظة © 2026 أكاديمية منارة العز')}

@@ -33,7 +33,6 @@ function AdminCoupons() {
         selectedStatus,
         setSelectedStatus,
     } = useCoupons();
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-60">
@@ -41,7 +40,6 @@ function AdminCoupons() {
             </div>
         );
     }
-
     return (
         <div className="space-y-6 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="text-start">
@@ -52,7 +50,6 @@ function AdminCoupons() {
                     {t('adminDashboard.coupons.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
                 </p>
             </div>
-
             <CouponStatsBar
                 total={coupons.length}
                 active={activeCoupons}
@@ -61,7 +58,6 @@ function AdminCoupons() {
                 selectedStatus={selectedStatus}
                 onSelectStatus={setSelectedStatus}
             />
-
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button
                     onClick={handleOpenForm}
@@ -70,17 +66,14 @@ function AdminCoupons() {
                     <Plus size={18} />
                     {t('adminDashboard.coupons.createCoupon', 'إنشاء كود خصم')}
                 </button>
-
                 <CouponSearchBar value={searchQuery} onSearch={handleSearch} />
             </div>
-
             <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-soft">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 text-start">
                     <h2 className="text-lg font-bold text-slate-800 dark:text-white">
                         {t('adminDashboard.coupons.currentCoupons', 'الكوبونات الحالية')}
                     </h2>
                 </div>
-
                 {filteredCoupons.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                         <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center mb-4">
@@ -98,13 +91,11 @@ function AdminCoupons() {
                     />
                 )}
             </section>
-
             <CouponFormPanel
                 isOpen={isFormOpen}
                 onClose={handleCloseForm}
                 onSave={handleSaveCoupon}
             />
-
             <CouponDetailsModal
                 isOpen={isDetailsOpen}
                 onClose={handleCloseDetails}

@@ -104,7 +104,7 @@ export function checkCanJoinSession(session, currentTime = Date.now()) {
   );
   if (!endDate) {
     const durationMinutes = Number(
-      session.durationMinutes || session.durationTime || session.duration || 60
+      session.duration || session.durationMinutes || session.durationTime || session.group?.sessionDuration || 90
     );
     endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
   }

@@ -17,6 +17,7 @@ import {
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
 import ParentPackageCard from './components/ParentPackageCard.jsx';
 import ParentPackageDetailsModal from './components/ParentPackageDetailsModal.jsx';
+import ParentPackageNavTabs from './components/ParentPackageNavTabs.jsx';
 
 const TYPE_FILTERS = [
   { id: 'all', labelKey: 'parentPackages.allTypes', defaultLabel: 'الكل' },
@@ -136,7 +137,9 @@ export default function ParentPackages() {
   };
   return (
     <div className="p-4 sm:p-8 space-y-8 max-w-7xl mx-auto transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Page Header */}
+      <div className="flex justify-start">
+        <ParentPackageNavTabs />
+      </div>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
@@ -166,7 +169,12 @@ export default function ParentPackages() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate('/dashboard/parent/checkout')}
+              onClick={() => {
+                const targetPkg = filteredPackages[0] || rawPackagesList[0] || null;
+                navigate('/dashboard/parent/checkout', {
+                  state: targetPkg ? { package: targetPkg } : undefined,
+                });
+              }}
               className="px-5 py-3 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-extrabold shadow-md shadow-[#0f7a6c]/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.01]"
             >
               <CreditCard className="w-4 h-4" />
@@ -174,7 +182,6 @@ export default function ParentPackages() {
             </button>
           </div>
         </div>
-        {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs">
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs border border-slate-200/60 dark:border-slate-700">
@@ -211,9 +218,7 @@ export default function ParentPackages() {
           </div>
         </div>
       </div>
-      {/* Search and Filters Bar */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
           <input
@@ -224,7 +229,6 @@ export default function ParentPackages() {
             className="w-full ps-10 pe-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30 focus:border-[#0f7a6c]"
           />
         </div>
-        {/* Filter Pills */}
         <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
             {TYPE_FILTERS.map((filter) => {
@@ -271,7 +275,6 @@ export default function ParentPackages() {
           )}
         </div>
       </div>
-      {/* Main Content Area */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((sk) => (
@@ -351,7 +354,6 @@ export default function ParentPackages() {
               />
             ))}
           </div>
-          {/* Pagination Controls */}
           {paginationInfo.pages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-6">
               <button
@@ -377,7 +379,6 @@ export default function ParentPackages() {
           )}
         </>
       )}
-      {/* Package Details Modal */}
       <ParentPackageDetailsModal
         isOpen={isDetailsOpen}
         packageItem={activeModalPackage}

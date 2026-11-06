@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'react-hot-toast'
 import { createPortal } from 'react-dom'
 import Spinner from '@/shared/components/Spinner'
 import { adminRewardsApi } from '@/shared/services/api/adminRewardsApi'
@@ -16,14 +15,12 @@ export default function AdminRewards() {
   const isRtl = i18n.language.startsWith('ar')
   const { hasPermission, isSuperAdmin } = useAdminPermissions()
   const p = (key) => t(`adminDashboard.rewards.${key}`, key)
-
   const [rewards, setRewards] = useState([])
   const [suggestions, setSuggestions] = useState([])
   const [suggestionsStats, setSuggestionsStats] = useState(null)
   const [suggestionsFilter, setSuggestionsFilter] = useState('all')
   const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false)
   const [loading, setLoading] = useState(true)
-
   const canViewRewards = hasPermission('rewards.read') || hasPermission('rewards_suggestions.read') || isSuperAdmin
   const canViewSuggestions = hasPermission('suggested_rewards.read') || hasPermission('rewards_suggestions.read') || isSuperAdmin
   const canCreateReward = hasPermission('rewards.create') || isSuperAdmin
@@ -32,12 +29,10 @@ export default function AdminRewards() {
   const canDeleteSuggestion = hasPermission('suggested_rewards.delete') || isSuperAdmin
   const canApproveSuggestion = hasPermission('suggested_rewards.accept') || isSuperAdmin
   const canRejectSuggestion = hasPermission('suggested_rewards.reject') || isSuperAdmin
-
   const [activeMainTab, setActiveMainTab] = useState(() => (canViewRewards ? 'rewards' : 'suggestions'))
   const [showForm, setShowForm] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
-
   const [prevViewPermissions, setPrevViewPermissions] = useState({ canViewRewards, canViewSuggestions })
   if (prevViewPermissions.canViewRewards !== canViewRewards || prevViewPermissions.canViewSuggestions !== canViewSuggestions) {
     setPrevViewPermissions({ canViewRewards, canViewSuggestions })
@@ -47,7 +42,6 @@ export default function AdminRewards() {
       setActiveMainTab('rewards')
     }
   }
-
   const loadSuggestionsByStatus = useCallback(async (status) => {
     setIsSuggestionsLoading(true)
     setSuggestionsFilter(status)
@@ -60,7 +54,6 @@ export default function AdminRewards() {
     }
     setIsSuggestionsLoading(false)
   }, [])
-
   const loadData = useCallback(async () => {
     setLoading(true)
     const [rewardsRes, suggestionsRes] = await Promise.all([
@@ -76,7 +69,6 @@ export default function AdminRewards() {
     }
     setLoading(false)
   }, [suggestionsFilter])
-
   useEffect(() => {
     let isMounted = true
     Promise.resolve().then(() => {
@@ -86,12 +78,10 @@ export default function AdminRewards() {
       isMounted = false
     }
   }, [loadData])
-
   const handleEditRewardClick = async (reward, switchTab = false) => {
     setEditingReward(reward)
     setShowForm(true)
     if (switchTab) setActiveMainTab('rewards')
-
     try {
       const res = await adminRewardsApi.fetchRewardById(reward.id || reward._id)
       if (res?.success && res.data && typeof res.data === 'object' && Object.keys(res.data).length > 0) {
@@ -101,7 +91,6 @@ export default function AdminRewards() {
       console.error('Failed to fetch reward details for edit:', error)
     }
   }
-
   const handleSaveReward = async (rewardData) => {
     setIsSaving(true)
     try {
@@ -128,12 +117,10 @@ export default function AdminRewards() {
       setIsSaving(false)
     }
   }
-
   const handleDeleteReward = async (reward) => {
     const rewardName = typeof reward.name === 'object' ? (isRtl ? reward.name.ar : reward.name.en) : reward.name;
     const isConfirmed = await showDeleteConfirm(isRtl, rewardName);
     if (!isConfirmed) return;
-
     const res = await adminRewardsApi.deleteReward(reward.id || reward._id)
     if (res?.success) {
       showSuccessToast(isRtl ? 'تم الحذف بنجاح' : 'Deleted successfully', isRtl)
@@ -142,7 +129,6 @@ export default function AdminRewards() {
       showErrorToast(isRtl ? 'فشل الحذف' : 'Deletion failed', isRtl)
     }
   }
-
   const handleApproveSuggestion = async (id, suggestion = null) => {
     const res = await adminRewardsApi.approveSuggestion(id, suggestion)
     if (res?.success) {
@@ -153,7 +139,6 @@ export default function AdminRewards() {
       showErrorToast(res?.error || (isRtl ? 'فشل قبول المقترح' : 'Failed to approve suggestion'), isRtl)
     }
   }
-
   const handleRejectSuggestion = async (id) => {
     const res = await adminRewardsApi.rejectSuggestion(id)
     if (res?.success) {
@@ -163,12 +148,10 @@ export default function AdminRewards() {
       showErrorToast(res?.error || (isRtl ? 'فشل رفض المقترح' : 'Failed to reject suggestion'), isRtl)
     }
   }
-
   const handleDeleteSuggestion = async (suggestion) => {
     const suggestionName = typeof suggestion.name === 'object' ? (isRtl ? suggestion.name.ar : suggestion.name.en) : suggestion.name;
     const isConfirmed = await showDeleteConfirm(isRtl, suggestionName);
     if (!isConfirmed) return;
-
     const res = await adminRewardsApi.deleteSuggestion(suggestion.id || suggestion._id)
     if (res?.success) {
       showSuccessToast(isRtl ? 'تم حذف المقترح بنجاح' : 'Suggestion deleted successfully', isRtl)
@@ -177,7 +160,6 @@ export default function AdminRewards() {
       showErrorToast(res?.error || (isRtl ? 'فشل حذف المقترح' : 'Failed to delete suggestion'), isRtl)
     }
   }
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-60">
@@ -185,7 +167,6 @@ export default function AdminRewards() {
       </div>
     )
   }
-
   if (!canViewRewards && !canViewSuggestions) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
@@ -195,7 +176,6 @@ export default function AdminRewards() {
       </div>
     )
   }
-
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 p-6 shadow-sm flex items-center justify-between">
@@ -208,7 +188,6 @@ export default function AdminRewards() {
           </span>
         </div>
       </div>
-
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
         {canViewRewards && (
           <button
@@ -233,7 +212,6 @@ export default function AdminRewards() {
           </button>
         )}
       </div>
-
       {activeMainTab === 'rewards' && canViewRewards ? (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -253,7 +231,6 @@ export default function AdminRewards() {
               </button>
             )}
           </div>
-
           <RewardsGrid
             rewards={rewards}
             onView={(item) => showRewardDetails(item, isRtl)}
@@ -274,7 +251,6 @@ export default function AdminRewards() {
           onDelete={canDeleteSuggestion ? handleDeleteSuggestion : null}
         />
       ) : null}
-
       {showForm && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl my-8 relative flex flex-col max-h-[90vh]">

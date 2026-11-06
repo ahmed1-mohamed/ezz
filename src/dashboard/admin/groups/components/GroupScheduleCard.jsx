@@ -40,16 +40,13 @@ export default function GroupScheduleCard({
     }
     return String(dayKey)
   }
-
   const localizedWeekDays = useMemo(() => {
     return WEEK_DAYS.map((d) => ({
       value: d.key,
       label: t ? t(`schedule.${d.key}`, isRtl ? d.ar : d.en) : (isRtl ? d.ar : d.en),
     }))
   }, [t, isRtl])
-
   const safeSchedule = Array.isArray(schedule) ? schedule.filter(Boolean) : []
-
   return (
     <div className={`bg-white dark:bg-slate-900 rounded-3xl border ${error ? 'border-red-300 dark:border-red-900/60 ring-2 ring-red-500/10' : 'border-slate-100 dark:border-slate-800/80'} p-6 shadow-soft space-y-5`}>
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -63,7 +60,6 @@ export default function GroupScheduleCard({
           </span>
         )}
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="relative">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
@@ -75,7 +71,6 @@ export default function GroupScheduleCard({
             options={localizedWeekDays}
           />
         </div>
-
         <div className="relative">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.timeFromLabel', 'أختر الساعة من')}
@@ -87,7 +82,6 @@ export default function GroupScheduleCard({
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 rounded-2xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 outline-none transition-all text-start"
           />
         </div>
-
         <div className="relative">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.timeToLabel', 'أختر الساعة إلى')}
@@ -100,7 +94,6 @@ export default function GroupScheduleCard({
           />
         </div>
       </div>
-
       <div className="flex justify-end">
         <button
           type="button"
@@ -111,7 +104,6 @@ export default function GroupScheduleCard({
           <span>{t('adminDashboard.groups.addScheduleButton', 'إضافة موعد')}</span>
         </button>
       </div>
-
       {safeSchedule.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
           <table className="w-full text-sm">
@@ -129,7 +121,6 @@ export default function GroupScheduleCard({
                 const slotKey = typeof slot.day === 'object' && slot.day !== null
                   ? (slot.day.key || slot.day.en || slot.day.ar || index)
                   : String(slot.day || index)
-
                 return (
                   <tr key={`${slotKey}-${index}`} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
                     <td className="px-5 py-3 text-start font-medium text-slate-700 dark:text-slate-300">
@@ -155,7 +146,6 @@ export default function GroupScheduleCard({
           </table>
         </div>
       )}
-
       {safeSchedule.length === 0 && (
         <div className="flex flex-col items-center justify-center py-8 text-slate-400 dark:text-slate-500 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
           <Calendar size={28} className="mb-2 opacity-40" />

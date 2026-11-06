@@ -23,7 +23,6 @@ function setCachedDashboard(data) {
   try {
     sessionStorage.setItem('parent_dashboard_cache', JSON.stringify(data));
   } catch {
-    // ignore sessionStorage write errors
   }
 }
 
@@ -93,7 +92,6 @@ export const parentApi = {
         return { success: true, data: payload };
       }
     } catch {
-      // Endpoint failed; gracefully fallback to cache or structured fallback
     }
     const cached = getCachedDashboard();
     if (cached) {
@@ -170,7 +168,6 @@ export const parentApi = {
         return { success: true, data: formatted };
       }
     } catch {
-      // Fallback to dashboard
     }
     try {
       const dashRes = await parentApi.fetchDashboard();
@@ -180,7 +177,6 @@ export const parentApi = {
         return { success: true, data: formatted };
       }
     } catch {
-      // Fallback
     }
     const defaultStudents = [
       formatChildRecord({
@@ -235,7 +231,6 @@ export const parentApi = {
         }
       }
     } catch {
-      // Fallback
     }
     const childrenRes = await parentApi.fetchChildren();
     const list = childrenRes?.data || [];
@@ -256,7 +251,6 @@ export const parentApi = {
         return { success: true, data: items };
       }
     } catch {
-      // Use safe default teachers
     }
     const defaultTeachers = [
       { id: 't1', name: 'مريم مصطفى رضوان', nameEn: 'Maryam Mostafa Radwan', avatar: 'م' },
@@ -292,7 +286,6 @@ export const parentApi = {
         };
       }
     } catch {
-      // Fallback
     }
     const fallbackList = [
       {
@@ -381,7 +374,6 @@ export const parentApi = {
         };
       }
     } catch {
-      // Fallback
     }
     const fallbackList = [
       {
@@ -420,7 +412,6 @@ export const parentApi = {
         return { success: true, data: item };
       }
     } catch {
-      // Fallback
     }
     const defaultSubmission = {
       id: submissionId,
@@ -469,7 +460,6 @@ export const parentApi = {
         return { success: true, data: item };
       }
     } catch {
-      // Fallback
     }
     const defaultReport = {
       attendanceRate: 94,
@@ -495,7 +485,6 @@ export const parentApi = {
         return { success: true, data: payload };
       }
     } catch {
-      // Fallback
     }
     const dashRes = await parentApi.fetchDashboard();
     const sessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
@@ -593,7 +582,6 @@ export const parentApi = {
         return { success: true, data: payload };
       }
     } catch {
-      // Fallback
     }
     const defaultAttendance = {
       student: {
@@ -673,7 +661,6 @@ export const parentApi = {
       const items = Array.isArray(raw) ? raw : [];
       return { success: true, data: items, length: response.data?.length ?? items.length };
     } catch {
-      // Return empty array on failure
     }
     return { success: true, data: [], length: 0 };
   },
@@ -684,7 +671,6 @@ export const parentApi = {
       const item = response.data?.data || response.data;
       return { success: true, data: item || null };
     } catch {
-      // Return null on failure
     }
     return { success: false, data: null };
   },
@@ -745,7 +731,6 @@ export const parentApi = {
         }
       };
     } catch {
-      // Fallback
     }
     const fallbackList = [
       {
@@ -795,7 +780,6 @@ export const parentApi = {
         return { success: true, data: item, message: response.data?.message };
       }
     } catch {
-      // Fallback
     }
     const defaultDetails = {
       sessionId,
@@ -874,7 +858,6 @@ export const parentApi = {
         return { success: true, data: eligible };
       }
     } catch {
-      // Fallback
     }
     const dashRes = await parentApi.fetchDashboard();
     const upSessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];

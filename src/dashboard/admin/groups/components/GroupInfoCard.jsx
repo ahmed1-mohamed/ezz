@@ -33,13 +33,11 @@ export default function GroupInfoCard({
           ? formData.nameAr.trim()
           : (typeof formData.name?.ar === 'string' ? formData.name.ar.trim() : 'م'))
   ).charAt(0) || 'م'
-
   const resolvedCountries = useMemo(() => Array.isArray(countries) ? countries : [], [countries])
   const resolvedCurricula = useMemo(() => Array.isArray(curricula) ? curricula : [], [curricula])
   const resolvedLevels = useMemo(() => Array.isArray(levels) ? levels : [], [levels])
   const resolvedTeachers = useMemo(() => Array.isArray(teachers) ? teachers : [], [teachers])
   const resolvedLanguages = useMemo(() => Array.isArray(languages) ? languages : [], [languages])
-
   const countryOptions = useMemo(() => {
     const sorted = sortCountries(resolvedCountries, isRtl)
     return sorted.map((c) => {
@@ -52,7 +50,6 @@ export default function GroupInfoCard({
       }
     })
   }, [resolvedCountries, isRtl])
-
   const filteredCurricula = useMemo(() => {
     if (!formData.country) return resolvedCurricula
     const selectedCountryId = String(formData.country).trim()
@@ -62,7 +59,6 @@ export default function GroupInfoCard({
     const selectedCode = selectedCountryObj?.code ? String(selectedCountryObj.code).toLowerCase() : ''
     const selectedNameAr = selectedCountryObj?.name?.ar || (typeof selectedCountryObj?.name === 'string' ? selectedCountryObj.name : '')
     const selectedNameEn = selectedCountryObj?.name?.en || ''
-
     const matched = resolvedCurricula.filter((cur) => {
       if (!cur) return false
       const cCountry = cur.country || cur.countryId || cur.country_id
@@ -97,10 +93,8 @@ export default function GroupInfoCard({
       }
       return false
     })
-
     return matched.length > 0 ? matched : resolvedCurricula
   }, [resolvedCurricula, formData.country, resolvedCountries])
-
   const curriculumOptions = useMemo(() => {
     return filteredCurricula.map((c) => {
       const id = c.id || c._id
@@ -113,17 +107,14 @@ export default function GroupInfoCard({
       }
     })
   }, [filteredCurricula, isRtl])
-
   const selectedCurriculumObj = useMemo(() => {
     if (!formData.curriculum) return null
     return resolvedCurricula.find((c) => (c.id || c._id) === formData.curriculum)
   }, [formData.curriculum, resolvedCurricula])
-
   const levelOptions = useMemo(() => {
     const sourceLevels = (resolvedLevels && resolvedLevels.length > 0)
       ? resolvedLevels
       : (selectedCurriculumObj?.levels || [])
-
     return sourceLevels.map((l) => {
       if (typeof l === 'object' && l !== null) {
         const id = l.id || l._id || l.studentLevel_id || l.level_id
@@ -141,7 +132,6 @@ export default function GroupInfoCard({
       }
     })
   }, [resolvedLevels, selectedCurriculumObj, isRtl])
-
   const filteredTeachers = useMemo(() => {
     const activeTeachers = resolvedTeachers.filter((tch) => {
       if (!tch) return false
@@ -150,21 +140,17 @@ export default function GroupInfoCard({
         String(tch.status || '').toLowerCase() !== 'inactive'
       return isActive
     })
-
     if (!formData.curriculum) {
       return activeTeachers
     }
-
     const targetCurriculumId = String(formData.curriculum).trim()
     const targetCurriculumObj = resolvedCurricula.find((c) => String(c.id || c._id) === targetCurriculumId)
     const curNameAr = typeof targetCurriculumObj?.name === 'object' ? targetCurriculumObj?.name?.ar : targetCurriculumObj?.name
     const curNameEn = typeof targetCurriculumObj?.name === 'object' ? targetCurriculumObj?.name?.en : targetCurriculumObj?.name
-
     const teachingThisCurriculum = activeTeachers.filter((tch) => {
       const specs = Array.isArray(tch.specializations) ? tch.specializations : []
       const currs = Array.isArray(tch.curricula) ? tch.curricula : (tch.curriculum ? [tch.curriculum] : [])
       const subjects = Array.isArray(tch.subjects) ? tch.subjects : (tch.subject ? [tch.subject] : [])
-
       const matchesItem = (item) => {
         if (!item) return false
         if (typeof item === 'string' || typeof item === 'number') {
@@ -184,13 +170,10 @@ export default function GroupInfoCard({
         }
         return false
       }
-
       return specs.some(matchesItem) || currs.some(matchesItem) || subjects.some(matchesItem)
     })
-
     return teachingThisCurriculum.length > 0 ? teachingThisCurriculum : (activeTeachers.length > 0 ? activeTeachers : resolvedTeachers)
   }, [resolvedTeachers, formData.curriculum, resolvedCurricula])
-
   const teacherOptions = useMemo(() => {
     const list = [...filteredTeachers]
     if (formData.teacher && !list.some((tch) => String(tch.id || tch.teacher_id || tch._id) === String(formData.teacher))) {
@@ -208,7 +191,6 @@ export default function GroupInfoCard({
       }
     })
   }, [filteredTeachers, resolvedTeachers, formData.teacher, isRtl])
-
   const languageOptions = useMemo(() => {
     if (resolvedLanguages.length > 0) {
       return resolvedLanguages.map((l) => {
@@ -224,14 +206,12 @@ export default function GroupInfoCard({
     }
     return []
   }, [resolvedLanguages, isRtl])
-
   const typeOptions = useMemo(() => {
     return GROUP_TYPES.map((gt) => ({
       value: gt.value,
       label: isRtl ? gt.ar : gt.en,
     }))
   }, [isRtl])
-
   const maxStudentOptions = useMemo(() => {
     return MAX_STUDENTS.map((num) => {
       let label = `${num} ${t('adminDashboard.groups.students', 'طلاب')}`
@@ -248,7 +228,6 @@ export default function GroupInfoCard({
       }
     })
   }, [t, isRtl])
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
@@ -256,7 +235,6 @@ export default function GroupInfoCard({
           ? t('adminDashboard.groups.editDetails', 'تعديل بيانات المجموعة')
           : t('adminDashboard.groups.createNewGroup', 'إنشاء مجموعة جديدة')}
       </h3>
-
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
           <div className="h-20 w-20 rounded-full bg-brand-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden">
@@ -286,7 +264,6 @@ export default function GroupInfoCard({
           onChange={handleImageSelect}
         />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
@@ -315,7 +292,6 @@ export default function GroupInfoCard({
           />
           {errors.nameAr && <span className="text-xs text-red-500 mt-1 block text-start">{errors.nameAr}</span>}
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.nameEn', 'اسم المجموعة (بالإنجليزية)')}
@@ -338,7 +314,6 @@ export default function GroupInfoCard({
           {errors.nameEn && <span className="text-xs text-red-500 mt-1 block text-start">{errors.nameEn}</span>}
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <SelectField
           label={t('adminDashboard.groups.country', 'الدولة')}
@@ -362,7 +337,6 @@ export default function GroupInfoCard({
           error={errors.country}
           required
         />
-
         <SelectField
           label={t('adminDashboard.groups.curriculum', 'المنهج الدراسي')}
           value={formData.curriculum}
@@ -384,7 +358,6 @@ export default function GroupInfoCard({
           required
         />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <SelectField
           label={t('adminDashboard.groups.studentLevel', 'مستوى الطلاب')}
@@ -397,7 +370,6 @@ export default function GroupInfoCard({
           disabled={isEditing}
           required
         />
-
         <SelectField
           label={t('adminDashboard.groups.teacher', 'المعلم')}
           value={formData.teacher}
@@ -409,7 +381,6 @@ export default function GroupInfoCard({
           required
         />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <SelectField
           label={t('adminDashboard.groups.groupType', 'نوع المجموعة')}
@@ -422,7 +393,6 @@ export default function GroupInfoCard({
           disabled={isEditing}
           required
         />
-
         <SelectField
           label={t('adminDashboard.groups.language', 'اللغة')}
           value={formData.language || ''}
@@ -435,7 +405,6 @@ export default function GroupInfoCard({
           required
         />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <SelectField
           label={t('adminDashboard.groups.maxStudents', 'الحد الأقصى للطلاب')}
@@ -447,7 +416,6 @@ export default function GroupInfoCard({
           error={errors.maxStudents}
           required
         />
-
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.startDate', 'تاريخ البدء')}
@@ -462,7 +430,6 @@ export default function GroupInfoCard({
           />
           {errors.startDate && <span className="text-xs text-red-500 mt-1 block text-start">{errors.startDate}</span>}
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
             {t('adminDashboard.groups.endDate', 'تاريخ الانتهاء')}
@@ -478,7 +445,6 @@ export default function GroupInfoCard({
           {errors.endDate && <span className="text-xs text-red-500 mt-1 block text-start">{errors.endDate}</span>}
         </div>
       </div>
-
       {isEditing && (
         <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60">
           <SelectField

@@ -16,10 +16,8 @@ export default function AddRoleModal({
   isPending
 }) {
   const modalRef = useRef(null)
-
   useEffect(() => {
     if (!isOpen) return
-
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose()
@@ -30,7 +28,6 @@ export default function AddRoleModal({
         )
         const firstElement = focusableElements[0]
         const lastElement = focusableElements[focusableElements.length - 1]
-
         if (e.shiftKey) {
           if (document.activeElement === firstElement) {
             lastElement.focus()
@@ -44,20 +41,16 @@ export default function AddRoleModal({
         }
       }
     }
-
     document.addEventListener('keydown', handleKeyDown)
     setTimeout(() => {
       const firstInput = modalRef.current?.querySelector('input')
       if (firstInput) firstInput.focus()
     }, 100)
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, onClose])
-
   if (!isOpen) return null;
-
   return createPortal(
     <>
       <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/60 animate-fadeIn" style={{ position: 'fixed', inset: 0 }} onClick={onClose} />
@@ -82,7 +75,6 @@ export default function AddRoleModal({
             <X size={18} aria-hidden="true" />
           </button>
         </div>
-
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div>
             <label htmlFor="roleNameArInput" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
@@ -114,7 +106,6 @@ export default function AddRoleModal({
               dir="ltr"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

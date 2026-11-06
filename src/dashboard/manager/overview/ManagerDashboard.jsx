@@ -20,7 +20,6 @@ const rows = [
 
 export default function ManagerDashboard() {
     const { t } = useTranslation()
-
     return (
         <DashboardLayout title={t('dashboard.overview')} role={t('auth.manager')} links={roleNavigation.Manager}>
             <section className="grid gap-6 xl:grid-cols-2">

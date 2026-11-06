@@ -4,24 +4,18 @@ import { Trash2, Pencil, Eye, GraduationCap } from 'lucide-react'
 export default function CurriculumCard({ curriculum, onEdit, onDelete, onView }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const name = typeof curriculum.name === 'object'
     ? (isRtl ? curriculum.name.ar : curriculum.name.en) || curriculum.name.ar || curriculum.name.en
     : curriculum.name;
-
   const description = typeof curriculum.description === 'object'
     ? (isRtl ? curriculum.description.ar : curriculum.description.en) || curriculum.description.ar || curriculum.description.en
     : curriculum.description;
-
   const levelName = typeof curriculum.studentLevel === 'object' && curriculum.studentLevel !== null
     ? (isRtl ? curriculum.studentLevel.name?.ar || curriculum.studentLevel.name?.en : curriculum.studentLevel.name?.en || curriculum.studentLevel.name?.ar) || curriculum.studentLevel.name
     : curriculum.studentLevel;
-
   const isShown = Boolean(curriculum?.showOnWebsite);
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 flex flex-col h-full overflow-hidden group">
-
       <div className="p-6 flex-1 flex flex-col items-center text-center relative">
         <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4">
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
@@ -46,11 +40,9 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
             </div>
           )}
         </div>
-
         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1.5 line-clamp-1 w-full">
           {name}
         </h3>
-
         {levelName && (
           <div className="mb-2">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00594C]/10 text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300">
@@ -59,12 +51,10 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
             </span>
           </div>
         )}
-
         <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 w-full">
           {description || (isRtl ? 'لا يوجد وصف' : 'No description')}
         </p>
       </div>
-
        <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-center gap-2 bg-slate-50/50 dark:bg-slate-900/50">
         <button
           type="button"

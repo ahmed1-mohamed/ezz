@@ -21,7 +21,6 @@ export default function TeacherPersonalInfoCard({
     Boolean(profileForm.isGoogleLinked || profileForm.googleId || profileForm.provider === 'google')
   );
   const [linkingGoogle, setLinkingGoogle] = useState(false);
-
   const handleToggleGoogleLink = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -51,7 +50,6 @@ export default function TeacherPersonalInfoCard({
       setLinkingGoogle(false);
     }
   };
-
   return (
     <form
       onSubmit={onSave}
@@ -70,7 +68,6 @@ export default function TeacherPersonalInfoCard({
             className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#00594C]/20 focus:border-[#00594C] transition-all"
           />
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacherProfilePage.nameEn', 'الاسم باللغة الإنجليزية')}
@@ -84,7 +81,6 @@ export default function TeacherPersonalInfoCard({
             className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#00594C]/20 focus:border-[#00594C] transition-all text-start"
           />
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacherProfilePage.email', 'البريد الإلكتروني')}
@@ -103,7 +99,6 @@ export default function TeacherPersonalInfoCard({
             />
           </div>
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacherProfilePage.country', 'الدولة')}
@@ -128,7 +123,6 @@ export default function TeacherPersonalInfoCard({
             />
           </div>
         </div>
-
         <div className="space-y-1.5 md:col-span-2">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacherProfilePage.phone', 'رقم الهاتف')}
@@ -145,7 +139,6 @@ export default function TeacherPersonalInfoCard({
                 </option>
               ))}
             </select>
-
             <div className="relative flex-1">
               <input
                 type="tel"
@@ -162,8 +155,6 @@ export default function TeacherPersonalInfoCard({
           </div>
         </div>
       </div>
-
-      {/* Linked Accounts Section (Google Link / Unlink) */}
       <div className="pt-6 border-t border-slate-100 dark:border-slate-800 text-start">
         <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3">
           {t('teacherProfilePage.linkedAccounts', 'ربط الحسابات وتأمين الدخول')}
@@ -192,7 +183,6 @@ export default function TeacherPersonalInfoCard({
               </div>
             </div>
           </div>
-
           <button
             type="button"
             onClick={handleToggleGoogleLink}
@@ -211,7 +201,6 @@ export default function TeacherPersonalInfoCard({
           </button>
         </div>
       </div>
-
       <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
         <button
           type="submit"

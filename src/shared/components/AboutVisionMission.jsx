@@ -5,7 +5,6 @@ import { Eye, Target } from 'lucide-react'
 
 export default React.memo(function AboutVisionMission() {
     const { t } = useTranslation()
-
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
@@ -28,7 +27,6 @@ export default React.memo(function AboutVisionMission() {
                         </p>
                     </div>
                 </motion.div>
-
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -48,7 +46,6 @@ export default React.memo(function AboutVisionMission() {
                         </p>
                     </div>
                 </motion.div>
-
             </div>
         </section>
     )

@@ -19,7 +19,6 @@ const STATUS_TABS = [
 export default function AdminSessions() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
-
   const [apiStats, setApiStats] = useState(null)
   const [sessions, setSessions] = useState([])
   const [teachers, setTeachers] = useState([])
@@ -32,9 +31,7 @@ export default function AdminSessions() {
   const [totalCount, setTotalCount] = useState(0)
   const [expandedRow, setExpandedRow] = useState(null)
   const [expandedPanel, setExpandedPanel] = useState(null)
-
   const itemsPerPage = 10
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery)
@@ -42,7 +39,6 @@ export default function AdminSessions() {
     }, 350)
     return () => clearTimeout(timer)
   }, [searchQuery])
-
   useEffect(() => {
     let active = true
     const loadTeachers = async () => {
@@ -72,7 +68,6 @@ export default function AdminSessions() {
     loadTeachers()
     return () => { active = false }
   }, [isRtl])
-
   const loadSessions = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -108,7 +103,6 @@ export default function AdminSessions() {
       setIsLoading(false)
     }
   }, [currentPage, itemsPerPage, activeTab, debouncedSearch])
-
   useEffect(() => {
     let isMounted = true
     Promise.resolve().then(() => {
@@ -118,7 +112,6 @@ export default function AdminSessions() {
       isMounted = false
     }
   }, [loadSessions])
-
   const stats = useMemo(() => {
     const list = Array.isArray(sessions) ? sessions : []
     const live = Number(apiStats?.in_progress ?? list.filter((s) => s.status === 'live').length) || 0
@@ -134,7 +127,6 @@ export default function AdminSessions() {
       cancelled,
     }
   }, [apiStats, sessions, totalCount])
-
   const handleTogglePanel = (sessionId, panel) => {
     if (expandedRow === sessionId && expandedPanel === panel) {
       setExpandedRow(null)
@@ -144,13 +136,11 @@ export default function AdminSessions() {
       setExpandedPanel(panel)
     }
   }
-
   const handleReschedule = async (sessionId, payloadOrDate, maybeStartTime, maybeEndTime) => {
     const payload =
       typeof payloadOrDate === 'object' && payloadOrDate !== null
         ? payloadOrDate
         : { date: payloadOrDate, startTime: maybeStartTime, endTime: maybeEndTime }
-
     const res = await adminSessionsApi.rescheduleSession(sessionId, payload)
     if (res && res.success) {
       showSuccessToast(t('adminDashboard.sessions.rescheduleSuccess', 'تمت إعادة جدولة الحصة بنجاح'), isRtl)
@@ -178,7 +168,6 @@ export default function AdminSessions() {
       return false
     }
   }
-
   const handleChangeTeacher = async (sessionId, teacherId, teacherName, reason) => {
     const res = await adminSessionsApi.changeTeacher(sessionId, teacherId, reason)
     if (res.success) {
@@ -198,7 +187,6 @@ export default function AdminSessions() {
       )
     }
   }
-
   const handleCancelSession = async (sessionId) => {
     const res = await adminSessionsApi.cancelSession(sessionId)
     if (res.success) {
@@ -218,7 +206,6 @@ export default function AdminSessions() {
       )
     }
   }
-
   const getTabLabel = (key, defaultLabel) => {
     const map = {
       'all': t('adminDashboard.sessions.tabs.all', 'الكل'),
@@ -229,11 +216,9 @@ export default function AdminSessions() {
     }
     return map[key] || defaultLabel
   }
-
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
   const isPaginationDimmed = totalPages <= 1
-
   return (
     <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && (
@@ -249,7 +234,6 @@ export default function AdminSessions() {
           {t('adminDashboard.sessions.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard
           label={t('adminDashboard.sessions.totalSessions', 'إجمالي كل الحصص')}
@@ -277,7 +261,6 @@ export default function AdminSessions() {
           color="amber"
         />
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
           <div className="relative max-w-md mx-auto">
@@ -300,7 +283,6 @@ export default function AdminSessions() {
             )}
           </div>
         </div>
-
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
           {STATUS_TABS.map((tab) => (
             <button
@@ -316,7 +298,6 @@ export default function AdminSessions() {
             </button>
           ))}
         </div>
-
         <div className="hidden md:grid grid-cols-[2.5fr_1.8fr_1.3fr_1.4fr_0.9fr_1.1fr_2.2fr] gap-3 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-xs font-bold text-slate-500 dark:text-slate-400">
           <span className="text-start">{t('adminDashboard.sessions.headers.group', 'المجموعة والحصة')}</span>
           <span className="text-start">{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
@@ -326,7 +307,6 @@ export default function AdminSessions() {
           <span className="text-center">{t('adminDashboard.sessions.headers.status', 'الحالة')}</span>
           <span className="text-end">{t('adminDashboard.sessions.headers.actions', 'الإجراءات')}</span>
         </div>
-
         <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
           {sessions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
@@ -350,7 +330,6 @@ export default function AdminSessions() {
             ))
           )}
         </div>
-
         <div
           className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${
             isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
@@ -379,7 +358,6 @@ export default function AdminSessions() {
               </>
             )}
           </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -389,11 +367,9 @@ export default function AdminSessions() {
             >
               {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
             </button>
-
             <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
               {currentPage} / {totalPages}
             </span>
-
             <button
               type="button"
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}

@@ -182,7 +182,7 @@ function getGroupStatusKey(status) {
   return GROUP_STATUS_KEYS[key] || 'default';
 }
 
-function getGroupLevelLabel(group, isRtl = true, t) {
+function getGroupLevelLabel(group, isRtl = true) {
   const levelObj = group?.studentLevel || group?.level || group?.curriculum?.studentLevel || group?.stage;
   if (!levelObj) return '-';
   if (typeof levelObj === 'string') {
@@ -223,7 +223,6 @@ export default function TeacherDashboard() {
     queryFn: () => dashboardApi.fetchTeacherStatistics(),
     staleTime: 60 * 1000,
   });
-  // GET /teacher/dashboard/statistics returns statistics, nextSession, upcomingSessions, and groupsOverview in one response
   const apiData = useMemo(() => statsRes?.data?.data ?? statsRes?.data ?? {}, [statsRes]);
   const { data: nextSessionRes } = useQuery({
     queryKey: ['teacher-dashboard-next-session'],
@@ -232,7 +231,6 @@ export default function TeacherDashboard() {
     staleTime: 60 * 1000,
   });
   const stats = apiData.statistics || {};
-  // Earnings are in US dollars
   const currency = isRtl ? 'دولار' : 'USD';
   const totalStudents = stats.totalStudents ?? 0;
   const totalGroups = stats.totalGroups ?? 0;

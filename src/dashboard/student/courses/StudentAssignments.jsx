@@ -460,7 +460,6 @@ export default function StudentAssignments() {
     <>
       <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 p-4 sm:p-6 lg:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-6xl mx-auto space-y-5">
-          {/* Top Header Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:px-8 sm:py-6 border border-slate-100 dark:border-slate-800 shadow-sm">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
               {t('studentDashboard.assignments.title', 'الواجبات')}
@@ -469,7 +468,6 @@ export default function StudentAssignments() {
               {t('studentDashboard.assignments.subtitle', 'تابع واجباتك وقم بتسليمها في الوقت المحدد')}
             </p>
           </div>
-          {/* Filter Tabs Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
             <div className="grid grid-cols-3 gap-2 sm:gap-4">
               {TABS_CONFIG.map((tab) => {
@@ -509,7 +507,6 @@ export default function StudentAssignments() {
               })}
             </div>
           </div>
-          {/* Assignments List */}
           {isLoading ? (
             <div className="flex h-64 items-center justify-center">
               <Spinner />
@@ -544,14 +541,11 @@ export default function StudentAssignments() {
                     transition={{ duration: 0.2 }}
                     className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-5 text-start"
                   >
-                    {/* Top Section */}
                     <div className="flex items-start justify-between gap-4">
-                      {/* Right Details */}
                       <div>
                         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                           {title}
                         </h3>
-                        {/* Subject Badge & Teacher */}
                         <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                           <span className="bg-[#E3EFFC] text-[#2563EB] text-xs font-bold px-3 py-0.5 rounded-full">
                             {subject}
@@ -561,11 +555,9 @@ export default function StudentAssignments() {
                             <span>{teacher}</span>
                           </div>
                         </div>
-                        {/* Session Name */}
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">
                           {sessionName}
                         </p>
-                        {/* Date / Time Line */}
                         <div className="flex items-center gap-3 text-xs mt-1.5 text-slate-400 dark:text-slate-500 flex-wrap">
                           {isOverdue && item.lateTextAr && (
                             <span className="text-[#EF4444] font-bold flex items-center gap-1">
@@ -583,7 +575,6 @@ export default function StudentAssignments() {
                           </span>
                         </div>
                       </div>
-                      {/* Left Badge & Score */}
                       <div className="flex flex-col items-end shrink-0">
                         <span
                           className={`text-xs font-bold px-4 py-1.5 rounded-full ${
@@ -604,7 +595,6 @@ export default function StudentAssignments() {
                         )}
                       </div>
                     </div>
-                    {/* Progress Bar (Ongoing Tab only) */}
                     {isOngoing && typeof item.progress === 'number' && (
                       <div className="space-y-1.5 pt-1">
                         <div className="flex items-center justify-between text-xs font-bold">
@@ -623,7 +613,6 @@ export default function StudentAssignments() {
                         </div>
                       </div>
                     )}
-                    {/* Bottom Action Button */}
                     <div className="pt-2">
                       <button
                         type="button"
@@ -646,7 +635,6 @@ export default function StudentAssignments() {
           )}
         </div>
       </div>
-      {/* Modal */}
       <AnimatePresence>
         {activeHomework && (
           <HomeworkDetailsModal

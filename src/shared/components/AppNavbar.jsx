@@ -24,22 +24,18 @@ export default memo(function AppNavbar() {
     const navRef = useRef(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
     const { user, logout, theme, toggleTheme } = useAuth()
     const hasToken = !!getCookie('access_token')
     const isAuthenticated = user && hasToken
     const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.scrollY
             setIsScrolled(scrollTop > 10)
         }
-
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
-
     const handleLogoClick = useCallback((e) => {
         if (location.pathname === '/') {
             e.preventDefault()
@@ -54,7 +50,6 @@ export default memo(function AppNavbar() {
             navigate('/', { state: { scrollToHero: true } })
         }
     }, [location.pathname, navigate])
-
     const handleLanguageToggle = useCallback((e) => {
         const newLang = i18n.language === 'ar' ? 'en' : 'ar'
         setLanguage(newLang)
@@ -68,10 +63,8 @@ export default memo(function AppNavbar() {
             }, 600)
         }
     }, [i18n.language])
-
     const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
     const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
-
     return (
         <motion.header
             ref={navRef}
@@ -101,7 +94,6 @@ export default memo(function AppNavbar() {
                             {t('appName', 'منارة العز')}
                         </span>
                     </Link>
-
                     <div className="hidden lg:flex items-center gap-5 xl:gap-7">
                         <div className="flex items-center gap-1.5">
                             <button
@@ -113,7 +105,6 @@ export default memo(function AppNavbar() {
                             >
                                 {isDarkMode ? <Sun size={19} strokeWidth={1.75} /> : <Moon size={19} strokeWidth={1.75} />}
                             </button>
-
                             <button
                                 type="button"
                                 onClick={handleLanguageToggle}
@@ -124,7 +115,6 @@ export default memo(function AppNavbar() {
                                 <Globe size={19} strokeWidth={1.75} />
                             </button>
                         </div>
-
                         <nav className="flex items-center gap-1" aria-label={t('public.nav.main', 'الملاحة الرئيسية')}>
                             {navItems.map((item) => (
                                 <NavLink
@@ -142,7 +132,6 @@ export default memo(function AppNavbar() {
                             ))}
                         </nav>
                     </div>
-
                     <div className="hidden lg:flex items-center gap-3">
                         {!isAuthenticated ? (
                             <>
@@ -185,7 +174,6 @@ export default memo(function AppNavbar() {
                             </>
                         )}
                     </div>
-
                     <div className="flex lg:hidden items-center gap-2">
                         <button
                             type="button"
@@ -216,7 +204,6 @@ export default memo(function AppNavbar() {
                         </button>
                     </div>
                 </div>
-
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
@@ -243,7 +230,6 @@ export default memo(function AppNavbar() {
                                     </NavLink>
                                 ))}
                             </nav>
-
                             <div className="flex flex-col gap-2 pt-4 border-t border-slate-200/60 dark:border-slate-800">
                                 {!isAuthenticated ? (
                                     <>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { User, Phone, Globe, Calendar, Mail, GraduationCap, Save, ChevronDown, Lock } from 'lucide-react';
+import { User, Calendar, Mail, GraduationCap, Save, ChevronDown, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils';
 

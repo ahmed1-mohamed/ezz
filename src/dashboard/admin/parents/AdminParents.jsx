@@ -14,21 +14,17 @@ export default function AdminParents() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const legacyParentId = searchParams.get('id')
-
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const [parents, setParents] = useState([])
   const [statistics, setStatistics] = useState(null)
   const [pagination, setPagination] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-
   useEffect(() => {
     if (legacyParentId) {
       navigate(`/dashboard/admin/parents/${legacyParentId}`, { replace: true })
     }
   }, [legacyParentId, navigate])
-
   useEffect(() => {
     async function loadParents() {
       setIsLoading(true)
@@ -46,12 +42,10 @@ export default function AdminParents() {
     }
     loadParents()
   }, [isRtl])
-
   const handleDeleteParent = async (parent) => {
     const parentName = typeof parent.name === 'object' ? (isRtl ? parent.name.ar || parent.name.en : parent.name.en || parent.name.ar) : parent.name
     const isConfirmed = await showDeleteConfirm(isRtl, parentName)
     if (!isConfirmed) return
-
     try {
       const targetId = getParentId(parent)
       await adminParentsApi.deleteParent(targetId)
@@ -62,9 +56,7 @@ export default function AdminParents() {
       toast.error(isRtl ? 'حدث خطأ أثناء حذف ولي الأمر' : 'Failed to delete parent')
     }
   }
-
   const openDetails = (parent) => navigate(`/dashboard/admin/parents/${getParentId(parent)}`)
-
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -72,7 +64,6 @@ export default function AdminParents() {
       </div>
     )
   }
-
   return (
     <div className="space-y-8 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="text-start">
@@ -83,7 +74,6 @@ export default function AdminParents() {
           {t('adminDashboard.parents.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
       {statistics && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mt-6 mb-2">
           <StatsCard
@@ -106,7 +96,6 @@ export default function AdminParents() {
           />
         </div>
       )}
-
       <ParentsList
         parents={parents}
         pagination={pagination}

@@ -12,7 +12,6 @@ function App() {
   const { i18n } = useTranslation()
   const currentLang = i18n.language || 'ar'
   const isArabic = currentLang.startsWith('ar')
-
   useEffect(() => {
     const handleLangChange = () => {
       queryClient.clear()
@@ -24,12 +23,10 @@ function App() {
       window.removeEventListener('appLanguageChanged', handleLangChange)
     }
   }, [i18n, queryClient])
-
   useLayoutEffect(() => {
     const dir = isArabic ? 'rtl' : 'ltr'
     document.documentElement.dir = dir
     document.documentElement.lang = currentLang
-
     if (theme === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       const applyTheme = (e) => {
@@ -50,7 +47,6 @@ function App() {
       }
     }
   }, [currentLang, isArabic, theme])
-
   return (
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
       <ScrollManager />

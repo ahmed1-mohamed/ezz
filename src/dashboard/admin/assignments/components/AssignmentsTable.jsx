@@ -37,7 +37,6 @@ function AssignmentRow({ item, onDelete, t }) {
     const progressPct = item.totalCount > 0
         ? Math.min(100, (item.submittedCount / item.totalCount) * 100)
         : 0;
-
     return (
         <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr_1fr_auto] gap-4 px-6 py-5 items-center text-start text-sm border-b border-slate-50 dark:border-slate-800 last:border-0">
             <div className="flex items-center gap-2.5 font-bold text-slate-800 dark:text-white min-w-0">
@@ -89,7 +88,6 @@ function AssignmentCard({ item, onDelete, t }) {
     const progressPct = item.totalCount > 0
         ? Math.min(100, (item.submittedCount / item.totalCount) * 100)
         : 0;
-
     return (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 space-y-3">
             <div className="flex items-start justify-between gap-2">
@@ -147,7 +145,6 @@ function AssignmentCard({ item, onDelete, t }) {
 
 function AssignmentsTable({ assignments, onDelete }) {
     const { t } = useTranslation();
-
     if (assignments.length === 0) {
         return (
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm py-16 text-center text-slate-400 dark:text-slate-500">
@@ -155,7 +152,6 @@ function AssignmentsTable({ assignments, onDelete }) {
             </div>
         );
     }
-
     return (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm overflow-hidden">
             <div className="hidden lg:grid grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr_1fr_auto] gap-4 px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 text-start">
@@ -167,13 +163,11 @@ function AssignmentsTable({ assignments, onDelete }) {
                 <div>{t('adminDashboard.assignments.colStatus')}</div>
                 <div className="text-end w-20">{t('adminDashboard.assignments.colActions')}</div>
             </div>
-
             <div className="hidden lg:block divide-y divide-slate-50 dark:divide-slate-800">
                 {assignments.map((item) => (
                     <AssignmentRow key={item.id} item={item} onDelete={onDelete} t={t} />
                 ))}
             </div>
-
             <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
                 {assignments.map((item) => (
                     <AssignmentCard key={item.id} item={item} onDelete={onDelete} t={t} />

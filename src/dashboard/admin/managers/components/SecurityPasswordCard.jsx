@@ -5,12 +5,10 @@ export default function SecurityPasswordCard({
 }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.securityTitle', 'الأمان وكلمة المرور')}</span>
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
         <div>
           <label htmlFor="passwordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {t('adminDashboard.managers.addSupervisorScreen.password', 'كلمه المرور')}
@@ -25,7 +23,6 @@ export default function SecurityPasswordCard({
             dir="ltr"
           />
         </div>
-
         <div>
           <label htmlFor="confirmPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {t('adminDashboard.managers.addSupervisorScreen.confirmPassword', 'تأكيد كلمة المرور')}
@@ -40,9 +37,7 @@ export default function SecurityPasswordCard({
             dir="ltr"
           />
         </div>
-
       </div>
-
     </div>
   )
 }

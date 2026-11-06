@@ -49,7 +49,6 @@ export const messagesApi = {
         api.get('/api/v1/messages/private/unread', { params }),
         api.get('/api/v1/messages/private/read', { params })
       ])
-
       const extractCount = (res) => {
         if (res.status !== 'fulfilled') return 0;
         const d = res.value?.data;
@@ -59,11 +58,9 @@ export const messagesApi = {
         if (typeof d?.count === 'number') return d.count;
         return 0;
       };
-
       const total = extractCount(allRes);
       const unread = extractCount(unreadRes);
       const read = extractCount(readRes);
-
       return {
         total: total || (unread + read),
         unread,

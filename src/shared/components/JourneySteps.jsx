@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 
 export default React.memo(function JourneySteps() {
     const { t } = useTranslation();
-
     const steps = [
         {
             id: "1",
@@ -29,7 +28,6 @@ export default React.memo(function JourneySteps() {
             position: "left",
         },
     ];
-
     return (
         <section className="relative overflow-hidden bg-[#F4FAF8] dark:bg-slate-900/40 py-24">
             <div className="relative max-w-7xl mx-auto px-4">
@@ -43,16 +41,13 @@ export default React.memo(function JourneySteps() {
                     <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 dark:bg-[#0F7A6C]/25 text-[#0F7A6C] dark:text-emerald-400 text-sm font-bold mb-5">
                         {t('journey.badge', 'كيف نبدأ؟')}
                     </span>
-
                     <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] dark:text-white leading-tight">
                         {t('journey.title', 'خطوات بسيطة لبدء رحلتك التعليمية')}
                     </h2>
-
                     <p className="mt-5 text-[#6B7280] dark:text-slate-300 text-lg max-w-2xl mx-auto">
                         {t('journey.description', 'نرافقك خطوة بخطوة في رحلتك التعليمية معنا.')}
                     </p>
                 </motion.div>
-
                 <div className="relative">
                     <div className="hidden md:block absolute top-[-25px] start-[14%] end-[14%] z-0 pointer-events-none">
                         <svg
@@ -78,10 +73,8 @@ export default React.memo(function JourneySteps() {
                             />
                         </svg>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative z-10">                        {steps.map((step, index) => {
                         const Icon = step.icon;
-
                         return (
                             <motion.div
                                 key={step.id}
@@ -111,7 +104,6 @@ export default React.memo(function JourneySteps() {
                                         <Icon className="w-6 h-6 text-white" />
                                     </div>
                                 </motion.div>
-
                                 <motion.div
                                     whileHover={{ scale: 1.08 }}
                                     className="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full border-[5px] border-[#F0C343] bg-[#F8F8F8] dark:bg-slate-800 shadow-sm flex items-center justify-center"
@@ -120,12 +112,10 @@ export default React.memo(function JourneySteps() {
                                         {step.id}
                                     </span>
                                 </motion.div>
-
                                 <div className="mt-10">
                                     <h3 className="text-2xl font-extrabold text-[#00695C] dark:text-emerald-400">
                                         {step.title}
                                     </h3>
-
                                     <p className="mt-4 text-[#6B7280] dark:text-slate-300 leading-8 text-base max-w-sm">
                                         {step.description}
                                     </p>

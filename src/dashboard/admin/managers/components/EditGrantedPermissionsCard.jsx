@@ -12,17 +12,14 @@ export default function EditGrantedPermissionsCard({
     const rawPerms = Array.isArray(supervisorPermissions) ? supervisorPermissions : []
     const initialKeys = rawPerms.map(p => (typeof p === 'object' && p !== null ? (p.key || p.name || p.id || p._id || '') : String(p))).filter(Boolean)
     const activeKeys = expandPermissionKeys(initialKeys)
-
     SYSTEM_PERMISSIONS.forEach(module => {
       const activeTags = []
-
       module.actions.forEach(action => {
         const isMatch = activeKeys.has(action.key) || (action.aliases && action.aliases.some(a => activeKeys.has(a)))
         if (isMatch) {
           activeTags.push(isRtl ? action.labelAr : action.labelEn)
         }
       })
-
       if (activeTags.length > 0) {
         items.push({
           title: isRtl ? module.titleAr : module.titleEn,
@@ -30,18 +27,14 @@ export default function EditGrantedPermissionsCard({
         })
       }
     })
-
     return items
   }, [supervisorPermissions, isRtl])
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <Shield size={18} className="text-[#0f7a6c]" />
         <span>{isRtl ? 'الصلاحيات الممنوحة' : 'Granted Permissions'}</span>
       </h3>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {categories.map((cat, idx) => (
           <div
@@ -54,7 +47,6 @@ export default function EditGrantedPermissionsCard({
                 {cat.title}
               </p>
             </div>
-
             <div className="flex flex-wrap gap-2">
               {cat.tags.map((tag, tagIdx) => (
                 <span
@@ -68,14 +60,12 @@ export default function EditGrantedPermissionsCard({
             </div>
           </div>
         ))}
-
         {categories.length === 0 && (
           <div className="col-span-2 text-center text-slate-400 dark:text-slate-500 py-4 font-semibold text-sm">
             {isRtl ? 'لا توجد صلاحيات ممنوحة لهذا الدور حالياً.' : 'No permissions granted for this role currently.'}
           </div>
         )}
       </div>
-
     </div>
   )
 }

@@ -5,7 +5,6 @@ import { formatRewardIcon } from '@/shared/services/api/adminRewardsApi'
 export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   if (!rewards || rewards.length === 0) {
     return (
       <div className="py-12 bg-white dark:bg-slate-900 rounded-3xl text-center text-slate-400">
@@ -13,7 +12,6 @@ export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
       </div>
     )
   }
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {rewards.map((reward) => (
@@ -29,17 +27,14 @@ export default function RewardsGrid({ rewards, onEdit, onDelete, onView }) {
               {formatRewardIcon(reward.icon)}
             </div>
           </div>
-
           <div className="p-5 flex flex-col items-center text-center flex-1 bg-white dark:bg-slate-900 relative z-10">
             <h4 className="font-bold text-slate-800 dark:text-white text-sm group-hover:text-[#0f7a6c] dark:group-hover:text-emerald-400 transition-colors">
               {typeof reward.name === 'object' ? (isRtl ? reward.name.ar : reward.name.en) : reward.name}
             </h4>
-
             <p className="text-slate-400 dark:text-slate-500 text-xs mt-2 flex-1 line-clamp-3">
               {typeof reward.description === 'object' ? (isRtl ? reward.description.ar : reward.description.en) : reward.description}
             </p>
           </div>
-
           <div className="border-t border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-800/20 px-4 py-3 flex items-center justify-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity relative z-10">
             {onView && (
               <button

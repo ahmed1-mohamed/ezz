@@ -18,7 +18,6 @@ const getImageUrl = (imagePath) => {
 export default React.memo(function Courses() {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language?.startsWith('ar') ?? true;
-
     const {
         data: curriculaData,
         isLoading,
@@ -33,7 +32,6 @@ export default React.memo(function Courses() {
         },
         staleTime: 5 * 60 * 1000,
     });
-
     const coursesList = useMemo(() => {
         if (!Array.isArray(curriculaData)) return [];
         return curriculaData.map((prog, index) => {
@@ -45,7 +43,6 @@ export default React.memo(function Courses() {
                 : prog.description || '';
             const imgSrc = prog.image ? getImageUrl(prog.image) : '';
             const levelsCount = Array.isArray(prog.levels) ? prog.levels.length : 0;
-
             return {
                 id: prog.id || prog._id || index,
                 title,
@@ -55,9 +52,7 @@ export default React.memo(function Courses() {
             };
         });
     }, [curriculaData, isRtl]);
-
     const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
     return (
         <div className="space-y-6 sm:space-y-8 lg:space-y-10 min-h-screen pt-12 sm:pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <motion.section
@@ -77,7 +72,6 @@ export default React.memo(function Courses() {
                     {t('publicCourses.description', 'اكتشف مناهجنا القرآنية واللغوية والتربوية المعتمدة المصممة لجميع المستويات والأعمار')}
                 </p>
             </motion.section>
-
             {isLoading ? (
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -128,7 +122,6 @@ export default React.memo(function Courses() {
                                         <BookOpen className="w-7 h-7" />
                                     </div>
                                 )}
-
                                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                                     {course.levelsCount > 0 && (
                                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]">
@@ -137,16 +130,13 @@ export default React.memo(function Courses() {
                                         </span>
                                     )}
                                 </div>
-
                                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors">
                                     {course.title}
                                 </h2>
-
                                 <p className="mt-3 text-sm sm:text-base leading-6 text-slate-600 dark:text-slate-300 font-medium line-clamp-3">
                                     {course.desc}
                                 </p>
                             </div>
-
                             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                                 <Link
                                     to="/curriculums"
@@ -155,7 +145,6 @@ export default React.memo(function Courses() {
                                     <span>{t('publicCourses.learnMore', 'تفاصيل البرنامج')}</span>
                                     <ArrowIcon className="w-4 h-4" />
                                 </Link>
-
                                 <Link
                                     to="/pricing"
                                     className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
@@ -167,7 +156,6 @@ export default React.memo(function Courses() {
                     ))}
                 </div>
             )}
-
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}

@@ -15,7 +15,6 @@ export default function ManagerCourses() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const sort = searchParams.get('sort') || 'latest'
-
   return (
     <DashboardLayout title={t('dashboard.courses')} role={t('auth.manager')} links={roleNavigation.Manager}>
       <div className="space-y-6">

@@ -5,7 +5,6 @@ import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
 
 export function useAssignments() {
     const { i18n } = useTranslation();
-
     const [stats, setStats] = useState(null);
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,7 +12,6 @@ export function useAssignments() {
     const [searchValue, setSearchValue] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const debounceTimerRef = useRef(null);
-
     useEffect(() => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
@@ -21,14 +19,12 @@ export function useAssignments() {
         debounceTimerRef.current = setTimeout(() => {
             setDebouncedSearch(searchValue.trim());
         }, 350);
-
         return () => {
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
             }
         };
     }, [searchValue]);
-
     useEffect(() => {
         let isMounted = true;
         const loadStats = async () => {
@@ -40,7 +36,6 @@ export function useAssignments() {
         loadStats();
         return () => { isMounted = false; };
     }, []);
-
     useEffect(() => {
         let isMounted = true;
         const loadAssignments = async () => {
@@ -55,12 +50,10 @@ export function useAssignments() {
         loadAssignments();
         return () => { isMounted = false; };
     }, [debouncedSearch]);
-
     const handleDelete = useCallback(async (assignment) => {
         const isRtl = i18n.language.startsWith('ar');
         const isConfirmed = await showDeleteConfirm(isRtl, assignment.title);
         if (!isConfirmed) return;
-
         const res = await adminAssignmentsApi.deleteAssignment(assignment.id);
         if (res?.success) {
             setAssignments((prev) => prev.filter((item) => item.id !== assignment.id));
@@ -68,12 +61,10 @@ export function useAssignments() {
             if (statsRes?.success) setStats(statsRes.data);
         }
     }, [i18n.language]);
-
     const filteredAssignments = useMemo(() => {
         if (activeTab === 'assignments') return assignments;
         return assignments.filter((a) => a.status === 'completed' || a.submittedCount === a.totalCount);
     }, [assignments, activeTab]);
-
     return {
         stats,
         loading,

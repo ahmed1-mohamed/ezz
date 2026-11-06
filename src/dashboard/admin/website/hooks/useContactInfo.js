@@ -4,24 +4,20 @@ import { landingApi } from '@/shared/services/api/landingApi';
 
 export default function useContactInfo(showNotification, enabled = true) {
   const { t } = useTranslation();
-
   const [contactInfo, setContactInfo] = useState({
     phone: '',
     whatsapp: '',
     email: ''
   });
-
   const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
   const [prevEnabled, setPrevEnabled] = useState(enabled);
-
   if (prevEnabled !== enabled) {
     setPrevEnabled(enabled);
     if (!enabled) {
       setIsLoading(false);
     }
   }
-
   useEffect(() => {
     if (!enabled) return;
     let isMounted = true;
@@ -50,7 +46,6 @@ export default function useContactInfo(showNotification, enabled = true) {
       isMounted = false;
     };
   }, [enabled]);
-
   const handleSaveContactInfo = async (updatedInfo) => {
     setIsSaving(true);
     try {
@@ -64,7 +59,6 @@ export default function useContactInfo(showNotification, enabled = true) {
       setIsSaving(false);
     }
   };
-
   const handleCancelContactInfo = async () => {
     setIsLoading(true);
     try {
@@ -84,7 +78,6 @@ export default function useContactInfo(showNotification, enabled = true) {
     }
     showNotification(t('adminDashboard.website.contactReverted', 'تم إلغاء تعديلات أرقام التواصل'), 'info');
   };
-
   return {
     contactInfo,
     isLoading,

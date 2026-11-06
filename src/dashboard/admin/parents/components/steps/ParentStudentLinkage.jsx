@@ -28,7 +28,6 @@ export default function ParentStudentLinkage({
           {isRtl ? 'الأبناء' : 'Children'}
         </h3>
       </div>
-
       {selectedStudents.length > 0 && (
         <div className="flex flex-wrap gap-2 justify-end">
           {selectedStudents.map((s) => (
@@ -48,7 +47,6 @@ export default function ParentStudentLinkage({
           ))}
         </div>
       )}
-
       {showStudentSearch && (
         <div className="border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden animate-fadeIn">
           <div className="flex items-center justify-end gap-2 p-3 bg-slate-50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800">
@@ -70,7 +68,6 @@ export default function ParentStudentLinkage({
               </button>
             ))}
           </div>
-
           <div className="p-3 border-b border-slate-100 dark:border-slate-800">
             <div className="relative">
               <Search size={16} className={`absolute top-1/2 -translate-y-1/2 ${isRtl ? 'right-3' : 'left-3'} text-slate-400`} />
@@ -89,7 +86,6 @@ export default function ParentStudentLinkage({
               />
             </div>
           </div>
-
           <div className="max-h-[30vh] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
             {filteredStudents.length > 0 ? (
               filteredStudents.map((s) => {
@@ -109,7 +105,6 @@ export default function ParentStudentLinkage({
                         <div className="w-5 h-5 rounded-md border border-slate-300" />
                       )}
                     </div>
-
                     <div className="flex items-center gap-3">
                       <div className="text-start">
                         <h4 className="text-xs font-bold text-slate-800 dark:text-white">

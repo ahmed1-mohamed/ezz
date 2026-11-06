@@ -1,7 +1,5 @@
 import { Info } from 'lucide-react';
 
-// Read-only: PATCH /profile only accepts name, phone, country and image, so the bio, experience and
-// specializations are managed by the administration from the teacher record.
 export default function TeacherTeachingInfoCard({ t, profileForm, isRtl }) {
   const rows = [
     { label: t('teacherProfilePage.bioAr', 'نبذة عن المعلم (بالعربية)'), value: profileForm.bioAr, wide: true },
@@ -9,7 +7,6 @@ export default function TeacherTeachingInfoCard({ t, profileForm, isRtl }) {
     { label: t('teacherProfilePage.experience', 'سنوات الخبرة'), value: profileForm.experience },
     { label: t('teacherProfilePage.specialization', 'التخصص والمواد'), value: profileForm.specialization },
   ];
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
       <p className="flex items-start gap-2 p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-300 text-xs font-semibold">
@@ -20,7 +17,6 @@ export default function TeacherTeachingInfoCard({ t, profileForm, isRtl }) {
             : 'Your bio, experience and specialization are managed by the platform administration. Contact them to update these details.'}
         </span>
       </p>
-
       <dl className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {rows.map((row) => (
           <div key={row.label} className={`space-y-1.5 ${row.wide ? 'md:col-span-2' : ''}`}>

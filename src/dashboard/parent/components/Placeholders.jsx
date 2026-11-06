@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 const PlaceholderPage = ({ transKey }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

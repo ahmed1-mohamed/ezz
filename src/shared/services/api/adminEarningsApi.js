@@ -1,7 +1,6 @@
 import api from './axiosConfig';
 
 export const adminEarningsApi = {
-  // GET /api/v1/dashboard/private/earnings (All-time platform earnings)
   fetchAllTimeEarnings: async () => {
     try {
       const response = await api.get('/api/v1/dashboard/private/earnings');
@@ -9,13 +8,12 @@ export const adminEarningsApi = {
         success: true,
         data: response.data?.data || response.data,
       };
-    } catch (error) {
+    } catch {
       console.error('API fetchAllTimeEarnings failed:', error);
       return { success: false, data: null, error };
     }
   },
 
-  // GET /api/v1/dashboard/private/earnings/monthly?month=YYYY-MM (Monthly platform earnings)
   fetchMonthlyEarnings: async (month) => {
     try {
       const params = month ? { month } : {};
@@ -24,13 +22,12 @@ export const adminEarningsApi = {
         success: true,
         data: response.data?.data || response.data,
       };
-    } catch (error) {
+    } catch {
       console.error('API fetchMonthlyEarnings failed:', error);
       return { success: false, data: null, error };
     }
   },
 
-  // Fallback / legacy methods
   fetchEarningsStats: async (month = '2026-01') => {
     try {
       const monthlyRes = await api.get('/api/v1/dashboard/private/earnings/monthly', { params: { month } });
@@ -51,7 +48,7 @@ export const adminEarningsApi = {
       }
       const response = await api.get(`/api/v1/admin/earnings/stats?month=${month}`);
       return response.data;
-    } catch (error) {
+    } catch {
       try {
         const response = await api.get(`/api/v1/admin/earnings/stats?month=${month}`);
         return response.data;
@@ -79,7 +76,7 @@ export const adminEarningsApi = {
       }
       const response = await api.get(`/api/v1/admin/earnings/teachers?month=${month}`);
       return response.data;
-    } catch (error) {
+    } catch {
       try {
         const response = await api.get(`/api/v1/admin/earnings/teachers?month=${month}`);
         return response.data;
@@ -94,7 +91,7 @@ export const adminEarningsApi = {
     try {
       const response = await api.get('/api/v1/admin/earnings/withdrawals');
       return response.data;
-    } catch (error) {
+    } catch {
       console.error('API fetchWithdrawalRequests failed:', error);
       return { success: false, data: [] };
     }
@@ -104,7 +101,7 @@ export const adminEarningsApi = {
     try {
       const response = await api.post(`/api/v1/admin/earnings/withdrawals/${id}/approve`, { proofImage });
       return response.data;
-    } catch (error) {
+    } catch {
       console.error('API approveWithdrawal failed:', error);
       throw error;
     }
@@ -114,7 +111,7 @@ export const adminEarningsApi = {
     try {
       const response = await api.post(`/api/v1/admin/earnings/withdrawals/${id}/reject`);
       return response.data;
-    } catch (error) {
+    } catch {
       console.error('API rejectWithdrawal failed:', error);
       throw error;
     }

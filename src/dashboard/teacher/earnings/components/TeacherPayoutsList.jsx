@@ -3,7 +3,6 @@ import {
   Receipt,
   Copy,
   Check,
-  Eye,
   Calendar,
   UserCheck,
   ChevronRight,

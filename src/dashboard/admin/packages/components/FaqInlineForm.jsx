@@ -7,16 +7,12 @@ import { EMPTY_FAQ } from './packages_constants'
 export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
   const { t } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
-
   const [form, setForm] = useState(() => (editingFaq ? { ...EMPTY_FAQ, ...editingFaq } : EMPTY_FAQ))
   const [saving, setSaving] = useState(false)
-
   useEffect(() => {
     setForm(editingFaq ? { ...EMPTY_FAQ, ...editingFaq } : EMPTY_FAQ)
   }, [editingFaq])
-
   const setField = (k, v) => setForm((prev) => ({ ...prev, [k]: v }))
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.question.trim()) return
@@ -25,7 +21,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
     setForm(EMPTY_FAQ)
     setSaving(false)
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
@@ -42,7 +37,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
           </button>
         )}
       </div>
-
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
@@ -56,7 +50,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
             className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-800"
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">
             {p('answerAr')}
@@ -69,7 +62,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
             className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-3 text-sm outline-none resize-none placeholder-slate-400 text-start text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-800"
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
             {p('questionEn')}
@@ -81,7 +73,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
             className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-2.5 text-sm outline-none placeholder-slate-400 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-800"
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
             {p('answerEn')}
@@ -94,7 +85,6 @@ export default function FaqInlineForm({ onSave, editingFaq, onCancelEdit }) {
             className="w-full bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-3 text-sm outline-none resize-none placeholder-slate-400 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-800"
           />
         </div>
-
         <div className="flex justify-start pt-1">
           <button
             type="submit"

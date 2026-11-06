@@ -133,7 +133,6 @@ export default function TeacherSchedule() {
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -167,7 +166,6 @@ export default function TeacherSchedule() {
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   const {
     data: timetableData,
     isLoading,
@@ -183,12 +181,10 @@ export default function TeacherSchedule() {
     staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
   });
-
   const weekInfo = useMemo(() => {
     const raw = timetableData?.data || timetableData || {};
     return raw.weekInfo || raw.week || {};
   }, [timetableData]);
-
   const weekDays = useMemo(() => {
     const raw = timetableData?.data || timetableData || {};
     const apiDays = Array.isArray(raw.days)
@@ -235,7 +231,6 @@ export default function TeacherSchedule() {
     }
     return [];
   }, [timetableData, today, t, isRtl]);
-
   useEffect(() => {
     if (weekDays.length > 0 && selectedDayIndex === null) {
       const todayIndex = weekDays.findIndex((d) => d.isToday);
@@ -247,7 +242,6 @@ export default function TeacherSchedule() {
       }
     }
   }, [weekDays, selectedDayIndex]);
-
   const activeDayIndex = useMemo(() => {
     if (selectedDayIndex !== null && selectedDayIndex >= 0 && selectedDayIndex < weekDays.length) {
       return selectedDayIndex;
@@ -255,10 +249,8 @@ export default function TeacherSchedule() {
     const todayIndex = weekDays.findIndex((d) => d.isToday);
     return todayIndex !== -1 ? todayIndex : 0;
   }, [selectedDayIndex, weekDays]);
-
   const selectedDay = weekDays[activeDayIndex] || weekDays[0] || null;
   const sessions = selectedDay?.sessions || [];
-
   const handlePrevWeek = () => {
     if (weekInfo?.previousWeekDate) {
       setSelectedDate(weekInfo.previousWeekDate);
@@ -268,7 +260,6 @@ export default function TeacherSchedule() {
     }
     setSelectedDayIndex(0);
   };
-
   const handleNextWeek = () => {
     if (weekInfo?.nextWeekDate) {
       setSelectedDate(weekInfo.nextWeekDate);
@@ -278,13 +269,11 @@ export default function TeacherSchedule() {
     }
     setSelectedDayIndex(0);
   };
-
   const handleCurrentWeek = () => {
     setWeekOffset(0);
     setSelectedDate('');
     setSelectedDayIndex(null);
   };
-
   const monthYearLabel = useMemo(() => {
     const referenceDate = selectedDay?.date || weekInfo?.startDate || weekInfo?.currentWeekDate || selectedDate;
     if (!referenceDate) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
@@ -294,7 +283,6 @@ export default function TeacherSchedule() {
       ? `${MONTHS_AR[parsedDate.getMonth()]} ${parsedDate.getFullYear()}`
       : `${MONTHS_EN[parsedDate.getMonth()]} ${parsedDate.getFullYear()}`;
   }, [selectedDay, weekInfo, selectedDate, isRtl]);
-
   const renderStatusBadge = (session) => {
     const status = session.status?.toLowerCase();
     const isLive = status === 'live' || status === 'in_progress';
@@ -338,7 +326,6 @@ export default function TeacherSchedule() {
         );
     }
   };
-
   const renderActionButton = (session) => {
     const status = session.status?.toLowerCase();
     const isLive = status === 'live' || status === 'in_progress';
@@ -356,7 +343,6 @@ export default function TeacherSchedule() {
         </span>
       );
     }
-    // Always open the session inside the dashboard (embedded Zoom), never the external Zoom app
     const targetUrl = session.id ? `/dashboard/teacher/live?session=${session.id}` : null;
     if (targetUrl) {
       const isInternal = targetUrl.startsWith('/');
@@ -399,9 +385,7 @@ export default function TeacherSchedule() {
       </span>
     );
   };
-
   const isCurrentWeek = weekOffset === 0 && !selectedDate && (weekInfo?.isCurrentWeek ?? true);
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
@@ -410,7 +394,6 @@ export default function TeacherSchedule() {
         transition={{ duration: 0.4 }}
         className="space-y-6"
       >
-        {/* Card 1: Top Header Banner */}
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 text-start">
             <div className="w-12 h-12 rounded-2xl bg-[#00594C] text-white flex items-center justify-center shadow-xs shrink-0">
@@ -428,7 +411,6 @@ export default function TeacherSchedule() {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
             <button
               type="button"
@@ -439,13 +421,11 @@ export default function TeacherSchedule() {
             >
               <RotateCcw size={16} className={isFetching ? 'animate-spin' : ''} />
             </button>
-
             {currentTimeStr && (
               <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
                 {currentTimeStr}
               </span>
             )}
-
             {currentDateStr && (
               <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
                 <Calendar size={14} className="text-slate-400" />
@@ -454,8 +434,6 @@ export default function TeacherSchedule() {
             )}
           </div>
         </section>
-
-        {/* Card 2: Week Navigation & Days Selector */}
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
           <div className="flex items-center justify-between">
             <button
@@ -489,7 +467,6 @@ export default function TeacherSchedule() {
               {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </button>
           </div>
-
           {weekDays.length > 0 && (
             <div className="grid grid-cols-7 gap-2 sm:gap-3">
               {weekDays.map((dayItem, index) => {
@@ -537,15 +514,12 @@ export default function TeacherSchedule() {
             </div>
           )}
         </section>
-
-        {/* Card 3: Selected Day Sessions Details */}
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
           <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
             <h3 className="text-lg sm:text-xl font-extrabold text-[#1E293B] dark:text-white text-start">
               {formatDayHeading(selectedDay, isRtl)}
             </h3>
           </div>
-
           {isLoading ? (
             <div className="flex h-48 items-center justify-center">
               <Spinner />
@@ -564,7 +538,6 @@ export default function TeacherSchedule() {
             </div>
           ) : (
             <div>
-              {/* Table Column Headers (Desktop/Tablet) */}
               <div className="hidden md:grid grid-cols-12 items-center text-xs font-bold text-slate-500 dark:text-slate-400 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="col-span-3 text-start">
                   {t('teacherSchedule.time', 'الوقت')}
@@ -582,8 +555,6 @@ export default function TeacherSchedule() {
                   {t('teacherSchedule.action', 'الإجراء')}
                 </div>
               </div>
-
-              {/* Sessions Rows */}
               <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {sessions.map((session) => (
                   <motion.div
@@ -592,17 +563,13 @@ export default function TeacherSchedule() {
                     animate={{ opacity: 1, y: 0 }}
                     className="py-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors rounded-2xl px-2"
                   >
-                    {/* Desktop Table View */}
                     <div className="hidden md:grid grid-cols-12 items-center gap-2">
-                      {/* 1. Time */}
                       <div className="col-span-3 text-start">
                         <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
                           <Clock size={16} className="text-[#00594C] dark:text-emerald-400 shrink-0" />
                           <span>{session.timeRange || '-'}</span>
                         </div>
                       </div>
-
-                      {/* 2. Group / Session */}
                       <div className="col-span-4 text-start">
                         <div className="space-y-0.5">
                           <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
@@ -615,8 +582,6 @@ export default function TeacherSchedule() {
                           )}
                         </div>
                       </div>
-
-                      {/* 3. Students */}
                       <div className="col-span-2 text-start">
                         <div className="flex items-center gap-2 min-w-0">
                           <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-slate-400">
@@ -627,21 +592,15 @@ export default function TeacherSchedule() {
                           </span>
                         </div>
                       </div>
-
-                      {/* 4. Status */}
                       <div className="col-span-2 text-center">
                         <div className="flex justify-center">
                           {renderStatusBadge(session)}
                         </div>
                       </div>
-
-                      {/* 5. Action */}
                       <div className="col-span-1 text-end flex justify-end">
                         {renderActionButton(session)}
                       </div>
                     </div>
-
-                    {/* Mobile Card View */}
                     <div className="md:hidden space-y-3 text-start">
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1">

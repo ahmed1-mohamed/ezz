@@ -24,12 +24,10 @@ export default function TeachersListHeader({
             <Plus size={18} />
             <span>{t('adminDashboard.teachers.add', 'إضافة معلم')}</span>
           </button>
-
           <span className="text-sm font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
             {t('adminDashboard.teachers.listTitle', 'قائمة المعلمين المسجلين في المنصة')}
           </span>
         </div>
-
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -66,7 +64,6 @@ export default function TeachersListHeader({
               </button>
             ) : null}
           </div>
-
           <button
             type="submit"
             className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#005953] hover:bg-[#004742] text-white text-sm font-semibold transition-all shadow-md shadow-[#005953]/15 active:scale-[0.98] shrink-0 cursor-pointer"
@@ -76,7 +73,6 @@ export default function TeachersListHeader({
           </button>
         </form>
       </div>
-
        {onStatusFilterChange && (
         <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 overflow-x-auto">
           <button
@@ -94,7 +90,6 @@ export default function TeachersListHeader({
               {statistics.total ?? 0}
             </span>
           </button>
-
           <button
             type="button"
             onClick={() => onStatusFilterChange('active')}
@@ -110,7 +105,6 @@ export default function TeachersListHeader({
               {statistics.active ?? 0}
             </span>
           </button>
-
           <button
             type="button"
             onClick={() => onStatusFilterChange('stopped')}

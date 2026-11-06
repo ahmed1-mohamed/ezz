@@ -17,12 +17,10 @@ export default function StudentSecurityCard({
           {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
         </h3>
       </div>
-
       <div className="space-y-4">
         <span className="block text-xs font-bold text-slate-400 dark:text-slate-500">
           {isRtl ? 'تعيين كلمة مرور جديدة للطالب' : 'Set New Student Password'}
         </span>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -49,7 +47,6 @@ export default function StudentSecurityCard({
             />
           </div>
         </div>
-
         <div className="flex justify-end pt-2">
           <button
             type="button"

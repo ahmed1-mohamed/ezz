@@ -267,7 +267,6 @@ export default function ParentRatings() {
       className="p-2 md:p-8 max-w-7xl mx-auto space-y-6 font-sans min-h-screen relative transition-colors"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Top Header Card */}
       <motion.div
         variants={itemVariants}
         className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-4 shadow-sm border border-slate-200 dark:border-slate-800"
@@ -300,7 +299,6 @@ export default function ParentRatings() {
               </p>
             </div>
           </div>
-          {/* Navigation Tabs Switcher */}
           <div className="flex items-center gap-1 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 self-start lg:self-center">
             <button
               type="button"
@@ -347,7 +345,6 @@ export default function ParentRatings() {
             </button>
           </div>
         </div>
-        {/* Tab 1 Stats Banner */}
         {activeTab === 'teachers' && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs">
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
@@ -392,10 +389,8 @@ export default function ParentRatings() {
           </div>
         )}
       </motion.div>
-      {/* TAB 1: Teachers List & Weekly Evaluation */}
       {activeTab === 'teachers' && (
         <div className="space-y-6">
-          {/* Search and Status Filters */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative w-full md:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
@@ -458,7 +453,6 @@ export default function ParentRatings() {
               )}
             </div>
           </div>
-          {/* Teachers Cards Grid */}
           {isLoadingTeachers ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((sk) => (
@@ -525,9 +519,7 @@ export default function ParentRatings() {
           )}
         </div>
       )}
-      {/* TAB 2: Evaluations History */}
       {activeTab === 'history' && <EvaluationsHistoryList />}
-      {/* TAB 3: Students Evaluations Given By Teachers */}
       {activeTab === 'students' && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -636,7 +628,6 @@ export default function ParentRatings() {
           )}
         </div>
       )}
-      {/* Teacher Evaluation Modal */}
       <TeacherEvaluationModal
         isOpen={isEvalModalOpen}
         teacher={selectedTeacherForEval}

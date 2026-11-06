@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Zoom Live Meeting | منصة منارة العز التعليمية</title>
   <style>
     * {
@@ -18,6 +21,18 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Almarai', Helvetica, Arial, sans-serif;
       color: #ffffff;
       position: relative;
+    }
+    #zmmtg-root {
+      display: none;
+      width: 100% !important;
+      height: 100% !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      z-index: 10 !important;
+      overflow: hidden !important;
     }
     #meetingSDKElement {
       width: 100%;
@@ -94,12 +109,12 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 11px 22px;
+      padding: 12px 22px;
       border-radius: 14px;
-      font-weight: 700;
-      font-size: 13px;
+      font-weight: 800;
+      font-size: 13.5px;
       text-decoration: none;
-      color: #ffffff;
+      color: #ffffff !important;
       background-color: #0f7a6c;
       border: none;
       cursor: pointer;
@@ -107,22 +122,29 @@
       box-shadow: 0 4px 12px rgba(15, 122, 108, 0.25);
     }
     .btn:hover {
-      background-color: #0c6156;
       transform: translateY(-1px);
     }
     .btn-blue {
-      background-color: #2563eb;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      background-color: #2563eb !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
     }
     .btn-blue:hover {
-      background-color: #1d4ed8;
+      background-color: #1d4ed8 !important;
+    }
+    .btn-teal {
+      background-color: #0f7a6c !important;
+      box-shadow: 0 4px 14px rgba(15, 122, 108, 0.45);
+    }
+    .btn-teal:hover {
+      background-color: #0c6156 !important;
     }
     .btn-slate {
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: #f1f5f9 !important;
     }
     .btn-slate:hover {
-      background-color: rgba(255, 255, 255, 0.18);
+      background-color: rgba(255, 255, 255, 0.16) !important;
     }
     .card-info {
       background: rgba(255, 255, 255, 0.05);
@@ -183,18 +205,46 @@
     }
   </style>
 
-  <!-- React 18, ReactDOM 18 & Lodash (Required externals for Zoom Meeting SDK Embedded) -->
+  <!-- Meeting SDK Client View Styles -->
+  <link type="text/css" rel="stylesheet" href="https://source.zoom.us/3.11.0/css/bootstrap.css" />
+  <link type="text/css" rel="stylesheet" href="https://source.zoom.us/3.11.0/css/react-select.css" />
+
+  <!-- React 18, ReactDOM 18 & Lodash -->
   <script src="/vendor/react.18.2.0.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js';"></script>
   <script src="/vendor/react-dom.18.2.0.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js';"></script>
   <script src="/vendor/lodash.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js';"></script>
 
-  <!-- Zoom Meeting SDK Embedded (Local bundle with official CDN fallback) -->
+  <!-- Redux & Redux-Thunk -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.2.1/redux.min.js" onerror="this.onerror=null;this.src='https://source.zoom.us/3.11.0/lib/vendor/redux.min.js';"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux-thunk/2.4.2/redux-thunk.min.js" onerror="this.onerror=null;this.src='https://source.zoom.us/3.11.0/lib/vendor/redux-thunk.min.js';"></script>
+
+  <!-- Zoom Meeting SDK Client View (ZoomMtg) -->
+  <script src="https://source.zoom.us/zoom-meeting-3.11.0.min.js" onerror="this.onerror=null;this.src='https://source.zoom.us/3.11.0/zoom-meeting-3.11.0.min.js';"></script>
+
+  <!-- Zoom Meeting SDK Component View (ZoomMtgEmbedded fallback) -->
   <script src="/zoom-meeting-embedded.min.js" onerror="this.onerror=null;this.src='https://source.zoom.us/zoom-meeting-embedded-6.5.0.min.js';"></script>
 </head>
 <body>
 
-  <!-- Zoom Root Element (Pure container for Zoom Meeting SDK Component View) -->
+  <!-- Zoom Client View Root -->
+  <div id="zmmtg-root"></div>
+  <div id="aria-notify-area"></div>
+
+  <!-- Zoom Component View Root -->
   <div id="meetingSDKElement"></div>
+
+  <!-- Top Floating Bar -->
+  <div class="top-floating-bar">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+      <span style="font-weight: 700;">بث مباشر</span>
+      <span id="floating-meeting-id" style="opacity: 0.7; font-family: monospace;"></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a id="float-btn-open-app" target="_blank" rel="noopener noreferrer" style="background: #2563eb;">🚀 تطبيق Zoom</a>
+      <a id="float-btn-open-web" target="_blank" rel="noopener noreferrer" style="background: rgba(255, 255, 255, 0.15);">🌐 المتصفح</a>
+    </div>
+  </div>
 
   <!-- Loading Status Spinner & Card -->
   <div id="status-box" class="status-container">
@@ -209,34 +259,58 @@
     </div>
   </div>
 
-  <!-- Fallback Overlay (displayed only if credentials missing or join rejected) -->
+  <!-- Fallback Overlay (displayed if credentials missing, token invalid, or host start needed) -->
   <div id="fallback-overlay" class="fallback-overlay">
     <div class="fallback-card">
       <div id="fallback-icon-badge" class="icon-badge icon-badge-host">🎥</div>
       <div>
-        <div id="fallback-title" style="font-weight: 800; font-size: 17px; margin-bottom: 6px;">
+        <div id="fallback-title" style="font-weight: 800; font-size: 18px; margin-bottom: 6px; color: #ffffff !important;">
           بدء الحصة المباشرة
         </div>
-        <div id="fallback-description" style="font-size: 13px; color: #94a3b8; line-height: 1.6;">
-          يمكنك الدخول فوراً بضغطة زر واحدة.
+        <div id="fallback-description" style="font-size: 13.5px; color: #cbd5e1 !important; line-height: 1.6;">
+          يمكنك البدء فوراً كمعلّم رئيسي عبر تطبيق Zoom أو في المتصفح.
         </div>
       </div>
       <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6px;">
         <div id="fallback-error" style="display: none; font-size: 11.5px; color: #fca5a5; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 12px; padding: 8px 12px; font-family: monospace; direction: ltr; text-align: left; word-break: break-word;"></div>
-        <button id="fallback-retry-btn" type="button" class="btn btn-blue" style="width: 100%;">
-          إعادة المحاولة داخل لوحة التحكم
+        <div id="fallback-credentials-box" class="card-info" style="display: none; flex-direction: column; gap: 8px; text-align: start; width: 100%; direction: ltr;" dir="ltr">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="color: #94a3b8; font-size: 12px; font-weight: 600;">Meeting ID:</span>
+            <span id="fallback-cred-id" style="font-weight: 800; color: #38bdf8; font-size: 14px; letter-spacing: 0.5px;"></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="color: #94a3b8; font-size: 12px; font-weight: 600;">Passcode:</span>
+            <span id="fallback-cred-pass" style="font-weight: 800; color: #34d399; font-size: 14px; letter-spacing: 0.5px;"></span>
+          </div>
+        </div>
+        <a id="fallback-app-btn" class="btn btn-blue" target="_blank" rel="noopener noreferrer" style="display: none; width: 100%; text-decoration: none;">
+          🚀 بدء كمعلّم عبر تطبيق Zoom
+        </a>
+        <a id="fallback-web-btn" class="btn btn-teal" target="_blank" rel="noopener noreferrer" style="display: none; width: 100%; text-decoration: none;">
+          🌐 فتح في المتصفح
+        </a>
+        <button id="fallback-copy-btn" type="button" class="btn btn-slate" style="display: none; width: 100%;">
+          📋 نسخ بيانات الاجتماع
         </button>
+        <button id="fallback-retry-btn" type="button" class="btn btn-slate" style="width: 100%;">
+          🔄 إعادة المحاولة داخل المنصة
+        </button>
+        <div id="fallback-polling-indicator" style="display: none; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: #34d399; margin-top: 4px;">
+          <span class="spinner" style="width: 14px; height: 14px; border-width: 2px;"></span>
+          <span id="fallback-polling-text">جارٍ التحقق من بدء الحصة تلقائياً...</span>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     (function() {
-      console.log('[ZoomEmbed] Environment:', {
+      console.log('[ZoomEmbed v2] Environment detected:', {
         hasReact: typeof window.React !== 'undefined',
         hasReactDOM: typeof window.ReactDOM !== 'undefined',
         hasLodash: typeof window._ !== 'undefined',
-        hasZoomSDK: typeof window.ZoomMtgEmbedded !== 'undefined'
+        hasZoomMtg: typeof window.ZoomMtg !== 'undefined',
+        hasZoomMtgEmbedded: typeof window.ZoomMtgEmbedded !== 'undefined'
       });
 
       const DEFAULT_SDK_KEY = 'O3n0tKuQ0WS9yk0N9JeqQ';
@@ -247,22 +321,41 @@
       const passcode = urlParams.get('passcode') || '';
       const role = parseInt(urlParams.get('role') || '0', 10);
       const sdkSignature = urlParams.get('sdkSignature') || '';
-      const sdkKeyFromParam = urlParams.get('sdkKey') || '';
       const userName = urlParams.get('userName') || (role === 1 ? 'المعلم' : 'الطالب');
       const userEmail = urlParams.get('userEmail') || DEFAULT_ZOOM_EMAIL;
       const startUrl = urlParams.get('startUrl') || '';
       const joinUrl = urlParams.get('joinUrl') || '';
-
       const isHost = (role === 1);
 
-      // Host ZAK must come from the backend (GET /v2/users/{hostId}/token?type=zak).
-      // The token embedded in start_url is rejected by the SDK ("Not support start meeting via tokens").
-      const zakToken = urlParams.get('zak') || '';
+      const startUrlZak = (() => {
+        try {
+          return startUrl ? new URL(startUrl).searchParams.get('zak') : '';
+        } catch(e) {
+          return '';
+        }
+      })();
+      const zakToken = urlParams.get('zak') || startUrlZak || '';
 
-      const launchAppUrl = isHost ? (startUrl || joinUrl || '') : (joinUrl || '');
+      const effectiveHostStartUrl = (() => {
+        if (startUrl) {
+          try {
+            const u = new URL(startUrl);
+            if (zakToken) u.searchParams.set('zak', zakToken);
+            return u.toString();
+          } catch (e) {
+            return startUrl;
+          }
+        }
+        if (meetingId && zakToken) {
+          return 'https://us05web.zoom.us/s/' + meetingId + '?zak=' + encodeURIComponent(zakToken);
+        }
+        return joinUrl || '';
+      })();
+
+      const launchAppUrl = isHost ? effectiveHostStartUrl : (joinUrl || '');
       const webClientUrl = isHost
-        ? (startUrl || joinUrl || '')
-        : (meetingId ? ('https://us05web.zoom.us/wc/' + meetingId + '/join?prefer=1' + (passcode ? '&pwd=' + encodeURIComponent(passcode) : '')) : (joinUrl || ''));
+        ? (meetingId ? ('https://app.zoom.us/wc/' + meetingId + '/start?prefer=1' + (passcode ? '&pwd=' + encodeURIComponent(passcode) : '') + (zakToken ? '&zak=' + encodeURIComponent(zakToken) : '')) : effectiveHostStartUrl)
+        : (meetingId ? ('https://app.zoom.us/wc/' + meetingId + '/join?prefer=1' + (passcode ? '&pwd=' + encodeURIComponent(passcode) : '')) : (joinUrl || ''));
 
       const floatBtnOpenApp = document.getElementById('float-btn-open-app');
       const floatBtnOpenWeb = document.getElementById('float-btn-open-web');
@@ -301,6 +394,7 @@
         if (err.errorCode !== undefined) parts.push('code ' + err.errorCode);
         if (err.type) parts.push(err.type);
         if (err.reason) parts.push(err.reason);
+        if (err.errorMessage) parts.push(err.errorMessage);
         if (err.message) parts.push(err.message);
         if (!parts.length) {
           try { return JSON.stringify(err); } catch (e) { return String(err); }
@@ -321,13 +415,53 @@
         }
         if (fallbackDescription) {
           fallbackDescription.textContent = customDesc || (isHost
-            ? 'تعذّر بدء الحصة داخل لوحة التحكم. اضغط إعادة المحاولة.'
-            : 'تعذّر الانضمام للحصة داخل لوحة التحكم. اضغط إعادة المحاولة.');
+            ? 'لبدء البث كمعلّم ومضيف رئيسي، يرجى الضغط أدناه للبدء عبر تطبيق Zoom أو المتصفح:'
+            : 'المعلم لم يبدأ البث بعد. يمكنك الانضمام عبر تطبيق Zoom أو الضغط على إعادة المحاولة.');
         }
-        if (fallbackError && (err || !fallbackError.textContent)) {
+        const fallbackAppBtn = document.getElementById('fallback-app-btn');
+        const fallbackWebBtn = document.getElementById('fallback-web-btn');
+        const fallbackCredBox = document.getElementById('fallback-credentials-box');
+        const fallbackCredId = document.getElementById('fallback-cred-id');
+        const fallbackCredPass = document.getElementById('fallback-cred-pass');
+        const fallbackCopyBtn = document.getElementById('fallback-copy-btn');
+
+        if (meetingId || passcode) {
+          if (fallbackCredBox) fallbackCredBox.style.display = 'flex';
+          if (fallbackCredId) fallbackCredId.textContent = meetingId || '-';
+          if (fallbackCredPass) fallbackCredPass.textContent = passcode || '-';
+          if (fallbackCopyBtn) {
+            fallbackCopyBtn.style.display = 'inline-flex';
+            fallbackCopyBtn.onclick = function() {
+              const text = 'Meeting ID: ' + (meetingId || '') + (passcode ? ('\nPasscode: ' + passcode) : '');
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                  fallbackCopyBtn.textContent = '✓ تم نسخ البيانات بنجاح!';
+                  setTimeout(function() {
+                    fallbackCopyBtn.textContent = '📋 نسخ بيانات الاجتماع';
+                  }, 2000);
+                });
+              }
+            };
+          }
+        }
+
+        if (fallbackAppBtn && launchAppUrl) {
+          fallbackAppBtn.href = launchAppUrl;
+          fallbackAppBtn.textContent = isHost ? '🚀 بدء كمعلّم عبر تطبيق Zoom' : '🚀 انضمام عبر تطبيق Zoom';
+          fallbackAppBtn.style.display = 'inline-flex';
+        }
+        if (fallbackWebBtn && webClientUrl) {
+          fallbackWebBtn.href = webClientUrl;
+          fallbackWebBtn.textContent = isHost ? '🌐 فتح كمعلّم في المتصفح' : '🌐 فتح في المتصفح';
+          fallbackWebBtn.style.display = 'inline-flex';
+        }
+        if (fallbackError && err) {
           const msg = describeError(err);
           fallbackError.textContent = msg;
           fallbackError.style.display = msg ? 'block' : 'none';
+        } else if (fallbackError) {
+          fallbackError.textContent = '';
+          fallbackError.style.display = 'none';
         }
       }
 
@@ -336,69 +470,54 @@
         if (fallbackError) { fallbackError.textContent = ''; fallbackError.style.display = 'none'; }
       }
 
+      let autoPollTimer = null;
+      let autoPollAttempts = 0;
+      const MAX_AUTO_POLL_ATTEMPTS = 25;
+
+      function stopAutoPoll() {
+        if (autoPollTimer) {
+          clearInterval(autoPollTimer);
+          autoPollTimer = null;
+        }
+        autoPollAttempts = 0;
+        const indicator = document.getElementById('fallback-polling-indicator');
+        if (indicator) indicator.style.display = 'none';
+      }
+
+      function startAutoPoll(cfg) {
+        // Teacher is host, do not auto-poll
+        if (isHost) return;
+        if (autoPollTimer || !cfg) return;
+        autoPollAttempts = 0;
+        const indicator = document.getElementById('fallback-polling-indicator');
+        if (indicator) indicator.style.display = 'flex';
+        autoPollTimer = setInterval(function() {
+          autoPollAttempts++;
+          if (autoPollAttempts > MAX_AUTO_POLL_ATTEMPTS) {
+            stopAutoPoll();
+            return;
+          }
+          if (zoomClient && isInitialized) {
+            console.log('[ZoomEmbed v2] Auto-checking if teacher started meeting (attempt ' + autoPollAttempts + ')...');
+            zoomClient.join(Object.assign({}, cfg)).then(function(res) {
+              console.log('[ZoomEmbed v2] Meeting joined via student poll!', res);
+              stopAutoPoll();
+              if (statusBox) statusBox.style.display = 'none';
+              hideFallback();
+            }).catch(function(err) {
+              console.debug('[ZoomEmbed v2] Auto-poll: not ready yet:', err && err.reason ? err.reason : err);
+            });
+          }
+        }, 8000);
+      }
+
       if (fallbackRetryBtn) {
         fallbackRetryBtn.addEventListener('click', function() {
+          stopAutoPoll();
           hideFallback();
           if (statusBox) statusBox.style.display = 'flex';
-          startZoomJoin();
+          window.location.reload();
         });
-      }
-
-      // Suppress native ".Fail to join the meeting" popup and display friendly Arabic fallback
-      const observer = new MutationObserver(function() {
-        const text = document.body ? (document.body.innerText || '') : '';
-        if (fallbackOverlay && fallbackOverlay.style.display === 'flex') return;
-        if (text.indexOf('Fail to join the meeting') !== -1 || text.indexOf('JOIN_MEETING_FAILED') !== -1) {
-          showFallback(
-            isHost ? 'بدء الحصة كمعلّم رئيسي (Host)' : 'الانضمام إلى الحصة المباشرة',
-            isHost
-              ? 'يرجى بدء الحصة كمعلّم ومضيف رئيسي (Host) عبر الرابط المباشر أدناه لتفعيل البث.'
-              : 'يرجى الانضمام للحصة عبر الرابط المباشر أدناه للمشاركة مع المعلم.'
-          );
-          const modals = document.querySelectorAll('.zm-modal, .meeting-client-modal, [role="dialog"], .ant-modal, .ant-modal-root, .ant-modal-wrap, .modal-dialog');
-          modals.forEach(function(modal) {
-            if (modal.innerText && modal.innerText.indexOf('Fail to join') !== -1) {
-              modal.style.display = 'none';
-              modal.style.visibility = 'hidden';
-            }
-          });
-          const masks = document.querySelectorAll('.ant-modal-mask, .zm-modal-backdrop');
-          masks.forEach(function(mask) {
-            mask.style.display = 'none';
-          });
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-
-      function decodeSignature(signature) {
-        try {
-          const parts = String(signature || '').split('.');
-          if (parts.length < 2) return null;
-          let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-          while (base64.length % 4 !== 0) base64 += '=';
-          return JSON.parse(atob(base64));
-        } catch (e) {
-          return null;
-        }
-      }
-
-      function extractSdkKey(signature) {
-        if (!signature || typeof signature !== 'string') return DEFAULT_SDK_KEY;
-        try {
-          const parts = signature.split('.');
-          if (parts.length >= 2) {
-            let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-            while (base64.length % 4 !== 0) {
-              base64 += '=';
-            }
-            const jsonStr = decodeURIComponent(atob(base64).split('').map(function(c) {
-              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            const payload = JSON.parse(jsonStr);
-            return payload.appKey || payload.sdkKey || payload.apiKey || payload.client_id || DEFAULT_SDK_KEY;
-          }
-        } catch(e) {}
-        return DEFAULT_SDK_KEY;
       }
 
       let zoomClient = null;
@@ -411,150 +530,270 @@
         return zoomClient;
       }
 
-      function executeJoin() {
-        if (!window.ZoomMtgEmbedded) {
-          console.error('[ZoomEmbed] ZoomMtgEmbedded is not loaded on window');
-          showFallback(
-            'تعذّر تحميل مشغّل Zoom',
-            'تحقق من الاتصال بالإنترنت ثم اضغط إعادة المحاولة.',
-            'Zoom Meeting SDK script failed to load'
-          );
-          return;
-        }
-
-        if (!meetingId || !sdkSignature) {
-          console.warn('[ZoomEmbed] Missing meetingId or sdkSignature:', { meetingId, hasSignature: Boolean(sdkSignature) });
-          showFallback(
-            'بيانات الجلسة غير مكتملة',
-            'لم يُرسل الخادم بيانات التشغيل داخل لوحة التحكم لهذه الحصة.',
-            'Missing ' + (!meetingId ? 'meetingId' : 'sdkSignature') + ' from /join API'
-          );
-          return;
-        }
-
+      function decodeJwtPayload(signature) {
+        if (!signature || typeof signature !== 'string') return null;
         try {
-          const client = getZoomClient();
-          if (!client) {
-            console.error('[ZoomEmbed] Could not create Zoom client');
-            showFallback(
-              'تعذّر تشغيل Zoom',
-              'اضغط إعادة المحاولة.',
-              'ZoomMtgEmbedded.createClient() returned nothing'
-            );
-            return;
+          const parts = signature.split('.');
+          if (parts.length >= 2) {
+            let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            while (base64.length % 4 !== 0) base64 += '=';
+            const jsonStr = decodeURIComponent(atob(base64).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonStr);
           }
+        } catch(e) {}
+        return null;
+      }
 
-          const meetingRoot = document.getElementById('meetingSDKElement');
-          const leaveUrlParam = urlParams.get('leaveUrl');
-          let leaveUrl = isHost
-            ? (window.location.origin + '/teacher/sessions')
-            : (window.location.origin + '/dashboard/student/schedule');
-          if (leaveUrlParam) {
-            leaveUrl = leaveUrlParam.startsWith('http')
-              ? leaveUrlParam
-              : (window.location.origin + (leaveUrlParam.startsWith('/') ? leaveUrlParam : '/' + leaveUrlParam));
+      function extractSdkKey(signature) {
+        const payload = decodeJwtPayload(signature);
+        if (payload) {
+          return payload.appKey || payload.sdkKey || payload.apiKey || payload.client_id || DEFAULT_SDK_KEY;
+        }
+        return DEFAULT_SDK_KEY;
+      }
+
+      function handleJoinFailure(err) {
+        console.warn('[ZoomEmbed v2] Join failure details:', JSON.stringify(err), err);
+        const isSignatureError = err && (err.errorCode === 3712 || (err.errorMessage && err.errorMessage.includes('Signature is invalid')));
+        if (isHost) {
+          showFallback(
+            'مركز بدء البث المباشر كمعلّم (Host)',
+            'الحصة جاهزة للبث المباشر بكامل الصلاحيات. لبدء البث كمعلّم ومضيف رئيسي والتحكم الكامل في الصوت والشاشة، اضغط للبدء فوراً أدناه:',
+            null
+          );
+        } else {
+          showFallback(
+            'في انتظار بدء الحصة المباشرة',
+            'المعلم يقوم بتجهيز البث حالياً. يمكنك الانضمام مباشرة عبر تطبيق Zoom أو المتصفح أدناه:',
+            null
+          );
+        }
+      }
+
+      function joinViaZoomMtg(leaveUrl) {
+        console.log('[ZoomEmbed v2] Initializing ZoomMtg Client View as instructed by Codex...');
+        try {
+          window.ZoomMtg.setZoomJSLib('https://source.zoom.us/3.11.0/lib', '/av');
+          window.ZoomMtg.preLoadWasm();
+          window.ZoomMtg.prepareWebSDK();
+          if (window.ZoomMtg.i18n) {
+            window.ZoomMtg.i18n.load('en-US');
+            window.ZoomMtg.i18n.reload('en-US');
           }
+        } catch (setupErr) {
+          console.warn('[ZoomEmbed v2] ZoomMtg setup warning:', setupErr);
+        }
 
-          const rootWidth = Math.max(meetingRoot.clientWidth || window.innerWidth || 1100, 800);
-          const rootHeight = Math.max(meetingRoot.clientHeight || window.innerHeight || 650, 520);
+        const rootEl = document.getElementById('zmmtg-root');
+        if (rootEl) rootEl.style.display = 'block';
 
-          const initPromise = isInitialized
-            ? Promise.resolve()
-            : client.init({
-                zoomAppRoot: meetingRoot,
-                language: 'en-US',
-                leaveUrl: leaveUrl,
-                patchJsMedia: true,
-                customize: {
-                  video: {
-                    isResizable: true,
-                    viewSizes: {
-                      default: {
-                        width: rootWidth,
-                        height: rootHeight
-                      }
-                    }
-                  }
-                }
-              }).then(function() {
-                isInitialized = true;
-                console.log('[ZoomEmbed] Zoom SDK client initialized successfully');
-              });
-
-          initPromise.then(function() {
-            const resolvedSdkKey = sdkKeyFromParam || extractSdkKey(sdkSignature) || DEFAULT_SDK_KEY;
-            // Meeting SDK 4.x+ join params: the app key lives inside the signature (appKey claim).
-            const joinConfig = {
-              meetingNumber: String(meetingId).trim(),
-              password: passcode || '',
-              userName: (userName || (isHost ? 'المعلم' : 'الطالب')).trim(),
-              signature: sdkSignature
-            };
-            const sigPayload = decodeSignature(sdkSignature);
-            if (sigPayload) {
-              console.log('[ZoomEmbed] Signature payload:', { role: sigPayload.role, mn: sigPayload.mn, appKey: sigPayload.appKey, exp: sigPayload.exp });
-              if (isHost && Number(sigPayload.role) !== 1) {
-                console.warn('[ZoomEmbed] Host is starting the meeting but the signature role is ' + sigPayload.role + '. The backend must sign with role=1.');
-              }
-              if (!sigPayload.appKey) {
-                console.warn('[ZoomEmbed] Signature has no appKey claim; Meeting SDK 4.x+ requires it.');
-              }
+        window.ZoomMtg.init({
+          leaveUrl: leaveUrl,
+          success: function() {
+            console.log('[ZoomEmbed v2] ZoomMtg.init succeeded');
+            const sigPayload = decodeJwtPayload(sdkSignature);
+            let targetMeetingNumber = String(meetingId).trim();
+            if (sigPayload && sigPayload.mn !== undefined) {
+              targetMeetingNumber = sigPayload.mn;
+            } else if (/^\d+$/.test(targetMeetingNumber)) {
+              targetMeetingNumber = Number(targetMeetingNumber);
             }
 
-            // Host starting a meeting MUST provide ZAK token
-            if (zakToken) {
+            const joinConfig = {
+              meetingNumber: targetMeetingNumber,
+              passWord: String(passcode || '').trim(),
+              password: String(passcode || '').trim(),
+              sdkKey: 'O3n0tKuQ0WS9yk0N9JeqQ',
+              signature: sdkSignature,
+              userName: (userName || (isHost ? 'المعلم' : 'الطالب')).trim(),
+              userEmail: (userEmail && String(userEmail).trim()) ? String(userEmail).trim() : DEFAULT_ZOOM_EMAIL,
+              success: function(res) {
+                console.log('[ZoomEmbed v2] Joined successfully via ZoomMtg', res);
+                stopAutoPoll();
+                hideFallback();
+                if (statusBox) statusBox.style.display = 'none';
+              },
+              error: function(err) {
+                console.error('[ZoomEmbed v2] ZoomMtg.join error:', JSON.stringify(err), err);
+                handleJoinFailure(err);
+              }
+            };
+
+            if (isHost && zakToken) {
               joinConfig.zak = zakToken;
             }
 
-            joinConfig.userEmail = (userEmail && String(userEmail).trim()) ? String(userEmail).trim() : DEFAULT_ZOOM_EMAIL;
-
-            console.log('[ZoomEmbed] Initiating Zoom client.join()...', {
+            console.log('[ZoomEmbed v2] Invoking ZoomMtg.join with:', {
               meetingNumber: joinConfig.meetingNumber,
+              meetingNumberType: typeof joinConfig.meetingNumber,
+              sdkKey: joinConfig.sdkKey,
               isHost: isHost,
-              hasZak: Boolean(zakToken),
-              hasSignature: Boolean(sdkSignature),
-              appKey: resolvedSdkKey,
+              hasZak: Boolean(joinConfig.zak),
+              hasSignature: Boolean(joinConfig.signature),
               userName: joinConfig.userName,
               userEmail: joinConfig.userEmail
             });
 
-            return client.join(joinConfig);
-          }).then(function(res) {
-            console.log('[ZoomEmbed] Zoom joined successfully!', res);
-            if (statusBox) statusBox.style.display = 'none';
-            hideFallback();
-          }).catch(function(err) {
-            console.warn('[ZoomEmbed] Zoom Meeting SDK join error:', err);
-            if (isHost && err && Number(err.errorCode) === 200) {
-              showFallback(
-                'لا يمكن بدء الحصة كمضيف بدون ZAK',
-                'يجب أن يُرجع الخادم في /join حقل zak الخاص بحساب المضيف (من Zoom API: users/{hostId}/token?type=zak).',
-                err
-              );
+            window.ZoomMtg.join(Object.assign({}, joinConfig));
+          },
+          error: function(err) {
+            console.error('[ZoomEmbed v2] ZoomMtg.init failed:', JSON.stringify(err), err);
+            if (window.ZoomMtgEmbedded) {
+              console.log('[ZoomEmbed v2] Falling back to ZoomMtgEmbedded Component View');
+              joinViaZoomMtgEmbedded(leaveUrl);
             } else {
-              showFallback(null, null, err);
+              handleJoinFailure(err);
             }
+          }
+        });
+      }
+
+      function joinViaZoomMtgEmbedded(leaveUrl) {
+        console.log('[ZoomEmbed v2] Initializing ZoomMtgEmbedded Component View...');
+        const client = getZoomClient();
+        if (!client) {
+          console.error('[ZoomEmbed v2] Could not create Zoom client');
+          showFallback(
+            'تعذّر تشغيل Zoom',
+            'اضغط إعادة المحاولة أو البدء عبر تطبيق Zoom.',
+            'ZoomMtgEmbedded.createClient() returned nothing'
+          );
+          return;
+        }
+
+        const meetingRoot = document.getElementById('meetingSDKElement');
+        const rootWidth = Math.max(meetingRoot.clientWidth || window.innerWidth || 1100, 800);
+        const rootHeight = Math.max(meetingRoot.clientHeight || window.innerHeight || 650, 520);
+
+        const initPromise = isInitialized
+          ? Promise.resolve()
+          : client.init({
+              zoomAppRoot: meetingRoot,
+              language: 'en-US',
+              leaveUrl: leaveUrl,
+              patchJsMedia: true,
+              customize: {
+                video: {
+                  isResizable: true,
+                  viewSizes: {
+                    default: {
+                      width: rootWidth,
+                      height: rootHeight
+                    }
+                  }
+                }
+              }
+            }).then(function() {
+              isInitialized = true;
+              console.log('[ZoomEmbed v2] Zoom SDK client initialized successfully');
+            });
+
+        let currentJoinConfig = null;
+
+        initPromise.then(function() {
+          const sigPayload = decodeJwtPayload(sdkSignature);
+          let targetMeetingNumber = String(meetingId).trim();
+          if (sigPayload && sigPayload.mn !== undefined) {
+            targetMeetingNumber = sigPayload.mn;
+          } else if (/^\d+$/.test(targetMeetingNumber)) {
+            targetMeetingNumber = Number(targetMeetingNumber);
+          }
+
+          currentJoinConfig = {
+            meetingNumber: targetMeetingNumber,
+            password: String(passcode || '').trim(),
+            sdkKey: 'O3n0tKuQ0WS9yk0N9JeqQ',
+            userName: (userName || (isHost ? 'المعلم' : 'الطالب')).trim(),
+            signature: sdkSignature,
+            userEmail: (userEmail && String(userEmail).trim()) ? String(userEmail).trim() : DEFAULT_ZOOM_EMAIL
+          };
+          if (isHost && zakToken) {
+            currentJoinConfig.zak = zakToken;
+          }
+
+          console.log('[ZoomEmbed v2] Initiating Zoom client.join()...', {
+            meetingNumber: currentJoinConfig.meetingNumber,
+            isHost: isHost,
+            hasZak: Boolean(zakToken),
+            hasSignature: Boolean(sdkSignature),
+            userName: currentJoinConfig.userName,
+            userEmail: currentJoinConfig.userEmail
           });
-        } catch (err) {
-          console.warn('[ZoomEmbed] Zoom Meeting SDK client init error:', err);
-          showFallback(null, null, err);
+
+          return client.join(Object.assign({}, currentJoinConfig));
+        }).then(function(res) {
+          console.log('[ZoomEmbed v2] Zoom joined successfully!', res);
+          stopAutoPoll();
+          if (statusBox) statusBox.style.display = 'none';
+          hideFallback();
+        }).catch(function(err) {
+          console.warn('[ZoomEmbed v2] Zoom Meeting SDK join error:', JSON.stringify(err), err);
+          handleJoinFailure(err);
+          if (currentJoinConfig) {
+            startAutoPoll(currentJoinConfig);
+          }
+        });
+      }
+
+      function executeJoin() {
+        if (!meetingId || !sdkSignature) {
+          console.warn('[ZoomEmbed v2] Missing meetingId or sdkSignature:', { meetingId, hasSignature: Boolean(sdkSignature) });
+          showFallback(
+            isHost ? 'بدء الحصة المباشرة كمعلّم (Host)' : 'الانضمام إلى الحصة كطالب',
+            isHost
+              ? 'الحصة مفتوحة حالياً (90 دقيقة). يمكنك بدء الحصة فوراً كمعلّم (Host) عبر تطبيق Zoom أو في المتصفح:'
+              : 'الحصة متاحة الآن. يمكنك الانضمام فوراً عبر تطبيق Zoom أو في المتصفح أدناه:',
+            null
+          );
+          return;
+        }
+
+        const leaveUrlParam = urlParams.get('leaveUrl');
+        let leaveUrl = isHost
+          ? (window.location.origin + '/teacher/sessions')
+          : (window.location.origin + '/dashboard/student/schedule');
+        if (leaveUrlParam) {
+          leaveUrl = leaveUrlParam.startsWith('http')
+            ? leaveUrlParam
+            : (window.location.origin + (leaveUrlParam.startsWith('/') ? leaveUrlParam : '/' + leaveUrlParam));
+        }
+
+        console.log('[ZoomEmbed v2] Available engines:', {
+          hasZoomMtg: typeof window.ZoomMtg !== 'undefined',
+          hasZoomMtgEmbedded: typeof window.ZoomMtgEmbedded !== 'undefined',
+          isHost: isHost,
+          meetingId: meetingId
+        });
+
+        if (window.ZoomMtg) {
+          joinViaZoomMtg(leaveUrl);
+        } else if (window.ZoomMtgEmbedded) {
+          joinViaZoomMtgEmbedded(leaveUrl);
+        } else {
+          showFallback(
+            'تعذّر تحميل مشغّل Zoom',
+            'تحقق من الاتصال بالإنترنت ثم اضغط إعادة المحاولة.',
+            'Zoom Meeting SDK scripts failed to load'
+          );
         }
       }
 
       function startZoomJoin() {
-        if (window.ZoomMtgEmbedded) {
+        if (window.ZoomMtg || window.ZoomMtgEmbedded) {
           executeJoin();
         } else {
           let attempts = 0;
           const interval = setInterval(function() {
             attempts++;
-            if (window.ZoomMtgEmbedded) {
+            if (window.ZoomMtg || window.ZoomMtgEmbedded) {
               clearInterval(interval);
-              console.log('[ZoomEmbed] ZoomMtgEmbedded ready after ' + (attempts * 100) + 'ms');
+              console.log('[ZoomEmbed v2] Zoom SDK ready after ' + (attempts * 100) + 'ms');
               executeJoin();
             } else if (attempts >= 50) {
               clearInterval(interval);
-              console.warn('[ZoomEmbed] ZoomMtgEmbedded wait timeout after 5s');
+              console.warn('[ZoomEmbed v2] Zoom SDK wait timeout after 5s');
               executeJoin();
             }
           }, 100);

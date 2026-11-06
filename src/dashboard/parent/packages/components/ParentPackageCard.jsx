@@ -61,7 +61,6 @@ const ParentPackageCard = memo(function ParentPackageCard({
         }`}
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Decorative top bar badge */}
       <div className="flex items-start justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
           <div
@@ -96,7 +95,6 @@ const ParentPackageCard = memo(function ParentPackageCard({
           </span>
         )}
       </div>
-      {/* Pricing Header */}
       <div className="py-3 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 mb-5 flex items-baseline justify-between">
         <div>
           <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold block">
@@ -120,7 +118,6 @@ const ParentPackageCard = memo(function ParentPackageCard({
           </span>
         </div>
       </div>
-      {/* Package Specs Grid */}
       <div className="grid grid-cols-2 gap-2.5 mb-5 text-xs">
         <div className="p-3 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
           <Calendar className="w-4 h-4 text-[#0f7a6c] dark:text-emerald-400 shrink-0" />
@@ -154,7 +151,6 @@ const ParentPackageCard = memo(function ParentPackageCard({
           </div>
         )}
       </div>
-      {/* Features preview list */}
       <div className="space-y-2 mb-6 flex-1">
         <span className="text-xs font-bold text-slate-400 dark:text-slate-500 block mb-1">
           {t('parentPackages.packageFeatures', 'مزايا الباقة:')}
@@ -178,7 +174,6 @@ const ParentPackageCard = memo(function ParentPackageCard({
           </button>
         )}
       </div>
-      {/* Action Buttons */}
       <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
         <button
           type="button"

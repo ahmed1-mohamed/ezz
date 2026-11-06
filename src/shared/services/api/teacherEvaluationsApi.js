@@ -11,7 +11,6 @@ export const teacherEvaluationsApi = {
         : Array.isArray(resData)
         ? resData
         : [];
-
       return {
         success: true,
         data: list,
@@ -96,7 +95,6 @@ export const teacherEvaluationsApi = {
         : Array.isArray(resData)
         ? resData
         : [];
-
       return {
         success: true,
         statistics: resData.statistics || {

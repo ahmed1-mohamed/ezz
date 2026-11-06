@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-  User,
   Star,
   TrendingUp,
   BookOpen,
@@ -12,8 +11,7 @@ import {
   ChevronUp,
   ArrowRight,
   ArrowLeft,
-  Award,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 function resolveStudentLevel(level, isRtl) {
   const norm = String(level || '').toLowerCase();
@@ -77,7 +75,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="space-y-5">
-        {/* Top Header: Avatar, Name, Level, and Quick Ratings */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
             {child?.image ? (
@@ -107,7 +104,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
               </div>
             </div>
           </div>
-          {/* Average Rating Badge */}
           <div className="shrink-0 flex flex-col items-end">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/30 font-black text-xs">
               <Star className="w-3.5 h-3.5 fill-current" />
@@ -118,9 +114,7 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             </span>
           </div>
         </div>
-        {/* Attendance & Balance Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Attendance Card */}
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
               <span>{t('parentDashboard.childrenDetails.attendanceRate', 'نسبة الحضور')}</span>
@@ -134,7 +128,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
               </span>
             </div>
           </div>
-          {/* Sessions Balance Card */}
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
               <span>{t('parent.childrenList.classes', 'رصيد الحصص')}</span>
@@ -150,7 +143,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             </div>
           </div>
         </div>
-        {/* Sessions Balance Progress Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 dark:text-slate-500">
             <span>
@@ -169,7 +161,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             />
           </div>
         </div>
-        {/* Enrolled Groups Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300">
             <span className="flex items-center gap-1.5">
@@ -212,7 +203,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
           )}
         </div>
       </div>
-      {/* Bottom Action Buttons */}
       <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <button

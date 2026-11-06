@@ -15,13 +15,11 @@ export default function AdminStudentLevels() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
-
   const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
     queryKey: ['student-levels', i18n.language],
     queryFn: () => adminLevelsApi.fetchLevels(),
     staleTime: 5 * 60 * 1000,
   })
-
   const levels = useMemo(() => {
     const rawData = levelsData?.data || (Array.isArray(levelsData) ? levelsData : [])
     if (!rawData) return []
@@ -32,12 +30,10 @@ export default function AdminStudentLevels() {
       createdAt: item.createdAt,
     }))
   }, [levelsData])
-
   const [showForm, setShowForm] = useState(false)
   const [editingLevelId, setEditingLevelId] = useState(null)
   const [levelNameAr, setLevelNameAr] = useState('')
   const [levelNameEn, setLevelNameEn] = useState('')
-
   const createMutation = useMutation({
     mutationFn: adminLevelsApi.createLevel,
     onSuccess: () => {
@@ -52,7 +48,6 @@ export default function AdminStudentLevels() {
       toast.error(isRtl ? 'حدث خطأ أثناء إضافة المستوى' : 'Failed to add level')
     }
   })
-
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }) => adminLevelsApi.updateLevel(id, payload),
     onSuccess: () => {
@@ -68,7 +63,6 @@ export default function AdminStudentLevels() {
       toast.error(isRtl ? 'حدث خطأ أثناء تعديل المستوى' : 'Failed to edit level')
     }
   })
-
   const deleteMutation = useMutation({
     mutationFn: (id) => adminLevelsApi.deleteLevel(id),
     onSuccess: () => {
@@ -80,28 +74,24 @@ export default function AdminStudentLevels() {
       toast.error(isRtl ? 'حدث خطأ أثناء حذف المستوى' : 'Failed to delete level')
     }
   })
-
   const handleSaveLevel = async (e) => {
     e.preventDefault()
     if (!levelNameAr.trim() || !levelNameEn.trim()) {
       toast.error(isRtl ? 'الرجاء إدخال الاسم باللغتين العربية والإنجليزية!' : 'Please enter the name in both Arabic and English!')
       return
     }
-
     const payload = {
       name: {
         ar: levelNameAr.trim(),
         en: levelNameEn.trim()
       }
     }
-
     if (editingLevelId) {
       await updateMutation.mutateAsync({ id: editingLevelId, payload })
     } else {
       await createMutation.mutateAsync(payload)
     }
   }
-
   const handleEditLevelClick = async (lvl) => {
     try {
       const res = await adminLevelsApi.fetchLevelById(lvl.id);
@@ -116,13 +106,11 @@ export default function AdminStudentLevels() {
       toast.error(isRtl ? 'حدث خطأ أثناء تحميل بيانات المستوى' : 'Failed to load level details');
     }
   }
-
   const handleDeleteLevel = async (level) => {
     const isConfirmed = await showDeleteConfirm(isRtl, level.name);
     if (!isConfirmed) return;
     await deleteMutation.mutateAsync(level.id);
   }
-
   if (isLoadingLevels) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -130,10 +118,8 @@ export default function AdminStudentLevels() {
       </div>
     )
   }
-
   return (
     <div className="space-y-8 p-1 md:p-6 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
@@ -143,7 +129,6 @@ export default function AdminStudentLevels() {
             {isRtl ? 'منارة العز أكاديمي · لوحة الإدارة' : 'Ezz Academy · Admin Dashboard'}
           </p>
         </div>
-
         <button
           type="button"
           onClick={() => {
@@ -158,7 +143,6 @@ export default function AdminStudentLevels() {
           <span>{isRtl ? 'إضافة مستوى' : 'Add Level'}</span>
         </button>
       </div>
-
       {showForm && (
         <StudentLevelForm
           key={editingLevelId || 'new'}
@@ -175,13 +159,11 @@ export default function AdminStudentLevels() {
           isEditing={!!editingLevelId}
         />
       )}
-
       <div className="text-start">
         <h2 className="text-base font-bold text-slate-800 dark:text-white">
           {isRtl ? 'مستويات الطلاب المتاحة' : 'Available Student Levels'}
         </h2>
       </div>
-
       <div className="space-y-5">
         {levels.map((lvl) => (
           <StudentLevelCard
@@ -192,7 +174,6 @@ export default function AdminStudentLevels() {
           />
         ))}
       </div>
-
     </div>
   )
 }

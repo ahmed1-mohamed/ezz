@@ -9,7 +9,6 @@ export default function ParentChildrenSection({
   onViewChildDetails,
 }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-
   const displayList = (Array.isArray(childrenList) ? childrenList : []).map((child) => {
     const balance = typeof child.sessionsBalance === 'object' && child.sessionsBalance !== null ? child.sessionsBalance : {}
     const total = Number(balance.total || 0)
@@ -27,9 +26,7 @@ export default function ParentChildrenSection({
       totalSessions: total,
     }
   })
-
   const existingIds = displayList.map((c) => c.id)
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
@@ -41,7 +38,6 @@ export default function ParentChildrenSection({
           <Plus size={14} />
           <span>{isRtl ? 'إضافة ابن' : 'Add Child'}</span>
         </button>
-
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-slate-800 dark:text-white">
             {isRtl ? `الأبناء المرتبطون (${displayList.length})` : `Linked Children (${displayList.length})`}
@@ -49,7 +45,6 @@ export default function ParentChildrenSection({
           <Users size={18} className="text-[#00594C] dark:text-emerald-400" />
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800/80 shadow-soft">
         <div className="text-center mb-6">
           <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
@@ -59,7 +54,6 @@ export default function ParentChildrenSection({
             {isRtl ? 'جميع الأبناء المسجلين لولي الأمر' : 'All children enrolled under this parent'}
           </p>
         </div>
-
         <div className="space-y-3">
           {displayList.length === 0 && (
             <p className="py-6 text-center text-sm font-bold text-slate-400 dark:text-slate-500">
@@ -71,19 +65,16 @@ export default function ParentChildrenSection({
             const usedPct = Math.min(100, Math.max(0, (child.usedSessions / total) * 100))
             const isLowRemaining = child.remainingSessions <= 3
             const isMediumRemaining = child.remainingSessions > 3 && child.remainingSessions <= 10
-
             const progressColor = isLowRemaining
               ? 'bg-rose-500'
               : isMediumRemaining
                 ? 'bg-amber-500'
                 : 'bg-emerald-500'
-
             const remainingTextColor = isLowRemaining
               ? 'text-rose-500 dark:text-rose-400'
               : isMediumRemaining
                 ? 'text-amber-500 dark:text-amber-400'
                 : 'text-emerald-600 dark:text-emerald-400'
-
             return (
               <div
                 key={child.id}
@@ -98,7 +89,6 @@ export default function ParentChildrenSection({
                     {isRtl ? 'التفاصيل' : 'Details'}
                   </button>
                 </div>
-
                 <div className="order-3 md:order-2 text-start">
                   <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500">
                     {isRtl ? 'الحصص' : 'Sessions'}
@@ -118,7 +108,6 @@ export default function ParentChildrenSection({
                     />
                   </div>
                 </div>
-
                 <div className="order-2 md:order-3 text-start">
                   <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500">
                     {isRtl ? 'المجموعة' : 'Group'}
@@ -127,7 +116,6 @@ export default function ParentChildrenSection({
                     {child.groupName || (isRtl ? 'بدون مجموعة' : 'No group')}
                   </p>
                 </div>
-
                 <div className="order-1 md:order-4 text-start">
                   <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white">
                     {child.name}
@@ -143,7 +131,6 @@ export default function ParentChildrenSection({
           })}
         </div>
       </div>
-
       <AddChildModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}

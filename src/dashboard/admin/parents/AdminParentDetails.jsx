@@ -13,7 +13,6 @@ export default function AdminParentDetails() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
-
   const { data: parent, isLoading, isError, refetch } = useQuery({
     queryKey: ['parent-details', id],
     queryFn: async () => {
@@ -23,9 +22,7 @@ export default function AdminParentDetails() {
     enabled: Boolean(id),
     staleTime: 60 * 1000,
   })
-
   const backToList = () => navigate('/dashboard/admin/parents')
-
   const handleSave = async (payload) => {
     try {
       await adminParentsApi.updateParent(id, payload)
@@ -37,7 +34,6 @@ export default function AdminParentDetails() {
       throw err
     }
   }
-
   const handleToggleActive = async (userId) => {
     try {
       await adminParentsApi.toggleParentActive(userId)
@@ -49,7 +45,6 @@ export default function AdminParentDetails() {
       toast.error(getApiErrorText(err, isRtl ? 'فشل في تحديث حالة الحساب' : 'Failed to update account status'))
     }
   }
-
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -57,7 +52,6 @@ export default function AdminParentDetails() {
       </div>
     )
   }
-
   if (isError || !parent) {
     return (
       <div className="p-8 max-w-xl mx-auto my-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-4 shadow-soft" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -83,7 +77,6 @@ export default function AdminParentDetails() {
       </div>
     )
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <ParentDetailsScreen

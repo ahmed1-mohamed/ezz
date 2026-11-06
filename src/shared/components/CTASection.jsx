@@ -13,7 +13,6 @@ export default function CTASection({
 }) {
     const { t } = useTranslation()
     const navigate = useNavigate()
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -24,7 +23,6 @@ export default function CTASection({
         >
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_left,#FEF6E0_0%,transparent_50%)]" />
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_bottom_right,#FEF6E0_0%,transparent_50%)]" />
-
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
                 <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
                     {t(titleKey, defaultTitle)}

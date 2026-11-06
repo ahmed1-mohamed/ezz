@@ -40,8 +40,6 @@ const mapPackageData = (item) => ({
   discountPercentage: item.discountPercentage ?? null,
 });
 
-// JSON body for POST/PATCH /packages/private. Family pricing is written as `familyDiscounts`
-// ([{ membersCount 2..5, pricePerPerson }]) and read back as the computed `familyTiers`.
 const buildPackagePayload = (data) => {
   const features = {
     ar: (data.features || []).map((f) => String(f || '').trim()).filter(Boolean),
@@ -87,12 +85,10 @@ const toPackageError = (error) => error.response?.data?.message || error.message
 export const adminPackagesApi = {
   fetchPackagesAndFaqs: async () => {
     const response = await api.get('/api/v1/packages-faqs/private/localized/all');
-
     let fetchedPackages = [];
     if (response.data?.data?.packages?.data) {
       fetchedPackages = response.data.data.packages.data.map(mapPackageData);
     }
-
     let fetchedFaqs = [];
     if (response.data?.data?.faqs?.data) {
       fetchedFaqs = response.data.data.faqs.data.map((item) => ({
@@ -103,7 +99,6 @@ export const adminPackagesApi = {
         answer_en: typeof item.answer === 'object' ? (item.answer.en || item.answer.ar || '') : (item.answerEn || item.answer_en || ''),
       }));
     }
-
     return { success: true, packages: fetchedPackages, faqs: fetchedFaqs };
   },
 
@@ -152,7 +147,6 @@ export const adminPackagesApi = {
     }
   },
 
-  // Clears the package discount (priceAfterDiscount → null)
   removePackageDiscount: async (id) => {
     const response = await api.patch(`/api/v1/packages/private/${id}`, { priceAfterDiscount: null });
     return mapPackageData(response.data?.data || response.data);
@@ -197,10 +191,8 @@ export const adminPackagesApi = {
     try {
       const qAr = (typeof faqData.question === 'object' ? faqData.question?.ar : faqData.question) || faqData.questionAr || '';
       const qEn = (typeof faqData.question === 'object' ? faqData.question?.en : faqData.question_en) || faqData.questionEn || qAr;
-
       const aAr = (typeof faqData.answer === 'object' ? faqData.answer?.ar : faqData.answer) || faqData.answerAr || '';
       const aEn = (typeof faqData.answer === 'object' ? faqData.answer?.en : faqData.answer_en) || faqData.answerEn || aAr;
-
       const payload = {
         question: { ar: qAr, en: qEn },
         answer: { ar: aAr, en: aEn }
@@ -226,10 +218,8 @@ export const adminPackagesApi = {
     try {
       const qAr = (typeof faqData.question === 'object' ? faqData.question?.ar : faqData.question) || faqData.questionAr || '';
       const qEn = (typeof faqData.question === 'object' ? faqData.question?.en : faqData.question_en) || faqData.questionEn || qAr;
-
       const aAr = (typeof faqData.answer === 'object' ? faqData.answer?.ar : faqData.answer) || faqData.answerAr || '';
       const aEn = (typeof faqData.answer === 'object' ? faqData.answer?.en : faqData.answer_en) || faqData.answerEn || aAr;
-
       const payload = {
         question: { ar: qAr, en: qEn },
         answer: { ar: aAr, en: aEn }

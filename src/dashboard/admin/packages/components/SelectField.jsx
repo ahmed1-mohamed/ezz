@@ -4,13 +4,11 @@ import { ChevronDown } from 'lucide-react'
 
 export default function SelectField({ id, label, value, onChange, options, placeholder }) {
   const [open, setOpen] = useState(false)
-
   const selectedLabel = (() => {
     if (!value && value !== 0) return placeholder;
     const match = options.find(o => typeof o === 'object' ? o.value === value : o === value);
     return match ? (typeof match === 'object' ? match.label : match) : value;
   })();
-
   return (
     <div id={id} className="relative" tabIndex={-1}>
       {label && (

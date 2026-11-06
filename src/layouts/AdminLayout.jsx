@@ -123,18 +123,14 @@ export default memo(function AdminLayout() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const handleLogout = useCallback(() => {
     logout()
     navigate('/login')
   }, [logout, navigate])
-
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
   const toggleSidebar = useCallback(() => setIsSidebarCollapsed(prev => !prev), [])
-
   const { isSuperAdmin, hasPermission, hasAnyPermission } = useAdminPermissions()
-
   const accessibleNavItems = useMemo(() => {
     if (isSuperAdmin) return NAV_ITEMS
     return NAV_ITEMS.filter((item) => {
@@ -145,17 +141,14 @@ export default memo(function AdminLayout() {
       return true
     })
   }, [isSuperAdmin, hasPermission, hasAnyPermission])
-
   const resolvedName = useMemo(() => getDisplayName(user, isRtl), [user, isRtl])
   const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
   const displayRole = useMemo(
     () => user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول'),
     [user?.role, t]
   )
-
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
           <button
@@ -166,7 +159,6 @@ export default memo(function AdminLayout() {
           >
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0" aria-hidden="true">
               <BookMarked size={18} />
@@ -178,7 +170,6 @@ export default memo(function AdminLayout() {
             </div>
           </div>
         </div>
-
         <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
           <div className="text-end">
             <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[100px] sm:max-w-[140px]">
@@ -207,7 +198,6 @@ export default memo(function AdminLayout() {
           </div>
         </Link>
       </header>
-
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -220,7 +210,6 @@ export default memo(function AdminLayout() {
           />
         )}
       </AnimatePresence>
-
       <aside className={`
         fixed lg:sticky top-0 h-screen z-40
         ${isSidebarCollapsed ? 'w-60 lg:w-20' : 'w-60'} bg-white dark:bg-slate-950 border-e border-slate-200 dark:border-slate-800
@@ -271,13 +260,11 @@ export default memo(function AdminLayout() {
             </svg>
           </button>
         </div>
-
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin" aria-label={t('adminDashboard.nav.main', 'التنقل الرئيسي')}>
           {accessibleNavItems.map((item) => (
             <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} isCollapsed={isSidebarCollapsed} />
           ))}
         </nav>
-
         <div className={`p-4 border-t border-slate-100 dark:border-slate-900 shrink-0 ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
           <button
             onClick={handleLogout}
@@ -289,11 +276,8 @@ export default memo(function AdminLayout() {
           </button>
         </div>
       </aside>
-
       <div className="flex-1 flex flex-col min-w-0">
-
         <header className="hidden lg:flex h-20 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-900 items-center justify-between px-8 sticky top-0 z-20 shrink-0">
-
           <div className="text-start">
             <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
               {t('adminDashboard.panelTitle', 'لوحة التحكم الرئيسية')}
@@ -302,7 +286,6 @@ export default memo(function AdminLayout() {
               {t('adminDashboard.panelSubtitle', 'منارة العز أكاديمي - لوحة الإدارة')}
             </p>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="text-end hidden xl:block">
               <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -331,9 +314,7 @@ export default memo(function AdminLayout() {
               })()}
             </div>
           </div>
-
         </header>
-
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
           <Suspense
             fallback={
@@ -345,9 +326,7 @@ export default memo(function AdminLayout() {
             <Outlet />
           </Suspense>
         </main>
-
       </div>
-
     </div>
   )
 })

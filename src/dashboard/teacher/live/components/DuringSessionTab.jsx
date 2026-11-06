@@ -7,6 +7,9 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Radio,
+  Video,
+  ExternalLink,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -42,10 +45,14 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const sessionId = session?.id || session?._id;
-  const { data: joinDataRes, isLoading } = useQuery({
+  const { data: joinDataRes, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['teacher-session-join', sessionId],
     queryFn: () => teacherSessionsApi.fetchSessionJoinData(sessionId),
     enabled: Boolean(sessionId),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
   });
   const joinData = useMemo(() => {
     if (!joinDataRes) return null;
@@ -57,6 +64,18 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const groupName = typeof session?.group === 'object' && session?.group !== null
     ? (isRtl ? session.group.name?.ar || session.group.name : session.group.name?.en || session.group.name)
     : (session?.groupName || session?.group || '-');
+  const hostWebClientUrl = useMemo(() => {
+    const cleanId = String(joinData?.meetingId || session?.meetingId || '').replace(/\s/g, '');
+    if (!cleanId) return null;
+    const pwd = joinData?.passcode || session?.passcode || '';
+    const zak = joinData?.zak || '';
+    const q = new URLSearchParams();
+    q.set('prefer', '1');
+    if (pwd) q.set('pwd', pwd);
+    if (zak) q.set('zak', zak);
+    return `https://app.zoom.us/wc/${cleanId}/start?${q.toString()}`;
+  }, [joinData, session]);
+
   const teacherName = (() => {
     if (!user) return 'المعلم';
     if (typeof user.name === 'object' && user.name !== null) {
@@ -66,7 +85,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   })();
   return (
     <div className="space-y-6">
-      {/* Top Header Card: Session metadata & quick actions */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -94,6 +112,30 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
+            {joinData?.startUrl && (
+              <a
+                href={joinData.startUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-md shadow-blue-600/30 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                title={t('teacherLive.startAsHostApp', 'بدء الحصة كمعلم ومضيف رئيسي عبر تطبيق Zoom')}
+              >
+                <Video className="w-4 h-4" />
+                <span>{t('teacherLive.startAsHostApp', '🚀 بدء البث في Zoom (Host)')}</span>
+              </a>
+            )}
+            {hostWebClientUrl && (
+              <a
+                href={hostWebClientUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
+                title={t('teacherLive.openInBrowser', 'فتح كمعلم في المتصفح')}
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>{t('teacherLive.openInBrowser', 'المتصفح (Web)')}</span>
+              </a>
+            )}
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 {t('teacherLive.elapsedTime', 'المدة المنقضية')}:
@@ -127,28 +169,64 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
           </div>
         </div>
       </div>
-      {/* Embedded Zoom Meeting Player Inside Live Screen */}
       {isLoading ? (
         <div className="bg-[#080d14] rounded-3xl min-h-[560px] border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white">
           <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
           <p className="font-bold text-base">{t('teacherLive.loadingSessionData', 'جاري تجهيز بيانات البث المباشر...')}</p>
           <p className="text-xs text-slate-400 mt-1">{t('teacherLive.connectingToZoom', 'يتم الاتصال بخوادم Zoom وتوليد مفاتيح الحصة')}</p>
         </div>
+      ) : joinData && joinData.canJoinNow === false ? (
+        <div className="bg-[#080d14] rounded-3xl min-h-[560px] border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
+            <Radio className="w-8 h-8 animate-pulse" />
+          </div>
+          <h3 className="text-lg font-extrabold text-white">
+            {t('teacherLive.cannotJoinNow', 'الحصة غير متاحة للانضمام الآن')}
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md">
+            {joinData?.message || t('teacherLive.cannotJoinNowHint', 'لم يبدأ وقت الحصة المسموح به بعد، أو أن الحصة قد انتهت.')}
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onBackToBefore}
+              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors cursor-pointer"
+            >
+              {t('teacherLive.backToBeforeSession', 'الرجوع إلى تفاصيل الحصة')}
+            </button>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="px-5 py-2.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {t('teacherLive.retryJoin', 'إعادة المحاولة')}
+            </button>
+          </div>
+        </div>
       ) : (
         <ZoomMeetingPlayer
-          meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId || session?.meetingNumber}
-          passcode={joinData?.passcode || joinData?.password || session?.passcode || session?.password}
+          meetingId={joinData?.meetingId || joinData?.meetingNumber || joinData?.zoom?.id || session?.meetingId || session?.meetingNumber || session?.zoom?.id}
+          passcode={joinData?.passcode || joinData?.password || joinData?.zoom?.password || session?.passcode || session?.password || session?.zoom?.password}
           role={joinData?.role !== undefined ? joinData.role : 1}
           sdkSignature={joinData?.sdkSignature || session?.sdkSignature || joinData?.signature || session?.signature}
-          sdkKey={joinData?.sdkKey || import.meta.env?.VITE_ZOOM_SDK_KEY || import.meta.env?.NEXT_PUBLIC_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ'}
-          startUrl={joinData?.startUrl || session?.startUrl || session?.zoomStartUrl || session?.zoom_start_url}
-          joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl || session?.zoom_join_url}
-          zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token}
+          startUrl={joinData?.startUrl || joinData?.start_url || joinData?.zoomStartUrl || joinData?.zoom_start_url || joinData?.zoom?.start_url || joinData?.zoom?.startUrl || session?.startUrl || session?.start_url || session?.zoomStartUrl || session?.zoom_start_url || session?.zoom?.start_url || session?.zoom?.startUrl || session?.meetingUrl}
+          joinUrl={joinData?.joinUrl || joinData?.join_url || joinData?.zoomJoinUrl || joinData?.zoom_join_url || joinData?.zoom?.join_url || joinData?.zoom?.joinUrl || session?.joinUrl || session?.join_url || session?.zoomJoinUrl || session?.zoom_join_url || session?.zoom?.join_url || session?.zoom?.joinUrl || session?.meetingUrl}
+          zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token || joinData?.zoom?.zak || session?.zak || session?.zakToken || (() => {
+            try {
+              const url = joinData?.startUrl || session?.startUrl;
+              return url ? new URL(url).searchParams.get('zak') : null;
+            } catch {
+              return null;
+            }
+          })()}
           leaveUrl="/teacher/sessions"
           userName={teacherName}
-          userEmail="manartalezzacademy1@gmail.com"
+          userEmail={import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com'}
           sessionTitle={sessionTitle}
           className="w-full"
+          onRefreshJoinData={refetch}
+          isRefreshing={isFetching}
         />
       )}
       <InSessionRewardModal

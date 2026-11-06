@@ -11,14 +11,11 @@ export default function TeacherAvailabilityCard({
   const [selectedDay, setSelectedDay] = useState('sunday')
   const [startTime, setStartTime] = useState('16:00')
   const [endTime, setEndTime] = useState('18:00')
-
-  // API slots look like { day (localized), rawDay: 'sunday', startTime, endTime }; the update endpoint expects the raw key.
   const workingHours = (Array.isArray(formData.availability) ? formData.availability : []).map((slot) => ({
     day: String(slot.rawDay || slot.day || '').toLowerCase(),
     startTime: slot.startTime,
     endTime: slot.endTime
   }))
-
   const handleAddSlot = (e) => {
     e?.preventDefault()
     if (!startTime || !endTime) {
@@ -29,28 +26,23 @@ export default function TeacherAvailabilityCard({
       toast.error(isRtl ? 'وقت البداية يجب أن يكون قبل وقت النهاية' : 'Start time must be before end time')
       return
     }
-
     const overlaps = workingHours.some((s) => s.day === selectedDay && startTime < s.endTime && endTime > s.startTime)
     if (overlaps) {
       toast.error(isRtl ? 'هذا الموعد يتداخل مع موعد آخر في نفس اليوم' : 'This slot overlaps another slot on the same day')
       return
     }
-
     const updated = [...workingHours, { day: selectedDay, startTime, endTime }]
     onChange('availability', updated)
   }
-
   const handleRemoveSlot = (indexToRemove) => {
     const updated = workingHours.filter((_, idx) => idx !== indexToRemove)
     onChange('availability', updated)
   }
-
   const getDayLabel = (dayKey) => {
     const found = DAYS_OF_WEEK.find(d => d.key.toLowerCase() === String(dayKey).toLowerCase())
     if (!found) return dayKey
     return isRtl ? found.ar : found.en
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -70,7 +62,6 @@ export default function TeacherAvailabilityCard({
           </div>
         </div>
       </div>
-
       <div className="bg-[#f8faf9] dark:bg-slate-950/40 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
@@ -89,7 +80,6 @@ export default function TeacherAvailabilityCard({
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
               {isRtl ? 'من الساعة' : 'From'}
@@ -101,7 +91,6 @@ export default function TeacherAvailabilityCard({
               className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-[#005953] text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-3 outline-none text-xs sm:text-sm font-semibold"
             />
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
               {isRtl ? 'إلى الساعة' : 'To'}
@@ -114,7 +103,6 @@ export default function TeacherAvailabilityCard({
             />
           </div>
         </div>
-
         <div className="flex justify-end pt-1">
           <button
             type="button"
@@ -126,7 +114,6 @@ export default function TeacherAvailabilityCard({
           </button>
         </div>
       </div>
-
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
           <CalendarDays size={16} className="text-[#005953]" />
@@ -135,7 +122,6 @@ export default function TeacherAvailabilityCard({
             {workingHours.length}
           </span>
         </h3>
-
         {workingHours.length === 0 ? (
           <div className="py-8 text-center bg-slate-50/50 dark:bg-slate-950/20 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
             <p className="text-xs sm:text-sm text-slate-400 font-medium">

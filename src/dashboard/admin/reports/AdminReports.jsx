@@ -23,18 +23,15 @@ import TeacherPerformanceRanking from './components/TeacherPerformanceRanking';
 export default function AdminReports() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const { data: statsRes, isLoading } = useQuery({
     queryKey: ['admin-reports-stats'],
     queryFn: () => dashboardApi.fetchStatistics(),
     staleTime: 5 * 60 * 1000,
   });
-
   const statsData = useMemo(() => {
     const apiData = statsRes?.data?.data ?? statsRes?.data ?? {};
     return apiData?.statistics ?? apiData?.stats ?? apiData ?? {};
   }, [statsRes]);
-
   const metrics = useMemo(() => [
     {
       title: t('adminReports.totalStudents', 'إجمالي الطلاب'),
@@ -85,7 +82,6 @@ export default function AdminReports() {
       border: 'border-yellow-100 dark:border-yellow-900/40',
     },
   ], [statsData, t]);
-
   const quickLinks = useMemo(() => [
     {
       title: t('adminReports.viewEarnings', 'عرض الأرباح والمكاسب'),
@@ -115,10 +111,8 @@ export default function AdminReports() {
       bg: 'bg-purple-50 dark:bg-purple-950/30',
     },
   ], [t]);
-
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Top Welcome & Summary Header */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 mb-3">
@@ -132,7 +126,6 @@ export default function AdminReports() {
             {t('adminReports.description', 'متابعة مؤشرات الأداء، وسير العملية التعليمية، وتحليلات النشاط الزمني، وترتيب كفاءة المعلمين')}
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
             <TrendingUp size={14} className="text-[#00594C]" />
@@ -140,8 +133,6 @@ export default function AdminReports() {
           </span>
         </div>
       </div>
-
-      {/* Primary KPI Metrics Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
@@ -172,15 +163,8 @@ export default function AdminReports() {
               );
             })}
       </div>
-
-      {/* 1. Analytics Chart Section: GET /api/v1/dashboard/private/analytics */}
       <AnalyticsChartSection />
-
-      {/* 2. Teacher Performance Ranking: GET /api/v1/dashboard/private/reports/teacher-performance
-          Protected: only visible when user has both 'dashboard.analytics.read' and 'dashboard.reports.read' */}
       <TeacherPerformanceRanking />
-
-      {/* Specialized Reports Quick Links */}
       <div className="space-y-4">
         <h2 className="text-lg font-black text-slate-800 dark:text-white">
           {t('adminReports.financialOverview', 'التقارير المتخصصة وسجلات النظام')}

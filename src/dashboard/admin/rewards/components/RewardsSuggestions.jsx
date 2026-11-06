@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   XCircle,
   Star,
-  Trophy,
   Medal,
   Heart,
   User,
@@ -53,7 +52,6 @@ export default function RewardsSuggestions({
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const p = (key, fallback) => t(`adminDashboard.rewards.${key}`, fallback)
-
   const statsCards = [
     {
       id: 'all',
@@ -92,7 +90,6 @@ export default function RewardsSuggestions({
       activeBorder: 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/60 dark:bg-rose-900/10',
     },
   ]
-
   const renderStatusBadge = (status) => {
     if (status === 'accepted') {
       return (
@@ -117,7 +114,6 @@ export default function RewardsSuggestions({
       </span>
     )
   }
-
   return (
     <div className="space-y-6">
        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -150,7 +146,6 @@ export default function RewardsSuggestions({
           )
         })}
       </div>
-
        {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -177,7 +172,6 @@ export default function RewardsSuggestions({
             const name = getLocalizedText(sug.name, isRtl)
             const description = getLocalizedText(sug.description, isRtl)
             const sugId = sug.id || sug._id
-
             return (
               <div
                 key={sugId}
@@ -195,7 +189,6 @@ export default function RewardsSuggestions({
                       {renderStatusBadge(sug.status)}
                     </div>
                   </div>
-
                    <div className="text-center mt-3 px-2">
                     <h4 className="font-bold text-slate-800 dark:text-white text-base leading-snug">
                       {name}
@@ -206,7 +199,6 @@ export default function RewardsSuggestions({
                       </p>
                     )}
                   </div>
-
                    {sug.teacher?.name && (
                     <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/60 w-full text-xs text-slate-600 dark:text-slate-400 mt-3">
                       {sug.teacher.image ? (
@@ -231,7 +223,6 @@ export default function RewardsSuggestions({
                     </div>
                   )}
                 </div>
-
                  <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-4">
                   <div className="flex items-center gap-1">
                     {onView && (
@@ -255,7 +246,6 @@ export default function RewardsSuggestions({
                       </button>
                     )}
                   </div>
-
                   {sug.status === 'pending' && (onReject || onApprove) && (
                     <div className="flex items-center gap-2">
                       {onReject && (

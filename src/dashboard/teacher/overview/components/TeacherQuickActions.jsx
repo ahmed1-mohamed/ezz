@@ -5,15 +5,12 @@ import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherQuickActions() {
   const { t } = useTranslation();
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4">
       <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 text-start">
         {t('teacherDashboard.quickActions', 'الإجراءات السريعة')}
       </h2>
-
       <div className="grid grid-cols-2 gap-3">
-        {/* 1. ابدأ جلسة */}
         <Link
           to="/dashboard/teacher/live"
           className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#00594C]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -25,8 +22,6 @@ export default React.memo(function TeacherQuickActions() {
             {t('teacherDashboard.startSession', 'ابدأ جلسة')}
           </span>
         </Link>
-
-        {/* 2. واجب جديد */}
         <Link
           to="/dashboard/teacher/homework/create"
           className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#0284c7]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -38,8 +33,6 @@ export default React.memo(function TeacherQuickActions() {
             {t('teacherDashboard.newHomework', 'واجب جديد')}
           </span>
         </Link>
-
-        {/* 3. تقييم طالب */}
         <Link
           to="/dashboard/teacher/evaluations"
           className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#f59e0b]/30 transition-all text-center gap-2 cursor-pointer group"
@@ -51,8 +44,6 @@ export default React.memo(function TeacherQuickActions() {
             {t('teacherDashboard.studentEvaluation', 'تقييم طالب')}
           </span>
         </Link>
-
-        {/* 4. تسجيل حضور */}
         <Link
           to="/dashboard/teacher/schedule"
           className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-[#8b5cf6]/30 transition-all text-center gap-2 cursor-pointer group"

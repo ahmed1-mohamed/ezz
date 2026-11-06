@@ -31,10 +31,8 @@ export default function SubmissionDetailsView({
   const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
-
   const submissionId = submission?.id || submission?._id;
   const homeworkId = submission?.homeworkId || submission?.homework?._id || submission?.homework?.id || (typeof submission?.homework === 'string' ? submission?.homework : null);
-
   const { data: detailsRes } = useQuery({
     queryKey: ['teacher-submission-details', submissionId, homeworkId],
     queryFn: () => teacherHomeworkApi.fetchSubmissionDetails(submissionId, homeworkId),
@@ -42,28 +40,22 @@ export default function SubmissionDetailsView({
     staleTime: 60 * 1000,
     retry: false,
   });
-
   const liveData = useMemo(() => detailsRes?.data || submission || {}, [detailsRes?.data, submission]);
-
   const studentName =
     typeof liveData.student === 'object'
       ? liveData.student?.name || 'أحمد محمد علي'
       : liveData.student || 'أحمد محمد علي';
-
   const homeworkTitle =
     typeof liveData.homework === 'object'
       ? liveData.homework?.title || 'واجب أحكام المد والقصر'
       : liveData.homework || 'واجب أحكام المد والقصر';
-
   const groupName =
     typeof liveData.group === 'object'
       ? liveData.group?.name || 'مجموعة التجويد الأولى'
       : liveData.group || 'مجموعة التجويد الأولى';
-
   const rawStatus = (liveData.rawSubmissionStatus || submission?.rawSubmissionStatus || 'pending').toLowerCase();
   const rawEval = (liveData.rawEvaluationStatus || submission?.rawEvaluationStatus || 'pending').toLowerCase();
   const isEvaluated = rawEval === 'evaluated' || (liveData.grade !== null && liveData.grade !== undefined);
-
   const statusBadge = useMemo(() => {
     if (isEvaluated) {
       return {
@@ -85,7 +77,6 @@ export default function SubmissionDetailsView({
       icon: Clock,
     };
   }, [isEvaluated, rawStatus, liveData.grade]);
-
   const attachedDocuments = useMemo(() => {
     if (Array.isArray(liveData.documents) && liveData.documents.length > 0) {
       return liveData.documents;
@@ -109,9 +100,7 @@ export default function SubmissionDetailsView({
       },
     ];
   }, [liveData.documents]);
-
   const [selectedPreviewDoc, setSelectedPreviewDoc] = useState(attachedDocuments[0]);
-
   const audioRecordings = useMemo(() => {
     if (Array.isArray(liveData.audioRecordings) && liveData.audioRecordings.length > 0) {
       return liveData.audioRecordings;
@@ -133,9 +122,7 @@ export default function SubmissionDetailsView({
       },
     ];
   }, [liveData.audioRecordings]);
-
   const [playingAudioId, setPlayingAudioId] = useState(null);
-
   const togglePlayAudio = (id) => {
     if (playingAudioId === id) {
       setPlayingAudioId(null);
@@ -143,7 +130,6 @@ export default function SubmissionDetailsView({
       setPlayingAudioId(id);
     }
   };
-
   const quizQuestions = useMemo(() => {
     const list =
       liveData.questions ||
@@ -172,7 +158,6 @@ export default function SubmissionDetailsView({
       },
     ];
   }, [liveData]);
-
   const [questionResults, setQuestionResults] = useState(() => {
     const init = {};
     quizQuestions.forEach((q) => {
@@ -180,34 +165,28 @@ export default function SubmissionDetailsView({
     });
     return init;
   });
-
   const toggleQuestionCorrect = (qId) => {
     setQuestionResults((prev) => ({
       ...prev,
       [qId]: !prev[qId],
     }));
   };
-
   const [grade, setGrade] = useState(liveData.grade ?? 85);
   const [teacherNotes, setTeacherNotes] = useState(
     liveData.teacherNotes || ''
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const quickGrades = [
     [70, 65, 60],
     [85, 80, 75],
     [100, 95, 90],
   ];
-
   const handleSaveEvaluation = async () => {
     if (grade === '' || isNaN(Number(grade))) {
       toast.error('يرجى تحديد درجة صحيحة للطالب');
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       const evaluatedQuestions = quizQuestions.map((q) => ({
         questionId: q.id,
@@ -215,20 +194,16 @@ export default function SubmissionDetailsView({
         earnedPoints: questionResults[q.id] ? q.points || 5 : 0,
         teacherFeedback: '',
       }));
-
       const payload = {
         grade: Number(grade),
         teacherNotes: teacherNotes.trim(),
         questions: evaluatedQuestions,
       };
-
       const res = await teacherHomeworkApi.evaluateSubmission(
         submissionId || liveData.id,
         payload
       );
-
       setIsSubmitting(false);
-
       if (res.success) {
         toast.success(`تم حفظ تقييم الطالب ${studentName} بنجاح (${grade}/100)`);
         queryClient.invalidateQueries({ queryKey: ['teacher-homework-submissions'] });
@@ -241,9 +216,7 @@ export default function SubmissionDetailsView({
       toast.error('حدث خطأ أثناء حفظ التقييم');
     }
   };
-
   const StatusIcon = statusBadge.icon;
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -255,19 +228,16 @@ export default function SubmissionDetailsView({
             {homeworkTitle}
           </p>
         </div>
-
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
-
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />
             <span>{currentDateStr}</span>
           </div>
         </div>
       </div>
-
       <div className="flex items-center justify-between gap-4 px-1">
         <button
           type="button"
@@ -277,7 +247,6 @@ export default function SubmissionDetailsView({
           <ArrowRight size={16} />
           <span>العودة إلى قائمة التسليمات</span>
         </button>
-
         <span
           className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold ${statusBadge.className}`}
         >
@@ -285,12 +254,10 @@ export default function SubmissionDetailsView({
           <span>{statusBadge.label}</span>
         </span>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
         <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
           معلومات التسليم
         </h2>
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-2 border-b border-slate-100 dark:border-slate-800/80 pb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-[#00594C] dark:text-emerald-300 flex items-center justify-center shrink-0">
@@ -303,7 +270,6 @@ export default function SubmissionDetailsView({
               </span>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 flex items-center justify-center shrink-0">
               <Calendar size={18} />
@@ -315,7 +281,6 @@ export default function SubmissionDetailsView({
               </span>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0">
               <User size={18} />
@@ -327,7 +292,6 @@ export default function SubmissionDetailsView({
               </span>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
               <BookOpen size={18} />
@@ -340,7 +304,6 @@ export default function SubmissionDetailsView({
             </div>
           </div>
         </div>
-
         <div className="rounded-2xl p-4 bg-[#fffbeb] border border-[#fef3c7] dark:bg-amber-950/20 dark:border-amber-900/30 text-start space-y-1">
           <div className="text-xs font-bold text-[#b45309] dark:text-amber-400 flex items-center gap-1.5">
             <span>ملاحظة من الطالب</span>
@@ -350,7 +313,6 @@ export default function SubmissionDetailsView({
           </p>
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
         <div className="flex items-center gap-2">
           <FileText size={18} className="text-[#00594C]" />
@@ -358,7 +320,6 @@ export default function SubmissionDetailsView({
             الملفات المرفقة ({attachedDocuments.length} ملفات)
           </h3>
         </div>
-
         <div className="space-y-3">
           {attachedDocuments.map((doc) => {
             const isPdf = doc.name.endsWith('.pdf');
@@ -378,7 +339,6 @@ export default function SubmissionDetailsView({
                   >
                     <FileText size={20} />
                   </div>
-
                   <div className="text-start">
                     <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
                       {doc.name}
@@ -388,7 +348,6 @@ export default function SubmissionDetailsView({
                     </p>
                   </div>
                 </div>
-
                 <button
                   type="button"
                   className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:border-[#00594C] transition"
@@ -399,7 +358,6 @@ export default function SubmissionDetailsView({
             );
           })}
         </div>
-
         <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-8 text-center space-y-2 bg-slate-50/40 dark:bg-slate-800/20">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
             <FileText size={24} />
@@ -412,7 +370,6 @@ export default function SubmissionDetailsView({
           </p>
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
         <div className="flex items-center gap-2">
           <Mic size={18} className="text-[#00594C]" />
@@ -420,7 +377,6 @@ export default function SubmissionDetailsView({
             التسجيلات الصوتية ({audioRecordings.length} تسجيلات)
           </h3>
         </div>
-
         <div className="space-y-3">
           {audioRecordings.map((audio) => {
             const isPlaying = playingAudioId === audio.id;
@@ -437,12 +393,10 @@ export default function SubmissionDetailsView({
                   >
                     {isPlaying ? <Pause size={18} /> : <Play size={18} className="ms-0.5" />}
                   </button>
-
                   <div className="space-y-1 text-start flex-1 min-w-0">
                     <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">
                       {audio.title}
                     </h5>
-
                     <div className="flex items-center gap-1 h-4 pt-1" dir="ltr">
                       {[12, 18, 24, 16, 28, 32, 20, 14, 26, 30, 22, 16, 24, 18, 12].map(
                         (h, idx) => (
@@ -460,13 +414,11 @@ export default function SubmissionDetailsView({
                     </div>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-4 self-end sm:self-center text-xs text-slate-400 font-semibold">
                   <div className="text-end">
                     <span className="font-mono block">{audio.duration}</span>
                     <span className="text-[10px] text-slate-400">{audio.size}</span>
                   </div>
-
                   <button
                     type="button"
                     className="p-2 rounded-xl text-slate-400 hover:text-[#00594C] hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -480,7 +432,6 @@ export default function SubmissionDetailsView({
           })}
         </div>
       </div>
-
       {quizQuestions.length > 0 && (
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
           <div className="flex items-center justify-between">
@@ -491,7 +442,6 @@ export default function SubmissionDetailsView({
               حدد صحة أو خطأ كل إجابة
             </span>
           </div>
-
           <div className="space-y-4">
             {quizQuestions.map((q, idx) => {
               const isCorrect = Boolean(questionResults[q.id]);
@@ -509,7 +459,6 @@ export default function SubmissionDetailsView({
                         {q.question}
                       </h4>
                     </div>
-
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
@@ -523,7 +472,6 @@ export default function SubmissionDetailsView({
                         <CheckCircle2 size={13} />
                         <span>صح</span>
                       </button>
-
                       <button
                         type="button"
                         onClick={() => toggleQuestionCorrect(q.id)}
@@ -538,7 +486,6 @@ export default function SubmissionDetailsView({
                       </button>
                     </div>
                   </div>
-
                   <div className="rounded-xl p-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 text-xs">
                     <span className="font-bold text-slate-500 block mb-1">
                       إجابة الطالب:
@@ -553,7 +500,6 @@ export default function SubmissionDetailsView({
           </div>
         </div>
       )}
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
         <div className="flex items-center gap-2">
           <Star size={20} className="text-amber-500 fill-amber-500" />
@@ -561,7 +507,6 @@ export default function SubmissionDetailsView({
             التقييم
           </h3>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -578,7 +523,6 @@ export default function SubmissionDetailsView({
                 className="w-full text-center py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-2xl font-black text-slate-800 dark:text-white focus:outline-none focus:border-[#00594C] transition"
               />
             </div>
-
             <div className="space-y-2 pt-1">
               {quickGrades.map((row, rIdx) => (
                 <div key={rIdx} className="grid grid-cols-3 gap-2.5">
@@ -602,7 +546,6 @@ export default function SubmissionDetailsView({
                 </div>
               ))}
             </div>
-
             <button
               type="button"
               onClick={handleSaveEvaluation}
@@ -622,7 +565,6 @@ export default function SubmissionDetailsView({
               )}
             </button>
           </div>
-
           <div className="space-y-1.5 h-full flex flex-col">
             <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
               الملاحظات

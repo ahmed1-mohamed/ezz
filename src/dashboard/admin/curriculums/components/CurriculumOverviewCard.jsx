@@ -10,11 +10,9 @@ export default function CurriculumOverviewCard({
     typeof curriculum?.description === 'object'
       ? (isRtl ? curriculum?.description?.ar : curriculum?.description?.en) || curriculum?.description?.ar
       : curriculum?.description
-
   const levelName = typeof curriculum?.studentLevel === 'object' && curriculum?.studentLevel !== null
     ? (isRtl ? curriculum.studentLevel.name?.ar || curriculum.studentLevel.name?.en : curriculum.studentLevel.name?.en || curriculum.studentLevel.name?.ar) || curriculum.studentLevel.name
     : curriculum?.studentLevel
-
   const parseLocalizedList = (raw) => {
     if (!raw) return []
     let list = raw
@@ -40,15 +38,12 @@ export default function CurriculumOverviewCard({
       })
       .filter(Boolean)
   }
-
   const features = parseLocalizedList(curriculum?.features)
   const benefits = parseLocalizedList(curriculum?.benefitsAfterGraduation)
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-xs relative overflow-hidden text-start">
       <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-[#00594C]/5 to-transparent pointer-events-none" />
       <div className="absolute top-0 end-0 w-80 h-80 bg-[#00594C]/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-
       <div className="relative z-10 flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
         <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden shrink-0 border-4 border-slate-100 dark:border-slate-800 shadow-md bg-slate-50 dark:bg-slate-800/80 flex items-center justify-center">
           {curriculum?.image && curriculum.image.trim() !== '' ? (
@@ -63,7 +58,6 @@ export default function CurriculumOverviewCard({
             </div>
           )}
         </div>
-
         <div className="flex-1 space-y-4 w-full">
           <div>
             <div className="flex items-center gap-2.5 flex-wrap mb-2">
@@ -85,18 +79,15 @@ export default function CurriculumOverviewCard({
                 {totalFiles} {isRtl ? 'مصادر وملفات' : 'Resources'}
               </span>
             </div>
-
             <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
               {curriculumName}
             </h2>
-
             {desc && (
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium mt-2 max-w-3xl">
                 {desc}
               </p>
             )}
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             {features.length > 0 && (
               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 space-y-3">
@@ -119,7 +110,6 @@ export default function CurriculumOverviewCard({
                 </ul>
               </div>
             )}
-
             {benefits.length > 0 && (
               <div className="bg-amber-50/40 dark:bg-amber-950/20 rounded-2xl p-5 border border-amber-100/70 dark:border-amber-900/30 space-y-3">
                 <h3 className="text-sm font-black text-amber-900 dark:text-amber-300 flex items-center gap-2">

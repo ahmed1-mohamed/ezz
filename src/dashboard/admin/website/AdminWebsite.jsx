@@ -25,12 +25,10 @@ export default function AdminWebsite() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const { hasPermission } = useAdminPermissions();
-
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const showNotification = (message, type = 'success') => {
     setToast({ show: true, message, type });
   };
-
   useEffect(() => {
     if (toast.show) {
       const timer = setTimeout(() => {
@@ -39,7 +37,6 @@ export default function AdminWebsite() {
       return () => clearTimeout(timer);
     }
   }, [toast.show]);
-
   const canViewStats = hasPermission('statistics.read');
   const canUpdateStats = hasPermission('statistics.update');
   const canViewStars = hasPermission('featured_students.read');
@@ -55,16 +52,13 @@ export default function AdminWebsite() {
   const canViewContact = hasPermission('contact_us.read');
   const canUpdateContact = hasPermission('contact_us.update');
   const hasAnyWebsiteSection = canViewStats || canViewStars || canViewTeachers || canViewTestimonials || canViewContact;
-
   const { stats, isLoading: isStatsLoading, isSaving: isSavingStats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification, canViewStats);
-  
   const {
     stars, isModalOpen, setIsModalOpen, isViewModalOpen, setIsViewModalOpen,
     currentStar, setCurrentStar, systemStudents, isSaving: isSavingStar,
     handleOpenAddModal, handleOpenEditModal, handleOpenViewModal,
     handleDeleteStar, handleSaveModal, handleSaveStarsList, handleCancelStarsList
   } = useFeaturedStudents(showNotification, canViewStars);
-
   const {
     eliteTeachers, isTeacherModalOpen, setIsTeacherModalOpen, selectedTeacher,
     isTeacherLoading, isTeacherFormOpen, setIsTeacherFormOpen, currentTeacher,
@@ -72,15 +66,12 @@ export default function AdminWebsite() {
     handleOpenAddTeacher, handleOpenEditTeacher,
     handleShowTeacherNotes, handleDeleteTeacher, handleSaveTeacherSubmit
   } = useEliteTeachers(showNotification, canViewTeachers);
-
   const {
     testimonials, isTestimonialModalOpen, setIsTestimonialModalOpen, currentTestimonial,
     setCurrentTestimonial, isSaving: isSavingTestimonial, handleOpenAddTestimonial, handleOpenEditTestimonial,
     handleDeleteTestimonial, handleSaveTestimonialSubmit
   } = useTestimonials(showNotification, canViewTestimonials);
-
   const { contactInfo, isLoading: isContactLoading, isSaving: isSavingContact, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification, canViewContact);
-
   if (!hasAnyWebsiteSection) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
@@ -90,7 +81,6 @@ export default function AdminWebsite() {
       </div>
     );
   }
-
   return (
     <div className="space-y-6 lg:space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       {canViewStats && (
@@ -104,7 +94,6 @@ export default function AdminWebsite() {
           handleCancelStats={handleCancelStats}
         />
       )}
-
       {canViewStars && (
         <ExcellenceStarsSection
           stars={stars}
@@ -116,7 +105,6 @@ export default function AdminWebsite() {
           handleSaveStarsList={handleSaveStarsList}
         />
       )}
-
       {canViewTeachers && (
         <EliteTeachersSection
           teachers={eliteTeachers}
@@ -126,7 +114,6 @@ export default function AdminWebsite() {
           handleShowTeacherNotes={handleShowTeacherNotes}
         />
       )}
-
       {canViewTestimonials && (
         <ParentTestimonialsSection
           testimonials={testimonials}
@@ -135,7 +122,6 @@ export default function AdminWebsite() {
           handleDeleteTestimonial={canDeleteTestimonial ? handleDeleteTestimonial : null}
         />
       )}
-
       {isModalOpen && currentStar && canViewStars && (
         <StudentStarModal
           isOpen={isModalOpen}
@@ -148,7 +134,6 @@ export default function AdminWebsite() {
           isSaving={isSavingStar}
         />
       )}
-
       {isTeacherFormOpen && currentTeacher && canViewTeachers && (
         <TeacherFormModal
           isOpen={isTeacherFormOpen}
@@ -161,20 +146,17 @@ export default function AdminWebsite() {
           isSaving={isSavingTeacher}
         />
       )}
-
       <StarViewModal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
         currentStar={currentStar}
       />
-
       <TeacherViewModal
         isOpen={isTeacherModalOpen}
         onClose={() => setIsTeacherModalOpen(false)}
         teacher={selectedTeacher}
         isLoading={isTeacherLoading}
       />
-
       <TestimonialFormModal
         isOpen={isTestimonialModalOpen}
         onClose={() => setIsTestimonialModalOpen(false)}
@@ -183,7 +165,6 @@ export default function AdminWebsite() {
         onSubmit={handleSaveTestimonialSubmit}
         isSaving={isSavingTestimonial}
       />
-
       {canViewContact && (
         <ContactUsForm
           contactInfo={contactInfo}

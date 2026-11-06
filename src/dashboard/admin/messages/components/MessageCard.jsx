@@ -3,9 +3,7 @@ import { Eye, EyeOff, Calendar, Phone, AtSign, Trash2 } from 'lucide-react'
 
 export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails }) {
   const [isExpanded, setIsExpanded] = useState(false)
-
   const isNew = !message.isRead
-
   const formatDate = (isoString) => {
     if (!isoString) return ''
     try {
@@ -21,24 +19,20 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
       return ''
     }
   }
-
   const getInitials = (name) => {
     if (!name) return 'م'
     return name.charAt(0)
   }
-
   const truncateSubject = (subject) => {
     if (!subject) return t('adminDashboard.messages.noSubject', 'بدون موضوع')
     if (subject.length <= 20) return subject
     return subject.substring(0, 20) + '...'
   }
-
   const readByObj = message.readBy;
   const rawName = readByObj && typeof readByObj === 'object' ? readByObj.name : readByObj;
   const readByName = typeof rawName === 'object' && rawName !== null
     ? (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar)
     : rawName;
-
   const handleToggleExpand = () => {
     const nextState = !isExpanded
     setIsExpanded(nextState)
@@ -46,22 +40,16 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
       onViewDetails(message.id)
     }
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft overflow-hidden transition-all duration-300 hover:shadow-md text-start">
-
       <div className="p-4 sm:p-6 lg:p-8">
-
         <div className="flex flex-col sm:flex-row gap-6">
-
           <div className="shrink-0 flex sm:flex-col items-center gap-4 sm:order-last">
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#005953] flex items-center justify-center text-white text-2xl font-bold">
               {getInitials(message.name)}
             </div>
           </div>
-
           <div className="flex-1 space-y-4">
-
             <div className="flex items-center justify-between sm:justify-start gap-4">
               <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
                 {message.name}
@@ -76,7 +64,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 </span>
               )}
             </div>
-
             <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-slate-500 dark:text-slate-400">
               {message.createdAt && (
                 <div className="flex items-center gap-1.5">
@@ -97,7 +84,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 </div>
               )}
             </div>
-
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
               <span className="text-xs font-bold text-slate-400 dark:text-slate-500 block mb-1">
                 {t('adminDashboard.messages.messageSubject', 'موضوع الرسالة')}:
@@ -106,7 +92,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 {truncateSubject(message.title)}
               </p>
             </div>
-
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2">
               <button
                 onClick={handleToggleExpand}
@@ -121,9 +106,7 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                   : t('adminDashboard.messages.showSenderDetails', 'عرض تفاصيل المرسل')
                 }
               </button>
-
               <div className="flex-1 min-w-[20px]" />
-
               <button
                 onClick={() => onDelete(message)}
                 className="flex items-center justify-center p-2 sm:p-2.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors cursor-pointer"
@@ -132,15 +115,12 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 <Trash2 size={18} />
               </button>
             </div>
-
           </div>
         </div>
       </div>
-
       {isExpanded && (
         <div className="px-4 sm:px-6 lg:px-8 pb-6 lg:pb-8 pt-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
                 {t('adminDashboard.messages.fullName', 'الاسم الكامل')}
@@ -149,7 +129,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 {message.name || '-'}
               </div>
             </div>
-
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
                 {t('adminDashboard.messages.email', 'البريد الإلكتروني')}
@@ -158,7 +137,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 {message.email || '-'}
               </div>
             </div>
-
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
                 {t('adminDashboard.messages.phoneNumber', 'رقم الهاتف')}
@@ -167,7 +145,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 {message.phone || '-'}
               </div>
             </div>
-
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
                 {t('adminDashboard.messages.messageSubject', 'موضوع الرسالة')}
@@ -176,7 +153,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 {message.title || '-'}
               </div>
             </div>
-
             {message.isRead && (readByName || message.readAt) && (
               <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {readByName && (
@@ -196,7 +172,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                     </div>
                   </div>
                 )}
-                
                 {message.readAt && (
                   <div className="space-y-1.5">
                     <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
@@ -209,7 +184,6 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 )}
               </div>
             )}
-
             <div className="md:col-span-2 space-y-1.5">
               <label className="text-sm font-bold text-slate-500 dark:text-slate-400">
                 {t('adminDashboard.messages.yourMessage', 'رسالتك')}
@@ -218,11 +192,9 @@ export default function MessageCard({ message, isRtl, t, onDelete, onViewDetails
                 {message.message || '-'}
               </div>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   )
 }

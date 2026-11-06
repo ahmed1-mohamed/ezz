@@ -40,6 +40,8 @@ export default React.memo(function StudentDuringSessionView({
   session,
   joinData,
   onLeaveSession,
+  onRefreshJoinData,
+  isRefreshing = false,
 }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -57,7 +59,6 @@ export default React.memo(function StudentDuringSessionView({
   const studentEmail = user?.email || '';
   return (
     <div className="space-y-4 max-w-6xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Top Header Card */}
       <header className="bg-white dark:bg-slate-900 rounded-[28px] px-5 py-4 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start space-y-1">
           <div className="flex items-center gap-2 text-xs font-bold text-[#00594C] dark:text-emerald-400">
@@ -91,21 +92,21 @@ export default React.memo(function StudentDuringSessionView({
           </button>
         </div>
       </header>
-      {/* Embedded Zoom Meeting Player Inside Live Screen */}
       <ZoomMeetingPlayer
         meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId || session?.meetingNumber}
         passcode={joinData?.passcode || joinData?.password || session?.passcode || session?.password}
         role={joinData?.role !== undefined ? joinData.role : 0}
         sdkSignature={joinData?.sdkSignature || session?.sdkSignature || joinData?.signature || session?.signature}
-        sdkKey={joinData?.sdkKey || import.meta.env?.VITE_ZOOM_SDK_KEY || import.meta.env?.NEXT_PUBLIC_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ'}
         startUrl=""
         joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl || session?.zoom_join_url}
         zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token}
         leaveUrl="/dashboard/student/schedule"
         userName={studentName}
-        userEmail={joinData?.userEmail || studentEmail || user?.email || 'manartalezzacademy1@gmail.com'}
+        userEmail={joinData?.userEmail || studentEmail || user?.email || import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com'}
         sessionTitle={sessionTitle}
         className="w-full"
+        onRefreshJoinData={onRefreshJoinData}
+        isRefreshing={isRefreshing}
       />
     </div>
   );

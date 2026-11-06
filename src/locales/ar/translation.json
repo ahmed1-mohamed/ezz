@@ -373,7 +373,8 @@
       },
       "tabs": {
         "methods": "طرق الدفع",
-        "payouts": "سجل التحويلات"
+        "payouts": "إثباتات الدفع",
+        "earnings": "الأرباح"
       },
       "methods": {
         "title": "طرق الدفع المعتمَدة",
@@ -410,7 +411,8 @@
           "mobile_wallet": "محفظة إلكترونية",
           "instapay": "إنستاباي (InstaPay)",
           "paypal": "باي بال (PayPal)",
-          "other": "طريقة أخرى"
+          "other": "طريقة أخرى",
+          "western_union": "ويسترن يونيون (Western Union)"
         },
         "walletProviders": {
           "vodafone_cash": "فودافون كاش",
@@ -418,8 +420,13 @@
           "etisalat_cash": "اتصالات كاش",
           "we_pay": "وي باي (WE Pay)",
           "smart_wallet": "محفظة ذكية",
-          "other": "أخرى"
-        }
+          "other": "أخرى",
+          "stc_pay": "STC Pay (إس تي سي باي)"
+        },
+        "country": "الدولة والمدينة",
+        "phoneNumber": "رقم الهاتف",
+        "nationalIdOrPassport": "رقم الهوية أو الجواز",
+        "instapayBankName": "البنك / المحفظة المربوطة"
       },
       "modal": {
         "addTitle": "إضافة طريقة دفع جديدة",
@@ -466,11 +473,30 @@
           "walletNumberRequired": "يرجى إدخال رقم هاتف المحفظة",
           "instapayRequired": "يرجى إدخال عنوان إنستاباي",
           "paypalEmailRequired": "يرجى إدخال بريد باي بال صحيح",
-          "acknowledgeRequired": "يجب الإقرار بصحة البيانات المدخلة وتحمل مسؤولية أي خطأ فيها"
+          "acknowledgeRequired": "يجب الإقرار بصحة البيانات المدخلة وتحمل مسؤولية أي خطأ فيها",
+          "countryRequired": "يرجى إدخال الدولة والمدينة المستلم منها",
+          "phoneRequired": "يرجى إدخال رقم الهاتف للتواصل",
+          "instapayHolderRequired": "يرجى إدخال الاسم المسجل على حساب إنستا باي",
+          "paypalHolderRequired": "يرجى إدخال اسم صاحب حساب باي بال",
+          "westernUnionHolderRequired": "يرجى إدخال الاسم الرباعي مطابقاً للوثيقة الرسمية"
         },
         "addSuccess": "تمت إضافة طريقة الدفع بنجاح",
         "updateSuccess": "تم تحديث طريقة الدفع بنجاح",
-        "acknowledgeLabel": "أقر بصحة البيانات المدخلة وأتحمل مسؤولية أي خطأ فيها"
+        "acknowledgeLabel": "أقر بصحة البيانات المدخلة وأتحمل مسؤولية أي خطأ فيها",
+        "countryLabel": "الدولة والمدينة المستلم منها",
+        "countryPlaceholder": "مثال: المملكة العربية السعودية - الرياض / مصر - القاهرة",
+        "westernUnionPhoneLabel": "رقم الهاتف للتواصل",
+        "westernUnionPhonePlaceholder": "مثال: +966501234567",
+        "nationalIdLabel": "رقم البطاقة أو جواز السفر (اختياري)",
+        "nationalIdPlaceholder": "الرقم القومي أو رقم جواز السفر للتحقق",
+        "instapayBankLabel": "اسم البنك أو المحفظة المربوط عليها إنستا باي (اختياري)",
+        "instapayBankPlaceholder": "مثال: البنك الأهلي المصري / بنك CIB / فودافون كاش",
+        "instapayHolderLabel": "الاسم المسجل على حساب إنستا باي",
+        "instapayHolderPlaceholder": "الاسم كما يظهر للأدمن في تطبيق إنستا باي",
+        "westernUnionHolderLabel": "الاسم الرباعي مطابقاً لجواز السفر أو البطاقة",
+        "westernUnionHolderPlaceholder": "الاسم الرباعي الكامل بالإنجليزية أو العربية",
+        "walletHolderLabel": "اسم صاحب الخط / المحفظة (اختياري)",
+        "walletHolderPlaceholder": "اسم صاحب الخط للتأكيد"
       },
       "payouts": {
         "title": "سجل التحويلات المالية",
@@ -491,8 +517,33 @@
         "proofModalTitle": "إيصال التحويل المالي",
         "downloadProof": "تحميل الإيصال",
         "openInNewTab": "فتح في نافذة جديدة"
+      },
+      "earningsPageTitle": "أرباح المعلم",
+      "earningsPageSubtitle": "متابعة رصيدك المالي وتفاصيل مستحقات الحصص المنفذة",
+      "payoutsPageTitle": "إثباتات الدفع",
+      "payoutsPageSubtitle": "سجل بجميع إثباتات الدفع والتحويلات المنفذة من الإدارة",
+      "methodsPageTitle": "طرق الدفع",
+      "methodsPageSubtitle": "إدارة وتعيين حساباتك البنكية ومحافظك لاستلام الأرباح",
+      "table": {
+        "title": "تفاصيل الأرباح ومستحقات الجلسات",
+        "subtitle": "قائمة بجميع الحصص المنجزة وقيمة كل حصة",
+        "session": "الحصة / الجلسة",
+        "group": "المجموعة",
+        "date": "التاريخ والوقت",
+        "students": "الطلاب",
+        "duration": "المدة",
+        "amount": "المستحق",
+        "status": "الحالة",
+        "completed": "مكتملة",
+        "pending": "قيد الاعتماد",
+        "paid": "تم الصرف",
+        "emptyTitle": "لا توجد تفاصيل أرباح مسجلة",
+        "emptySubtitle": "ستظهر هنا تفاصيل الأرباح بمجرد إتمام الحصص الدراسية.",
+        "searchPlaceholder": "بحث باسم الحصة أو المجموعة..."
       }
-    }
+    },
+    "navPayouts": "إثباتات الدفع",
+    "navPaymentMethods": "طرق الدفع"
   },
   "teacherLive": {
     "pageTitle": "الحصص المباشرة",
@@ -615,7 +666,16 @@
     "loadingZoomSdk": "جاري تهيئة مشغل Zoom المدمج...",
     "preferDesktopApp": "هل تفضل استخدام تطبيق Zoom المثبت على جهازك؟",
     "hostLiveHint": "أنت متصل الآن كمعلّم رئيسي (Host). يمكنك الشرح ومشاركة الشاشة وتقييم الطلاب في نفس الوقت.",
-    "noMeetingUrlDesc": "يرجى مراجعة إدارة المنصة أو التحقق من اكتمال جدولة موعد الحصة."
+    "noMeetingUrlDesc": "يرجى مراجعة إدارة المنصة أو التحقق من اكتمال جدولة موعد الحصة.",
+    "zakExpiredNotice": "الحصة مفتوحة حالياً (90 دقيقة). يمكنك بدء الحصة فوراً عبر تطبيق Zoom أو تسجيل الدخول كـ Host في المتصفح:",
+    "refreshLinkFromServer": "طلب رابط جديد من الخادم",
+    "openInBrowser": "فتح في المتصفح",
+    "fetchLinkNow": "تحديث بيانات الحصة",
+    "cannotJoinNow": "الحصة غير متاحة للانضمام الآن",
+    "missingHostZak": "بيانات دخول مضيف Zoom غير موجودة",
+    "missingHostZakHint": "لم يتم العثور على رمز مضيف Zoom (ZAK). يرجى طلب تحديث الرابط أو بدء الحصة عبر تطبيق Zoom.",
+    "cannotJoinNowHint": "لم يبدأ وقت الحصة المسموح به بعد، أو أن الحصة قد انتهت.",
+    "retryJoin": "إعادة المحاولة"
   },
   "teacherEvaluations": {
     "title": "التقييمات",
@@ -1322,7 +1382,8 @@
       "profile": "الملف الشخصي",
       "complaints": "التقارير والشكاوى",
       "website": "موقعنا",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "subscriptions": "سجل الدفع والاشتراكات"
     },
     "header": {
       "title": "منارة العز أكاديمي",

@@ -16,12 +16,10 @@ export default function TeacherProfileCard({
     }
     return String(teacher.name)
   }, [teacher?.name, isRtl])
-
   const avatarLetter = useMemo(() => {
     const trimmed = teacherDisplayName.trim()
     return trimmed ? trimmed.charAt(0) : 'م'
   }, [teacherDisplayName])
-
   if (!teacher) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-10 text-center text-slate-400 dark:text-slate-500 font-bold shadow-soft">
@@ -29,9 +27,7 @@ export default function TeacherProfileCard({
       </div>
     )
   }
-
   const isSuspended = !teacher.active
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft flex flex-col items-center text-center space-y-5">
        <div className="relative">
@@ -62,7 +58,6 @@ export default function TeacherProfileCard({
           </span>
         )}
       </div>
-
        <div className="space-y-1 w-full">
         <h3 className="text-lg font-extrabold text-slate-850 dark:text-white">
           {teacherDisplayName}
@@ -74,7 +69,6 @@ export default function TeacherProfileCard({
           {teacher.email}
         </p>
       </div>
-
        <div className="flex items-center gap-3">
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
@@ -86,13 +80,11 @@ export default function TeacherProfileCard({
           <span className={`w-1.5 h-1.5 rounded-full me-1.5 ${isSuspended ? 'bg-rose-600' : 'bg-emerald-600'}`} />
           {isSuspended ? (isRtl ? 'موقوف' : 'Stopped') : (isRtl ? 'نشط' : 'Active')}
         </span>
-
         <div className="flex items-center gap-1 text-amber-500 text-xs font-bold bg-amber-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-full">
           <span>{teacher.rating ?? 0}</span>
           <Star size={12} fill="currentColor" />
         </div>
       </div>
-
        {teacher.specializations && teacher.specializations.length > 0 && (
         <div className="w-full space-y-1.5 pt-1 text-start">
           <span className="text-[11px] font-bold text-slate-400 block">
@@ -111,7 +103,6 @@ export default function TeacherProfileCard({
           </div>
         </div>
       )}
-
        <div className="w-full divide-y divide-slate-100 dark:divide-slate-800 text-xs text-start">
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
@@ -121,7 +112,6 @@ export default function TeacherProfileCard({
             {teacher.joinDate || '-'}
           </span>
         </div>
-
         {teacher.yearsOfExperience > 0 && (
           <div className="flex justify-between py-2.5">
             <span className="text-slate-400 dark:text-slate-500 font-semibold">
@@ -132,7 +122,6 @@ export default function TeacherProfileCard({
             </span>
           </div>
         )}
-
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.groupsCount', 'عدد المجموعات')}
@@ -141,7 +130,6 @@ export default function TeacherProfileCard({
             {teacher.totalGroups ?? 0} {isRtl ? 'مجموعات' : 'groups'}
           </span>
         </div>
-
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.totalSessions', 'إجمالي الحصص')}
@@ -150,7 +138,6 @@ export default function TeacherProfileCard({
             {teacher.totalLessons ?? 0} {isRtl ? 'حصة' : 'sessions'}
           </span>
         </div>
-
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {isRtl ? 'عدد الطلاب' : 'Students'}
@@ -159,7 +146,6 @@ export default function TeacherProfileCard({
             {teacher.totalStudents ?? 0} {isRtl ? 'طالب' : 'students'}
           </span>
         </div>
-
         {teacher.profitPercentage > 0 && (
           <div className="flex justify-between py-2.5">
             <span className="text-slate-400 dark:text-slate-500 font-semibold">
@@ -170,7 +156,6 @@ export default function TeacherProfileCard({
             </span>
           </div>
         )}
-
         {teacher.hourlyRate > 0 && (
           <div className="flex justify-between py-2.5">
             <span className="text-slate-400 dark:text-slate-500 font-semibold">
@@ -181,7 +166,6 @@ export default function TeacherProfileCard({
             </span>
           </div>
         )}
-
         <div className="flex justify-between py-2.5">
           <span className="text-slate-400 dark:text-slate-500 font-semibold">
             {t('adminDashboard.teachers.totalEarnings', 'إجمالي الأرباح')}
@@ -190,7 +174,6 @@ export default function TeacherProfileCard({
             {teacher.totalEarnings ?? 0} $
           </span>
         </div>
-
         {teacher.dueEarnings > 0 && (
           <div className="flex justify-between py-2.5">
             <span className="text-slate-400 dark:text-slate-500 font-semibold">
@@ -202,7 +185,6 @@ export default function TeacherProfileCard({
           </div>
         )}
       </div>
-
        <div className="w-full space-y-2.5 pt-2">
         {onViewDetails && (
           <button
@@ -214,7 +196,6 @@ export default function TeacherProfileCard({
             <span>{t ? t('adminDashboard.teachers.viewDetails', 'عرض كافة التفاصيل') : 'عرض كافة التفاصيل'}</span>
           </button>
         )}
-
         <div className="grid grid-cols-2 gap-2">
           {onToggleStatus && (
             <button
@@ -239,7 +220,6 @@ export default function TeacherProfileCard({
               )}
             </button>
           )}
-
           {onDelete && (
             <button
               type="button"

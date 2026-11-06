@@ -8,7 +8,6 @@ import { useQuery } from '@tanstack/react-query'
 export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
-
     const { data: curriculaData, isLoading: isCurriculaLoading } = useQuery({
         queryKey: ['public-curricula', i18n.language],
         queryFn: async () => {
@@ -18,7 +17,6 @@ export default React.memo(function CurriculumUnits() {
         },
         staleTime: 5 * 60 * 1000
     });
-
     const curricula = useMemo(() => curriculaData || [], [curriculaData]);
     const [selectedTabId, setSelectedTabId] = useState(null);
     const activeTabId = useMemo(() => {
@@ -28,37 +26,29 @@ export default React.memo(function CurriculumUnits() {
         return curricula[0]?.id || curricula[0]?._id || null;
     }, [selectedTabId, curricula]);
     const setActiveTabId = setSelectedTabId;
-
     const [openLevel, setOpenLevel] = useState(null);
     const [showAllLevels, setShowAllLevels] = useState(false);
-
     const { data: activeCurriculumData } = useQuery({
         queryKey: ['public-curriculum-details', activeTabId, i18n.language],
         queryFn: async () => {
             if (!activeTabId) return null;
             const res = await api.get(`/api/v1/curricula/public/${activeTabId}`);
-
             let curr = res.data?.data || res.data;
             if (Array.isArray(curr)) {
                 curr = curr[0]?.data || curr[0] || {};
             } else if (curr?.data) {
                 curr = curr.data;
             }
-
             return curr;
         },
         enabled: !!activeTabId,
         staleTime: 5 * 60 * 1000
     });
-
     const currentData = activeCurriculumData || curricula.find(c => (c.id || c._id) === activeTabId);
-
     return (
         <section className="py-12 sm:py-20 relative z-10">
             <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-slate-100/50 to-transparent dark:from-slate-900/40 pointer-events-none" />
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
                 <div className="text-center mb-16 space-y-4">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -77,7 +67,6 @@ export default React.memo(function CurriculumUnits() {
                         {t('curriculumUnits.mainTitle', 'اختر منهجك التعليمي')}
                     </motion.h2>
                 </div>
-
                 {isCurriculaLoading ? (
                     <div className="flex justify-center gap-4 mb-16">
                         {[1, 2, 3].map(i => (
@@ -90,7 +79,6 @@ export default React.memo(function CurriculumUnits() {
                             const id = curr.id || curr._id;
                             const isActive = activeTabId === id;
                             const name = typeof curr.name === 'object' ? (isRtl ? curr.name.ar : curr.name.en) || curr.name.ar : curr.name;
-
                             return (
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
@@ -121,7 +109,6 @@ export default React.memo(function CurriculumUnits() {
                         })}
                     </div>
                 )}
-
                 <AnimatePresence mode="wait">
                     {activeTabId && currentData && (
                         <motion.div
@@ -135,7 +122,6 @@ export default React.memo(function CurriculumUnits() {
                             <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-6 sm:p-8 md:p-12 shadow-2xl shadow-[#00695C]/5 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 relative overflow-hidden flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
                                 <div className="absolute top-0 end-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#00695C]/5 dark:from-[#00695C]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
                                 <div className="absolute bottom-0 start-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-500/5 dark:from-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-
                                 {currentData.image && (
                                     <div className="w-full lg:w-2/5 relative z-10">
                                         <div className="relative rounded-[2rem] overflow-hidden aspect-[4/5] shadow-lg border border-slate-100 dark:border-slate-800 group">
@@ -157,7 +143,6 @@ export default React.memo(function CurriculumUnits() {
                                         </div>
                                     </div>
                                 )}
-
                                 <div className={`w-full ${currentData.image ? 'lg:w-3/5' : 'lg:w-full max-w-4xl mx-auto'} relative z-10 text-start space-y-8`}>
                                     <div className="space-y-4">
                                         <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-4 py-1.5 rounded-full text-sm font-bold border border-amber-200/60 dark:border-amber-900/40 shadow-xs">
@@ -171,13 +156,11 @@ export default React.memo(function CurriculumUnits() {
                                             {typeof currentData.description === 'object' ? (isRtl ? currentData.description?.ar : currentData.description?.en) || currentData.description?.ar : currentData.description}
                                         </p>
                                     </div>
-
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                         {(() => {
                                             const features = typeof currentData.features === 'object' && !Array.isArray(currentData.features)
                                                 ? (isRtl ? currentData.features.ar : currentData.features.en) || currentData.features.ar || []
                                                 : (currentData.features || []);
-
                                             return features.map((feat, idx) => (
                                                 <div key={`f-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-[#00695C]/20 dark:hover:border-slate-700 hover:shadow-xs transition-all duration-300">
                                                     <div className="bg-[#00695C] text-white p-2.5 rounded-xl shrink-0 mt-0.5 shadow-xs">
@@ -190,12 +173,10 @@ export default React.memo(function CurriculumUnits() {
                                                 </div>
                                             ));
                                         })()}
-
                                         {(() => {
                                             const benefits = typeof currentData.benefitsAfterGraduation === 'object' && !Array.isArray(currentData.benefitsAfterGraduation)
                                                 ? (isRtl ? currentData.benefitsAfterGraduation.ar : currentData.benefitsAfterGraduation.en) || currentData.benefitsAfterGraduation.ar || []
                                                 : (currentData.benefitsAfterGraduation || []);
-
                                             return benefits.map((ben, idx) => (
                                                 <div key={`b-${idx}`} className="flex items-start gap-4 p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 hover:bg-white dark:hover:bg-amber-950/40 border border-amber-100/70 dark:border-amber-900/30 hover:border-amber-200 dark:hover:border-amber-800/40 hover:shadow-xs transition-all duration-300">
                                                     <div className="bg-amber-500 text-white p-2.5 rounded-xl shrink-0 mt-0.5 shadow-xs">
@@ -211,14 +192,11 @@ export default React.memo(function CurriculumUnits() {
                                     </div>
                                 </div>
                             </div>
-
                             {(() => {
                                 const levels = currentData.levels || [];
                                 if (levels.length === 0) return null;
-
                                 const visibleLevels = showAllLevels ? levels : levels.slice(0, 4);
                                 const hasMoreLevels = levels.length > 4;
-
                                 return (
                                     <motion.div
                                         initial={{ opacity: 0, y: 30 }}
@@ -234,7 +212,6 @@ export default React.memo(function CurriculumUnits() {
                                                 <span>{levels.length} {isRtl ? 'مستويات' : 'Levels'}</span>
                                             </div>
                                         </div>
-
                                         <div className="space-y-4">
                                             <AnimatePresence initial={false}>
                                                 {visibleLevels.map((level, index) => {
@@ -242,7 +219,6 @@ export default React.memo(function CurriculumUnits() {
                                                     const isOpen = openLevel === levelId;
                                                     const levelName = typeof level.name === 'object' ? (isRtl ? level.name?.ar : level.name?.en) || level.name?.ar : level.name;
                                                     const units = level.units || [];
-
                                                     return (
                                                         <motion.div
                                                             key={levelId}
@@ -271,7 +247,6 @@ export default React.memo(function CurriculumUnits() {
                                                                     </motion.div>
                                                                 </div>
                                                             </button>
-
                                                             <AnimatePresence>
                                                                 {isOpen && (
                                                                     <motion.div
@@ -312,7 +287,6 @@ export default React.memo(function CurriculumUnits() {
                                                 })}
                                             </AnimatePresence>
                                         </div>
-
                                         {hasMoreLevels && (
                                             <div className="mt-8 flex justify-center">
                                                 <button

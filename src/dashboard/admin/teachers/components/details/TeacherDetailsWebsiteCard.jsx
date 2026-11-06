@@ -7,11 +7,9 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
   const teacherId = teacher?.teacher_id || teacher?.id
   const [isUpdating, setIsUpdating] = useState(false)
   const [showOnWebsite, setShowOnWebsite] = useState(Boolean(teacher?.showOnWebsite))
-
   const studentsCount = teacher?.totalStudents ?? teacher?.studentsCount ?? 0
   const years = teacher?.yearsOfExperience ?? teacher?.experienceYears ?? 0
   const lessonsCount = teacher?.totalLessons ?? teacher?.totalSessions ?? 0
-
   const handleToggleVisibility = async () => {
     if (!teacherId || isUpdating) return
     const newValue = !showOnWebsite
@@ -35,7 +33,6 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
       setIsUpdating(false)
     }
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <div className="flex items-center justify-between gap-4">
@@ -47,7 +44,6 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
             {isRtl ? 'بيانات صفحة العرض في الموقع الإلكتروني' : 'Website Display Page Data'}
           </h2>
         </div>
-
         <button
           type="button"
           onClick={handleToggleVisibility}
@@ -77,7 +73,6 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
           </span>
         </button>
       </div>
-
       <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm font-semibold ${
         showOnWebsite
           ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400'
@@ -90,7 +85,6 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
             : (isRtl ? 'المعلم مخفي حالياً من الموقع الإلكتروني' : 'Teacher is currently hidden from the website')}
         </span>
       </div>
-
        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -100,7 +94,6 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
             {studentsCount}
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'سنوات الخبرة' : 'Years of Experience'}
@@ -109,7 +102,6 @@ export default function TeacherDetailsWebsiteCard({ teacher, isRtl = true, onSuc
             {years} {isRtl ? 'سنوات' : 'years'}
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'إجمالي الحصص' : 'Total Lessons'}

@@ -25,22 +25,17 @@ export default function EditSupervisorScreen({
   onCancel
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
-
   const [isEditing, setIsEditing] = useState(false)
-
   const { initialPrefix, initialPhone } = useMemo(() => {
     const fallback = { initialPrefix: '', initialPhone: '' }
     if (!supervisor.phone) return fallback
-
     const phone = String(supervisor.phone).trim()
-
     const spaceIdx = phone.indexOf(' ')
     if (spaceIdx > 0 && phone.startsWith('+')) {
       const prefix = phone.slice(0, spaceIdx)
       const number = phone.slice(spaceIdx + 1).trim()
       return { initialPrefix: prefix, initialPhone: number }
     }
-
     if (phone.startsWith('+') && countries && countries.length > 0) {
       const sorted = [...countries].sort(
         (a, b) => String(b.dialCode || b.phoneCode || '').replace(/\+/g, '').length - String(a.dialCode || a.phoneCode || '').replace(/\+/g, '').length
@@ -54,10 +49,8 @@ export default function EditSupervisorScreen({
       const guessPrefix = phone.match(/^(\+\d{1,4})/)?.[1] || ''
       return { initialPrefix: guessPrefix, initialPhone: phone.slice(guessPrefix.length).trim() }
     }
-
     return { initialPrefix: '', initialPhone: phone }
   }, [supervisor.phone, countries])
-
   const initialCountryId = useMemo(() => {
     if (!supervisor.country) return ''
     const sCountryId = supervisor.country?._id || supervisor.country?.id || supervisor.country;
@@ -72,7 +65,6 @@ export default function EditSupervisorScreen({
     }
     return sCountryId || '';
   }, [supervisor.country, countries])
-
   const [formData, setFormData] = useState({
     name: typeof supervisor.name === 'object' ? (supervisor.name?.ar || '') : (supervisor.name || ''),
     nameEn: typeof supervisor.name === 'object' ? (supervisor.name?.en || '') : (supervisor.nameEn || ''),
@@ -84,14 +76,11 @@ export default function EditSupervisorScreen({
     status: supervisor.status || 'Active',
     photoUrl: supervisor.image || supervisor.photoUrl || supervisor.photo || supervisor.user?.image || supervisor.avatar || null
   })
-
   const sortedCountries = useMemo(() => {
     return sortCountries(countries, isRtl)
   }, [countries, isRtl])
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
-
   const filteredCountries = useMemo(() => {
     if (!countrySearch.trim()) return sortedCountries;
     const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
@@ -102,23 +91,19 @@ export default function EditSupervisorScreen({
       return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
     });
   }, [sortedCountries, countrySearch, isRtl])
-
   const normalizePhoneCode = (code) => {
     if (!code) return ''
     return String(code).replace(/\+/g, '').trim()
   }
-
   const matchedCountry = useMemo(() => {
     const prefixNorm = normalizePhoneCode(formData.phonePrefix)
     if (!prefixNorm) return null
     const found = sortedCountries.find(c => normalizePhoneCode(c.dialCode || c.phoneCode) === prefixNorm || normalizePhoneCode(c.code) === prefixNorm)
     return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, dialCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
-
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
-
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
     setCountrySearch('')
@@ -126,27 +111,22 @@ export default function EditSupervisorScreen({
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     handleFieldChange('phonePrefix', prefixWithPlus)
   }
-
   const handleUpdatePassword = (newPassword) => {
     if (onUpdatePassword) onUpdatePassword(newPassword, {
       phone: `${formData.phonePrefix} ${formData.phone}`.trim(),
       countryId: formData.countryId,
     });
   }
-
   const handleSubmit = (e) => {
     e.preventDefault()
-
     const foundCountry = countries.find(c => (c.dialCode || c.phoneCode) === formData.phonePrefix) || countries[0];
     const countryId = formData.countryId || foundCountry?.id || foundCountry?._id || null;
-
     let rawPhone = formData.phone || '';
     if (rawPhone.startsWith('+')) {
       const normPrefix = String(formData.phonePrefix || '').replace(/\+/g, '').trim();
       const normPhone = rawPhone.replace(/^\+/, '').trim();
       rawPhone = normPhone.startsWith(normPrefix) ? normPhone.slice(normPrefix.length).trim() : normPhone;
     }
-
     onSave({
       adminData: {
         'name[ar]': formData.name,
@@ -158,17 +138,13 @@ export default function EditSupervisorScreen({
       permissionId: formData.permissionId
     })
   }
-
   const joinDate = supervisor.createdAt
     ? new Date(supervisor.createdAt).toLocaleDateString()
     : (supervisor.joinDate || '-')
   const isSuspended = supervisor.user?.active !== undefined ? !supervisor.user.active : (supervisor.active !== undefined ? !supervisor.active : formData.status !== 'Active')
-
   return (
     <div className="space-y-8 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -188,9 +164,7 @@ export default function EditSupervisorScreen({
             </h2>
           </div>
         </div>
-
         <div className="flex items-center gap-3">
-
           <button
             type="button"
             onClick={() => onToggleStatus(supervisor)}
@@ -211,7 +185,6 @@ export default function EditSupervisorScreen({
               </>
             )}
           </button>
-
           <button
             type="button"
             onClick={() => setIsEditing(!isEditing)}
@@ -223,13 +196,9 @@ export default function EditSupervisorScreen({
             <Pencil size={16} />
             <span>{isRtl ? 'تعديل البيانات' : 'Edit Data'}</span>
           </button>
-
         </div>
-
       </div>
-
       <div className="space-y-8 max-w-8xl mx-auto">
-
         <EditProfileCard
           formData={{
             name: typeof supervisor.name === 'object' ? (supervisor.name?.ar || '') : (supervisor.name || ''),
@@ -244,16 +213,13 @@ export default function EditSupervisorScreen({
           countryFlag={matchedCountry?.flag}
           roleName={roles?.find(r => r.id === formData.permissionId)?.name || supervisor.permission?.name}
         />
-
         {isEditing && (
           <>
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
               <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 {isRtl ? 'تعديل البيانات الأساسية' : 'Edit Basic Details'}
               </h3>
-
               <div className="flex flex-col gap-5">
-
                 <div>
                   <label htmlFor="editNameEnInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
@@ -268,7 +234,6 @@ export default function EditSupervisorScreen({
                     dir="ltr"
                   />
                 </div>
-
                 <div>
                   <label htmlFor="editNameArInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
@@ -282,13 +247,11 @@ export default function EditSupervisorScreen({
                     className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                   />
                 </div>
-
                 <div>
                   <label htmlFor="editPhoneInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
                   </label>
                   <div className="flex gap-3" dir="ltr">
-
                     <div className="relative shrink-0">
                       <button
                         type="button"
@@ -304,7 +267,6 @@ export default function EditSupervisorScreen({
                         <span aria-hidden="true">{matchedCountry?.flag || '🌍'}</span>
                         <span aria-hidden="true">{(matchedCountry?.dialCode || matchedCountry?.phoneCode) ? `(${matchedCountry.dialCode || matchedCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
                       </button>
-
                       {isDropdownOpen && (
                         <div role="listbox" className="absolute start-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-start">
                           <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
@@ -337,7 +299,6 @@ export default function EditSupervisorScreen({
                         </div>
                       )}
                     </div>
-
                     <input
                       type="tel"
                       required
@@ -354,7 +315,6 @@ export default function EditSupervisorScreen({
                             .filter(c => c.normCode)
                             .sort((a, b) => b.normCode.length - a.normCode.length)
                             .find(c => normalizedInput.startsWith(c.normCode));
-
                           if (matched) {
                             handleFieldChange('phonePrefix', matched.dial);
                             if (matched.id || matched._id) {
@@ -369,10 +329,8 @@ export default function EditSupervisorScreen({
                       }}
                       className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                     />
-
                   </div>
                 </div>
-
                 <div>
                   <label htmlFor="editCountrySelect" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                     {isRtl ? 'الدولة' : 'Country'}
@@ -392,9 +350,7 @@ export default function EditSupervisorScreen({
                     ))}
                   </select>
                 </div>
-
               </div>
-
               <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
@@ -417,13 +373,11 @@ export default function EditSupervisorScreen({
             </div>
           </>
         )}
-
         <EditSecurityPasswordCard
           isRtl={isRtl}
           t={t}
           onUpdatePassword={handleUpdatePassword}
         />
-
         <EditGrantedPermissionsCard
           supervisorPermissions={
             supervisor.permission?.keys ||
@@ -436,9 +390,7 @@ export default function EditSupervisorScreen({
           isRtl={isRtl}
           t={t}
         />
-
       </div>
-
     </div>
   )
 }

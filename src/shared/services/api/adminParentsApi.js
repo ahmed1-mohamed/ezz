@@ -1,7 +1,5 @@
 import api from './axiosConfig';
 
-// Fields accepted by POST/PATCH /parents (multipart):
-// name[ar], name[en], email, phone (international, e.g. +971501234567), country, password, confirmPassword, image
 const buildParentFormData = (data = {}) => {
   const fd = new FormData();
   if (data.name?.ar) fd.append('name[ar]', data.name.ar);
@@ -19,7 +17,6 @@ export const adminParentsApi = {
     return response.data;
   },
 
-  // Raw record: bilingual name { ar, en }, phone, email, user_id, country ("<flag> <name>")
   fetchParentById: async (id) => {
     const response = await api.get(`/api/v1/parents/${id}`, { skipCache: true });
     return response.data;
@@ -39,13 +36,11 @@ export const adminParentsApi = {
     return response.data;
   },
 
-  // PATCH /users/:userId/change-password { password, confirmPassword }
   changeParentPassword: async (userId, { password, confirmPassword }) => {
     const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
     return response.data;
   },
 
-  // PATCH /users/:userId/toggle-active
   toggleParentActive: async (userId) => {
     const response = await api.patch(`/api/v1/users/${userId}/toggle-active`);
     return response.data;

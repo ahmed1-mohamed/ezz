@@ -51,10 +51,8 @@ export default function StudentStep2({
               />
             </div>
           </div>
-
         </div>
       )}
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
           <h3 className="text-base font-bold text-slate-855 dark:text-white">
@@ -66,7 +64,6 @@ export default function StudentStep2({
             </span>
           )}
         </div>
-
         <div className="relative w-full">
           <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-400`}>
             <Search size={16} />
@@ -81,7 +78,6 @@ export default function StudentStep2({
             } outline-none transition-all text-sm`}
           />
         </div>
-
         <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
           {filteredParents.length === 0 ? (
             <div className="p-6 text-center text-slate-400 dark:text-slate-500 font-bold text-xs">
@@ -120,7 +116,6 @@ export default function StudentStep2({
                       </p>
                     </div>
                   </div>
-
                   {isSelected && (
                     <div className="p-1 bg-[#005953] text-white rounded-full">
                       <Check size={14} />

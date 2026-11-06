@@ -9,7 +9,6 @@ export default function EliteTeachersSection({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
       <div className="flex items-center justify-between mb-8">
@@ -26,7 +25,6 @@ export default function EliteTeachersSection({
           </Button>
         )}
       </div>
-
       <div className="space-y-4 sm:space-y-6">
         {teachers.length === 0 ? (
           <div className="py-12 text-center text-slate-400 dark:text-slate-500">
@@ -40,7 +38,6 @@ export default function EliteTeachersSection({
               : teacher.image
                 ? `https://manaret-ezz.dramcode.top/${teacher.image}`
                 : null;
-
             return (
               <div
                 key={teacher.id}
@@ -66,9 +63,7 @@ export default function EliteTeachersSection({
                         </h4>
                       </div>
                     </div>
-
                   </div>
-
                   {handleDeleteTeacher && (
                     <div className="flex items-center gap-2 mt-4 xl:mt-0 w-full xl:w-auto justify-center sm:justify-end border-t xl:border-t-0 border-slate-100 dark:border-slate-800 pt-4 xl:pt-0">
                       <button
@@ -86,7 +81,6 @@ export default function EliteTeachersSection({
           })
         )}
       </div>
-
     </div>
   );
 }

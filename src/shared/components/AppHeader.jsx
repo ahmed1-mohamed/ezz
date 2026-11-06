@@ -7,7 +7,6 @@ export default function AppHeader({ title }) {
     const { user, theme, toggleTheme } = useAuth()
     const { t, i18n } = useTranslation()
     const isArabic = i18n.language.startsWith('ar')
-
     const displayUserName = (() => {
         if (!user) return ''
         if (typeof user.name === 'object' && user.name !== null) {
@@ -18,7 +17,6 @@ export default function AppHeader({ title }) {
         }
         return user.name || ''
     })()
-
     return (
         <header className="flex flex-col gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white/95 p-4 sm:p-5 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80 lg:flex-row lg:items-center lg:justify-between">
             <div>

@@ -17,7 +17,6 @@ export default function TeacherLive() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [activeStage, setActiveStage] = useState('before');
   const [currentLiveSession, setCurrentLiveSession] = useState(null);
-
   const handleStartSession = (session) => {
     const check = checkCanJoinSession(session);
     if (!check.canJoin) {
@@ -27,22 +26,18 @@ export default function TeacherLive() {
     setCurrentLiveSession(session);
     setActiveStage('during');
   };
-
   const handleEndSession = () => {
     setActiveStage('after');
   };
-
   const handleBackToBefore = () => {
     setActiveStage('before');
   };
-
   const handleSelectStage = (stageId) => {
     if (stageId === 'during') {
       return;
     }
     setActiveStage(stageId);
   };
-
   return (
     <div className="space-y-6 pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm">
@@ -60,7 +55,6 @@ export default function TeacherLive() {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
             {STAGES.map((stage) => {
               const StageIcon = stage.icon;
@@ -93,11 +87,9 @@ export default function TeacherLive() {
           </div>
         </div>
       </div>
-
       {activeStage === 'before' && (
         <BeforeSessionTab onStartSession={handleStartSession} />
       )}
-
       {activeStage === 'during' && (
         <DuringSessionTab
           session={currentLiveSession}
@@ -105,7 +97,6 @@ export default function TeacherLive() {
           onBackToBefore={handleBackToBefore}
         />
       )}
-
       {activeStage === 'after' && (
         <AfterSessionTab />
       )}

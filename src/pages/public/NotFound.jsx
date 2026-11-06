@@ -9,7 +9,6 @@ export default function NotFound() {
     const { t } = useTranslation()
     const { user } = useAuth()
     const redirectPath = user ? getRedirectPath(user.role) : '/'
-
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 px-6 py-16 text-slate-900 dark:text-white font-sans">
             <div className="w-full max-w-2xl rounded-[2.5rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center shadow-sm">

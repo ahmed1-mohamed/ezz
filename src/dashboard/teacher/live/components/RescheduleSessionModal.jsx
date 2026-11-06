@@ -10,7 +10,6 @@ const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 export default function RescheduleSessionModal({ isOpen, onClose, session }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [proposedNewDate, setProposedNewDate] = useState('');
   const [proposedStartTime, setProposedStartTime] = useState('');
   const [proposedEndTime, setProposedEndTime] = useState('');
@@ -18,7 +17,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
   const [details, setDetails] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [validationError, setValidationError] = useState('');
-
   const resetFormState = () => {
     setProposedNewDate('');
     setProposedStartTime('');
@@ -28,12 +26,10 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
     setAttachments([]);
     setValidationError('');
   };
-
   const handleCloseModal = () => {
     resetFormState();
     onClose();
   };
-
   const handleFileUpload = (event) => {
     const files = Array.from(event.target.files || []);
     const validFiles = files.filter((f) => f.size <= MAX_ATTACHMENT_SIZE);
@@ -42,11 +38,9 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
     }
     setAttachments((prev) => [...prev, ...validFiles]);
   };
-
   const handleRemoveFile = (indexToRemove) => {
     setAttachments((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
-
   const mutation = useMutation({
     mutationFn: async () => {
       const groupId = session?.group?.id || session?.group?._id || session?.groupId || session?.group_id;
@@ -72,7 +66,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
       toast.error(serverMsg || t('teacherLive.rescheduleError', 'تعذر إرسال طلب التأجيل'));
     },
   });
-
   const handleSubmitRequest = (event) => {
     event.preventDefault();
     if (!proposedNewDate || !proposedStartTime || !proposedEndTime || !title.trim()) {
@@ -82,18 +75,14 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
     setValidationError('');
     mutation.mutate();
   };
-
   if (!isOpen) return null;
-
   const sessionTitle = typeof session?.title === 'object' && session?.title !== null
     ? (isRtl ? session.title.ar : session.title.en)
     : (session?.title || session?.subject || t('teacherLive.currentSession', 'الحصة الحالية'));
   const groupName = typeof session?.group === 'object' && session?.group !== null
     ? (isRtl ? session.group.name?.ar || session.group.name : session.group.name?.en || session.group.name)
     : (session?.groupName || session?.group || '-');
-
   const todayStr = new Date().toISOString().split('T')[0];
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
       <div
@@ -117,7 +106,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-
         <form onSubmit={handleSubmitRequest} className="p-6 space-y-5">
           <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 space-y-2">
             <div className="text-xs font-semibold text-slate-400 dark:text-slate-500">
@@ -142,14 +130,12 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               </div>
             </div>
           </div>
-
           {validationError && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{validationError}</span>
             </div>
           )}
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-[#0f7a6c]" />
@@ -164,7 +150,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               required
             />
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
@@ -193,7 +178,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               />
             </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
               {t('teacherLive.rescheduleReasonTitle', 'سبب أو عنوان طلب التأجيل')} *
@@ -207,7 +191,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               required
             />
           </div>
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
               {t('teacherLive.rescheduleDetails', 'تفاصيل وملاحظات إضافية')}
@@ -220,7 +203,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]"
             />
           </div>
-
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
               <Upload className="w-4 h-4 text-[#0f7a6c]" />
@@ -252,7 +234,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               </div>
             )}
           </div>
-
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

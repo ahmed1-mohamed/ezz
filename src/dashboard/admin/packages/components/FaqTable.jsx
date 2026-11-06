@@ -5,9 +5,7 @@ import { useTranslation } from 'react-i18next'
 export default function FaqTable({ faqs, onDelete, onEdit }) {
   const { t } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
-
   if (faqs.length === 0) return null
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm overflow-hidden">
       <div className="grid grid-cols-[auto_1fr_1fr] bg-[#0f7a6c] text-white text-xs font-bold">
@@ -15,7 +13,6 @@ export default function FaqTable({ faqs, onDelete, onEdit }) {
         <div className="px-4 py-3">{p('faqColQuestion')}</div>
         <div className="px-4 py-3">{p('faqColAnswer')}</div>
       </div>
-
       <div>
         <AnimatePresence>
           {faqs.map((faq) => (

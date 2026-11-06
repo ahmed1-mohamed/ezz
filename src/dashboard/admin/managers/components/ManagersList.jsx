@@ -32,13 +32,11 @@ export default function ManagersList({
   onOpenRolePermissions
 }) {
   const itemsPerPage = 10
-
   const metrics = {
     total: statistics?.total ?? supervisors.length,
     active: statistics?.active ?? supervisors.filter((s) => s.status === 'Active' || s.active).length,
     suspended: statistics?.stopped ?? supervisors.filter((s) => s.status === 'Suspended' || !s.active).length,
   }
-
   const totalCount = (() => {
     if (statistics) {
       if (statusFilter === 'active') return statistics.active ?? 0
@@ -47,16 +45,11 @@ export default function ManagersList({
     }
     return supervisors.length
   })()
-
   const effectiveTotalPages = totalPages && totalPages > 0 ? totalPages : 1
-
   const currentItems = supervisors
-
   const isPaginationDimmed = effectiveTotalPages === 1
-
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
-
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -85,7 +78,6 @@ export default function ManagersList({
             </span>
           </div>
         </button>
-
         <button
           type="button"
           aria-pressed={statusFilter === 'active'}
@@ -111,7 +103,6 @@ export default function ManagersList({
             </span>
           </div>
         </button>
-
         <button
           type="button"
           aria-pressed={statusFilter === 'stopped'}
@@ -138,9 +129,7 @@ export default function ManagersList({
           </div>
         </button>
       </div>
-
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
-
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => onOpenAddScreen()}
@@ -149,7 +138,6 @@ export default function ManagersList({
             <Plus size={18} />
             <span>{t('adminDashboard.managers.add', 'إضافة مشرف')}</span>
           </button>
-
           <button
             onClick={() => {
               if (supervisors.length > 0) {
@@ -163,12 +151,10 @@ export default function ManagersList({
             <Lock size={16} />
             <span>{t('adminDashboard.managers.editPermissions', 'تعديل الأذونات')}</span>
           </button>
-
           <span className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-medium">
             {t('adminDashboard.managers.totalInPlatform', { count: totalCount }, `إجمالي ${totalCount} مشرف في المنصة`)}
           </span>
         </div>
-
         <form
           onSubmit={(e) => { e.preventDefault(); onSearch(); }}
           className="relative w-full md:w-80 flex gap-2"
@@ -196,7 +182,6 @@ export default function ManagersList({
           </button>
         </form>
       </div>
-
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-start text-sm">
@@ -224,7 +209,6 @@ export default function ManagersList({
                   const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
                   const initial = sName.trim().charAt(0) || 'م';
                   const avatarUrl = supervisor.image || supervisor.photoUrl;
-
                   let displayRole = isRtl ? 'لا يوجد' : 'None';
                   if (supervisor.role) {
                     displayRole = typeof supervisor.role === 'object' ? (isRtl ? supervisor.role.ar || supervisor.role.en : supervisor.role.en || supervisor.role.ar) : supervisor.role;
@@ -234,9 +218,7 @@ export default function ManagersList({
                     const permName = typeof supervisor.permission === 'object' ? supervisor.permission.name : supervisor.permission;
                     displayRole = typeof permName === 'object' ? (isRtl ? permName.ar || permName.en : permName.en || permName.ar) : permName;
                   }
-
                   const isActive = supervisor.user?.active !== undefined ? !!supervisor.user.active : (supervisor.active !== undefined ? !!supervisor.active : supervisor.status === 'Active');
-
                   return (
                     <tr
                       key={supervisor.admin_id || supervisor.id || supervisor._id || index}
@@ -260,17 +242,14 @@ export default function ManagersList({
                           </span>
                         </div>
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-4 py-1.5 rounded-full bg-brand-50/70 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400 text-xs font-semibold">
                           {displayRole}
                         </span>
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap text-slate-700 dark:text-slate-300 text-start font-medium">
                         {supervisor.email}
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <button
                           type="button"
@@ -286,10 +265,8 @@ export default function ManagersList({
                             : t('adminDashboard.managers.statusSuspended', 'غير نشط')}
                         </button>
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-4">
-
                           <button
                             type="button"
                             onClick={() => onDelete(supervisor)}
@@ -299,7 +276,6 @@ export default function ManagersList({
                           >
                             <Trash2 size={16} aria-hidden="true" />
                           </button>
-
                           <button
                             type="button"
                             onClick={() => onOpenRolePermissions(supervisor)}
@@ -309,7 +285,6 @@ export default function ManagersList({
                           >
                             <BookOpen size={16} aria-hidden="true" />
                           </button>
-
                           <button
                             type="button"
                             onClick={() => onOpenEditScreen(supervisor)}
@@ -319,7 +294,6 @@ export default function ManagersList({
                           >
                             <Pencil size={16} aria-hidden="true" />
                           </button>
-
                         </div>
                       </td>
                     </tr>
@@ -329,7 +303,6 @@ export default function ManagersList({
             </tbody>
           </table>
         </div>
-
         <div
           className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
         >
@@ -340,7 +313,6 @@ export default function ManagersList({
               <>Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startIdx}</span> to <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span> of <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span> supervisors</>
             )}
           </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -351,14 +323,12 @@ export default function ManagersList({
             >
               {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
             </button>
-
             <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
               {isRtl
                 ? `${currentPage} / ${effectiveTotalPages}`
                 : `${currentPage} / ${effectiveTotalPages}`
               }
             </span>
-
             <button
               type="button"
               onClick={() => onPageChange(Math.min(currentPage + 1, effectiveTotalPages))}

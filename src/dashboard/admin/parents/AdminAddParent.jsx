@@ -23,15 +23,12 @@ export default function AdminAddParent() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const [isSaving, setIsSaving] = useState(false)
-
   const handleSave = async (formData) => {
     setIsSaving(true)
     try {
       const res = await adminParentsApi.createParent(formData)
       const newId = getParentId(res?.data)
       toast.success(isRtl ? 'تم إضافة ولي الأمر بنجاح' : 'Parent created successfully')
-
-      // POST /parents does not accept children; link each selected student via PATCH /students/:id { parent }
       if (newId && formData.childrenIds?.length) {
         const results = await Promise.allSettled(
           formData.childrenIds.map((studentId) => studentsApi.updateStudent(studentId, { parent: newId }))
@@ -49,7 +46,6 @@ export default function AdminAddParent() {
       setIsSaving(false)
     }
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <AddEditParentScreen

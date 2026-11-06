@@ -1,5 +1,4 @@
 export const PERMISSION_MAPPINGS = {
-  // Teachers
   READ_TEACHERS: ['teachers.read'],
   WRITE_TEACHERS: [
     'teachers.read',
@@ -14,7 +13,6 @@ export const PERMISSION_MAPPINGS = {
     'teachers.write'
   ],
 
-  // Curricula
   READ_CURRICULA: ['curricula.read', 'curriculums.read'],
   WRITE_CURRICULA: [
     'curricula.read',
@@ -28,23 +26,18 @@ export const PERMISSION_MAPPINGS = {
     'curriculums.delete'
   ],
 
-  // Students
   READ_STUDENTS: ['students.read'],
   WRITE_STUDENTS: ['students.read', 'students.create', 'students.update', 'students.delete', 'students.write'],
 
-  // Student Levels
   READ_STUDENT_LEVELS: ['student_levels.read'],
   WRITE_STUDENT_LEVELS: ['student_levels.read', 'student_levels.create', 'student_levels.update', 'student_levels.delete', 'student_levels.write'],
 
-  // Parents
   READ_PARENTS: ['parents.read'],
   WRITE_PARENTS: ['parents.read', 'parents.create', 'parents.update', 'parents.delete', 'parents.write'],
 
-  // Explanation Languages
   READ_EXPLANATION_LANGUAGES: ['explanation_languages.read'],
   WRITE_EXPLANATION_LANGUAGES: ['explanation_languages.read', 'explanation_languages.create', 'explanation_languages.update', 'explanation_languages.delete', 'explanation_languages.write'],
 
-  // Groups
   READ_GROUPS: ['groups.read'],
   WRITE_GROUPS: [
     'groups.read',
@@ -58,7 +51,6 @@ export const PERMISSION_MAPPINGS = {
     'groups.write'
   ],
 
-  // Sessions
   READ_SESSIONS: ['sessions.read'],
   WRITE_SESSIONS: [
     'sessions.read',
@@ -70,11 +62,9 @@ export const PERMISSION_MAPPINGS = {
     'sessions.write'
   ],
 
-  // Timetable
   READ_TIMETABLE: ['timetable.read'],
   WRITE_TIMETABLE: ['timetable.read', 'timetable.write', 'timetable.update'],
 
-  // Packages & FAQs
   READ_PACKAGES: ['packages.read', 'packages_faqs.read', 'faqs.read'],
   WRITE_PACKAGES: [
     'packages.read',
@@ -90,11 +80,9 @@ export const PERMISSION_MAPPINGS = {
     'faqs.delete'
   ],
 
-  // Coupons
   READ_COUPONS: ['coupons.read'],
   WRITE_COUPONS: ['coupons.read', 'coupons.create', 'coupons.delete', 'coupons.write'],
 
-  // Rewards
   READ_REWARDS: ['rewards.read', 'rewards_suggestions.read', 'suggested_rewards.read'],
   WRITE_REWARDS: [
     'rewards.read',
@@ -109,11 +97,9 @@ export const PERMISSION_MAPPINGS = {
     'suggested_rewards.reject'
   ],
 
-  // Messages
   READ_MESSAGES: ['messages.read'],
   WRITE_MESSAGES: ['messages.read', 'messages.delete', 'messages.write'],
 
-  // Complaints
   READ_COMPLAINTS: ['complaints_suggestions.read', 'complaints.read'],
   WRITE_COMPLAINTS: [
     'complaints_suggestions.read',
@@ -124,11 +110,9 @@ export const PERMISSION_MAPPINGS = {
     'complaints.update'
   ],
 
-  // Logs
   READ_LOGS: ['logs.read'],
   WRITE_LOGS: ['logs.read', 'logs.write'],
 
-  // Users & Managers & Admins
   READ_USERS: ['users.read', 'admins.read', 'managers.read'],
   WRITE_USERS: [
     'users.read',
@@ -151,7 +135,6 @@ export const PERMISSION_MAPPINGS = {
   READ_MANAGERS: ['users.read', 'admins.read', 'managers.read'],
   WRITE_MANAGERS: ['users.read', 'users.create', 'users.update', 'users.delete', 'users.change_password', 'users.write'],
 
-  // Website Content
   READ_WEBSITE: [
     'contact_us.read',
     'elite_teachers.read',
@@ -181,23 +164,18 @@ export const PERMISSION_MAPPINGS = {
     'website.write'
   ],
 
-  // Reports
   READ_REPORTS: ['reports.read', 'dashboard.reports.read'],
   WRITE_REPORTS: ['reports.read', 'reports.write', 'dashboard.reports.read'],
 
-  // Earnings & Finance
   READ_EARNINGS: ['earnings.read', 'dashboard.earnings.read'],
   WRITE_EARNINGS: ['earnings.read', 'earnings.write', 'dashboard.earnings.read'],
 
-  // Dashboard & Analytics
   READ_DASHBOARD: ['dashboard.analytics.read', 'dashboard.earnings.read', 'dashboard.reports.read'],
 
-  // Payments
   READ_PAYMENTS: ['payments.read', 'packages.subscriptions'],
   WRITE_PAYMENTS: ['payments.read', 'payments.write', 'packages.subscriptions'],
 };
 
-// Build reverse map for instant lookups
 const REVERSE_PERMISSION_MAPPINGS = {};
 Object.entries(PERMISSION_MAPPINGS).forEach(([backendKey, frontendKeys]) => {
   frontendKeys.forEach(fKey => {
@@ -210,36 +188,24 @@ Object.entries(PERMISSION_MAPPINGS).forEach(([backendKey, frontendKeys]) => {
   });
 });
 
-/**
- * Expands a set or array of keys with all related mapped keys.
- * E.g., ['READ_TEACHERS'] expands to include 'teachers.read'.
- */
 export function expandPermissionKeys(sourceKeys) {
   const expanded = new Set();
   if (!sourceKeys) return expanded;
-
   const rawList = Array.isArray(sourceKeys) ? sourceKeys : Array.from(sourceKeys);
-
   rawList.forEach(key => {
     if (typeof key !== 'string') return;
     const cleanKey = key.trim();
     if (!cleanKey) return;
-
     expanded.add(cleanKey);
-
-    // Expand backend to frontend keys
     const mapped = PERMISSION_MAPPINGS[cleanKey];
     if (mapped) {
       mapped.forEach(m => expanded.add(m));
     }
-
-    // Expand frontend to backend keys
     const revMapped = REVERSE_PERMISSION_MAPPINGS[cleanKey];
     if (revMapped) {
       revMapped.forEach(r => expanded.add(r));
     }
   });
-
   return expanded;
 }
 

@@ -1,17 +1,14 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { MIN_FAMILY_MEMBERS } from './packages_constants'
 
-// Family pricing rows: for N members, each member pays pricePerPerson.
 export default function FamilyTiersField({ tiers = [], maxMembers, basePrice, onChange, isRtl }) {
   const usedCounts = tiers.map((tier) => Number(tier.membersCount))
   const availableCounts = []
   for (let n = MIN_FAMILY_MEMBERS; n <= Number(maxMembers || MIN_FAMILY_MEMBERS); n++) availableCounts.push(n)
   const nextCount = availableCounts.find((n) => !usedCounts.includes(n))
-
   const updateTier = (index, key, value) => {
     onChange(tiers.map((tier, i) => (i === index ? { ...tier, [key]: value } : tier)))
   }
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
@@ -28,7 +25,6 @@ export default function FamilyTiersField({ tiers = [], maxMembers, basePrice, on
           <span>{isRtl ? 'إضافة شريحة' : 'Add tier'}</span>
         </button>
       </div>
-
       {tiers.length === 0 ? (
         <p className="text-xs text-slate-400 bg-[#f3f7f6] dark:bg-slate-900/60 rounded-xl px-4 py-3 text-start">
           {isRtl ? 'لم تتم إضافة أسعار للأفراد بعد' : 'No member pricing added yet'}

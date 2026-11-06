@@ -18,25 +18,20 @@ const resolveStudentName = (name) =>
 function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const [copied, setCopied] = useState(false);
-
     const handleCopy = () => {
         if (!coupon?.code) return;
         navigator.clipboard.writeText(coupon.code);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
-
     if (!coupon) return null;
-
     const isActive = isCouponActive(coupon);
     const students = coupon.student
         ? Array.isArray(coupon.student)
             ? coupon.student
             : [coupon.student]
         : [];
-
     return createPortal(
         <AnimatePresence>
             {isOpen && (
@@ -79,7 +74,6 @@ function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
                                     )}
                                 </button>
                             </div>
-
                             <div className="flex flex-col items-end gap-3">
                                 <div className="flex items-center gap-2 text-xl font-black text-[#0f7a6c] dark:text-[#14a693] tracking-widest uppercase">
                                     {coupon.code}
@@ -103,7 +97,6 @@ function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
                                 </span>
                             </div>
                         </div>
-
                         <div className="flex-1 overflow-y-auto px-8 py-4 space-y-8">
                             <div className="bg-[#fcfaf5] dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-8 flex flex-col items-center justify-center">
                                 <span className="text-slate-500 dark:text-slate-400 font-bold mb-2">
@@ -113,12 +106,10 @@ function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
                                     {coupon.discountPercentage}%
                                 </span>
                             </div>
-
                             <div className="text-center text-sm font-medium text-slate-400">
                                 {t('adminDashboard.coupons.expiresAt')}{' '}
                                 {formatDate(coupon.expirationDate)}
                             </div>
-
                             {students.length > 0 && (
                                 <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                                     <table className="w-full text-sm text-center">
@@ -154,7 +145,6 @@ function CouponDetailsModal({ isOpen, onClose, coupon, onDelete }) {
                                 </div>
                             )}
                         </div>
-
                         <div className="px-8 py-5 border-t border-slate-100/60 dark:border-slate-800/60 flex gap-4 shrink-0 bg-white dark:bg-slate-900 justify-end">
                             <button
                                 type="button"

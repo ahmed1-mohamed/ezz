@@ -13,7 +13,6 @@ export default function StudentLevelForm({
 }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   return (
     <form
       onSubmit={onSubmit}
@@ -24,7 +23,6 @@ export default function StudentLevelForm({
           ? (isRtl ? 'تعديل المستوى الدراسي' : 'Edit Academic Level')
           : (isRtl ? 'إضافة مستوى دراسي جديد' : 'Add New Academic Level')}
       </h3>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-start">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -53,7 +51,6 @@ export default function StudentLevelForm({
           />
         </div>
       </div>
-
       <div className="flex justify-end gap-3 pt-2">
         <button
           type="button"

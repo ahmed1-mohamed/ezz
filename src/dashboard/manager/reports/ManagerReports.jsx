@@ -5,7 +5,6 @@ import { roleNavigation } from '@/shared/constants/navigation.js'
 
 export default function ManagerReports() {
     const { t } = useTranslation()
-
     return (
         <DashboardLayout title={t('dashboard.reports')} role={t('auth.manager')} links={roleNavigation.Manager}>
             <section className="grid gap-6 xl:grid-cols-3">

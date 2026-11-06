@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
 import { showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 import StudentBeforeSessionView from './components/StudentBeforeSessionView.jsx';
 import StudentDuringSessionView from './components/StudentDuringSessionView.jsx';
 
 export default function StudentLive() {
   const { t, i18n } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
+
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const initialSession = location.state?.session || null;
   const [session, setSession] = useState(initialSession);
@@ -30,7 +29,6 @@ export default function StudentLive() {
         const data = await studentPortalApi.fetchNextSession();
         if (isMounted) {
           if (initialSession) {
-            // Keep the session the student clicked; next-session data only fills it in if it's the same one
             const sameId = data && (data.id || data._id) === (initialSession.id || initialSession._id);
             if (sameId) setSession({ ...initialSession, ...data });
           } else if (data && (data.id || data._id || data.title)) {
@@ -65,6 +63,10 @@ export default function StudentLive() {
     try {
       setIsJoining(true);
       const data = await studentPortalApi.joinSession(sid);
+      if (data && data.canJoinNow === false) {
+        showErrorToast(data.message || t('teacherLive.cannotJoinNow', 'الحصة غير متاحة للانضمام الآن'));
+        return;
+      }
       setJoinData(data);
       setStage('during');
     } catch (err) {
@@ -107,6 +109,8 @@ export default function StudentLive() {
             session={session}
             joinData={joinData}
             onLeaveSession={handleLeaveSession}
+            onRefreshJoinData={() => handleJoinSession(session)}
+            isRefreshing={isJoining}
           />
         )}
       </motion.div>

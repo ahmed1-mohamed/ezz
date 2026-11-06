@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Layers,
   BookOpen,
-  CheckCircle,
   Clock,
   User,
   Calendar,
@@ -79,7 +78,6 @@ export default function ChildGroupsList({ groups = [] }) {
                 key={idx}
                 className="p-5 rounded-3xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-800 hover:border-[#0f7a6c]/40 dark:hover:border-emerald-500/40 transition-all space-y-3.5"
               >
-                {/* Header: Name and Status */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-2xl bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
@@ -101,7 +99,6 @@ export default function ChildGroupsList({ groups = [] }) {
                     {statusBadge.text}
                   </span>
                 </div>
-                {/* Teacher and Timing Metadata */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300">
                     <User className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -116,7 +113,6 @@ export default function ChildGroupsList({ groups = [] }) {
                     </div>
                   )}
                 </div>
-                {/* Days Badges */}
                 {days.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <span className="text-[11px] font-bold text-slate-400 me-1 flex items-center gap-1">
@@ -133,7 +129,6 @@ export default function ChildGroupsList({ groups = [] }) {
                     ))}
                   </div>
                 )}
-                {/* Schedule preview if present */}
                 {schedule.length > 0 && (
                   <div className="p-2.5 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 space-y-1">
                     {schedule.map((sch, sIdx) => (

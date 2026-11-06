@@ -373,7 +373,8 @@
       },
       "tabs": {
         "methods": "Payment Methods",
-        "payouts": "Payout History"
+        "payouts": "Payment Proofs",
+        "earnings": "Earnings"
       },
       "methods": {
         "title": "Registered Payment Methods",
@@ -410,7 +411,8 @@
           "mobile_wallet": "Mobile Wallet",
           "instapay": "InstaPay",
           "paypal": "PayPal",
-          "other": "Other Method"
+          "other": "Other Method",
+          "western_union": "Western Union / Cash Transfer"
         },
         "walletProviders": {
           "vodafone_cash": "Vodafone Cash",
@@ -418,8 +420,13 @@
           "etisalat_cash": "Etisalat Cash",
           "we_pay": "WE Pay",
           "smart_wallet": "Smart Wallet",
-          "other": "Other"
-        }
+          "other": "Other",
+          "stc_pay": "STC Pay"
+        },
+        "country": "Country & City",
+        "phoneNumber": "Phone Number",
+        "nationalIdOrPassport": "National ID / Passport",
+        "instapayBankName": "Linked Bank / Wallet"
       },
       "modal": {
         "addTitle": "Add Payment Method",
@@ -466,11 +473,30 @@
           "walletNumberRequired": "Please enter mobile wallet number",
           "instapayRequired": "Please enter InstaPay address",
           "paypalEmailRequired": "Please enter a valid PayPal email",
-          "acknowledgeRequired": "You must acknowledge the accuracy of the entered data and take responsibility for any error"
+          "acknowledgeRequired": "You must acknowledge the accuracy of the entered data and take responsibility for any error",
+          "countryRequired": "Please enter recipient country and city",
+          "phoneRequired": "Please enter contact phone number",
+          "instapayHolderRequired": "Please enter name registered on InstaPay",
+          "paypalHolderRequired": "Please enter PayPal account owner name",
+          "westernUnionHolderRequired": "Please enter full name matching official ID"
         },
         "addSuccess": "Payment method added successfully",
         "updateSuccess": "Payment method updated successfully",
-        "acknowledgeLabel": "I acknowledge the accuracy of the entered data and bear responsibility for any error therein"
+        "acknowledgeLabel": "I acknowledge the accuracy of the entered data and bear responsibility for any error therein",
+        "countryLabel": "Recipient Country & City",
+        "countryPlaceholder": "e.g. Saudi Arabia - Riyadh / Egypt - Cairo",
+        "westernUnionPhoneLabel": "Contact Phone Number",
+        "westernUnionPhonePlaceholder": "e.g. +966501234567",
+        "nationalIdLabel": "National ID or Passport (Optional)",
+        "nationalIdPlaceholder": "National ID or passport number",
+        "instapayBankLabel": "Linked Bank or Wallet Name (Optional)",
+        "instapayBankPlaceholder": "e.g. NBE / CIB / Vodafone Cash",
+        "instapayHolderLabel": "Name on InstaPay Account",
+        "instapayHolderPlaceholder": "Name as registered on InstaPay",
+        "westernUnionHolderLabel": "Full Name matching Passport or National ID",
+        "westernUnionHolderPlaceholder": "Quadruple full legal name in Arabic or English",
+        "walletHolderLabel": "Wallet Owner Name (Optional)",
+        "walletHolderPlaceholder": "Owner name for verification"
       },
       "payouts": {
         "title": "Payout History",
@@ -491,8 +517,33 @@
         "proofModalTitle": "Transfer Receipt",
         "downloadProof": "Download Receipt",
         "openInNewTab": "Open in New Tab"
+      },
+      "earningsPageTitle": "Teacher Earnings",
+      "earningsPageSubtitle": "Track your financial balance and completed session payouts",
+      "payoutsPageTitle": "Payment Proofs",
+      "payoutsPageSubtitle": "All payment proofs and disbursements processed by the administration",
+      "methodsPageTitle": "Payment Methods",
+      "methodsPageSubtitle": "Manage and configure your bank accounts and wallets for payouts",
+      "table": {
+        "title": "Earnings Details & Session Payouts",
+        "subtitle": "List of all completed sessions and their earned values",
+        "session": "Session / Lesson",
+        "group": "Group",
+        "date": "Date & Time",
+        "students": "Students",
+        "duration": "Duration",
+        "amount": "Amount",
+        "status": "Status",
+        "completed": "Completed",
+        "pending": "Pending",
+        "paid": "Paid",
+        "emptyTitle": "No earnings records registered yet",
+        "emptySubtitle": "Session earnings details will appear here once conducted.",
+        "searchPlaceholder": "Search by session or group name..."
       }
-    }
+    },
+    "navPayouts": "Payment Proofs",
+    "navPaymentMethods": "Payment Methods"
   },
   "teacherLive": {
     "pageTitle": "Live Sessions",
@@ -615,7 +666,16 @@
     "loadingZoomSdk": "Initializing embedded Zoom player...",
     "preferDesktopApp": "Prefer using the installed Zoom Desktop App?",
     "hostLiveHint": "You are connected as Host. You can teach, share screen, and evaluate students simultaneously.",
-    "noMeetingUrlDesc": "Please check with platform administration or verify session scheduling."
+    "noMeetingUrlDesc": "Please check with platform administration or verify session scheduling.",
+    "zakExpiredNotice": "The session is currently open (90 minutes). You can start immediately via Zoom desktop app or sign in as Host in browser:",
+    "refreshLinkFromServer": "Request New Link from Server",
+    "openInBrowser": "Open in Browser",
+    "fetchLinkNow": "Refresh Session Details",
+    "cannotJoinNow": "The session is not available to join right now",
+    "missingHostZak": "Zoom host credentials (ZAK) are not available",
+    "missingHostZakHint": "Zoom host token (ZAK) was not found. Please refresh the session link or start via Zoom app.",
+    "cannotJoinNowHint": "The permitted time for this session has not started yet, or the session has ended.",
+    "retryJoin": "Retry"
   },
   "teacherEvaluations": {
     "title": "Evaluations",
@@ -1526,7 +1586,8 @@
       "profile": "Profile",
       "complaints": "Reports & Complaints",
       "website": "Website",
-      "settings": "Settings"
+      "settings": "Settings",
+      "subscriptions": "Payment & Subscriptions"
     },
     "header": {
       "title": "Manarat Al-Ezz Academy",

@@ -11,17 +11,14 @@ export function useManagers() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [needsExtraData, setNeedsExtraData] = useState(false);
   const [prevFilterKey, setPrevFilterKey] = useState({ statusFilter, committedSearch });
-
   if (prevFilterKey.statusFilter !== statusFilter || prevFilterKey.committedSearch !== committedSearch) {
     setPrevFilterKey({ statusFilter, committedSearch });
     setCurrentPage(1);
   }
-
   const commitSearch = () => {
     setCommittedSearch(searchVal);
     setCurrentPage(1);
   };
-
   const { data: supervisorsData, isLoading: isLoadingSupervisors } = useQuery({
     queryKey: ['admins', statusFilter, currentPage, committedSearch],
     queryFn: () => {
@@ -39,7 +36,6 @@ export function useManagers() {
     },
     staleTime: 5 * 60 * 1000,
   });
-
   const { data: permissionsData } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => managersApi.fetchPermissions(),
@@ -53,24 +49,19 @@ export function useManagers() {
         const name = perm.name || item.name;
         const actions = item.actions || perm.actions || [];
         const keys = Array.isArray(item.keys) ? item.keys : (Array.isArray(perm.keys) ? perm.keys : (Array.isArray(actions) && actions.length > 0 ? actions.map((a) => (typeof a === 'object' ? a.key : a)).filter(Boolean) : []));
-
-
         return { id, name, keys };
       }) : [];
       return { ...raw, data: normalized };
     },
   });
-
   const { data: countriesData } = useQuery({
     queryKey: ['countries'],
     queryFn: () => landingApi.fetchCountries(),
     staleTime: 30 * 60 * 1000,
     enabled: needsExtraData,
   });
-
   const responseData = supervisorsData || {};
   const dataObj = responseData.data || responseData;
-
   const supervisorsList = Array.isArray(dataObj)
     ? dataObj
     : Array.isArray(dataObj.admins)
@@ -78,9 +69,7 @@ export function useManagers() {
       : Array.isArray(dataObj.data)
         ? dataObj.data
         : [];
-
   const statsObj = responseData.statistics || dataObj.statistics || null;
-
   const rawPagination = responseData.pagination || dataObj.pagination || responseData.meta || dataObj.meta || null;
   const totalCount = statsObj?.total ?? rawPagination?.total ?? rawPagination?.totalItems ?? supervisorsList.length;
   const totalPagesCount = rawPagination?.numberOfPages
@@ -89,11 +78,9 @@ export function useManagers() {
     ?? rawPagination?.pageCount
     ?? rawPagination?.total_pages
     ?? (totalCount > 0 ? Math.ceil(totalCount / 10) : 1);
-
   const paginationObj = rawPagination
     ? { ...rawPagination, numberOfPages: totalPagesCount, total: totalCount }
     : { numberOfPages: totalPagesCount, total: totalCount };
-
   return {
     currentPage,
     setCurrentPage,

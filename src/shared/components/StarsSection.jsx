@@ -25,15 +25,12 @@ const StudentSliderCard = React.memo(function StudentSliderCard({ student, index
     const rawImg = student.image || student.avatar || sRef.image || sRef.avatar || student.photo || sRef.photo || '';
     const [hasError, setHasError] = useState(false);
     const [prevImg, setPrevImg] = useState(rawImg);
-
     if (prevImg !== rawImg) {
         setPrevImg(rawImg);
         setHasError(false);
     }
-
     const imgUrl = hasError ? null : getImageUrl(rawImg);
     const initial = studentName ? studentName.trim().charAt(0) : 'ط';
-
     return (
         <motion.article
             initial={{ opacity: 0, y: 20 }}
@@ -66,11 +63,9 @@ const StudentSliderCard = React.memo(function StudentSliderCard({ student, index
                     </div>
                 </div>
             </div>
-
             <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 line-clamp-1 w-full" title={studentName}>
                 {studentName}
             </h3>
-
             <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-full border border-amber-200/50 dark:border-amber-900/30">
                 {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-[#735C00] text-[#735C00] dark:fill-amber-400 dark:text-amber-400" />
@@ -83,19 +78,16 @@ const StudentSliderCard = React.memo(function StudentSliderCard({ student, index
 export default React.memo(function StarsSection({ featuredStudents }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const [studentsList, setStudentsList] = useState([]);
     const sliderRef = useRef(null);
     const isDraggingRef = useRef(false);
     const startXRef = useRef(0);
     const startScrollLeftRef = useRef(0);
     const hasMovedRef = useRef(false);
-
     const [isDragging, setIsDragging] = useState(false);
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(true);
     const [scrollProgress, setScrollProgress] = useState(0);
-
     useEffect(() => {
         let isMounted = true;
         const loadStudentsList = async () => {
@@ -116,60 +108,50 @@ export default React.memo(function StarsSection({ featuredStudents }) {
             isMounted = false;
         };
     }, [featuredStudents, i18n.language]);
-
     const displayStudents = useMemo(() => {
         return (featuredStudents && featuredStudents.length > 0)
             ? featuredStudents
             : studentsList;
     }, [featuredStudents, studentsList]);
-
     const checkScrollState = useCallback(() => {
         const el = sliderRef.current;
         if (!el) return;
         const { scrollLeft, scrollWidth, clientWidth } = el;
         const maxScroll = scrollWidth - clientWidth;
-
         if (maxScroll <= 5) {
             setCanScrollPrev(false);
             setCanScrollNext(false);
             setScrollProgress(100);
             return;
         }
-
         const current = Math.abs(scrollLeft);
         setCanScrollPrev(current > 8);
         setCanScrollNext(current < maxScroll - 8);
         const pct = Math.min(100, Math.max(0, (current / maxScroll) * 100));
         setScrollProgress(pct);
     }, []);
-
     useEffect(() => {
         const el = sliderRef.current;
         if (!el) return;
-
         checkScrollState();
         el.addEventListener('scroll', checkScrollState, { passive: true });
         window.addEventListener('resize', checkScrollState);
-
         return () => {
             el.removeEventListener('scroll', checkScrollState);
             window.removeEventListener('resize', checkScrollState);
         };
     }, [checkScrollState, displayStudents.length]);
-
     const scroll = useCallback((direction) => {
         const el = sliderRef.current;
         if (!el) return;
         const card = el.querySelector('article');
         const step = card ? card.offsetWidth + 24 : 290;
         const delta = direction === 'next' ? step : -step;
-
         el.scrollBy({
             left: isRtl ? -delta : delta,
             behavior: 'smooth'
         });
     }, [isRtl]);
-
     const handleMouseDown = (e) => {
         if (!sliderRef.current) return;
         isDraggingRef.current = true;
@@ -178,7 +160,6 @@ export default React.memo(function StarsSection({ featuredStudents }) {
         startScrollLeftRef.current = sliderRef.current.scrollLeft;
         setIsDragging(true);
     };
-
     const handleMouseMove = (e) => {
         if (!isDraggingRef.current || !sliderRef.current) return;
         e.preventDefault();
@@ -189,19 +170,15 @@ export default React.memo(function StarsSection({ featuredStudents }) {
         }
         sliderRef.current.scrollLeft = startScrollLeftRef.current - walk;
     };
-
     const handleMouseUp = () => {
         isDraggingRef.current = false;
         setIsDragging(false);
     };
-
     const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
     const NextIcon = isRtl ? ChevronLeft : ChevronRight;
-
     if (!displayStudents || displayStudents.length === 0) {
         return null;
     }
-
     return (
         <section className="py-20 sm:py-24 bg-white dark:bg-slate-950 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -221,7 +198,6 @@ export default React.memo(function StarsSection({ featuredStudents }) {
                             {t('stars.description', 'نحتفي بطلابنا المتميزين الذين حققوا نتائج استثنائية وكانوا مثالاً للجد والاجتهاد')}
                         </p>
                     </div>
-
                     <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">
                         <button
                             type="button"
@@ -251,7 +227,6 @@ export default React.memo(function StarsSection({ featuredStudents }) {
                         </button>
                     </div>
                 </motion.div>
-
                 <div className="relative group/slider">
                     <button
                         type="button"
@@ -264,7 +239,6 @@ export default React.memo(function StarsSection({ featuredStudents }) {
                     >
                         <PrevIcon className="w-6 h-6" />
                     </button>
-
                     <button
                         type="button"
                         onClick={() => scroll('next')}
@@ -276,7 +250,6 @@ export default React.memo(function StarsSection({ featuredStudents }) {
                     >
                         <NextIcon className="w-6 h-6" />
                     </button>
-
                     <div
                         ref={sliderRef}
                         onMouseDown={handleMouseDown}
@@ -297,7 +270,6 @@ export default React.memo(function StarsSection({ featuredStudents }) {
                             />
                         ))}
                     </div>
-
                     <div className="mt-6 flex items-center justify-between gap-4 pt-2">
                         <div className="flex-1 h-1.5 rounded-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
                             <div

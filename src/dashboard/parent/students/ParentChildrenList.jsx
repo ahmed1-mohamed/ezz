@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { Plus, Search, Filter, Users } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +79,6 @@ export default function ParentChildrenList() {
       className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-8 font-sans min-h-screen"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Top Banner Header */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="text-center md:text-start space-y-1">
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400">
@@ -103,11 +101,9 @@ export default function ParentChildrenList() {
           <span>{t('parent.childrenList.addNew', 'إضافة ابن جديد / اشتراك باقة')}</span>
         </button>
       </div>
-      {/* Summary Statistics Bar */}
       {!isLoading && childrenList.length > 0 && (
         <ChildrenStatsBar childrenList={childrenList} />
       )}
-      {/* Search & Filter Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:max-w-md">
           <input
@@ -133,7 +129,6 @@ export default function ParentChildrenList() {
           </select>
         </div>
       </div>
-      {/* Children Cards Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2].map((n) => (

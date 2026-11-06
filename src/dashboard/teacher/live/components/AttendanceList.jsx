@@ -54,7 +54,6 @@ function resolveStudentName(student, isRtl) {
 export default function AttendanceList({ session }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const normalizedStudents = useMemo(() => {
     if (!session) return [];
     const rawList = Array.isArray(session.attendance)
@@ -76,7 +75,6 @@ export default function AttendanceList({ session }) {
       return { id: studentId, name, avatar, statusKey, code };
     });
   }, [session, isRtl]);
-
   const counts = useMemo(() => {
     const accumulator = { total: normalizedStudents.length, present: 0, absent: 0, late: 0, pending: 0 };
     normalizedStudents.forEach((student) => {
@@ -86,7 +84,6 @@ export default function AttendanceList({ session }) {
     });
     return accumulator;
   }, [normalizedStudents]);
-
   if (normalizedStudents.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center">
@@ -97,7 +94,6 @@ export default function AttendanceList({ session }) {
       </div>
     );
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">

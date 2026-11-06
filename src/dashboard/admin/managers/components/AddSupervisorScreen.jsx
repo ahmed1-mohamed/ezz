@@ -17,7 +17,6 @@ export default function AddSupervisorScreen({
   countries = []
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
-
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     nameEn: initialData?.nameEn || '',
@@ -31,25 +30,19 @@ export default function AddSupervisorScreen({
     status: initialData?.status || 'Active',
     photoUrl: initialData?.photoUrl || null
   })
-
   const [photoFile, setPhotoFile] = useState(null)
-
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
-
   const handlePhotoChange = (file, previewUrl) => {
     setPhotoFile(file)
     handleFieldChange('photoUrl', previewUrl)
   }
-
   const handleSkipPermissions = () => {
     handleFieldChange('permissionId', null)
   }
-
   const handleSubmit = (e) => {
     e.preventDefault()
-
     if (!initialData || formData.password) {
       if (formData.password !== formData.confirmPassword) {
         showErrorToast(isRtl ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!', isRtl)
@@ -60,9 +53,7 @@ export default function AddSupervisorScreen({
         return
       }
     }
-
     const countryId = formData.countryId || null;
-
     onSave({
       adminData: {
         'name[ar]': formData.name,
@@ -77,10 +68,8 @@ export default function AddSupervisorScreen({
       permissionId: formData.permissionId
     })
   }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-10" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -103,7 +92,6 @@ export default function AddSupervisorScreen({
             </p>
           </div>
         </div>
-
         <button
           type="button"
           onClick={onCancel}
@@ -112,9 +100,7 @@ export default function AddSupervisorScreen({
           {t('adminDashboard.managers.permissionsScreen.backToList', 'العودة لقائمة المشرفين')}
         </button>
       </div>
-
       <div className="space-y-8 max-w-4xl mx-auto">
-
         <IdentityInfoCard
           formData={formData}
           onChange={handleFieldChange}
@@ -123,14 +109,12 @@ export default function AddSupervisorScreen({
           t={t}
           countries={countries}
         />
-
         <SecurityPasswordCard
           formData={formData}
           onChange={handleFieldChange}
           isRtl={isRtl}
           t={t}
         />
-
         <PermissionsCard
           permissionsList={roles}
           selectedPermissionId={formData.permissionId}
@@ -139,15 +123,12 @@ export default function AddSupervisorScreen({
           isRtl={isRtl}
           t={t}
         />
-
         <PermissionsPreviewCard
           selectedPermissionId={formData.permissionId}
           permissionsList={roles}
           isRtl={isRtl}
         />
-
       </div>
-
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <button
           type="submit"
@@ -166,7 +147,6 @@ export default function AddSupervisorScreen({
           {t('adminDashboard.managers.addSupervisorScreen.cancel', 'إلغاء')}
         </button>
       </div>
-
     </form>
   )
 }

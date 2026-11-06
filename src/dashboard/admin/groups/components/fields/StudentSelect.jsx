@@ -17,18 +17,14 @@ export default function StudentSelect({
   const [backendStudents, setBackendStudents] = useState(null)
   const containerRef = useRef(null)
   const searchInputRef = useRef(null)
-
   const excludedSet = useMemo(() => new Set(excludeIds.map(String)), [excludeIds])
-
   const currentPool = useMemo(() => {
     const list = backendStudents !== null ? backendStudents : students
     return Array.isArray(list) ? list : []
   }, [backendStudents, students])
-
   const availableStudents = useMemo(() => {
     return currentPool.filter((s) => !excludedSet.has(String(s.id || s._id)))
   }, [currentPool, excludedSet])
-
   const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
   if (prevSearchQuery !== searchQuery) {
     setPrevSearchQuery(searchQuery)
@@ -37,15 +33,11 @@ export default function StudentSelect({
       setIsSearching(false)
     }
   }
-
   useEffect(() => {
     if (!isOpen) return
-
     const trimmed = searchQuery.trim()
     if (!trimmed) return
-
     let active = true
-
     const timer = setTimeout(async () => {
       setIsSearching(true)
       try {
@@ -60,13 +52,11 @@ export default function StudentSelect({
         if (active) setIsSearching(false)
       }
     }, 350)
-
     return () => {
       active = false
       clearTimeout(timer)
     }
   }, [searchQuery, isOpen])
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -76,13 +66,11 @@ export default function StudentSelect({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       searchInputRef.current.focus()
     }
   }, [isOpen])
-
   const getStudentName = (s) => {
     if (!s) return ''
     if (typeof s.name === 'object' && s.name !== null) {
@@ -90,9 +78,7 @@ export default function StudentSelect({
     }
     return s.name || ''
   }
-
   const selectedName = selectedStudent ? getStudentName(selectedStudent) : ''
-
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>
       <button
@@ -130,7 +116,6 @@ export default function StudentSelect({
           />
         </div>
       </button>
-
       {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-3 space-y-2 max-h-80 flex flex-col animate-fadeIn">
           <div className="relative shrink-0">
@@ -162,7 +147,6 @@ export default function StudentSelect({
               </button>
             )}
           </div>
-
           <div className="overflow-y-auto space-y-1 pr-0.5 max-h-56 pb-6 overscroll-contain">
             {isSearching ? (
               <div className="py-6 flex flex-col items-center justify-center gap-2 text-xs text-slate-400">
@@ -178,7 +162,6 @@ export default function StudentSelect({
                 const sId = student.id || student._id
                 const sName = getStudentName(student)
                 const isSelected = selectedStudent && String(selectedStudent.id || selectedStudent._id) === String(sId)
-
                 return (
                   <button
                     key={sId}

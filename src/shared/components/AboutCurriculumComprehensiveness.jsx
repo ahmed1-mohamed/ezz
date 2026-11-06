@@ -6,7 +6,6 @@ import { FileText, BarChart2, Calendar, Home, Users } from 'lucide-react'
 export default React.memo(function AboutCurriculumComprehensiveness() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n?.language?.startsWith('ar') ?? true
-
     const coverageItems = useMemo(() => [
         {
             title: t('curriculum.comprehensiveness.coverage.lessonExplanation.title', 'شرح الدروس'),
@@ -27,7 +26,6 @@ export default React.memo(function AboutCurriculumComprehensiveness() {
             badgeStyle: 'bg-[#FFFBEB] dark:bg-amber-950/40 text-[#B45309] dark:text-amber-400'
         }
     ], [t])
-
     const stagesItems = useMemo(() => [
         {
             title: t('curriculum.comprehensiveness.stages.primary.title', 'المرحلة الابتدائية'),
@@ -48,7 +46,6 @@ export default React.memo(function AboutCurriculumComprehensiveness() {
             badgeStyle: 'bg-[#FFFBEB] dark:bg-amber-950/40 text-[#B45309] dark:text-amber-400'
         }
     ], [t])
-
     const subjectItems = useMemo(() => [
         {
             title: t('curriculum.comprehensiveness.subjects.math.title', 'الرياضيات'),
@@ -75,7 +72,6 @@ export default React.memo(function AboutCurriculumComprehensiveness() {
             badgeStyle: 'bg-[#E6F4F1] dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400'
         }
     ], [t])
-
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-20" dir={isRtl ? 'rtl' : 'ltr'}>
             <motion.div
@@ -90,7 +86,6 @@ export default React.memo(function AboutCurriculumComprehensiveness() {
                 </h2>
                 <div className="w-28 sm:w-36 h-1 sm:h-1.5 bg-[#8C6D1F] dark:bg-amber-500 rounded-full mx-auto mt-3" />
             </motion.div>
-
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -126,7 +121,6 @@ export default React.memo(function AboutCurriculumComprehensiveness() {
                             ))}
                         </div>
                     </div>
-
                     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
                         <div className="space-y-2 text-start">
                             <h3 className="text-xl sm:text-2xl font-bold text-[#00695C] dark:text-emerald-400">
@@ -155,7 +149,6 @@ export default React.memo(function AboutCurriculumComprehensiveness() {
                         </div>
                     </div>
                 </motion.div>
-
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

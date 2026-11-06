@@ -37,14 +37,12 @@ export default function CurriculumLevelsSection({
               : 'Browse and manage levels, study units, and uploaded educational resources'}
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
             {levels.length} {isRtl ? 'مستويات مسجلة' : 'Registered Levels'}
           </span>
         </div>
       </div>
-
       <div className="space-y-4">
         {levels.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-slate-100 dark:border-slate-800 shadow-xs space-y-3">
@@ -65,7 +63,6 @@ export default function CurriculumLevelsSection({
             const isExpanded = Boolean(
               expandedLevels[levelId] || (rawLevelId && expandedLevels[rawLevelId])
             )
-
             return (
               <CurriculumLevelCard
                 key={levelId}
@@ -91,7 +88,6 @@ export default function CurriculumLevelsSection({
             )
           })
         )}
-
         <button
           type="button"
           onClick={onAddLevel}

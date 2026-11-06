@@ -1,21 +1,14 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Trophy,
-  Award,
-  Medal,
   Star,
-  Users,
   Video,
   CheckCircle,
-  Clock,
   Search,
   Sparkles,
-  TrendingUp,
   RotateCcw,
-  ShieldCheck,
-  Lock,
-} from 'lucide-react'
+  } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
@@ -24,20 +17,14 @@ export default function TeacherPerformanceRanking() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
   const { isSuperAdmin, hasAllPermissions } = useAdminPermissions()
-
-  // REQUIRED: Must have BOTH permissions to view: dashboard.analytics.read AND dashboard.reports.read
   const canViewPerformance = isSuperAdmin || hasAllPermissions(['dashboard.analytics.read', 'dashboard.reports.read'])
-
   const [searchQuery, setSearchQuery] = useState('')
-
   const { data: rankingRes, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['admin-teacher-performance-ranking'],
     queryFn: () => dashboardApi.fetchTeacherPerformance(),
     enabled: Boolean(canViewPerformance),
     staleTime: 3 * 60 * 1000,
   })
-
-  // Normalize list from response
   const rawList = useMemo(() => {
     const raw = rankingRes?.data ?? null
     if (!raw) return []
@@ -48,8 +35,6 @@ export default function TeacherPerformanceRanking() {
     if (Array.isArray(raw.items)) return raw.items
     return []
   }, [rankingRes])
-
-  // Provide realistic fallback if API has no records yet
   const teachersList = useMemo(() => {
     if (rawList.length > 0) {
       return rawList.map((item, idx) => ({
@@ -65,7 +50,6 @@ export default function TeacherPerformanceRanking() {
         raw: item,
       }))
     }
-
     return [
       {
         id: '1',
@@ -119,23 +103,17 @@ export default function TeacherPerformanceRanking() {
       },
     ]
   }, [rawList])
-
   const filteredTeachers = useMemo(() => {
     if (!searchQuery.trim()) return teachersList
     const q = searchQuery.toLowerCase().trim()
     return teachersList.filter((t) => t.name.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q))
   }, [teachersList, searchQuery])
-
-  // If user lacks the required dual permissions, do not show section
   if (!canViewPerformance) {
     return null
   }
-
   const topThree = teachersList.slice(0, 3)
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-7" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 mb-2">
@@ -149,7 +127,6 @@ export default function TeacherPerformanceRanking() {
             تصنيف المعلمين المتميزين استناداً إلى الحصص المكتملة، وتقييمات الطلاب، ومعدل الالتزام
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           <div className="relative min-w-[200px]">
             <Search className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400`} size={15} />
@@ -161,7 +138,6 @@ export default function TeacherPerformanceRanking() {
               className={`w-full ${isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3'} py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30`}
             />
           </div>
-
           <button
             type="button"
             onClick={() => refetch()}
@@ -173,11 +149,8 @@ export default function TeacherPerformanceRanking() {
           </button>
         </div>
       </div>
-
-      {/* Top 3 Podium Highlights */}
       {topThree.length >= 3 && !searchQuery && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
-          {/* Rank 2 (Silver) */}
           <div className="order-2 md:order-1 rounded-3xl p-5 bg-gradient-to-br from-slate-50 to-slate-100/70 dark:from-slate-800/50 dark:to-slate-800/20 border border-slate-200 dark:border-slate-700/60 shadow-xs flex flex-col justify-between items-center text-center relative overflow-hidden">
             <span className="absolute top-3 left-3 text-2xl font-black text-slate-300 dark:text-slate-600">#2</span>
             <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-black text-xl text-slate-700 dark:text-slate-200 shadow-sm relative mt-2">
@@ -199,8 +172,6 @@ export default function TeacherPerformanceRanking() {
               <span className="text-emerald-600 dark:text-emerald-400">{topThree[1].attendanceRate}% التزام</span>
             </div>
           </div>
-
-          {/* Rank 1 (Gold - Hero) */}
           <div className="order-1 md:order-2 rounded-3xl p-6 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white dark:from-amber-950/30 dark:via-slate-800/60 dark:to-slate-900 border-2 border-amber-400 dark:border-amber-500/60 shadow-lg shadow-amber-500/10 flex flex-col justify-between items-center text-center relative overflow-hidden transform md:-translate-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-black shadow-xs mb-1">
               <Sparkles size={12} />
@@ -225,8 +196,6 @@ export default function TeacherPerformanceRanking() {
               <span className="text-emerald-600 dark:text-emerald-400">{topThree[0].attendanceRate}% التزام</span>
             </div>
           </div>
-
-          {/* Rank 3 (Bronze) */}
           <div className="order-3 md:order-3 rounded-3xl p-5 bg-gradient-to-br from-amber-900/5 to-slate-50 dark:from-amber-950/20 dark:to-slate-800/20 border border-amber-900/20 dark:border-amber-900/40 shadow-xs flex flex-col justify-between items-center text-center relative overflow-hidden">
             <span className="absolute top-3 left-3 text-2xl font-black text-slate-300 dark:text-slate-600">#3</span>
             <div className="w-16 h-16 rounded-2xl bg-amber-100/70 dark:bg-amber-950/60 flex items-center justify-center font-black text-xl text-amber-800 dark:text-amber-300 shadow-sm relative mt-2">
@@ -250,14 +219,11 @@ export default function TeacherPerformanceRanking() {
           </div>
         </div>
       )}
-
-      {/* Full Ranking Table / Cards */}
       <div className="space-y-3">
         <div className="text-xs font-bold text-slate-400 flex items-center justify-between px-2">
           <span>الترتيب العام للمعلمين</span>
           <span>إجمالي المعلمين المصنفين: {filteredTeachers.length}</span>
         </div>
-
         {filteredTeachers.map((teacher, idx) => (
           <div
             key={teacher.id || idx}
@@ -277,17 +243,14 @@ export default function TeacherPerformanceRanking() {
               >
                 #{idx + 1}
               </span>
-
               <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center font-bold text-[#0f7a6c] dark:text-emerald-400 shrink-0">
                 {teacher.name[0]}
               </div>
-
               <div>
                 <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">{teacher.name}</h4>
                 <p className="text-xs text-slate-400">{teacher.subject}</p>
               </div>
             </div>
-
             <div className="flex items-center gap-6 justify-between sm:justify-end text-xs">
               <div className="text-start">
                 <span className="text-[10px] text-slate-400 font-bold block">الحصص المكتملة</span>
@@ -296,7 +259,6 @@ export default function TeacherPerformanceRanking() {
                   {teacher.sessionsCount}
                 </span>
               </div>
-
               <div className="text-start">
                 <span className="text-[10px] text-slate-400 font-bold block">تقييم الطلاب</span>
                 <span className="font-black text-amber-500 flex items-center gap-1">
@@ -304,7 +266,6 @@ export default function TeacherPerformanceRanking() {
                   {teacher.rating}
                 </span>
               </div>
-
               <div className="text-start">
                 <span className="text-[10px] text-slate-400 font-bold block">نسبة الالتزام</span>
                 <span className="font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">

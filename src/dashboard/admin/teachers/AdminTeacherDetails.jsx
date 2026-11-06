@@ -15,27 +15,21 @@ export default function AdminTeacherDetails() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
-
   const [isEditing, setIsEditing] = useState(false)
   const [isSavingTeacher, setIsSavingTeacher] = useState(false)
-
   const { data: res, isLoading, isError, refetch } = useQuery({
     queryKey: ['teacher-details', id],
     queryFn: () => teachersApi.fetchTeacherById(id),
     enabled: Boolean(id),
     staleTime: 60 * 1000,
   })
-
   const teacher = res?.data || null
-
   const handleToggleStatus = async (teacherObjOrId) => {
     const target = (typeof teacherObjOrId === 'object' && teacherObjOrId !== null)
       ? teacherObjOrId
       : teacher
-
     if (!target) return
     const newActive = !target.active
-
     try {
       await teachersApi.toggleTeacherStatus(target)
       await queryClient.invalidateQueries({ queryKey: ['teacher-details', id] })
@@ -54,7 +48,6 @@ export default function AdminTeacherDetails() {
       console.error('Failed to toggle status:', err)
     }
   }
-
   const handleDeleteTeacher = async (targetTeacher) => {
     const target = targetTeacher || teacher
     if (!target) return
@@ -62,10 +55,8 @@ export default function AdminTeacherDetails() {
     const teacherName = typeof target.name === 'object' && target.name !== null
       ? ((isRtl ? target.name.ar : target.name.en) || target.name.ar || target.name.en || 'المعلم')
       : (target.name || 'المعلم')
-
     const isConfirmed = await showDeleteConfirm(isRtl, teacherName)
     if (!isConfirmed) return
-
     try {
       await teachersApi.deleteTeacher(targetId)
       await queryClient.invalidateQueries({ queryKey: ['teachers'] })
@@ -76,7 +67,6 @@ export default function AdminTeacherDetails() {
       console.error('Failed to delete teacher:', err)
     }
   }
-
   const handleSaveTeacher = async (formData) => {
     setIsSavingTeacher(true)
     try {
@@ -96,11 +86,9 @@ export default function AdminTeacherDetails() {
       setIsSavingTeacher(false)
     }
   }
-
   const handleBack = () => {
     navigate('/dashboard/admin/teachers')
   }
-
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] p-8 space-y-4" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -111,7 +99,6 @@ export default function AdminTeacherDetails() {
       </div>
     )
   }
-
   if (isError || (!isLoading && !teacher)) {
     return (
       <div className="p-8 max-w-xl mx-auto my-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-4 shadow-soft" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -140,7 +127,6 @@ export default function AdminTeacherDetails() {
       </div>
     )
   }
-
   if (isEditing) {
     return (
       <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -155,7 +141,6 @@ export default function AdminTeacherDetails() {
       </div>
     )
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherDetailsScreen

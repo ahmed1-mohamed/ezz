@@ -7,7 +7,6 @@ export const normalizeCountry = (country) => {
   const dialCode = country.dialCode || country.phoneCode || (typeof country.code === 'string' && country.code.startsWith('+') ? country.code : '') || ''
   const name = typeof country.name === 'string' ? country.name : (country.name?.ar || country.nameAr || '')
   const nameEn = country.nameEn || (typeof country.name === 'object' ? country.name?.en : '') || (typeof country.name === 'string' ? country.name : '')
-
   return {
     ...country,
     id,
@@ -41,11 +40,9 @@ export const fetchCountries = async (params = {}) => {
   if (cachedCountriesList && hasNoCustomParams) {
     return cachedCountriesList
   }
-
   if (inFlightCountriesPromise) {
     return inFlightCountriesPromise
   }
-
   inFlightCountriesPromise = (async () => {
     try {
       const res = await api.get('/api/v1/countries', { params })
@@ -62,7 +59,6 @@ export const fetchCountries = async (params = {}) => {
       inFlightCountriesPromise = null
     }
   })()
-
   return inFlightCountriesPromise
 }
 
@@ -102,7 +98,6 @@ export const sortCountryCodes = (countryCodes = [], isRtl = true) => {
 }
 export const DEFAULT_DIAL_CODE = '+971'
 
-// Detail endpoints return the country as "<flag> <localized name>"; map it back to the country ID.
 export const resolveCountryIdFromLabel = (countries = [], ...labels) => {
   const values = labels.filter(Boolean).map(String)
   if (values.length === 0) return ''
@@ -114,7 +109,6 @@ export const resolveCountryIdFromLabel = (countries = [], ...labels) => {
   return byName?.id || ''
 }
 
-// Splits "+971501234567" into the matching dial-code entry and the local number (longest prefix wins).
 export const splitPhoneNumber = (phone, codes = []) => {
   const clean = String(phone || '').replace(/\s+/g, '')
   if (!clean) return { code: null, number: '' }
@@ -122,7 +116,6 @@ export const splitPhoneNumber = (phone, codes = []) => {
   return match ? { code: match, number: clean.slice(match.code.length) } : { code: null, number: clean }
 }
 
-// Joins a dial code and local number into the international format the API validates (+<code><number>).
 export const joinPhoneNumber = (dialCode, number) => {
   const local = String(number || '').replace(/\D/g, '').replace(/^0+/, '')
   return dialCode && local ? `${dialCode}${local}` : ''

@@ -17,7 +17,6 @@ export default function RoleList({
       <h2 className="text-base font-bold text-slate-800 dark:text-white mb-4">
         {t('adminDashboard.managers.permissionsScreen.rolesTitle', 'الأدوار')}
       </h2>
-
       <div className="space-y-1.5 mb-6">
         {permissionsList.map((perm) => {
           const isActive = selectedPermissionId === perm.id
@@ -41,7 +40,6 @@ export default function RoleList({
                   <span className="text-sm font-medium">{permName}</span>
                 </div>
               </button>
-
               {!isAdminAssignment && onDeleteRole && (
                 <button
                   type="button"
@@ -60,14 +58,12 @@ export default function RoleList({
             </div>
           )
         })}
-
         {permissionsList.length === 0 && (
           <p className="text-sm text-slate-400 text-center py-4">
             {isRtl ? 'لا توجد أدوار' : 'No roles found'}
           </p>
         )}
       </div>
-
       {!isAdminAssignment && (
         <button
           type="button"

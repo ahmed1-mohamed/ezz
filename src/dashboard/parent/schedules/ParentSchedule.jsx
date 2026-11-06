@@ -25,7 +25,6 @@ export default function ParentSchedule() {
     weekInfo: null,
     days: []
   });
-
   const getStatusBadge = (status, color) => {
     const raw = String(status || '').trim();
     if (raw === 'ملغاة' || color === 'red') {
@@ -55,7 +54,6 @@ export default function ParentSchedule() {
       cardBorder: 'border-s-4 border-s-[#0f7a6c]'
     };
   };
-
   const loadStudents = useCallback(async () => {
     try {
       const res = await parentApi.fetchChildren();
@@ -66,7 +64,6 @@ export default function ParentSchedule() {
       console.error('Failed to load children for schedule:', err);
     }
   }, []);
-
   const loadTimetable = useCallback(async (dateParam, studentParam) => {
     setIsLoading(true);
     try {
@@ -86,31 +83,25 @@ export default function ParentSchedule() {
       setIsLoading(false);
     }
   }, []);
-
   useEffect(() => {
     loadStudents();
   }, [loadStudents]);
-
   useEffect(() => {
     loadTimetable(targetDate, selectedStudent);
   }, [loadTimetable, targetDate, selectedStudent]);
-
   const handlePrevWeek = () => {
     if (timetableData.weekInfo?.previousWeekDate) {
       setTargetDate(timetableData.weekInfo.previousWeekDate);
     }
   };
-
   const handleNextWeek = () => {
     if (timetableData.weekInfo?.nextWeekDate) {
       setTargetDate(timetableData.weekInfo.nextWeekDate);
     }
   };
-
   const handleCurrentWeek = () => {
     setTargetDate(null);
   };
-
   const filteredDays = timetableData.days.map((dayGroup) => {
     const rawSessions = Array.isArray(dayGroup.sessions) ? dayGroup.sessions : [];
     if (selectedStudent === 'all') return dayGroup;
@@ -123,9 +114,7 @@ export default function ParentSchedule() {
     });
     return { ...dayGroup, sessions: matchingSessions, sessionsCount: matchingSessions.length };
   }).filter((dayGroup) => dayGroup.sessionsCount > 0 || timetableData.days.length <= 1);
-
   const totalSessionsCount = filteredDays.reduce((acc, d) => acc + (d.sessionsCount || d.sessions?.length || 0), 0);
-
   return (
     <motion.div
       variants={containerVariants}
@@ -139,7 +128,6 @@ export default function ParentSchedule() {
           <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100">{t('parent.schedule.title', 'جدول الحصص')}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('parent.schedule.subtitle', 'متابعة جدول الحصص الأسبوعية للأبناء بدقة')}</p>
         </div>
-
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           <div className="relative w-full sm:w-60">
             <select
@@ -158,7 +146,6 @@ export default function ParentSchedule() {
           </div>
         </div>
       </motion.div>
-
       {timetableData.weekInfo && (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -175,7 +162,6 @@ export default function ParentSchedule() {
               <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">{timetableData.weekInfo.formattedRange}</p>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             {!timetableData.weekInfo.isCurrentWeek && (
               <button
@@ -185,7 +171,6 @@ export default function ParentSchedule() {
                 الأسبوع الحالي
               </button>
             )}
-
             <button
               onClick={handlePrevWeek}
               disabled={!timetableData.weekInfo.previousWeekDate || isLoading}
@@ -194,7 +179,6 @@ export default function ParentSchedule() {
             >
               {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
-
             <button
               onClick={handleNextWeek}
               disabled={!timetableData.weekInfo.nextWeekDate || isLoading}
@@ -206,7 +190,6 @@ export default function ParentSchedule() {
           </div>
         </motion.div>
       )}
-
       {isLoading ? (
         <div className="flex justify-center items-center py-24">
           <div className="w-9 h-9 rounded-full border-3 border-[#0f7a6c] border-t-transparent animate-spin" />
@@ -230,7 +213,6 @@ export default function ParentSchedule() {
                   {dayGroup.sessionsCount || dayGroup.sessions?.length || 0} حصة
                 </span>
               </div>
-
               <div className="grid grid-cols-1 gap-4">
                 {(dayGroup.sessions || []).map((session) => {
                   const badge = getStatusBadge(session.status, session.color);
@@ -251,7 +233,6 @@ export default function ParentSchedule() {
                             {session.durationMinutes ? `${session.durationMinutes} دقيقة` : (session.day || dayGroup.day)}
                           </span>
                         </div>
-
                         <div className="space-y-1.5 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
@@ -261,7 +242,6 @@ export default function ParentSchedule() {
                               {badge.label}
                             </span>
                           </div>
-
                           <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
                             {session.group && (
                               <div className="flex items-center gap-1.5 text-[#0f7a6c] dark:text-emerald-400 font-bold">
@@ -284,7 +264,6 @@ export default function ParentSchedule() {
                           </div>
                         </div>
                       </div>
-
                       <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
                         {session.canJoinNow ? (
                           <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-red-600/20 transition-all active:scale-95">

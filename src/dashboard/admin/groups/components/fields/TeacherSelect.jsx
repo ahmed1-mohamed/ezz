@@ -22,7 +22,6 @@ export default function TeacherSelect({
   const [searchQuery, setSearchQuery] = useState('')
   const containerRef = useRef(null)
   const searchInputRef = useRef(null)
-
   const filteredTeachers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     if (!q) return teachers
@@ -43,7 +42,6 @@ export default function TeacherSelect({
       )
     })
   }, [teachers, searchQuery, isRtl])
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -53,15 +51,12 @@ export default function TeacherSelect({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
    useEffect(() => {
     if (isOpen && searchInputRef.current) {
       searchInputRef.current.focus()
     }
   }, [isOpen])
-
   const selectedName = selectedTeacher ? getTeacherName(selectedTeacher, isRtl) : ''
-
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>
        <button
@@ -105,7 +100,6 @@ export default function TeacherSelect({
           />
         </div>
       </button>
-
        {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-3 space-y-2 max-h-80 flex flex-col animate-fadeIn">
            <div className="relative shrink-0">
@@ -130,7 +124,6 @@ export default function TeacherSelect({
               </button>
             )}
           </div>
-
            <div className="overflow-y-auto space-y-1 pr-0.5 max-h-60">
             {filteredTeachers.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
@@ -142,7 +135,6 @@ export default function TeacherSelect({
                 const tName = getTeacherName(teacher, isRtl)
                 const isSelected = selectedTeacher && String(selectedTeacher.id || selectedTeacher.teacher_id || selectedTeacher._id) === String(tId)
                 const isCurrent = currentTeacherId && String(currentTeacherId) === String(tId)
-
                 return (
                   <button
                     key={tId}

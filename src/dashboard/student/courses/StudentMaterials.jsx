@@ -10,7 +10,6 @@ import {
   User,
   FolderOpen,
   Search,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -21,14 +20,12 @@ import Spinner from '@/shared/components/Spinner';
 export default function StudentMaterials() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
-  const [activeTab, setActiveTab] = useState('attachments'); // 'attachments' | 'curricula'
+  const [activeTab, setActiveTab] = useState('attachments'); 
   const [loading, setLoading] = useState(true);
   const [attachmentsData, setAttachmentsData] = useState([]);
   const [curriculaData, setCurriculaData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCurricula, setExpandedCurricula] = useState({});
-
   useEffect(() => {
     async function loadData() {
       try {
@@ -37,7 +34,6 @@ export default function StudentMaterials() {
           studentPortalApi.fetchCurriculaAttachments(),
           studentPortalApi.fetchCurricula(),
         ]);
-
         if (attRes.status === 'fulfilled') {
           const rawAtt = attRes.value?.data || attRes.value || [];
           setAttachmentsData(Array.isArray(rawAtt) ? rawAtt : []);
@@ -54,7 +50,6 @@ export default function StudentMaterials() {
     }
     loadData();
   }, []);
-
   const handleOpenItem = (url, type) => {
     if (!url) return;
     if (type === 'link') {
@@ -63,14 +58,12 @@ export default function StudentMaterials() {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
-
   const toggleCurriculum = (id) => {
     setExpandedCurricula((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
   };
-
   return (
     <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
@@ -78,7 +71,6 @@ export default function StudentMaterials() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-7xl mx-auto space-y-6"
       >
-        {/* Header */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-start">
             <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-[#0f7a6c] dark:text-emerald-400">
@@ -93,7 +85,6 @@ export default function StudentMaterials() {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('attachments')}
@@ -117,8 +108,6 @@ export default function StudentMaterials() {
             </button>
           </div>
         </div>
-
-        {/* Search */}
         <div className="relative max-w-md">
           <input
             type="text"
@@ -129,14 +118,11 @@ export default function StudentMaterials() {
           />
           <Search size={16} className="absolute top-1/2 -translate-y-1/2 start-3.5 text-slate-400" />
         </div>
-
-        {/* Content */}
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <Spinner />
           </div>
         ) : activeTab === 'attachments' ? (
-          /* Attachments View */
           attachmentsData.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-700 space-y-3">
               <FolderOpen size={36} className="text-slate-300 dark:text-slate-600 mx-auto" />
@@ -156,9 +142,7 @@ export default function StudentMaterials() {
                     groupItem.curriculumName?.toLowerCase().includes(term)
                   );
                 });
-
                 if (attachments.length === 0 && searchTerm.trim()) return null;
-
                 return (
                   <div
                     key={groupItem.groupId || gIdx}
@@ -180,7 +164,6 @@ export default function StudentMaterials() {
                         </div>
                       )}
                     </div>
-
                     <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
                       {attachments.map((att) => {
                         const isLink = att.type === 'link';
@@ -210,7 +193,6 @@ export default function StudentMaterials() {
                                 )}
                               </div>
                             </div>
-
                             <button
                               onClick={() => handleOpenItem(att.url, att.type)}
                               className="px-4 py-2.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0c6156] active:scale-95 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
@@ -237,7 +219,6 @@ export default function StudentMaterials() {
             </div>
           )
         ) : (
-          /* Curricula View */
           curriculaData.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-700 space-y-3">
               <BookOpen size={36} className="text-slate-300 dark:text-slate-600 mx-auto" />
@@ -250,7 +231,6 @@ export default function StudentMaterials() {
               {curriculaData.map((currItem, cIdx) => {
                 const curriculum = currItem.curriculum || {};
                 const isExpanded = expandedCurricula[curriculum.id || cIdx];
-
                 return (
                   <div
                     key={currItem.groupId || cIdx}
@@ -298,7 +278,6 @@ export default function StudentMaterials() {
                           </div>
                         </div>
                       </div>
-
                       <button
                         onClick={() => toggleCurriculum(curriculum.id || cIdx)}
                         className="px-5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer self-end md:self-auto"
@@ -307,8 +286,6 @@ export default function StudentMaterials() {
                         {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
                     </div>
-
-                    {/* Levels and Units */}
                     <AnimatePresence>
                       {isExpanded && Array.isArray(curriculum.levels) && (
                         <motion.div
@@ -323,7 +300,6 @@ export default function StudentMaterials() {
                                 <span className="w-2 h-2 rounded-full bg-[#0f7a6c]" />
                                 <span>{lvl.name}</span>
                               </h3>
-
                               {Array.isArray(lvl.units) && (
                                 <div className="space-y-3 ps-4">
                                   {lvl.units.map((unit) => (
@@ -334,7 +310,6 @@ export default function StudentMaterials() {
                                       <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
                                         {unit.name}
                                       </h4>
-
                                       {Array.isArray(unit.files) && (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                                           {unit.files.map((file) => {

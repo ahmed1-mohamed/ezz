@@ -8,11 +8,9 @@ import {
   ArrowLeft,
   BookOpen,
   Globe,
-  Clock,
   CheckCircle2,
   XCircle,
-  User,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 function resolveStudentLevel(level, isRtl) {
   const norm = String(level || '').toLowerCase();
@@ -82,7 +80,6 @@ export default function ChildHeroCard({
       className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-6"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Top Navigation Row: Back button and Child Selector */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
         <button
           type="button"
@@ -114,7 +111,6 @@ export default function ChildHeroCard({
           </div>
         )}
       </div>
-      {/* Hero Profile Body */}
       <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start min-w-0">
           <div className="relative">
@@ -184,7 +180,6 @@ export default function ChildHeroCard({
             )}
           </div>
         </div>
-        {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 w-full md:w-auto shrink-0">
           <button
             type="button"

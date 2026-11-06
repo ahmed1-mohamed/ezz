@@ -3,7 +3,6 @@ import { Award, ShieldCheck, MapPin, Video, Star } from 'lucide-react'
 
 export default function TeacherAbout({ teacher, t }) {
     const hasPhilosophy = Boolean(teacher?.philosophy && String(teacher.philosophy).trim())
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -18,7 +17,6 @@ export default function TeacherAbout({ teacher, t }) {
                     {teacher?.about || t('teacherProfile.defaultAbout', 'معلم معتمد في منصة منارة العز، يمتلك خبرة تعليمية واسعة ويسعى لتقديم تجربة تعليمية تفاعلية وملهمة لأبنائنا الطلاب.')}
                 </p>
             </div>
-
             {hasPhilosophy && (
                 <div className="space-y-4">
                     <h2 className="text-xl sm:text-2xl font-extrabold text-[#00695C] dark:text-emerald-400">
@@ -31,7 +29,6 @@ export default function TeacherAbout({ teacher, t }) {
                     </div>
                 </div>
             )}
-
             {Array.isArray(teacher?.credentials) && teacher.credentials.length > 0 && (
                 <div className="flex flex-col sm:flex-row gap-6 pt-2">
                     {teacher.credentials.map((cred, i) => (
@@ -44,7 +41,6 @@ export default function TeacherAbout({ teacher, t }) {
                     ))}
                 </div>
             )}
-
             <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {teacher?.location && (
                     <div className="flex items-center gap-2 bg-[#F5F8F6] dark:bg-slate-800 text-[#00695C] dark:text-emerald-400 px-4 py-2 rounded-xl font-bold">

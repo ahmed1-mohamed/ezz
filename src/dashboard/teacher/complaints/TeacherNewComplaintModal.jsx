@@ -30,13 +30,10 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const queryClient = useQueryClient();
-
   const [submissionType, setSubmissionType] = useState('complaint');
-
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [attachments, setAttachments] = useState([]);
-
   const [teacherGroups, setTeacherGroups] = useState([]);
   const [isLoadingGroups, setIsLoadingGroups] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState('');
@@ -46,7 +43,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const [proposedNewDate, setProposedNewDate] = useState('');
   const [proposedStartTime, setProposedStartTime] = useState('');
   const [proposedEndTime, setProposedEndTime] = useState('');
-
   const [prevSelectedGroupId, setPrevSelectedGroupId] = useState(selectedGroupId);
   if (prevSelectedGroupId !== selectedGroupId) {
     setPrevSelectedGroupId(selectedGroupId);
@@ -55,7 +51,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
       setSelectedSessionId('');
     }
   }
-
   useEffect(() => {
     let isMounted = true;
     if (submissionType === 'reschedule_request' && teacherGroups.length === 0) {
@@ -80,17 +75,14 @@ export default function TeacherNewComplaintModal({ onClose }) {
       isMounted = false;
     };
   }, [submissionType, teacherGroups.length]);
-
   useEffect(() => {
     let isMounted = true;
     if (!selectedGroupId) {
       return;
     }
-
     Promise.resolve().then(() => {
       if (!isMounted) return;
       setIsLoadingSessions(true);
-      // Only scheduled / rescheduled sessions can be postponed
       return teacherSessionsApi.fetchScheduledSessions(selectedGroupId);
     })
     .then((sessions) => {
@@ -104,12 +96,10 @@ export default function TeacherNewComplaintModal({ onClose }) {
     .finally(() => {
       if (isMounted) setIsLoadingSessions(false);
     });
-
     return () => {
       isMounted = false;
     };
   }, [selectedGroupId]);
-
   const handleAddAttachments = (e) => {
     const files = Array.from(e.target.files || []);
     e.target.value = '';
@@ -119,11 +109,9 @@ export default function TeacherNewComplaintModal({ onClose }) {
     }
     setAttachments((prev) => [...prev, ...files.filter((f) => f.size <= MAX_ATTACHMENT_SIZE)]);
   };
-
   const handleRemoveAttachment = (idx) => {
     setAttachments(attachments.filter((_, i) => i !== idx));
   };
-
   const mutation = useMutation({
     mutationFn: async () => {
       if (submissionType === 'reschedule_request') {
@@ -162,7 +150,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
       showErrorToast(errorMsg);
     },
   });
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -191,10 +178,8 @@ export default function TeacherNewComplaintModal({ onClose }) {
         return;
       }
     }
-
     mutation.mutate();
   };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
       <div
@@ -210,7 +195,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
               {t('teacherComplaints.newSubmissionDesc', 'اختر نوع الطلب واملأ البيانات المطلوبة لإرسالها للإدارة.')}
             </p>
           </div>
-
           <button
             onClick={onClose}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -218,7 +202,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             <X size={20} />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -237,7 +220,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 <AlertTriangle size={18} className={submissionType === 'complaint' ? 'text-rose-600' : ''} />
                 <span>{t('teacher.typeComplaint', 'شكوى')}</span>
               </button>
-
               <button
                 type="button"
                 onClick={() => setSubmissionType('suggestion')}
@@ -250,7 +232,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 <Lightbulb size={18} className={submissionType === 'suggestion' ? 'text-sky-600' : ''} />
                 <span>{t('teacher.typeSuggestion', 'مقترح')}</span>
               </button>
-
               <button
                 type="button"
                 onClick={() => setSubmissionType('reschedule_request')}
@@ -265,7 +246,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
               </button>
             </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {t('teacher.complaintTitle', 'عنوان الطلب')} <span className="text-rose-500">*</span>
@@ -279,7 +259,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
             />
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {t('teacher.complaintDetails', 'التفاصيل')} <span className="text-rose-500">*</span>
@@ -293,14 +272,12 @@ export default function TeacherNewComplaintModal({ onClose }) {
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all resize-none"
             />
           </div>
-
           {submissionType === 'reschedule_request' && (
             <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-4">
               <div className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                 <CalendarClock size={15} />
                 <span>{t('teacher.rescheduleDetails', 'بيانات الحصة والموعد المقترح')}</span>
               </div>
-
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('teacher.selectGroup', 'اختر المجموعة')} <span className="text-rose-500">*</span>
@@ -322,7 +299,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   </select>
                 </div>
               </div>
-
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('teacher.selectSession', 'اختر الحصة المراد تأجيلها')} <span className="text-rose-500">*</span>
@@ -350,7 +326,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   ))}
                 </select>
               </div>
-
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('teacher.proposedDate', 'التاريخ الجديد المقترح')} <span className="text-rose-500">*</span>
@@ -365,7 +340,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   />
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -379,7 +353,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
                   />
                 </div>
-
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     {t('teacher.proposedEndTime', 'وقت النهاية')} <span className="text-rose-500">*</span>
@@ -395,7 +368,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
               </div>
             </div>
           )}
-
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -407,7 +379,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
                 <input type="file" multiple className="hidden" onChange={handleAddAttachments} />
               </label>
             </div>
-
             {attachments.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {attachments.map((att, idx) => (
@@ -429,7 +400,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
               </div>
             )}
           </div>
-
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
             <button
               type="button"
@@ -439,7 +409,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
             >
               {t('teacher.close', 'إلغاء')}
             </button>
-
             <button
               type="submit"
               disabled={mutation.isPending}

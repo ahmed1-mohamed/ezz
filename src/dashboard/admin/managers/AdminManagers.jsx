@@ -19,11 +19,9 @@ export default function AdminManagers() {
   const navigate = useNavigate()
   const location = useLocation()
   const { id: routeAdminId } = useParams()
-
   const [viewMode, setViewMode] = useState('list')
   const [selectedSupervisor, setSelectedSupervisor] = useState(null)
   const [isLoadingDetails, setIsLoadingDetails] = useState(false)
-
   const {
     currentPage,
     setCurrentPage,
@@ -39,14 +37,12 @@ export default function AdminManagers() {
     permissionsList,
     countries
   } = useManagers()
-
   const {
     updateMutation,
     createMutation,
     deleteMutation,
     toggleStatusMutation
   } = useManagersMutations(isRtl)
-
   const loadSupervisorDetails = useCallback(async (adminId) => {
     enableExtraData()
     setIsLoadingDetails(true)
@@ -74,7 +70,6 @@ export default function AdminManagers() {
       setIsLoadingDetails(false)
     }
   }, [enableExtraData])
-
   useEffect(() => {
     const pathname = location.pathname
     if (pathname.endsWith('/managers/add')) {
@@ -100,7 +95,6 @@ export default function AdminManagers() {
       setSelectedSupervisor(null)
     }
   }, [location.pathname, routeAdminId, enableExtraData, loadSupervisorDetails, selectedSupervisor])
-
   const handleToggleStatus = (supervisor) => {
     const targetUserId = supervisor.user_id || supervisor.user?.id || supervisor.user?._id || (typeof supervisor.user === 'string' ? supervisor.user : null)
     if (!targetUserId) {
@@ -123,15 +117,12 @@ export default function AdminManagers() {
       }
     )
   }
-
   const handleDelete = async (supervisor) => {
     const supervisorName = typeof supervisor.name === 'object' && supervisor.name !== null
       ? (isRtl ? supervisor.name.ar || supervisor.name.en : supervisor.name.en || supervisor.name.ar)
       : (supervisor.name || '')
-
     const isConfirmed = await showDeleteConfirm(isRtl, supervisorName)
     if (!isConfirmed) return
-
     try {
       const adminId = supervisor.admin_id || supervisor.id || supervisor._id
       await deleteMutation.mutateAsync(adminId)
@@ -139,12 +130,10 @@ export default function AdminManagers() {
       console.error('Failed to delete supervisor:', err)
     }
   }
-
   const handleOpenEditScreen = async (supervisor) => {
     const adminId = supervisor.admin_id || supervisor.id || supervisor._id
     navigate(`/dashboard/admin/managers/${adminId}/edit`)
   }
-
   const handleOpenRolePermissions = (supervisorOrRoleName) => {
     enableExtraData()
     if (supervisorOrRoleName && typeof supervisorOrRoleName === 'object') {
@@ -154,7 +143,6 @@ export default function AdminManagers() {
       navigate('/dashboard/admin/managers/permissions')
     }
   }
-
   if (isLoadingSupervisors && viewMode === 'list') {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -162,7 +150,6 @@ export default function AdminManagers() {
       </div>
     )
   }
-
   return (
     <div className="p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoadingDetails && (
@@ -170,7 +157,6 @@ export default function AdminManagers() {
           <Spinner />
         </div>
       )}
-
       {viewMode === 'list' && (
         <ManagersList
           supervisors={supervisors}
@@ -195,7 +181,6 @@ export default function AdminManagers() {
           onOpenRolePermissions={handleOpenRolePermissions}
         />
       )}
-
       {(viewMode === 'permissions' || (viewMode === 'assign-role' && selectedSupervisor)) && (
         <RolesPermissionsScreen
           permissionsList={permissionsList}
@@ -234,7 +219,6 @@ export default function AdminManagers() {
           onCancel={() => navigate('/dashboard/admin/managers')}
         />
       )}
-
       {viewMode === 'add-supervisor' && (
         <AddSupervisorScreen
           roles={permissionsList}
@@ -259,7 +243,6 @@ export default function AdminManagers() {
           onCancel={() => navigate('/dashboard/admin/managers')}
         />
       )}
-
       {viewMode === 'edit-supervisor' && selectedSupervisor && (
         <EditSupervisorScreen
           supervisor={selectedSupervisor}
@@ -273,7 +256,6 @@ export default function AdminManagers() {
             try {
               const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
               await updateMutation.mutateAsync({ id: targetAdminId, adminData: data.adminData })
-
               if (data.permissionId && data.permissionId !== selectedSupervisor.permission?._id && data.permissionId !== selectedSupervisor.permissionId) {
                 try {
                   if (selectedSupervisor.permission?._id || selectedSupervisor.permissionId) {
@@ -285,7 +267,6 @@ export default function AdminManagers() {
                   console.error('Failed to update supervisor permission:', permErr)
                 }
               }
-
               queryClient.invalidateQueries({ queryKey: ['admins'] })
               navigate('/dashboard/admin/managers')
             } catch (err) {

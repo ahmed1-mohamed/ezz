@@ -6,11 +6,9 @@ export default function StudentProfileCard({
   const studentDisplayName = typeof student?.name === 'string'
     ? student.name
     : (student?.name?.ar || student?.name?.en || '-');
-
   const initial = (studentDisplayName === '-' ? 'ط' : studentDisplayName).trim().charAt(0)
   const imageUrl = student?.image || student?.profileImage
   const isActive = student?.active === true || String(student?.active) === 'true'
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] border border-slate-100 dark:border-slate-800/80 p-6 sm:p-8 shadow-soft space-y-6 text-start">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -32,7 +30,6 @@ export default function StudentProfileCard({
           >
             {initial}
           </div>
-
           <div className="space-y-0.5 min-w-0">
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
               {studentDisplayName}
@@ -47,7 +44,6 @@ export default function StudentProfileCard({
             )}
           </div>
         </div>
-
         <span
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
             isActive
@@ -59,7 +55,6 @@ export default function StudentProfileCard({
           <span>{isActive ? (isRtl ? 'نشط' : 'Active') : (isRtl ? 'متوقف' : 'Suspended')}</span>
         </span>
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {detailsItems.map((item, index) => {
           const Icon = item.icon

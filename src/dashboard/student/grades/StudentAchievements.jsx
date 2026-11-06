@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Award, Calendar, User, Sparkles } from 'lucide-react';
+import { Award, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
@@ -14,9 +14,7 @@ function RewardCard({ reward, isRtl, index }) {
         day: 'numeric',
       })
     : '';
-
   const bgColor = reward.backgroundColor || '#0f7a6c';
-
   return (
     <motion.div
       variants={{
@@ -42,7 +40,6 @@ function RewardCard({ reward, isRtl, index }) {
           )}
         </div>
       </div>
-
       <div className="p-5 flex flex-col flex-1" dir={isRtl ? 'rtl' : 'ltr'}>
         <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-1.5">
           {reward.name}
@@ -50,7 +47,6 @@ function RewardCard({ reward, isRtl, index }) {
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-1">
           {reward.description}
         </p>
-
         <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-1.5 truncate">
             {reward.teacher?.image ? (
@@ -74,10 +70,8 @@ function RewardCard({ reward, isRtl, index }) {
 export default function StudentAchievements() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [loading, setLoading] = useState(true);
   const [rewards, setRewards] = useState([]);
-
   useEffect(() => {
     async function loadRewards() {
       try {
@@ -93,7 +87,6 @@ export default function StudentAchievements() {
     }
     loadRewards();
   }, []);
-
   return (
     <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
@@ -115,13 +108,11 @@ export default function StudentAchievements() {
               </p>
             </div>
           </div>
-
           <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-3 text-center self-start sm:self-auto">
             <span className="text-xs text-slate-400">{t('studentDashboard.rewards.total', 'إجمالي الأوسمة')}</span>
             <p className="text-2xl font-black text-amber-500 mt-0.5">{rewards.length}</p>
           </div>
         </div>
-
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <Spinner />

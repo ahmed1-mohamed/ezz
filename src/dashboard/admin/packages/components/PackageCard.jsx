@@ -6,10 +6,8 @@ import { getCountryName } from '@/shared/utils/countryUtils'
 export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguages = [], countries = [] }) {
   const { t, i18n } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
-
   const accentColor = '#005953'
   const cardBg = 'bg-[#005953]/5 dark:bg-[#005953]/10'
-
   const isRtl = i18n.language.startsWith('ar')
   const langObj = explanationLanguages.find(l => l.id === pkg.sessions_language)
   const languageLabel = langObj 
@@ -17,13 +15,11 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
         ? (isRtl ? (langObj.name.ar || langObj.name.en) : (langObj.name.en || langObj.name.ar))
         : langObj.name)
     : pkg.sessions_language
-
   const countryObj = countries.find(c => (c.id || c._id) === pkg.country || c.name === pkg.country || c.nameEn === pkg.country)
   const countryName = countryObj
     ? getCountryName(countryObj, isRtl)
     : (pkg.country || '')
   const countryFlag = countryObj?.flag || ''
-
   const displayName = isRtl ? (pkg.name || pkg.name_en) : (pkg.name_en || pkg.name)
   const isFamily = pkg.type === 'family'
   const hasDiscount = pkg.priceAfterDiscount !== null && pkg.priceAfterDiscount !== undefined && Number(pkg.priceAfterDiscount) < Number(pkg.price)
@@ -31,11 +27,9 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
     ? (pkg.discountPercentage ?? Math.round((1 - Number(pkg.priceAfterDiscount) / Number(pkg.price)) * 10000) / 100)
     : null
   const tiers = Array.isArray(pkg.familyTiers) ? pkg.familyTiers : []
-
   const displayFeatures = isRtl
     ? (pkg.features?.length ? pkg.features : pkg.features_en || [])
     : (pkg.features_en?.length ? pkg.features_en : pkg.features || [])
-
   return (
     <motion.div
       layout
@@ -68,7 +62,6 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
             {displayName?.trim()?.charAt(0) || <Package size={24} className="text-white" />}
           </div>
         </div>
-
         <div className="text-center space-y-2">
           <h3 className="font-bold text-slate-800 dark:text-white text-base leading-tight">
             {displayName}
@@ -81,7 +74,6 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
             {isFamily ? (isRtl ? 'باقة عائلية' : 'Family package') : (isRtl ? 'باقة فردية' : 'Individual package')}
           </span>
         </div>
-
         <div className="text-center mt-1">
           <div className="flex items-baseline justify-center gap-2 flex-wrap">
             <span className="text-4xl font-extrabold" style={{ color: accentColor }}>
@@ -122,7 +114,6 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
             )}
           </p>
         </div>
-
         {isFamily && (
           <div className="w-full rounded-2xl bg-white/70 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-3 space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -153,7 +144,6 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
             )}
           </div>
         )}
-
         <ul className="w-full space-y-1.5 mt-1">
           {displayFeatures.map((feat, i) => (
             <li key={i} className="flex items-center justify-start gap-2 text-sm text-slate-600 dark:text-slate-400">
@@ -163,7 +153,6 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
           ))}
         </ul>
       </div>
-
       {(onEdit || onDelete) && (
         <div className="flex items-center gap-2 px-4 pb-4">
           {onEdit && (

@@ -12,7 +12,6 @@ import {
   Clock3,
   XCircle,
   MessageSquare,
-  Download,
   FileText,
   FileImage,
   FileVideo,
@@ -70,15 +69,12 @@ function getFileIcon(urlOrAtt) {
 export default function TeacherComplaintDetailsModal({ item, onClose }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   if (!item) return null;
-
   const isReschedule =
     item.type === 'reschedule_request' ||
     item.type === 'reschedule' ||
     item.type === 'postpone';
   const isSuggestion = item.type === 'suggestion';
-
   const getTypeMeta = () => {
     if (isReschedule) {
       return {
@@ -103,7 +99,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
       bg: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/40',
     };
   };
-
   const getStatusMeta = () => {
     switch (item.status) {
       case 'resolved':
@@ -132,16 +127,13 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
         };
     }
   };
-
   const typeMeta = getTypeMeta();
   const statusMeta = getStatusMeta();
   const TypeIcon = typeMeta.icon;
   const StatusIcon = statusMeta.icon;
-
   const groupInfo = item.group;
   const sessionInfo = item.session;
   const attachments = Array.isArray(item.attachments) ? item.attachments : [];
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
       <div
@@ -168,7 +160,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               </h3>
             </div>
           </div>
-
           <button
             onClick={onClose}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -176,7 +167,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             <X size={20} />
           </button>
         </div>
-
         <div className="p-6 overflow-y-auto space-y-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -189,7 +179,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               </div>
             )}
           </div>
-
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 space-y-2">
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
               {t('teacher.complaintDetails', 'التفاصيل')}:
@@ -198,14 +187,12 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               {item.details || '—'}
             </p>
           </div>
-
           {isReschedule && (
             <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 space-y-3">
               <div className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                 <CalendarClock size={15} />
                 <span>{t('teacher.rescheduleDetails', 'بيانات إعادة الجدولة')}:</span>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {groupInfo && (
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-200/50 dark:border-amber-900/30">
@@ -218,7 +205,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                     </div>
                   </div>
                 )}
-
                 {sessionInfo && (
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-200/50 dark:border-amber-900/30">
                     <Calendar size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
@@ -231,7 +217,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                   </div>
                 )}
               </div>
-
               <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 space-y-1 text-xs">
                 <div className="font-bold text-amber-900 dark:text-amber-200">
                   {t('teacher.proposedSchedule', 'الموعد الجديد المقترح')}:
@@ -253,7 +238,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               </div>
             </div>
           )}
-
           {item.notes && (
             <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-900/40 space-y-2">
               <div className="text-xs font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5">
@@ -265,7 +249,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               </p>
             </div>
           )}
-
           {attachments.length > 0 && (
             <div className="space-y-2">
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
@@ -292,7 +275,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             </div>
           )}
         </div>
-
         <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button
             onClick={onClose}

@@ -24,7 +24,6 @@ export default function PermissionsMatrix({
           <h2 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
             {isRtl ? module.titleAr : module.titleEn}
           </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
             {module.actions.map((action) => {
               const isActive = activeKeys.includes(action.key) || (action.aliases && action.aliases.some(a => activeKeys.includes(a)))
@@ -42,7 +41,6 @@ export default function PermissionsMatrix({
                     }`}
                 >
                   <span className="text-sm font-semibold">{isRtl ? action.labelAr : action.labelEn}</span>
-
                   <div className={`h-5 w-5 rounded flex items-center justify-center transition-all ${isActive
                     ? 'bg-[#0f7a6c] text-white'
                     : 'border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900'
@@ -55,12 +53,10 @@ export default function PermissionsMatrix({
           </div>
         </div>
       ))}
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
         <h2 className="text-base font-bold text-slate-800 dark:text-white mb-5">
           {isRtl ? 'معاينة نطاق الأذونات' : 'Preview of Permissions Scope'}
         </h2>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 text-center">
             <p className="text-3xl font-extrabold text-blue-700 dark:text-blue-400 mb-1">{previewStats.accessLevel}%</p>
@@ -68,14 +64,12 @@ export default function PermissionsMatrix({
               {isRtl ? 'مستوى الوصول' : 'Access Level'}
             </p>
           </div>
-
           <div className="p-5 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/30 text-center">
             <p className="text-3xl font-extrabold text-rose-600 dark:text-rose-400 mb-1">{previewStats.denied}</p>
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               {isRtl ? 'الأذونات المرفوضة' : 'Denied Permissions'}
             </p>
           </div>
-
           <div className="p-5 rounded-2xl bg-[#e9f6f3]/50 border border-[#d3eee7]/50 dark:bg-[#0f7a6c]/10 dark:border-[#0f7a6c]/20 text-center">
             <p className="text-3xl font-extrabold text-[#0f7a6c] dark:text-[#14a693] mb-1">{previewStats.granted}</p>
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -83,7 +77,6 @@ export default function PermissionsMatrix({
             </p>
           </div>
         </div>
-
         <div className="p-4 rounded-2xl bg-[#fffbeb] dark:bg-amber-950/20 border border-[#fef3c7] dark:border-amber-900/30 flex items-start gap-3">
           <span className="text-amber-600 text-lg sm:text-xl font-bold shrink-0">⚠️</span>
           <div className="text-start">
@@ -96,7 +89,6 @@ export default function PermissionsMatrix({
           </div>
         </div>
       </div>
-
       {isAdminAssignment ? (
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <button
@@ -111,7 +103,6 @@ export default function PermissionsMatrix({
           >
             {isRtl ? 'حفظ الصلاحية للمشرف' : 'Save Permission to Supervisor'}
           </button>
-
           {!!(adminSupervisor?.permissionId || adminSupervisor?.permission?.id || adminSupervisor?.permission) && (
             <button
               type="button"
@@ -121,7 +112,6 @@ export default function PermissionsMatrix({
               {isRtl ? 'حذف الصلاحيات' : 'Delete Permissions'}
             </button>
           )}
-
           <button
             type="button"
             onClick={onCancel}

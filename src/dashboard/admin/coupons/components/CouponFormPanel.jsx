@@ -19,27 +19,21 @@ const resolveStudentName = (name) =>
 function CouponFormPanel({ isOpen, onClose, onSave }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const [form, setForm] = useState(EMPTY_COUPON);
     const [saving, setSaving] = useState(false);
     const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-
     const wasOpenRef = useRef(false);
-
     useEffect(() => {
         if (isOpen && !wasOpenRef.current) {
             setForm(EMPTY_COUPON);
         }
         wasOpenRef.current = isOpen;
     }, [isOpen]);
-
     const setField = (key, value) =>
         setForm((prev) => ({ ...prev, [key]: value }));
-
     const handleRemoveStudent = () => {
         setField('students', []);
     };
-
     const handleAddStudents = (selectedStudents) => {
         if (selectedStudents.length === 0) return;
         const s = selectedStudents[0];
@@ -52,7 +46,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
         setField('students', [mappedStudent]);
         setIsStudentModalOpen(false);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -67,7 +60,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
         await onSave(payload);
         setSaving(false);
     };
-
     return (
         <>
             {createPortal(
@@ -103,7 +95,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                     <X size={20} />
                                 </button>
                             </div>
-
                             <form
                                 id="coupon-form"
                                 onSubmit={handleSubmit}
@@ -125,7 +116,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-850 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                     />
                                 </div>
-
                                 <div>
                                     <label
                                         htmlFor="coupon-discount"
@@ -152,7 +142,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div>
                                     <label
                                         htmlFor="coupon-expiry"
@@ -176,7 +165,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         />
                                     </div>
                                 </div>
-
                                 <div className="space-y-4 pt-2">
                                     <button
                                         type="button"
@@ -187,7 +175,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                             ? t('adminDashboard.coupons.addStudentBtn', 'إضافة طالب للكوبون')
                                             : t('adminDashboard.coupons.changeStudentBtn', 'تغيير الطالب')}
                                     </button>
-
                                     {form.students.length > 0 && (
                                         <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                                             <table className="w-full text-sm text-center">
@@ -245,7 +232,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                     )}
                                 </div>
                             </form>
-
                             <div className="px-8 py-5 border-t border-slate-100/60 dark:border-slate-800/60 flex gap-4 shrink-0 bg-white dark:bg-slate-900 justify-end">
                                 <button
                                     type="button"
@@ -270,7 +256,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                 </AnimatePresence>,
                 document.body
             )}
-
             <StudentSelectionModal
                 isOpen={isStudentModalOpen}
                 onClose={() => setIsStudentModalOpen(false)}

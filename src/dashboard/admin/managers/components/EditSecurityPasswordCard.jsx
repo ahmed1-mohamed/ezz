@@ -10,11 +10,9 @@ export default function EditSecurityPasswordCard({
     newPassword: '',
     confirmPassword: ''
   })
-
   const handleChange = (key, value) => {
     setPasswordState((prev) => ({ ...prev, [key]: value }))
   }
-
   const handleUpdate = (e) => {
     e.preventDefault()
     if (!passwordState.newPassword || !passwordState.confirmPassword) {
@@ -29,28 +27,22 @@ export default function EditSecurityPasswordCard({
       showErrorToast(isRtl ? 'يجب أن تكون كلمة المرور الجديدة 6 أحرف على الأقل!' : 'New password must be at least 6 characters!', isRtl)
       return
     }
-
     onUpdatePassword(passwordState.newPassword)
     setPasswordState({
       newPassword: '',
       confirmPassword: ''
     })
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.securityTitle', 'الأمان وكلمة المرور')}</span>
       </h3>
-
       <div className="space-y-4">
         <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
           {isRtl ? 'تغيير كلمة المرور' : 'Change Password'}
         </h4>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
           <div>
             <label htmlFor="newPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'كلمه المرور الجديدة' : 'New Password'}
@@ -64,7 +56,6 @@ export default function EditSecurityPasswordCard({
               dir="ltr"
             />
           </div>
-
           <div>
             <label htmlFor="confirmNewPasswordInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
@@ -78,9 +69,7 @@ export default function EditSecurityPasswordCard({
               dir="ltr"
             />
           </div>
-
         </div>
-
         <div className="flex justify-end pt-2">
           <button
             type="button"
@@ -90,9 +79,7 @@ export default function EditSecurityPasswordCard({
             {isRtl ? 'تحديث كلمة المرور' : 'Update Password'}
           </button>
         </div>
-
       </div>
-
     </div>
   )
 }

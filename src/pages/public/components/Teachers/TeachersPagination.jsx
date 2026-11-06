@@ -8,10 +8,8 @@ export default function TeachersPagination({
   t
 }) {
   if (totalPages <= 1) return null
-
   const ArrowNext = isRtl ? ChevronLeft : ChevronRight
   const ArrowPrev = isRtl ? ChevronRight : ChevronLeft
-
   return (
     <div className="flex justify-center items-center gap-2 pt-8">
       <button
@@ -22,7 +20,6 @@ export default function TeachersPagination({
       >
         <ArrowPrev className="w-5 h-5" />
       </button>
-
       <div className="flex gap-1">
         {Array.from({ length: totalPages }).map((_, i) => {
           const pageNum = i + 1
@@ -42,7 +39,6 @@ export default function TeachersPagination({
           )
         })}
       </div>
-
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}

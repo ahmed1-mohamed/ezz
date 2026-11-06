@@ -10,25 +10,21 @@ export function useExplanationLanguagesMutations() {
     const { i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
     const queryClient = useQueryClient();
-
     const [showForm, setShowForm] = useState(false);
     const [editingLanguageId, setEditingLanguageId] = useState(null);
     const [selectedLanguageId, setSelectedLanguageId] = useState('');
     const [langNameAr, setLangNameAr] = useState('');
     const [langNameEn, setLangNameEn] = useState('');
-
     const resetForm = useCallback(() => {
         setSelectedLanguageId('');
         setLangNameAr('');
         setLangNameEn('');
         setEditingLanguageId(null);
     }, []);
-
     const closeForm = useCallback(() => {
         setShowForm(false);
         resetForm();
     }, [resetForm]);
-
     const createMutation = useMutation({
         mutationFn: explanationLanguagesApi.createLanguage,
         onSuccess: () => {
@@ -40,7 +36,6 @@ export function useExplanationLanguagesMutations() {
             toast.error(isRtl ? 'حدث خطأ أثناء إضافة اللغة' : 'Failed to add language');
         },
     });
-
     const updateMutation = useMutation({
         mutationFn: ({ id, payload }) => explanationLanguagesApi.updateLanguage(id, payload),
         onSuccess: () => {
@@ -52,7 +47,6 @@ export function useExplanationLanguagesMutations() {
             toast.error(isRtl ? 'حدث خطأ أثناء تعديل اللغة' : 'Failed to update language');
         },
     });
-
     const deleteMutation = useMutation({
         mutationFn: (id) => explanationLanguagesApi.deleteLanguage(id),
         onSuccess: () => {
@@ -63,12 +57,10 @@ export function useExplanationLanguagesMutations() {
             toast.error(isRtl ? 'حدث خطأ أثناء حذف اللغة' : 'Failed to delete language');
         },
     });
-
     const handleOpenAddForm = useCallback(() => {
         resetForm();
         setShowForm(true);
     }, [resetForm]);
-
     const handleSave = useCallback(async (e) => {
         e.preventDefault();
         if (!langNameAr.trim() || !langNameEn.trim()) {
@@ -82,7 +74,6 @@ export function useExplanationLanguagesMutations() {
             await createMutation.mutateAsync(payload);
         }
     }, [langNameAr, langNameEn, editingLanguageId, isRtl, createMutation, updateMutation]);
-
     const handleEdit = useCallback(async (langItem) => {
         const id = langItem.id || langItem._id;
         try {
@@ -99,7 +90,6 @@ export function useExplanationLanguagesMutations() {
             toast.error(isRtl ? 'حدث خطأ أثناء تحميل بيانات اللغة' : 'Failed to load language details');
         }
     }, [isRtl]);
-
     const handleDelete = useCallback(async (langItem) => {
         const displayName = typeof langItem.name === 'object'
             ? (isRtl ? langItem.name.ar : langItem.name.en)
@@ -108,7 +98,6 @@ export function useExplanationLanguagesMutations() {
         if (!isConfirmed) return;
         await deleteMutation.mutateAsync(langItem.id || langItem._id);
     }, [isRtl, deleteMutation]);
-
     return {
         showForm,
         editingLanguageId,

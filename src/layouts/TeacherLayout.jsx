@@ -13,6 +13,7 @@ import {
   History,
   DollarSign,
   CreditCard,
+  Receipt,
   MessageSquare,
   User,
   BookOpen,
@@ -28,9 +29,7 @@ export default function TeacherLayout() {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language?.startsWith('ar') ?? true;
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const teacherName = (() => {
     if (!user) return t('teacher.teacherFallback', 'معلم');
     if (typeof user.name === 'object' && user.name !== null) {
@@ -38,9 +37,7 @@ export default function TeacherLayout() {
     }
     return user.name || t('teacher.teacherFallback', 'معلم');
   })();
-
   const teacherInitial = teacherName ? teacherName.trim().charAt(0) : 'م';
-
   const navItems = [
     {
       path: '/dashboard/teacher',
@@ -99,9 +96,14 @@ export default function TeacherLayout() {
       label: t('teacher.navCurricula', '\u0627\u0644\u0645\u0646\u0627\u0647\u062c \u0648\u0627\u0644\u0645\u0635\u0627\u062f\u0631'),
     },
     {
-      path: '/dashboard/teacher/withdrawals',
+      path: '/dashboard/teacher/payouts',
+      icon: Receipt,
+      label: t('teacher.navPayouts', 'إثباتات الدفع'),
+    },
+    {
+      path: '/dashboard/teacher/payment-methods',
       icon: CreditCard,
-      label: t('teacher.navWithdrawals', 'طلبات السحب'),
+      label: t('teacher.navPaymentMethods', 'طرق الدفع'),
     },
     {
       path: '/dashboard/teacher/complaints',
@@ -119,7 +121,6 @@ export default function TeacherLayout() {
       label: t('admin.mainWebsite', 'الموقع الرئيسي'),
     },
   ];
-
   return (
     <div
       className="flex min-h-screen bg-[#edf4f2] dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100"
@@ -131,7 +132,6 @@ export default function TeacherLayout() {
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-
       <aside
         className={`fixed lg:sticky top-0 h-screen z-50 w-64 bg-white dark:bg-slate-900 border-e border-slate-200/80 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
           isMobileMenuOpen
@@ -154,7 +154,6 @@ export default function TeacherLayout() {
                 <p className="text-xs text-slate-400 font-bold">{t('teacher.platformTitle', 'منصة المعلم')}</p>
               </div>
             </Link>
-
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="lg:hidden p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl"
@@ -162,7 +161,6 @@ export default function TeacherLayout() {
               <X size={18} />
             </button>
           </div>
-
           <nav className="flex-1 overflow-y-auto px-4 py-3 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800">
             {navItems.map((item) => (
               <NavLink
@@ -184,7 +182,6 @@ export default function TeacherLayout() {
               </NavLink>
             ))}
           </nav>
-
           <div className="p-4 space-y-3 shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
             <Link
               to="/dashboard/teacher/profile"
@@ -201,7 +198,6 @@ export default function TeacherLayout() {
                 {teacherName}
               </span>
             </Link>
-
             <button
               onClick={logout}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-[#ea3838] hover:bg-[#d62828] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
@@ -212,7 +208,6 @@ export default function TeacherLayout() {
           </div>
         </div>
       </aside>
-
       <div className="flex-1 flex flex-col min-w-0">
         <header className="lg:hidden sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-4 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -226,7 +221,6 @@ export default function TeacherLayout() {
               {t('appName', 'منارة العز')} · {t('teacher.platformTitle', 'منصة المعلم')}
             </span>
           </div>
-
           <div className="flex items-center gap-2">
             <Link
               to="/dashboard/teacher/profile"
@@ -240,7 +234,6 @@ export default function TeacherLayout() {
             </Link>
           </div>
         </header>
-
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
           <Suspense
             fallback={

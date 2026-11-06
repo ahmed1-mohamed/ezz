@@ -15,7 +15,6 @@ export default function Login() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
-
     const [formValues, setFormValues] = useState(initialState)
     const [errors, setErrors] = useState({})
     const [serverError, setServerError] = useState('')
@@ -23,13 +22,11 @@ export default function Login() {
     const [googleLoading, setGoogleLoading] = useState(false)
     const { login, loginWithGoogle, loading } = useAuth()
     const navigate = useNavigate()
-
     useEffect(() => {
         loadGoogleScript().catch((err) => {
             console.warn('Google script prefetch failed:', err);
         });
     }, [])
-
     useEffect(() => {
         if (toast.show) {
             const timer = setTimeout(() => {
@@ -38,7 +35,6 @@ export default function Login() {
             return () => clearTimeout(timer)
         }
     }, [toast.show])
-
     const validate = () => {
         const nextErrors = {}
         if (!formValues.email) nextErrors.email = t('login.emailRequired', 'البريد الإلكتروني مطلوب.')
@@ -46,7 +42,6 @@ export default function Login() {
         setErrors(nextErrors)
         return Object.keys(nextErrors).length === 0
     }
-
     const handleSubmit = async (event) => {
         event.preventDefault()
         setServerError('')
@@ -72,7 +67,6 @@ export default function Login() {
             }
         }
     }
-
     const handleGoogleLogin = async () => {
         setServerError('')
         setGoogleLoading(true)
@@ -105,7 +99,6 @@ export default function Login() {
             setGoogleLoading(false)
         }
     }
-
     return (
         <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
             <div className="absolute top-6 start-6 z-10">
@@ -114,11 +107,9 @@ export default function Login() {
                     <span>{t('login.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
             </div>
-
             <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
-
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
                 <div className="text-center mb-8">
                     <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
@@ -131,12 +122,10 @@ export default function Login() {
                         {t('login.academySubtitle', 'أكاديمية تعليمية روحية ومعاصرة')}
                     </p>
                 </div>
-
                 <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100 dark:border-slate-800">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-8 text-center sm:text-start">
                         {t('login.formTitle', 'تسجيل الدخول')}
                     </h2>
-
                     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
@@ -156,7 +145,6 @@ export default function Login() {
                             </div>
                             {errors.email && <p className="text-xs text-red-500 px-1">{errors.email}</p>}
                         </div>
-
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                 {t('login.passwordLabel', 'كلمة المرور')}
@@ -180,9 +168,7 @@ export default function Login() {
                                 {t('login.forgotPassword', 'نسيت كلمة المرور؟')}
                             </Link>
                         </div>
-
                         {serverError && <p className="text-sm text-center text-red-500 mt-2">{serverError}</p>}
-
                         <button
                             type="submit"
                             disabled={loading || googleLoading}
@@ -190,7 +176,6 @@ export default function Login() {
                         >
                             {loading ? t('login.signingIn', 'جاري الدخول...') : t('login.submitBtn', 'دخول للمنارة')}
                         </button>
-
                         <div className="relative py-6 flex items-center">
                             <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                             <span className="shrink-0 px-4 text-xs font-medium text-slate-400 dark:text-slate-500">
@@ -198,7 +183,6 @@ export default function Login() {
                             </span>
                             <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                         </div>
-
                         <button
                             type="button"
                             disabled={loading || googleLoading}
@@ -235,7 +219,6 @@ export default function Login() {
                             )}
                         </button>
                     </form>
-
                     <div className="mt-8 text-center flex items-center justify-center gap-1.5 text-sm">
                         <span className="text-slate-500 dark:text-slate-400 font-medium">{t('login.noAccount', 'لا تملك حسابًا؟')}</span>
                         <Link to="/register" className="font-bold text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 hover:underline transition-colors">
@@ -244,7 +227,6 @@ export default function Login() {
                     </div>
                 </div>
             </div>
-
             <AnimatePresence>
                 {toast.show && (
                     <motion.div

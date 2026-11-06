@@ -15,7 +15,6 @@ export default function Register() {
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
     const navigate = useNavigate()
     const { signup, loading } = useAuth()
-
     const [formValues, setFormValues] = useState({
         name: '',
         email: '',
@@ -23,20 +22,17 @@ export default function Register() {
         password: '',
         confirmPassword: ''
     })
-
     const [errors, setErrors] = useState({})
     const [serverError, setServerError] = useState('')
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
     const [countriesList, setCountriesList] = useState([])
     const [selectedCountry, setSelectedCountry] = useState(null)
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
     const [countrySearch, setCountrySearch] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(false)
     const dropdownRef = useRef(null)
-
     useEffect(() => {
         let isMounted = true
         const fetchCountriesData = async () => {
@@ -59,13 +55,11 @@ export default function Register() {
                 if (isMounted) setLoadingCountries(false)
             }
         }
-
         fetchCountriesData()
         return () => {
             isMounted = false
         }
     }, [i18n.language, isRtl])
-
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -79,7 +73,6 @@ export default function Register() {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [countryDropdownOpen])
-
     useEffect(() => {
         if (toast.show) {
             const timer = setTimeout(() => {
@@ -88,7 +81,6 @@ export default function Register() {
             return () => clearTimeout(timer)
         }
     }, [toast.show])
-
     const filteredCountries = useMemo(() => {
         const sorted = sortCountries(countriesList, isRtl)
         if (!countrySearch.trim()) return sorted
@@ -101,65 +93,52 @@ export default function Register() {
             (c.code && c.code.toLowerCase().includes(q))
         )
     }, [countriesList, countrySearch, isRtl])
-
     const validate = () => {
         const nextErrors = {}
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
         if (!formValues.name.trim()) {
             nextErrors.name = t('register.nameRequired', 'الاسم الكامل مطلوب.')
         } else if (formValues.name.trim().length < 2) {
             nextErrors.name = t('register.nameMinLength', 'الاسم يجب أن يحتوي على حرفين على الأقل.')
         }
-
         if (!formValues.email.trim()) {
             nextErrors.email = t('register.emailRequired', 'البريد الإلكتروني مطلوب.')
         } else if (!emailRegex.test(formValues.email.trim())) {
             nextErrors.email = t('register.validEmail', 'يرجى إدخال بريد إلكتروني صالح.')
         }
-
         if (!selectedCountry?.id && !selectedCountry?._id) {
             nextErrors.country = t('register.countryRequired', 'يرجى اختيار الدولة.')
         }
-
         const phoneDigits = formValues.phoneLocal.trim().replace(/\D/g, '')
         if (!phoneDigits) {
             nextErrors.phone = t('register.phoneRequired', 'رقم الهاتف مطلوب.')
         } else if (phoneDigits.length < 6) {
             nextErrors.phone = t('register.validPhone', 'يرجى إدخال رقم هاتف صالح.')
         }
-
         if (!formValues.password) {
             nextErrors.password = t('register.passwordRequired', 'كلمة المرور مطلوبة.')
         } else if (formValues.password.length < 6) {
             nextErrors.password = t('register.passwordMinLength', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.')
         }
-
         if (!formValues.confirmPassword) {
             nextErrors.confirmPassword = t('register.confirmPasswordRequired', 'يرجى تأكيد كلمة المرور.')
         } else if (formValues.password !== formValues.confirmPassword) {
             nextErrors.confirmPassword = t('register.passwordMismatch', 'كلمات المرور غير متطابقة.')
         }
-
         setErrors(nextErrors)
         return Object.keys(nextErrors).length === 0
     }
-
     const handleSubmit = async (event) => {
         event.preventDefault()
         setServerError('')
-
         if (!validate()) return
-
         let localDigits = formValues.phoneLocal.trim().replace(/\D/g, '')
         if (localDigits.startsWith('0')) {
             localDigits = localDigits.substring(1)
         }
         const countryCode = selectedCountry?.dialCode || selectedCountry?.phoneCode || ''
         const fullPhone = `${countryCode}${localDigits}`
-
         const countryId = selectedCountry?.id || selectedCountry?._id
-
         const signupPayload = {
             email: formValues.email.trim(),
             name: formValues.name.trim(),
@@ -168,7 +147,6 @@ export default function Register() {
             password: formValues.password,
             confirmPassword: formValues.confirmPassword
         }
-
         try {
             const user = await signup(signupPayload)
             setToast({
@@ -191,7 +169,6 @@ export default function Register() {
             }
         }
     }
-
     return (
         <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans py-6">
             <div className="absolute top-6 start-6 z-10">
@@ -203,11 +180,9 @@ export default function Register() {
                     <span>{t('register.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
             </div>
-
             <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
-
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 my-auto pt-14 pb-8">
                 <div className="text-center mb-6">
                     <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
@@ -220,7 +195,6 @@ export default function Register() {
                         {t('register.academySubtitle', 'أكاديمية تعليمية روحية ومعاصرة')}
                     </p>
                 </div>
-
                 <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2rem] shadow-sm p-6 sm:p-9 border border-slate-100 dark:border-slate-800">
                     <div className="mb-6 text-center sm:text-start">
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
@@ -230,7 +204,6 @@ export default function Register() {
                             {t('register.description', 'سجل الآن للوصول إلى لوحة التحكم المخصصة لك والبدء في رحلتك التعليمية.')}
                         </p>
                     </div>
-
                     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         <div className="space-y-1.5">
                             <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1 text-start">
@@ -253,7 +226,6 @@ export default function Register() {
                             </div>
                             {errors.name && <p className="text-xs text-red-500 px-1 text-start">{errors.name}</p>}
                         </div>
-
                         <div className="space-y-1.5">
                             <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1 text-start">
                                 {t('register.email', 'البريد الإلكتروني')}
@@ -276,7 +248,6 @@ export default function Register() {
                             </div>
                             {errors.email && <p className="text-xs text-red-500 px-1 text-start">{errors.email}</p>}
                         </div>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div className="space-y-1.5 text-start" ref={dropdownRef}>
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
@@ -299,7 +270,6 @@ export default function Register() {
                                         </div>
                                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${countryDropdownOpen ? 'rotate-180' : ''}`} />
                                     </button>
-
                                     <AnimatePresence>
                                         {countryDropdownOpen && (
                                             <motion.div
@@ -323,7 +293,6 @@ export default function Register() {
                                                         <Loader2 className="w-3.5 h-3.5 text-[#00695C] dark:text-emerald-400 animate-spin shrink-0" />
                                                     )}
                                                 </div>
-
                                                 <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50 dark:divide-slate-800">
                                                     {filteredCountries.length > 0 ? (
                                                         filteredCountries.map((c) => {
@@ -364,7 +333,6 @@ export default function Register() {
                                 </div>
                                 {errors.country && <p className="text-xs text-red-500 px-1">{errors.country}</p>}
                             </div>
-
                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.phone', 'رقم الهاتف')}
@@ -390,7 +358,6 @@ export default function Register() {
                                 {errors.phone && <p className="text-xs text-red-500 px-1">{errors.phone}</p>}
                             </div>
                         </div>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
@@ -421,7 +388,6 @@ export default function Register() {
                                 </div>
                                 {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                             </div>
-
                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.confirmPassword', 'تأكيد كلمة المرور')}
@@ -452,7 +418,6 @@ export default function Register() {
                                 {errors.confirmPassword && <p className="text-xs text-red-500 px-1">{errors.confirmPassword}</p>}
                             </div>
                         </div>
-
                         {serverError && (
                             <motion.div
                                 initial={{ opacity: 0, y: -8 }}
@@ -462,7 +427,6 @@ export default function Register() {
                                 {serverError}
                             </motion.div>
                         )}
-
                         <button
                             type="submit"
                             disabled={loading}
@@ -478,7 +442,6 @@ export default function Register() {
                             )}
                         </button>
                     </form>
-
                     <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-sm border-t border-slate-100 dark:border-slate-800 pt-5">
                         <span className="text-slate-500 dark:text-slate-400 font-medium">
                             {t('register.haveAccount', 'هل لديك حساب بالفعل؟')}
@@ -492,7 +455,6 @@ export default function Register() {
                     </div>
                 </div>
             </div>
-
             <AnimatePresence>
                 {toast.show && (
                     <motion.div

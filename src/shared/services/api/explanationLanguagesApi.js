@@ -9,7 +9,7 @@ export const explanationLanguagesApi = {
       try {
         const res2 = await api.get('/api/v1/explanation-languages/private', { params })
         return res2.data
-      } catch (err2) {
+      } catch {
         try {
           const res3 = await api.get('/api/v1/explanation-languages', { params })
           return res3.data

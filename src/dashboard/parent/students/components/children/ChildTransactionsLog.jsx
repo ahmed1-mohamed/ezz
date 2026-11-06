@@ -2,14 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   History,
-  Calendar,
   Clock,
   ArrowUpRight,
   ArrowDownLeft,
-  PlusCircle,
-  MinusCircle,
-  ShoppingCart,
-  CheckCircle2,
   AlertTriangle,
   ChevronDown,
   ChevronUp,

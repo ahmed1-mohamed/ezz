@@ -20,7 +20,6 @@ export default function ParentStatsRow({
           <Users size={28} strokeWidth={1.75} />
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800/80 shadow-soft flex items-center justify-between">
         <div className="text-start">
           <p className="text-xs sm:text-sm font-medium text-slate-400 dark:text-slate-500">

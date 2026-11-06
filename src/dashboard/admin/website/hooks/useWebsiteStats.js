@@ -4,7 +4,6 @@ import { landingApi } from '@/shared/services/api/landingApi';
 
 export default function useWebsiteStats(showNotification, enabled = true) {
   const { t } = useTranslation();
-  
   const [stats, setStats] = useState({
     classes: 320,
     teachers: 85,
@@ -13,14 +12,12 @@ export default function useWebsiteStats(showNotification, enabled = true) {
   const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
   const [prevEnabled, setPrevEnabled] = useState(enabled);
-
   if (prevEnabled !== enabled) {
     setPrevEnabled(enabled);
     if (!enabled) {
       setIsLoading(false);
     }
   }
-
   useEffect(() => {
     if (!enabled) return;
     let isMounted = true;
@@ -57,7 +54,6 @@ export default function useWebsiteStats(showNotification, enabled = true) {
       isMounted = false;
     };
   }, [enabled]);
-
   const handleStatChange = (field, val) => {
     const numericVal = parseInt(val, 10);
     setStats((prev) => ({
@@ -65,7 +61,6 @@ export default function useWebsiteStats(showNotification, enabled = true) {
       [field]: isNaN(numericVal) ? 0 : numericVal
     }));
   };
-
   const handleSaveStats = async () => {
     setIsSaving(true);
     try {
@@ -85,7 +80,6 @@ export default function useWebsiteStats(showNotification, enabled = true) {
       setIsSaving(false);
     }
   };
-
   const handleCancelStats = async () => {
     try {
       const res = await landingApi.fetchPrivateStatistics();
@@ -107,7 +101,6 @@ export default function useWebsiteStats(showNotification, enabled = true) {
     }
     showNotification(t('adminDashboard.website.statsReverted', 'تم إلغاء التغييرات الإحصائية'), 'info');
   };
-
   return {
     stats,
     isLoading,

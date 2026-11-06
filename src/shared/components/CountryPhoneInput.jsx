@@ -16,13 +16,11 @@ export default function CountryPhoneInput({
 }) {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language.startsWith('ar')
-
     const [rawCountries, setRawCountries] = useState([])
     const [countryCode, setCountryCode] = useState(defaultDialCode)
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [loadingCountries, setLoadingCountries] = useState(true)
-
     useEffect(() => {
         let isMounted = true
         fetchCountries({ sort: 'name' })
@@ -45,12 +43,10 @@ export default function CountryPhoneInput({
             .finally(() => {
                 if (isMounted) setLoadingCountries(false)
             })
-
         return () => {
             isMounted = false
         }
     }, [i18n.language, isRtl, defaultCountry, defaultDialCode])
-
     const countriesList = useMemo(() => {
         const sorted = sortCountries(rawCountries, isRtl)
         if (!searchTerm.trim()) return sorted
@@ -62,7 +58,6 @@ export default function CountryPhoneInput({
             (c.code && c.code.toLowerCase().includes(q))
         )
     }, [rawCountries, searchTerm, isRtl])
-
     const [prevValue, setPrevValue] = useState(value)
     if (prevValue !== value) {
         setPrevValue(value)
@@ -74,7 +69,6 @@ export default function CountryPhoneInput({
             }
         }
     }
-
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (!event.target.closest('.country-dropdown-container')) {
@@ -88,15 +82,12 @@ export default function CountryPhoneInput({
             document.removeEventListener('click', handleClickOutside)
         }
     }, [dropdownOpen])
-
     const handleInputChange = (e) => {
         const inputVal = e.target.value
         let finalValue = inputVal
-
         if (inputVal.trim().startsWith('+')) {
             const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
             const matched = sorted.find(c => c.dialCode && inputVal.trim().startsWith(c.dialCode))
-
             if (matched) {
                 setCountryCode(matched.dialCode)
                 const prefix = matched.dialCode
@@ -113,40 +104,32 @@ export default function CountryPhoneInput({
             }
             finalValue = `${countryCode} ${rest}`
         }
-
         if (onChange) {
             onChange(finalValue)
         }
     }
-
     const handleCountryChange = (dialCode) => {
         setCountryCode(dialCode)
-
         let currentPhone = value.trim()
         const sorted = [...rawCountries].sort((a, b) => (b.dialCode?.length || 0) - (a.dialCode?.length || 0))
         const existingCountry = sorted.find(c => c.dialCode && currentPhone.startsWith(c.dialCode))
-
         if (existingCountry) {
             currentPhone = currentPhone.substring(existingCountry.dialCode.length).trim()
         }
-
         if (currentPhone.startsWith('0')) {
             currentPhone = currentPhone.substring(1)
         }
-
         const newPhone = currentPhone ? `${dialCode} ${currentPhone}`.trim() : `${dialCode} `
         if (onChange) {
             onChange(newPhone)
         }
     }
-
     const selectedCountryObj = useMemo(() => {
         const found = rawCountries.find(c => c.dialCode === countryCode) ||
                       rawCountries.find(c => c.dialCode === defaultDialCode) ||
                       rawCountries.find(c => c.code && c.code.toUpperCase() === defaultCountry.toUpperCase()) ||
                       rawCountries.find(c => (c.name && c.name.includes('الإمارات')) || (c.nameEn && c.nameEn.toLowerCase().includes('emirates'))) ||
                       rawCountries[0]
-
         return found || {
             name: 'الإمارات العربية المتحدة',
             nameEn: 'United Arab Emirates',
@@ -155,7 +138,6 @@ export default function CountryPhoneInput({
             code: 'AE'
         }
     }, [rawCountries, countryCode, defaultDialCode, defaultCountry])
-
     return (
         <div className="space-y-2 text-start">
             <label className="block text-sm font-semibold text-slate-650 dark:text-slate-400 px-1">
@@ -174,7 +156,6 @@ export default function CountryPhoneInput({
                         </span>
                         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
-
                     <AnimatePresence>
                         {dropdownOpen && (
                             <motion.div
@@ -198,7 +179,6 @@ export default function CountryPhoneInput({
                                         <Loader2 className="w-3.5 h-3.5 text-[#00695C] animate-spin shrink-0" />
                                     )}
                                 </div>
-
                                 <div className="max-h-60 overflow-y-auto py-1 divide-y divide-slate-50 dark:divide-slate-800/40 animate-none">
                                     {countriesList.length > 0 ? (
                                         countriesList.map((country) => {

@@ -8,7 +8,6 @@ export default function TeacherDropdown({ value, onChange, teachers = [] }) {
   const [open, setOpen] = useState(false)
   const safeTeachers = Array.isArray(teachers) ? teachers : []
   const selected = safeTeachers.find((t) => (t.id || t._id) === value)
-
   const formatTeacherName = (item) => {
     if (!item) return ''
     const val = item.name ?? item.displayName
@@ -18,7 +17,6 @@ export default function TeacherDropdown({ value, onChange, teachers = [] }) {
     }
     return String(val || '')
   }
-
   return (
     <div className="relative">
       <button

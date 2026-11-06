@@ -15,10 +15,8 @@ export default function AddChildModal({
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isLinking, setIsLinking] = useState(false)
-
   useEffect(() => {
     if (!isOpen) return
-
     const fetchStudents = async () => {
       setIsLoading(true)
       try {
@@ -31,12 +29,9 @@ export default function AddChildModal({
         setIsLoading(false)
       }
     }
-
     fetchStudents()
   }, [isOpen])
-
   if (!isOpen) return null
-
   const filteredStudents = students.filter((s) => {
     const q = searchQuery.toLowerCase()
     const nameStr = typeof s.name === 'object'
@@ -50,7 +45,6 @@ export default function AddChildModal({
       phoneStr.includes(q)
     )
   })
-
   const handleSelectStudent = async (student) => {
     setIsLinking(true)
     try {
@@ -64,7 +58,6 @@ export default function AddChildModal({
       setIsLinking(false)
     }
   }
-
   return (
     <div
       className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
@@ -88,7 +81,6 @@ export default function AddChildModal({
             <X size={18} />
           </button>
         </div>
-
         <div className="p-6 space-y-4">
           <div className="relative">
             <Search
@@ -103,7 +95,6 @@ export default function AddChildModal({
               className={`w-full bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'} outline-none text-sm placeholder-slate-400 transition-all`}
             />
           </div>
-
           <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80 pr-1">
             {isLoading ? (
               <div className="flex items-center justify-center py-10 text-slate-400">
@@ -120,7 +111,6 @@ export default function AddChildModal({
                 const sName = typeof student.name === 'object'
                   ? (isRtl ? student.name?.ar || student.name?.en : student.name?.en || student.name?.ar)
                   : (student.name || '-')
-
                 return (
                   <div
                     key={sId}
@@ -134,7 +124,6 @@ export default function AddChildModal({
                         {student.email || student.phone || '-'}
                       </p>
                     </div>
-
                     <button
                       type="button"
                       disabled={isAlreadyLinked || isLinking}

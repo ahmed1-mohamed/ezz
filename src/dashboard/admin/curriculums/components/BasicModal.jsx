@@ -6,10 +6,8 @@ import { X } from 'lucide-react'
 export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit, editingItem, typeName }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const [nameAr, setNameAr] = useState('')
   const [nameEn, setNameEn] = useState('')
-
   const [prevKey, setPrevKey] = useState({ isOpen, editingItem })
   if (prevKey.isOpen !== isOpen || prevKey.editingItem !== editingItem) {
     setPrevKey({ isOpen, editingItem })
@@ -23,20 +21,16 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
       }
     }
   }
-
   if (!isOpen) return null
-
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!nameAr.trim() || !nameEn.trim()) {
       return
     }
-
     onSubmit({
       name: { ar: nameAr.trim(), en: nameEn.trim() }
     })
   }
-
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -46,7 +40,6 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
             <X size={20} />
           </button>
         </div>
-        
         <form onSubmit={handleSubmit} className="p-6 space-y-5 text-start">
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -61,7 +54,6 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
               placeholder={isRtl ? 'الاسم بالعربية...' : 'Arabic name...'}
             />
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? `اسم ال${typeName} (إنجليزي)` : `${typeName} Name (English)`} <span className="text-red-500">*</span>
@@ -75,7 +67,6 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
               placeholder={isRtl ? 'الاسم بالإنجليزية...' : 'English name...'}
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button type="button" onClick={onClose} disabled={isSaving} className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer">
               {isRtl ? 'إلغاء' : 'Cancel'}

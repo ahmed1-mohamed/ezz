@@ -13,7 +13,6 @@ export default function AdminAddStudent() {
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
   const [isSaving, setIsSaving] = useState(false)
-
   const handleSave = async (formData) => {
     setIsSaving(true)
     try {
@@ -29,7 +28,6 @@ export default function AdminAddStudent() {
       setIsSaving(false)
     }
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <AddEditStudentScreen

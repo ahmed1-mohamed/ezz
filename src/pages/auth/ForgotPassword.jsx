@@ -10,22 +10,18 @@ export default function ForgotPassword() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
-
     const [email, setEmail] = useState('')
     const [error, setError] = useState('')
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [resetToken, setResetToken] = useState('')
-
     const handleSubmit = async (event) => {
         event.preventDefault()
         setError('')
-
         if (!email) {
             setError(t('forgotPassword.emailRequired', 'البريد الإلكتروني مطلوب.'))
             return
         }
-
         try {
             setLoading(true)
             const res = await api.post('/api/v1/auth/forget-password', { email })
@@ -44,7 +40,6 @@ export default function ForgotPassword() {
             setLoading(false)
         }
     }
-
     return (
         <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
             <div className="absolute top-6 start-6 z-10">
@@ -53,11 +48,9 @@ export default function ForgotPassword() {
                     <span>{t('forgotPassword.backToLogin', 'العودة لتسجيل الدخول')}</span>
                 </Link>
             </div>
-
             <div className="absolute top-6 end-6 z-10">
                 <LanguageSwitcher />
             </div>
-
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
                 <div className="text-center mb-8">
                     <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
@@ -67,7 +60,6 @@ export default function ForgotPassword() {
                         {t('login.academyName', 'أكاديمية منارة العز')}
                     </h1>
                 </div>
-
                 <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100 dark:border-slate-800">
                     {!isSubmitted ? (
                         <>
@@ -77,7 +69,6 @@ export default function ForgotPassword() {
                             <p className="text-slate-500 dark:text-slate-400 mb-8 text-center sm:text-start text-sm leading-relaxed">
                                 {t('forgotPassword.subtitle', 'أدخل بريدك الإلكتروني أدناه وسنرسل لك رابطاً لإعادة تعيين كلمة المرور الخاصة بك.')}
                             </p>
-
                             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
@@ -97,7 +88,6 @@ export default function ForgotPassword() {
                                     </div>
                                     {error && <p className="text-xs text-red-500 px-1">{error}</p>}
                                 </div>
-
                                 <button
                                     type="submit"
                                     disabled={loading}

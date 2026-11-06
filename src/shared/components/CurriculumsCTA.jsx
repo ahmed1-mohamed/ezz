@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 export default function CurriculumsCTA() {
     const navigate = useNavigate()
     const { t } = useTranslation()
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -58,12 +58,10 @@ api.interceptors.request.use(
     if (!config.headers['Accept-Language']) {
       config.headers['Accept-Language'] = lang;
     }
-
     const token = getCookie('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     const apiKey = localStorage.getItem('x_api_key');
     if (apiKey) {
       config.headers['X-API-KEY'] = apiKey;
@@ -72,11 +70,9 @@ api.interceptors.request.use(
     if (secret) {
       config.headers['Secret'] = secret;
     }
-
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
-
     if (config.params) {
       delete config.params.forceRefresh;
       delete config.params.skipCache;
@@ -85,7 +81,6 @@ api.interceptors.request.use(
       delete config.data.forceRefresh;
       delete config.data.skipCache;
     }
-
     return config;
   },
   (error) => {
@@ -100,14 +95,12 @@ api.interceptors.response.use(
       response.headers?.['X-New-Access-Token'] ||
       response.headers?.['x-access-token'] ||
       response.headers?.['X-Access-Token'];
-
     const exposeHeader =
       response.headers?.['access-control-expose-headers'] ||
       response.headers?.['Access-Control-Expose-Headers'];
     if (!newToken && exposeHeader && typeof exposeHeader === 'string' && exposeHeader.length > 20 && !exposeHeader.includes(',')) {
       newToken = exposeHeader.trim();
     }
-
     if (newToken) {
       setCookie('access_token', newToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
@@ -123,13 +116,10 @@ api.interceptors.response.use(
       setCookie('access_token', errToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${errToken}`;
     }
-
     const originalRequest = error.config;
-
     if (error.response?.status === 401) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;
-
         const refreshToken = getCookie('refresh_token');
         if (refreshToken) {
           try {
@@ -137,12 +127,10 @@ api.interceptors.response.use(
             const headers = {
               'Authorization': `Bearer ${refreshToken}`,
             };
-
             const apiKey = localStorage.getItem('x_api_key');
             if (apiKey) headers['X-API-KEY'] = apiKey;
             const secret = localStorage.getItem('secret');
             if (secret) headers['Secret'] = secret;
-
             const res = await axios.post(
               `${api.defaults.baseURL}/api/v1/auth/refresh-token`,
               {},
@@ -151,10 +139,8 @@ api.interceptors.response.use(
                 headers
               }
             );
-
             const newAccess = res.data?.token || res.data?.accessToken || res.data?.access_token || res.data?.data?.token;
             const newRefresh = res.data?.refresh_token || res.data?.refreshToken || res.data?.data?.refresh_token;
-
             if (newAccess) {
               setCookie('access_token', newAccess);
               if (newRefresh) {
@@ -176,7 +162,6 @@ api.interceptors.response.use(
           }
         }
       }
-
       clearApiCache();
       deleteCookie('access_token');
       deleteCookie('refresh_token');
@@ -186,11 +171,9 @@ api.interceptors.response.use(
       }
       return Promise.reject(error);
     }
-
     const status = error.response?.status;
     const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
     const isServerFailure = !error.response || (status && Number(status) >= 500);
-
     if (isServerFailure) {
       error._isServerError = true;
       error._suppressToast = true;
@@ -212,7 +195,6 @@ api.interceptors.response.use(
         : 'An unexpected error occurred. Please try again later.';
       return Promise.reject(error);
     }
-
     if (status >= 400 && status < 500) {
       if (typeof window !== 'undefined') {
         window.__lastApiError = { status: Number(status), time: Date.now() };
@@ -274,14 +256,11 @@ api.interceptors.response.use(
       }
       return Promise.reject(error);
     }
-
-    // Sanitize any remaining technical message on the error object
     if (error.message && /status\s*code|internal\s*server|bad\s*gateway|network\s*error/i.test(error.message)) {
       error.message = isArabic
         ? 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً'
         : 'An unexpected error occurred. Please try again later.';
     }
-
     return Promise.reject(error);
   }
 );
@@ -300,28 +279,22 @@ api.get = function (url, config = {}) {
     config.params?.skipCache ||
     config.params?.forceRefresh
   );
-
   let cleanConfig = config;
   if (config.params && (config.params.forceRefresh !== undefined || config.params.skipCache !== undefined)) {
-    const { forceRefresh, skipCache, ...restParams } = config.params;
+    const { forceRefresh: _forceRefresh, skipCache: _skipCache, ...restParams } = config.params;
     cleanConfig = { ...config, params: restParams };
   }
-
   if (shouldSkipCache) {
     return originalGet(url, cleanConfig);
   }
-
   const key = generateRequestKey({ ...cleanConfig, url, method: 'get' });
-
   const cached = shortTermCache.get(key);
   if (cached && Date.now() < cached.expiresAt) {
     return Promise.resolve(cloneResponse(cached.response));
   }
-
   if (inFlightRequests.has(key)) {
     return inFlightRequests.get(key).then((res) => cloneResponse(res));
   }
-
   const promise = originalGet(url, cleanConfig)
     .then((res) => {
       shortTermCache.set(key, {
@@ -333,7 +306,6 @@ api.get = function (url, config = {}) {
     .finally(() => {
       inFlightRequests.delete(key);
     });
-
   inFlightRequests.set(key, promise);
   return promise.then((res) => cloneResponse(res));
 };
@@ -345,45 +317,35 @@ api.request = function (urlOrConfig, maybeConfig) {
   } else {
     config = { ...(urlOrConfig || {}) };
   }
-
   const method = (config.method || 'get').toLowerCase();
-
   if (method !== 'get') {
     shortTermCache.clear();
     return originalRequest(urlOrConfig, maybeConfig);
   }
-
   const shouldSkipCache = Boolean(
     config.skipCache ||
     config.forceRefresh ||
     config.params?.skipCache ||
     config.params?.forceRefresh
   );
-
   let cleanConfig = config;
   if (config.params && (config.params.forceRefresh !== undefined || config.params.skipCache !== undefined)) {
-    const { forceRefresh, skipCache, ...restParams } = config.params;
+    const { forceRefresh: _forceRefresh, skipCache: _skipCache, ...restParams } = config.params;
     cleanConfig = { ...config, params: restParams };
   }
-
   const targetUrlOrConfig = typeof urlOrConfig === 'string' ? urlOrConfig : cleanConfig;
   const targetMaybeConfig = typeof urlOrConfig === 'string' ? cleanConfig : maybeConfig;
-
   if (shouldSkipCache) {
     return originalRequest(targetUrlOrConfig, targetMaybeConfig);
   }
-
   const key = generateRequestKey(cleanConfig);
-
   const cached = shortTermCache.get(key);
   if (cached && Date.now() < cached.expiresAt) {
     return Promise.resolve(cloneResponse(cached.response));
   }
-
   if (inFlightRequests.has(key)) {
     return inFlightRequests.get(key).then((res) => cloneResponse(res));
   }
-
   const promise = originalRequest(targetUrlOrConfig, targetMaybeConfig)
     .then((res) => {
       shortTermCache.set(key, {
@@ -395,7 +357,6 @@ api.request = function (urlOrConfig, maybeConfig) {
     .finally(() => {
       inFlightRequests.delete(key);
     });
-
   inFlightRequests.set(key, promise);
   return promise.then((res) => cloneResponse(res));
 };

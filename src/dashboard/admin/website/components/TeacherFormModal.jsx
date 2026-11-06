@@ -31,13 +31,10 @@ export default function TeacherFormModal({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState({});
   const [showTeacherSearch, setShowTeacherSearch] = useState(false);
-
   const isAdd = !currentTeacher?.id;
-
   const originalTeacherName = useMemo(() => {
     if (!currentTeacher?.teacherId) return { ar: currentTeacher?.name || '', en: currentTeacher?.nameEn || '' };
     const sysT = systemTeachers.find(tItem => {
@@ -51,44 +48,33 @@ export default function TeacherFormModal({
     }
     return { ar: currentTeacher?.name || '', en: currentTeacher?.nameEn || '' };
   }, [currentTeacher, systemTeachers]);
-
   if (!isOpen || !currentTeacher) return null;
-
   const filteredTeachers = systemTeachers.filter((sysT) => {
     const sysIds = collectAllTeacherIds(sysT);
     const sysEmail = (sysT.email || sysT.user?.email || '').trim().toLowerCase();
     const sysName = normalizeName(sysT.name);
-
     const isMatchedInElite = eliteTeachers.some(et => {
       if (!isAdd && (et.id === currentTeacher.id || et._id === currentTeacher.id)) {
         return false;
       }
-
       const etIds = collectAllTeacherIds(et);
       for (const id of sysIds) {
         if (etIds.has(id)) return true;
       }
-
       const etEmail = (et.email || et.teacher?.email || '').trim().toLowerCase();
       if (sysEmail && etEmail && sysEmail === etEmail) return true;
-
       const etName = normalizeName(et.name || et.nameEn || et.teacher?.name);
       if (sysName && etName && sysName === etName) return true;
-
       return false;
     });
-
     if (isMatchedInElite) return false;
-
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
-
     const nameStr = typeof sysT.name === 'object'
       ? ((sysT.name?.ar || '') + ' ' + (sysT.name?.en || '')).toLowerCase()
       : (sysT.name || '').toLowerCase();
     return nameStr.includes(query) || sysEmail.includes(query);
   });
-
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const result = teacherSchema.safeParse(currentTeacher);
@@ -103,7 +89,6 @@ export default function TeacherFormModal({
     setErrors({});
     onSubmit(e);
   };
-
   return createPortal(
     <AnimatePresence>
       <div key="teacher-modal-backdrop" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
@@ -116,7 +101,6 @@ export default function TeacherFormModal({
           className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
         >
           <div className="h-1.5 w-full shrink-0 bg-gradient-to-r from-[#0f7a6c] via-[#14b8a6] to-[#0f7a6c]" />
-
           <div className="p-5 sm:p-8 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -139,7 +123,6 @@ export default function TeacherFormModal({
                 <X size={18} />
               </button>
             </div>
-
             <form onSubmit={handleFormSubmit} className="space-y-6 text-start">
                {currentTeacher.teacherId ? (
                 <div className="p-4 bg-[#e9f6f3]/60 dark:bg-[#0f7a6c]/10 border border-[#0f7a6c]/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -184,7 +167,6 @@ export default function TeacherFormModal({
                       </h5>
                     </div>
                   </div>
-
                   {isAdd && (
                     <button
                       type="button"
@@ -198,7 +180,6 @@ export default function TeacherFormModal({
                   )}
                 </div>
               ) : null}
-
                {isAdd && (showTeacherSearch || !currentTeacher.teacherId) && (
                 <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4 animate-fadeIn">
                   <div className="relative">
@@ -213,12 +194,10 @@ export default function TeacherFormModal({
                       className="w-full ps-11 pe-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] outline-none text-slate-800 dark:text-slate-200 text-sm transition-all"
                     />
                   </div>
-
                   <div>
                     <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2.5">
                       {t('adminDashboard.website.availableTeachers', 'المعلمون المتاحون')} ({filteredTeachers.length})
                     </h4>
-
                     <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                       {filteredTeachers.length === 0 ? (
                         <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs font-medium">
@@ -233,7 +212,6 @@ export default function TeacherFormModal({
                             : tItem.name;
                           const initial = teacherNameStr?.trim()?.charAt(0) || 'م';
                           const teacherPhoto = tItem.image || tItem.avatar || tItem.user?.photoUrl || '';
-
                           return (
                             <div
                               key={teacherIdVal}
@@ -270,7 +248,6 @@ export default function TeacherFormModal({
                                   {initial}
                                 </div>
                               )}
-
                               <div className="flex-1 min-w-0">
                                 <h5 className="font-bold text-slate-800 dark:text-slate-100 text-xs">
                                   {teacherNameStr}
@@ -279,7 +256,6 @@ export default function TeacherFormModal({
                                   {tItem.email || tItem.user?.email || ''}
                                 </p>
                               </div>
-
                               {isSelected && (
                                 <div className="w-4 h-4 rounded-full bg-[#0f7a6c] flex items-center justify-center shrink-0">
                                   <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -295,9 +271,7 @@ export default function TeacherFormModal({
                   </div>
                 </div>
               )}
-
               {errors.teacherId && <p className="text-xs text-red-500 font-medium text-center">{errors.teacherId}</p>}
-
               <div className="flex flex-col sm:flex-row justify-start gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="submit"

@@ -21,16 +21,12 @@ export default function AdminCurriculumDetails() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
-
   const [isEditingCurriculum, setIsEditingCurriculum] = useState(false)
   const [isUpdatingCurriculum, setIsUpdatingCurriculum] = useState(false)
-
   const [expandedLevels, setExpandedLevels] = useState({})
   const [expandedUnits, setExpandedUnits] = useState({})
-
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, parentId: null, editingItem: null })
   const [fileModalConfig, setFileModalConfig] = useState({ isOpen: false, levelId: null, unitId: null, editingFile: null })
-
   const { data: responseData, isLoading } = useQuery({
     queryKey: ['admin-curriculum-details', id],
     queryFn: async () => {
@@ -44,22 +40,16 @@ export default function AdminCurriculumDetails() {
     enabled: Boolean(id),
     staleTime: 60 * 1000,
   })
-
   const curriculum = responseData?.data || responseData
-
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-curriculum-details', id] })
-
   const [localVisibility, setLocalVisibility] = useState(null)
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false)
-
   const showOnWebsite = localVisibility !== null ? localVisibility : Boolean(curriculum?.showOnWebsite)
-
   const [prevShowOnWebsite, setPrevShowOnWebsite] = useState(curriculum?.showOnWebsite)
   if (prevShowOnWebsite !== curriculum?.showOnWebsite) {
     setPrevShowOnWebsite(curriculum?.showOnWebsite)
     setLocalVisibility(null)
   }
-
   const handleToggleWebsiteVisibility = async () => {
     if (isUpdatingVisibility || !id) return
     const newValue = !showOnWebsite
@@ -95,7 +85,6 @@ export default function AdminCurriculumDetails() {
       setIsUpdatingVisibility(false)
     }
   }
-
   const actionMutation = useMutation({
     mutationFn: async ({ action, payload, ids }) => {
       switch (action) {
@@ -122,15 +111,12 @@ export default function AdminCurriculumDetails() {
       toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء العملية' : 'Operation failed'))
     },
   })
-
   const toggleLevel = (levelId) => setExpandedLevels((prev) => ({ ...prev, [levelId]: !prev[levelId] }))
   const toggleUnit = (unitId) => setExpandedUnits((prev) => ({ ...prev, [unitId]: !prev[unitId] }))
-
   const closeModal = () => {
     setModalConfig({ isOpen: false, type: null, parentId: null, editingItem: null })
     setFileModalConfig({ isOpen: false, levelId: null, unitId: null, editingFile: null })
   }
-
   const handleBasicSubmit = (payload) => {
     const { type, parentId, editingItem } = modalConfig
     if (type === 'level') {
@@ -145,8 +131,7 @@ export default function AdminCurriculumDetails() {
       else actionMutation.mutate({ action: 'addUnit', ids: { levelId: getCleanId(parentId) }, payload })
     }
   }
-
-  const handleFileSubmit = (formData, metadata) => {
+  const handleFileSubmit = (formData) => {
     const lId = getCleanId(fileModalConfig.levelId)
     const uId = getCleanId(fileModalConfig.unitId)
     if (!lId) {
@@ -168,7 +153,6 @@ export default function AdminCurriculumDetails() {
     }
     actionMutation.mutate({ action: 'addFile', ids: { levelId: lId, unitId: uId }, payload: formData })
   }
-
   const handleToggleFileVisibility = async (file, field, levelId, unitId) => {
     const lId = getCleanId(levelId)
     const uId = getCleanId(unitId)
@@ -192,14 +176,11 @@ export default function AdminCurriculumDetails() {
       toast.error(errMsg || (isRtl ? 'حدث خطأ أثناء تعديل إمكانية الرؤية' : 'Failed to update visibility'))
     }
   }
-
   const handleDelete = async (type, item, ids = {}) => {
     const itemName = typeof item?.name === 'object' ? (isRtl ? item.name?.ar : item.name?.en) : (typeof item === 'string' ? item : item?.name || '')
     const isConfirmed = await showDeleteConfirm(isRtl, itemName)
     if (!isConfirmed) return
-
     const itemId = getCleanId(item)
-
     if (type === 'level') {
       if (!itemId) {
         toast.error(isRtl ? 'معرّف المستوى غير صالح أو مفقود' : 'Invalid level ID')
@@ -219,7 +200,6 @@ export default function AdminCurriculumDetails() {
       actionMutation.mutate({ action: 'deleteFile', ids: { levelId: parentLId, unitId: parentUId, fileId: itemId } })
     }
   }
-
   const handlePreviewFile = (fullUrl) => {
     if (!fullUrl) {
       toast.error(isRtl ? 'رابط الملف غير متاح' : 'File URL unavailable')
@@ -227,25 +207,20 @@ export default function AdminCurriculumDetails() {
     }
     window.open(fullUrl, '_blank', 'noopener,noreferrer')
   }
-
   const handleDownloadFile = async (fullUrl, fileName, isLink = false) => {
     if (!fullUrl) {
       toast.error(isRtl ? 'رابط الملف غير متاح' : 'File URL unavailable')
       return
     }
-
     if (isLink || (!fullUrl.includes('.') && fullUrl.startsWith('http'))) {
       window.open(fullUrl, '_blank', 'noopener,noreferrer')
       return
     }
-
     const toastId = toast.loading(isRtl ? 'جاري تحميل الملف...' : 'Downloading file...')
-
     try {
       const response = await axios.get(fullUrl, { responseType: 'blob' })
       const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' })
       const blobUrl = window.URL.createObjectURL(blob)
-
       const link = document.createElement('a')
       link.href = blobUrl
       const fallbackName = fullUrl.split('/').pop() || 'download'
@@ -256,11 +231,9 @@ export default function AdminCurriculumDetails() {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-
       setTimeout(() => {
         window.URL.revokeObjectURL(blobUrl)
       }, 1000)
-
       toast.success(isRtl ? 'تم تحفيظ الملف على جهازك بنجاح' : 'File saved to your PC successfully', { id: toastId })
     } catch (err) {
       console.warn('Axios blob fetch failed, falling back to direct link download', err)
@@ -275,7 +248,6 @@ export default function AdminCurriculumDetails() {
       document.body.removeChild(a)
     }
   }
-
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -283,7 +255,6 @@ export default function AdminCurriculumDetails() {
       </div>
     )
   }
-
   if (!curriculum) {
     return (
       <div className="p-8 text-center text-slate-500">
@@ -291,20 +262,17 @@ export default function AdminCurriculumDetails() {
       </div>
     )
   }
-
   const curriculumName =
     typeof curriculum.name === 'object'
       ? (isRtl ? curriculum.name?.ar : curriculum.name?.en) || curriculum.name?.ar
       : curriculum.name
   const levels = curriculum.levels || []
-
   const totalLevels = levels.length
   const totalUnits = levels.reduce((acc, lvl) => acc + (Array.isArray(lvl.units) ? lvl.units.length : 0), 0)
   const totalFiles = levels.reduce((acc, lvl) => {
     if (!Array.isArray(lvl.units)) return acc
     return acc + lvl.units.reduce((uAcc, unit) => uAcc + (Array.isArray(unit.files) ? unit.files.length : 0), 0)
   }, 0)
-
   const handleSaveCurriculum = async (payload) => {
     try {
       setIsUpdatingCurriculum(true)
@@ -321,7 +289,6 @@ export default function AdminCurriculumDetails() {
       setIsUpdatingCurriculum(false)
     }
   }
-
   if (isEditingCurriculum) {
     return (
       <AddEditCurriculumScreen
@@ -333,7 +300,6 @@ export default function AdminCurriculumDetails() {
       />
     )
   }
-
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 animate-fadeIn pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
       <CurriculumDetailsHeader
@@ -346,7 +312,6 @@ export default function AdminCurriculumDetails() {
         onBack={() => navigate('/dashboard/admin/curriculums')}
         isRtl={isRtl}
       />
-
       <CurriculumOverviewCard
         curriculum={curriculum}
         curriculumName={curriculumName}
@@ -355,7 +320,6 @@ export default function AdminCurriculumDetails() {
         totalFiles={totalFiles}
         isRtl={isRtl}
       />
-
       <CurriculumLevelsSection
         levels={levels}
         curriculumName={curriculumName}
@@ -383,7 +347,6 @@ export default function AdminCurriculumDetails() {
         }
         isRtl={isRtl}
       />
-
       <BasicModal
         isOpen={modalConfig.isOpen}
         onClose={closeModal}
@@ -401,7 +364,6 @@ export default function AdminCurriculumDetails() {
             : 'Add New'
         }
       />
-
       <FileModal
         isOpen={fileModalConfig.isOpen}
         onClose={closeModal}

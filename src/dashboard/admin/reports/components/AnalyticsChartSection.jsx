@@ -1,15 +1,11 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   BarChart3,
   TrendingUp,
-  Calendar,
   Activity,
-  Layers,
-  Users,
   Video,
   ArrowUpRight,
-  ArrowDownRight,
   Loader2,
   RotateCcw,
 } from 'lucide-react'
@@ -19,21 +15,15 @@ import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
 export default function AnalyticsChartSection() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
-
-  // Period options: 'daily' (يومي), 'weekly' (أسبوعي), 'monthly' (شهري), 'yearly' (سنوي)
   const [period, setPeriod] = useState('monthly')
-  const [activeMetric, setActiveMetric] = useState('all') // 'all' | 'sessions' | 'revenue' | 'students'
+  const [activeMetric, setActiveMetric] = useState('all') 
   const [hoveredIndex, setHoveredIndex] = useState(null)
-
   const { data: analyticsRes, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['admin-dashboard-analytics', period],
     queryFn: () => dashboardApi.fetchAnalytics({ period }),
     staleTime: 2 * 60 * 1000,
   })
-
   const rawData = analyticsRes?.data ?? null
-
-  // Normalize points from response
   const points = useMemo(() => {
     if (!rawData) return []
     let list = []
@@ -56,7 +46,6 @@ export default function AnalyticsChartSection() {
         value: typeof vals[i] === 'number' ? vals[i] : (vals[i]?.value || 0),
       }))
     }
-
     if (list.length > 0) {
       return list.map((item, idx) => {
         const label = item.label || item.date || item.day || item.month || item.name || `P${idx + 1}`
@@ -74,8 +63,6 @@ export default function AnalyticsChartSection() {
         }
       })
     }
-
-    // Default informative preview points if API returns empty
     if (period === 'daily') {
       return [
         { label: '08:00', value: 8, sessions: 8, revenue: 240, students: 6 },
@@ -107,7 +94,6 @@ export default function AnalyticsChartSection() {
         { label: '2026', value: 1450, sessions: 1450, revenue: 43500, students: 1210 },
       ]
     }
-    // monthly default
     return [
       { label: 'يناير', value: 65, sessions: 65, revenue: 1950, students: 45 },
       { label: 'فبراير', value: 78, sessions: 78, revenue: 2340, students: 54 },
@@ -121,31 +107,25 @@ export default function AnalyticsChartSection() {
       { label: 'أكتوبر', value: 160, sessions: 160, revenue: 4800, students: 128 },
     ]
   }, [rawData, period])
-
   const maxVal = useMemo(() => {
     if (points.length === 0) return 100
     const vals = points.map((p) => p.value)
     return Math.max(...vals, 10)
   }, [points])
-
   const totalSessionsSum = useMemo(() => {
     return points.reduce((acc, p) => acc + (p.sessions || 0), 0)
   }, [points])
-
   const totalRevenueSum = useMemo(() => {
     return points.reduce((acc, p) => acc + (p.revenue || 0), 0)
   }, [points])
-
   const periods = [
     { key: 'daily', labelAr: 'يومي', labelEn: 'Daily' },
     { key: 'weekly', labelAr: 'أسبوعي', labelEn: 'Weekly' },
     { key: 'monthly', labelAr: 'شهري', labelEn: 'Monthly' },
     { key: 'yearly', labelAr: 'سنوي', labelEn: 'Yearly' },
   ]
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Header and Period Filter Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 mb-2">
@@ -159,8 +139,6 @@ export default function AnalyticsChartSection() {
             متابعة دقيقة لمسار الحصص والإيرادات والنمو حسب الفترة المختارة
           </p>
         </div>
-
-        {/* Period Selector Tabs (يومي - اسبوعي - شهري - سنوي) */}
         <div className="flex items-center gap-2">
           <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
             {periods.map((p) => (
@@ -178,7 +156,6 @@ export default function AnalyticsChartSection() {
               </button>
             ))}
           </div>
-
           <button
             type="button"
             onClick={() => refetch()}
@@ -190,8 +167,6 @@ export default function AnalyticsChartSection() {
           </button>
         </div>
       </div>
-
-      {/* Mini Stats Grid for the Selected Period */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div>
@@ -204,7 +179,6 @@ export default function AnalyticsChartSection() {
             <Video size={18} />
           </div>
         </div>
-
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div>
             <span className="text-[11px] font-bold text-slate-400 block">تقدير الإيراد بالفترة</span>
@@ -216,7 +190,6 @@ export default function AnalyticsChartSection() {
             <TrendingUp size={18} />
           </div>
         </div>
-
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div>
             <span className="text-[11px] font-bold text-slate-400 block">معدل النمو والنشاط</span>
@@ -230,20 +203,16 @@ export default function AnalyticsChartSection() {
           </div>
         </div>
       </div>
-
-      {/* Interactive Responsive SVG Area & Bar Chart */}
       <div className="relative pt-6 pb-2">
         {isLoading && (
           <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xs flex items-center justify-center z-20">
             <Loader2 size={24} className="animate-spin text-[#0f7a6c]" />
           </div>
         )}
-
         <div className="h-64 sm:h-72 w-full flex items-end gap-2 sm:gap-4 px-2 pt-6 pb-6 border-b border-slate-100 dark:border-slate-800">
           {points.map((p, idx) => {
             const heightPct = Math.min(100, Math.max(12, (p.value / maxVal) * 100))
             const isHovered = hoveredIndex === idx
-
             return (
               <div
                 key={idx}
@@ -251,15 +220,12 @@ export default function AnalyticsChartSection() {
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                {/* Floating Tooltip */}
                 {isHovered && (
                   <div className="absolute -top-12 z-30 bg-slate-900 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl whitespace-nowrap border border-slate-700 pointer-events-none animate-in fade-in zoom-in-95">
                     <div>{p.label}</div>
                     <div className="text-emerald-400 font-extrabold">{p.value} حصة ({p.revenue ? `${p.revenue}$` : ''})</div>
                   </div>
                 )}
-
-                {/* Animated Vertical Bar */}
                 <div className="w-full max-w-[42px] relative flex flex-col justify-end items-center h-full">
                   <div
                     className={`w-full rounded-2xl transition-all duration-500 relative overflow-hidden ${
@@ -272,8 +238,6 @@ export default function AnalyticsChartSection() {
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
-
-                {/* Bottom X-Axis Label */}
                 <span className="text-[11px] font-bold text-slate-400 group-hover:text-[#0f7a6c] dark:group-hover:text-emerald-400 mt-2 truncate max-w-full transition-colors">
                   {p.label}
                 </span>

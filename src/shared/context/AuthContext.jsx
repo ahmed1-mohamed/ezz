@@ -42,7 +42,6 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => readStoredUser())
     const [loading, setLoading] = useState(false)
     const [theme, setTheme] = useLocalStorage('theme', 'light')
-
     const refreshProfile = useCallback(async (baseUser, cookieDays = 7) => {
         try {
             const res = await api.get('/api/v1/profile');
@@ -70,9 +69,7 @@ export function AuthProvider({ children }) {
         }
         return baseUser;
     }, []);
-
     const refreshedTokenRef = useRef(null);
-
     useEffect(() => {
         const token = getCookie('access_token');
         if (token && user && refreshedTokenRef.current !== token) {
@@ -80,7 +77,6 @@ export function AuthProvider({ children }) {
             Promise.resolve().then(() => refreshProfile(user));
         }
     }, [refreshProfile, user]);
-
     const login = useCallback(async (email, password, remember) => {
         setLoading(true)
         try {
@@ -126,7 +122,6 @@ export function AuthProvider({ children }) {
             throw err
         }
     }, [refreshProfile])
-
     const signup = useCallback(async (signupData) => {
         setLoading(true)
         try {
@@ -169,7 +164,6 @@ export function AuthProvider({ children }) {
             throw err
         }
     }, [refreshProfile])
-
     const loginWithGoogle = useCallback(async (googlePayload) => {
         setLoading(true);
         try {
@@ -212,7 +206,6 @@ export function AuthProvider({ children }) {
             throw new Error(safeMsg, { cause: error });
         }
     }, [refreshProfile]);
-
     const linkGoogle = useCallback(async (googlePayload) => {
         const googleId = typeof googlePayload === 'string'
             ? googlePayload
@@ -226,7 +219,6 @@ export function AuthProvider({ children }) {
         }
         return res;
     }, [user, refreshProfile]);
-
     const unlinkGoogle = useCallback(async () => {
         const res = await authApi.unlinkGoogle();
         if (user) {
@@ -237,7 +229,6 @@ export function AuthProvider({ children }) {
         }
         return res;
     }, [user, refreshProfile]);
-
     const logout = useCallback(async (options = {}) => {
         const redirectPath = (typeof options === 'string')
             ? options
@@ -266,7 +257,6 @@ export function AuthProvider({ children }) {
             }
         }
     }, [])
-
     const updateUser = useCallback((newData) => {
         setUser((prev) => {
             if (!prev) return prev;
@@ -275,21 +265,17 @@ export function AuthProvider({ children }) {
             return updated;
         });
     }, []);
-
     const toggleTheme = useCallback(() => {
         setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
     }, [setTheme])
-
     const userValue = useMemo(
         () => ({ user, loading }),
         [user, loading],
     )
-
     const actionsValue = useMemo(
         () => ({ login, signup, loginWithGoogle, linkGoogle, unlinkGoogle, logout, updateUser, theme, toggleTheme, setTheme }),
         [login, signup, loginWithGoogle, linkGoogle, unlinkGoogle, logout, updateUser, theme, toggleTheme, setTheme],
     )
-
     return (
         <AuthContext.Provider value={userValue}>
             <AuthActionsContext.Provider value={actionsValue}>

@@ -16,11 +16,9 @@ export default function MessagesStats({ statistics, activeTab, onSelectTab, isLo
       </div>
     )
   }
-
   const total = statistics?.totalMessages ?? statistics?.total ?? 0
   const unread = statistics?.unreadMessages ?? statistics?.unread ?? 0
   const read = statistics?.readMessages ?? statistics?.read ?? 0
-
   const statCards = [
     {
       id: 'all',
@@ -50,13 +48,11 @@ export default function MessagesStats({ statistics, activeTab, onSelectTab, isLo
       activeBorder: 'border-emerald-500 ring-2 ring-emerald-500/20'
     }
   ]
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
       {statCards.map((stat) => {
         const Icon = stat.icon
         const isActive = activeTab === stat.id
-
         return (
           <div
             key={stat.id}

@@ -22,7 +22,6 @@ export default function ParentPersonalInfo({
 }) {
   const [phoneSearch, setPhoneSearch] = useState('')
   const [countrySearch, setCountrySearch] = useState('')
-
   const filteredPhoneCodes = useMemo(() => {
     const list = (dynamicCountryCodes || []).filter(c =>
       c.name?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
@@ -32,7 +31,6 @@ export default function ParentPersonalInfo({
     )
     return sortCountryCodes(list, isRtl)
   }, [dynamicCountryCodes, phoneSearch, isRtl])
-
   const filteredCountries = useMemo(() => {
     const list = (countries || []).filter(c =>
       c.name?.toLowerCase().includes(countrySearch.toLowerCase()) ||
@@ -40,13 +38,11 @@ export default function ParentPersonalInfo({
     )
     return sortCountries(list, isRtl)
   }, [countries, countrySearch, isRtl])
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
         {isRtl ? 'البيانات الشخصية' : 'Personal Details'}
       </h3>
-
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
           <div className="h-20 w-20 rounded-full bg-brand-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
@@ -70,7 +66,6 @@ export default function ParentPersonalInfo({
         </p>
         <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageSelect} />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
@@ -99,7 +94,6 @@ export default function ParentPersonalInfo({
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
@@ -168,7 +162,6 @@ export default function ParentPersonalInfo({
           />
         </div>
       </div>
-
       <div className="relative">
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
           {isRtl ? 'البلد *' : 'Country *'}
@@ -214,7 +207,6 @@ export default function ParentPersonalInfo({
           </div>
         )}
       </div>
-
     </div>
   )
 }

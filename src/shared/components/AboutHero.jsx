@@ -7,7 +7,6 @@ import mainImage from '../../images/about/2.webp'
 export default React.memo(function AboutHero() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
-
     return (
         <section className="relative min-h-[600px] sm:min-h-[700px] py-24 lg:py-0 flex items-center mb-20 w-full overflow-hidden rounded-xl sm:rounded-[20px] shadow-sm">
             <div className="absolute inset-0 z-0">
@@ -22,9 +21,7 @@ export default React.memo(function AboutHero() {
                 <div className="absolute inset-0" />
                 <div className={`absolute inset-0 bg-gradient-to-${isRtl ? 'l' : 'r'} from-white/95 via-white/80 to-transparent dark:from-slate-950/95 dark:via-slate-950/80`} />
             </div>
-
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
-
                 <motion.div
                     initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -34,17 +31,14 @@ export default React.memo(function AboutHero() {
                     <div className="inline-flex items-center rounded-full bg-[#735C00] dark:bg-amber-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm mb-2">
                         {t('about.hero.badge', 'أكاديمية تعليمية متكاملة')}
                     </div>
-
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.3] pb-2">
                         <span className="text-[#00695C] dark:text-emerald-400 block pb-3">{t('about.hero.title1', 'حيث يلتقي')}</span>
                         <span className="text-[#735C00] dark:text-amber-400 block">{t('about.hero.title2', 'نور العلم بصفاء الروح')}</span>
                     </h1>
-
                     <p className="text-lg sm:text-xl text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-xl">
                         {t('about.hero.subtitle', 'منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة، صُممت لتكون ملاذاً رقمياً يجمع بين أصالة التراث وحداثة التكنولوجيا.')}
                     </p>
                 </motion.div>
-
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 30 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -57,7 +51,6 @@ export default React.memo(function AboutHero() {
                         className="relative w-full max-w-sm lg:max-w-md xl:max-w-lg"
                     >
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-tr from-[#00695C]/20 to-[#735C00]/20 blur-3xl rounded-full opacity-70 mix-blend-multiply" />
-
                         <motion.div
                             animate={{ rotate: [0, 3, 0] }}
                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -68,7 +61,6 @@ export default React.memo(function AboutHero() {
                             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                             className="absolute inset-0 rounded-2xl transform -translate-y-4 translate-x-4 scale-[1.03] backdrop-blur-sm border border-white/20 dark:border-slate-800"
                         />
-
                         <div className="relative group p-2.5 rounded-2xl shadow-2xl">
                             <div className="relative overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
                                 <motion.img
@@ -85,10 +77,8 @@ export default React.memo(function AboutHero() {
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#00695C]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none" />
                             </div>
                         </div>
-
                     </motion.div>
                 </motion.div>
-
             </div>
         </section>
     )

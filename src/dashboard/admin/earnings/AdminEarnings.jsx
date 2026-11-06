@@ -5,8 +5,6 @@ import {
   ChevronRight,
   Loader2,
   TrendingUp,
-  Clock,
-  Layers,
   Sparkles,
   ShieldCheck,
   RotateCcw,
@@ -21,37 +19,28 @@ import WithdrawalRequests from './components/WithdrawalRequests'
 export default function AdminEarnings() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
-
-  // Mode: 'monthly' (الأرباح الشهرية) vs 'all-time' (الكل حتى الآن)
   const [mode, setMode] = useState('monthly')
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [earningsData, setEarningsData] = useState(null)
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
-
   const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
-
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
       let earningsPromise
       if (mode === 'all-time') {
-        // GET /api/v1/dashboard/private/earnings
         earningsPromise = adminEarningsApi.fetchAllTimeEarnings()
       } else {
-        // GET /api/v1/dashboard/private/earnings/monthly?month=YYYY-MM
         earningsPromise = adminEarningsApi.fetchMonthlyEarnings(monthStr)
       }
-
       const [earningsRes, requestsRes] = await Promise.all([
         earningsPromise,
         adminEarningsApi.fetchWithdrawalRequests(),
       ])
-
       if (earningsRes?.data) {
         setEarningsData(earningsRes.data)
       } else if (earningsRes?.success === false) {
-        // Fallback to stats if custom shape
         const fallbackStats = await adminEarningsApi.fetchEarningsStats(monthStr)
         const fallbackTeachers = await adminEarningsApi.fetchTeacherEarnings(monthStr)
         setEarningsData({
@@ -61,7 +50,6 @@ export default function AdminEarnings() {
           period: { type: mode, month: monthStr },
         })
       }
-
       if (requestsRes?.data) {
         setRequests(requestsRes.data)
       }
@@ -71,7 +59,6 @@ export default function AdminEarnings() {
       setLoading(false)
     }
   }, [mode, monthStr])
-
   useEffect(() => {
     let isMounted = true
     Promise.resolve().then(() => {
@@ -81,20 +68,16 @@ export default function AdminEarnings() {
       isMounted = false
     }
   }, [loadData])
-
   const handlePrevMonth = () => {
     setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
   }
-
   const handleNextMonth = () => {
     setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
   }
-
   const formatMonth = () => {
     const options = { month: 'long', year: 'numeric' }
     return currentDate.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', options)
   }
-
   const handleApprove = async (id, proofImage) => {
     const res = await adminEarningsApi.approveWithdrawal(id, proofImage)
     if (res?.success) {
@@ -103,7 +86,6 @@ export default function AdminEarnings() {
       )
     }
   }
-
   const handleReject = async (id) => {
     const res = await adminEarningsApi.rejectWithdrawal(id)
     if (res?.success) {
@@ -112,15 +94,12 @@ export default function AdminEarnings() {
       )
     }
   }
-
   const platform = earningsData?.platform || {}
   const teachers = earningsData?.teachers || []
   const currency = earningsData?.currency || 'USD'
   const period = earningsData?.period || {}
-
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Top Header Card */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 mb-3">
@@ -136,10 +115,7 @@ export default function AdminEarnings() {
               : t('adminDashboard.earnings.monthlySub', 'متابعة أرباح المنصة الشهرية، ومصروفات بوابات الدفع، والمسحوبات')}
           </p>
         </div>
-
-        {/* Mode Switcher & Month Navigation Controls */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Toggle Button: الشهري vs الكل حتى الآن */}
           <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
             <button
               type="button"
@@ -153,7 +129,6 @@ export default function AdminEarnings() {
               <Calendar size={14} />
               <span>الشهري</span>
             </button>
-
             <button
               type="button"
               onClick={() => setMode('all-time')}
@@ -167,8 +142,6 @@ export default function AdminEarnings() {
               <span>الكل حتى الآن</span>
             </button>
           </div>
-
-          {/* Month Navigator (visible when in monthly mode) */}
           {mode === 'monthly' ? (
             <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
               <button
@@ -200,7 +173,6 @@ export default function AdminEarnings() {
               <span>إجمالي تراكمي شامل</span>
             </div>
           )}
-
           <button
             type="button"
             onClick={loadData}
@@ -212,30 +184,23 @@ export default function AdminEarnings() {
           </button>
         </div>
       </div>
-
-      {/* Main Content Area */}
       {loading && !earningsData ? (
         <div className="flex items-center justify-center h-60">
           <Spinner />
         </div>
       ) : (
         <>
-          {/* Platform Financial Metrics Cards */}
           <EarningsStats
             platform={platform}
             currency={currency}
             mode={mode}
           />
-
-          {/* Teacher Earnings Breakdown & Balances */}
           <TeacherEarningsList
             teachers={teachers}
             mode={mode}
             currency={currency}
             periodInfo={period}
           />
-
-          {/* Withdrawal Requests Section */}
           <WithdrawalRequests
             requests={requests}
             onApprove={handleApprove}

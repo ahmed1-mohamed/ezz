@@ -17,22 +17,18 @@ export default function ParentPersonalInfoSection({
   onImageChange,
 }) {
   const fileInputRef = useRef(null)
-
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (file && onImageChange) {
       onImageChange(file)
     }
   }
-
   const avatarInitial = formData.name ? formData.name.trim().charAt(0) : '?'
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800/80 shadow-soft space-y-6">
       <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white text-start">
         {isRtl ? 'البيانات الشخصية' : 'Personal Information'}
       </h3>
-
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shrink-0 overflow-hidden shadow-xs">
           {formData.profileImage ? (
@@ -41,7 +37,6 @@ export default function ParentPersonalInfoSection({
             <span>{avatarInitial}</span>
           )}
         </div>
-
         <div className="text-start">
           <input
             ref={fileInputRef}
@@ -62,7 +57,6 @@ export default function ParentPersonalInfoSection({
           </p>
         </div>
       </div>
-
       <div className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="order-2 md:order-1 text-start">
@@ -78,7 +72,6 @@ export default function ParentPersonalInfoSection({
               className="w-full bg-[#f3f7f6] dark:bg-slate-950/80 border border-transparent focus:border-[#00594C]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm placeholder-slate-400"
             />
           </div>
-
           <div className="order-1 md:order-2 text-start">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
               {isRtl ? 'الإسم بالعربية' : 'Arabic Name'}
@@ -92,7 +85,6 @@ export default function ParentPersonalInfoSection({
             />
           </div>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="order-2 md:order-1 text-start">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
@@ -111,7 +103,6 @@ export default function ParentPersonalInfoSection({
                   </span>
                   <ChevronDown size={14} className="text-slate-400" />
                 </button>
-
                 {isPhoneDropdownOpen && (
                   <div className="absolute left-0 mt-2 z-30 w-52 max-h-60 overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 animate-fadeIn">
                     {countryCodesList.map((c) => (
@@ -134,7 +125,6 @@ export default function ParentPersonalInfoSection({
                   </div>
                 )}
               </div>
-
               <input
                 type="tel"
                 value={phoneVal}
@@ -144,7 +134,6 @@ export default function ParentPersonalInfoSection({
               />
             </div>
           </div>
-
           <div className="order-1 md:order-2 text-start">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
               {isRtl ? 'البريد الإلكتروني' : 'Email'}
@@ -159,7 +148,6 @@ export default function ParentPersonalInfoSection({
             />
           </div>
         </div>
-
         <div className="text-start">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
             {isRtl ? 'الدولة' : 'Country'}
@@ -182,7 +170,6 @@ export default function ParentPersonalInfoSection({
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )

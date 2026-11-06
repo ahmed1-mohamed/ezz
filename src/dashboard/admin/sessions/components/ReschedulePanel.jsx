@@ -42,20 +42,17 @@ function calculateEndTime(startTimeStr, durationMinutes = 90) {
 
 export default function ReschedulePanel({ session, onConfirm, onCancel }) {
   const { t } = useTranslation()
-
   const initialDate = parseDateForInput(session.date || session.startTime)
   const initialStart = parseTimeForInput(session.startTime, '17:00')
   const initialEnd = parseTimeForInput(
     session.endTime,
     calculateEndTime(initialStart, session.durationMinutes || 90)
   )
-
   const [date, setDate] = useState(initialDate)
   const [startTime, setStartTime] = useState(initialStart)
   const [endTime, setEndTime] = useState(initialEnd)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-
   const handleStartTimeChange = (newStart) => {
     setStartTime(newStart)
     setError('')
@@ -63,7 +60,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
       setEndTime(calculateEndTime(newStart, session.durationMinutes || 90))
     }
   }
-
   const handleSubmit = async (e) => {
     e?.preventDefault?.()
     if (!date) {
@@ -78,7 +74,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
       setError(t('adminDashboard.sessions.errors.endTimeRequired', 'يرجى اختيار وقت النهاية'))
       return
     }
-
     setError('')
     setIsSubmitting(true)
     try {
@@ -91,13 +86,11 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
       setIsSubmitting(false)
     }
   }
-
   const groupDisplayName =
     session.groupName ||
     (typeof session.group === 'object' ? session.group?.name : session.group) ||
     session.title ||
     'المجموعة'
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -119,14 +112,12 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
           </span>
         )}
       </div>
-
       {error && (
         <div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl text-xs text-red-600 dark:text-red-400 font-semibold">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
-
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
@@ -143,7 +134,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
             className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20 transition-all font-medium"
           />
         </div>
-
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -156,7 +146,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
             className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20 transition-all font-medium"
           />
         </div>
-
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -173,7 +162,6 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
           />
         </div>
       </div>
-
       <div className="flex items-center gap-3 justify-start pt-2">
         <button
           type="submit"

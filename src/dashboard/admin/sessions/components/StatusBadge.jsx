@@ -2,9 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 export default function StatusBadge({ status }) {
   const { t } = useTranslation()
-
   const normalized = (status || '').toLowerCase()
-
   const config = {
     live: {
       label: t('adminDashboard.sessions.status.live', 'مباشر الآن'),
@@ -47,9 +45,7 @@ export default function StatusBadge({ status }) {
       cls: 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800',
     },
   }
-
   const { label, cls } = config[normalized] || (normalized.includes('live') || normalized.includes('progress') ? config.live : normalized.includes('complete') ? config.completed : normalized.includes('cancel') ? config.cancelled : config.scheduled)
-
   return (
     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cls}`}>
       {normalized === 'live' && (

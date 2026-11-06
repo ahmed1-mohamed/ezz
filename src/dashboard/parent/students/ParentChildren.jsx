@@ -6,11 +6,7 @@ import {
   TrendingUp,
   Award,
   Star,
-  Layers,
   Calendar,
-  MessageSquare,
-  ArrowRight,
-  ArrowLeft,
   ChevronRight,
   ChevronLeft,
 } from 'lucide-react';
@@ -128,16 +124,13 @@ export default function ParentChildren() {
       className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-8 font-sans min-h-screen"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Top Hero Profile Card */}
       <ChildHeroCard
         child={currentChild}
         allChildren={allChildren}
         onSelectChild={handleSelectChild}
         onBack={handleBack}
       />
-      {/* 4 Key Stat Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Sessions Balance */}
         <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-slate-400 mb-1">
@@ -156,7 +149,6 @@ export default function ParentChildren() {
             <BookOpen className="w-6 h-6" />
           </div>
         </div>
-        {/* Attendance Rate */}
         <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-slate-400 mb-1">
@@ -177,7 +169,6 @@ export default function ParentChildren() {
             <TrendingUp className="w-6 h-6" />
           </div>
         </div>
-        {/* Average Rating */}
         <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-slate-400 mb-1">
@@ -194,7 +185,6 @@ export default function ParentChildren() {
             <Star className="w-6 h-6 fill-amber-500" />
           </div>
         </div>
-        {/* Total Evaluations */}
         <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-slate-400 mb-1">
@@ -214,11 +204,9 @@ export default function ParentChildren() {
           </div>
         </div>
       </div>
-      {/* Last Subscription Card if present */}
       {currentChild?.lastSubscription && (
         <ChildLastSubscriptionCard lastSubscription={currentChild.lastSubscription} />
       )}
-      {/* Homework Stats Card if present */}
       {(currentChild?.totalHomework !== undefined || currentChild?.completedHomework !== undefined) && (
         <ChildHomeworkStatsCard
           totalHomework={currentChild.totalHomework}
@@ -227,19 +215,14 @@ export default function ParentChildren() {
           studentId={activeStudentId}
         />
       )}
-      {/* Enrolled Groups Section */}
       <ChildGroupsList groups={groupsList} />
-      {/* Sessions Balance Card */}
       <ChildSessionsBalanceCard sessionsBalance={sessionsBalance} />
-      {/* Rewards & Badges Section if present */}
       {Array.isArray(currentChild?.rewards) && currentChild.rewards.length > 0 && (
         <ChildRewardsSection rewards={currentChild.rewards} />
       )}
-      {/* Session Transactions History Log if present */}
       {Array.isArray(currentChild?.sessionTransactions) && currentChild.sessionTransactions.length > 0 && (
         <ChildTransactionsLog transactions={currentChild.sessionTransactions} />
       )}
-      {/* Recent Evaluations from Teachers */}
       <div
         className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4"
         dir={isRtl ? 'rtl' : 'ltr'}
@@ -317,7 +300,6 @@ export default function ParentChildren() {
           </div>
         )}
       </div>
-      {/* Attendance & Absence Summary Banner */}
       <div
         className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
         dir={isRtl ? 'rtl' : 'ltr'}

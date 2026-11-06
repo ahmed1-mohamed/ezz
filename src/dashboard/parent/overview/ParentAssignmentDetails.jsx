@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, FileText, Download, User, GraduationCap, Users, Calendar, Clock, MessageSquare, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Star, FileText, User, GraduationCap, Users, Calendar, Clock, MessageSquare, HelpCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { parentApi } from '@/shared/services/api/parentApi';

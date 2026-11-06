@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -38,9 +38,7 @@ export default function TeacherGroupDetails() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [activeTab, setActiveTab] = useState('students');
-
   const {
     data: responseData,
     isLoading,
@@ -53,11 +51,9 @@ export default function TeacherGroupDetails() {
     enabled: Boolean(id),
     staleTime: 60 * 1000,
   });
-
   const group = responseData?.data?.group || responseData?.data || (responseData?.id ? responseData : null);
   const studentsList = group?.students || [];
   const sessionsList = group?.sessionsHistory || [];
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'نشطة':
@@ -101,7 +97,6 @@ export default function TeacherGroupDetails() {
         );
     }
   };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="space-y-6">
@@ -113,7 +108,6 @@ export default function TeacherGroupDetails() {
             {isRtl ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
             <span>{t('teacher.backToGroups', 'الرجوع للمجموعات')}</span>
           </Link>
-
           <button
             onClick={() => refetch()}
             disabled={isFetching}
@@ -123,7 +117,6 @@ export default function TeacherGroupDetails() {
             {t('common.refresh', 'تحديث')}
           </button>
         </div>
-
         {isLoading ? (
           <div className="space-y-6 animate-pulse">
             <div className="h-48 rounded-3xl bg-slate-200 dark:bg-slate-800" />
@@ -172,7 +165,6 @@ export default function TeacherGroupDetails() {
                     {group.name}
                   </h1>
                 </div>
-
                 <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/60 dark:bg-emerald-950/30 dark:border-emerald-900/40 shrink-0">
                   <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                     {t('teacher.capacity', 'السعة الحالية')}
@@ -183,7 +175,6 @@ export default function TeacherGroupDetails() {
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {group.curriculum && (
                   <div className="flex items-center gap-3">
@@ -200,7 +191,6 @@ export default function TeacherGroupDetails() {
                     </div>
                   </div>
                 )}
-
                 {group.level && (
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 shrink-0">
@@ -216,7 +206,6 @@ export default function TeacherGroupDetails() {
                     </div>
                   </div>
                 )}
-
                 {group.language && (
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400 shrink-0">
@@ -232,7 +221,6 @@ export default function TeacherGroupDetails() {
                     </div>
                   </div>
                 )}
-
                 {(group.startDate || group.endDate) && (
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 shrink-0">
@@ -249,7 +237,6 @@ export default function TeacherGroupDetails() {
                   </div>
                 )}
               </div>
-
               {group.weeklySchedule?.length > 0 && (
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
                   <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -273,7 +260,6 @@ export default function TeacherGroupDetails() {
                 </div>
               )}
             </div>
-
             <div className="space-y-4">
               <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 w-fit">
                 <button
@@ -297,7 +283,6 @@ export default function TeacherGroupDetails() {
                     {studentsList.length}
                   </span>
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setActiveTab('sessions')}
@@ -320,7 +305,6 @@ export default function TeacherGroupDetails() {
                   </span>
                 </button>
               </div>
-
               {activeTab === 'students' && (
                 <div className="space-y-4">
                   {studentsList.length === 0 ? (
@@ -342,12 +326,10 @@ export default function TeacherGroupDetails() {
                         const completed = student.attendanceRate?.completedGroupSessions ?? 0;
                         const attendancePercent =
                           completed > 0 ? Math.min(100, Math.round((attended / completed) * 100)) : 0;
-
                         const studentName =
                           typeof student.name === 'object' && student.name !== null
                             ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
                             : (student.name || 'طالب');
-
                         return (
                           <div
                             key={student.student_id || idx}
@@ -368,13 +350,11 @@ export default function TeacherGroupDetails() {
                                   {studentName ? studentName.charAt(0) : <User size={20} />}
                                 </div>
                               )}
-
                               <div className="min-w-0 flex-1">
                                 <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
                                   {studentName}
                                 </h4>
                               </div>
-
                               {student.averageRating !== undefined && student.averageRating !== null && (
                                 <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 shrink-0">
                                   <Star size={14} className="fill-amber-400 text-amber-400" />
@@ -384,7 +364,6 @@ export default function TeacherGroupDetails() {
                                 </div>
                               )}
                             </div>
-
                             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
                               <div className="flex items-center justify-between text-xs">
                                 <span className="font-semibold text-slate-600 dark:text-slate-400">
@@ -414,7 +393,6 @@ export default function TeacherGroupDetails() {
                   )}
                 </div>
               )}
-
               {activeTab === 'sessions' && (
                 <div className="space-y-4">
                   {sessionsList.length === 0 ? (

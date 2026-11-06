@@ -14,11 +14,9 @@ export default function IdentityInfoCard({
   const [photoPreview, setPhotoPreview] = useState(formData.photoUrl || null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
-
   const sortedCountries = useMemo(() => {
     return sortCountries(countries, isRtl)
   }, [countries, isRtl])
-
   const filteredCountries = useMemo(() => {
     if (!countrySearch.trim()) return sortedCountries;
     const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
@@ -29,7 +27,6 @@ export default function IdentityInfoCard({
       return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
     });
   }, [sortedCountries, countrySearch, isRtl])
-
   const selectedPhoneCountry = useMemo(() => {
     const pfxNorm = String(formData.phonePrefix || '').replace(/\+/g, '').trim()
     if (!pfxNorm) return null
@@ -39,11 +36,9 @@ export default function IdentityInfoCard({
     })
     return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, dialCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
-
   const handlePhotoClick = () => {
     fileInputRef.current?.click()
   }
-
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -52,7 +47,6 @@ export default function IdentityInfoCard({
       onPhotoChange(file, previewUrl)
     }
   }
-
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
     setCountrySearch('')
@@ -60,14 +54,11 @@ export default function IdentityInfoCard({
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     onChange('phonePrefix', prefixWithPlus)
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.identityTitle', '1- معلومات الهوية')}</span>
       </h3>
-
       <div className="flex flex-col items-center justify-center space-y-3">
         <input
           type="file"
@@ -77,7 +68,6 @@ export default function IdentityInfoCard({
           className="hidden"
           aria-label={t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
         />
-
         <button
           type="button"
           aria-label={t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
@@ -108,9 +98,7 @@ export default function IdentityInfoCard({
           {t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
         </span>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
         <div>
           <label htmlFor="nameEnInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
@@ -125,7 +113,6 @@ export default function IdentityInfoCard({
             dir="ltr"
           />
         </div>
-
         <div>
           <label htmlFor="nameArInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
@@ -139,9 +126,7 @@ export default function IdentityInfoCard({
             className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
         </div>
-
       </div>
-
       <div>
         <label htmlFor="emailInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.email', 'عنوان البريد الإلكتروني')}
@@ -156,13 +141,11 @@ export default function IdentityInfoCard({
           dir="ltr"
         />
       </div>
-
       <div>
         <label htmlFor="phoneInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
         </label>
         <div className="flex gap-3" dir="ltr">
-
           <div className="relative shrink-0">
             <button
               type="button"
@@ -178,7 +161,6 @@ export default function IdentityInfoCard({
               <span aria-hidden="true">{selectedPhoneCountry?.flag || '🌐'}</span>
               <span aria-hidden="true">{(selectedPhoneCountry?.dialCode || selectedPhoneCountry?.phoneCode) ? `(${selectedPhoneCountry.dialCode || selectedPhoneCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
             </button>
-
             {isDropdownOpen && (
               <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
                 <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
@@ -211,7 +193,6 @@ export default function IdentityInfoCard({
               </div>
             )}
           </div>
-
           <input
             id="phoneInput"
             type="tel"
@@ -220,10 +201,8 @@ export default function IdentityInfoCard({
             onChange={(e) => onChange('phone', e.target.value)}
             className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
-
         </div>
       </div>
-
       <div>
         <label htmlFor="countrySelectInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {isRtl ? 'الدولة' : 'Country'}
@@ -243,7 +222,6 @@ export default function IdentityInfoCard({
           ))}
         </select>
       </div>
-
     </div>
   )
 }

@@ -8,7 +8,6 @@ export default function ParentDetailsHeader({
   onCancel,
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
-
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div className="flex items-center gap-3">
@@ -30,7 +29,6 @@ export default function ParentDetailsHeader({
           </h1>
         </div>
       </div>
-
       <button
         type="button"
         onClick={onSave}

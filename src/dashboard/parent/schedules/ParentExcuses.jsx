@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CalendarX, Plus, User, GraduationCap, Users, Calendar, Clock, AlertCircle, CheckCircle2, ChevronDown, X, Info, FileText } from 'lucide-react';
+import { CalendarX, Plus, User, GraduationCap, Users, Calendar, Clock, AlertCircle, CheckCircle2, ChevronDown, X, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';

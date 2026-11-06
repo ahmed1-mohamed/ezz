@@ -14,7 +14,6 @@ function ExplanationLanguageForm({
 }) {
     const { i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     return (
         <form
             onSubmit={onSubmit}
@@ -26,7 +25,6 @@ function ExplanationLanguageForm({
                     ? (isRtl ? 'تعديل لغة الشرح' : 'Edit Explanation Language')
                     : (isRtl ? 'إضافة لغة شرح جديدة' : 'Add New Explanation Language')}
             </h3>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="text-start space-y-1.5">
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
@@ -43,7 +41,6 @@ function ExplanationLanguageForm({
                         placeholder={isRtl ? 'مثال: الفرنسية' : 'e.g. French'}
                     />
                 </div>
-
                 <div className="text-start space-y-1.5">
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
                         {isRtl ? 'الاسم بالإنجليزية' : 'English Name'}
@@ -60,7 +57,6 @@ function ExplanationLanguageForm({
                     />
                 </div>
             </div>
-
             <div className="flex justify-end gap-3 pt-1">
                 <button
                     type="button"

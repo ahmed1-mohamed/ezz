@@ -13,20 +13,16 @@ export default function TeacherProfile() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowBack = isRtl ? ChevronRight : ChevronLeft
-
     const [teacher, setTeacher] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-
     useEffect(() => {
         window.scrollTo(0, 0)
-
         const fetchTeacher = async () => {
             try {
                 setLoading(true)
                 const res = await teachersApi.fetchPublicTeacherById(id)
                 const realData = res?.data
-
                                 const teacherData = {
                     id: realData?.teacher_id || realData?.id || id,
                     name: realData?.name || '',
@@ -58,7 +54,6 @@ export default function TeacherProfile() {
                     levels: Array.isArray(realData?.levels) ? realData.levels : [],
                     schedule: Array.isArray(realData?.schedule) ? realData.schedule : []
                 }
-
                 setTeacher(teacherData)
                 setLoading(false)
             } catch (err) {
@@ -66,10 +61,8 @@ export default function TeacherProfile() {
                 setLoading(false)
             }
         }
-
         fetchTeacher()
     }, [id, t])
-
     if (loading) {
         return (
             <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 flex items-center justify-center">
@@ -77,7 +70,6 @@ export default function TeacherProfile() {
             </div>
         )
     }
-
     if (error || !teacher) {
         return (
             <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 flex items-center justify-center">
@@ -85,7 +77,6 @@ export default function TeacherProfile() {
             </div>
         )
     }
-
     return (
         <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 pt-12 font-sans pb-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
@@ -94,25 +85,20 @@ export default function TeacherProfile() {
                     <span>{t('teacherProfile.back', 'العودة للمعلمين')}</span>
                 </Link>
             </div>
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
                     <div className="lg:col-span-7 order-2 lg:order-1 space-y-6">
                         <TeacherAbout teacher={teacher} t={t} />
                         <TeacherSubjects subjects={teacher.subjects} t={t} />
                     </div>
-
                     <div className="lg:col-span-5 order-1 lg:order-2">
                         <TeacherCard teacher={teacher} t={t} isRtl={isRtl} />
                     </div>
                 </div>
-
                 <div className="mt-8 space-y-6">
                     <TeacherStats stats={teacher.stats} t={t} />
                  </div>
             </div>
-
         </div>
     )
 }

@@ -4,15 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { setLanguage } from '@/i18n.js';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 
-// Language & theme preferences — shown only on the profile/settings page of every dashboard.
 export default function LanguageAppearancePanel({ itemVariants }) {
     const { t, i18n } = useTranslation();
     const { theme, setTheme } = useAuth();
-
     const handleLanguageChange = (lang) => {
         setLanguage(lang);
     };
-
     return (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.languageDisplay')}</h2>
@@ -25,7 +22,6 @@ export default function LanguageAppearancePanel({ itemVariants }) {
                     <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.arabic')}</span>
                     <span className="text-[10px] text-slate-500">{t('parentSettings.defaultLang')}</span>
                 </button>
-
                 <button
                     onClick={() => handleLanguageChange('en')}
                     className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${i18n.language === 'en' ? 'border-[#0f7a6c] bg-[#0f7a6c]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'}`}
@@ -43,7 +39,6 @@ export default function LanguageAppearancePanel({ itemVariants }) {
                     <Sun className="w-6 h-6 text-amber-500" />
                     <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.light')}</span>
                 </button>
-
                 <button
                     onClick={() => setTheme('dark')}
                     className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${theme === 'dark' ? 'border-[#0f7a6c] bg-[#0f7a6c]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'}`}
@@ -51,7 +46,6 @@ export default function LanguageAppearancePanel({ itemVariants }) {
                     <Moon className="w-6 h-6 text-indigo-400" />
                     <span className="font-bold text-slate-800 dark:text-slate-100">{t('parentSettings.dark')}</span>
                 </button>
-
                 <button
                     onClick={() => setTheme('auto')}
                     className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${theme === 'auto' ? 'border-[#0f7a6c] bg-[#0f7a6c]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c]/50'}`}

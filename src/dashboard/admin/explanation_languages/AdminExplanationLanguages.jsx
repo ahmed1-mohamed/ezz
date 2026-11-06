@@ -11,15 +11,12 @@ import ExplanationLanguagesList from './components/ExplanationLanguagesList';
 export default function AdminExplanationLanguages() {
     const { i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const { data: languagesData, isLoading } = useQuery({
         queryKey: [QUERY_KEY, i18n.language],
         queryFn: () => explanationLanguagesApi.fetchLanguages(),
         staleTime: STALE_TIME_MS,
     });
-
     const languages = languagesData?.data || (Array.isArray(languagesData) ? languagesData : []);
-
     const {
         showForm,
         editingLanguageId,
@@ -36,7 +33,6 @@ export default function AdminExplanationLanguages() {
         handleDelete,
         closeForm,
     } = useExplanationLanguagesMutations();
-
     const handleToggleForm = () => {
         if (showForm) {
             closeForm();
@@ -44,7 +40,6 @@ export default function AdminExplanationLanguages() {
             handleOpenAddForm();
         }
     };
-
     if (isLoading) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
@@ -52,7 +47,6 @@ export default function AdminExplanationLanguages() {
             </div>
         );
     }
-
     return (
         <div
             className="space-y-6 p-4 sm:p-6 md:p-8 max-w-6xl mx-auto animate-fadeIn"
@@ -62,7 +56,6 @@ export default function AdminExplanationLanguages() {
                 showForm={showForm}
                 onToggleForm={handleToggleForm}
             />
-
             {showForm && (
                 <ExplanationLanguageForm
                     selectedLanguageId={selectedLanguageId}
@@ -77,7 +70,6 @@ export default function AdminExplanationLanguages() {
                     isSaving={isSaving}
                 />
             )}
-
             <section aria-label={isRtl ? 'لغات الشرح المتاحة' : 'Available explanation languages'}>
                 <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4 text-start">
                     {isRtl

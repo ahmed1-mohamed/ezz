@@ -4,12 +4,9 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-  ArrowRight,
-  ArrowLeft,
   ChevronLeft,
   ChevronRight,
-  AlertCircle,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 export default function ChildHomeworkStatsCard({
   totalHomework = 0,
@@ -55,7 +52,6 @@ export default function ChildHomeworkStatsCard({
           {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
       </div>
-      {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div>
@@ -97,7 +93,6 @@ export default function ChildHomeworkStatsCard({
           </div>
         </div>
       </div>
-      {/* Completion Progress Bar */}
       <div className="space-y-1.5 pt-1">
         <div className="flex justify-between items-center text-xs font-bold">
           <span className="text-slate-500 dark:text-slate-400">

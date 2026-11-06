@@ -7,13 +7,11 @@ export default React.memo(function ScheduleEmptyState({
     onResetFilters,
 }) {
     const { t } = useTranslation();
-
     return (
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center max-w-lg mx-auto border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto">
                 <Calendar className="w-8 h-8" />
             </div>
-
             <div className="space-y-1.5">
                 <h3 className="text-xl font-bold text-slate-800 dark:text-white">
                     {hasFiltersApplied
@@ -26,7 +24,6 @@ export default React.memo(function ScheduleEmptyState({
                         : t('schedule.enjoyRest', 'استمتع بوقتك وتابع مراجعتك الشخصية')}
                 </p>
             </div>
-
             {hasFiltersApplied && (
                 <button
                     onClick={onResetFilters}

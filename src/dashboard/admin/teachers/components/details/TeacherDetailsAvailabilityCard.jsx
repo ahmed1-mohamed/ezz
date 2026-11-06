@@ -10,7 +10,6 @@ const chipClass = (isActive) => `inline-flex flex-col items-center justify-cente
   ? 'bg-[#0f7a6c] border-[#0f7a6c] text-white shadow-sm'
   : 'bg-slate-50 dark:bg-slate-950/60 border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500'}`
 
-// Mirrors the teacher profile's "subjects" and "available days" view: every option is listed, the teacher's are highlighted.
 export default function TeacherDetailsAvailabilityCard({ teacher, isRtl = true }) {
   const { data: curricula = [] } = useQuery({
     queryKey: ['admin-curricula-options'],
@@ -20,18 +19,14 @@ export default function TeacherDetailsAvailabilityCard({ teacher, isRtl = true }
     },
     staleTime: 10 * 60 * 1000,
   })
-
   const teacherSpecs = Array.isArray(teacher?.specializations) ? teacher.specializations : []
   const teacherSpecIds = teacherSpecs.map((s) => s?.id || s?._id).filter(Boolean)
-  // Fall back to the teacher's own curricula if the full list could not be loaded
   const subjects = curricula.length > 0 ? curricula : teacherSpecs
-
   const slotsByDay = (Array.isArray(teacher?.availability) ? teacher.availability : []).reduce((acc, slot) => {
     const key = String(slot.rawDay || slot.day || '').toLowerCase()
     if (key) acc[key] = [...(acc[key] || []), slot]
     return acc
   }, {})
-
   return (
     <div className="space-y-6">
       <section className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-5 text-start">
@@ -55,7 +50,6 @@ export default function TeacherDetailsAvailabilityCard({ teacher, isRtl = true }
           </div>
         )}
       </section>
-
       <section className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-5 text-start">
         <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
           {isRtl ? 'أيام التدريس المتاحة أسبوعيا' : 'Weekly Available Teaching Days'}

@@ -1,5 +1,5 @@
 import { Suspense, lazy, memo } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
@@ -81,6 +81,8 @@ const HomeworkSubmissions = lazy(() => import('../dashboard/teacher/homework/Hom
 const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 const TeacherCurricula = lazy(() => import('../dashboard/teacher/curricula/TeacherCurricula.jsx'))
 const TeacherEarnings = lazy(() => import('../dashboard/teacher/earnings/TeacherEarnings.jsx'))
+const TeacherPayouts = lazy(() => import('../dashboard/teacher/payouts/TeacherPayouts.jsx'))
+const TeacherPaymentMethods = lazy(() => import('../dashboard/teacher/payment_methods/TeacherPaymentMethods.jsx'))
 
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
 const StudentSchedule = lazy(() => import('../dashboard/student/schedule/StudentSchedule.jsx'))
@@ -94,7 +96,6 @@ const StudentAttendance = lazy(() => import('../dashboard/student/schedule/Stude
 const StudentAchievements = lazy(() => import('../dashboard/student/grades/StudentAchievements.jsx'))
 const StudentMaterials = lazy(() => import('../dashboard/student/courses/StudentMaterials.jsx'))
 const StudentProfile = lazy(() => import('../dashboard/student/settings/StudentProfile.jsx'))
-const StudentSettings = lazy(() => import('../dashboard/student/settings/StudentSettings.jsx'))
 
 const ParentDashboard = lazy(() => import('../dashboard/parent/overview/ParentDashboard.jsx'))
 const ParentRatings = lazy(() => import('../dashboard/parent/students/ParentRatings.jsx'))
@@ -103,6 +104,8 @@ const ParentChildrenList = lazy(() => import('../dashboard/parent/students/Paren
 const ParentChildren = lazy(() => import('../dashboard/parent/students/ParentChildren.jsx'))
 const ParentPackages = lazy(() => import('../dashboard/parent/packages/ParentPackages.jsx'))
 const ParentCheckout = lazy(() => import('../dashboard/parent/packages/ParentCheckout.jsx'))
+const ParentSubscriptions = lazy(() => import('../dashboard/parent/packages/ParentSubscriptions.jsx'))
+const ParentPaymentStatus = lazy(() => import('../dashboard/parent/packages/ParentPaymentStatus.jsx'))
 const ParentSchedule = lazy(() => import('../dashboard/parent/schedules/ParentSchedule.jsx'))
 const ParentAttendance = lazy(() => import('../dashboard/parent/schedules/ParentAttendance.jsx'))
 
@@ -110,7 +113,7 @@ const ParentAssignments = lazy(() => import('../dashboard/parent/overview/Parent
 const ParentAssignmentDetails = lazy(() => import('../dashboard/parent/overview/ParentAssignmentDetails.jsx'))
 const ParentExcuses = lazy(() => import('../dashboard/parent/schedules/ParentExcuses.jsx'))
 const ParentSettings = lazy(() => import('../dashboard/parent/settings/ParentSettings.jsx'))
-import { ParentExams, ParentNotifications, ParentProfile } from '../dashboard/parent/components/Placeholders.jsx'
+import { ParentExams, ParentNotifications } from '../dashboard/parent/components/Placeholders.jsx'
 
 
 const NotFound = lazy(() => import('../pages/public/NotFound.jsx'))
@@ -137,8 +140,6 @@ const AnimatedPage = memo(function AnimatedPage({ children }) {
 
 export default function AppRoutes() {
     const { user } = useAuth()
-    const location = useLocation()
-
     return (
         <div className="min-h-screen">
             <Suspense
@@ -149,7 +150,6 @@ export default function AppRoutes() {
                 }
             >
                 <Routes>
-
                         <Route
                             path="/"
                             element={
@@ -168,7 +168,6 @@ export default function AppRoutes() {
                             <Route path="contact" element={<Contact />} />
                             <Route path="teachers/:id" element={<TeacherProfile />} />
                         </Route>
-
                         <Route
                             path="/login"
                             element={
@@ -184,7 +183,6 @@ export default function AppRoutes() {
                                 )
                             }
                         />
-
                         <Route
                             path="/register"
                             element={
@@ -200,12 +198,10 @@ export default function AppRoutes() {
                                 )
                             }
                         />
-
                         <Route
                             path="/signup"
                             element={<Navigate to="/register" replace />}
                         />
-
                         <Route
                             path="/forgot-password"
                             element={
@@ -221,7 +217,6 @@ export default function AppRoutes() {
                                 )
                             }
                         />
-
                         <Route
                             path="/reset-password"
                             element={
@@ -237,7 +232,6 @@ export default function AppRoutes() {
                                 )
                             }
                         />
-
                         <Route element={<ProtectedRoute />}>
                             <Route
                                 path="/dashboard"
@@ -252,7 +246,6 @@ export default function AppRoutes() {
                                     />
                                 }
                             />
-
                             <Route element={<RoleBasedRoute allowedRoles={['Admin', 'super_admin']} />}>
                                 <Route element={<AdminLayout />}>
                                     <Route
@@ -383,7 +376,6 @@ export default function AppRoutes() {
                                         path="/dashboard/admin/private-groups/edit/:id"
                                         element={<PermissionRoute permission="groups.update"><AdminPrivateGroups /></PermissionRoute>}
                                     />
-                                   
                                     <Route
                                         path="/dashboard/admin/sessions"
                                         element={<PermissionRoute permission="sessions.read"><AdminSessions /></PermissionRoute>}
@@ -442,7 +434,6 @@ export default function AppRoutes() {
                                     />
                                 </Route>
                             </Route>
-
                             <Route element={<RoleBasedRoute allowedRoles={['Manager']} />}>
                                 <Route
                                     path="/dashboard/manager"
@@ -461,7 +452,6 @@ export default function AppRoutes() {
                                     element={<ManagerReports />}
                                 />
                             </Route>
-
                             <Route element={<RoleBasedRoute allowedRoles={['Teacher']} />}>
                                 <Route element={<TeacherLayout />}>
                                     <Route
@@ -561,16 +551,19 @@ export default function AppRoutes() {
                                          element={<TeacherEarnings />}
                                      />
                                      <Route
+                                         path="/dashboard/teacher/payouts"
+                                         element={<TeacherPayouts />}
+                                     />
+                                     <Route
                                          path="/dashboard/teacher/withdrawals"
-                                         element={<TeacherEarnings />}
+                                         element={<TeacherPayouts />}
                                      />
                                      <Route
                                          path="/dashboard/teacher/payment-methods"
-                                         element={<TeacherEarnings />}
+                                         element={<TeacherPaymentMethods />}
                                      />
                                 </Route>
                             </Route>
-
                             <Route element={<RoleBasedRoute allowedRoles={['Student']} />}>
                                 <Route element={<StudentLayout />}>
                                     <Route path="/dashboard/student" element={<StudentHome />} />
@@ -588,7 +581,6 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/student/settings" element={<StudentProfile />} />
                                 </Route>
                             </Route>
-
                             <Route element={<RoleBasedRoute allowedRoles={['Parent', 'parent', 'guardian', 'wali', 'admin', 'super_admin']} />}>
                                 <Route element={<ParentLayout />}>
                                     <Route path="/dashboard/parent" element={<ParentDashboard />} />
@@ -600,7 +592,6 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/parent/students/:studentId" element={<ParentChildren />} />
                                     <Route path="/dashboard/parent/child-details/:studentId" element={<ParentChildren />} />
                                     <Route path="/dashboard/parent/attendance" element={<ParentAttendance />} />
-
                                     <Route path="/dashboard/parent/ratings" element={<ParentRatings />} />
                                     <Route path="/dashboard/parent/assignments" element={<ParentAssignments />} />
                                     <Route path="/dashboard/parent/assignments/:id" element={<ParentAssignmentDetails />} />
@@ -612,6 +603,9 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/parent/settings" element={<ParentSettings />} />
                                     <Route path="/dashboard/parent/packages" element={<ParentPackages />} />
                                     <Route path="/dashboard/parent/checkout" element={<ParentCheckout />} />
+                                    <Route path="/dashboard/parent/subscriptions" element={<ParentSubscriptions />} />
+                                    <Route path="/dashboard/parent/checkout/status" element={<ParentPaymentStatus />} />
+                                    <Route path="/dashboard/parent/packages/checkout/status" element={<ParentPaymentStatus />} />
                                 </Route>
                             </Route>
                         </Route>
@@ -625,7 +619,6 @@ export default function AppRoutes() {
                                 </AnimatedPage>
                             }
                         />
-
                         <Route
                             path="*"
                             element={
@@ -634,7 +627,6 @@ export default function AppRoutes() {
                                 </AnimatedPage>
                             }
                         />
-
                     </Routes>
             </Suspense>
         </div>
