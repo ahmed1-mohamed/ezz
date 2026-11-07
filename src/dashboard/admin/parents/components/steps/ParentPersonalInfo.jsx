@@ -1,6 +1,6 @@
 import { Upload, ChevronDown } from 'lucide-react'
-import { useState, useMemo } from 'react'
-import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils'
+import { useState, useMemo, useEffect } from 'react'
+import { sortCountries, sortCountryCodes, getCountryName, searchCountriesBackend, toDialCodeOptions } from '@/shared/utils/countryUtils'
 
 export default function ParentPersonalInfo({
   formData,
@@ -22,22 +22,56 @@ export default function ParentPersonalInfo({
 }) {
   const [phoneSearch, setPhoneSearch] = useState('')
   const [countrySearch, setCountrySearch] = useState('')
+  const [backendPhoneCodes, setBackendPhoneCodes] = useState(null)
+  const [backendCountries, setBackendCountries] = useState(null)
+  useEffect(() => {
+    const trimmed = phoneSearch.trim()
+    if (!trimmed) {
+      setBackendPhoneCodes(null)
+      return
+    }
+    let active = true
+    const timer = setTimeout(async () => {
+      try {
+        const list = await searchCountriesBackend(trimmed)
+        if (active) setBackendPhoneCodes(toDialCodeOptions(list))
+      } catch (err) {
+        if (active) setBackendPhoneCodes([])
+      }
+    }, 300)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [phoneSearch])
+  useEffect(() => {
+    const trimmed = countrySearch.trim()
+    if (!trimmed) {
+      setBackendCountries(null)
+      return
+    }
+    let active = true
+    const timer = setTimeout(async () => {
+      try {
+        const list = await searchCountriesBackend(trimmed)
+        if (active) setBackendCountries(list)
+      } catch (err) {
+        if (active) setBackendCountries([])
+      }
+    }, 300)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [countrySearch])
   const filteredPhoneCodes = useMemo(() => {
-    const list = (dynamicCountryCodes || []).filter(c =>
-      c.name?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
-      c.nameEn?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
-      c.code?.includes(phoneSearch) ||
-      c.dialCode?.includes(phoneSearch)
-    )
+    const list = backendPhoneCodes !== null ? backendPhoneCodes : dynamicCountryCodes
     return sortCountryCodes(list, isRtl)
-  }, [dynamicCountryCodes, phoneSearch, isRtl])
+  }, [backendPhoneCodes, dynamicCountryCodes, isRtl])
   const filteredCountries = useMemo(() => {
-    const list = (countries || []).filter(c =>
-      c.name?.toLowerCase().includes(countrySearch.toLowerCase()) ||
-      c.nameEn?.toLowerCase().includes(countrySearch.toLowerCase())
-    )
+    const list = backendCountries !== null ? backendCountries : countries
     return sortCountries(list, isRtl)
-  }, [countries, countrySearch, isRtl])
+  }, [backendCountries, countries, isRtl])
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">

@@ -166,13 +166,13 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5" dir={isRtl ? 'rtl' : 'ltr'}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 12 }}

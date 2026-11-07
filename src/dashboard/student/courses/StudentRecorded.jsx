@@ -1,4 +1,5 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
@@ -222,12 +223,13 @@ function formatCalendarMonthHeader(weekDays, isRtl) {
 function VideoPlayerModal({ recording, onClose, isRtl, t }) {
   const title = isRtl ? recording.title : recording.titleEn;
   const teacher = isRtl ? recording.teacher : recording.teacherEn;
-  return (
+  if (typeof document === 'undefined') return null;
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fade-in"
       onClick={onClose}
     >
       <motion.div
@@ -280,7 +282,8 @@ function VideoPlayerModal({ recording, onClose, isRtl, t }) {
           </p>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }
 

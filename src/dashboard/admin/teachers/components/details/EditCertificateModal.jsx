@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { X, FileText, Upload, Loader2, Check, ExternalLink, RefreshCw } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -29,7 +30,7 @@ export default function EditCertificateModal({
       setReplacementPreview(null)
     }
   }
-  if (!isOpen || !certificate) return null
+  if (!isOpen || !certificate || typeof document === 'undefined') return null
   const certId = certificate.id || certificate._id
   const currentFile = certificate.file || certificate.image || certificate.url
   const handleFileChange = (e) => {
@@ -77,9 +78,9 @@ export default function EditCertificateModal({
       setIsSubmitting(false)
     }
   }
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -242,6 +243,7 @@ export default function EditCertificateModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

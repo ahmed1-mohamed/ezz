@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   X,
@@ -69,7 +70,7 @@ export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showEmojiPicker]);
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
   const handleEmojiClick = (emojiData) => {
     if (emojiData?.emoji) {
       setIcon(emojiData.emoji);
@@ -107,9 +108,9 @@ export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
       toast.error(res.message || t('teacher.suggestErrorToast', 'فشل إرسال اقتراح المكافأة'));
     }
   };
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm overflow-y-auto animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 my-auto text-start relative">
@@ -354,6 +355,7 @@ export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

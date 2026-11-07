@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import useDebounce from '@/shared/hooks/useDebounce';
 import {
   Calendar,
   Search,
@@ -57,6 +58,7 @@ export default function HomeworkSubmissions() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [evaluationFilter, setEvaluationFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 350);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const apiStatus = useMemo(() => {
     if (statusFilter === 'pending') return 'pending';
@@ -66,8 +68,10 @@ export default function HomeworkSubmissions() {
     return 'all';
   }, [statusFilter]);
   const { data: submissionsRes, isLoading } = useQuery({
-    queryKey: ['teacher-homework-submissions', apiStatus],
-    queryFn: () => teacherHomeworkApi.fetchSubmissions(apiStatus),
+    queryKey: ['teacher-homework-submissions', apiStatus, debouncedSearch],
+    queryFn: () => teacherHomeworkApi.fetchSubmissions(apiStatus, {
+      search: debouncedSearch.trim() || undefined,
+    }),
     staleTime: 30 * 1000,
   });
   const formatSubmissionTime = (rawDate) => {
@@ -193,16 +197,9 @@ export default function HomeworkSubmissions() {
       if (evaluationFilter === 'not_evaluated' && item.rawEvaluationStatus === 'evaluated') {
         return false;
       }
-      if (searchTerm.trim()) {
-        const term = searchTerm.toLowerCase();
-        const sName = (item.studentName || '').toLowerCase();
-        const hTitle = (item.homeworkTitle || '').toLowerCase();
-        const gName = (item.groupName || '').toLowerCase();
-        return sName.includes(term) || hTitle.includes(term) || gName.includes(term);
-      }
       return true;
     });
-  }, [rawSubmissions, statusFilter, evaluationFilter, searchTerm]);
+  }, [rawSubmissions, statusFilter, evaluationFilter]);
   if (selectedSubmission) {
     return (
       <SubmissionDetailsView

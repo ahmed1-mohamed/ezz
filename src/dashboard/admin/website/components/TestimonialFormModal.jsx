@@ -25,7 +25,7 @@ export default function TestimonialFormModal({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [errors, setErrors] = useState({});
-  if (!isOpen) {
+  if (!isOpen || typeof document === 'undefined') {
     if (Object.keys(errors).length > 0) setErrors({});
     return null;
   }
@@ -55,13 +55,13 @@ export default function TestimonialFormModal({
   };
   return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}

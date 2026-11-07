@@ -54,13 +54,14 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
     }
   }
   const selectedStudentName = selectedStudent ? getStudentName(selectedStudent) : ''
+  if (typeof document === 'undefined') return null
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
       dir={isRtlResolved ? 'rtl' : 'ltr'}
     >
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onCancel}
       />
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden min-h-[480px] animate-fadeIn flex flex-col">

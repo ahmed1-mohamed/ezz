@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../src/components/dashboardExperts/Settings/Security.tsx"],"sourcesContent":["\nexport default function Security() {\n  return (\n    <div>SecurityComponent</div>\n  )\n}\n"],"names":[],"mappings":"yDACe,SAAS,IACtB,MACE,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UAAI,qBAET"}

@@ -23,7 +23,7 @@ export default function StudentLive() {
     try {
       const stored = sessionStorage.getItem('student_live_stage');
       if (stored === 'during') return 'during';
-    } catch {}
+    } catch (err) { void err; }
     return 'before';
   });
 
@@ -35,7 +35,7 @@ export default function StudentLive() {
         const parsed = JSON.parse(stored);
         if (parsed && (parsed.id || parsed._id)) return parsed;
       }
-    } catch {}
+    } catch (err) { void err; }
     const sid = searchParams.get('sessionId') || searchParams.get('session');
     if (sid) return { id: sid, _id: sid };
     return null;
@@ -48,7 +48,7 @@ export default function StudentLive() {
         const parsed = JSON.parse(stored);
         if (parsed && (parsed.meetingId || parsed.joinUrl || parsed.sdkSignature)) return parsed;
       }
-    } catch {}
+    } catch (err) { void err; }
     return null;
   });
 
@@ -110,7 +110,7 @@ export default function StudentLive() {
       setStage('during');
       try {
         sessionStorage.setItem('student_live_stage', 'during');
-      } catch {}
+      } catch (err) { void err; }
       return;
     }
     try {
@@ -127,7 +127,7 @@ export default function StudentLive() {
         sessionStorage.setItem('student_live_session', JSON.stringify(targetSession));
         sessionStorage.setItem('student_live_joindata', JSON.stringify(data));
         sessionStorage.setItem('student_live_stage', 'during');
-      } catch {}
+      } catch (err) { void err; }
       const nextParams = new URLSearchParams(searchParams);
       nextParams.set('stage', 'during');
       nextParams.set('sessionId', sid);
@@ -159,7 +159,7 @@ export default function StudentLive() {
       sessionStorage.removeItem('student_live_session');
       sessionStorage.removeItem('student_live_joindata');
       sessionStorage.removeItem('student_live_stage');
-    } catch {}
+    } catch (err) { void err; }
     setSearchParams({}, { replace: true });
   }
   if (isLoading) {

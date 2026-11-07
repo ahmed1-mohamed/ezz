@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Radio,
-  Video,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -52,7 +51,7 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
         const parsed = JSON.parse(stored);
         if (parsed && (parsed.meetingId || parsed.joinUrl || parsed.startUrl)) return parsed;
       }
-    } catch {}
+    } catch (err) { void err; }
     return null;
   }, []);
 
@@ -73,7 +72,7 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
     if (raw) {
       try {
         sessionStorage.setItem('teacher_live_joindata', JSON.stringify(raw));
-      } catch {}
+      } catch (err) { void err; }
     }
     return raw;
   }, [joinDataRes, initialCachedJoin]);

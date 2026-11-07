@@ -22,15 +22,12 @@ export default React.memo(function TeacherActiveCurriculumDetail({
   }, [curriculum]);
   const [selectedLevelIndex, setSelectedLevelIndex] = useState(0);
   const [expandedUnitIndex, setExpandedUnitIndex] = useState(0);
-  if (!curriculum) return null;
-  const name = resolveName(curriculum.name, isRtl) || curriculum.title || '-';
-  const levelBadge = curriculum.level || (levels.length > 0 ? resolveName(levels[0]?.name, isRtl) : t('teacherCurricula.intermediate', 'متوسط'));
   const activeLevel = levels[selectedLevelIndex] || null;
   const displayedUnits = useMemo(() => {
     if (activeLevel && Array.isArray(activeLevel.units) && activeLevel.units.length > 0) {
       return activeLevel.units;
     }
-    if (Array.isArray(curriculum.units) && curriculum.units.length > 0) {
+    if (Array.isArray(curriculum?.units) && curriculum.units.length > 0) {
       return curriculum.units;
     }
     if (levels.length > 0) {
@@ -43,8 +40,11 @@ export default React.memo(function TeacherActiveCurriculumDetail({
     if (levels.length > 0) {
       return levels.reduce((acc, l) => acc + (Array.isArray(l.units) ? l.units.length : 0), 0) || levels.length;
     }
-    return Array.isArray(curriculum.units) ? curriculum.units.length : (Number(curriculum.unitsCount) || 4);
+    return Array.isArray(curriculum?.units) ? curriculum.units.length : (Number(curriculum?.unitsCount) || 4);
   }, [levels, curriculum]);
+  if (!curriculum) return null;
+  const name = resolveName(curriculum.name, isRtl) || curriculum.title || '-';
+  const levelBadge = curriculum.level || (levels.length > 0 ? resolveName(levels[0]?.name, isRtl) : t('teacherCurricula.intermediate', 'متوسط'));
   const totalLessons = displayedUnits.reduce((acc, u) => acc + (Array.isArray(u.lessons) ? u.lessons.length : (u.lessonsCount || 0)), 0) || Number(curriculum.totalLessons) || 16;
   const completedLessons = displayedUnits.reduce((acc, u) => {
     if (u.status === 'completed') return acc + (Array.isArray(u.lessons) ? u.lessons.length : (u.lessonsCount || 0));

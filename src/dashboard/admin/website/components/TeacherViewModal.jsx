@@ -11,16 +11,16 @@ export default function TeacherViewModal({
   isLoading
 }) {
   const { t } = useTranslation();
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
   return createPortal(
     <AnimatePresence>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0 }}>
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl p-8"
+          className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl p-8 pointer-events-auto"
         >
           <button
             type="button"

@@ -21,6 +21,7 @@ import ParentPagination from '../overview/components/ParentPagination';
 import TeacherCard from './components/teacher_evaluations/TeacherCard';
 import TeacherEvaluationModal from './components/teacher_evaluations/TeacherEvaluationModal';
 import EvaluationsHistoryList from './components/teacher_evaluations/EvaluationsHistoryList';
+import useDebounce from '@/shared/hooks/useDebounce';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -102,6 +103,7 @@ export default function ParentRatings() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [activeTab, setActiveTab] = useState('teachers');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedTeacherForEval, setSelectedTeacherForEval] = useState(null);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
@@ -111,8 +113,10 @@ export default function ParentRatings() {
     isError: isErrorTeachers,
     refetch: refetchTeachers,
   } = useQuery({
-    queryKey: ['parent-children-teachers'],
-    queryFn: () => parentTeacherEvaluationsApi.fetchChildrenTeachers(),
+    queryKey: ['parent-children-teachers', debouncedSearch],
+    queryFn: () => parentTeacherEvaluationsApi.fetchChildrenTeachers({
+      search: debouncedSearch.trim() || undefined,
+    }),
   });
   const teachersList = useMemo(() => {
     if (!teachersData) return [];
@@ -133,17 +137,8 @@ export default function ParentRatings() {
     } else if (statusFilter === 'pending') {
       result = result.filter((tc) => !tc?.isEvaluatedThisWeek);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter((tc) => {
-        const nameMatch = extractSafeText(tc?.name, isRtl).toLowerCase().includes(q);
-        const specMatch = Array.isArray(tc?.specializations) && tc.specializations.some((s) => extractSafeText(s, isRtl).toLowerCase().includes(q));
-        const childMatch = Array.isArray(tc?.children) && tc.children.some((c) => extractSafeText(c?.name || c, isRtl).toLowerCase().includes(q));
-        return nameMatch || specMatch || childMatch;
-      });
-    }
     return result;
-  }, [teachersList, statusFilter, searchQuery, isRtl]);
+  }, [teachersList, statusFilter]);
   const [studentsList, setStudentsList] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState('all');
   const [currentStudentPage, setCurrentStudentPage] = useState(1);

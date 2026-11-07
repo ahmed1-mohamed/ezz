@@ -44,14 +44,20 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     || (prog.levels && prog.levels.length > 0
                         ? (isRtl ? `${prog.levels.length} مستويات` : `${prog.levels.length} Levels`)
                         : (isRtl ? 'برنامج معتمد' : 'Accredited'));
-                const tags = Array.isArray(prog.benefitsAfterGraduation) && prog.benefitsAfterGraduation.length > 0
-                    ? prog.benefitsAfterGraduation
-                    : (Array.isArray(prog.levels) ? prog.levels.map((l) => l.name) : []);
-                const features = Array.isArray(prog.features) && prog.features.length > 0
+                const candidateTags = Array.isArray(prog.levels) && prog.levels.length > 0
+                    ? prog.levels.map((l) => (typeof l === 'object' ? l.name : l)).filter(Boolean)
+                    : (Array.isArray(prog.tags) ? prog.tags : []);
+                const tags = candidateTags
+                    .map((t) => (typeof t === 'string' ? t.trim() : ''))
+                    .filter((t) => t.length > 0 && t.length <= 25);
+                const candidateFeatures = Array.isArray(prog.features) && prog.features.length > 0
                     ? prog.features
                     : (Array.isArray(prog.benefitsAfterGraduation) && prog.benefitsAfterGraduation.length > 0
                         ? prog.benefitsAfterGraduation
                         : []);
+                const features = candidateFeatures
+                    .map((f) => (typeof f === 'string' ? f.trim() : (typeof f === 'object' ? (isRtl ? f.ar || f.en : f.en || f.ar) : '')))
+                    .filter(Boolean);
                 return {
                     id: prog.id || prog._id || index,
                     title,
@@ -279,11 +285,11 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                             </p>
                                         )}
                                         {prog.tags.length > 0 && (
-                                            <div className="mt-4 flex flex-wrap gap-2">
+                                            <div className="mt-4 flex flex-wrap gap-2 justify-center">
                                                 {prog.tags.slice(0, 4).map((tag, i) => (
                                                     <span
                                                         key={i}
-                                                        className="rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-750 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-[#0F7A6C] dark:hover:border-emerald-400 hover:text-[#0F7A6C] dark:hover:text-emerald-400 transition-colors truncate max-w-[200px]"
+                                                        className="rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-750 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-[#0F7A6C] dark:hover:border-emerald-400 hover:text-[#0F7A6C] dark:hover:text-emerald-400 transition-colors truncate max-w-full"
                                                     >
                                                         {tag}
                                                     </span>
@@ -291,13 +297,13 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                             </div>
                                         )}
                                         {prog.features.length > 0 && (
-                                            <div className="mt-5 space-y-2.5">
+                                            <div className="mt-5 space-y-3 w-full text-start">
                                                 {prog.features.slice(0, 4).map((feature, i) => (
-                                                    <div key={i} className="flex items-center gap-3">
-                                                        <div className="h-5 w-5 rounded-full bg-[#0F7A6C] flex items-center justify-center shadow-sm shrink-0">
+                                                    <div key={i} className="flex items-start gap-2.5 sm:gap-3 text-start">
+                                                        <div className="h-5 w-5 rounded-full bg-[#0F7A6C] flex items-center justify-center shadow-xs shrink-0 mt-0.5">
                                                             <Check className="h-3 w-3 text-white" />
                                                         </div>
-                                                        <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 line-clamp-1 font-medium">
+                                                        <span className="flex-1 min-w-0 text-start text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium break-words">
                                                             {feature}
                                                         </span>
                                                     </div>
@@ -306,7 +312,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                         )}
                                     </div>
                                 </div>
-                                <div className="p-5 sm:p-6 pt-0 mt-auto">
+                                <div className="p-5 sm:p-6 pt-3 mt-auto">
                                     <Link
                                         to="/curriculums"
                                         onClick={handleCardClick}
@@ -314,10 +320,10 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                     >
                                         <button
                                             type="button"
-                                            aria-label={`${t('programs.cta', 'استكشف البرنامج')} - ${prog.title}`}
-                                            className="w-full relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-3 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                                            aria-label={`${t('programs.cta', isRtl ? 'سجل الآن' : 'Enroll Now')} - ${prog.title}`}
+                                            className="w-full relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-3.5 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98] cursor-pointer"
                                         >
-                                            {t('programs.cta', 'استكشف البرنامج')}
+                                            {t('programs.cta', isRtl ? 'سجل الآن' : 'Enroll Now')}
                                         </button>
                                     </Link>
                                 </div>

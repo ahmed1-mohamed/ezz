@@ -52,7 +52,7 @@ function StatCard({ label, value, icon: Icon, color }) {
   );
 }
 
-function NextSessionCard({ nextSession, isRtl }) {
+function NextSessionCard({ nextSession }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   if (!nextSession) {

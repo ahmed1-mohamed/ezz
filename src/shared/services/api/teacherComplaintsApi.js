@@ -1,6 +1,6 @@
 import api from './axiosConfig';
 
-const toMultipart = ({ attachments = [], status, ...fields }) => {
+const toMultipart = ({ attachments = [], ...fields }) => {
   const fd = new FormData();
   Object.entries(fields).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') fd.append(key, value);

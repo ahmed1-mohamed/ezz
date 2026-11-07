@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -180,8 +181,9 @@ export default function TeacherNewComplaintModal({ onClose }) {
     }
     mutation.mutate();
   };
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+  if (typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
         className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
         dir={isRtl ? 'rtl' : 'ltr'}
@@ -429,6 +431,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

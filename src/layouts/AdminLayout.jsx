@@ -30,18 +30,15 @@ import {
   Languages,
   Settings,
   CalendarCheck,
-  Sun,
-  Moon,
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
-import { setLanguage } from '@/i18n'
 
 const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers', permission: 'users.read' },
   { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers', permission: 'teachers.read' },
-  { path: '/dashboard/admin/teacher-evaluations', icon: Star, transKey: 'teacherEvaluations', permission: 'teachers.read' },
+  { path: '/dashboard/admin/teacher-evaluations', icon: Star, transKey: 'teacherEvaluations', permissions: ['teacher_evaluations.read', 'teachers.read'] },
   { path: '/dashboard/admin/students', icon: Book, transKey: 'students', permission: 'students.read' },
   { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels', permission: 'student_levels.read' },
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents', permission: 'parents.read' },
@@ -113,31 +110,27 @@ const NavItem = memo(function NavItem({ item, t, onClose, isCollapsed }) {
           ? 'bg-[#0f7a6c] text-white font-semibold shadow-md shadow-[#0f7a6c]/10'
           : `text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-[#0f7a6c] dark:hover:text-emerald-400 ${isCollapsed ? '' : 'hover:ps-5'}`}
       `}
-      title={isCollapsed ? t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '') : undefined}
+      title={isCollapsed ? (item.transKey === 'mainWebsite' ? t('common.mainWebsite', 'الموقع الرئيسي') : t(`adminDashboard.nav.${item.transKey}`)) : undefined}
     >
       <item.icon size={18} className={`${isCollapsed ? '' : 'me-3'} transition-transform group-hover:scale-110 shrink-0`} aria-hidden="true" />
       {!isCollapsed && (
-        <span className="text-sm whitespace-nowrap">{t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '')}</span>
+        <span className="text-sm whitespace-nowrap">{item.transKey === 'mainWebsite' ? t('common.mainWebsite', 'الموقع الرئيسي') : t(`adminDashboard.nav.${item.transKey}`)}</span>
       )}
     </NavLink>
   )
 })
 
 export default memo(function AdminLayout() {
-  const { user, logout, theme, toggleTheme } = useAuth()
+  const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-  const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   const handleLogout = useCallback(() => {
     logout()
     navigate('/login')
   }, [logout, navigate])
-  const handleLanguageToggle = useCallback(() => {
-    setLanguage(isRtl ? 'en' : 'ar')
-  }, [isRtl])
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
   const toggleSidebar = useCallback(() => setIsSidebarCollapsed(prev => !prev), [])
@@ -154,6 +147,10 @@ export default memo(function AdminLayout() {
   }, [isSuperAdmin, hasPermission, hasAnyPermission])
   const resolvedName = useMemo(() => getDisplayName(user, isRtl), [user, isRtl])
   const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
+  const userAvatar = useMemo(() => {
+    const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo
+    return typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null
+  }, [user])
   const displayRole = useMemo(
     () => user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول'),
     [user?.role, t]
@@ -182,24 +179,6 @@ export default memo(function AdminLayout() {
           </div>
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
-            aria-label="Toggle theme"
-          >
-            {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-[#0f7a6c]" />}
-          </button>
-          <button
-            type="button"
-            onClick={handleLanguageToggle}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold text-xs"
-            title={t('language.toggle', 'تغيير اللغة')}
-            aria-label="Toggle language"
-          >
-            <Globe size={18} />
-          </button>
           <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
             <div className="text-end">
               <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[90px] sm:max-w-[140px]">
@@ -296,14 +275,51 @@ export default memo(function AdminLayout() {
             <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} isCollapsed={isSidebarCollapsed} />
           ))}
         </nav>
-        <div className={`p-4 border-t border-slate-100 dark:border-slate-900 shrink-0 ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
+        <div className={`p-4 border-t border-slate-100 dark:border-slate-800 shrink-0 space-y-3 bg-white dark:bg-slate-950 ${isSidebarCollapsed ? 'flex flex-col items-center' : ''}`}>
+          {isSidebarCollapsed ? (
+            <Link
+              to="/dashboard/admin/settings"
+              onClick={closeMobileMenu}
+              className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden hover:scale-105 transition-transform"
+              title={resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+            >
+              {userAvatar ? (
+                <img src={userAvatar} alt={resolvedName || 'User profile'} className="w-full h-full object-cover" />
+              ) : (
+                userInitial
+              )}
+            </Link>
+          ) : (
+            <Link
+              to="/dashboard/admin/settings"
+              onClick={closeMobileMenu}
+              className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-colors group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden">
+                {userAvatar ? (
+                  <img src={userAvatar} alt={resolvedName || 'User profile'} className="w-full h-full object-cover" />
+                ) : (
+                  userInitial
+                )}
+              </div>
+              <div className="min-w-0 flex-1 text-start truncate">
+                <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#0f7a6c] dark:group-hover:text-emerald-400 transition-colors">
+                  {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+                </p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                  {displayRole}
+                </p>
+              </div>
+            </Link>
+          )}
           <button
+            type="button"
             onClick={handleLogout}
-            className={`flex items-center justify-center ${isSidebarCollapsed ? 'w-11 h-11 p-0' : 'w-full px-4 py-2.5'} bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-xl transition-all font-medium group`}
-            title={isSidebarCollapsed ? t('dashboard.logout', 'تسجيل الخروج') : undefined}
+            className={`w-full flex items-center justify-center gap-2 ${isSidebarCollapsed ? 'w-11 h-11 p-0' : 'py-2.5 px-4'} rounded-2xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-2xs hover:shadow-sm cursor-pointer group`}
+            title={isSidebarCollapsed ? t('common.logout', 'تسجيل الخروج') : undefined}
           >
-            <LogOut size={18} className={`${isSidebarCollapsed ? '' : 'me-2'} transition-transform group-hover:-translate-x-1 shrink-0`} aria-hidden="true" />
-            {!isSidebarCollapsed && <span className="text-sm whitespace-nowrap">{t('dashboard.logout', 'تسجيل الخروج')}</span>}
+            <LogOut size={16} className="transition-transform group-hover:-translate-x-1 shrink-0" aria-hidden="true" />
+            {!isSidebarCollapsed && <span className="whitespace-nowrap">{t('common.logout', 'تسجيل الخروج')}</span>}
           </button>
         </div>
       </aside>
@@ -316,56 +332,6 @@ export default memo(function AdminLayout() {
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
               {t('adminDashboard.panelSubtitle', 'منارة العز أكاديمي - لوحة الإدارة')}
             </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all cursor-pointer shadow-xs"
-              title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? <Sun size={19} className="text-amber-400" /> : <Moon size={19} className="text-[#0f7a6c]" />}
-            </button>
-            <button
-              type="button"
-              onClick={handleLanguageToggle}
-              className="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all font-bold text-xs cursor-pointer shadow-xs"
-              title={t('language.toggle', 'تغيير اللغة')}
-              aria-label="Toggle language"
-            >
-              <Globe size={16} />
-              <span>{isRtl ? 'English' : 'عربي'}</span>
-            </button>
-            <div className="h-6 w-px bg-slate-200 dark:border-slate-800 mx-1" />
-            <Link to="/dashboard/admin/settings" className="flex items-center gap-3 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition-colors">
-              <div className="text-end hidden xl:block">
-                <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
-                </h4>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                  {displayRole}
-                </p>
-              </div>
-              <div
-                className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
-                aria-label={resolvedName || 'المستخدم'}
-              >
-                {(() => {
-                  const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-                  const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-                  return cleanImg ? (
-                    <img
-                      src={cleanImg}
-                      alt={resolvedName || 'User profile'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    userInitial
-                  );
-                })()}
-              </div>
-            </Link>
           </div>
         </header>
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">

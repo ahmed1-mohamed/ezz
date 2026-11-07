@@ -5,7 +5,7 @@ import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search,
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
-import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
+import { sortCountries, getCountryName, fetchCountries, searchCountriesBackend } from '@/shared/utils/countryUtils'
 import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -32,6 +32,8 @@ export default function Register() {
     const [selectedCountry, setSelectedCountry] = useState(null)
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
     const [countrySearch, setCountrySearch] = useState('')
+    const [backendCountries, setBackendCountries] = useState(null)
+    const [isSearchingCountry, setIsSearchingCountry] = useState(false)
     const [loadingCountries, setLoadingCountries] = useState(false)
     const dropdownRef = useRef(null)
     useEffect(() => {
@@ -82,18 +84,39 @@ export default function Register() {
             return () => clearTimeout(timer)
         }
     }, [toast.show])
+    const [prevCountrySearch, setPrevCountrySearch] = useState(countrySearch)
+    if (prevCountrySearch !== countrySearch) {
+        setPrevCountrySearch(countrySearch)
+        if (!countrySearch.trim()) {
+            setBackendCountries(null)
+            setIsSearchingCountry(false)
+        }
+    }
+    useEffect(() => {
+        const trimmed = countrySearch.trim()
+        if (!trimmed) return
+        let active = true
+        const timer = setTimeout(async () => {
+            setIsSearchingCountry(true)
+            try {
+                const list = await searchCountriesBackend(trimmed)
+                if (active) setBackendCountries(list)
+            } catch (err) {
+                console.warn('Backend country search failed:', err)
+                if (active) setBackendCountries([])
+            } finally {
+                if (active) setIsSearchingCountry(false)
+            }
+        }, 300)
+        return () => {
+            active = false
+            clearTimeout(timer)
+        }
+    }, [countrySearch])
     const filteredCountries = useMemo(() => {
-        const sorted = sortCountries(countriesList, isRtl)
-        if (!countrySearch.trim()) return sorted
-        const q = countrySearch.toLowerCase().trim()
-        return sorted.filter(c =>
-            (c.name && c.name.toLowerCase().includes(q)) ||
-            (c.nameEn && c.nameEn.toLowerCase().includes(q)) ||
-            (c.dialCode && c.dialCode.includes(q)) ||
-            (c.phoneCode && c.phoneCode.includes(q)) ||
-            (c.code && c.code.toLowerCase().includes(q))
-        )
-    }, [countriesList, countrySearch, isRtl])
+        const list = backendCountries !== null ? backendCountries : countriesList
+        return sortCountries(list, isRtl)
+    }, [backendCountries, countriesList, isRtl])
     const validate = () => {
         const nextErrors = {}
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -299,7 +322,7 @@ export default function Register() {
                                                         className="w-full bg-transparent border-none text-slate-800 dark:text-white text-xs sm:text-sm outline-none placeholder-slate-400 dark:placeholder-slate-500"
                                                         autoFocus
                                                     />
-                                                    {loadingCountries && (
+                                                    {(loadingCountries || isSearchingCountry) && (
                                                         <Loader2 className="w-3.5 h-3.5 text-[#00695C] dark:text-emerald-400 animate-spin shrink-0" />
                                                     )}
                                                 </div>

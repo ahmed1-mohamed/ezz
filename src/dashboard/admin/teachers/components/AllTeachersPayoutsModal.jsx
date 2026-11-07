@@ -38,7 +38,7 @@ export default function AllTeachersPayoutsModal({
     enabled: Boolean(isOpen),
     staleTime: 60 * 1000,
   })
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const payoutsList = res?.data || []
   const statistics = res?.statistics || {}
   const pagination = res?.pagination || { currentPage: 1, totalPages: 1, totalItems: 0 }
@@ -52,7 +52,7 @@ export default function AllTeachersPayoutsModal({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div

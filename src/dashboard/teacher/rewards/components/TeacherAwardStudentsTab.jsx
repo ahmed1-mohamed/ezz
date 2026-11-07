@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import useDebounce from '@/shared/hooks/useDebounce';
 import {
   Gift,
   Award,
@@ -38,6 +39,7 @@ export default function TeacherAwardStudentsTab() {
   const [selectedGroupName, setSelectedGroupName] = useState('');
   const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const debouncedStudentSearch = useDebounce(studentSearchQuery, 350);
   const [studentAwards, setStudentAwards] = useState({});
   const [isGrantingRewards, setIsGrantingRewards] = useState(false);
   const { data: rewardsRes, isLoading: isLoadingRewards } = useQuery({
@@ -62,11 +64,13 @@ export default function TeacherAwardStudentsTab() {
     return [];
   }, [activeGroupsRes]);
   const { data: teacherStudentsRes, isLoading: isLoadingStudents } = useQuery({
-    queryKey: ['teacher-students', selectedGroupId],
-    queryFn: () =>
-      teacherRewardsApi.fetchTeacherStudents(
-        selectedGroupId !== 'all' ? { groupId: selectedGroupId } : {}
-      ),
+    queryKey: ['teacher-students', selectedGroupId, debouncedStudentSearch],
+    queryFn: () => {
+      const params = {};
+      if (selectedGroupId !== 'all') params.groupId = selectedGroupId;
+      if (debouncedStudentSearch.trim()) params.search = debouncedStudentSearch.trim();
+      return teacherRewardsApi.fetchTeacherStudents(params);
+    },
     staleTime: 5 * 60 * 1000,
   });
   const { data: groupDetailsRes } = useQuery({
@@ -141,12 +145,8 @@ export default function TeacherAwardStudentsTab() {
         return String(s.groupId) === String(selectedGroupId);
       });
     }
-    if (studentSearchQuery.trim()) {
-      const q = studentSearchQuery.trim().toLowerCase();
-      mapped = mapped.filter((s) => s.name.toLowerCase().includes(q));
-    }
     return mapped;
-  }, [teacherStudentsRes, groupDetailsRes, selectedGroupId, studentSearchQuery]);
+  }, [teacherStudentsRes, groupDetailsRes, selectedGroupId]);
   const totalSelectedCount = useMemo(() => {
     return Object.values(studentAwards).reduce(
       (acc, list) => acc + (Array.isArray(list) ? list.length : 0),

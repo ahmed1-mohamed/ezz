@@ -40,8 +40,16 @@ export const adminGroupsApi = {
   },
 
   fetchLocalizedActiveGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/groups/private/localized/active', { params });
-    return response.data;
+    try {
+      const response = await api.get('/api/v1/groups/private/localized/active', { params });
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        const fallback = await api.get('/api/v1/groups/private', { params: { ...params, status: 'active' } });
+        return fallback.data;
+      }
+      throw err;
+    }
   },
 
   fetchLocalizedStoppedGroups: async (params = {}) => {

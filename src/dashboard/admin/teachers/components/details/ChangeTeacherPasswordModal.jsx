@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, KeyRound, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -15,7 +16,7 @@ export default function ChangeTeacherPasswordModal({
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  if (!isOpen || !teacher) return null
+  if (!isOpen || !teacher || typeof document === 'undefined') return null
   const userId = teacher.user_id
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -50,9 +51,9 @@ export default function ChangeTeacherPasswordModal({
       setIsSubmitting(false)
     }
   }
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -161,6 +162,7 @@ export default function ChangeTeacherPasswordModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo } from 'react'
-import { Camera, Image as ImageIcon } from 'lucide-react'
-import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
+import { useState, useRef, useMemo, useEffect } from 'react'
+import { Camera, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { sortCountries, getCountryName, searchCountriesBackend } from '@/shared/utils/countryUtils'
 
 export default function IdentityInfoCard({
   formData,
@@ -14,19 +14,42 @@ export default function IdentityInfoCard({
   const [photoPreview, setPhotoPreview] = useState(formData.photoUrl || null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
   const sortedCountries = useMemo(() => {
     return sortCountries(countries, isRtl)
   }, [countries, isRtl])
-  const filteredCountries = useMemo(() => {
-    if (!countrySearch.trim()) return sortedCountries;
-    const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
-    return sortedCountries.filter(c => {
-      const cName = getCountryName(c, isRtl).toLowerCase();
-      const cCode = (c.code || '').toLowerCase();
-      const cPhone = String(c.dialCode || c.phoneCode || '').replace(/\+/g, '').trim();
-      return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
-    });
-  }, [sortedCountries, countrySearch, isRtl])
+  useEffect(() => {
+    if (!countrySearch.trim()) {
+      setSearchResults(null)
+      setIsSearching(false)
+      return
+    }
+    setIsSearching(true)
+    let isCancelled = false
+    const timer = setTimeout(() => {
+      searchCountriesBackend(countrySearch)
+        .then((res) => {
+          if (!isCancelled) {
+            setSearchResults(res)
+            setIsSearching(false)
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setIsSearching(false)
+          }
+        })
+    }, 250)
+    return () => {
+      isCancelled = true
+      clearTimeout(timer)
+    }
+  }, [countrySearch])
+  const displayedCountries = useMemo(() => {
+    const list = searchResults !== null ? searchResults : sortedCountries
+    return sortCountries(list, isRtl)
+  }, [searchResults, sortedCountries, isRtl])
   const selectedPhoneCountry = useMemo(() => {
     const pfxNorm = String(formData.phonePrefix || '').replace(/\+/g, '').trim()
     if (!pfxNorm) return null
@@ -50,9 +73,14 @@ export default function IdentityInfoCard({
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
     setCountrySearch('')
+    setSearchResults(null)
     const pfx = String(country.dialCode || country.phoneCode || country.code || '');
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     onChange('phonePrefix', prefixWithPlus)
+    const countryId = country.id || country._id
+    if (!formData.countryId && countryId) {
+      onChange('countryId', countryId)
+    }
   }
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
@@ -176,20 +204,31 @@ export default function IdentityInfoCard({
                     className="w-full px-2.5 py-1.5 bg-[#f3f7f6] dark:bg-slate-900 text-xs rounded-xl outline-none text-slate-800 dark:text-slate-200 border border-transparent focus:border-brand-500"
                   />
                 </div>
-                {filteredCountries.map((country) => (
-                  <button
-                    key={country.id || country._id}
-                    type="button"
-                    onClick={() => selectCountryCode(country)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold cursor-pointer"
-                  >
-                    <span>{getCountryName(country, isRtl)}</span>
-                    <span className="flex items-center gap-2">
-                      <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
-                      <span className="text-lg">{country.flag}</span>
-                    </span>
-                  </button>
-                ))}
+                {isSearching ? (
+                  <div className="flex items-center justify-center py-4 text-slate-400 gap-2 text-xs">
+                    <Loader2 className="w-4 h-4 animate-spin text-brand-500" />
+                    <span>{isRtl ? 'جاري البحث في قاعدة البيانات...' : 'Searching database...'}</span>
+                  </div>
+                ) : displayedCountries.length === 0 ? (
+                  <div className="text-center py-4 text-xs font-semibold text-slate-400 dark:text-slate-500">
+                    {isRtl ? 'لا توجد نتائج مطابقة' : 'No matching results'}
+                  </div>
+                ) : (
+                  displayedCountries.map((country) => (
+                    <button
+                      key={country.id || country._id}
+                      type="button"
+                      onClick={() => selectCountryCode(country)}
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold cursor-pointer"
+                    >
+                      <span>{getCountryName(country, isRtl)}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
+                        <span className="text-lg">{country.flag}</span>
+                      </span>
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>

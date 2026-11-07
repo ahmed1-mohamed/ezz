@@ -16,7 +16,7 @@ export default function AddSessionsModal({
   const maxAllowed = Math.min(MAX_SESSIONS_PER_OPERATION, monthlyRemaining)
   const [sessionsCount, setSessionsCount] = useState(Math.min(1, maxAllowed))
   const [reason, setReason] = useState('')
-  if (!isOpen || !student) return null
+  if (!isOpen || !student || typeof document === 'undefined') return null
   const studentName = typeof student.name === 'string'
     ? student.name
     : (student.name?.ar || student.name?.en || 'الطالب')
@@ -39,7 +39,7 @@ export default function AddSessionsModal({
   }
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={isLoading ? undefined : onClose}
     >

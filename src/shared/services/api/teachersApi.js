@@ -228,29 +228,10 @@ export const teachersApi = {
       const response = await api.get('/api/v1/teachers/public', { params: apiParams });
       const resData = response.data || {};
       const rawList = resData.data || (Array.isArray(resData) ? resData : []);
-      let items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
+      const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
       const limit = Number(resData.pagination?.limit || apiParams.limit || 10);
       const currentPage = Number(resData.pagination?.currentPage || apiParams.page || 1);
-      let numberOfPages = Number(resData.pagination?.numberOfPages || Math.max(1, Math.ceil(items.length / limit)));
-      if (apiParams.search) {
-        const query = apiParams.search.toLowerCase();
-        const matchesSearch = (t) => {
-          const nameAr = (t.name || '').toLowerCase();
-          const nameEn = (t.nameEn || '').toLowerCase();
-          const degreeVal = (typeof t.degree === 'object' ? (t.degree?.ar || t.degree?.en || '') : String(t.degree || '')).toLowerCase();
-          const countryVal = (t.country || '').toLowerCase();
-          const subjectVal = (t.subject || '').toLowerCase();
-          const specs = Array.isArray(t.specializations)
-            ? t.specializations.some((s) => (typeof s === 'object' ? s.name || '' : String(s)).toLowerCase().includes(query))
-            : false;
-          return nameAr.includes(query) || nameEn.includes(query) || degreeVal.includes(query) || countryVal.includes(query) || subjectVal.includes(query) || specs;
-        };
-        const allMatch = items.length === 0 || items.every(matchesSearch);
-        if (!allMatch) {
-          items = items.filter(matchesSearch);
-          numberOfPages = Math.max(1, Math.ceil(items.length / limit));
-        }
-      }
+      const numberOfPages = Number(resData.pagination?.numberOfPages || Math.max(1, Math.ceil(items.length / limit)));
       return {
         success: true,
         data: items,
@@ -328,35 +309,6 @@ export const teachersApi = {
         numberOfPages: Math.max(1, Math.ceil(items.length / limit)),
         totalCount: items.length
       };
-      if (apiParams.search) {
-        const query = apiParams.search.toLowerCase();
-        const matchesSearch = (t) => {
-          const nameAr = (t.name || '').toLowerCase();
-          const nameEn = (t.nameEn || '').toLowerCase();
-          const email = (t.email || '').toLowerCase();
-          const phone = (t.phone || '').toLowerCase();
-          const subject = (t.subject || '').toLowerCase();
-          const degree = (t.degree || '').toLowerCase();
-          const bio = (t.bio || '').toLowerCase();
-          const specs = Array.isArray(t.specializations)
-            ? t.specializations.some((s) => (typeof s === 'object' ? s.name || '' : String(s)).toLowerCase().includes(query))
-            : false;
-          return (
-            nameAr.includes(query) ||
-            nameEn.includes(query) ||
-            email.includes(query) ||
-            phone.includes(query) ||
-            subject.includes(query) ||
-            degree.includes(query) ||
-            bio.includes(query) ||
-            specs
-          );
-        };
-        const allMatch = items.length === 0 || items.every(matchesSearch);
-        if (!allMatch) {
-          items = items.filter(matchesSearch);
-        }
-      }
       const totalCount = pagination.totalCount ?? resData.statistics?.total ?? items.length;
       const statistics = resData.statistics || {
         total: totalCount,

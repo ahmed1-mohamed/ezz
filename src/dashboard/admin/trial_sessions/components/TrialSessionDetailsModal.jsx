@@ -40,7 +40,7 @@ export default function TrialSessionDetailsModal({
   isRtl = true,
   onOpenAssign,
 }) {
-  if (!isOpen || !trialSession) return null
+  if (!isOpen || !trialSession || typeof document === 'undefined') return null
   const studentObj = trialSession.student || {}
   const studentName = resolveText(studentObj.name || trialSession.studentName, isRtl) || (isRtl ? 'طالب' : 'Student')
   const studentAge = studentObj.age || trialSession.age
@@ -63,7 +63,7 @@ export default function TrialSessionDetailsModal({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div
@@ -92,7 +92,6 @@ export default function TrialSessionDetailsModal({
             <X size={16} />
           </button>
         </div>
-
         <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           <div className="p-4 rounded-2xl bg-[#005953]/5 dark:bg-emerald-950/20 border border-[#005953]/15 dark:border-emerald-900/30 space-y-3">
             <div className="flex items-center justify-between">
@@ -123,7 +122,6 @@ export default function TrialSessionDetailsModal({
               )}
             </div>
           </div>
-
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2 text-xs">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               {isRtl ? 'بيانات ولي الأمر والتواصل' : 'Parent & Contact'}
@@ -143,7 +141,6 @@ export default function TrialSessionDetailsModal({
               </div>
             )}
           </div>
-
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2 text-xs">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               {isRtl ? 'المنهج والطلب' : 'Curriculum & Request'}
@@ -165,7 +162,6 @@ export default function TrialSessionDetailsModal({
               </div>
             )}
           </div>
-
           {assignedGroupName && (
             <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 space-y-2 text-xs">
               <div className="flex items-center justify-between">
@@ -197,7 +193,6 @@ export default function TrialSessionDetailsModal({
               )}
             </div>
           )}
-
           {isCancelled && trialSession.cancellationReason && (
             <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs space-y-1">
               <span className="font-bold text-rose-700 dark:text-rose-300 block">{isRtl ? 'سبب الإلغاء / الرفض:' : 'Cancellation Reason:'}</span>
@@ -205,7 +200,6 @@ export default function TrialSessionDetailsModal({
             </div>
           )}
         </div>
-
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
           {isPending && onOpenAssign ? (
             <button

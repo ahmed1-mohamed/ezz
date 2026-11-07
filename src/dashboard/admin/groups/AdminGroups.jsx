@@ -123,7 +123,7 @@ export default function AdminGroups() {
       }
     }
     return () => { active = false }
-  }, [routeGroupId, navigate, isRtl, t])
+  }, [routeGroupId, navigate, isRtl, t, selectedGroup, viewMode])
   const filtered = useMemo(() => {
     let result = groups
     if (statusFilter !== 'all' && !pagination) {
@@ -136,18 +136,8 @@ export default function AdminGroups() {
         return g.status === statusFilter
       })
     }
-    if (searchQuery.trim() && !pagination) {
-      const q = searchQuery.toLowerCase()
-      result = result.filter((g) => {
-        const name = getLocalizedValue(g.name, isRtl).toLowerCase()
-        const teacher = (getLocalizedValue(g.teacher?.name, isRtl) || (typeof g.teacher === 'string' ? g.teacher : '')).toLowerCase()
-        const curriculum = getLocalizedValue(g.curriculum?.name || g.subject, isRtl).toLowerCase()
-        const level = getLocalizedValue(g.studentLevel?.name || g.level, isRtl).toLowerCase()
-        return name.includes(q) || teacher.includes(q) || curriculum.includes(q) || level.includes(q)
-      })
-    }
     return result
-  }, [groups, statusFilter, searchQuery, pagination, isRtl])
+  }, [groups, statusFilter, pagination])
   const metrics = useMemo(() => {
     const total = pagination?.totalCount ?? groups.length
     const pending = groups.filter((g) => {

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, DollarSign, Loader2, Check } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -19,7 +20,7 @@ export default function UpdateHourlyRateModal({
       setHourlyRate(teacher.hourlyRate !== undefined && teacher.hourlyRate !== null ? String(teacher.hourlyRate) : '0')
     }
   }
-  if (!isOpen || !teacher) return null
+  if (!isOpen || !teacher || typeof document === 'undefined') return null
   const teacherId = teacher.teacher_id || teacher.id || teacher._id
   const teacherName = typeof teacher.name === 'object' && teacher.name !== null
     ? (isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || ''
@@ -48,9 +49,9 @@ export default function UpdateHourlyRateModal({
       setIsSubmitting(false)
     }
   }
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -137,6 +138,7 @@ export default function UpdateHourlyRateModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

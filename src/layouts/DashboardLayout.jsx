@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,12 +11,9 @@ import {
   LogOut,
   Menu,
   X,
-  Sun,
-  Moon,
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
-import { setLanguage } from '@/i18n.js';
 import { roleNavigation } from '@/shared/constants/navigation.js';
 
 function getIconForPath(path) {
@@ -27,14 +24,11 @@ function getIconForPath(path) {
 }
 
 export default function DashboardLayout({ title, role, links, children }) {
-  const { user, logout, theme, toggleTheme } = useAuth();
+  const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const isRtl = i18n.language?.startsWith('ar') ?? true;
-  const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const handleLanguageToggle = () => setLanguage(isRtl ? 'en' : 'ar');
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -91,7 +85,7 @@ export default function DashboardLayout({ title, role, links, children }) {
                 <h1 className="text-base font-extrabold text-[#0f7a6c] dark:text-emerald-400 leading-tight">
                   {t('appName', 'منارة العز')}
                 </h1>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{resolvedRole}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">{resolvedRole}</p>
               </div>
             </Link>
             <button
@@ -102,64 +96,45 @@ export default function DashboardLayout({ title, role, links, children }) {
               <X size={18} />
             </button>
           </div>
-          <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800">
+          <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) => `
-                  flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-200
+                  flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200
                   ${
                     isActive
                       ? 'bg-[#0f7a6c] text-white shadow-xs'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-[#0f7a6c] dark:hover:text-emerald-400'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-[#0f7a6c] dark:hover:text-emerald-400 font-medium'
                   }
                 `}
               >
-                <item.icon size={18} className="shrink-0" />
+                <item.icon size={18} className="shrink-0 transition-transform group-hover:scale-110" />
                 <span className="truncate">{item.label}</span>
               </NavLink>
             ))}
             <Link
               to="/"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-[#0f7a6c] dark:hover:text-emerald-400 transition-all duration-200"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-[#0f7a6c] dark:hover:text-emerald-400 transition-all duration-200 group"
             >
-              <Globe size={18} className="shrink-0" />
-              <span className="truncate">{t('adminDashboard.nav.mainWebsite', 'الموقع الرئيسي')}</span>
+              <Globe size={18} className="shrink-0 transition-transform group-hover:scale-110" />
+              <span className="truncate">{t('common.mainWebsite', 'الموقع الرئيسي')}</span>
             </Link>
           </nav>
           <div className="p-4 space-y-3 shrink-0 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-xs"
-                title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
-              >
-                {isDarkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-[#0f7a6c]" />}
-                <span>{isDarkMode ? t('theme.light', 'نهاري') : t('theme.dark', 'ليلي')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleLanguageToggle}
-                className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
-                title={t('language.toggle', 'تغيير اللغة')}
-              >
-                <Globe size={15} />
-                <span>{isRtl ? 'EN' : 'عربي'}</span>
-              </button>
-            </div>
-            <div className="flex items-center gap-3 px-1">
-              <div className="w-9 h-9 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden">
+            <div className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-colors group cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden">
                 {user?.image ? (
                   <img src={user.image} alt={userName} className="w-full h-full object-cover" />
                 ) : (
-                  userInitial
+                  <span>{userInitial}</span>
                 )}
               </div>
               <div className="min-w-0 flex-1 text-start truncate">
-                <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
+                <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#0f7a6c] dark:group-hover:text-emerald-400 transition-colors">
                   {userName}
                 </p>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
@@ -170,10 +145,10 @@ export default function DashboardLayout({ title, role, links, children }) {
             <button
               type="button"
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-2xs hover:shadow-sm cursor-pointer group"
             >
-              <LogOut size={16} />
-              <span>{t('dashboard.logout', 'تسجيل الخروج')}</span>
+              <LogOut size={16} className="transition-transform group-hover:-translate-x-1 shrink-0" aria-hidden="true" />
+              <span className="whitespace-nowrap">{t('common.logout', 'تسجيل الخروج')}</span>
             </button>
           </div>
         </div>
@@ -198,23 +173,6 @@ export default function DashboardLayout({ title, role, links, children }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
-            >
-              {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-[#0f7a6c]" />}
-            </button>
-            <button
-              type="button"
-              onClick={handleLanguageToggle}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold text-xs flex items-center gap-1.5 cursor-pointer"
-              title={t('language.toggle', 'تغيير اللغة')}
-            >
-              <Globe size={15} />
-              <span>{isRtl ? 'English' : 'عربي'}</span>
-            </button>
             <div className="w-8 h-8 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center font-bold text-xs overflow-hidden shadow-xs shrink-0">
               {user?.image ? (
                 <img src={user.image} alt={userName} className="w-full h-full object-cover" />

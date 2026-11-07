@@ -296,7 +296,6 @@ function TeacherPaymentMethodDialogContent({
             </p>
           )}
         </div>
-
         {formData.type === 'bank_transfer' && (
           <div className="space-y-4 pt-1 animate-fadeIn">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -386,7 +385,6 @@ function TeacherPaymentMethodDialogContent({
             </div>
           </div>
         )}
-
         {formData.type === 'instapay' && (
           <div className="space-y-4 pt-1 animate-fadeIn">
             <div className="space-y-1.5">
@@ -434,7 +432,6 @@ function TeacherPaymentMethodDialogContent({
             </div>
           </div>
         )}
-
         {formData.type === 'mobile_wallet' && (
           <div className="space-y-4 pt-1 animate-fadeIn">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -485,7 +482,6 @@ function TeacherPaymentMethodDialogContent({
             </div>
           </div>
         )}
-
         {formData.type === 'paypal' && (
           <div className="space-y-4 pt-1 animate-fadeIn">
             <div className="space-y-1.5">
@@ -517,7 +513,6 @@ function TeacherPaymentMethodDialogContent({
             </div>
           </div>
         )}
-
         {formData.type === 'western_union' && (
           <div className="space-y-4 pt-1 animate-fadeIn">
             <div className="space-y-1.5">
@@ -581,7 +576,6 @@ function TeacherPaymentMethodDialogContent({
             </div>
           </div>
         )}
-
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacher.earnings.modal.notesLabel', 'ملاحظات إضافية (اختياري)')}
@@ -733,7 +727,7 @@ export default function TeacherPaymentMethodModal({
       document.body.style.overflow = originalOverflow;
     };
   }, [isOpen]);
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget && !isSubmitting) {
       onClose();
@@ -742,7 +736,7 @@ export default function TeacherPaymentMethodModal({
   return createPortal(
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
       dir="rtl"
     >
       <TeacherPaymentMethodDialogContent

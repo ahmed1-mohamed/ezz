@@ -33,7 +33,8 @@ export const teacherPaymentMethodsApi = {
   },
 
   updatePaymentMethod: async (methodId, payload) => {
-    const { type: _type, ...cleanPayload } = payload || {}
+    const cleanPayload = { ...(payload || {}) }
+    delete cleanPayload.type
     const hasFile = cleanPayload?.verificationImage instanceof File || cleanPayload?.verificationImage instanceof Blob
     const body = hasFile ? buildFormData(cleanPayload) : cleanPayload
     const headers = hasFile ? { 'Content-Type': 'multipart/form-data' } : undefined

@@ -22,7 +22,7 @@ export default function CancelTrialSessionModal({
 }) {
   const [reason, setReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  if (!isOpen || !trialSession) return null
+  if (!isOpen || !trialSession || typeof document === 'undefined') return null
   const trialId = trialSession.id || trialSession._id
   const studentName = trialSession.studentName || trialSession.student?.name || (isRtl ? 'الطالب' : 'Student')
   const curriculumName = resolveText(trialSession.curriculum?.name || trialSession.curriculumName, isRtl)
@@ -44,7 +44,7 @@ export default function CancelTrialSessionModal({
   }
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div
@@ -74,7 +74,6 @@ export default function CancelTrialSessionModal({
             <X className="w-5 h-5" />
           </button>
         </div>
-
         <div className="p-5 space-y-4">
           <div className="p-3.5 bg-gray-50 dark:bg-dark-bg/60 rounded-xl border border-gray-100 dark:border-dark-border space-y-1.5">
             <div className="text-sm font-semibold text-gray-800 dark:text-white">
@@ -86,7 +85,6 @@ export default function CancelTrialSessionModal({
               </div>
             )}
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
               {isRtl ? 'سبب الإلغاء أو الملاحظات (اختياري)' : 'Cancellation Reason (Optional)'}
@@ -99,14 +97,12 @@ export default function CancelTrialSessionModal({
               className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all resize-none"
             />
           </div>
-
           <p className="text-xs text-gray-500 dark:text-dark-muted leading-relaxed">
             {isRtl
               ? 'هل أنت متأكد من رغبتك في إلغاء طلب الحصة التجريبية؟ ستتغير حالة الطلب إلى ملغي.'
               : 'Are you sure you want to cancel this trial session request? The status will be set to cancelled.'}
           </p>
         </div>
-
         <div className="flex items-center justify-end gap-2.5 p-4 bg-gray-50/50 dark:bg-dark-bg/30 border-t border-gray-100 dark:border-dark-border">
           <button
             type="button"

@@ -100,6 +100,66 @@
     #join-audio-dialog {
       z-index: 2147483646 !important;
     }
+    /* Enforce Dark Theme across all Zoom SDK preview containers, dialogs & modals */
+    #zmmtg-root,
+    #meetingSDKElement,
+    .meeting-client,
+    .meeting-app,
+    .join-dialog,
+    .preview-video-container,
+    .preview-meeting-info,
+    .preview-action-container,
+    .preview-wrapper,
+    .preview-card,
+    .modal-content,
+    .modal-body,
+    .modal-footer,
+    .modal-header,
+    .dialog,
+    div[class*="preview"],
+    div[class*="dialog"],
+    div[class*="modal-dialog"],
+    div[class*="modal-content"] {
+      background-color: #080d14 !important;
+      background: #080d14 !important;
+      color: #ffffff !important;
+      border-color: #1e293b !important;
+    }
+    /* Ensure Zoom Join Button is prominent, clearly visible, and emerald */
+    .preview-join-button,
+    button.preview-join-button,
+    button[class*="join"],
+    button[type="submit"],
+    .btn-primary,
+    .join-btn,
+    button[aria-label*="Join"],
+    button[aria-label*="join"] {
+      display: inline-flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      background-color: #0f7a6c !important;
+      background: #0f7a6c !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      padding: 12px 28px !important;
+      border-radius: 14px !important;
+      min-height: 46px !important;
+      min-width: 160px !important;
+      box-shadow: 0 4px 16px rgba(15, 122, 108, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      cursor: pointer !important;
+      margin: 12px auto !important;
+      z-index: 99999 !important;
+    }
+    /* Neutralize terms disclaimer and ensure dark text contrast */
+    .preview-terms-disclaimer,
+    p[class*="terms"],
+    div[class*="terms"],
+    span[class*="terms"] {
+      color: #94a3b8 !important;
+      background: transparent !important;
+    }
     .status-container {
       position: absolute;
       top: 50%;
@@ -577,6 +637,7 @@
           isSupportAV: true,
           patchJsMedia: true,
           screenShare: true,
+          disablePreview: true,
           success: function() {
             console.log('[ZoomEmbed v2] ZoomMtg.init succeeded');
             const sigPayload = decodeJwtPayload(sdkSignature);
@@ -664,6 +725,7 @@
               language: 'en-US',
               leaveUrl: leaveUrl,
               patchJsMedia: true,
+              disablePreview: true,
               customize: {
                 video: {
                   isResizable: true,
@@ -780,6 +842,26 @@
           );
         }
       }
+
+      // Auto-join observer: if a preview join button appears, auto-click it immediately
+      const previewObserver = new MutationObserver(function() {
+        try {
+          const joinBtn = document.querySelector('.preview-join-button') ||
+            document.querySelector('button[aria-label="Join"]') ||
+            document.querySelector('button[aria-label*="Join"]') ||
+            document.querySelector('button.btn-primary');
+          if (joinBtn && joinBtn.offsetParent !== null && !joinBtn.dataset.autoclicked) {
+            joinBtn.dataset.autoclicked = 'true';
+            console.log('[ZoomEmbed] Auto-clicking preview Join button');
+            setTimeout(function() {
+              joinBtn.click();
+            }, 300);
+          }
+        } catch (e) {}
+      });
+      try {
+        previewObserver.observe(document.documentElement, { childList: true, subtree: true });
+      } catch (e) {}
 
       function startZoomJoin() {
         if (window.ZoomMtg || window.ZoomMtgEmbedded) {

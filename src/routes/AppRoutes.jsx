@@ -317,7 +317,7 @@ export default function AppRoutes() {
                                     />
                                     <Route
                                         path="/dashboard/admin/teacher-evaluations"
-                                        element={<PermissionRoute permission="teachers.read"><AdminTeacherEvaluations /></PermissionRoute>}
+                                        element={<PermissionRoute permissions={['teacher_evaluations.read', 'teachers.read']}><AdminTeacherEvaluations /></PermissionRoute>}
                                     />
                                     <Route
                                         path="/dashboard/admin/reports"

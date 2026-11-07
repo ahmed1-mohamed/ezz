@@ -7,6 +7,7 @@ import ChildCard from './components/children/ChildCard';
 import ChildrenStatsBar from './components/children/ChildrenStatsBar';
 import BookTrialSessionModal from './components/trial/BookTrialSessionModal';
 import { parentApi } from '@/shared/services/api/parentApi';
+import useDebounce from '@/shared/hooks/useDebounce';
 
 export default function ParentChildrenList() {
   const navigate = useNavigate();
@@ -14,23 +15,20 @@ export default function ParentChildrenList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isTrialAction = searchParams.get('action') === 'trial';
   const teacherIdParam = searchParams.get('teacherId');
-
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [isLoading, setIsLoading] = useState(true);
   const [childrenList, setChildrenList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [selectedLevelFilter, setSelectedLevelFilter] = useState('all');
-
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(() => isTrialAction);
   const [selectedTrialChildId, setSelectedTrialChildId] = useState(null);
-
   useEffect(() => {
     if (isTrialAction) {
       setIsTrialModalOpen(true);
     }
   }, [isTrialAction]);
-
   const selectedChildId = location.state?.childId || null;
   const handleSelectChild = (child) => {
     const studentId = child?.student_id || child?.id || child?.user_id;
@@ -48,7 +46,9 @@ export default function ParentChildrenList() {
     const fetchChildrenData = async () => {
       setIsLoading(true);
       try {
-        const res = await parentApi.fetchStudents();
+        const params = {};
+        if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+        const res = await parentApi.fetchStudents(params);
         if (isMounted) {
           const list = res?.success && Array.isArray(res.data) ? res.data : [];
           setChildrenList(list);
@@ -63,22 +63,16 @@ export default function ParentChildrenList() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [debouncedSearch]);
   const filteredChildren = useMemo(() => {
     return childrenList.filter((child) => {
-      const q = searchQuery.trim().toLowerCase();
-      const matchesSearch = !q || (child.name && child.name.toLowerCase().includes(q)) || (Array.isArray(child.groups) && child.groups.some((g) => {
-        const gName = typeof g === 'object' && g !== null ? (g.name || g.title) : String(g || '');
-        return gName.toLowerCase().includes(q);
-      }));
       const levelNorm = String(child.studentLevel || '').toLowerCase();
-      const matchesLevel = selectedLevelFilter === 'all'
+      return selectedLevelFilter === 'all'
         || (selectedLevelFilter === 'middle' && (levelNorm.includes('middle') || levelNorm.includes('إعداد')))
         || (selectedLevelFilter === 'primary' && (levelNorm.includes('primary') || levelNorm.includes('ابتدائ')))
         || (selectedLevelFilter === 'high' && (levelNorm.includes('high') || levelNorm.includes('ثانو')));
-      return matchesSearch && matchesLevel;
     });
-  }, [childrenList, searchQuery, selectedLevelFilter]);
+  }, [childrenList, selectedLevelFilter]);
   if (selectedChildId) {
     return (
       <div className="p-4 md:p-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -212,7 +206,6 @@ export default function ParentChildrenList() {
           })}
         </div>
       )}
-
       <BookTrialSessionModal
         isOpen={isTrialModalOpen}
         onClose={() => {

@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/New%20folder/dashboard-v2/src/app/loading.tsx"],"sourcesContent":["\nexport default function Loading() {\n    return (\n        <section className=\"flex items-center justify-center mt-20 min-h-screen\">\n            <div className=\"custom-loader\"></div>\n        </section>\n    );\n}"],"names":[],"mappings":";;;;;;AACe,SAAS;IACpB,qBACI,8OAAC;QAAQ,WAAU;kBACf,cAAA,8OAAC;YAAI,WAAU;;;;;;;;;;;AAG3B"}}]
-}

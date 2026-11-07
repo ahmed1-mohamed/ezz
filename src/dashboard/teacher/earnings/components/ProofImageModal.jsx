@@ -12,7 +12,7 @@ export default function ProofImageModal({ isOpen, onClose, imageUrl, title, t })
       document.body.style.overflow = originalOverflow
     }
   }, [isOpen])
-  if (!isOpen || !imageUrl) return null
+  if (!isOpen || !imageUrl || typeof document === 'undefined') return null
   const handleDownload = () => {
     const link = document.createElement('a')
     link.href = imageUrl
@@ -31,7 +31,7 @@ export default function ProofImageModal({ isOpen, onClose, imageUrl, title, t })
   return createPortal(
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
       dir="rtl"
     >
       <div

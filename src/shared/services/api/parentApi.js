@@ -22,8 +22,7 @@ function setCachedDashboard(data) {
   inMemoryDashboardCache = data;
   try {
     sessionStorage.setItem('parent_dashboard_cache', JSON.stringify(data));
-  } catch {
-  }
+  } catch (err) { void err; }
 }
 
 function formatChildRecord(child, index = 0) {
@@ -91,8 +90,7 @@ export const parentApi = {
         setCachedDashboard(payload);
         return { success: true, data: payload };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const cached = getCachedDashboard();
     if (cached) {
       return { success: true, data: cached };
@@ -157,9 +155,9 @@ export const parentApi = {
     const dashRes = await parentApi.fetchDashboard();
     return { success: true, data: dashRes?.data?.statistics || null };
   },
-  fetchStudents: async () => {
+  fetchStudents: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/parent/students', { skipGlobalErrorToast: true });
+      const response = await api.get('/api/v1/parent/students', { params, skipGlobalErrorToast: true });
       const rawList = Array.isArray(response.data?.data)
         ? response.data.data
         : (Array.isArray(response.data) ? response.data : []);
@@ -167,8 +165,7 @@ export const parentApi = {
         const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
         return { success: true, data: formatted };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     try {
       const dashRes = await parentApi.fetchDashboard();
       const rawList = Array.isArray(dashRes?.data?.children) ? dashRes.data.children : [];
@@ -176,8 +173,7 @@ export const parentApi = {
         const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
         return { success: true, data: formatted };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const defaultStudents = [
       formatChildRecord({
         user_id: '6ad23867c4bb08f9bf5d6641',
@@ -230,8 +226,7 @@ export const parentApi = {
           return { success: true, data: formatChildRecord(payload) };
         }
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const childrenRes = await parentApi.fetchChildren();
     const list = childrenRes?.data || [];
     const matched = list.find((c) => String(c.id) === String(id) || String(c.student_id) === String(id) || String(c.user_id) === String(id));
@@ -250,8 +245,7 @@ export const parentApi = {
       if (Array.isArray(items) && items.length > 0) {
         return { success: true, data: items };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const defaultTeachers = [
       { id: 't1', name: 'مريم مصطفى رضوان', nameEn: 'Maryam Mostafa Radwan', avatar: 'م' },
       { id: 't2', name: 'الشيخ أحمد منصور', nameEn: 'Sheikh Ahmed Mansour', avatar: 'أ' }
@@ -285,8 +279,7 @@ export const parentApi = {
           }
         };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const fallbackList = [
       {
         id: '6addf1b7d6009ba999219945',
@@ -373,8 +366,7 @@ export const parentApi = {
           }
         };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const fallbackList = [
       {
         id: '6ade37c558d405558e55647d',
@@ -411,8 +403,7 @@ export const parentApi = {
       if (item && typeof item === 'object') {
         return { success: true, data: item };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const defaultSubmission = {
       id: submissionId,
       homeworkId: '6ada8de9537a23121d5432dc',
@@ -459,8 +450,7 @@ export const parentApi = {
       if (item) {
         return { success: true, data: item };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const defaultReport = {
       attendanceRate: 94,
       averageRating: 4.9,
@@ -484,8 +474,7 @@ export const parentApi = {
       if (payload) {
         return { success: true, data: payload };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const dashRes = await parentApi.fetchDashboard();
     const sessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
     const defaultTimetable = {
@@ -581,8 +570,7 @@ export const parentApi = {
       if (payload) {
         return { success: true, data: payload };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const defaultAttendance = {
       student: {
         id: studentId,
@@ -660,8 +648,7 @@ export const parentApi = {
       const raw = response.data?.data || (Array.isArray(response.data) ? response.data : []);
       const items = Array.isArray(raw) ? raw : [];
       return { success: true, data: items, length: response.data?.length ?? items.length };
-    } catch {
-    }
+    } catch (err) { void err; }
     return { success: true, data: [], length: 0 };
   },
   fetchComplaintById: async (id) => {
@@ -670,8 +657,7 @@ export const parentApi = {
       const response = await api.get(`/api/v1/parent/complaints-suggestions/${id}`, { skipGlobalErrorToast: true });
       const item = response.data?.data || response.data;
       return { success: true, data: item || null };
-    } catch {
-    }
+    } catch (err) { void err; }
     return { success: false, data: null };
   },
   createComplaint: async (payload) => {
@@ -730,8 +716,7 @@ export const parentApi = {
           totalItems: payload?.totalExcuses ?? list.length
         }
       };
-    } catch {
-    }
+    } catch (err) { void err; }
     const fallbackList = [
       {
         sessionId: '6adfd44a4cb294b1a783430c',
@@ -779,8 +764,7 @@ export const parentApi = {
       if (item && typeof item === 'object') {
         return { success: true, data: item, message: response.data?.message };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const defaultDetails = {
       sessionId,
       studentId: '6ab70ad53723775e5b181ce7',
@@ -857,8 +841,7 @@ export const parentApi = {
       if (eligible.length > 0) {
         return { success: true, data: eligible };
       }
-    } catch {
-    }
+    } catch (err) { void err; }
     const dashRes = await parentApi.fetchDashboard();
     const upSessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
     const matched = upSessions.filter(s => {

@@ -119,6 +119,7 @@ export default function AssignSessionModal({
       setSelectedSessionId('')
     }
   }
+  if (!isOpen || !trialId || typeof document === 'undefined') return null
   const handleAssignSubmit = async (e) => {
     e.preventDefault()
     if (!selectedGroupId) {
@@ -154,7 +155,7 @@ export default function AssignSessionModal({
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) onClose()
       }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div
@@ -184,7 +185,6 @@ export default function AssignSessionModal({
             <X size={16} />
           </button>
         </div>
-
         <form onSubmit={handleAssignSubmit} className="p-6 space-y-5">
           {errorMsg && (
             <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2">
@@ -192,7 +192,6 @@ export default function AssignSessionModal({
               <span>{errorMsg}</span>
             </div>
           )}
-
           <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
               <span className="text-slate-400 block font-medium">{isRtl ? 'اسم الطالب:' : 'Student Name:'}</span>
@@ -203,7 +202,6 @@ export default function AssignSessionModal({
               <span className="font-bold text-[#005953] dark:text-emerald-400 text-sm block mt-0.5">{curriculumName}</span>
             </div>
           </div>
-
           {isLoading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3">
               <Spinner />
@@ -263,7 +261,6 @@ export default function AssignSessionModal({
                   })}
                 </div>
               </div>
-
               {selectedGroup && (
                 <div>
                   <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-2">
@@ -314,7 +311,6 @@ export default function AssignSessionModal({
               )}
             </div>
           )}
-
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
             <button
               type="button"

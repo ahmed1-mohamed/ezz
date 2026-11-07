@@ -23,7 +23,6 @@ import CountdownTimer from './CountdownTimer';
 import AttendanceList from './AttendanceList';
 import RescheduleSessionModal from './RescheduleSessionModal';
 import DevicePreviewModal from '@/shared/components/DevicePreviewModal.jsx';
-import { checkCanJoinSession } from '@/shared/utils/sessionTiming.js';
 
 function normalizeStatusKey(raw) {
   if (!raw) return 'scheduled';
@@ -107,9 +106,6 @@ export default function BeforeSessionTab({ onStartSession }) {
       return `${session.date}T${session.startTime}`;
     }
     return session?.date || session?.startTime || null;
-  }, [session]);
-  const joinCheck = useMemo(() => {
-    return checkCanJoinSession(session);
   }, [session]);
   const handlePrevSession = () => {
     setOffset((prev) => prev - 1);

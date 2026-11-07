@@ -99,7 +99,7 @@ export default function AdminRecordPayoutModal({
       document.body.style.overflow = original
     }
   }, [isOpen])
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -174,7 +174,7 @@ export default function AdminRecordPayoutModal({
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) onClose()
       }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div

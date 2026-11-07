@@ -21,7 +21,7 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
       }
     }
   }
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!nameAr.trim() || !nameEn.trim()) {
@@ -32,7 +32,7 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
     })
   }
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="p-5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h2>

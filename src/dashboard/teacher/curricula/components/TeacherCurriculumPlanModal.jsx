@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, FileText, CheckCircle2, Download, Calendar, Layers, BookOpen, Clock, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,7 +18,7 @@ export default React.memo(function TeacherCurriculumPlanModal({
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [activeLevelTab, setActiveLevelTab] = useState(0);
-  if (!isOpen || !curriculum) return null;
+  if (!isOpen || !curriculum || typeof document === 'undefined') return null;
   const name = resolveName(curriculum.name, isRtl) || curriculum.title || '-';
   const description = resolveName(curriculum.description, isRtl) || curriculum.summary || '';
   const levels = Array.isArray(curriculum.levels) && curriculum.levels.length > 0 ? curriculum.levels : [];
@@ -36,9 +37,9 @@ export default React.memo(function TeacherCurriculumPlanModal({
     }
     window.print();
   };
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="bg-white dark:bg-slate-900 rounded-[28px] max-w-3xl w-full border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -214,6 +215,7 @@ export default React.memo(function TeacherCurriculumPlanModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 });

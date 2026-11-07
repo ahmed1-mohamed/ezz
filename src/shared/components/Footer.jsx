@@ -1,14 +1,13 @@
 import { useTranslation } from "react-i18next"
-import { ExternalLink, ChevronLeft, ChevronRight, ShieldCheck, Mail, Phone } from "lucide-react"
+import { ChevronLeft, ChevronRight, ShieldCheck, Mail, Phone } from "lucide-react"
 import { Link } from "react-router-dom"
 import logoImg from '@/images/programs/NewLogo.webp'
-import qrImg from '@/images/footer/whatsapp-qr.webp'
 
-const DISPLAY_PHONE = '+971 50 341 7838'
-const WHATSAPP_CHAT_URL = 'https://wa.me/message/W7OPZCRZT6PPE1'
 const SUPPORT_EMAIL = 'support@mezzedu.com'
 const PHONE_1 = '+971 566126838'
 const PHONE_1_CLEAN = '+971566126838'
+const PHONE_2 = '+971 503417838'
+ const WHATSAPP_CHAT_URL = 'https://wa.me/message/W7OPZCRZT6PPE1'
 
 function LinkedInIcon({ className = "w-5 h-5" }) {
     return (
@@ -61,11 +60,12 @@ function YouTubeIcon({ className = "w-5 h-5" }) {
 }
 
 const SOCIAL_LINKS = [
+
     {
-        name: 'WhatsApp',
-        href: WHATSAPP_CHAT_URL,
-        icon: WhatsAppIcon,
-        colorClass: 'hover:bg-[#25D366] hover:text-white hover:border-[#25D366]',
+        name: 'Facebook',
+        href: 'https://www.facebook.com/share/1EMg1gQnSH/',
+        icon: FacebookIcon,
+        colorClass: 'hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]',
     },
     {
         name: 'Instagram',
@@ -80,10 +80,10 @@ const SOCIAL_LINKS = [
         colorClass: 'hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2]',
     },
     {
-        name: 'Facebook',
-        href: 'https://www.facebook.com/share/1EMg1gQnSH/',
-        icon: FacebookIcon,
-        colorClass: 'hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]',
+        name: 'YouTube',
+        href: 'https://youtube.com/@manartalezzacademy?si=lXheWloLgemdTFPr',
+        icon: YouTubeIcon,
+        colorClass: 'hover:bg-[#FF0000] hover:text-white hover:border-[#FF0000]',
     },
     {
         name: 'Snapchat',
@@ -91,23 +91,11 @@ const SOCIAL_LINKS = [
         icon: SnapchatIcon,
         colorClass: 'hover:bg-[#FFFC00] hover:text-slate-900 hover:border-[#FFFC00]',
     },
-    {
-        name: 'YouTube',
-        href: 'https://youtube.com/@manartalezzacademy?si=lXheWloLgemdTFPr',
-        icon: YouTubeIcon,
-        colorClass: 'hover:bg-[#FF0000] hover:text-white hover:border-[#FF0000]',
-    },
 ]
 
 export default function Footer() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n?.language?.startsWith('ar') ?? true
-    const policyLinks = [
-        { label: t('public.footer.privacy', 'سياسة الخصوصية'), href: '/privacy' },
-        { label: t('public.footer.terms', 'الشروط والأحكام'), href: '/terms' },
-        { label: t('public.footer.refund', 'سياسة الاسترجاع'), href: '/refund' },
-        { label: t('public.footer.support', 'الدعم الفني'), href: '/support' },
-    ]
     const quickLinks = [
         { label: t('public.nav.curriculums', 'المناهج'), href: '/curriculums' },
         { label: t('public.nav.pricing', 'الأسعار'), href: '/pricing' },
@@ -120,7 +108,7 @@ export default function Footer() {
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-600 via-[#735C00] to-emerald-600 opacity-60 dark:opacity-80" />
             <div className="container mx-auto px-6 py-12 lg:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 text-start items-start">
-                    <div className="lg:col-span-4 space-y-5">
+                    <div className="lg:col-span-5 space-y-5">
                         <div className="flex items-center gap-3">
                             <img
                                 src={logoImg}
@@ -139,36 +127,17 @@ export default function Footer() {
                                 </span>
                             </div>
                         </div>
-                        <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed max-w-sm">
-                            {t('public.footer.description', 'نقدم محتوى تعليمي متخصص لغرس القيم وبناء جيل متسلح بالعلم والإيمان، مع متابعة دقيقة لكل طالب.')}
+                        <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed max-w-md">
+                            {t('public.footer.description', isRtl
+                                ? 'منارة العز م م ح (Manart Alezz FZE) — مؤسسة منطقة حرة مرخّصة من مدينة الشارقة للنشر – هيئة منطقة حرة، حكومة الشارقة، الإمارات العربية المتحدة. رخصة تجارية رقم 4429961.01.'
+                                : 'Manart Alezz FZE, a Free Zone Establishment licensed by Sharjah Publishing City – Free Zone Authority, Government of Sharjah, United Arab Emirates. Trade License No. 4429961.01.')}
                         </p>
                         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border border-emerald-200/60 dark:border-emerald-800/40 shadow-2xs">
                             <ShieldCheck className="w-4 h-4 text-[#00695C] dark:text-emerald-400 shrink-0" />
                             <span>{isRtl ? 'تعليم موثوق بمعايير معتمدة' : 'Accredited Educational Standards'}</span>
                         </div>
                     </div>
-                    <div className="lg:col-span-2 space-y-4">
-                        <h3 className="text-base font-extrabold text-[#00695C] dark:text-emerald-400 relative inline-block">
-                            {t('public.footer.policies', 'السياسات')}
-                            <span className="block h-0.5 w-6 bg-[#735C00] dark:bg-amber-400 rounded-full mt-1.5" />
-                        </h3>
-                        <nav aria-label={t('public.footer.policies', 'السياسات')}>
-                            <ul className="space-y-2.5">
-                                {policyLinks.map((item) => (
-                                    <li key={item.label}>
-                                        <Link
-                                            to={item.href}
-                                            className="group flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors"
-                                        >
-                                            <Chevron className="w-3.5 h-3.5 text-slate-400 opacity-0 -translate-x-1 rtl:translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all shrink-0" />
-                                            <span>{item.label}</span>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </nav>
-                    </div>
-                    <div className="lg:col-span-2 space-y-4">
+                    <div className="lg:col-span-3 space-y-4">
                         <h3 className="text-base font-extrabold text-[#00695C] dark:text-emerald-400 relative inline-block">
                             {t('public.footer.quickLinks', 'روابط سريعة')}
                             <span className="block h-0.5 w-6 bg-[#735C00] dark:bg-amber-400 rounded-full mt-1.5" />
@@ -189,20 +158,18 @@ export default function Footer() {
                             </ul>
                         </nav>
                     </div>
-                    <div className="lg:col-span-4 space-y-4">
+                    <div className="lg:col-span-4 space-y-5">
                         <h3 className="text-base font-extrabold text-[#00695C] dark:text-emerald-400 relative inline-block">
                             {t('public.contact.title', 'تواصل معنا')}
                             <span className="block h-0.5 w-6 bg-[#735C00] dark:bg-amber-400 rounded-full mt-1.5" />
                         </h3>
-                        <div className="space-y-2 pt-0.5">
+                        <div className="space-y-3 pt-0.5">
                             <a
                                 href={`mailto:${SUPPORT_EMAIL}`}
                                 className="group flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors"
                             >
-                                <span className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-[#735C00] dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#735C00] group-hover:text-white transition-all shadow-2xs">
-                                    <Mail className="w-4 h-4" />
-                                </span>
-                                <span className="font-medium text-xs sm:text-sm font-mono dir-ltr">
+                                <Mail className="w-5 h-5 text-[#735C00] dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
+                                <span dir="ltr" className="font-medium text-xs sm:text-sm text-start">
                                     {SUPPORT_EMAIL}
                                 </span>
                             </a>
@@ -210,49 +177,21 @@ export default function Footer() {
                                 href={`tel:${PHONE_1_CLEAN}`}
                                 className="group flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors"
                             >
-                                <span className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-[#735C00] dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#735C00] group-hover:text-white transition-all shadow-2xs">
-                                    <Phone className="w-4 h-4" />
-                                </span>
-                                <span className="font-bold text-xs sm:text-sm font-mono dir-ltr">
+                                <Phone className="w-5 h-5 text-[#735C00] dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
+                                <span dir="ltr" className="font-medium text-xs sm:text-sm text-start">
                                     {PHONE_1}
                                 </span>
                             </a>
-                        
+                            <a
+                                href={WHATSAPP_CHAT_URL}
+                                className="group flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors"
+                            >
+                                <WhatsAppIcon className="w-5 h-5 text-[#735C00] dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
+                                <span dir="ltr" className="font-medium text-xs sm:text-sm text-start">
+                                    {PHONE_2}
+                                </span>
+                            </a>
                         </div>
-                        <a
-                            href={WHATSAPP_CHAT_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group relative flex items-center gap-3.5 p-3 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-white dark:from-emerald-950/40 dark:to-slate-900 border border-emerald-500/25 dark:border-emerald-500/30 hover:border-[#25D366] transition-all duration-300 shadow-2xs hover:shadow-md hover:scale-[1.02]"
-                            aria-label={isRtl ? 'تواصل عبر واتساب أو امسح رمز الاستجابة السريعة' : 'Contact via WhatsApp or scan QR code'}
-                        >
-                            <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-white p-1 shadow-xs border border-slate-200/80 dark:border-slate-700 shrink-0 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
-                                <img
-                                    src={qrImg}
-                                    alt="WhatsApp QR Code"
-                                    className="w-full h-full object-contain"
-                                    width="72"
-                                    height="72"
-                                    loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-emerald-600/5 group-hover:bg-transparent transition-colors pointer-events-none" />
-                            </div>
-                            <div className="flex-1 text-start min-w-0">
-                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#00695C] dark:text-emerald-300 text-[10px] font-extrabold mb-1">
-                                    <WhatsAppIcon className="w-3 h-3 text-[#25D366]" />
-                                    <span>{isRtl ? 'واتساب للأعمال' : 'WhatsApp Business'}</span>
-                                </div>
-                                <p className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors truncate">
-                                    {isRtl ? 'امسح الرمز أو انقر للمحادثة' : 'Scan QR or tap to chat'}
-                                </p>
-                                <p dir="ltr" className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-0.5">
-                                    {DISPLAY_PHONE}
-                                </p>
-                            </div>
-                            <div className="w-8 h-8 rounded-lg bg-emerald-100/60 dark:bg-emerald-900/40 text-[#00695C] dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-[#25D366] group-hover:text-white transition-all">
-                                <ExternalLink className="w-4 h-4" />
-                            </div>
-                        </a>
                         <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
                             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">
                                 {t('public.footer.socialMedia', isRtl ? 'حساباتنا الرسمية' : 'Official Social Channels')}

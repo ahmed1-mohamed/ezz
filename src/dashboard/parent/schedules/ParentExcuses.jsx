@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarX, Plus, User, GraduationCap, Users, Calendar, Clock, AlertCircle, CheckCircle2, ChevronDown, X, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -437,16 +438,17 @@ export default function ParentExcuses() {
           </p>
         </div>
       )}
-      <AnimatePresence>
-        {isSubmitModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 dark:border-slate-700 space-y-6 relative max-h-[90vh] overflow-y-auto"
-              dir={isRtl ? 'rtl' : 'ltr'}
-            >
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isSubmitModalOpen && (
+            <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 dark:border-slate-700 space-y-6 relative max-h-[90vh] overflow-y-auto"
+                dir={isRtl ? 'rtl' : 'ltr'}
+              >
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2.5 bg-[#0f7a6c]/10 text-[#0f7a6c] rounded-2xl">
@@ -567,17 +569,20 @@ export default function ParentExcuses() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {isDetailsModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 dark:border-slate-700 space-y-6 relative max-h-[90vh] overflow-y-auto"
-              dir={isRtl ? 'rtl' : 'ltr'}
-            >
+      </AnimatePresence>,
+      document.body
+    )}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isDetailsModalOpen && (
+            <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 dark:border-slate-700 space-y-6 relative max-h-[90vh] overflow-y-auto"
+                dir={isRtl ? 'rtl' : 'ltr'}
+              >
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2.5 bg-[#0f7a6c]/10 text-[#0f7a6c] rounded-2xl">
@@ -653,7 +658,9 @@ export default function ParentExcuses() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </motion.div>
   );
 }

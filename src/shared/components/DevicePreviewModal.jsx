@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Mic,
   MicOff,
@@ -14,19 +14,15 @@ import {
 } from 'lucide-react';
 
 export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
-  const { t } = useTranslation();
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const animFrameRef = useRef(null);
-  const [hasPermission, setHasPermission] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(true);
   const [isMicActive, setIsMicActive] = useState(true);
   const [audioLevel, setAudioLevel] = useState(0);
-  const [availableDevices, setAvailableDevices] = useState({ cameras: [], mics: [] });
-
   const stopMediaTracks = () => {
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
@@ -35,7 +31,7 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
     if (audioContextRef.current) {
       try {
         audioContextRef.current.close();
-      } catch {}
+      } catch (err) { void err; }
       audioContextRef.current = null;
     }
     if (streamRef.current) {
@@ -47,8 +43,7 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
     }
     setAudioLevel(0);
   };
-
-  const startMediaPreview = async () => {
+  const startMediaPreview = useCallback(async () => {
     stopMediaTracks();
     setErrorMessage(null);
     try {
@@ -60,7 +55,6 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-      setHasPermission(true);
       setIsCameraActive(true);
       setIsMicActive(true);
       try {
@@ -91,23 +85,15 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
       } catch (audioErr) {
         console.warn('[DevicePreview] Audio analyser initialization error:', audioErr);
       }
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const cameras = devices.filter((d) => d.kind === 'videoinput');
-        const mics = devices.filter((d) => d.kind === 'audioinput');
-        setAvailableDevices({ cameras, mics });
-      } catch {}
     } catch (err) {
       console.warn('[DevicePreview] Media access error:', err);
-      setHasPermission(false);
       setErrorMessage(
         err?.name === 'NotAllowedError'
           ? (isRtl ? 'تم رفض صلاحية الكاميرا أو الميكروفون من المتصفح. برجاء السماح بالوصول من إعدادات المتصفح.' : 'Camera or microphone permission was denied. Please allow access in browser settings.')
           : (isRtl ? 'تعذّر الوصول إلى الكاميرا أو الميكروفون. تأكد من توصيل الجهاز بشكل صحيح.' : 'Unable to access camera or microphone. Please ensure your device is connected.')
       );
     }
-  };
-
+  }, [isRtl]);
   useEffect(() => {
     if (isOpen) {
       startMediaPreview();
@@ -115,8 +101,7 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
       stopMediaTracks();
     }
     return () => stopMediaTracks();
-  }, [isOpen]);
-
+  }, [isOpen, startMediaPreview]);
   const handleToggleCamera = () => {
     if (!streamRef.current) return;
     const videoTracks = streamRef.current.getVideoTracks();
@@ -128,7 +113,6 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
       setIsCameraActive(nextState);
     }
   };
-
   const handleToggleMic = () => {
     if (!streamRef.current) return;
     const audioTracks = streamRef.current.getAudioTracks();
@@ -141,11 +125,9 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
       if (!nextState) setAudioLevel(0);
     }
   };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md" dir={isRtl ? 'rtl' : 'ltr'}>
+  if (!isOpen || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col">
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -269,7 +251,8 @@ export default function DevicePreviewModal({ isOpen, onClose, isRtl = true }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

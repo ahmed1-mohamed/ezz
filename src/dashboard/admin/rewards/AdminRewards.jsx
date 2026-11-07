@@ -251,8 +251,8 @@ export default function AdminRewards() {
           onDelete={canDeleteSuggestion ? handleDeleteSuggestion : null}
         />
       ) : null}
-      {showForm && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+      {showForm && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl my-8 relative flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between shrink-0">
               <h2 className="text-xl font-bold text-slate-800 dark:text-white">

@@ -118,8 +118,7 @@ export default function ParentDetailsScreen({
         imageFile: formData.profileImageFile,
       })
       setFormData((prev) => ({ ...prev, profileImageFile: null }))
-    } catch {
-    } finally {
+    } catch (err) { void err; } finally {
       setIsSavingPersonal(false)
     }
   }

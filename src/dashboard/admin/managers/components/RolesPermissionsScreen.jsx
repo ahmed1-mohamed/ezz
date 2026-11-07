@@ -116,22 +116,28 @@ export default function RolesPermissionsScreen({
         : [...prev, key]
     )
   }
+  const handleToggleModule = (moduleKeys = []) => {
+    const isAllActive = moduleKeys.every((k) => activeKeys.includes(k))
+    setActiveKeys((prev) => {
+      if (isAllActive) {
+        return prev.filter((k) => !moduleKeys.includes(k))
+      }
+      return [...new Set([...prev, ...moduleKeys])]
+    })
+  }
+  const handleToggleAll = (selectAll = true) => {
+    if (selectAll) {
+      setActiveKeys([...BACKEND_PERMISSION_KEYS])
+    } else {
+      setActiveKeys([])
+    }
+  }
   const handleSave = () => {
     if (!selectedPermissionId) return
-    const keys = new Set(activeKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k)))
-    SYSTEM_PERMISSIONS.forEach((module) => {
-      module.actions.forEach((action) => {
-        const actionKeys = [action.key, ...(action.aliases || [])]
-        if (actionKeys.some((k) => activeKeys.includes(k))) {
-          actionKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k)).forEach((k) => keys.add(k))
-        } else {
-          actionKeys.forEach((k) => keys.delete(k))
-        }
-      })
-    })
+    const keys = activeKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k))
     updateMutation.mutate({
       id: selectedPermissionId,
-      payload: { keys: [...keys] }
+      payload: { keys }
     })
   }
   const handleCreateRole = (e) => {
@@ -222,6 +228,8 @@ export default function RolesPermissionsScreen({
           isAdminAssignment={isAdminAssignment}
           activeKeys={activeKeys}
           handleToggleKey={handleToggleKey}
+          handleToggleModule={handleToggleModule}
+          handleToggleAll={handleToggleAll}
           previewStats={previewStats}
           selectedPermissionId={selectedPermissionId}
           updateMutation={updateMutation}

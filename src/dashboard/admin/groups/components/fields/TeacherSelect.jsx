@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { ChevronDown, Search, X, Check, GraduationCap } from 'lucide-react'
+import { ChevronDown, Search, X, Check, GraduationCap, Loader2 } from 'lucide-react'
+import { teachersApi } from '@/shared/services/api/teachersApi'
 
 function getTeacherName(t, isRtl = true) {
   if (!t) return ''
@@ -20,28 +21,46 @@ export default function TeacherSelect({
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [backendTeachers, setBackendTeachers] = useState(null)
   const containerRef = useRef(null)
   const searchInputRef = useRef(null)
-  const filteredTeachers = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return teachers
-    return teachers.filter((t) => {
-      const name = getTeacherName(t, isRtl).toLowerCase()
-      const nameEn = (t.nameEn || '').toLowerCase()
-      const email = (t.email || '').toLowerCase()
-      const phone = (t.phone || '').toLowerCase()
-      const subject = (t.subject || '').toLowerCase()
-      const degree = (typeof t.degree === 'object' ? (t.degree?.ar || t.degree?.en || '') : String(t.degree || '')).toLowerCase()
-      return (
-        name.includes(q) ||
-        nameEn.includes(q) ||
-        email.includes(q) ||
-        phone.includes(q) ||
-        subject.includes(q) ||
-        degree.includes(q)
-      )
-    })
-  }, [teachers, searchQuery, isRtl])
+  const currentPool = useMemo(() => {
+    const list = backendTeachers !== null ? backendTeachers : teachers
+    return Array.isArray(list) ? list : []
+  }, [backendTeachers, teachers])
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
+  if (prevSearchQuery !== searchQuery) {
+    setPrevSearchQuery(searchQuery)
+    if (!searchQuery.trim()) {
+      setBackendTeachers(null)
+      setIsSearching(false)
+    }
+  }
+  useEffect(() => {
+    if (!isOpen) return
+    const trimmed = searchQuery.trim()
+    if (!trimmed) return
+    let active = true
+    const timer = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const res = await teachersApi.fetchTeachers({ search: trimmed, limit: 50 })
+        if (!active) return
+        const list = res?.data || (Array.isArray(res) ? res : [])
+        setBackendTeachers(Array.isArray(list) ? list : [])
+      } catch (err) {
+        console.warn('Backend teacher search failed:', err)
+        if (active) setBackendTeachers([])
+      } finally {
+        if (active) setIsSearching(false)
+      }
+    }, 350)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [searchQuery, isOpen])
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -51,15 +70,16 @@ export default function TeacherSelect({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-   useEffect(() => {
+  useEffect(() => {
     if (isOpen && searchInputRef.current) {
       searchInputRef.current.focus()
     }
   }, [isOpen])
   const selectedName = selectedTeacher ? getTeacherName(selectedTeacher, isRtl) : ''
+  const filteredTeachers = currentPool
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>
-       <button
+      <button
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -100,9 +120,9 @@ export default function TeacherSelect({
           />
         </div>
       </button>
-       {isOpen && (
+      {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-3 space-y-2 max-h-80 flex flex-col animate-fadeIn">
-           <div className="relative shrink-0">
+          <div className="relative shrink-0">
             <Search size={14} className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
             <input
               ref={searchInputRef}
@@ -114,7 +134,11 @@ export default function TeacherSelect({
                 isRtl ? 'pr-9 pl-8' : 'pl-9 pr-8'
               } text-xs text-slate-800 dark:text-slate-100 outline-none border border-transparent focus:border-brand-400 transition-colors`}
             />
-            {searchQuery && (
+            {isSearching ? (
+              <div className={`absolute ${isRtl ? 'left-2.5' : 'right-2.5'} top-1/2 -translate-y-1/2`}>
+                <Loader2 size={12} className="animate-spin text-brand-600" />
+              </div>
+            ) : searchQuery ? (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
@@ -122,9 +146,9 @@ export default function TeacherSelect({
               >
                 <X size={12} />
               </button>
-            )}
+            ) : null}
           </div>
-           <div className="overflow-y-auto space-y-1 pr-0.5 max-h-60">
+          <div className="overflow-y-auto space-y-1 pr-0.5 max-h-60">
             {filteredTeachers.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 {isRtl ? 'لا يوجد معلمون مطابقون للبحث' : 'No teachers found'}

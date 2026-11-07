@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import useDebounce from '@/shared/hooks/useDebounce';
 import {
   Receipt,
   RefreshCw,
@@ -85,8 +86,8 @@ export default function ParentSubscriptions() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-
   const queryParams = useMemo(() => {
     const params = {
       page: currentPage,
@@ -95,9 +96,11 @@ export default function ParentSubscriptions() {
     if (selectedStatus !== 'all') {
       params.status = selectedStatus;
     }
+    if (debouncedSearch.trim()) {
+      params.search = debouncedSearch.trim();
+    }
     return params;
-  }, [currentPage, selectedStatus]);
-
+  }, [currentPage, selectedStatus, debouncedSearch]);
   const {
     data: subscriptionsRes,
     isLoading,
@@ -108,7 +111,6 @@ export default function ParentSubscriptions() {
     queryFn: () => parentPackagesApi.fetchSubscriptions(queryParams),
     staleTime: 60 * 1000,
   });
-
   const rawList = useMemo(() => {
     if (!subscriptionsRes) return [];
     if (Array.isArray(subscriptionsRes.data)) return subscriptionsRes.data;
@@ -116,7 +118,6 @@ export default function ParentSubscriptions() {
     if (Array.isArray(subscriptionsRes)) return subscriptionsRes;
     return [];
   }, [subscriptionsRes]);
-
   const pagination = useMemo(() => {
     return {
       total: subscriptionsRes?.total || rawList.length,
@@ -124,23 +125,11 @@ export default function ParentSubscriptions() {
       page: subscriptionsRes?.page || currentPage,
     };
   }, [subscriptionsRes, rawList.length, currentPage]);
-
-  const filteredList = useMemo(() => {
-    if (!searchQuery.trim()) return rawList;
-    const q = searchQuery.toLowerCase().trim();
-    return rawList.filter((item) => {
-      const orderNum = String(item.orderNumber || item.subscriptionNumber || item.id || '').toLowerCase();
-      const pkgName = String(item.package?.name || item.packageName || '').toLowerCase();
-      const studentName = String(item.student?.name || item.studentName || '').toLowerCase();
-      return orderNum.includes(q) || pkgName.includes(q) || studentName.includes(q);
-    });
-  }, [rawList, searchQuery]);
-
+  const filteredList = rawList;
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['parentSubscriptionsList'] });
     refetch();
   };
-
   const handlePayPending = (sub) => {
     const stripeUrl = sub.stripeUrl || sub.sessionUrl || sub.url || sub.checkoutUrl;
     if (stripeUrl) {
@@ -162,7 +151,6 @@ export default function ParentSubscriptions() {
         .catch(() => {});
     }
   };
-
   return (
     <div className="space-y-6 sm:space-y-8 animate-fadeIn p-3 sm:p-6 lg:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-start">
@@ -189,9 +177,7 @@ export default function ParentSubscriptions() {
           </button>
         </div>
       </div>
-
       <ParentPackageNavTabs />
-
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-x-auto">
           {STATUS_FILTERS.map((f) => {
@@ -215,19 +201,20 @@ export default function ParentSubscriptions() {
             );
           })}
         </div>
-
         <div className="relative w-full md:w-72">
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder={t('parentPackages.searchPlaceholder', 'بحث برقم الطلب أو اسم الباقة...')}
             className="w-full ps-10 pe-4 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30 shadow-xs"
           />
           <Search size={16} className="absolute top-1/2 -translate-y-1/2 start-3.5 text-slate-400" />
         </div>
       </div>
-
       {isLoading && rawList.length === 0 ? (
         <div className="py-20 flex flex-col items-center justify-center gap-3 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800">
           <Spinner size="lg" />
@@ -267,7 +254,6 @@ export default function ParentSubscriptions() {
               return item.studentName || t('parentPackages.student', 'الابن');
             })();
             const isFamily = item.package?.type === 'family' || (Array.isArray(item.students) && item.students.length > 1);
-
             return (
               <div
                 key={item.id}
@@ -302,7 +288,6 @@ export default function ParentSubscriptions() {
                     </div>
                   </div>
                 </div>
-
                 <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 dark:border-slate-800">
                   <div className="text-start md:text-end">
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
@@ -312,7 +297,6 @@ export default function ParentSubscriptions() {
                       {formatCurrency(total, currency)}
                     </span>
                   </div>
-
                   <div className="flex items-center gap-2">
                     {isPending && (
                       <button
@@ -325,7 +309,6 @@ export default function ParentSubscriptions() {
                         <span>{t('parentPackages.payNowStripe', 'إتمام الدفع')}</span>
                       </button>
                     )}
-
                     <button
                       type="button"
                       onClick={() => setSelectedInvoice(item)}
@@ -342,7 +325,6 @@ export default function ParentSubscriptions() {
           })}
         </div>
       )}
-
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-4">
           <button
@@ -366,7 +348,6 @@ export default function ParentSubscriptions() {
           </button>
         </div>
       )}
-
       <ParentInvoiceModal
         isOpen={Boolean(selectedInvoice)}
         onClose={() => setSelectedInvoice(null)}

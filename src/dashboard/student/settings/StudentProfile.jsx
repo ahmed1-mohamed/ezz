@@ -27,13 +27,6 @@ function calculateAge(birthDate) {
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 }
 
-function resolveName(nameField, isRtl) {
-  if (typeof nameField === 'object' && nameField !== null) {
-    return (isRtl ? nameField.ar || nameField.en : nameField.en || nameField.ar) || '';
-  }
-  return String(nameField || '');
-}
-
 function parseCountryDialCodeAndPhone(rawPhone, countryList = []) {
   if (!rawPhone) return { dialCode: '+966', phoneVal: '' };
   const cleaned = String(rawPhone).trim();

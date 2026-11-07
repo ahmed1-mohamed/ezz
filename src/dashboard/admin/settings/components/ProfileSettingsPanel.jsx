@@ -108,7 +108,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             setLoadingProfile(false);
         };
         loadProfile();
-    }, [isRtl]);
+    }, [isRtl, user?.googleId, user?.isGoogleLinked]);
     const handleProfileChange = (e) => {
         const val = e.target.value;
         setProfileData({ ...profileData, [e.target.name]: val });

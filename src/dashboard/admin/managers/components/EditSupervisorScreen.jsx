@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ArrowRight,
   ArrowLeft,
@@ -10,7 +10,7 @@ import {
 import EditProfileCard from './EditProfileCard'
 import EditSecurityPasswordCard from './EditSecurityPasswordCard'
 import EditGrantedPermissionsCard from './EditGrantedPermissionsCard'
-import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
+import { sortCountries, getCountryName, searchCountriesBackend } from '@/shared/utils/countryUtils'
 
 export default function EditSupervisorScreen({
   roles,
@@ -81,16 +81,39 @@ export default function EditSupervisorScreen({
   }, [countries, isRtl])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
-  const filteredCountries = useMemo(() => {
-    if (!countrySearch.trim()) return sortedCountries;
-    const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
-    return sortedCountries.filter(c => {
-      const cName = getCountryName(c, isRtl).toLowerCase();
-      const cCode = (c.code || '').toLowerCase();
-      const cPhone = String(c.dialCode || c.phoneCode || '').replace(/\+/g, '').trim();
-      return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
-    });
-  }, [sortedCountries, countrySearch, isRtl])
+  const [searchResults, setSearchResults] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
+  useEffect(() => {
+    if (!countrySearch.trim()) {
+      setSearchResults(null)
+      setIsSearching(false)
+      return
+    }
+    setIsSearching(true)
+    let isCancelled = false
+    const timer = setTimeout(() => {
+      searchCountriesBackend(countrySearch)
+        .then((res) => {
+          if (!isCancelled) {
+            setSearchResults(res)
+            setIsSearching(false)
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setIsSearching(false)
+          }
+        })
+    }, 250)
+    return () => {
+      isCancelled = true
+      clearTimeout(timer)
+    }
+  }, [countrySearch])
+  const displayedCountries = useMemo(() => {
+    const list = searchResults !== null ? searchResults : sortedCountries
+    return sortCountries(list, isRtl)
+  }, [searchResults, sortedCountries, isRtl])
   const normalizePhoneCode = (code) => {
     if (!code) return ''
     return String(code).replace(/\+/g, '').trim()
@@ -282,20 +305,31 @@ export default function EditSupervisorScreen({
                               className="w-full px-2.5 py-1.5 bg-[#f3f7f6] dark:bg-slate-900 text-xs rounded-xl outline-none text-slate-800 dark:text-slate-200 border border-transparent focus:border-brand-500"
                             />
                           </div>
-                          {filteredCountries.map((country) => (
-                            <button
-                              key={country.id || country._id}
-                              type="button"
-                              onClick={() => selectCountryCode(country)}
-                              className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm transition-colors"
-                            >
-                              <span>{getCountryName(country, isRtl)}</span>
-                              <span className="flex items-center gap-2">
-                                <span className="text-slate-450 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
-                                <span className="text-lg">{country.flag}</span>
-                              </span>
-                            </button>
-                          ))}
+                          {isSearching ? (
+                            <div className="flex items-center justify-center py-4 text-slate-400 gap-2 text-xs">
+                              <Loader2 className="w-4 h-4 animate-spin text-brand-500" />
+                              <span>{isRtl ? 'جاري البحث في قاعدة البيانات...' : 'Searching database...'}</span>
+                            </div>
+                          ) : displayedCountries.length === 0 ? (
+                            <div className="text-center py-4 text-xs font-semibold text-slate-400 dark:text-slate-500">
+                              {isRtl ? 'لا توجد نتائج مطابقة' : 'No matching results'}
+                            </div>
+                          ) : (
+                            displayedCountries.map((country) => (
+                              <button
+                                key={country.id || country._id}
+                                type="button"
+                                onClick={() => selectCountryCode(country)}
+                                className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm transition-colors cursor-pointer"
+                              >
+                                <span>{getCountryName(country, isRtl)}</span>
+                                <span className="flex items-center gap-2">
+                                  <span className="text-slate-450 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
+                                  <span className="text-lg">{country.flag}</span>
+                                </span>
+                              </button>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>

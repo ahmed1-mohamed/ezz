@@ -91,29 +91,31 @@ export default function ChangeGroupModal({
   const studentDisplayName = textOf(student?.name) || '-'
   useEffect(() => {
     let isMounted = true
-    adminGroupsApi.fetchLocalizedActiveGroups({ limit: 100 })
-      .then((res) => {
-        if (isMounted) setGroups(Array.isArray(res?.data) ? res.data : [])
-      })
-      .catch((err) => console.error('Failed to load groups:', err))
-      .finally(() => {
-        if (isMounted) setIsLoadingGroups(false)
-      })
+    const trimmed = searchQuery.trim()
+    const timer = setTimeout(() => {
+      setIsLoadingGroups(true)
+      const params = { limit: 100 }
+      if (trimmed) params.search = trimmed
+      adminGroupsApi.fetchLocalizedActiveGroups(params)
+        .then((res) => {
+          if (isMounted) setGroups(Array.isArray(res?.data) ? res.data : [])
+        })
+        .catch((err) => console.error('Failed to load groups:', err))
+        .finally(() => {
+          if (isMounted) setIsLoadingGroups(false)
+        })
+    }, trimmed ? 300 : 0)
     return () => {
       isMounted = false
+      clearTimeout(timer)
     }
-  }, [])
+  }, [searchQuery])
   const filteredGroups = useMemo(() => {
-    const available = groups.filter((g) => {
+    return groups.filter((g) => {
       const gId = String(g.id || g._id)
       return gId !== String(selectedSourceGroupId)
     })
-    const query = searchQuery.trim().toLowerCase()
-    if (!query) return available
-    return available.filter((g) =>
-      textOf(g.name).toLowerCase().includes(query) || textOf(g.teacher).toLowerCase().includes(query)
-    )
-  }, [groups, selectedSourceGroupId, searchQuery])
+  }, [groups, selectedSourceGroupId])
   if (!isOpen || !student) return null
   const handleConfirmChange = async () => {
     if (!selectedSourceGroupId) {
@@ -133,13 +135,13 @@ export default function ChangeGroupModal({
     try {
       await onChangeGroup(selectedSourceGroupId, targetId)
       onClose()
-    } catch {
-    } finally {
+    } catch (err) { void err; } finally {
       setIsSubmitting(false)
     }
   }
+  if (typeof document === 'undefined') return null
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-2xl z-10 flex flex-col gap-5 text-start border border-slate-100 dark:border-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">

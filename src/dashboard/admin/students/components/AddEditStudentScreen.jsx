@@ -74,24 +74,37 @@ export default function AddEditStudentScreen({
         setLevelsList(list)
       })
       .catch((err) => console.error('Error fetching student levels:', err))
-    api.get('/api/v1/parents/localized/all', { params: { limit: 1000 } })
-      .then((res) => {
-        const rawParents = res.data?.data || []
-        if (Array.isArray(rawParents)) {
-          setParentsList(rawParents.map((p) => {
-            const name = typeof p.name === 'string' ? p.name : (p.name?.ar || p.name?.en || '')
-            return {
-              id: p.parent_id || p.id || p._id,
-              name,
-              email: p.email || '',
-              phone: p.phone || '',
-              initial: (name || 'و').trim().charAt(0)
-            }
-          }))
-        }
-      })
-      .catch((err) => console.error('Error fetching parents:', err))
   }, [isRtl])
+  useEffect(() => {
+    let active = true
+    const trimmed = parentSearch.trim()
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.get('/api/v1/parents/localized/all', {
+          params: { search: trimmed || undefined, limit: 50 }
+        })
+        if (!active) return
+        const rawParents = res.data?.data || (Array.isArray(res.data) ? res.data : [])
+        setParentsList(rawParents.map((p) => {
+          const name = typeof p.name === 'string' ? p.name : (p.name?.ar || p.name?.en || '')
+          return {
+            id: p.parent_id || p.id || p._id,
+            name,
+            email: p.email || '',
+            phone: p.phone || '',
+            initial: (name || 'و').trim().charAt(0)
+          }
+        }))
+      } catch (err) {
+        console.error('Error fetching parents:', err)
+        if (active) setParentsList([])
+      }
+    }, trimmed ? 300 : 0)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [parentSearch])
   useEffect(() => {
     if (countryCodesList.length === 0) return
     if (student?.phone) {
@@ -160,15 +173,7 @@ export default function AddEditStudentScreen({
     setSelectedCountryCode(country)
     setIsDropdownOpen(false)
   }
-  const filteredParents = parentsList.filter((p) => {
-    if (!parentSearch.trim()) return true
-    const q = parentSearch.toLowerCase()
-    return (
-      (p.name && p.name.toLowerCase().includes(q)) ||
-      (p.email && p.email.toLowerCase().includes(q)) ||
-      (p.phone && p.phone.includes(q))
-    )
-  })
+  const filteredParents = parentsList
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn max-w-5xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-3">

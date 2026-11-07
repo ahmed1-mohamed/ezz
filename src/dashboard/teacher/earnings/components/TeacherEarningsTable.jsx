@@ -10,6 +10,7 @@ import {
   CheckCheck,
   Receipt,
 } from 'lucide-react';
+import { matchesArabicQuery } from '@/shared/utils/stringUtils';
 
 const getStatusBadge = (status, t) => {
   const norm = String(status || '').toLowerCase();
@@ -63,11 +64,11 @@ export default function TeacherEarningsTable({
     });
   };
   const filteredRecords = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
+    const query = searchTerm.trim();
     return records.filter((rec) => {
-      const title = String(rec.sessionTitle || rec.title || rec.session?.title || '').toLowerCase();
-      const group = String(rec.groupName || rec.group?.name || '').toLowerCase();
-      const matchesSearch = !query || title.includes(query) || group.includes(query);
+      const title = String(rec.sessionTitle || rec.title || rec.session?.title || '');
+      const group = String(rec.groupName || rec.group?.name || '');
+      const matchesSearch = !query || matchesArabicQuery(title, query) || matchesArabicQuery(group, query);
       const matchesStatus = statusFilter === 'all' || String(rec.status || '').toLowerCase() === statusFilter;
       return matchesSearch && matchesStatus;
     });

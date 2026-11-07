@@ -83,15 +83,13 @@ export default function ParentInvoiceModal({
       document.body.style.overflow = prevOverflow;
     };
   }, [isOpen]);
-
   const { data: detailsRes, isLoading } = useQuery({
     queryKey: ['parentSubscriptionDetails', subscriptionId],
     queryFn: () => parentPackagesApi.fetchSubscriptionDetails(subscriptionId),
     enabled: Boolean(isOpen && subscriptionId),
     staleTime: 60 * 1000,
   });
-
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
   const sub = detailsRes || initialData || {};
   const statusInfo = getStatusBadge(sub.status, t);
   const StatusIcon = statusInfo.icon;
@@ -118,15 +116,13 @@ export default function ParentInvoiceModal({
   const sessionsCount = sub.package?.sessionsCount || sub.sessionsCount || sub.totalSessions || 0;
   const startDate = sub.startDate || sub.startsAt;
   const endDate = sub.endDate || sub.expiresAt;
-
   const handlePrint = () => {
     window.print();
   };
-
   return createPortal(
     <div
       onClick={onClose}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div
@@ -165,7 +161,6 @@ export default function ParentInvoiceModal({
             </button>
           </div>
         </div>
-
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {isLoading && !sub.id ? (
             <div className="py-16 flex flex-col items-center justify-center gap-3">
@@ -194,7 +189,6 @@ export default function ParentInvoiceModal({
                   </span>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
                   <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
@@ -232,7 +226,6 @@ export default function ParentInvoiceModal({
                     )}
                   </div>
                 </div>
-
                 <div className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
                   <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
                     {packageType === 'family' ? <Users size={14} className="text-[#0f7a6c]" /> : <User size={14} className="text-[#0f7a6c]" />}
@@ -259,7 +252,6 @@ export default function ParentInvoiceModal({
                   </div>
                 </div>
               </div>
-
               <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2.5">
                 <h4 className="text-xs font-black text-slate-700 dark:text-slate-300">
                   {t('parentPackages.financialSummary', 'الملخص المالي')}
@@ -289,7 +281,6 @@ export default function ParentInvoiceModal({
                   </div>
                 </div>
               </div>
-
               <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 justify-center">
                 <ShieldCheck size={14} className="text-emerald-500" />
                 <span>{t('parentPackages.verifiedTransactionNotice', 'عملية دفع إلكترونية آمنة ومسجلة في أكاديمية منارة العز')}</span>
@@ -297,7 +288,6 @@ export default function ParentInvoiceModal({
             </>
           )}
         </div>
-
         <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end bg-slate-50/40 dark:bg-slate-800/20">
           <button
             type="button"

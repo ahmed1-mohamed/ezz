@@ -31,7 +31,6 @@ export default function ParentChildren() {
   const [allChildren, setAllChildren] = useState([]);
   const [currentChild, setCurrentChild] = useState(null);
   const [childEvaluations, setChildEvaluations] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isEvaluationsLoading, setIsEvaluationsLoading] = useState(false);
   const handleSelectChild = (newId) => {
     setActiveStudentId(newId);
@@ -51,10 +50,8 @@ export default function ParentChildren() {
         const res = await parentApi.fetchStudents();
         if (isMounted && res?.success && Array.isArray(res.data) && res.data.length > 0) {
           setAllChildren(res.data);
-          if (!activeStudentId) {
-            const firstId = res.data[0]?.student_id || res.data[0]?.id || res.data[0]?.user_id;
-            setActiveStudentId(firstId);
-          }
+          const firstId = res.data[0]?.student_id || res.data[0]?.id || res.data[0]?.user_id;
+          setActiveStudentId((current) => current || firstId);
         }
       } catch (err) {
         console.error('Failed to load all children list:', err);
@@ -69,7 +66,6 @@ export default function ParentChildren() {
     if (!activeStudentId) return;
     let isMounted = true;
     const loadChildData = async () => {
-      setIsLoading(true);
       try {
         const res = await parentApi.fetchStudentById(activeStudentId);
         if (isMounted && res?.success && res.data) {
@@ -80,8 +76,6 @@ export default function ParentChildren() {
         }
       } catch (err) {
         console.error('Failed to load child by id:', err);
-      } finally {
-        if (isMounted) setIsLoading(false);
       }
     };
     loadChildData();

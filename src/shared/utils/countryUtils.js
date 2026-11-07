@@ -48,7 +48,7 @@ export const fetchCountries = async (params = {}) => {
       const res = await api.get('/api/v1/countries', { params })
       const raw = res?.data?.data || (Array.isArray(res?.data) ? res.data : [])
       const normalized = normalizeCountries(raw)
-      if (normalized.length > 0) {
+      if (normalized.length > 0 && hasNoCustomParams) {
         cachedCountriesList = normalized
       }
       return normalized
@@ -60,6 +60,42 @@ export const fetchCountries = async (params = {}) => {
     }
   })()
   return inFlightCountriesPromise
+}
+
+export const searchCountriesBackend = async (query = '') => {
+  const trimmed = String(query || '').trim()
+  if (!trimmed) {
+    return fetchCountries()
+  }
+  const isDigitsOrPlus = /^[\d\s+]+$/.test(trimmed)
+  const cleanNum = trimmed.replace(/\s+/g, '')
+  const phoneCodeParam = cleanNum.startsWith('+') ? cleanNum : `+${cleanNum}`
+  const promises = []
+  if (isDigitsOrPlus) {
+    promises.push(
+      api.get('/api/v1/countries', { params: { phoneCode: phoneCodeParam } })
+        .then((res) => res?.data?.data || (Array.isArray(res?.data) ? res.data : []))
+        .catch(() => [])
+    )
+  }
+  if (!isDigitsOrPlus || trimmed.length >= 2) {
+    promises.push(
+      api.get('/api/v1/countries', { params: { search: trimmed } })
+        .then((res) => res?.data?.data || (Array.isArray(res?.data) ? res.data : []))
+        .catch(() => [])
+    )
+  }
+  const responses = await Promise.all(promises)
+  const seen = new Set()
+  const combined = []
+  responses.flat().forEach((c) => {
+    const id = c.id || c._id
+    if (id && !seen.has(id)) {
+      seen.add(id)
+      combined.push(c)
+    }
+  })
+  return normalizeCountries(combined)
 }
 
 

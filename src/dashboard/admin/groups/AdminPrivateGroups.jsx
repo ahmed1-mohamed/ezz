@@ -17,6 +17,7 @@ import Spinner from '@/shared/components/Spinner'
 import { getLocalizedValue, saveGroupEdits } from './utils/groupUtils'
 import GroupCard from './components/GroupCard'
 import GroupDetailsModal from './components/GroupDetailsModal'
+import useDebounce from '@/shared/hooks/useDebounce'
 
 const TAB_API_MAP = {
   all: (params) => adminGroupsApi.fetchLocalizedGroups(params),
@@ -46,6 +47,7 @@ export default function AdminPrivateGroups() {
   const [activeTab, setActiveTab] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery, 400)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
   useEffect(() => {
@@ -83,7 +85,7 @@ export default function AdminPrivateGroups() {
       }
     }
     return () => { active = false }
-  }, [routeGroupId, navigate, isRtl, t])
+  }, [routeGroupId, navigate, isRtl, t, selectedGroup, viewMode])
   const STATUS_TABS = useMemo(() => [
     { key: 'all', label: t('adminDashboard.privateGroups.tabs.all', 'الكل') },
     { key: 'pending', label: t('adminDashboard.privateGroups.tabs.pending', 'قيد الانتظار') },
@@ -100,7 +102,7 @@ export default function AdminPrivateGroups() {
     setIsLoading(true)
     try {
       const params = { page: currentPage, limit: itemsPerPage }
-      if (searchQuery.trim()) params.search = searchQuery.trim()
+      if (debouncedSearch.trim()) params.search = debouncedSearch.trim()
       if (typeFilter !== 'all') params.type = typeFilter
       const fetcher = TAB_API_MAP[activeTab] ?? TAB_API_MAP.all
       const res = await fetcher(params)
@@ -121,7 +123,7 @@ export default function AdminPrivateGroups() {
     } finally {
       setIsLoading(false)
     }
-  }, [activeTab, currentPage, searchQuery, typeFilter])
+  }, [activeTab, currentPage, debouncedSearch, typeFilter])
   useEffect(() => {
     loadGroups()
   }, [loadGroups])
@@ -546,6 +548,7 @@ export default function AdminPrivateGroups() {
             setShowAddStudentsModal(true)
           }}
           onAddStudent={handleAddSingleStudent}
+          onTransferStudent={handleTransferStudent}
           onChangeTeacher={handleOpenChangeTeacher}
           t={t}
           isRtl={isRtl}

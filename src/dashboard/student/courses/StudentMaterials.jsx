@@ -16,6 +16,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
+import useDebounce from '@/shared/hooks/useDebounce';
 
 export default function StudentMaterials() {
   const { t, i18n } = useTranslation();
@@ -25,15 +26,20 @@ export default function StudentMaterials() {
   const [attachmentsData, setAttachmentsData] = useState([]);
   const [curriculaData, setCurriculaData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 350);
   const [expandedCurricula, setExpandedCurricula] = useState({});
   useEffect(() => {
+    let isMounted = true;
     async function loadData() {
       try {
         setLoading(true);
+        const params = {};
+        if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
         const [attRes, currRes] = await Promise.allSettled([
-          studentPortalApi.fetchCurriculaAttachments(),
-          studentPortalApi.fetchCurricula(),
+          studentPortalApi.fetchCurriculaAttachments(params),
+          studentPortalApi.fetchCurricula(params),
         ]);
+        if (!isMounted) return;
         if (attRes.status === 'fulfilled') {
           const rawAtt = attRes.value?.data || attRes.value || [];
           setAttachmentsData(Array.isArray(rawAtt) ? rawAtt : []);
@@ -45,11 +51,14 @@ export default function StudentMaterials() {
       } catch (err) {
         console.warn('Could not load materials data:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     loadData();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedSearch]);
   const handleOpenItem = (url, type) => {
     if (!url) return;
     if (type === 'link') {
@@ -133,16 +142,7 @@ export default function StudentMaterials() {
           ) : (
             <div className="space-y-6">
               {attachmentsData.map((groupItem, gIdx) => {
-                const attachments = (groupItem.attachments || []).filter((att) => {
-                  if (!searchTerm.trim()) return true;
-                  const term = searchTerm.toLowerCase();
-                  return (
-                    att.name?.toLowerCase().includes(term) ||
-                    att.unitName?.toLowerCase().includes(term) ||
-                    groupItem.curriculumName?.toLowerCase().includes(term)
-                  );
-                });
-                if (attachments.length === 0 && searchTerm.trim()) return null;
+                const attachments = groupItem.attachments || [];
                 return (
                   <div
                     key={groupItem.groupId || gIdx}

@@ -334,6 +334,52 @@ export const adminSessionsApi = {
       }
     }
   },
+
+  fetchMonitorJoinData: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/sessions/private/${id}/monitor-join`);
+      const payload = response.data?.data || response.data;
+      return {
+        success: true,
+        data: payload,
+        message: response.data?.message || 'Monitor join data retrieved successfully',
+      };
+    } catch (error) {
+      console.warn(`fetchMonitorJoinData for session ${id} failed:`, error);
+      return {
+        success: false,
+        error,
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message || 'Failed to retrieve monitor join details',
+      };
+    }
+  },
+
+  fetchAllLocalizedSessions: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/sessions/private/localized/all', { params });
+      const resData = response.data || {};
+      const rawList = resData.data || resData.sessions || (Array.isArray(resData) ? resData : []);
+      const items = Array.isArray(rawList) ? rawList.map(mapSessionData).filter(Boolean) : [];
+      return {
+        ...resData,
+        success: true,
+        data: items,
+        pagination: resData.pagination,
+      };
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        try {
+          const fallbackRes = await adminSessionsApi.fetchSessions({ ...params, limit: 100 });
+          return fallbackRes;
+        } catch (fallbackErr) {
+          return { success: false, data: [], error: fallbackErr };
+        }
+      }
+      console.warn('fetchAllLocalizedSessions failed:', err);
+      return { success: false, data: [], error: err };
+    }
+  },
 };
 
 export default adminSessionsApi;

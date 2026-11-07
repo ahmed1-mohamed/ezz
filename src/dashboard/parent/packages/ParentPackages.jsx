@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import useDebounce from '@/shared/hooks/useDebounce';
 import {
   Layers,
   Search,
@@ -31,6 +32,7 @@ export default function ParentPackages() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [selectedType, setSelectedType] = useState('all');
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [activeModalPackage, setActiveModalPackage] = useState(null);
@@ -43,8 +45,11 @@ export default function ParentPackages() {
     if (selectedType !== 'all') {
       params.type = selectedType;
     }
+    if (debouncedSearch.trim()) {
+      params.search = debouncedSearch.trim();
+    }
     return params;
-  }, [currentPage, selectedType]);
+  }, [currentPage, selectedType, debouncedSearch]);
   const {
     data: packagesResponse,
     isLoading,
@@ -95,17 +100,8 @@ export default function ParentPackages() {
     if (selectedCountry !== 'all') {
       result = result.filter((pkg) => pkg?.country?.id === selectedCountry);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter((pkg) => {
-        const nameMatch = String(pkg?.name || '').toLowerCase().includes(q);
-        const langMatch = String(pkg?.language || '').toLowerCase().includes(q);
-        const featMatch = Array.isArray(pkg?.features) && pkg.features.some((f) => String(f).toLowerCase().includes(q));
-        return nameMatch || langMatch || featMatch;
-      });
-    }
     return result;
-  }, [rawPackagesList, selectedType, selectedCountry, searchQuery]);
+  }, [rawPackagesList, selectedType, selectedCountry]);
   const statsOverview = useMemo(() => {
     const total = rawPackagesList.length;
     const individual = rawPackagesList.filter(
@@ -224,7 +220,10 @@ export default function ParentPackages() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder={t('parentPackages.searchPlaceholder', 'بحث باسم الباقة أو المزايا...')}
             className="w-full ps-10 pe-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30 focus:border-[#0f7a6c]"
           />

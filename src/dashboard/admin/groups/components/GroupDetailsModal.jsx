@@ -161,12 +161,13 @@ export default function GroupDetailsModal({
       setIsAdding(false)
     }
   }
+  if (typeof document === 'undefined') return null
   return createPortal(
     <div
-      className="fixed inset-0 z-[9990] flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
       <div
         className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl min-h-[500px] max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}

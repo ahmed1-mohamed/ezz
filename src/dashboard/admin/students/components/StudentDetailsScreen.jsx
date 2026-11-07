@@ -107,8 +107,7 @@ export default function StudentDetailsScreen({
     try {
       await onAddSessions(studentId, count, reason)
       setIsAddSessionsOpen(false)
-    } catch {
-    } finally {
+    } catch (err) { void err; } finally {
       setIsAddingSessions(false)
     }
   }

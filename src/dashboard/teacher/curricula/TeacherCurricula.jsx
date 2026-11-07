@@ -203,8 +203,10 @@ export default function TeacherCurricula() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
   const { data: responseData, isLoading } = useQuery({
-    queryKey: ['teacherCurricula'],
-    queryFn: () => teacherCurriculaApi.fetchCurricula(),
+    queryKey: ['teacherCurricula', debouncedSearch],
+    queryFn: () => teacherCurriculaApi.fetchCurricula({
+      search: debouncedSearch.trim() || undefined,
+    }),
     staleTime: 60 * 1000,
   });
   const rawCurricula = useMemo(() => {
@@ -271,13 +273,6 @@ export default function TeacherCurricula() {
   }, [rawCurricula, allResources]);
   const filteredCurricula = useMemo(() => {
     let list = [...rawCurricula];
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase();
-      list = list.filter((c) => {
-        const nm = resolveName(c.name, isRtl);
-        return nm.toLowerCase().includes(q);
-      });
-    }
     if (selectedGroup) {
       list = list.filter(
         (c) =>
@@ -289,7 +284,7 @@ export default function TeacherCurricula() {
       list = list.filter((c) => String(c.level || '').toLowerCase().includes(selectedLevel.toLowerCase()));
     }
     return list;
-  }, [rawCurricula, debouncedSearch, selectedGroup, selectedLevel, isRtl]);
+  }, [rawCurricula, selectedGroup, selectedLevel]);
   const activeCurriculum = useMemo(() => {
     if (filteredCurricula.length === 0) return null;
     if (selectedCurriculumId) {
@@ -306,13 +301,6 @@ export default function TeacherCurricula() {
     const bookTypes = ['book', 'كتاب', 'كتب'];
     const refTypes = ['reference', 'مرجع'];
     let list = allResources;
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase();
-      list = list.filter((r) => {
-        const nm = resolveName(r.name, isRtl);
-        return nm.toLowerCase().includes(q);
-      });
-    }
     if (selectedGroup) {
       list = list.filter(
         (r) =>

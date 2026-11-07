@@ -13,10 +13,9 @@ import { useTranslation } from 'react-i18next'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
 
 export default function AnalyticsChartSection() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
   const [period, setPeriod] = useState('monthly')
-  const [activeMetric, setActiveMetric] = useState('all') 
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const { data: analyticsRes, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['admin-dashboard-analytics', period],

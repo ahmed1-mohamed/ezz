@@ -13,7 +13,7 @@
   },
   "common": {
     "search": "Search",
-    "errorLoading": "An error occurred while loading teachers data",
+    "errorLoading": "Failed to load teachers data. Please try again.",
     "retry": "Retry",
     "refresh": "Refresh",
     "selectCountry": "Select Country",
@@ -21,7 +21,7 @@
     "errorOccurred": "An unexpected error occurred",
     "teacher": "Teacher",
     "successMessage": "Operation completed successfully!",
-    "errorMessage": "An error occurred while sending the request, please try again later",
+    "errorMessage": "Failed to process your request. Please try again later.",
     "prev": "Previous",
     "next": "Next",
     "add": "Add",
@@ -42,12 +42,12 @@
   },
   "login": {
     "academyName": "Manarat Al-Ezz Academy",
-    "academySubtitle": "A modern and spiritual educational academy",
-    "formTitle": "Login",
+    "academySubtitle": "A modern educational platform inspiring excellence and Islamic values",
+    "formTitle": "Sign In",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "forgotPassword": "Forgot password?",
-    "submitBtn": "Enter Manara",
+    "submitBtn": "Sign In",
     "orLoginWith": "Or login with Google",
     "noAccount": "Don't have an account?",
     "registerNow": "Register now",
@@ -860,11 +860,11 @@
     "notFound": "Page not found",
     "unauthorized": "Unauthorized access",
     "unauthorizedTitle": "Unauthorized Access",
-    "unauthorizedMsg": "Sorry, you don't have permission to access this page",
+    "unauthorizedMsg": "You do not have permission to view this page.",
     "unauthorizedDesc": "Please log in with an account that has the appropriate permissions to view this content.",
     "unauthenticatedTitle": "Login Required",
-    "unauthenticatedMsg": "Sorry, please login first to access this page",
-    "unauthenticatedDesc": "Authentication token was not found or has expired. Please log in to identify yourself.",
+    "unauthenticatedMsg": "Please sign in to access this page.",
+    "unauthenticatedDesc": "Your session has expired or you are not signed in. Please sign in to continue.",
     "goHome": "Return Home"
   },
   "language": {
@@ -943,8 +943,9 @@
     "footer": {
       "tagline": "Built for modern learning teams.",
       "copyright": "© 2026 Manarat Al-Ezz Academy. All rights reserved.",
-      "brand": "Manarat Al-Ezz",
-      "description": "A leading academy in the field of Quranic and educational distance learning. We strive to spread the light of revelation in every home through modern technologies and global educational standards.",
+      "brand": "Manarat Al-Ezz Academy",
+      "description": "Manart Alezz FZE, a Free Zone Establishment licensed by Sharjah Publishing City – Free Zone Authority, Government of Sharjah, United Arab Emirates. Trade License No. 4429961.01.",
+      "legalLicense": "Manart Alezz FZE, a Free Zone Establishment licensed by Sharjah Publishing City – Free Zone Authority, Government of Sharjah, United Arab Emirates. Trade License No. 4429961.01.",
       "policies": "Policies & Terms",
       "privacy": "Privacy",
       "terms": "Terms & Conditions",
@@ -1008,8 +1009,8 @@
   "register": {
     "title": "Create a New Account",
     "description": "Register now to access your personalized educational dashboard.",
-    "academyName": "Manaret Al-Ezz Academy",
-    "academySubtitle": "Contemporary and spiritual educational academy",
+    "academyName": "Manarat Al-Ezz Academy",
+    "academySubtitle": "A modern educational platform inspiring excellence and Islamic values",
     "backToHome": "Back to Home",
     "accountType": "Account Type",
     "roleStudent": "Student",
@@ -1043,14 +1044,14 @@
     "orRegisterWith": "Or register via",
     "googleBtn": "Register with Google",
     "haveAccount": "Already have an account?",
-    "login": "Login",
+    "login": "Sign In",
     "successMessage": "Account created successfully! Redirecting...",
     "errorMessage": "Failed to create account, please try again."
   },
   "heroSection": {
     "title": "Are you ready to start your journey of light?",
     "description": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
-    "cta": "Join now and start"
+    "cta": "Get Started Now"
   },
   "statistics": {
     "title": "Manarat Al-Ezz in Numbers",
@@ -1379,7 +1380,7 @@
     "quran": {
       "sidebar": {
         "title": "About the Holy Quran Curriculum",
-        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
+        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, accommodating individual learning styles with a focus on fundamental Tajweed rules."
       },
       "feat1": {
         "title": "Accredited Certificate",
@@ -1421,7 +1422,7 @@
         "desc": "To measure skills development"
       },
       "feat2": {
-        "title": "Practical Practice",
+        "title": "Hands-on Application",
         "desc": "Through interactive activities"
       },
       "btn": "View Curriculum",
@@ -1431,13 +1432,13 @@
         "level": "Beginner Level"
       },
       "u2": {
-        "title": "Expression Skills",
+        "title": "Composition and Expression Skills",
         "desc": "Developing the student's ability to express their thoughts clearly and smoothly.",
         "level": "First Stage"
       },
       "u3": {
         "title": "Literature and Rhetoric",
-        "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.",
+        "desc": "Appreciating the literary beauty and stylistic richness of the Arabic language through classical and modern texts.",
         "level": "Advanced Level"
       },
       "u4": {
@@ -1472,7 +1473,7 @@
       },
       "u3": {
         "title": "Prophet's Biography",
-        "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.",
+        "desc": "Key milestones from the life of the Prophet ﷺ and practical lessons for daily life.",
         "level": "Advanced Level"
       },
       "u4": {
@@ -1505,11 +1506,11 @@
       },
       "f2": {
         "title": "Modern Technology",
-        "desc": "We utilize the latest remote education technologies to make lessons interactive and enjoyable, suiting today's technology-thirsty generation."
+        "desc": "We utilize the latest remote education technologies to make lessons interactive and enjoyable, tailored for today's tech-savvy generation."
       },
       "f3": {
         "title": "Safe Environment",
-        "desc": "We provide a safe digital haven for your children, where teachers are selected after rigorous tests ensuring their scientific competence and educational integrity."
+        "desc": "We provide a safe digital haven for your children, where teachers are selected after rigorous tests ensuring their academic excellence and pedagogical integrity."
       },
       "f4": {
         "title": "Academic Excellence",
@@ -2247,7 +2248,7 @@
       "teachers": "Teachers",
       "teacherEvaluations": "Teacher Evaluations",
       "assignments": "Assignments",
-      "excuses": "Children Excuses",
+      "excuses": "Absence Requests",
       "grades": "Grades",
       "attendance": "Attendance",
       "achievements": "Achievements",
@@ -3068,7 +3069,7 @@
       "totalInPlatform": "Total {{count}} supervisors in the platform",
       "searchPlaceholder": "Search...",
       "name": "Supervisor Name",
-      "email": "Remaining Sessions",
+      "email": "Email Address",
       "role": "Permissions",
       "phone": "Phone Number",
       "status": "Status",
@@ -3505,8 +3506,8 @@
       "imageHint": "Click to upload package image",
       "packageNameAr": "Package Name (AR)",
       "packageNameArPlaceholder": "e.g. Gold Package",
-      "packageNameEn": "Package Name",
-      "packageNameEnPlaceholder": "Package Name",
+      "packageNameEn": "Package Name (EN)",
+      "packageNameEnPlaceholder": "e.g. Gold Package",
       "price": "Price",
       "pricePlaceholder": "1500",
       "currency": "Currency",
@@ -3517,15 +3518,15 @@
       "allCountries": "All Countries (General)",
       "color": "Package Color",
       "descriptionAr": "Description (AR)",
-      "descriptionArPlaceholder": "Effective description",
-      "descriptionEn": "Package Brief",
-      "descriptionEnPlaceholder": "Describe",
+      "descriptionArPlaceholder": "Enter Arabic description",
+      "descriptionEn": "Description (EN)",
+      "descriptionEnPlaceholder": "Enter English description",
       "features": "Package Features",
       "featuresAr": "Features (AR)",
-      "featuresEn": "Features",
+      "featuresEn": "Features (EN)",
       "addFeature": "Add Feature",
       "featureArPlaceholder": "Feature (AR)",
-      "featureEnPlaceholder": "Feature",
+      "featureEnPlaceholder": "Enter English feature",
       "save": "Save Package",
       "cancel": "Cancel",
       "deleteTitle": "Confirm Delete",
@@ -3543,10 +3544,10 @@
       "questionArPlaceholder": "Common question",
       "answerAr": "Answer (AR)",
       "answerArPlaceholder": "Write the answer",
-      "questionEn": "Question",
-      "questionEnPlaceholder": "Question",
-      "answerEn": "Answer",
-      "answerEnPlaceholder": "Answer",
+      "questionEn": "Question (EN)",
+      "questionEnPlaceholder": "Enter English question",
+      "answerEn": "Answer (EN)",
+      "answerEnPlaceholder": "Enter English answer",
       "add": "Add",
       "update": "Update",
       "faqColQuestion": "Question",
@@ -3772,12 +3773,12 @@
       "loadingNotes": "Loading notes...",
       "noReviewNotes": "No notes available",
       "statsTitle": "Website Statistics Settings",
-      "classesLabel": "Classes Count",
-      "classesPlaceholder": "Classes Count",
-      "teachersLabel": "Teachers Count",
-      "teachersPlaceholder": "Teachers Count",
-      "studentsLabel": "Students Count",
-      "studentsPlaceholder": "Students Count",
+      "classesLabel": "Total Sessions",
+      "classesPlaceholder": "Enter total sessions count",
+      "teachersLabel": "Total Teachers",
+      "teachersPlaceholder": "Enter total teachers count",
+      "studentsLabel": "Total Students",
+      "studentsPlaceholder": "Enter total students count",
       "addTestimonialTitle": "Add New Testimonial",
       "editTestimonialTitle": "Edit Testimonial",
       "testimonialSubtitle": "Enter parent's testimonial details",
@@ -3786,7 +3787,7 @@
       "english": "English",
       "testimonialText": "Testimonial Text",
       "personalImageRequired": "Profile Image",
-      "starsTitle": "Academic Excellence Stars (Students)",
+      "starsTitle": "Academic Excellence Stars",
       "noStars": "No excellence stars available.",
       "save": "Save Settings",
       "cancel": "Cancel Changes",

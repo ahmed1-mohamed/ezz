@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X, BookOpen, Download, FileText, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,7 +18,7 @@ export default React.memo(function TeacherResourcePreviewModal({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  if (!isOpen || !resource) return null;
+  if (!isOpen || !resource || typeof document === 'undefined') return null;
   const resourceName = resolveName(resource.name, isRtl) || resource.title || '-';
   const curriculumName = resolveName(
     typeof resource.curriculum === 'object' ? resource.curriculum?.name : resource.curriculum,
@@ -27,9 +28,9 @@ export default React.memo(function TeacherResourcePreviewModal({
   const sizeStr = resource.fileSize || resource.size || '';
   const pagesCount = resource.pages || resource.pagesCount;
   const url = resource.previewUrl || resource.url || resource.fileUrl || null;
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="bg-white dark:bg-slate-900 rounded-[28px] max-w-xl w-full border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
@@ -102,7 +103,8 @@ export default React.memo(function TeacherResourcePreviewModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 });
 

@@ -1,4 +1,4 @@
-export const DAYS_OF_WEEK = [
+const DAYS_OF_WEEK = [
   { key: 'sunday', ar: 'الأحد', en: 'Sunday' },
   { key: 'monday', ar: 'الإثنين', en: 'Monday' },
   { key: 'tuesday', ar: 'الثلاثاء', en: 'Tuesday' },

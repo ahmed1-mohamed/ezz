@@ -659,7 +659,9 @@
     "selectAll": "تحديد الكل",
     "deselectAll": "إلغاء تحديد الكل",
     "removeFile": "إزالة الملف",
-    "delayed": "متأخر"
+    "delayed": "متأخر",
+    "mainWebsite": "الموقع الرئيسي",
+    "logout": "تسجيل الخروج"
   },
   "header": {
     "search": "بحث...",

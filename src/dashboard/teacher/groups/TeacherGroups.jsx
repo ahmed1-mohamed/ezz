@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -100,12 +100,17 @@ export default function TeacherGroups() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
+      setPage(1);
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
   const { data: responseData, isLoading } = useQuery({
-    queryKey: ['teacherGroups', page, limit],
-    queryFn: () => teacherGroupsApi.fetchGroups({ page, limit }),
+    queryKey: ['teacherGroups', page, limit, debouncedSearch],
+    queryFn: () => teacherGroupsApi.fetchGroups({
+      page,
+      limit,
+      search: debouncedSearch.trim() || undefined,
+    }),
     staleTime: 60 * 1000,
   });
   const rawGroups = useMemo(() => {
@@ -169,16 +174,9 @@ export default function TeacherGroups() {
       if (activeFilter === 'private' && !g.isPrivate) return false;
       if (activeFilter === 'public' && g.isPrivate) return false;
       if (activeFilter === 'active' && !g.isActive) return false;
-      if (debouncedSearch.trim()) {
-        const query = debouncedSearch.toLowerCase().trim();
-        const matchesName = g.name.toLowerCase().includes(query);
-        const matchesCurriculum = (g.curriculum || '').toLowerCase().includes(query);
-        const matchesCountry = (g.country || '').toLowerCase().includes(query);
-        return matchesName || matchesCurriculum || matchesCountry;
-      }
       return true;
     });
-  }, [rawGroups, activeFilter, debouncedSearch]);
+  }, [rawGroups, activeFilter]);
   const userInitial = useMemo(() => {
     const name = user?.name || '';
     if (typeof name === 'object' && name !== null) {

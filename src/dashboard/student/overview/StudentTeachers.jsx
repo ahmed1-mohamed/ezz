@@ -5,6 +5,7 @@ import { Star, Users, Search, MapPin, BookOpen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
+import useDebounce from '@/shared/hooks/useDebounce';
 
 const getImageUrl = (imagePath) => {
   if (!imagePath || typeof imagePath !== 'string' || !imagePath.trim()) return null;
@@ -151,22 +152,30 @@ export default function StudentTeachers() {
   const [teachersList, setTeachersList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 350);
   const [selectedSubject, setSelectedSubject] = useState('');
   useEffect(() => {
+    let isMounted = true;
     async function loadTeachers() {
       setIsLoading(true);
       try {
-        const res = await studentPortalApi.fetchTeachers();
+        const params = {};
+        if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+        const res = await studentPortalApi.fetchTeachers(params);
+        if (!isMounted) return;
         const raw = res?.data || res || [];
         setTeachersList(Array.isArray(raw) ? raw : []);
       } catch (err) {
         console.warn('Failed to load student teachers:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     }
     loadTeachers();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedSearch]);
   const availableSubjects = useMemo(() => {
     const subjectsSet = new Set();
     teachersList.forEach((teacher) => {
@@ -182,19 +191,14 @@ export default function StudentTeachers() {
   }, [teachersList]);
   const filteredTeachers = useMemo(() => {
     return teachersList.filter((teacher) => {
-      const name = typeof teacher.name === 'object' && teacher.name !== null
-        ? `${teacher.name.ar || ''} ${teacher.name.en || ''}`
-        : String(teacher.name || '');
-      const matchesSearch = !searchTerm.trim() || name.toLowerCase().includes(searchTerm.toLowerCase().trim());
       const teacherSubjects = [teacher.subject].concat(
         Array.isArray(teacher.specializations)
           ? teacher.specializations.map((s) => (typeof s === 'object' && s !== null ? s.name : s))
           : []
       );
-      const matchesSubject = !selectedSubject || teacherSubjects.includes(selectedSubject);
-      return matchesSearch && matchesSubject;
+      return !selectedSubject || teacherSubjects.includes(selectedSubject);
     });
-  }, [teachersList, searchTerm, selectedSubject]);
+  }, [teachersList, selectedSubject]);
   return (
     <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 p-4 sm:p-6 lg:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div

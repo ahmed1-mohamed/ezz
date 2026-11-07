@@ -27,25 +27,19 @@ export default function BookTrialSessionModal({
   initialTeacherId = null,
   onSuccess,
 }) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eligibilityList, setEligibilityList] = useState([]);
   const [curriculaList, setCurriculaList] = useState([]);
-
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [selectedCurriculumId, setSelectedCurriculumId] = useState('');
   const [notes, setNotes] = useState('');
   const [step, setStep] = useState(1); // 1: Child, 2: Curriculum & Notes
-
   useEffect(() => {
     if (!isOpen) return;
-
     let isMounted = true;
-    setIsLoadingData(true);
-
     Promise.all([
       parentTrialSessionsApi.fetchTrialSessionsAndEligibility().catch((err) => {
         console.warn('[TrialModal] fetch eligibility failed:', err);
@@ -57,17 +51,14 @@ export default function BookTrialSessionModal({
       }),
     ]).then(([eligibilityRes, curriculaRes]) => {
       if (!isMounted) return;
-
       const eligData = Array.isArray(eligibilityRes?.childrenEligibility)
         ? eligibilityRes.childrenEligibility
         : [];
       setEligibilityList(eligData);
-
       const currData = Array.isArray(curriculaRes?.data)
         ? curriculaRes.data
         : (Array.isArray(curriculaRes) ? curriculaRes : []);
       setCurriculaList(currData);
-
       // Pre-select child if passed or if only one child is eligible
       if (initialChildId) {
         setSelectedStudentId(initialChildId);
@@ -77,15 +68,12 @@ export default function BookTrialSessionModal({
           setSelectedStudentId(firstEligible.studentId);
         }
       }
-
       setIsLoadingData(false);
     });
-
     return () => {
       isMounted = false;
     };
   }, [isOpen, initialChildId]);
-
   // Combine eligibility data with childrenList for rich details (images, groups)
   const enrichedChildren = useMemo(() => {
     if (eligibilityList.length > 0) {
@@ -101,7 +89,6 @@ export default function BookTrialSessionModal({
         };
       });
     }
-
     // Fallback if backend returned no eligibility yet
     return childrenList.map((c) => ({
       ...c,
@@ -112,15 +99,9 @@ export default function BookTrialSessionModal({
       hasUsedTrial: false,
     }));
   }, [eligibilityList, childrenList]);
-
   const selectedChild = useMemo(() => {
     return enrichedChildren.find((c) => String(c.studentId) === String(selectedStudentId));
   }, [enrichedChildren, selectedStudentId]);
-
-  const selectedCurriculum = useMemo(() => {
-    return curriculaList.find((c) => String(c.id) === String(selectedCurriculumId));
-  }, [curriculaList, selectedCurriculumId]);
-
   const handleSubmit = async (e) => {
     e?.preventDefault();
     if (!selectedStudentId) {
@@ -131,7 +112,6 @@ export default function BookTrialSessionModal({
       toast.error(isRtl ? 'يرجى اختيار المنهج الدراسي' : 'Please select a curriculum');
       return;
     }
-
     setIsSubmitting(true);
     try {
       const payload = {
@@ -140,7 +120,6 @@ export default function BookTrialSessionModal({
         ...(notes.trim() ? { notes: notes.trim() } : {}),
         ...(initialTeacherId ? { teacherId: initialTeacherId } : {}),
       };
-
       const res = await parentTrialSessionsApi.requestTrialSession(payload);
       toast.success(
         res?.message || (isRtl ? 'تم تقديم طلب الحصة التجريبية بنجاح!' : 'Trial session requested successfully!')
@@ -159,12 +138,10 @@ export default function BookTrialSessionModal({
       setIsSubmitting(false);
     }
   };
-
-  if (!isOpen) return null;
-
+  if (!isOpen || typeof document === 'undefined') return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) onClose();
@@ -197,7 +174,6 @@ export default function BookTrialSessionModal({
             <X size={20} />
           </button>
         </div>
-
         {/* Steps Tab Indicators */}
         <div className="px-6 pt-3 flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 shrink-0">
           <button
@@ -234,7 +210,6 @@ export default function BookTrialSessionModal({
             {selectedCurriculumId && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
           </button>
         </div>
-
         {/* Modal Content */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {isLoadingData ? (
@@ -256,7 +231,6 @@ export default function BookTrialSessionModal({
                   {enrichedChildren.length} {isRtl ? 'أبناء مسجلين' : 'registered children'}
                 </span>
               </div>
-
               {enrichedChildren.length === 0 ? (
                 <div className="p-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2">
                   <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
@@ -275,7 +249,6 @@ export default function BookTrialSessionModal({
                     const canReq = child.canRequestTrial !== false;
                     const hasReq = Boolean(child.hasRequestedTrial);
                     const hasUsed = Boolean(child.hasUsedTrial);
-
                     return (
                       <div
                         key={sid}
@@ -322,7 +295,6 @@ export default function BookTrialSessionModal({
                             )}
                           </div>
                         </div>
-
                         {/* Status Badge */}
                         <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
                           {canReq ? (
@@ -380,14 +352,12 @@ export default function BookTrialSessionModal({
                   </button>
                 </div>
               )}
-
               {/* Curricula Selection */}
               <div className="space-y-3">
                 <label className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-[#0f7a6c]" />
                   <span>{isRtl ? 'اختر المنهج الدراسي المراد تجربته:' : 'Select the curriculum to trial:'}</span>
                 </label>
-
                 {curriculaList.length === 0 ? (
                   <div className="p-6 text-center bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs text-slate-400">
                     {isRtl ? 'لا توجد مناهج معروضة حالياً' : 'No curricula available right now'}
@@ -397,7 +367,6 @@ export default function BookTrialSessionModal({
                     {curriculaList.map((curriculum) => {
                       const cid = String(curriculum.id);
                       const isSelected = selectedCurriculumId === cid;
-
                       return (
                         <div
                           key={cid}
@@ -438,7 +407,6 @@ export default function BookTrialSessionModal({
                               )}
                             </div>
                           </div>
-
                           <div className="flex items-center gap-1.5 pt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                             {curriculum.language && (
                               <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center gap-1">
@@ -459,7 +427,6 @@ export default function BookTrialSessionModal({
                   </div>
                 )}
               </div>
-
               {/* Optional Notes */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
@@ -480,7 +447,6 @@ export default function BookTrialSessionModal({
             </div>
           )}
         </div>
-
         {/* Modal Footer Actions */}
         <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           {step === 1 ? (

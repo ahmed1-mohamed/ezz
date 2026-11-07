@@ -18,7 +18,7 @@ import AssignSessionModal from './components/AssignSessionModal'
 import CancelTrialSessionModal from './components/CancelTrialSessionModal'
 
 export default function AdminTrialSessions() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const { hasPermission, isSuperAdmin } = useAdminPermissions()
   const queryClient = useQueryClient()

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { X, FileText, Upload, Loader2, Check, FileCheck } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -16,7 +17,7 @@ export default function AddCertificateModal({
   const [filePreview, setFilePreview] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef(null)
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -71,9 +72,9 @@ export default function AddCertificateModal({
       setIsSubmitting(false)
     }
   }
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -212,6 +213,7 @@ export default function AddCertificateModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

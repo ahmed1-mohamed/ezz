@@ -10,6 +10,7 @@ import {
   RotateCcw,
   ShieldCheck,
   UserCheck,
+  ExternalLink,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import DevicePreviewModal from './DevicePreviewModal.jsx';
@@ -40,13 +41,6 @@ export default function ZoomMeetingPlayer({
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [mountedAt] = useState(() => Date.now());
-  const [currentTime, setCurrentTime] = useState(() => Date.now());
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(Date.now()), 15000);
-    return () => clearInterval(timer);
-  }, []);
-
   const cleanMeetingId = String(meetingId || '').replace(/\s/g, '');
   const cleanPasscode = String(passcode || '');
   const isHost = Number(role) === 1;
@@ -188,6 +182,25 @@ export default function ZoomMeetingPlayer({
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          {(joinUrl || startUrl || cleanMeetingId) && (
+            <button
+              type="button"
+              onClick={() => {
+                const target = isHost ? (startUrl || joinUrl) : (joinUrl || startUrl);
+                if (target) {
+                  window.open(target, '_blank', 'noopener,noreferrer');
+                } else if (cleanMeetingId) {
+                  const fallbackZoom = `https://zoom.us/j/${cleanMeetingId}${cleanPasscode ? `?pwd=${cleanPasscode}` : ''}`;
+                  window.open(fallbackZoom, '_blank', 'noopener,noreferrer');
+                }
+              }}
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
+              title={isRtl ? 'انضمام مباشر للحصة' : 'Join Meeting'}
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>{isRtl ? 'انضمام' : 'Join'}</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={handleToggleMic}

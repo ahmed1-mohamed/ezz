@@ -281,7 +281,9 @@ api.get = function (url, config = {}) {
   );
   let cleanConfig = config;
   if (config.params && (config.params.forceRefresh !== undefined || config.params.skipCache !== undefined)) {
-    const { forceRefresh: _forceRefresh, skipCache: _skipCache, ...restParams } = config.params;
+    const restParams = { ...config.params };
+    delete restParams.forceRefresh;
+    delete restParams.skipCache;
     cleanConfig = { ...config, params: restParams };
   }
   if (shouldSkipCache) {
@@ -330,7 +332,9 @@ api.request = function (urlOrConfig, maybeConfig) {
   );
   let cleanConfig = config;
   if (config.params && (config.params.forceRefresh !== undefined || config.params.skipCache !== undefined)) {
-    const { forceRefresh: _forceRefresh, skipCache: _skipCache, ...restParams } = config.params;
+    const restParams = { ...config.params };
+    delete restParams.forceRefresh;
+    delete restParams.skipCache;
     cleanConfig = { ...config, params: restParams };
   }
   const targetUrlOrConfig = typeof urlOrConfig === 'string' ? urlOrConfig : cleanConfig;

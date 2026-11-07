@@ -110,20 +110,7 @@ export default function AdminCurriculums() {
     setSearchInput('');
     setAppliedSearch('');
   }
-  const filteredCurricula = (curricula || []).filter((item) => {
-    if (!appliedSearch) return true;
-    const query = appliedSearch.toLowerCase();
-    const arName = typeof item.name === 'object' ? (item.name?.ar || '') : (item.name || '');
-    const enName = typeof item.name === 'object' ? (item.name?.en || '') : (item.name || '');
-    const arDesc = typeof item.description === 'object' ? (item.description?.ar || '') : (item.description || '');
-    const enDesc = typeof item.description === 'object' ? (item.description?.en || '') : (item.description || '');
-    return (
-      arName.toLowerCase().includes(query) ||
-      enName.toLowerCase().includes(query) ||
-      arDesc.toLowerCase().includes(query) ||
-      enDesc.toLowerCase().includes(query)
-    );
-  });
+  const filteredCurricula = Array.isArray(curricula) ? curricula : [];
   if (showForm) {
     return (
       <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>

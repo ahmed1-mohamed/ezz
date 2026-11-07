@@ -48,17 +48,32 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
       setApiCountries(normalized)
       setSelectedCountryCode((prev) => prev || toDialCodeOptions(normalized).find((c) => c.code === DEFAULT_DIAL_CODE) || null)
     })
-    studentsApi.fetchAllLocalizedStudents({ limit: 1000 })
-      .then((res) => {
-        if (!isMounted) return
-        const list = Array.isArray(res?.data) ? res.data : []
-        setApiStudents(list.map((s) => ({ ...s, id: s.student_id })))
-      })
-      .catch((err) => console.error('Failed to load students:', err))
     return () => {
       isMounted = false
     }
   }, [isRtl])
+  useEffect(() => {
+    let active = true
+    const trimmed = studentSearch.trim()
+    const timer = setTimeout(async () => {
+      try {
+        const res = await studentsApi.fetchStudents({
+          search: trimmed || undefined,
+          limit: 50
+        })
+        if (!active) return
+        const list = res?.data || (Array.isArray(res) ? res : [])
+        setApiStudents(list.map((s) => ({ ...s, id: s.student_id || s.id || s._id })))
+      } catch (err) {
+        console.error('Failed to load students:', err)
+        if (active) setApiStudents([])
+      }
+    }, trimmed ? 300 : 0)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [studentSearch])
   const dialCodes = useMemo(() => sortCountryCodes(toDialCodeOptions(apiCountries), isRtl), [apiCountries, isRtl])
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -76,14 +91,7 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
     }
     setFormData((prev) => ({ ...prev, profileImage: URL.createObjectURL(file), profileImageFile: file }))
   }
-  const filteredStudents = apiStudents.filter((s) => {
-    const query = studentSearch.toLowerCase()
-    const nameStr = typeof s.name === 'object' ? (s.name?.ar || s.name?.en || '') : (s.name || '')
-    if (studentSearchTab === 'name') return nameStr.toLowerCase().includes(query)
-    if (studentSearchTab === 'email') return (s.email || '').toLowerCase().includes(query)
-    if (studentSearchTab === 'phone') return (s.phone || '').includes(query)
-    return true
-  })
+  const filteredStudents = apiStudents
   const toggleStudentSelect = (student) => {
     setSelectedStudents((prev) =>
       prev.find((s) => s.id === student.id)

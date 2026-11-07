@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   X,
@@ -48,23 +49,17 @@ export default function ParentPackageDetailsModal({
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [details, setDetails] = useState(packageItem);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   useEffect(() => {
     let isMounted = true;
     async function loadFullDetails() {
       if (!packageItem?.id) return;
       try {
-        setIsLoadingDetails(true);
         const res = await parentPackagesApi.fetchPackageDetails(packageItem.id);
         if (isMounted && res) {
           setDetails((prev) => ({ ...prev, ...res }));
         }
       } catch (err) {
         console.warn('Failed to fetch full package details:', err);
-      } finally {
-        if (isMounted) {
-          setIsLoadingDetails(false);
-        }
       }
     }
     setDetails(packageItem);
@@ -75,7 +70,7 @@ export default function ParentPackageDetailsModal({
       isMounted = false;
     };
   }, [packageItem]);
-  if (!isOpen || !packageItem) return null;
+  if (!isOpen || !packageItem || typeof document === 'undefined') return null;
   const activeData = details || packageItem;
   const isFamily = activeData?.type === 'family' || String(activeData?.typeText || '').includes('عائل');
   const countryName = activeData?.country?.name || '';
@@ -83,9 +78,9 @@ export default function ParentPackageDetailsModal({
   const currencyLabel = t('parentPackages.currency', 'ج.م');
   const featuresList = Array.isArray(activeData?.features) ? activeData.features : [];
   const familyTiers = Array.isArray(activeData?.familyTiers) ? activeData.familyTiers : null;
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -249,6 +244,7 @@ export default function ParentPackageDetailsModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

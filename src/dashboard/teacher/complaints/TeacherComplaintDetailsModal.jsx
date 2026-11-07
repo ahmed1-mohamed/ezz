@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import {
   X,
   Calendar,
@@ -12,9 +13,6 @@ import {
   Clock3,
   XCircle,
   MessageSquare,
-  FileText,
-  FileImage,
-  FileVideo,
 } from 'lucide-react';
 
 function formatDate(isoString, isRtl) {
@@ -95,7 +93,7 @@ function extractReplyDate(item) {
 export default function TeacherComplaintDetailsModal({ item, onClose }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-  if (!item) return null;
+  if (!item || typeof document === 'undefined') return null;
   const isReschedule =
     item.type === 'reschedule_request' ||
     item.type === 'reschedule' ||
@@ -169,8 +167,8 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
   const sessionInfo = item.session;
   const attachments = Array.isArray(item.attachments) ? item.attachments : [];
   const adminReplyText = item.notes || item.response || item.adminResponse || item.reply;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+  return createPortal(
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
         className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200"
         dir={isRtl ? 'rtl' : 'ltr'}
@@ -364,6 +362,7 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

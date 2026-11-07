@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Video, Calendar, Clock, Users, User, PlayCircle, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Video, Calendar, Clock, Users, User, PlayCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = SECOND_IN_MS * 60;
@@ -47,9 +46,6 @@ export default React.memo(function StudentBeforeSessionView({
     }, SECOND_IN_MS);
     return () => clearInterval(timerInterval);
   }, [targetDateStr]);
-  const joinCheck = useMemo(() => {
-    return checkCanJoinSession(session);
-  }, [session]);
   const handleJoinClick = () => {
     onJoinSession(session);
   };

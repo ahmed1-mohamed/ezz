@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
   X,
@@ -9,14 +9,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Clock3,
-  ExternalLink,
-  Copy,
   Receipt,
-  Check,
   Percent,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { toast } from 'react-hot-toast'
 import { adminPaymentsApi } from '@/shared/services/api/adminPaymentsApi'
 import Spinner from '@/shared/components/Spinner'
 
@@ -48,7 +44,6 @@ export default function SubscriptionDetailsModal({
   initialData = null,
   isRtl = true,
 }) {
-  const [copiedKey, setCopiedKey] = React.useState(null)
   useEffect(() => {
     if (!isOpen) return
     const prevOverflow = document.body.style.overflow
@@ -63,15 +58,8 @@ export default function SubscriptionDetailsModal({
     enabled: Boolean(isOpen && subscriptionId),
     staleTime: 60 * 1000,
   })
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const sub = res?.data || initialData || {}
-  const handleCopy = (text, key) => {
-    if (!text) return
-    navigator.clipboard.writeText(text)
-    setCopiedKey(key)
-    toast.success(isRtl ? 'تم النسخ إلى الحافظة' : 'Copied to clipboard')
-    setTimeout(() => setCopiedKey(null), 2000)
-  }
   const getStatusBadge = (status) => {
     switch (status) {
       case 'paid':
@@ -109,7 +97,7 @@ export default function SubscriptionDetailsModal({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   X,
@@ -60,7 +61,7 @@ export default function TeacherEvaluationModal({
   const [hoverRating, setHoverRating] = useState(0);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  if (!isOpen || !teacher) return null;
+  if (!isOpen || !teacher || typeof document === 'undefined') return null;
   const teacherId = teacher.teacherId || teacher.id || teacher._id;
   const teacherName = extractText(teacher.name, isRtl) || t('teacherLive.teacherDefaultName', 'المعلم');
   const teacherImage = typeof teacher.image === 'string' && teacher.image.trim() ? teacher.image : null;
@@ -96,9 +97,9 @@ export default function TeacherEvaluationModal({
       setIsSubmitting(false);
     }
   };
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -236,6 +237,7 @@ export default function TeacherEvaluationModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

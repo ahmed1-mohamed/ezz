@@ -1,6 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Users, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { teacherEvaluationsApi } from '@/shared/services/api/teacherEvaluationsApi.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
@@ -8,17 +10,10 @@ import EvaluationHeader from './components/EvaluationHeader.jsx';
 import EvaluationSelectionCard from './components/EvaluationSelectionCard.jsx';
 import EvaluationFormCard from './components/EvaluationFormCard.jsx';
 import EvaluationHistoryList from './components/EvaluationHistoryList.jsx';
+import TeacherAdminEvaluationsTab from './components/TeacherAdminEvaluationsTab.jsx';
 
 function isValidObjectId(id) {
   return typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
-}
-
-function isStudentEvaluated(raw) {
-  if (!raw) return false;
-  if (raw.isEvaluated === true || raw.evaluated === true || raw.hasEvaluation === true) return true;
-  const s = raw.student && typeof raw.student === 'object' ? raw.student : null;
-  if (s && (s.isEvaluated === true || s.evaluated === true || s.hasEvaluation === true)) return true;
-  return false;
 }
 
 function normalizePendingStudent(raw, idx, isRtl, t, nameMap = {}) {
@@ -150,6 +145,8 @@ export default function TeacherEvaluations() {
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') === 'admin' ? 'admin' : 'students');
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -433,50 +430,96 @@ export default function TeacherEvaluations() {
     refetchPendingSessions();
     refetchHistory();
   };
+  const handleTabChange = useCallback((newTab) => {
+    setActiveTab(newTab);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newTab === 'admin') {
+        next.set('tab', 'admin');
+      } else {
+        next.delete('tab');
+      }
+      return next;
+    });
+  }, [setSearchParams]);
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
-      <EvaluationHeader
-        currentTimeStr={currentTimeStr}
-        currentDateStr={currentDateStr}
-        onRefresh={handleRefreshAll}
-      />
-      <EvaluationSelectionCard
-        groupsList={groupsList}
-        activeGroupId={activeGroupId}
-        onSelectGroup={(newGroupId) => {
-          setSelectedGroupId(newGroupId);
-          setSelectedSessionId('');
-          setSelectedStudentId('');
-        }}
-        isLoadingGroups={isLoadingGroups}
-        sessionsList={sessionsList}
-        activeSessionId={activeSessionId}
-        onSelectSession={setSelectedSessionId}
-        isLoadingSessions={isLoadingPendingSessions}
-        studentsList={studentsList}
-        activeStudentId={activeStudentId}
-        onSelectStudent={setSelectedStudentId}
-      />
-      <EvaluationFormCard
-        currentSelectedStudent={currentSelectedStudent}
-        studentAverageRating={studentAverageRating}
-        studentAveragePercentage={studentAveragePercentage}
-        levelInfo={levelInfo}
-        rating={rating}
-        onRatingChange={setRating}
-        notes={notes}
-        onNotesChange={setNotes}
-        onSave={handleSaveEvaluation}
-        isSubmitting={isSubmitting}
-        canSubmit={Boolean(activeSessionId && activeStudentId)}
-      />
-      <EvaluationHistoryList
-        evaluationsList={recentEvaluationsList}
-        paginatedEvaluations={paginatedEvaluations}
-        evalPage={evalPage}
-        onPageChange={setEvalPage}
-        totalEvalPages={totalEvalPages}
-      />
+      <div className="flex items-center justify-start">
+        <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => handleTabChange('students')}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeTab === 'students'
+                ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-[#14a693] shadow-md'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Users size={16} />
+            <span>{isRtl ? 'تقييم الطلاب' : 'Student Evaluations'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabChange('admin')}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeTab === 'admin'
+                ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-[#14a693] shadow-md'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <ShieldCheck size={16} />
+            <span>{isRtl ? 'تقييمات الإدارة لي' : 'Admin Feedback'}</span>
+          </button>
+        </div>
+      </div>
+      {activeTab === 'admin' ? (
+        <TeacherAdminEvaluationsTab />
+      ) : (
+        <>
+          <EvaluationHeader
+            currentTimeStr={currentTimeStr}
+            currentDateStr={currentDateStr}
+            onRefresh={handleRefreshAll}
+          />
+          <EvaluationSelectionCard
+            groupsList={groupsList}
+            activeGroupId={activeGroupId}
+            onSelectGroup={(newGroupId) => {
+              setSelectedGroupId(newGroupId);
+              setSelectedSessionId('');
+              setSelectedStudentId('');
+            }}
+            isLoadingGroups={isLoadingGroups}
+            sessionsList={sessionsList}
+            activeSessionId={activeSessionId}
+            onSelectSession={setSelectedSessionId}
+            isLoadingSessions={isLoadingPendingSessions}
+            studentsList={studentsList}
+            activeStudentId={activeStudentId}
+            onSelectStudent={setSelectedStudentId}
+          />
+          <EvaluationFormCard
+            currentSelectedStudent={currentSelectedStudent}
+            studentAverageRating={studentAverageRating}
+            studentAveragePercentage={studentAveragePercentage}
+            levelInfo={levelInfo}
+            rating={rating}
+            onRatingChange={setRating}
+            notes={notes}
+            onNotesChange={setNotes}
+            onSave={handleSaveEvaluation}
+            isSubmitting={isSubmitting}
+            canSubmit={Boolean(activeSessionId && activeStudentId)}
+          />
+          <EvaluationHistoryList
+            evaluationsList={recentEvaluationsList}
+            paginatedEvaluations={paginatedEvaluations}
+            evalPage={evalPage}
+            onPageChange={setEvalPage}
+            totalEvalPages={totalEvalPages}
+          />
+        </>
+      )}
     </div>
   );
 }

@@ -57,6 +57,9 @@ export const parentPackagesApi = {
     if (params.limit) {
       cleanParams.limit = params.limit;
     }
+    if (params.search && typeof params.search === 'string' && params.search.trim()) {
+      cleanParams.search = params.search.trim();
+    }
     const response = await api.get(`${BASE_URL}/subscriptions`, {
       params: cleanParams,
       skipLang: true,

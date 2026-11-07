@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
   CreditCard,
@@ -18,10 +18,9 @@ import PaymentsTable from './components/PaymentsTable'
 import SubscriptionDetailsModal from './components/SubscriptionDetailsModal'
 
 export default function AdminPayments() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const { hasPermission, isSuperAdmin } = useAdminPermissions()
-  const queryClient = useQueryClient()
   const canView = hasPermission('packages.subscriptions') || hasPermission('payments.read') || isSuperAdmin
   const [activeStatus, setActiveStatus] = useState('all') 
   const [packageTypeFilter, setPackageTypeFilter] = useState('all') 
@@ -60,7 +59,6 @@ export default function AdminPayments() {
   })
   const {
     data: statsRes,
-    isLoading: isStatsLoading,
     refetch: refetchStats,
   } = useQuery({
     queryKey: ['admin-subscriptions-stats'],
@@ -69,7 +67,7 @@ export default function AdminPayments() {
     staleTime: 60 * 1000,
   })
   const stats = statsRes?.data || subsRes?.statistics || {}
-  const rawSubscriptions = subsRes?.data || []
+  const rawSubscriptions = useMemo(() => subsRes?.data || [], [subsRes?.data])
   const rawPagination = subsRes?.pagination || (subsRes && typeof subsRes === 'object' && !Array.isArray(subsRes) ? subsRes : {})
   const totalPages = Number(rawPagination?.numberOfPages || rawPagination?.totalPages || rawPagination?.pages || (rawPagination?.total ? Math.ceil(rawPagination.total / (rawPagination.limit || 20)) : 1))
   const currentPageNum = Number(rawPagination?.currentPage || rawPagination?.page || currentPage)

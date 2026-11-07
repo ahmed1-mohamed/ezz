@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Search, UserCheck, Plus, Loader2 } from 'lucide-react'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import { toast } from 'react-hot-toast'
@@ -17,34 +18,31 @@ export default function AddChildModal({
   const [isLinking, setIsLinking] = useState(false)
   useEffect(() => {
     if (!isOpen) return
-    const fetchStudents = async () => {
+    let active = true
+    const trimmed = searchQuery.trim()
+    const timer = setTimeout(async () => {
       setIsLoading(true)
       try {
-        const res = await studentsApi.fetchAllLocalizedStudents({ limit: 1000 })
-        const list = Array.isArray(res) ? res : (res?.data || [])
-        setStudents(list)
+        const res = await studentsApi.fetchStudents({
+          search: trimmed || undefined,
+          limit: 50
+        })
+        if (!active) return
+        const list = res?.data || (Array.isArray(res) ? res : [])
+        setStudents(Array.isArray(list) ? list : [])
       } catch (err) {
         console.error('Failed to load students for linking:', err)
+        if (active) setStudents([])
       } finally {
-        setIsLoading(false)
+        if (active) setIsLoading(false)
       }
+    }, trimmed ? 300 : 0)
+    return () => {
+      active = false
+      clearTimeout(timer)
     }
-    fetchStudents()
-  }, [isOpen])
-  if (!isOpen) return null
-  const filteredStudents = students.filter((s) => {
-    const q = searchQuery.toLowerCase()
-    const nameStr = typeof s.name === 'object'
-      ? (s.name?.ar || s.name?.en || '')
-      : (s.name || '')
-    const emailStr = s.email || ''
-    const phoneStr = s.phone || ''
-    return (
-      nameStr.toLowerCase().includes(q) ||
-      emailStr.toLowerCase().includes(q) ||
-      phoneStr.includes(q)
-    )
-  })
+  }, [isOpen, searchQuery])
+  if (!isOpen || typeof document === 'undefined') return null
   const handleSelectStudent = async (student) => {
     setIsLinking(true)
     try {
@@ -58,9 +56,11 @@ export default function AddChildModal({
       setIsLinking(false)
     }
   }
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-fadeIn border border-slate-100 dark:border-slate-800">
@@ -100,12 +100,12 @@ export default function AddChildModal({
               <div className="flex items-center justify-center py-10 text-slate-400">
                 <Loader2 size={24} className="animate-spin text-[#00594C]" />
               </div>
-            ) : filteredStudents.length === 0 ? (
+            ) : students.length === 0 ? (
               <p className="text-center py-8 text-xs text-slate-400">
                 {isRtl ? 'لا يوجد طلاب مطابقين للبحث' : 'No matching students found'}
               </p>
             ) : (
-              filteredStudents.map((student) => {
+              students.map((student) => {
                 const sId = student.student_id || student.id || student._id
                 const isAlreadyLinked = existingChildIds.includes(sId)
                 const sName = typeof student.name === 'object'
@@ -150,6 +150,7 @@ export default function AddChildModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

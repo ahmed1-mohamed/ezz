@@ -38,7 +38,7 @@ export default function TeacherLive() {
       if (storedStage === 'after') {
         return 'after';
       }
-    } catch {}
+    } catch (err) { void err; }
     return 'before';
   });
 
@@ -54,7 +54,7 @@ export default function TeacherLive() {
           }
         }
       }
-    } catch {}
+    } catch (err) { void err; }
     if (sid) {
       return { id: sid, _id: sid };
     }
@@ -71,7 +71,7 @@ export default function TeacherLive() {
           setCurrentLiveSession(merged);
           try {
             sessionStorage.setItem('teacher_live_session', JSON.stringify(merged));
-          } catch {}
+          } catch (err) { void err; }
         }
       }).catch((err) => {
         console.warn('[TeacherLive] Could not refresh session details:', err);
@@ -118,7 +118,7 @@ export default function TeacherLive() {
         sessionStorage.setItem('teacher_live_joindata', JSON.stringify(joinData));
       }
       sessionStorage.setItem('teacher_live_stage', 'during');
-    } catch {}
+    } catch (err) { void err; }
     if (sid) {
       navigate(`/dashboard/teacher/live/room/${sid}`, { replace: true });
     } else {
@@ -134,7 +134,7 @@ export default function TeacherLive() {
       sessionStorage.removeItem('teacher_live_session');
       sessionStorage.removeItem('teacher_live_joindata');
       sessionStorage.setItem('teacher_live_stage', 'after');
-    } catch {}
+    } catch (err) { void err; }
     navigate('/dashboard/teacher/live?stage=after', { replace: true });
   };
 
@@ -144,7 +144,7 @@ export default function TeacherLive() {
       sessionStorage.removeItem('teacher_live_session');
       sessionStorage.removeItem('teacher_live_joindata');
       sessionStorage.setItem('teacher_live_stage', 'before');
-    } catch {}
+    } catch (err) { void err; }
     setCurrentLiveSession(null);
     navigate('/dashboard/teacher/live', { replace: true });
   };
@@ -160,7 +160,7 @@ export default function TeacherLive() {
     setActiveStage(stageId);
     try {
       sessionStorage.setItem('teacher_live_stage', stageId);
-    } catch {}
+    } catch (err) { void err; }
     navigate(`/dashboard/teacher/live?stage=${stageId}`, { replace: true });
   };
   return (

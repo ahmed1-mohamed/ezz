@@ -50,11 +50,11 @@ export default function AddRoleModal({
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, onClose])
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
   return createPortal(
     <>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/60 animate-fadeIn" style={{ position: 'fixed', inset: 0 }} onClick={onClose} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <div 
           ref={modalRef}
           role="dialog"

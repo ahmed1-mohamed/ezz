@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { X, Calendar, Clock, Upload, Trash2, AlertCircle } from 'lucide-react';
@@ -75,7 +76,7 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
     setValidationError('');
     mutation.mutate();
   };
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
   const sessionTitle = typeof session?.title === 'object' && session?.title !== null
     ? (isRtl ? session.title.ar : session.title.en)
     : (session?.title || session?.subject || t('teacherLive.currentSession', 'الحصة الحالية'));
@@ -83,8 +84,8 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
     ? (isRtl ? session.group.name?.ar || session.group.name : session.group.name?.en || session.group.name)
     : (session?.groupName || session?.group || '-');
   const todayStr = new Date().toISOString().split('T')[0];
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
+  return createPortal(
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
         className="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 dark:border-slate-800"
         dir={isRtl ? 'rtl' : 'ltr'}
@@ -256,6 +257,7 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

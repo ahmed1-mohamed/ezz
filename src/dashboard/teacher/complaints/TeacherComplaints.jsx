@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import useDebounce from '@/shared/hooks/useDebounce';
 import {
   MessageSquareWarning,
   Plus,
@@ -104,6 +105,7 @@ export default function TeacherComplaints() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -115,11 +117,12 @@ export default function TeacherComplaints() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['teacherComplaints', currentPage],
+    queryKey: ['teacherComplaints', currentPage, debouncedSearch],
     queryFn: () =>
       teacherComplaintsApi.fetchComplaints({
         page: currentPage,
         limit: itemsPerPage,
+        search: debouncedSearch.trim() || undefined,
       }),
   });
   const rawList = useMemo(() => {
@@ -189,18 +192,9 @@ export default function TeacherComplaints() {
           return false;
         }
       }
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const titleMatch = item.title?.toLowerCase().includes(q);
-        const detailsMatch = item.details?.toLowerCase().includes(q);
-        const groupMatch = typeof item.group === 'string'
-          ? item.group.toLowerCase().includes(q)
-          : item.group?.name?.toLowerCase().includes(q);
-        return titleMatch || detailsMatch || groupMatch;
-      }
       return true;
     });
-  }, [rawList, statusFilter, typeFilter, searchQuery]);
+  }, [rawList, statusFilter, typeFilter]);
   const serverTotalPages =
     responseData?.pagination?.numberOfPages ||
     responseData?.pagination?.totalPages ||
@@ -343,7 +337,10 @@ export default function TeacherComplaints() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="ابحث بالعنوان أو التفاصيل..."
               className={`w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all ${
                 isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'

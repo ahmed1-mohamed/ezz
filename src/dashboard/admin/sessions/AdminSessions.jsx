@@ -7,6 +7,7 @@ import Spinner from '@/shared/components/Spinner'
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import StatCard from './components/StatCard'
 import SessionRow from './components/SessionRow'
+import AdminSessionMonitorModal from './components/AdminSessionMonitorModal'
 
 const STATUS_TABS = [
   { key: 'all', label: 'الكل' },
@@ -31,6 +32,7 @@ export default function AdminSessions() {
   const [totalCount, setTotalCount] = useState(0)
   const [expandedRow, setExpandedRow] = useState(null)
   const [expandedPanel, setExpandedPanel] = useState(null)
+  const [monitoringSession, setMonitoringSession] = useState(null)
   const itemsPerPage = 10
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -298,7 +300,7 @@ export default function AdminSessions() {
             </button>
           ))}
         </div>
-        <div className="hidden md:grid grid-cols-[2.5fr_1.8fr_1.3fr_1.4fr_0.9fr_1.1fr_2.2fr] gap-3 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-xs font-bold text-slate-500 dark:text-slate-400">
+        <div className="hidden md:grid grid-cols-[2.2fr_1.5fr_1.1fr_1.2fr_0.7fr_1.0fr_3.1fr] gap-3 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-xs font-bold text-slate-500 dark:text-slate-400">
           <span className="text-start">{t('adminDashboard.sessions.headers.group', 'المجموعة والحصة')}</span>
           <span className="text-start">{t('adminDashboard.sessions.headers.teacher', 'المعلم')}</span>
           <span className="text-start">{t('adminDashboard.sessions.headers.date', 'التاريخ واليوم')}</span>
@@ -324,6 +326,7 @@ export default function AdminSessions() {
                 handleReschedule={handleReschedule}
                 handleChangeTeacher={handleChangeTeacher}
                 handleCancelSession={handleCancelSession}
+                onMonitorSession={setMonitoringSession}
                 teachers={teachers}
                 t={t}
               />
@@ -381,6 +384,11 @@ export default function AdminSessions() {
           </div>
         </div>
       </div>
+      <AdminSessionMonitorModal
+        session={monitoringSession}
+        isOpen={Boolean(monitoringSession)}
+        onClose={() => setMonitoringSession(null)}
+      />
     </div>
   )
 }

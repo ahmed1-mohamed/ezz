@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { MessageSquare, Star, Plus, CheckCircle2, Clock, XCircle, Paperclip, Send, X, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,7 +26,6 @@ export default function ParentComplaints() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [formValues, setFormValues] = useState({
     type: 'suggestion',
     title: '',
@@ -78,7 +78,6 @@ export default function ParentComplaints() {
   }, [loadComplaints, activeTab]);
   const handleOpenDetails = async (item) => {
     setSelectedComplaint(item);
-    setIsLoadingDetails(true);
     try {
       const res = await parentApi.fetchComplaintById(item.id);
       if (res?.success && res.data) {
@@ -86,8 +85,6 @@ export default function ParentComplaints() {
       }
     } catch (err) {
       console.error('Failed to fetch complaint details:', err);
-    } finally {
-      setIsLoadingDetails(false);
     }
   };
   const handleFileChange = (e) => {
@@ -447,9 +444,10 @@ export default function ParentComplaints() {
           })}
         </div>
       )}
-      <AnimatePresence>
-        {selectedComplaint && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {selectedComplaint && (
+            <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -535,7 +533,9 @@ export default function ParentComplaints() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </motion.div>
   );
 }

@@ -95,8 +95,7 @@ export const teacherHomeworkApi = {
         });
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
-      } catch {
-      }
+      } catch (err) { void err; }
       try {
         const response = await api.get(`/api/v1/teacher/submissions/${validSubId}`, {
           skipLang: true,
@@ -105,8 +104,7 @@ export const teacherHomeworkApi = {
         });
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
-      } catch {
-      }
+      } catch (err) { void err; }
     }
     if (validHwId) {
       try {
@@ -117,8 +115,7 @@ export const teacherHomeworkApi = {
         });
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
-      } catch {
-      }
+      } catch (err) { void err; }
     }
     return { success: true, data: null };
   },

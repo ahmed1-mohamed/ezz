@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { adminParentsApi } from '@/shared/services/api/adminParentsApi'
+import useDebounce from '@/shared/hooks/useDebounce'
 import ParentsList from './components/ParentsList'
 import { getParentId } from './utils/parentUtils'
 import Spinner from '@/shared/components/Spinner'
@@ -20,28 +21,40 @@ export default function AdminParents() {
   const [statistics, setStatistics] = useState(null)
   const [pagination, setPagination] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const debouncedSearch = useDebounce(searchTerm, 400)
   useEffect(() => {
     if (legacyParentId) {
       navigate(`/dashboard/admin/parents/${legacyParentId}`, { replace: true })
     }
   }, [legacyParentId, navigate])
   useEffect(() => {
+    let isMounted = true
     async function loadParents() {
       setIsLoading(true)
       try {
-        const res = await adminParentsApi.fetchParents()
+        const params = { page: currentPage, limit: 10 }
+        if (debouncedSearch.trim()) {
+          params.search = debouncedSearch.trim()
+        }
+        const res = await adminParentsApi.fetchParents(params)
+        if (!isMounted) return
         setParents(res?.data || [])
         setStatistics(res?.statistics || null)
         setPagination(res?.pagination || null)
       } catch (err) {
         console.error('Failed to fetch parents:', err)
-        toast.error(isRtl ? 'تعذر تحميل أولياء الأمور' : 'Failed to load parents')
+        if (isMounted) toast.error(isRtl ? 'تعذر تحميل أولياء الأمور' : 'Failed to load parents')
       } finally {
-        setIsLoading(false)
+        if (isMounted) setIsLoading(false)
       }
     }
     loadParents()
-  }, [isRtl])
+    return () => {
+      isMounted = false
+    }
+  }, [isRtl, debouncedSearch, currentPage])
   const handleDeleteParent = async (parent) => {
     const parentName = typeof parent.name === 'object' ? (isRtl ? parent.name.ar || parent.name.en : parent.name.en || parent.name.ar) : parent.name
     const isConfirmed = await showDeleteConfirm(isRtl, parentName)
@@ -57,7 +70,7 @@ export default function AdminParents() {
     }
   }
   const openDetails = (parent) => navigate(`/dashboard/admin/parents/${getParentId(parent)}`)
-  if (isLoading) {
+  if (isLoading && parents.length === 0) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
@@ -105,6 +118,13 @@ export default function AdminParents() {
         onOpenEditScreen={openDetails}
         onOpenDetails={openDetails}
         onDelete={handleDeleteParent}
+        searchVal={searchTerm}
+        onSearchChange={(val) => {
+          setSearchTerm(val)
+          setCurrentPage(1)
+        }}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
       />
     </div>
   )

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getImageUrl } from '@/shared/services/api/teachersApi'
+import { matchesArabicQuery } from '@/shared/utils/stringUtils'
 
 function formatVal(val, curr = '$') {
   const num = Number(val || 0)
@@ -28,10 +29,9 @@ export default function TeacherEarningsList({
   const filteredTeachers = useMemo(() => {
     let list = Array.isArray(teachers) ? [...teachers] : []
     if (searchTerm.trim()) {
-      const q = searchTerm.toLowerCase().trim()
       list = list.filter((item) => {
-        const name = String(item.name || item.teacherName || item.fullName || '').toLowerCase()
-        return name.includes(q)
+        const name = String(item.name || item.teacherName || item.fullName || '')
+        return matchesArabicQuery(name, searchTerm)
       })
     }
     list.sort((a, b) => {

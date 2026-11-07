@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import useDebounce from '@/shared/hooks/useDebounce'
 import {
   Star,
   Search,
@@ -21,10 +22,12 @@ import {
   Quote,
   BarChart3,
   User,
+  ShieldCheck,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
 import { teachersApi, getImageUrl } from '@/shared/services/api/teachersApi'
+import AdminEvaluationsList from './components/AdminEvaluationsList'
 
 function extractText(val, isRtl = true) {
   if (val === null || val === undefined) return ''
@@ -137,10 +140,12 @@ function getRatingBadgeMeta(rating, t) {
 export default function AdminTeacherEvaluations() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
+  const [activeRoleTab, setActiveRoleTab] = useState('admin')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedTeacherId, setSelectedTeacherId] = useState('')
   const [ratingFilter, setRatingFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery, 400)
   const { data: teachersRes } = useQuery({
     queryKey: ['admin-teachers-lookup-list'],
     queryFn: () => teachersApi.fetchTeachers({ limit: 100 }),
@@ -157,7 +162,8 @@ export default function AdminTeacherEvaluations() {
     limit: 20,
     teacherId: selectedTeacherId || undefined,
     rating: ratingFilter !== 'all' ? ratingFilter : undefined,
-  }), [currentPage, selectedTeacherId, ratingFilter])
+    search: debouncedSearch.trim() || undefined,
+  }), [currentPage, selectedTeacherId, ratingFilter, debouncedSearch])
   const {
     data: evalRes,
     isLoading,
@@ -224,25 +230,8 @@ export default function AdminTeacherEvaluations() {
         return r === targetRating
       })
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim()
-      list = list.filter((item) => {
-        const teacherName = extractText(item.teacher?.name || item.teacherName, isRtl).toLowerCase()
-        const parentName = extractText(item.parent?.name || item.parentName, isRtl).toLowerCase()
-        const parentPhone = String(item.parent?.phone || '').toLowerCase()
-        const parentEmail = String(item.parent?.email || '').toLowerCase()
-        const notes = extractText(item.notes || item.comment || item.feedback, isRtl).toLowerCase()
-        return (
-          teacherName.includes(q) ||
-          parentName.includes(q) ||
-          parentPhone.includes(q) ||
-          parentEmail.includes(q) ||
-          notes.includes(q)
-        )
-      })
-    }
     return list
-  }, [rawEvaluations, selectedTeacherId, ratingFilter, searchQuery, isRtl])
+  }, [rawEvaluations, selectedTeacherId, ratingFilter])
   const handleTeacherChange = (e) => {
     setSelectedTeacherId(e.target.value)
     setCurrentPage(1)
@@ -267,7 +256,39 @@ export default function AdminTeacherEvaluations() {
   }, [evalRes, currentPage, filteredEvaluations.length])
   return (
     <div className="space-y-7" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex items-center justify-start">
+        <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setActiveRoleTab('admin')}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeRoleTab === 'admin'
+                ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-[#14a693] shadow-md'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <ShieldCheck size={16} />
+            <span>{isRtl ? 'تقييمات الإدارة للمعلمين' : 'Admin Evaluations'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveRoleTab('parents')}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeRoleTab === 'parents'
+                ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-[#14a693] shadow-md'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Users size={16} />
+            <span>{isRtl ? 'تقييمات أولياء الأمور' : 'Parent Reviews'}</span>
+          </button>
+        </div>
+      </div>
+      {activeRoleTab === 'admin' ? (
+        <AdminEvaluationsList />
+      ) : (
+        <>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 mb-3">
             <Star size={14} className="fill-amber-400 text-amber-500" />
@@ -496,7 +517,10 @@ export default function AdminTeacherEvaluations() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setCurrentPage(1)
+                }}
                 placeholder={t(
                   'adminDashboard.teacherEvaluations.searchPlaceholder',
                   'بحث باسم المعلم، ولي الأمر، الهاتف، أو الملاحظات...'
@@ -738,6 +762,8 @@ export default function AdminTeacherEvaluations() {
             </div>
           )}
         </div>
+      )}
+        </>
       )}
     </div>
   )

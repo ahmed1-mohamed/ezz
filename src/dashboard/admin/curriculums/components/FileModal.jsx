@@ -38,7 +38,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
       }
     }
   }
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const formatUrl = (rawUrl) => {
     let trimmed = (rawUrl || '').trim()
     if (!trimmed) return ''
@@ -104,7 +104,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
     ? (isRtl ? 'تعديل محتوى / مصدر الوحدة' : 'Edit Unit Resource')
     : (isRtl ? 'إضافة محتوى / مصادر للوحدة' : 'Add Unit Content / Resource')
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto flex flex-col border border-slate-100 dark:border-slate-800" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="p-5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm z-10">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">

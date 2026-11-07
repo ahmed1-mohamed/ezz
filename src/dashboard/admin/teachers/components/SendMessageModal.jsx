@@ -28,7 +28,7 @@ export default function SendMessageModal({
     setEmail(teacher?.email || '')
     setPhone(teacher?.phone || '')
   }
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
   const handleSend = (e) => {
     e.preventDefault()
     if (!message.trim()) {
@@ -40,7 +40,7 @@ export default function SendMessageModal({
     onClose()
   }
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
       <div className="relative w-full max-w-2xl bg-[#3a3a3a] dark:bg-slate-950 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-4 text-start">
         <div className="flex items-center justify-between text-white pb-2">
