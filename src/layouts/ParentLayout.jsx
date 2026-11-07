@@ -128,15 +128,15 @@ export default function ParentLayout() {
         )}
       </AnimatePresence>
       <aside className={`
-        fixed lg:sticky top-0 h-screen z-40
+        fixed lg:sticky top-0 start-0 h-screen z-40
         w-60 bg-white dark:bg-slate-900 border-e border-slate-200 dark:border-slate-800
         transition-transform duration-300 ease-in-out
-        flex flex-col
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
+        flex flex-col shrink-0
+        ${isMobileMenuOpen ? 'translate-x-0' : (isRtl ? 'translate-x-full lg:translate-x-0' : '-translate-x-full lg:translate-x-0')}
       `}>
         <div className="p-6 text-center border-b border-slate-100 dark:border-slate-800 shrink-0">
-          <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-lg mb-1">{t('parentDashboard.header.title')}</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs">{t('parentDashboard.header.subtitle')}</p>
+          <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-lg mb-1">{t('parentDashboard.header.title', 'منارة العز')}</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-xs">{t('parentDashboard.header.subtitle', 'منصة ولي الأمر')}</p>
         </div>
         <div className="p-4 shrink-0">
           <Link to="/dashboard/parent" className="bg-[#0f7a6c] text-white rounded-xl p-3 flex items-center gap-3 shadow-md cursor-pointer hover:bg-[#0c6156] transition-transform hover:scale-[1.02] active:scale-95 block">
@@ -149,9 +149,9 @@ export default function ParentLayout() {
                 </div>
               ) : null;
             })()}
-            <div className="flex flex-col items-start">
-              <h3 className="font-semibold text-base">{displayName}</h3>
-              <p className="text-xs opacity-80 mt-0.5">{t('parentDashboard.user.role')}</p>
+            <div className="flex flex-col items-start min-w-0 flex-1">
+              <h3 className="font-semibold text-sm truncate w-full text-start">{displayName}</h3>
+              <p className="text-[11px] opacity-80 mt-0.5">{t('parentDashboard.user.role', 'ولي أمر')}</p>
             </div>
           </Link>
         </div>

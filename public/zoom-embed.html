@@ -6,6 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <meta http-equiv="Permissions-Policy" content="unload=(self)" />
   <title>Zoom Live Meeting | منصة منارة العز التعليمية</title>
   <style>
     * {
@@ -31,8 +32,8 @@
       left: 0 !important;
       right: 0 !important;
       bottom: 0 !important;
-      z-index: 10 !important;
-      overflow: hidden !important;
+      z-index: 100 !important;
+      overflow: auto !important;
     }
     #meetingSDKElement {
       width: 100%;
@@ -45,37 +46,59 @@
       z-index: 1;
       overflow: hidden;
     }
-    .top-floating-bar {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      z-index: 2147483647 !important;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      background: rgba(11, 19, 30, 0.95);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 16px;
-      padding: 9px 16px;
-      font-size: 12px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    @media (max-width: 640px) {
+      .top-floating-bar {
+        display: none !important;
+      }
     }
-    .top-floating-bar a, .top-floating-bar button {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 16px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 12px;
-      color: #fff;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
+    #wc-footer, .footer {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 58px !important;
+      z-index: 2147483640 !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      background: rgba(11, 19, 30, 0.98) !important;
+      backdrop-filter: blur(16px) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+      padding: 0 8px !important;
+      margin: 0 !important;
+    }
+    .footer__btns-container {
+      display: flex !important;
+      justify-content: space-around !important;
+      align-items: center !important;
+      width: 100% !important;
+      max-width: 640px !important;
+      gap: 4px !important;
+      height: 100% !important;
+    }
+    .footer__btns-container button,
+    .footer__btns-container .btn,
+    .audio-btn,
+    .video-btn,
+    .join-audio-container {
+      min-width: 44px !important;
+      min-height: 44px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 12px !important;
+      cursor: pointer !important;
+      touch-action: manipulation !important;
+    }
+    .join-dialog,
+    .audio-dialog,
+    .modal-dialog,
+    #join-audio-dialog {
+      z-index: 2147483646 !important;
     }
     .status-container {
       position: absolute;
@@ -233,17 +256,6 @@
   <!-- Zoom Component View Root -->
   <div id="meetingSDKElement"></div>
 
-  <!-- Top Floating Bar -->
-  <div class="top-floating-bar">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
-      <span style="font-weight: 700;">بث مباشر</span>
-    </div>
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <a id="float-btn-open-app" target="_blank" rel="noopener noreferrer" style="background: #2563eb;">🚀 تطبيق Zoom</a>
-    </div>
-  </div>
-
   <!-- Loading Status Spinner & Card -->
   <div id="status-box" class="status-container">
     <div id="status-spinner" class="spinner"></div>
@@ -259,18 +271,15 @@
       <div id="fallback-icon-badge" class="icon-badge icon-badge-host">🎥</div>
       <div>
         <div id="fallback-title" style="font-weight: 800; font-size: 18px; margin-bottom: 6px; color: #ffffff !important;">
-          بدء الحصة المباشرة
+          الاتصال بالحصة المباشرة
         </div>
         <div id="fallback-description" style="font-size: 13.5px; color: #cbd5e1 !important; line-height: 1.6;">
-          يمكنك البدء فوراً كمعلّم رئيسي عبر تطبيق Zoom.
+          جاري إعداد البث المباشر والاتصال بالغرفة داخل لوحة التحكم...
         </div>
       </div>
       <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6px;">
         <div id="fallback-error" style="display: none; font-size: 11.5px; color: #fca5a5; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 12px; padding: 8px 12px; font-family: monospace; direction: ltr; text-align: left; word-break: break-word;"></div>
-        <a id="fallback-app-btn" class="btn btn-blue" target="_blank" rel="noopener noreferrer" style="display: none; width: 100%; text-decoration: none;">
-          🚀 بدء كمعلّم عبر تطبيق Zoom
-        </a>
-        <button id="fallback-retry-btn" type="button" class="btn btn-slate" style="width: 100%;">
+        <button id="fallback-retry-btn" type="button" class="btn btn-teal" style="width: 100%;">
           🔄 إعادة المحاولة داخل المنصة
         </button>
         <div id="fallback-polling-indicator" style="display: none; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: #34d399; margin-top: 4px;">
@@ -284,6 +293,25 @@
   <script>
     (function() {
       const urlParams = new URLSearchParams(window.location.search);
+      window.addEventListener('message', function(event) {
+        if (!event.data || typeof event.data !== 'object') return;
+        const type = event.data.type;
+        if (type === 'ZOOM_TOGGLE_AUDIO') {
+          try {
+            const btn = document.querySelector('.audio-btn') || document.querySelector('.join-audio-container') || document.querySelector('[aria-label*="Audio"]') || document.querySelector('[aria-label*="audio"]');
+            if (btn) btn.click();
+          } catch (e) {
+            console.warn('[ZoomEmbed] Toggle audio error:', e);
+          }
+        } else if (type === 'ZOOM_TOGGLE_VIDEO') {
+          try {
+            const btn = document.querySelector('.video-btn') || document.querySelector('[aria-label*="Video"]') || document.querySelector('[aria-label*="video"]');
+            if (btn) btn.click();
+          } catch (e) {
+            console.warn('[ZoomEmbed] Toggle video error:', e);
+          }
+        }
+      });
 
       // Handle meeting leave / ended breakout from iframe
       if (urlParams.get('ended') === '1') {
@@ -362,12 +390,6 @@
         return joinUrl || '';
       })();
 
-      const launchAppUrl = isHost ? effectiveHostStartUrl : (joinUrl || '');
-      const webClientUrl = isHost
-        ? (meetingId ? ('https://app.zoom.us/wc/' + meetingId + '/start?prefer=1' + (passcode ? '&pwd=' + encodeURIComponent(passcode) : '') + (zakToken ? '&zak=' + encodeURIComponent(zakToken) : '')) : effectiveHostStartUrl)
-        : (meetingId ? ('https://app.zoom.us/wc/' + meetingId + '/join?prefer=1' + (passcode ? '&pwd=' + encodeURIComponent(passcode) : '')) : (joinUrl || ''));
-
-      const floatBtnOpenApp = document.getElementById('float-btn-open-app');
       const fallbackOverlay = document.getElementById('fallback-overlay');
       const fallbackIconBadge = document.getElementById('fallback-icon-badge');
       const fallbackTitle = document.getElementById('fallback-title');
@@ -375,11 +397,6 @@
       const fallbackError = document.getElementById('fallback-error');
       const fallbackRetryBtn = document.getElementById('fallback-retry-btn');
       const statusBox = document.getElementById('status-box');
-
-      if (floatBtnOpenApp && launchAppUrl) {
-        floatBtnOpenApp.href = launchAppUrl;
-        floatBtnOpenApp.textContent = isHost ? 'بدء كمعلّم (Host)' : 'انضمام كطالب (Zoom)';
-      }
 
       function describeError(err) {
         if (!err) return '';
@@ -405,19 +422,12 @@
           fallbackIconBadge.textContent = isHost ? '👨‍🏫' : '🎓';
         }
         if (fallbackTitle) {
-          fallbackTitle.textContent = customTitle || (isHost ? 'بدء الحصة المباشرة كمعلّم (Host)' : 'الانضمام إلى الحصة كطالب');
+          fallbackTitle.textContent = customTitle || (isHost ? 'جاري الاتصال بالبث كمعلّم' : 'في انتظار بدء الحصة المباشرة');
         }
         if (fallbackDescription) {
           fallbackDescription.textContent = customDesc || (isHost
-            ? 'لبدء البث كمعلّم ومضيف رئيسي، يرجى الضغط أدناه للبدء عبر تطبيق Zoom:'
-            : 'المعلم لم يبدأ البث بعد. يمكنك الانضمام عبر تطبيق Zoom أو الضغط على إعادة المحاولة.');
-        }
-        const fallbackAppBtn = document.getElementById('fallback-app-btn');
-
-        if (fallbackAppBtn && launchAppUrl) {
-          fallbackAppBtn.href = launchAppUrl;
-          fallbackAppBtn.textContent = isHost ? '🚀 بدء كمعلّم عبر تطبيق Zoom' : '🚀 انضمام عبر تطبيق Zoom';
-          fallbackAppBtn.style.display = 'inline-flex';
+            ? 'جاري تجهيز البث وإعداد الحصة المباشرة داخل لوحة التحكم...'
+            : 'في انتظار بدء المعلم للحصة المباشرة. جاري التحقق تلقائياً...');
         }
         if (fallbackError && err) {
           const msg = describeError(err);
@@ -523,14 +533,14 @@
         const isSignatureError = err && (err.errorCode === 3712 || (err.errorMessage && err.errorMessage.includes('Signature is invalid')));
         if (isHost) {
           showFallback(
-            'مركز بدء البث المباشر كمعلّم (Host)',
-            'الحصة جاهزة للبث المباشر بكامل الصلاحيات. لبدء البث كمعلّم ومضيف رئيسي والتحكم الكامل في الصوت والشاشة، اضغط للبدء فوراً أدناه:',
+            'جاري الاتصال بالبث المباشر كمعلّم',
+            'يتم التحقق من بيانات البث وتجهيز الغرفة تلقائياً داخل المنصة...',
             null
           );
         } else {
           showFallback(
             'في انتظار بدء الحصة المباشرة',
-            'المعلم يقوم بتجهيز البث حالياً. يمكنك الانضمام مباشرة عبر تطبيق Zoom أدناه:',
+            'المعلم يقوم بتجهيز البث حالياً، وسيتم الاتصال تلقائياً فور بدء الحصة داخل لوحة التحكم...',
             null
           );
         }
@@ -541,7 +551,6 @@
         try {
           window.ZoomMtg.setZoomJSLib('https://source.zoom.us/3.11.0/lib', '/av');
           window.ZoomMtg.preLoadWasm();
-          window.ZoomMtg.prepareWebSDK();
           if (window.ZoomMtg.i18n) {
             window.ZoomMtg.i18n.load('en-US');
             window.ZoomMtg.i18n.reload('en-US');
@@ -549,12 +558,25 @@
         } catch (setupErr) {
           console.warn('[ZoomEmbed v2] ZoomMtg setup warning:', setupErr);
         }
-
         const rootEl = document.getElementById('zmmtg-root');
         if (rootEl) rootEl.style.display = 'block';
-
+        if (window.ZoomMtg.inMeetingServiceListener) {
+          try {
+            window.ZoomMtg.inMeetingServiceListener('onMeetingStatus', function(data) {
+              console.log('[ZoomEmbed v2] Meeting status changed:', data);
+              if (data && (data.meetingStatus === 1 || data.meetingStatus === 2)) {
+                if (statusBox) statusBox.style.display = 'none';
+              }
+            });
+          } catch (listenerErr) {
+            console.warn('[ZoomEmbed v2] inMeetingServiceListener warning:', listenerErr);
+          }
+        }
         window.ZoomMtg.init({
           leaveUrl: leaveUrl,
+          isSupportAV: true,
+          patchJsMedia: true,
+          screenShare: true,
           success: function() {
             console.log('[ZoomEmbed v2] ZoomMtg.init succeeded');
             const sigPayload = decodeJwtPayload(sdkSignature);
@@ -564,9 +586,7 @@
             } else if (/^\d+$/.test(targetMeetingNumber)) {
               targetMeetingNumber = Number(targetMeetingNumber);
             }
-
             const resolvedSdkKey = (sigPayload && (sigPayload.sdkKey || sigPayload.appKey)) || urlParams.get('sdkKey') || extractSdkKey(sdkSignature);
-
             const joinConfig = {
               meetingNumber: targetMeetingNumber,
               passWord: String(passcode || '').trim(),
@@ -590,11 +610,9 @@
                 }
               }
             };
-
             if (isHost && zakToken) {
               joinConfig.zak = zakToken;
             }
-
             console.log('[ZoomEmbed v2] Invoking ZoomMtg.join with:', {
               meetingNumber: joinConfig.meetingNumber,
               meetingNumberType: typeof joinConfig.meetingNumber,
@@ -605,8 +623,10 @@
               userName: joinConfig.userName,
               userEmail: joinConfig.userEmail
             });
-
             window.ZoomMtg.join(Object.assign({}, joinConfig));
+            setTimeout(function() {
+              if (statusBox) statusBox.style.display = 'none';
+            }, 1500);
           },
           error: function(err) {
             console.error('[ZoomEmbed v2] ZoomMtg.init failed:', JSON.stringify(err), err);
@@ -626,8 +646,8 @@
         if (!client) {
           console.error('[ZoomEmbed v2] Could not create Zoom client');
           showFallback(
-            'تعذّر تشغيل Zoom',
-            'اضغط إعادة المحاولة أو البدء عبر تطبيق Zoom.',
+            'تعذّر تشغيل مشغّل البث',
+            'يرجى الضغط على زر إعادة المحاولة للاتصال بالبث داخل لوحة التحكم.',
             'ZoomMtgEmbedded.createClient() returned nothing'
           );
           return;
@@ -713,10 +733,10 @@
         if (!meetingId || !sdkSignature) {
           console.warn('[ZoomEmbed v2] Missing meetingId or sdkSignature:', { meetingId, hasSignature: Boolean(sdkSignature) });
           showFallback(
-            isHost ? 'بدء الحصة المباشرة كمعلّم (Host)' : 'الانضمام إلى الحصة كطالب',
+            isHost ? 'تجهيز بيانات البث كمعلّم' : 'في انتظار بدء الحصة',
             isHost
-              ? 'الحصة مفتوحة حالياً (90 دقيقة). يمكنك بدء الحصة فوراً كمعلّم (Host) عبر تطبيق Zoom:'
-              : 'الحصة متاحة الآن. يمكنك الانضمام فوراً عبر تطبيق Zoom أدناه:',
+              ? 'جاري تجهيز مفاتيح البث والاتصال بالحصة المباشرة داخل لوحة التحكم...'
+              : 'جاري التحقق من بدء الحصة المباشرة للاتصال تلقائياً داخل المنصة...',
             null
           );
           return;

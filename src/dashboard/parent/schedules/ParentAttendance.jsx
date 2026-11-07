@@ -80,34 +80,34 @@ export default function ParentAttendance() {
     const raw = String(attendanceStatus || '').trim();
     if (raw === 'حاضر' || raw === 'attended' || color === 'green') {
       return {
-        label: raw || 'حاضر',
+        label: raw || (isRtl ? 'حاضر' : 'Present'),
         badgeClass: 'bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30',
         dotClass: 'bg-emerald-500'
       };
     }
     if (raw === 'غائب' || raw === 'absent' || color === 'red') {
       return {
-        label: raw || 'غائب',
+        label: raw || (isRtl ? 'غائب' : 'Absent'),
         badgeClass: 'bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/30',
         dotClass: 'bg-rose-500'
       };
     }
     if (raw === 'متأخر' || raw === 'late' || color === 'amber') {
       return {
-        label: raw || 'متأخر',
+        label: raw || (isRtl ? 'متأخر' : 'Late'),
         badgeClass: 'bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/30',
         dotClass: 'bg-amber-500'
       };
     }
     if (raw === 'معذور' || raw === 'excused') {
       return {
-        label: raw || 'معذور',
+        label: raw || (isRtl ? 'معذور' : 'Excused'),
         badgeClass: 'bg-sky-50 text-sky-600 border border-sky-200 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-900/30',
         dotClass: 'bg-sky-500'
       };
     }
     return {
-      label: raw || 'قيد الانتظار',
+      label: raw || (isRtl ? 'قيد الانتظار' : 'Pending'),
       badgeClass: 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
       dotClass: 'bg-slate-400'
     };
@@ -187,7 +187,7 @@ export default function ParentAttendance() {
   const statsList = [
     {
       id: 'rate',
-      label: 'معدل الحضور',
+      label: isRtl ? 'معدل الحضور' : 'Attendance Rate',
       value: attendanceData.statistics?.attendanceRateFormatted || `${attendanceData.statistics?.attendanceRate || 0}%`,
       color: 'text-[#0f7a6c] dark:text-emerald-400',
       bg: 'bg-[#0f7a6c]/10 dark:bg-emerald-950/30',
@@ -195,7 +195,7 @@ export default function ParentAttendance() {
     },
     {
       id: 'attended',
-      label: 'حضور',
+      label: isRtl ? 'حضور' : 'Present',
       value: String(attendanceData.statistics?.attendedCount ?? 0),
       color: 'text-emerald-600 dark:text-emerald-400',
       bg: 'bg-emerald-50 dark:bg-emerald-950/30',
@@ -203,7 +203,7 @@ export default function ParentAttendance() {
     },
     {
       id: 'absent',
-      label: 'غياب',
+      label: isRtl ? 'غياب' : 'Absent',
       value: String(attendanceData.statistics?.absentCount ?? 0),
       color: 'text-rose-600 dark:text-rose-400',
       bg: 'bg-rose-50 dark:bg-rose-950/30',
@@ -211,7 +211,7 @@ export default function ParentAttendance() {
     },
     {
       id: 'late',
-      label: 'تأخر',
+      label: isRtl ? 'تأخر' : 'Late',
       value: String(attendanceData.statistics?.lateCount ?? 0),
       color: 'text-amber-600 dark:text-amber-400',
       bg: 'bg-amber-50 dark:bg-amber-950/30',
@@ -219,7 +219,7 @@ export default function ParentAttendance() {
     },
     {
       id: 'excused',
-      label: 'معذور',
+      label: isRtl ? 'معذور' : 'Excused',
       value: String(attendanceData.statistics?.excusedCount ?? 0),
       color: 'text-sky-600 dark:text-sky-400',
       bg: 'bg-sky-50 dark:bg-sky-950/30',
@@ -227,7 +227,7 @@ export default function ParentAttendance() {
     },
     {
       id: 'pending',
-      label: 'قيد الانتظار',
+      label: isRtl ? 'قيد الانتظار' : 'Pending',
       value: String(attendanceData.statistics?.pendingCount ?? 0),
       color: 'text-slate-600 dark:text-slate-400',
       bg: 'bg-slate-100 dark:bg-slate-800',
@@ -249,7 +249,7 @@ export default function ParentAttendance() {
         <div>
           <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100">{t('parent.attendance.title', 'سجل الحضور والغياب')}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {studentDisplayName ? `متابعة حضور التلميذ ${studentDisplayName}` : 'متابعة سجل حضور وغياب الأبناء ونسب الالتزام بالحصص'}
+            {studentDisplayName ? (isRtl ? `متابعة حضور التلميذ ${studentDisplayName}` : `Tracking attendance for ${studentDisplayName}`) : (isRtl ? 'متابعة سجل حضور وغياب الأبناء ونسب الالتزام بالحصص' : 'Track children attendance records and session commitment')}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
@@ -294,11 +294,11 @@ export default function ParentAttendance() {
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{monthLabelText}</span>
                 {attendanceData.monthInfo.isCurrentMonth && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-white">الشهر الحالي</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-white">{isRtl ? 'الشهر الحالي' : 'Current Month'}</span>
                 )}
               </div>
               <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                إجمالي الحصص المسجلة: {attendanceData.statistics?.totalSessions ?? 0} حصة
+                {isRtl ? 'إجمالي الحصص المسجلة:' : 'Total recorded sessions:'} {attendanceData.statistics?.totalSessions ?? 0} {isRtl ? 'حصة' : 'sessions'}
               </p>
             </div>
           </div>
@@ -309,7 +309,7 @@ export default function ParentAttendance() {
                 onClick={handleCurrentMonth}
                 className="px-3 py-2 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 rounded-xl transition-colors cursor-pointer"
               >
-                الشهر الحالي
+                {isRtl ? 'الشهر الحالي' : 'Current Month'}
               </button>
             )}
             <button
@@ -317,7 +317,7 @@ export default function ParentAttendance() {
               onClick={handlePrevMonth}
               disabled={!attendanceData.monthInfo.canGoPrevious && !attendanceData.monthInfo.previousMonth}
               className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
-              title="الشهر السابق"
+              title={isRtl ? 'الشهر السابق' : 'Previous Month'}
             >
               {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
@@ -326,7 +326,7 @@ export default function ParentAttendance() {
               onClick={handleNextMonth}
               disabled={!attendanceData.monthInfo.canGoNext && !attendanceData.monthInfo.nextMonth}
               className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
-              title="الشهر القادم"
+              title={isRtl ? 'الشهر القادم' : 'Next Month'}
             >
               {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
@@ -342,8 +342,8 @@ export default function ParentAttendance() {
           <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-400 flex items-center justify-center mx-auto">
             <Calendar className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">لا توجد حصص مسجلة في هذا الشهر</h3>
-          <p className="text-xs text-slate-400">يمكنك التنقل بين الشهور للاطلاع على سجلات الحضور السابقة.</p>
+          <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">{isRtl ? 'لا توجد حصص مسجلة في هذا الشهر' : 'No recorded sessions this month'}</h3>
+          <p className="text-xs text-slate-400">{isRtl ? 'يمكنك التنقل بين الشهور للاطلاع على سجلات الحضور السابقة.' : 'You can navigate between months to view previous attendance records.'}</p>
         </motion.div>
       ) : (
         <div className="space-y-6">
@@ -353,14 +353,14 @@ export default function ParentAttendance() {
                 <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{extractSafeText(dayGroup.day, isRtl)}</span>
                 <span className="text-xs font-semibold text-slate-400">{extractSafeText(dayGroup.formattedDate || dayGroup.date, isRtl)}</span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
-                  {dayGroup.sessionsCount || dayGroup.sessions?.length || 0} حصة
+                  {dayGroup.sessionsCount || dayGroup.sessions?.length || 0} {isRtl ? 'حصة' : 'sessions'}
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-4">
                 {(dayGroup.sessions || []).map((session) => {
                   const attBadge = getAttendanceStatusBadge(session.attendanceStatus, session.color);
                   const sessStatusClass = getSessionStatusBadge(session.sessionStatus);
-                  const sessionTitle = extractSafeText(session.title, isRtl) || `الحصة رقم ${session.sessionNumber || ''}`;
+                  const sessionTitle = extractSafeText(session.title, isRtl) || (isRtl ? `الحصة رقم ${session.sessionNumber || ''}` : `Session #${session.sessionNumber || ''}`);
                   const groupTitle = extractSafeText(session.group, isRtl);
                   const teacherName = extractSafeText(session.teacher, isRtl);
                   const notesText = extractSafeText(session.notes, isRtl);
@@ -380,7 +380,7 @@ export default function ParentAttendance() {
                             <span>{timeDisplay}</span>
                           </div>
                           <span className="text-[11px] text-slate-400 font-medium">
-                            {session.durationMinutes ? `${session.durationMinutes} دقيقة` : (extractSafeText(session.day, isRtl) || extractSafeText(dayGroup.day, isRtl))}
+                            {session.durationMinutes ? `${session.durationMinutes} ${isRtl ? 'دقيقة' : 'min'}` : (extractSafeText(session.day, isRtl) || extractSafeText(dayGroup.day, isRtl))}
                           </span>
                         </div>
                         <div className="space-y-1.5 flex-1 min-w-0">
@@ -406,7 +406,7 @@ export default function ParentAttendance() {
                             )}
                             {teacherName && (
                               <div className="flex items-center gap-1">
-                                <span className="text-slate-400">المعلم:</span>
+                                <span className="text-slate-400">{isRtl ? 'المعلم:' : 'Teacher:'}</span>
                                 <span className="font-semibold text-slate-700 dark:text-slate-300">{teacherName}</span>
                               </div>
                             )}
@@ -419,7 +419,7 @@ export default function ParentAttendance() {
                           </div>
                           {Boolean(notesText) && (
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                              <span className="font-bold text-slate-700 dark:text-slate-300">ملاحظات: </span>
+                              <span className="font-bold text-slate-700 dark:text-slate-300">{isRtl ? 'ملاحظات: ' : 'Notes: '}</span>
                               <span>{notesText}</span>
                             </p>
                           )}
@@ -427,20 +427,20 @@ export default function ParentAttendance() {
                             <div className="text-xs text-amber-800 dark:text-amber-300 mt-2 bg-amber-50 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/30 space-y-1">
                               <div className="flex items-center gap-1.5 font-bold">
                                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                                <span>العذر المقبول: </span>
+                                <span>{isRtl ? 'العذر المقبول: ' : 'Accepted Excuse: '}</span>
                                 <span className="font-semibold text-amber-900 dark:text-amber-200">
                                   {excuseInfo.reason}
                                 </span>
                               </div>
                               {excuseInfo.submittedBy && (
                                 <div className="text-[11px] text-amber-700/80 dark:text-amber-400/80 ps-5">
-                                  <span>مقدم العذر: </span>
+                                  <span>{isRtl ? 'مقدم العذر: ' : 'Submitted by: '}</span>
                                   <span className="font-semibold">{excuseInfo.submittedBy}</span>
                                 </div>
                               )}
                               {excuseInfo.notes && (
                                 <div className="text-[11px] text-amber-700/80 dark:text-amber-400/80 ps-5">
-                                  <span>ملاحظة الإدارة: </span>
+                                  <span>{isRtl ? 'ملاحظة الإدارة: ' : 'Admin note: '}</span>
                                   <span className="font-semibold">{excuseInfo.notes}</span>
                                 </div>
                               )}

@@ -242,11 +242,11 @@ export default memo(function AdminLayout() {
         )}
       </AnimatePresence>
       <aside className={`
-        fixed lg:sticky top-0 h-screen z-40
+        fixed lg:sticky top-0 start-0 h-screen z-40
         ${isSidebarCollapsed ? 'w-60 lg:w-20' : 'w-60'} bg-white dark:bg-slate-950 border-e border-slate-200 dark:border-slate-800
         transition-[width,transform] duration-300 ease-in-out
         flex flex-col shrink-0 overflow-hidden
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
+        ${isMobileMenuOpen ? 'translate-x-0' : (isRtl ? 'translate-x-full lg:translate-x-0' : '-translate-x-full lg:translate-x-0')}
       `}
         aria-label={t('adminDashboard.nav.sidebar', 'قائمة الإدارة')}
       >

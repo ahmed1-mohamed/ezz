@@ -35,10 +35,10 @@ function formatCurrency(amount, currency = 'ج.م') {
   return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
 }
 
-function formatDate(dateVal) {
+function formatDate(dateVal, isRtl = true) {
   if (!dateVal) return '-';
   try {
-    return new Date(dateVal).toLocaleDateString('ar-EG', {
+    return new Date(dateVal).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -297,7 +297,7 @@ export default function ParentSubscriptions() {
                       <span>•</span>
                       <span className="flex items-center gap-1">
                         <Calendar size={13} />
-                        <span>{formatDate(item.createdAt || item.paidAt)}</span>
+                        <span>{formatDate(item.createdAt || item.paidAt, isRtl)}</span>
                       </span>
                     </div>
                   </div>

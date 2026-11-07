@@ -7,6 +7,7 @@ import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import TeacherAbout from '@/pages/public/components/TeacherProfile/TeacherAbout.jsx';
 import TeacherSubjects from '@/pages/public/components/TeacherProfile/TeacherSubjects.jsx';
 import TeacherStats from '@/pages/public/components/TeacherProfile/TeacherStats.jsx';
+import TeacherAvailabilityCard from '@/shared/components/TeacherAvailabilityCard.jsx';
 import Spinner from '@/shared/components/Spinner';
 
 const getImageUrl = (imagePath) => {
@@ -135,7 +136,8 @@ export default function StudentTeacherProfile() {
               }))
             : [],
           levels: Array.isArray(realData?.levels) ? realData.levels : [],
-          schedule: Array.isArray(realData?.schedule) ? realData.schedule : []
+          schedule: Array.isArray(realData?.schedule) ? realData.schedule : [],
+          availability: Array.isArray(realData?.availability) ? realData.availability : (Array.isArray(realData?.schedule) ? realData.schedule : [])
         };
         setTeacher(teacherData);
       } catch (err) {
@@ -186,6 +188,11 @@ export default function StudentTeacherProfile() {
           <div className="lg:col-span-7 order-2 lg:order-1 space-y-6 text-start">
             <TeacherAbout teacher={teacher} t={t} />
             <TeacherSubjects subjects={teacher.subjects} t={t} />
+            <TeacherAvailabilityCard
+              availability={teacher.availability}
+              isRtl={isRtl}
+              title={isRtl ? 'الأيام المتاحة للعمل' : 'Available Working Days'}
+            />
           </div>
           <div className="lg:col-span-5 order-1 lg:order-2">
             <StudentTeacherSideCard

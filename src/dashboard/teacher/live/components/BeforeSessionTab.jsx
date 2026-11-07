@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   Video,
+  Mic,
+  Sliders,
   Calendar,
   Clock,
   ChevronLeft,
@@ -20,6 +22,7 @@ import Swal from 'sweetalert2';
 import CountdownTimer from './CountdownTimer';
 import AttendanceList from './AttendanceList';
 import RescheduleSessionModal from './RescheduleSessionModal';
+import DevicePreviewModal from '@/shared/components/DevicePreviewModal.jsx';
 import { checkCanJoinSession } from '@/shared/utils/sessionTiming.js';
 
 function normalizeStatusKey(raw) {
@@ -64,6 +67,7 @@ export default function BeforeSessionTab({ onStartSession }) {
   const [offset, setOffset] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+  const [isDeviceCheckOpen, setIsDeviceCheckOpen] = useState(false);
   const { data: sessionData, isLoading, isError, refetch } = useQuery({
     queryKey: ['teacher-session-detail-or-offset', querySessionId, offset],
     queryFn: () => {
@@ -288,6 +292,31 @@ export default function BeforeSessionTab({ onStartSession }) {
                 </div>
               )}
             </div>
+            {/* Audio & Camera Device Pre-check Banner */}
+            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <Sliders className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    {isRtl ? 'فحص وتجهيز الصوت والكاميرا قبل بدء الحصة' : 'Audio & Camera Device Check'}
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {isRtl ? 'تأكد من عمل الميكروفون وتدفق الكاميرا بوضوح قبل الدخول للجلسة' : 'Test your microphone and preview your camera before joining the live session'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeviceCheckOpen(true)}
+                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-95 border border-slate-700 dark:border-slate-600"
+              >
+                <Video className="w-3.5 h-3.5 text-blue-400" />
+                <Mic className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{isRtl ? 'فحص وتجربة الكاميرا والمايك' : 'Test Camera & Mic'}</span>
+              </button>
+            </div>
             <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
               <div className="flex flex-wrap items-center gap-3">
                 <button
@@ -337,6 +366,11 @@ export default function BeforeSessionTab({ onStartSession }) {
         isOpen={isRescheduleOpen}
         onClose={() => setIsRescheduleOpen(false)}
         session={session}
+      />
+      <DevicePreviewModal
+        isOpen={isDeviceCheckOpen}
+        onClose={() => setIsDeviceCheckOpen(false)}
+        isRtl={isRtl}
       />
     </div>
   );

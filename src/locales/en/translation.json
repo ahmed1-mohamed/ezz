@@ -31,13 +31,13 @@
     "logout": "Log out"
   },
   "home": {
-    "badge": "Complete educational academy",
-    "titleLine1": "Enlightening minds,",
-    "titleLine2": "Elevating the future.",
-    "titleLine3": "Your child's future begins with inspiring learning",
-    "description": "The Holy Quran, Arabic language, academic subjects, and international curricula... in one platform nurturing their abilities and instilling their values.",
-    "ctaPrimary": "Get Started",
-    "ctaSecondary": "View Experience",
+    "badge": "Online Learning Academy",
+    "titleLine1": "Illuminate Minds.",
+    "titleLine2": "Elevate Futures.",
+    "titleLine3": "One-to-One Online Lessons for Your Child",
+    "description": "The Holy Quran, Arabic language, school subjects, and support for international curricula... on one platform nurturing their abilities and helping children develop strong values.",
+    "ctaPrimary": "Register Now",
+    "ctaSecondary": "Explore Our Programmes",
     "heroImageAlt": "Manarat Al-Ezz Academy - Direct Quranic and Educational Learning"
   },
   "login": {
@@ -1483,7 +1483,7 @@
   },
   "about": {
     "hero": {
-      "badge": "Complete educational academy",
+      "badge": "Online Learning Academy",
       "title1": "Where the light of knowledge",
       "title2": "meets the purity of the soul",
       "subtitle": "Manarat Al-Ezz is not just an academy, it is a journey into the depths of knowledge, designed to be a digital haven combining the authenticity of heritage and the modernity of technology."

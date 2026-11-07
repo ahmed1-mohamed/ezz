@@ -138,7 +138,7 @@ export default function TeacherLayout() {
         />
       )}
       <aside
-        className={`fixed lg:sticky top-0 h-screen z-50 w-64 bg-white dark:bg-slate-900 border-e border-slate-200/80 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
+        className={`fixed lg:sticky top-0 start-0 h-screen z-50 w-64 bg-white dark:bg-slate-900 border-e border-slate-200/80 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
           isMobileMenuOpen
             ? 'translate-x-0'
             : isRtl

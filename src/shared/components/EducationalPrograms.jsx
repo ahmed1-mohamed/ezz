@@ -147,6 +147,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
     const NextIcon = isRtl ? ChevronLeft : ChevronRight;
     return (
         <section
+            id="educational-programs"
             className="relative bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-20 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
         >
             <div className="absolute top-[-120px] start-[-120px] h-[400px] w-[400px] rounded-full bg-[#0F7A6C]/10 dark:bg-[#0F7A6C]/20 blur-[120px]" />

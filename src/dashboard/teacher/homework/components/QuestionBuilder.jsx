@@ -20,7 +20,6 @@ export default function QuestionBuilder({ questions = [], onChange }) {
       id: `q_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       type,
       questionText: '',
-      question: '',
       points: 5,
       options: type === 'multiple_choice' ? ['', '', '', ''] : [],
       correctOptionIndex: 0,
@@ -33,7 +32,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
     const nextList = questions.map((q) => {
       if (q.id === id) {
         if (field === 'question' || field === 'questionText') {
-          return { ...q, questionText: value, question: value };
+          return { ...q, questionText: value };
         }
         return { ...q, [field]: value };
       }

@@ -12,8 +12,8 @@ export default function LanguageAppearancePanel({ itemVariants }) {
     };
     return (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.languageDisplay')}</h2>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.languageDisplay')}</h3>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.languageDisplay', 'اللغة والمظهر')}</h2>
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-start text-sm">{t('parentSettings.preferredLanguage', 'اللغة المفضلة')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <button
                     onClick={() => handleLanguageChange('ar')}

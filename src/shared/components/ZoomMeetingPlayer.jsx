@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Video,
+  VideoOff,
+  Mic,
+  MicOff,
+  Sliders,
   Maximize2,
   Minimize2,
   RotateCcw,
@@ -8,6 +12,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DevicePreviewModal from './DevicePreviewModal.jsx';
 
 export default function ZoomMeetingPlayer({
   meetingId,
@@ -28,8 +33,12 @@ export default function ZoomMeetingPlayer({
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const containerRef = useRef(null);
+  const iframeRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [iframeKey, setIframeKey] = useState(1);
+  const [isMicMuted, setIsMicMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [mountedAt] = useState(() => Date.now());
   const [currentTime, setCurrentTime] = useState(() => Date.now());
 
@@ -41,35 +50,6 @@ export default function ZoomMeetingPlayer({
   const cleanMeetingId = String(meetingId || '').replace(/\s/g, '');
   const cleanPasscode = String(passcode || '');
   const isHost = Number(role) === 1;
-  const startZakExp = (() => {
-    try {
-      const effectiveZak = zakToken || (startUrl ? new URL(startUrl).searchParams.get('zak') : '') || '';
-      if (!effectiveZak || !effectiveZak.includes('.')) return null;
-      const payload = JSON.parse(atob(effectiveZak.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-      return Number(payload.exp) || null;
-    } catch {
-      return null;
-    }
-  })();
-  const isStartLinkExpired = isHost && startZakExp !== null && startZakExp * 1000 < currentTime;
-  const effectiveHostStartUrl = (() => {
-    if (startUrl) {
-      try {
-        const u = new URL(startUrl);
-        if (zakToken) u.searchParams.set('zak', zakToken);
-        return u.toString();
-      } catch {
-        return startUrl;
-      }
-    }
-    if (cleanMeetingId && zakToken) {
-      return `https://us05web.zoom.us/s/${cleanMeetingId}?zak=${encodeURIComponent(zakToken)}`;
-    }
-    return joinUrl || '';
-  })();
-  const launchAppUrl = isHost
-    ? (effectiveHostStartUrl || joinUrl || '')
-    : (joinUrl || (cleanMeetingId ? `zoommtg://zoom.us/join?action=join&confno=${cleanMeetingId}${cleanPasscode ? `&pwd=${cleanPasscode}` : ''}` : ''));
   const embedUrl = (() => {
     if (!cleanMeetingId && !startUrl && !joinUrl) return '';
     const params = new URLSearchParams();
@@ -116,13 +96,28 @@ export default function ZoomMeetingPlayer({
       document.exitFullscreen?.().then(() => setIsFullscreen(false)).catch(() => {});
     }
   };
+  const handleToggleMic = () => {
+    const nextState = !isMicMuted;
+    setIsMicMuted(nextState);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        { type: 'ZOOM_TOGGLE_AUDIO', mute: nextState },
+        '*'
+      );
+    }
+  };
+  const handleToggleCamera = () => {
+    const nextState = !isCameraOff;
+    setIsCameraOff(nextState);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        { type: 'ZOOM_TOGGLE_VIDEO', stopVideo: nextState },
+        '*'
+      );
+    }
+  };
   const handleReloadStream = () => {
     setIframeKey((prev) => prev + 1);
-  };
-  const handleLaunchZoomApp = () => {
-    if (launchAppUrl) {
-      window.open(launchAppUrl, '_blank', 'noopener,noreferrer');
-    }
   };
   const handleRefreshServerData = () => {
     if (onRefreshJoinData) {
@@ -138,6 +133,13 @@ export default function ZoomMeetingPlayer({
       if (event.data?.type === 'ZOOM_MEETING_LEFT') {
         const destination = event.data.leaveUrl || (isHost ? '/dashboard/teacher/sessions' : '/dashboard/student/schedule');
         window.location.href = destination;
+      } else if (event.data?.type === 'ZOOM_MEDIA_STATE') {
+        if (typeof event.data.isMuted === 'boolean') {
+          setIsMicMuted(event.data.isMuted);
+        }
+        if (typeof event.data.isVideoOff === 'boolean') {
+          setIsCameraOff(event.data.isVideoOff);
+        }
       }
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -186,17 +188,45 @@ export default function ZoomMeetingPlayer({
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {launchAppUrl && (
-            <button
-              type="button"
-              onClick={handleLaunchZoomApp}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
-              title={isHost ? t('teacherLive.startAsHostApp', 'بدء كمعلّم عبر تطبيق Zoom') : t('studentDashboard.live.joinAsStudentApp', 'انضمام عبر تطبيق Zoom')}
-            >
-              <Video className="w-3.5 h-3.5" />
-              <span>{isHost ? t('teacherLive.startAsHostApp', 'بدء عبر تطبيق Zoom') : t('studentDashboard.live.joinAsStudentApp', 'انضمام عبر تطبيق Zoom')}</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleToggleMic}
+            className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 ${
+              isMicMuted
+                ? 'bg-rose-600/90 hover:bg-rose-700 text-white border border-rose-500/40'
+                : 'bg-emerald-600/90 hover:bg-emerald-700 text-white border border-emerald-500/40'
+            }`}
+            title={isMicMuted ? (isRtl ? 'تشغيل المايك' : 'Unmute Mic') : (isRtl ? 'كتم المايك' : 'Mute Mic')}
+          >
+            {isMicMuted ? <MicOff className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" /> : <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />}
+            <span className="font-extrabold text-xs">
+              {isMicMuted ? (isRtl ? 'المايك مكتوم' : 'Mic Muted') : (isRtl ? 'المايك يعمل' : 'Mic On')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleCamera}
+            className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 ${
+              isCameraOff
+                ? 'bg-rose-600/90 hover:bg-rose-700 text-white border border-rose-500/40'
+                : 'bg-blue-600/90 hover:bg-blue-700 text-white border border-blue-500/40'
+            }`}
+            title={isCameraOff ? (isRtl ? 'تشغيل الكاميرا' : 'Start Video') : (isRtl ? 'إيقاف الكاميرا' : 'Stop Video')}
+          >
+            {isCameraOff ? <VideoOff className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" /> : <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />}
+            <span className="font-extrabold text-xs">
+              {isCameraOff ? (isRtl ? 'الكاميرا مغلقة' : 'Camera Off') : (isRtl ? 'الكاميرا تعمل' : 'Camera On')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPreviewModalOpen(true)}
+            className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 hover:text-amber-200 border border-amber-500/30 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+            title={isRtl ? 'فحص وتجهيز الكاميرا والمايك' : 'Check Devices'}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{isRtl ? 'فحص الأجهزة' : 'Check Devices'}</span>
+          </button>
           {onRefreshJoinData && (
             <button
               type="button"
@@ -226,37 +256,6 @@ export default function ZoomMeetingPlayer({
           </button>
         </div>
       </div>
-      {isHost && isStartLinkExpired && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-200">
-          <div className="flex items-center gap-2">
-            <Video className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>{t('teacherLive.zakExpiredNotice', 'الحصة مفتوحة حالياً (90 دقيقة). يمكنك بدء الحصة فوراً عبر تطبيق Zoom أو تسجيل الدخول كـ Host في المتصفح:')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {launchAppUrl && (
-              <button
-                type="button"
-                onClick={handleLaunchZoomApp}
-                className="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <Video className="w-3.5 h-3.5" />
-                <span>{t('teacherLive.startAsHostApp', 'بدء كمعلّم عبر تطبيق Zoom')}</span>
-              </button>
-            )}
-            {onRefreshJoinData && (
-              <button
-                type="button"
-                onClick={handleRefreshServerData}
-                disabled={isRefreshing}
-                className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
-              >
-                <RotateCcw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span>{t('teacherLive.refreshLinkFromServer', 'طلب رابط جديد من الخادم')}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
       <div className="relative w-full flex-1 min-h-[560px] bg-[#020508] overflow-hidden flex flex-col justify-center items-center">
         {!embedUrl && !cleanMeetingId ? (
           <div className="max-w-md mx-6 text-center flex flex-col items-center gap-3 p-6 rounded-3xl bg-[#0f172a] border border-white/10">
@@ -281,15 +280,16 @@ export default function ZoomMeetingPlayer({
           </div>
         ) : (
           <iframe
+            ref={iframeRef}
             key={iframeKey}
             src={embedUrl}
             title="Zoom Live Meeting Stream"
             className="w-full h-full min-h-[560px] border-0 relative z-10 flex-1"
-            allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection"
+            allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection; unload"
           />
         )}
       </div>
-      <div className="bg-[#0b131e] px-4 sm:px-6 py-2.5 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2 shrink-0">
+      <div className="bg-[#0b131e] px-4 sm:px-6 py-2.5 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span>
@@ -298,7 +298,34 @@ export default function ZoomMeetingPlayer({
               : t('studentDashboard.live.participantLiveHint', 'أنت متصل الآن بالحصة كطالب (Participant). يمكنك متابعة الشرح والتفاعل مع المعلم.')}
           </span>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleToggleMic}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              isMicMuted ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+            }`}
+          >
+            {isMicMuted ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+            <span>{isMicMuted ? (isRtl ? 'المايك مكتوم' : 'Muted') : (isRtl ? 'المايك يعمل' : 'Mic Active')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleCamera}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              isCameraOff ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+            }`}
+          >
+            {isCameraOff ? <VideoOff className="w-3.5 h-3.5" /> : <Video className="w-3.5 h-3.5" />}
+            <span>{isCameraOff ? (isRtl ? 'الكاميرا مغلقة' : 'Off') : (isRtl ? 'الكاميرا تعمل' : 'Video Active')}</span>
+          </button>
+        </div>
       </div>
+      <DevicePreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        isRtl={isRtl}
+      />
     </div>
   );
 }

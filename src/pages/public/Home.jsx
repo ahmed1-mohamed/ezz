@@ -66,6 +66,11 @@ export default memo(function Home() {
         dispatch(fetchLandingPage(i18n.language))
     }, [dispatch, i18n.language])
     const executeWatchExperience = () => {
+        const programsEl = document.getElementById('educational-programs')
+        if (programsEl) {
+            programsEl.scrollIntoView({ behavior: 'smooth' })
+            return
+        }
         const targetUrl = '/dashboard/parent/students?action=trial'
         if (!isAuthenticated) {
             navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`)
@@ -106,25 +111,25 @@ export default memo(function Home() {
                                 </h1>
                             </motion.div>
                             <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600 dark:text-slate-300">
-                                {t('home.description', 'القرآن الكريم، واللغة العربية، والمواد الدراسية، والمناهج الدولية... في منصة واحدة تُنمّي قدراته وتُرسّخ قيمه.')}
+                                {t('home.description', 'القرآن الكريم، واللغة العربية، والمواد الدراسية، ودعم المناهج الدولية... في منصة واحدة تُنمّي قدراته وتساعد الأطفال على بناء قيم راسخة.')}
                             </motion.p>
-                            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center lg:justify-start w-full">
+                            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-6 justify-center lg:justify-start w-full">
                                 <Button
                                     variant="secondary"
                                     onClick={executeWatchExperience}
-                                    className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform"
+                                    className="w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base lg:text-lg hover:scale-105 transition-transform"
                                 >
-                                    {t('home.ctaSecondary', 'شاهد التجربة')}
+                                    {t('home.ctaSecondary', 'استكشف برامجنا')}
                                 </Button>
                                 <Link
-                                    to={isAuthenticated ? (getRedirectPath(user?.role) || '/dashboard') : '/login'}
+                                    to={isAuthenticated ? (getRedirectPath(user?.role) || '/dashboard') : '/register'}
                                     className="w-full sm:w-auto"
                                 >
                                     <Button
                                         variant="primary"
-                                        className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform"
+                                        className="w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base lg:text-lg hover:scale-105 transition-transform"
                                     >
-                                        {isAuthenticated ? t('public.dashboard', 'لوحة التحكم') : t('home.ctaPrimary', 'انضم الآن')}
+                                        {isAuthenticated ? t('public.dashboard', 'لوحة التحكم') : t('home.ctaPrimary', 'سجّل الآن')}
                                     </Button>
                                 </Link>
                             </motion.div>

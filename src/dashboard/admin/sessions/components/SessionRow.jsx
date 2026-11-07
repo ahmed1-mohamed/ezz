@@ -204,7 +204,7 @@ export default function SessionRow({
               href={session.zoomJoinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all cursor-pointer"
             >
               <Video size={12} />
               <span>{t('adminDashboard.sessions.zoom', 'زووم')}</span>
@@ -215,7 +215,7 @@ export default function SessionRow({
               <button
                 type="button"
                 onClick={() => handleTogglePanel(session.id, 'reschedule')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-600 border border-brand-200 hover:bg-brand-100 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-all cursor-pointer"
               >
                 <RefreshCw size={12} />
                 <span>{t('adminDashboard.sessions.actions.reschedule', 'إعادة جدولة')}</span>
@@ -223,7 +223,7 @@ export default function SessionRow({
               <button
                 type="button"
                 onClick={() => handleTogglePanel(session.id, 'teacher')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all cursor-pointer"
               >
                 <UserX size={12} />
                 <span>{t('adminDashboard.sessions.actions.changeTeacher', 'تغيير المدرس')}</span>
@@ -231,7 +231,7 @@ export default function SessionRow({
               <button
                 type="button"
                 onClick={() => handleCancelSession(session.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all cursor-pointer"
               >
                 <X size={12} />
                 <span>{t('adminDashboard.sessions.actions.cancel', 'إلغاء')}</span>

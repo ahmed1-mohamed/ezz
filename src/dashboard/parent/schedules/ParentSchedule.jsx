@@ -29,27 +29,27 @@ export default function ParentSchedule() {
     const raw = String(status || '').trim();
     if (raw === 'ملغاة' || color === 'red') {
       return {
-        label: raw || 'ملغاة',
+        label: raw || (isRtl ? 'ملغاة' : 'Cancelled'),
         badgeClass: 'bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/30',
         cardBorder: 'border-s-4 border-s-rose-500'
       };
     }
     if (raw === 'مكتملة' || raw === 'completed' || color === 'green') {
       return {
-        label: raw || 'مكتملة',
+        label: raw || (isRtl ? 'مكتملة' : 'Completed'),
         badgeClass: 'bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/30',
         cardBorder: 'border-s-4 border-s-emerald-500'
       };
     }
     if (raw === 'مباشر الآن' || raw === 'live') {
       return {
-        label: 'مباشر الآن',
+        label: isRtl ? 'مباشر الآن' : 'Live Now',
         badgeClass: 'bg-red-600 text-white animate-pulse shadow-sm',
         cardBorder: 'border-s-4 border-s-red-500'
       };
     }
     return {
-      label: raw || 'مجدولة',
+      label: raw || (isRtl ? 'مجدولة' : 'Scheduled'),
       badgeClass: 'bg-[#0f7a6c]/10 text-[#0f7a6c] border border-[#0f7a6c]/20 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/30',
       cardBorder: 'border-s-4 border-s-[#0f7a6c]'
     };
@@ -154,9 +154,9 @@ export default function ParentSchedule() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{timetableData.weekInfo.weekLabel || 'الأسبوع'}</span>
+                <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{timetableData.weekInfo.weekLabel || (isRtl ? 'الأسبوع' : 'Week')}</span>
                 {timetableData.weekInfo.isCurrentWeek && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-white">الحالي</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-white">{isRtl ? 'الحالي' : 'Current'}</span>
                 )}
               </div>
               <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">{timetableData.weekInfo.formattedRange}</p>
@@ -166,24 +166,24 @@ export default function ParentSchedule() {
             {!timetableData.weekInfo.isCurrentWeek && (
               <button
                 onClick={handleCurrentWeek}
-                className="px-3 py-2 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 rounded-xl transition-colors"
+                className="px-3 py-2 text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 rounded-xl transition-colors cursor-pointer"
               >
-                الأسبوع الحالي
+                {isRtl ? 'الأسبوع الحالي' : 'Current Week'}
               </button>
             )}
             <button
               onClick={handlePrevWeek}
               disabled={!timetableData.weekInfo.previousWeekDate || isLoading}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200"
-              title="الأسبوع السابق"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
+              title={isRtl ? 'الأسبوع السابق' : 'Previous Week'}
             >
               {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
             <button
               onClick={handleNextWeek}
               disabled={!timetableData.weekInfo.nextWeekDate || isLoading}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200"
-              title="الأسبوع القادم"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
+              title={isRtl ? 'الأسبوع القادم' : 'Next Week'}
             >
               {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
@@ -200,7 +200,7 @@ export default function ParentSchedule() {
             <Calendar className="w-8 h-8" />
           </div>
           <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">{t('parent.schedule.noClasses', 'لا توجد حصص مجدولة لهذا الأسبوع')}</h3>
-          <p className="text-xs text-slate-400">يمكنك التنقل بين الأسابيع لمعرفة جدول الحصص القادمة والسابقة.</p>
+          <p className="text-xs text-slate-400">{t('parent.schedule.navigateWeeks', isRtl ? 'يمكنك التنقل بين الأسابيع لمعرفة جدول الحصص القادمة والسابقة.' : 'You can navigate between weeks to view upcoming and previous sessions.')}</p>
         </motion.div>
       ) : (
         <div className="space-y-6">
@@ -210,7 +210,7 @@ export default function ParentSchedule() {
                 <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">{dayGroup.day}</span>
                 <span className="text-xs font-semibold text-slate-400">{dayGroup.formattedDate || dayGroup.date}</span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
-                  {dayGroup.sessionsCount || dayGroup.sessions?.length || 0} حصة
+                  {dayGroup.sessionsCount || dayGroup.sessions?.length || 0} {isRtl ? 'حصة' : 'sessions'}
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-4">
@@ -230,13 +230,13 @@ export default function ParentSchedule() {
                             <span>{session.timeRange || session.startTime}</span>
                           </div>
                           <span className="text-[11px] text-slate-400 font-medium">
-                            {session.durationMinutes ? `${session.durationMinutes} دقيقة` : (session.day || dayGroup.day)}
+                            {session.durationMinutes ? `${session.durationMinutes} ${isRtl ? 'دقيقة' : 'min'}` : (session.day || dayGroup.day)}
                           </span>
                         </div>
                         <div className="space-y-1.5 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
-                              {session.title || `الحصة رقم ${session.sessionNumber || ''}`}
+                              {session.title || (isRtl ? `الحصة رقم ${session.sessionNumber || ''}` : `Session #${session.sessionNumber || ''}`)}
                             </h3>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${badge.badgeClass}`}>
                               {badge.label}
@@ -251,7 +251,7 @@ export default function ParentSchedule() {
                             )}
                             {session.teacher && (
                               <div className="flex items-center gap-1">
-                                <span className="text-slate-400">المعلم:</span>
+                                <span className="text-slate-400">{isRtl ? 'المعلم:' : 'Teacher:'}</span>
                                 <span className="font-semibold text-slate-700 dark:text-slate-300">{session.teacher}</span>
                               </div>
                             )}
@@ -266,9 +266,9 @@ export default function ParentSchedule() {
                       </div>
                       <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
                         {session.canJoinNow ? (
-                          <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-red-600/20 transition-all active:scale-95">
+                          <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-red-600/20 transition-all active:scale-95 cursor-pointer">
                             <Video className="w-4 h-4" />
-                            <span>دخول الحصة الآن</span>
+                            <span>{isRtl ? 'دخول الحصة الآن' : 'Join Session Now'}</span>
                           </button>
                         ) : null}
                       </div>

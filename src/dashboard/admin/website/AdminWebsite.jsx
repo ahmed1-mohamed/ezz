@@ -177,7 +177,7 @@ export default function AdminWebsite() {
       )}
       <AnimatePresence>
         {toast.show && (
-          <div className="fixed top-5 right-5 z-[9999]">
+          <div className="fixed top-5 end-5 z-[9999]">
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

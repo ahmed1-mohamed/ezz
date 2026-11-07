@@ -38,26 +38,12 @@ const navItems = [
 ]
 
 export default function StudentLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout, theme, toggleTheme } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const location = useLocation()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark'
-  })
-  const toggleTheme = () => {
-    const nextDark = !isDarkMode
-    setIsDarkMode(nextDark)
-    if (nextDark) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }
+  const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   const handleLanguageToggle = () => {
     const newLang = isRtl ? 'en' : 'ar'
     setLanguage(newLang)
@@ -156,7 +142,7 @@ export default function StudentLayout() {
           transition-transform duration-300 ease-in-out
           flex flex-col justify-between p-4 sm:p-5 shrink-0 overflow-y-auto
           [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
+          ${isMobileMenuOpen ? 'translate-x-0' : (isRtl ? 'translate-x-full lg:translate-x-0' : '-translate-x-full lg:translate-x-0')}
         `}
       >
         <div>

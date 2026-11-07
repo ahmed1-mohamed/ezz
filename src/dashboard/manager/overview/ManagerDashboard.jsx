@@ -22,34 +22,34 @@ export default function ManagerDashboard() {
     const { t } = useTranslation()
     return (
         <DashboardLayout title={t('dashboard.overview')} role={t('auth.manager')} links={roleNavigation.Manager}>
-            <section className="grid gap-6 xl:grid-cols-2">
+            <section className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                 {stats.map((stat) => (
                     <StatsCard key={stat.title} title={t(stat.title)} value={stat.value} change={stat.change} icon={stat.icon} />
                 ))}
             </section>
             <div className="space-y-6">
-                <div className="grid gap-6 md:grid-cols-2">
-                    <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{t('manager.pipelineTitle')}</h2>
-                        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{t('manager.pipelineDescription')}</p>
-                        <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                <div className="grid gap-6 md:grid-cols-2 text-start">
+                    <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-6 shadow-soft backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+                        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">{t('manager.pipelineTitle')}</h2>
+                        <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">{t('manager.pipelineDescription')}</p>
+                        <ul className="mt-4 space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                             <li>{t('manager.pipelineItem1')}</li>
                             <li>{t('manager.pipelineItem2')}</li>
                             <li>{t('manager.pipelineItem3')}</li>
                         </ul>
                     </div>
-                    <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-soft backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80">
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{t('manager.teamPulseTitle')}</h2>
-                        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{t('manager.teamPulseDescription')}</p>
-                        <div className="mt-6 flex flex-wrap gap-3">
+                    <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-6 shadow-soft backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+                        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">{t('manager.teamPulseTitle')}</h2>
+                        <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">{t('manager.teamPulseDescription')}</p>
+                        <div className="mt-5 flex flex-wrap gap-2.5">
                             {['Backlog', 'Standups', 'Milestones'].map((item) => (
-                                <span key={item} className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-200">{item}</span>
+                                <span key={item} className="rounded-full bg-slate-100 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{item}</span>
                             ))}
                         </div>
                     </div>
                 </div>
-                <div>
-                    <h2 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">{t('manager.projectStatusTitle')}</h2>
+                <div className="text-start">
+                    <h2 className="mb-3 text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">{t('manager.projectStatusTitle')}</h2>
                     <DataTable headers={[t('table.project'), t('table.status'), t('table.deadline'), t('table.priority')]} rows={rows} />
                 </div>
             </div>

@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -345,7 +345,6 @@ export default function TeacherSchedule() {
     }
     const targetUrl = session.id ? `/dashboard/teacher/live?session=${session.id}` : null;
     if (targetUrl) {
-      const isInternal = targetUrl.startsWith('/');
       const handleSessionJoinClick = (e) => {
         const check = checkCanJoinSession(session);
         if (!check.canJoin) {
@@ -354,29 +353,15 @@ export default function TeacherSchedule() {
           return false;
         }
       };
-      if (isInternal) {
-        return (
-          <Link
-            to={targetUrl}
-            onClick={handleSessionJoinClick}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
-          >
-            <Video size={16} />
-            <span>{isLive ? t('teacherSchedule.joinLiveNow', 'انتقل إلى البث الآن') : t('teacherSchedule.startSession', 'بدء الحصة')}</span>
-          </Link>
-        );
-      }
       return (
-        <a
-          href={targetUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={targetUrl}
           onClick={handleSessionJoinClick}
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
         >
           <Video size={16} />
           <span>{isLive ? t('teacherSchedule.joinLiveNow', 'انتقل إلى البث الآن') : t('teacherSchedule.startSession', 'بدء الحصة')}</span>
-        </a>
+        </Link>
       );
     }
     return (

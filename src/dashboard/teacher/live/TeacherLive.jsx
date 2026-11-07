@@ -89,6 +89,24 @@ export default function TeacherLive() {
     }
   }, [activeStage, currentLiveSession, paramSessionId, location.pathname, navigate]);
 
+  useEffect(() => {
+    if (location.pathname.includes('/live/room')) {
+      setActiveStage('during');
+      return;
+    }
+    const stage = searchParams.get('stage');
+    if (stage === 'after') {
+      setActiveStage('after');
+      return;
+    }
+    if (stage === 'before' || (!stage && location.pathname === '/dashboard/teacher/live')) {
+      const storedStage = sessionStorage.getItem('teacher_live_stage');
+      if (storedStage !== 'during') {
+        setActiveStage('before');
+      }
+    }
+  }, [location.pathname, searchParams]);
+
   const handleStartSession = (session, joinData = null) => {
     const sid = session?.id || session?._id;
     const merged = joinData ? { ...session, ...joinData } : session;
@@ -135,13 +153,15 @@ export default function TeacherLive() {
     if (stageId === 'during') {
       return;
     }
+    if (stageId === 'before') {
+      handleBackToBefore();
+      return;
+    }
     setActiveStage(stageId);
     try {
       sessionStorage.setItem('teacher_live_stage', stageId);
     } catch {}
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('stage', stageId);
-    setSearchParams(nextParams, { replace: true });
+    navigate(`/dashboard/teacher/live?stage=${stageId}`, { replace: true });
   };
   return (
     <div className="space-y-6 pb-12" dir={isRtl ? 'rtl' : 'ltr'}>

@@ -24,10 +24,10 @@ function formatCurrency(amount, currency = 'ج.م') {
   return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
 }
 
-function formatDate(dateVal) {
+function formatDate(dateVal, isRtl = true) {
   if (!dateVal) return '-';
   try {
-    return new Date(dateVal).toLocaleDateString('ar-EG', {
+    return new Date(dateVal).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -190,7 +190,7 @@ export default function ParentInvoiceModal({
                   </span>
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#0f7a6c]" />
-                    <span>{formatDate(paymentDate)}</span>
+                    <span>{formatDate(paymentDate, isRtl)}</span>
                   </span>
                 </div>
               </div>
@@ -215,19 +215,19 @@ export default function ParentInvoiceModal({
                     {sessionsCount > 0 && (
                       <div className="flex justify-between">
                         <span className="text-slate-500">{t('parentPackages.sessionsCount', 'عدد الحصص')}:</span>
-                        <span className="font-bold text-slate-800 dark:text-white">{sessionsCount} حصة</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{sessionsCount} {t('common.session', 'حصة')}</span>
                       </div>
                     )}
                     {startDate && (
                       <div className="flex justify-between">
                         <span className="text-slate-500">{t('parentPackages.startDate', 'بداية الاشتراك')}:</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatDate(startDate)}</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatDate(startDate, isRtl)}</span>
                       </div>
                     )}
                     {endDate && (
                       <div className="flex justify-between">
                         <span className="text-slate-500">{t('parentPackages.endDate', 'نهاية الاشتراك')}:</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatDate(endDate)}</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatDate(endDate, isRtl)}</span>
                       </div>
                     )}
                   </div>

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Check, Heart, Globe } from 'lucide-react'
-import coreValuesImage from '@/images/about/core-values.svg'
+import coreValuesImage from '@/images/about/core-values.webp'
 
 export default React.memo(function AboutCoreValues() {
     const { t, i18n } = useTranslation()
