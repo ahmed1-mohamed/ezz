@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -12,14 +12,15 @@ import {
 } from 'lucide-react'
 import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import { showDeleteConfirm, showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
-import AddEditGroupScreen from './components/AddEditGroupScreen'
 import AddStudentsModal from './components/AddStudentsModal'
 import ChangeTeacherModal from './components/ChangeTeacherModal'
 import Spinner from '@/shared/components/Spinner'
 
 import { getLocalizedValue, saveGroupEdits } from './utils/groupUtils'
 import GroupCard from './components/GroupCard'
-import GroupDetailsModal from './components/GroupDetailsModal'
+
+const AddEditGroupScreen = lazy(() => import('./components/AddEditGroupScreen'))
+const GroupDetailsModal = lazy(() => import('./components/GroupDetailsModal'))
 
 export default function AdminGroups() {
   const { t, i18n } = useTranslation()
@@ -388,20 +389,22 @@ export default function AdminGroups() {
   }
   if (viewMode === 'add-group' || viewMode === 'edit-group') {
     return (
-      <AddEditGroupScreen
-        group={viewMode === 'edit-group' ? selectedGroup : null}
-        isRtl={isRtl}
-        t={t}
-        isSaving={isLoading}
-        onSave={handleSaveGroup}
-        onCancel={() => {
-          setSelectedGroup(null)
-          setViewMode('list')
-          if (routeGroupId) {
-            navigate('/dashboard/admin/groups')
-          }
-        }}
-      />
+      <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+        <AddEditGroupScreen
+          group={viewMode === 'edit-group' ? selectedGroup : null}
+          isRtl={isRtl}
+          t={t}
+          isSaving={isLoading}
+          onSave={handleSaveGroup}
+          onCancel={() => {
+            setSelectedGroup(null)
+            setViewMode('list')
+            if (routeGroupId) {
+              navigate('/dashboard/admin/groups')
+            }
+          }}
+        />
+      </Suspense>
     )
   }
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
@@ -550,24 +553,26 @@ export default function AdminGroups() {
         </div>
       </div>
       {showStudentsModal && selectedGroup && (
-        <GroupDetailsModal
-          group={selectedGroup}
-          onClose={() => {
-            setShowStudentsModal(false)
-            setSelectedGroup(null)
-          }}
-          onRemoveStudent={handleRemoveStudent}
-          onTransferStudent={handleTransferStudent}
-          allGroups={groups}
-          onOpenAddStudents={() => {
-            setShowStudentsModal(false)
-            setShowAddStudentsModal(true)
-          }}
-          onAddStudent={handleAddSingleStudent}
-          onChangeTeacher={handleOpenChangeTeacher}
-          t={t}
-          isRtl={isRtl}
-        />
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <GroupDetailsModal
+            group={selectedGroup}
+            onClose={() => {
+              setShowStudentsModal(false)
+              setSelectedGroup(null)
+            }}
+            onRemoveStudent={handleRemoveStudent}
+            onTransferStudent={handleTransferStudent}
+            allGroups={groups}
+            onOpenAddStudents={() => {
+              setShowStudentsModal(false)
+              setShowAddStudentsModal(true)
+            }}
+            onAddStudent={handleAddSingleStudent}
+            onChangeTeacher={handleOpenChangeTeacher}
+            t={t}
+            isRtl={isRtl}
+          />
+        </Suspense>
       )}
       {showAddStudentsModal && selectedGroup && (
         <AddStudentsModal

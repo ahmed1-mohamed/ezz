@@ -677,6 +677,7 @@ export const teachersApi = {
       if (params.page) apiParams.page = params.page;
       if (params.limit) apiParams.limit = params.limit;
       if (params.teacherId) apiParams.teacherId = params.teacherId;
+      if (params.rating && params.rating !== 'all') apiParams.rating = params.rating;
       if (params.search && typeof params.search === 'string' && params.search.trim()) {
         apiParams.search = params.search.trim();
       }

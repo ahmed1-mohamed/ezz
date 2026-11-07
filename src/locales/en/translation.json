@@ -956,7 +956,8 @@
       "contact": "Contact Us",
       "address": "Address",
       "phone": "Phone",
-      "email": "Email"
+      "email": "Email",
+      "followUs": "Follow Us on Social Media"
     },
     "about": {
       "title": "A modern public learning website",
@@ -2874,7 +2875,18 @@
       "ratingLevelVeryGood": "Very Good",
       "ratingLevelGood": "Good",
       "ratingLevelAcceptable": "Acceptable",
-      "ratingLevelPoor": "Poor"
+      "ratingLevelPoor": "Poor",
+      "ratingDistribution": "Rating Distribution",
+      "distributionHelp": "Click any star rating to filter results",
+      "weekStartLabel": "Evaluation Week",
+      "evaluationDateLabel": "Evaluation Date",
+      "parentPhoneLabel": "Phone Number",
+      "parentEmailLabel": "Email Address",
+      "whatsappChat": "WhatsApp Chat",
+      "directCall": "Phone Call",
+      "teacherId": "Teacher ID",
+      "parentBadge": "Parent",
+      "pageIndicator": "Page {{current}} of {{total}}"
     },
     "header": {
       "title": "Manarat Al-Ezz",

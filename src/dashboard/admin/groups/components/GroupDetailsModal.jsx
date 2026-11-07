@@ -345,7 +345,7 @@ export default function GroupDetailsModal({
             onClose={() => setStudentToTransfer(null)}
             onConfirm={async (targetGroupId) => {
               if (onTransferStudent) {
-                await onTransferStudent(group.id || group._id, studentToTransfer.studentId || studentToTransfer.id, targetGroupId)
+                await onTransferStudent(group.id || group._id, studentToTransfer.studentId || studentToTransfer.student_id || studentToTransfer.id || studentToTransfer._id, targetGroupId)
               }
               setStudentToTransfer(null)
             }}

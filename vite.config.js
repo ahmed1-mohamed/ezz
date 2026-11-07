@@ -48,6 +48,9 @@ export default defineConfig(({ mode }) => ({
           return 'assets/misc/[name]-[hash][extname]'
         },
         manualChunks(id) {
+          if (id.includes('locales') && id.includes('translation.json')) {
+            return 'locales-data'
+          }
           if (id.includes('node_modules')) {
             if (id.includes('react-router') || id.includes('react-router-dom')) return 'vendor-router'
             if (id.includes('react-redux') || id.includes('@reduxjs/toolkit')) return 'vendor-redux'

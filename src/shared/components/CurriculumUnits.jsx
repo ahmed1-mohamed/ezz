@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Award, Users, ChevronDown, Book, Star } from 'lucide-react'
@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
+    const tabRefs = useRef({})
     const { data: curriculaData, isLoading: isCurriculaLoading } = useQuery({
         queryKey: ['public-curricula', i18n.language],
         queryFn: async () => {
@@ -26,6 +27,11 @@ export default React.memo(function CurriculumUnits() {
         return curricula[0]?.id || curricula[0]?._id || null;
     }, [selectedTabId, curricula]);
     const setActiveTabId = setSelectedTabId;
+    useEffect(() => {
+        if (activeTabId && tabRefs.current[activeTabId]) {
+            tabRefs.current[activeTabId].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    }, [activeTabId]);
     const [openLevel, setOpenLevel] = useState(null);
     const [showAllLevels, setShowAllLevels] = useState(false);
     const { data: activeCurriculumData } = useQuery({
@@ -81,6 +87,9 @@ export default React.memo(function CurriculumUnits() {
                             const name = typeof curr.name === 'object' ? (isRtl ? curr.name.ar : curr.name.en) || curr.name.ar : curr.name;
                             return (
                                 <motion.button
+                                    ref={(el) => {
+                                        if (el) tabRefs.current[id] = el;
+                                    }}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     key={id}
@@ -100,9 +109,9 @@ export default React.memo(function CurriculumUnits() {
                                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                         />
                                     )}
-                                    <div className="relative z-10 flex items-center gap-1.5 sm:gap-2.5">
+                                    <div className="relative z-10 flex items-center gap-1.5 sm:gap-2.5 whitespace-nowrap">
                                         <BookOpen className={`w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#00695C] dark:text-emerald-400'}`} />
-                                        <span>{name}</span>
+                                        <span className="whitespace-nowrap">{name}</span>
                                     </div>
                                 </motion.button>
                             )

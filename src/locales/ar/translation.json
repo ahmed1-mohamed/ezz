@@ -956,7 +956,8 @@
       "contact": "تواصل معنا",
       "address": "العنوان",
       "phone": "الهاتف",
-      "email": "البريد الإلكتروني"
+      "email": "البريد الإلكتروني",
+      "followUs": "تابعنا على منصات التواصل"
     },
     "about": {
       "title": "موقع تعليمي عام حديث",
@@ -2670,7 +2671,18 @@
       "ratingLevelVeryGood": "جيد جداً",
       "ratingLevelGood": "جيد",
       "ratingLevelAcceptable": "مقبول",
-      "ratingLevelPoor": "ضعيف"
+      "ratingLevelPoor": "ضعيف",
+      "ratingDistribution": "توزيع التقييمات",
+      "distributionHelp": "اضغط على أي تقييم لعرض نتائجه المحددة",
+      "weekStartLabel": "أسبوع التقييم",
+      "evaluationDateLabel": "تاريخ التقييم",
+      "parentPhoneLabel": "رقم الهاتف",
+      "parentEmailLabel": "البريد الإلكتروني",
+      "whatsappChat": "مراسلة عبر واتساب",
+      "directCall": "اتصال هاتفي",
+      "teacherId": "معرف المعلم",
+      "parentBadge": "ولي أمر",
+      "pageIndicator": "صفحة {{current}} من {{total}}"
     },
     "header": {
       "title": "منارة العز",

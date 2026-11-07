@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { managersApi } from '@/shared/services/api/managersApi'
 import { showDeleteConfirm, showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import ManagersList from './components/ManagersList'
-import RolesPermissionsScreen from './components/RolesPermissionsScreen'
-import AddSupervisorScreen from './components/AddSupervisorScreen'
-import EditSupervisorScreen from './components/EditSupervisorScreen'
 import Spinner from '@/shared/components/Spinner'
 import { useManagers } from './hooks/useManagers'
 import { useManagersMutations } from './hooks/useManagersMutations'
+
+const RolesPermissionsScreen = lazy(() => import('./components/RolesPermissionsScreen'))
+const AddSupervisorScreen = lazy(() => import('./components/AddSupervisorScreen'))
+const EditSupervisorScreen = lazy(() => import('./components/EditSupervisorScreen'))
 
 export default function AdminManagers() {
   const { t, i18n } = useTranslation()
@@ -182,119 +183,125 @@ export default function AdminManagers() {
         />
       )}
       {(viewMode === 'permissions' || (viewMode === 'assign-role' && selectedSupervisor)) && (
-        <RolesPermissionsScreen
-          permissionsList={permissionsList}
-          isRtl={isRtl}
-          t={t}
-          isAdminAssignment={viewMode === 'assign-role'}
-          adminSupervisor={selectedSupervisor}
-          onSaveAdminRole={async (adminId, permissionId, actionType) => {
-            try {
-              if (actionType === 'assign') {
-                await managersApi.assignAdminPermission(adminId, permissionId)
-              } else {
-                await managersApi.updateAdminPermission(adminId, permissionId)
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <RolesPermissionsScreen
+            permissionsList={permissionsList}
+            isRtl={isRtl}
+            t={t}
+            isAdminAssignment={viewMode === 'assign-role'}
+            adminSupervisor={selectedSupervisor}
+            onSaveAdminRole={async (adminId, permissionId, actionType) => {
+              try {
+                if (actionType === 'assign') {
+                  await managersApi.assignAdminPermission(adminId, permissionId)
+                } else {
+                  await managersApi.updateAdminPermission(adminId, permissionId)
+                }
+                queryClient.invalidateQueries({ queryKey: ['admins'] })
+                queryClient.invalidateQueries({ queryKey: ['permissions'] })
+                showSuccessToast(isRtl ? 'تم حفظ الدور بنجاح!' : 'Role saved successfully!', isRtl)
+                navigate('/dashboard/admin/managers')
+              } catch (err) {
+                console.error('Failed to save admin role:', err)
+                showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل حفظ الصلاحية' : 'Failed to save permission'), isRtl)
               }
-              queryClient.invalidateQueries({ queryKey: ['admins'] })
-              queryClient.invalidateQueries({ queryKey: ['permissions'] })
-              showSuccessToast(isRtl ? 'تم حفظ الدور بنجاح!' : 'Role saved successfully!', isRtl)
-              navigate('/dashboard/admin/managers')
-            } catch (err) {
-              console.error('Failed to save admin role:', err)
-              showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل حفظ الصلاحية' : 'Failed to save permission'), isRtl)
-            }
-          }}
-          onDeleteAdminRole={async (adminId) => {
-            try {
-              await managersApi.deleteAdminPermission(adminId)
-              queryClient.invalidateQueries({ queryKey: ['admins'] })
-              queryClient.invalidateQueries({ queryKey: ['permissions'] })
-              showSuccessToast(isRtl ? 'تم حذف الصلاحيات بنجاح!' : 'Permissions deleted successfully!', isRtl)
-              navigate('/dashboard/admin/managers')
-            } catch (err) {
-              console.error('Failed to delete admin role:', err)
-              showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل حذف الصلاحية' : 'Failed to delete permission'), isRtl)
-            }
-          }}
-          onCancel={() => navigate('/dashboard/admin/managers')}
-        />
+            }}
+            onDeleteAdminRole={async (adminId) => {
+              try {
+                await managersApi.deleteAdminPermission(adminId)
+                queryClient.invalidateQueries({ queryKey: ['admins'] })
+                queryClient.invalidateQueries({ queryKey: ['permissions'] })
+                showSuccessToast(isRtl ? 'تم حذف الصلاحيات بنجاح!' : 'Permissions deleted successfully!', isRtl)
+                navigate('/dashboard/admin/managers')
+              } catch (err) {
+                console.error('Failed to delete admin role:', err)
+                showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل حذف الصلاحية' : 'Failed to delete permission'), isRtl)
+              }
+            }}
+            onCancel={() => navigate('/dashboard/admin/managers')}
+          />
+        </Suspense>
       )}
       {viewMode === 'add-supervisor' && (
-        <AddSupervisorScreen
-          roles={permissionsList}
-          isRtl={isRtl}
-          t={t}
-          countries={countries}
-          isSaving={createMutation.isPending}
-          onSave={async (data) => {
-            try {
-              const res = await createMutation.mutateAsync(data.adminData)
-              const newAdmin = res?.data || res
-              const newAdminId = newAdmin?.admin_id || newAdmin?.id || newAdmin?._id
-              if (newAdminId && data.permissionId) {
-                await managersApi.assignAdminPermission(newAdminId, data.permissionId)
-                queryClient.invalidateQueries({ queryKey: ['admins'] })
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <AddSupervisorScreen
+            roles={permissionsList}
+            isRtl={isRtl}
+            t={t}
+            countries={countries}
+            isSaving={createMutation.isPending}
+            onSave={async (data) => {
+              try {
+                const res = await createMutation.mutateAsync(data.adminData)
+                const newAdmin = res?.data || res
+                const newAdminId = newAdmin?.admin_id || newAdmin?.id || newAdmin?._id
+                if (newAdminId && data.permissionId) {
+                  await managersApi.assignAdminPermission(newAdminId, data.permissionId)
+                  queryClient.invalidateQueries({ queryKey: ['admins'] })
+                }
+                navigate('/dashboard/admin/managers')
+              } catch (err) {
+                console.error('Failed to add supervisor:', err)
               }
-              navigate('/dashboard/admin/managers')
-            } catch (err) {
-              console.error('Failed to add supervisor:', err)
-            }
-          }}
-          onCancel={() => navigate('/dashboard/admin/managers')}
-        />
+            }}
+            onCancel={() => navigate('/dashboard/admin/managers')}
+          />
+        </Suspense>
       )}
       {viewMode === 'edit-supervisor' && selectedSupervisor && (
-        <EditSupervisorScreen
-          supervisor={selectedSupervisor}
-          roles={permissionsList}
-          countries={countries}
-          isRtl={isRtl}
-          t={t}
-          isSaving={updateMutation.isPending}
-          onToggleStatus={handleToggleStatus}
-          onSave={async (data) => {
-            try {
-              const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
-              await updateMutation.mutateAsync({ id: targetAdminId, adminData: data.adminData })
-              if (data.permissionId && data.permissionId !== selectedSupervisor.permission?._id && data.permissionId !== selectedSupervisor.permissionId) {
-                try {
-                  if (selectedSupervisor.permission?._id || selectedSupervisor.permissionId) {
-                    await managersApi.updateAdminPermission(targetAdminId, data.permissionId)
-                  } else {
-                    await managersApi.assignAdminPermission(targetAdminId, data.permissionId)
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <EditSupervisorScreen
+            supervisor={selectedSupervisor}
+            roles={permissionsList}
+            countries={countries}
+            isRtl={isRtl}
+            t={t}
+            isSaving={updateMutation.isPending}
+            onToggleStatus={handleToggleStatus}
+            onSave={async (data) => {
+              try {
+                const targetAdminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
+                await updateMutation.mutateAsync({ id: targetAdminId, adminData: data.adminData })
+                if (data.permissionId && data.permissionId !== selectedSupervisor.permission?._id && data.permissionId !== selectedSupervisor.permissionId) {
+                  try {
+                    if (selectedSupervisor.permission?._id || selectedSupervisor.permissionId) {
+                      await managersApi.updateAdminPermission(targetAdminId, data.permissionId)
+                    } else {
+                      await managersApi.assignAdminPermission(targetAdminId, data.permissionId)
+                    }
+                  } catch (permErr) {
+                    console.error('Failed to update supervisor permission:', permErr)
                   }
-                } catch (permErr) {
-                  console.error('Failed to update supervisor permission:', permErr)
                 }
+                queryClient.invalidateQueries({ queryKey: ['admins'] })
+                navigate('/dashboard/admin/managers')
+              } catch (err) {
+                console.error('Failed to update supervisor:', err)
               }
-              queryClient.invalidateQueries({ queryKey: ['admins'] })
-              navigate('/dashboard/admin/managers')
-            } catch (err) {
-              console.error('Failed to update supervisor:', err)
-            }
-          }}
-          onUpdatePassword={async (newPassword) => {
-            try {
-              let targetUserId = selectedSupervisor.user_id ||
-                (typeof selectedSupervisor.user === 'string' ? selectedSupervisor.user : (selectedSupervisor.user?.id || selectedSupervisor.user?._id))
-              if (!targetUserId) {
-                const adminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
-                const rawAdminRes = await managersApi.fetchRawAdminById(adminId)
-                const rawAdmin = rawAdminRes?.data || rawAdminRes
-                targetUserId = rawAdmin?.user_id || (typeof rawAdmin?.user === 'string' ? rawAdmin.user : (rawAdmin?.user?._id || rawAdmin?.user?.id)) || adminId
+            }}
+            onUpdatePassword={async (newPassword) => {
+              try {
+                let targetUserId = selectedSupervisor.user_id ||
+                  (typeof selectedSupervisor.user === 'string' ? selectedSupervisor.user : (selectedSupervisor.user?.id || selectedSupervisor.user?._id))
+                if (!targetUserId) {
+                  const adminId = selectedSupervisor.admin_id || selectedSupervisor.id || selectedSupervisor._id
+                  const rawAdminRes = await managersApi.fetchRawAdminById(adminId)
+                  const rawAdmin = rawAdminRes?.data || rawAdminRes
+                  targetUserId = rawAdmin?.user_id || (typeof rawAdmin?.user === 'string' ? rawAdmin.user : (rawAdmin?.user?._id || rawAdmin?.user?.id)) || adminId
+                }
+                await managersApi.changeUserPassword(targetUserId, {
+                  password: newPassword,
+                  confirmPassword: newPassword,
+                })
+                showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
+              } catch (err) {
+                console.error('Failed to update password:', err)
+                showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل تحديث كلمة المرور' : 'Failed to update password'), isRtl)
               }
-              await managersApi.changeUserPassword(targetUserId, {
-                password: newPassword,
-                confirmPassword: newPassword,
-              })
-              showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!', isRtl)
-            } catch (err) {
-              console.error('Failed to update password:', err)
-              showErrorToast(err?.response?.data?.message || (isRtl ? 'فشل تحديث كلمة المرور' : 'Failed to update password'), isRtl)
-            }
-          }}
-          onCancel={() => navigate('/dashboard/admin/managers')}
-        />
+            }}
+            onCancel={() => navigate('/dashboard/admin/managers')}
+          />
+        </Suspense>
       )}
     </div>
   )

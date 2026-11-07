@@ -155,11 +155,28 @@ export const adminGroupsApi = {
   },
 
   transferStudent: async (groupId, payload) => {
+    const cleanGroupId = typeof groupId === 'object' && groupId !== null
+      ? (groupId.id || groupId._id)
+      : groupId;
+    const studentId = typeof payload === 'string'
+      ? payload
+      : (payload?.student || payload?.student_id || payload?.studentId || payload?.id || payload?._id);
+    const targetGroupId = typeof payload === 'object' && payload !== null
+      ? (payload.targetGroup || payload.targetGroupId || payload.toGroup)
+      : undefined;
     const body = {
-      student: payload?.student || payload?.student_id || payload?.studentId,
-      targetGroup: payload?.targetGroup || payload?.targetGroupId,
+      student: studentId,
+      targetGroup: targetGroupId,
     };
-    const response = await api.patch(`/api/v1/groups/private/${groupId}/students/transfer`, body);
-    return response.data;
+    try {
+      const response = await api.post(`/api/v1/groups/private/${cleanGroupId}/students/transfer`, body);
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        const patchRes = await api.patch(`/api/v1/groups/private/${cleanGroupId}/students/transfer`, body);
+        return patchRes.data;
+      }
+      throw err;
+    }
   },
 };

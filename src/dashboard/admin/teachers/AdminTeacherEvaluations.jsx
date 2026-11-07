@@ -5,7 +5,6 @@ import {
   Search,
   Filter,
   GraduationCap,
-  Heart,
   Calendar,
   Clock,
   RotateCcw,
@@ -16,6 +15,12 @@ import {
   Award,
   Users,
   X,
+  Phone,
+  Mail,
+  MessageCircle,
+  Quote,
+  BarChart3,
+  User,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
@@ -54,14 +59,37 @@ function formatDate(dateStr, isRtl = true) {
   return String(dateStr)
 }
 
-function renderStarIcons(ratingVal) {
+function formatWeekDate(dateStr, isRtl = true) {
+  if (!dateStr) return '-'
+  try {
+    const d = new Date(dateStr)
+    if (!isNaN(d.getTime())) {
+      const formatted = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).format(d)
+      return isRtl ? `أسبوع ${formatted}` : `Week of ${formatted}`
+    }
+  } catch {
+    return String(dateStr)
+  }
+  return String(dateStr)
+}
+
+function cleanPhoneNumber(phone) {
+  if (!phone || typeof phone !== 'string') return ''
+  return phone.replace(/[^0-9+]/g, '')
+}
+
+function renderStarIcons(ratingVal, size = 14) {
   const stars = []
   const count = Math.min(5, Math.max(1, Math.round(Number(ratingVal) || 5)))
   for (let i = 1; i <= 5; i++) {
     stars.push(
       <Star
         key={i}
-        size={14}
+        size={size}
         className={i <= count ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}
       />
     )
@@ -71,33 +99,38 @@ function renderStarIcons(ratingVal) {
 
 function getRatingBadgeMeta(rating, t) {
   const num = Number(rating || 0)
-  if (num >= 4.8) {
+  if (num >= 4.5) {
     return {
       label: t('adminDashboard.teacherEvaluations.ratingLevelExcellent', 'ممتاز'),
       badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+      bgBar: 'bg-emerald-500',
     }
   }
-  if (num >= 4.0) {
+  if (num >= 3.5) {
     return {
       label: t('adminDashboard.teacherEvaluations.ratingLevelVeryGood', 'جيد جداً'),
       badgeClass: 'bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300 border-teal-200 dark:border-teal-800/60',
+      bgBar: 'bg-teal-500',
     }
   }
-  if (num >= 3.0) {
+  if (num >= 2.5) {
     return {
       label: t('adminDashboard.teacherEvaluations.ratingLevelGood', 'جيد'),
       badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
+      bgBar: 'bg-amber-500',
     }
   }
-  if (num >= 2.0) {
+  if (num >= 1.5) {
     return {
       label: t('adminDashboard.teacherEvaluations.ratingLevelAcceptable', 'مقبول'),
       badgeClass: 'bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border-orange-200 dark:border-orange-800/60',
+      bgBar: 'bg-orange-500',
     }
   }
   return {
     label: t('adminDashboard.teacherEvaluations.ratingLevelPoor', 'ضعيف'),
     badgeClass: 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border-rose-200 dark:border-rose-800/60',
+    bgBar: 'bg-rose-500',
   }
 }
 
@@ -123,7 +156,8 @@ export default function AdminTeacherEvaluations() {
     page: currentPage,
     limit: 20,
     teacherId: selectedTeacherId || undefined,
-  }), [currentPage, selectedTeacherId])
+    rating: ratingFilter !== 'all' ? ratingFilter : undefined,
+  }), [currentPage, selectedTeacherId, ratingFilter])
   const {
     data: evalRes,
     isLoading,
@@ -143,22 +177,51 @@ export default function AdminTeacherEvaluations() {
     if (Array.isArray(raw?.records)) return raw.records
     return []
   }, [evalRes])
+  const stats = useMemo(() => {
+    const backendStats = evalRes?.statistics
+    const totalCount = Number(backendStats?.totalEvaluations ?? rawEvaluations.length)
+    const avgRatingVal = backendStats?.averageRating !== undefined && backendStats?.averageRating !== null
+      ? Number(backendStats.averageRating).toFixed(1)
+      : rawEvaluations.length > 0
+        ? (rawEvaluations.reduce((acc, curr) => acc + Number(curr.rating || 0), 0) / rawEvaluations.length).toFixed(1)
+        : '0.0'
+    const backendDist = backendStats?.distribution || null
+    const dist = {
+      '5': backendDist ? Number(backendDist['5'] || 0) : rawEvaluations.filter((it) => Math.round(Number(it.rating || 0)) === 5).length,
+      '4': backendDist ? Number(backendDist['4'] || 0) : rawEvaluations.filter((it) => Math.round(Number(it.rating || 0)) === 4).length,
+      '3': backendDist ? Number(backendDist['3'] || 0) : rawEvaluations.filter((it) => Math.round(Number(it.rating || 0)) === 3).length,
+      '2': backendDist ? Number(backendDist['2'] || 0) : rawEvaluations.filter((it) => Math.round(Number(it.rating || 0)) === 2).length,
+      '1': backendDist ? Number(backendDist['1'] || 0) : rawEvaluations.filter((it) => Math.round(Number(it.rating || 0)) === 1).length,
+    }
+    const fiveStarsCount = dist['5']
+    const fiveStarsPct = totalCount > 0 ? Math.round((fiveStarsCount / totalCount) * 100) : 0
+    const teacherIds = new Set(
+      rawEvaluations
+        .map((it) => it.teacherId || it.teacher?.id || it.teacher?.teacherId || it.teacher?._id || it.teacher?.name)
+        .filter(Boolean)
+    )
+    return {
+      total: totalCount,
+      avgRating: avgRatingVal,
+      distribution: dist,
+      fiveStarsCount,
+      fiveStarsPct,
+      distinctTeachersCount: teacherIds.size,
+    }
+  }, [evalRes, rawEvaluations])
   const filteredEvaluations = useMemo(() => {
     let list = [...rawEvaluations]
     if (selectedTeacherId) {
       list = list.filter((item) => {
-        const itemTeacherId = String(item.teacherId || item.teacher?.id || item.teacher?._id || item.teacher?.teacher_id || '')
+        const itemTeacherId = String(item.teacherId || item.teacher?.id || item.teacher?.teacherId || item.teacher?._id || '')
         return itemTeacherId === String(selectedTeacherId)
       })
     }
     if (ratingFilter !== 'all') {
-      const minRating = Number(ratingFilter)
+      const targetRating = Number(ratingFilter)
       list = list.filter((item) => {
-        const r = Number(item.rating || 0)
-        if (minRating === 5) return r >= 5
-        if (minRating === 4) return r >= 4 && r < 5
-        if (minRating === 3) return r < 4
-        return true
+        const r = Math.round(Number(item.rating || 0))
+        return r === targetRating
       })
     }
     if (searchQuery.trim()) {
@@ -166,37 +229,26 @@ export default function AdminTeacherEvaluations() {
       list = list.filter((item) => {
         const teacherName = extractText(item.teacher?.name || item.teacherName, isRtl).toLowerCase()
         const parentName = extractText(item.parent?.name || item.parentName, isRtl).toLowerCase()
-        const studentName = extractText(item.student?.name || item.studentName, isRtl).toLowerCase()
+        const parentPhone = String(item.parent?.phone || '').toLowerCase()
+        const parentEmail = String(item.parent?.email || '').toLowerCase()
         const notes = extractText(item.notes || item.comment || item.feedback, isRtl).toLowerCase()
-        return teacherName.includes(q) || parentName.includes(q) || studentName.includes(q) || notes.includes(q)
+        return (
+          teacherName.includes(q) ||
+          parentName.includes(q) ||
+          parentPhone.includes(q) ||
+          parentEmail.includes(q) ||
+          notes.includes(q)
+        )
       })
     }
     return list
   }, [rawEvaluations, selectedTeacherId, ratingFilter, searchQuery, isRtl])
-  const stats = useMemo(() => {
-    const total = rawEvaluations.length
-    if (total === 0) {
-      return { total: 0, avgRating: '0.0', fiveStarsCount: 0, fiveStarsPct: 0, distinctTeachersCount: 0 }
-    }
-    const sum = rawEvaluations.reduce((acc, curr) => acc + Number(curr.rating || 0), 0)
-    const avg = (sum / total).toFixed(1)
-    const fiveStars = rawEvaluations.filter((it) => Number(it.rating || 0) >= 4.8).length
-    const pct = Math.round((fiveStars / total) * 100)
-    const teacherIds = new Set(
-      rawEvaluations
-        .map((it) => it.teacherId || it.teacher?.id || it.teacher?._id || it.teacher?.name)
-        .filter(Boolean)
-    )
-    return {
-      total,
-      avgRating: avg,
-      fiveStarsCount: fiveStars,
-      fiveStarsPct: pct,
-      distinctTeachersCount: teacherIds.size,
-    }
-  }, [rawEvaluations])
   const handleTeacherChange = (e) => {
     setSelectedTeacherId(e.target.value)
+    setCurrentPage(1)
+  }
+  const handleRatingFilterClick = (ratingValue) => {
+    setRatingFilter((prev) => (prev === ratingValue ? 'all' : ratingValue))
     setCurrentPage(1)
   }
   const handleResetFilters = () => {
@@ -300,10 +352,70 @@ export default function AdminTeacherEvaluations() {
         </div>
       </div>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 size={18} className="text-[#0f7a6c] dark:text-emerald-400" />
+            <h3 className="text-sm font-extrabold text-slate-800 dark:text-white">
+              {t('adminDashboard.teacherEvaluations.ratingDistribution', 'توزيع التقييمات')}
+            </h3>
+          </div>
+          <span className="text-[11px] font-bold text-slate-400">
+            {t('adminDashboard.teacherEvaluations.distributionHelp', 'اضغط على أي تقييم لعرض نتائجه المحددة')}
+          </span>
+        </div>
+        <div className="space-y-2.5">
+          {['5', '4', '3', '2', '1'].map((starKey) => {
+            const count = stats.distribution[starKey] || 0
+            const percentage = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0
+            const isSelected = ratingFilter === starKey
+            const barColors = {
+              '5': 'bg-emerald-500',
+              '4': 'bg-teal-500',
+              '3': 'bg-amber-500',
+              '2': 'bg-orange-500',
+              '1': 'bg-rose-500',
+            }
+            return (
+              <button
+                key={starKey}
+                type="button"
+                onClick={() => handleRatingFilterClick(starKey)}
+                className={`w-full flex items-center gap-3 p-2 rounded-2xl transition-all cursor-pointer text-left ${
+                  isSelected
+                    ? 'bg-emerald-50/70 dark:bg-emerald-950/30 ring-2 ring-[#0f7a6c] shadow-xs'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 w-18 shrink-0">
+                  <Star size={14} className="fill-amber-400 text-amber-400" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {starKey} {t('adminDashboard.teacherEvaluations.starsCount', { count: starKey, defaultValue: 'نجوم' })}
+                  </span>
+                </div>
+                <div className="flex-1 h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${barColors[starKey]}`}
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <div className="w-20 shrink-0 text-right">
+                  <span className="text-xs font-black text-slate-800 dark:text-white">
+                    {count}
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-400 mx-1">
+                    ({percentage}%)
+                  </span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-xs space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm font-extrabold text-slate-800 dark:text-white">
             <Filter size={16} className="text-[#0f7a6c]" />
-            <span>{t('adminDashboard.teacherEvaluations.filterByTeacher', 'تصفية حسب المعلم')}</span>
+            <span>{t('adminDashboard.teacherEvaluations.filterByTeacher', 'تصفية وتقسيم التقييمات')}</span>
           </div>
           {hasActiveFilters && (
             <button
@@ -348,11 +460,11 @@ export default function AdminTeacherEvaluations() {
             <label className="text-[11px] font-bold text-slate-400 block mb-1">
               {t('adminDashboard.teacherEvaluations.allRatings', 'مستوى التقييم')}
             </label>
-            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-bold">
+            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-bold overflow-x-auto">
               <button
                 type="button"
-                onClick={() => setRatingFilter('all')}
-                className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
+                onClick={() => handleRatingFilterClick('all')}
+                className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
                   ratingFilter === 'all'
                     ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-xs'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -360,39 +472,20 @@ export default function AdminTeacherEvaluations() {
               >
                 الكل
               </button>
-              <button
-                type="button"
-                onClick={() => setRatingFilter('5')}
-                className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
-                  ratingFilter === '5'
-                    ? 'bg-white dark:bg-slate-900 text-amber-500 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                }`}
-              >
-                5 ★
-              </button>
-              <button
-                type="button"
-                onClick={() => setRatingFilter('4')}
-                className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
-                  ratingFilter === '4'
-                    ? 'bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                }`}
-              >
-                4 ★
-              </button>
-              <button
-                type="button"
-                onClick={() => setRatingFilter('3')}
-                className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
-                  ratingFilter === '3'
-                    ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                }`}
-              >
-                3 ★ فأقل
-              </button>
+              {['5', '4', '3', '2', '1'].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => handleRatingFilterClick(star)}
+                  className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap text-center ${
+                    ratingFilter === star
+                      ? 'bg-white dark:bg-slate-900 text-amber-500 shadow-xs font-black'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  {star} ★
+                </button>
+              ))}
             </div>
           </div>
           <div>
@@ -406,7 +499,7 @@ export default function AdminTeacherEvaluations() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t(
                   'adminDashboard.teacherEvaluations.searchPlaceholder',
-                  'بحث باسم المعلم أو ولي الأمر أو الملاحظات...'
+                  'بحث باسم المعلم، ولي الأمر، الهاتف، أو الملاحظات...'
                 )}
                 className={`w-full py-2.5 ${isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3'} rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-xs font-bold text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30`}
               />
@@ -449,19 +542,28 @@ export default function AdminTeacherEvaluations() {
             <span>
               {t('adminDashboard.teacherEvaluations.totalEvaluations', 'إجمالي التقييمات')}: {filteredEvaluations.length}
             </span>
+            {hasActiveFilters && (
+              <span className="text-[#0f7a6c] dark:text-emerald-400">
+                (نتائج مصفاة)
+              </span>
+            )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filteredEvaluations.map((item, idx) => {
               const evalId = item.id || item._id || idx
               const teacherObj = item.teacher || {}
               const teacherName = extractText(teacherObj.name || item.teacherName, isRtl) || 'المعلم'
-              const teacherAvatar = teacherObj.avatar || teacherObj.image || teacherObj.photo || item.teacherAvatar
+              const teacherAvatar = teacherObj.image || teacherObj.avatar || teacherObj.photo || item.teacherAvatar
+              const teacherIdCode = teacherObj.teacherId || teacherObj.id || teacherObj._id
               const parentObj = item.parent || {}
               const parentName = extractText(parentObj.name || item.parentName, isRtl) || 'ولي الأمر'
-              const studentObj = item.student || {}
-              const studentName = extractText(studentObj.name || item.studentName, isRtl)
+              const parentPhone = parentObj.phone || item.parentPhone || ''
+              const parentEmail = parentObj.email || item.parentEmail || ''
+              const parentAvatar = parentObj.image || parentObj.avatar || null
+              const cleanPhone = cleanPhoneNumber(parentPhone)
               const ratingNumber = Number(item.rating || 5).toFixed(1)
               const notesText = extractText(item.notes || item.comment || item.feedback, isRtl)
+              const weekStartDate = item.weekStartDate
               const evalDate = item.createdAt || item.date || item.evaluatedAt
               const ratingMeta = getRatingBadgeMeta(ratingNumber, t)
               return (
@@ -471,7 +573,7 @@ export default function AdminTeacherEvaluations() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 font-black text-base flex items-center justify-center shrink-0 border border-teal-100 dark:border-emerald-900/40 overflow-hidden">
+                      <div className="w-13 h-13 rounded-2xl bg-teal-50 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 font-black text-base flex items-center justify-center shrink-0 border border-teal-100 dark:border-emerald-900/40 overflow-hidden shadow-xs">
                         {teacherAvatar ? (
                           <img
                             src={getImageUrl(teacherAvatar)}
@@ -484,10 +586,17 @@ export default function AdminTeacherEvaluations() {
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block">
-                          {t('adminDashboard.teacherEvaluations.teacherLabel', 'المعلم')}
-                        </span>
-                        <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-slate-400 font-bold block">
+                            {t('adminDashboard.teacherEvaluations.teacherLabel', 'المعلم')}
+                          </span>
+                          {teacherIdCode && (
+                            <span className="text-[9px] font-mono font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">
+                              #{String(teacherIdCode).slice(-6)}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white mt-0.5">
                           {teacherName}
                         </h4>
                         {teacherObj.subject && (
@@ -508,10 +617,13 @@ export default function AdminTeacherEvaluations() {
                       </div>
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 space-y-1.5">
-                    <span className="text-[10px] font-bold text-slate-400 block">
-                      {t('adminDashboard.teacherEvaluations.notesLabel', 'ملاحظات التقييم')}
-                    </span>
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 space-y-2">
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                      <Quote size={13} className="rotate-180" />
+                      <span className="text-[10px] font-bold">
+                        {t('adminDashboard.teacherEvaluations.notesLabel', 'ملاحظات التقييم')}
+                      </span>
+                    </div>
                     <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                       {notesText ? (
                         <span>&quot;{notesText}&quot;</span>
@@ -522,22 +634,72 @@ export default function AdminTeacherEvaluations() {
                       )}
                     </p>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="flex items-center gap-1">
-                        <Heart size={13} className="text-rose-500 fill-rose-500/20" />
-                        <span className="font-bold text-slate-700 dark:text-slate-300">{parentName}</span>
-                      </span>
-                      {studentName && (
-                        <span className="flex items-center gap-1">
-                          <GraduationCap size={13} className="text-[#0f7a6c]" />
-                          <span>{studentName}</span>
+                  <div className="p-3.5 rounded-2xl bg-teal-50/40 dark:bg-emerald-950/20 border border-teal-100/60 dark:border-emerald-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-teal-100 dark:bg-emerald-900/60 text-[#0f7a6c] dark:text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+                        {parentAvatar ? (
+                          <img
+                            src={getImageUrl(parentAvatar)}
+                            alt={parentName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <User size={15} />
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 block leading-tight">
+                          {t('adminDashboard.teacherEvaluations.parentBadge', 'ولي أمر')}
                         </span>
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                          {parentName}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {cleanPhone && (
+                        <div className="flex items-center gap-1">
+                          <a
+                            href={`https://wa.me/${cleanPhone.replace('+', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={t('adminDashboard.teacherEvaluations.whatsappChat', 'مراسلة عبر واتساب')}
+                            className="p-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-colors inline-flex items-center gap-1 text-[11px] font-bold"
+                          >
+                            <MessageCircle size={13} />
+                            <span className="font-mono text-[10px] dir-ltr">{parentPhone}</span>
+                          </a>
+                          <a
+                            href={`tel:${cleanPhone}`}
+                            title={t('adminDashboard.teacherEvaluations.directCall', 'اتصال هاتفي')}
+                            className="p-1.5 rounded-xl bg-slate-200/60 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors inline-flex items-center"
+                          >
+                            <Phone size={12} />
+                          </a>
+                        </div>
+                      )}
+                      {parentEmail && (
+                        <a
+                          href={`mailto:${parentEmail}`}
+                          title={parentEmail}
+                          className="p-1.5 rounded-xl bg-slate-200/60 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors inline-flex items-center"
+                        >
+                          <Mail size={12} />
+                        </a>
                       )}
                     </div>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    {weekStartDate ? (
+                      <span className="flex items-center gap-1 text-[11px] text-teal-700 dark:text-teal-400 bg-teal-50/60 dark:bg-teal-950/40 px-2 py-0.5 rounded-lg font-bold">
+                        <Calendar size={12} />
+                        <span>{formatWeekDate(weekStartDate, isRtl)}</span>
+                      </span>
+                    ) : <span />}
                     {evalDate && (
                       <span className="flex items-center gap-1 text-[11px] text-slate-400 font-mono">
-                        <Calendar size={12} />
+                        <Clock size={12} />
                         <span>{formatDate(evalDate, isRtl)}</span>
                       </span>
                     )}
@@ -549,7 +711,11 @@ export default function AdminTeacherEvaluations() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs">
               <span className="text-xs font-bold text-slate-400">
-                صفحة {pagination.currentPage} من {pagination.totalPages}
+                {t('adminDashboard.teacherEvaluations.pageIndicator', {
+                  current: pagination.currentPage,
+                  total: pagination.totalPages,
+                  defaultValue: `صفحة ${pagination.currentPage} من ${pagination.totalPages}`,
+                })}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -576,4 +742,3 @@ export default function AdminTeacherEvaluations() {
     </div>
   )
 }
-

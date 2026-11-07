@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -9,7 +9,8 @@ import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import CurriculumCard from './components/CurriculumCard'
-import AddEditCurriculumScreen from './components/add_edit/AddEditCurriculumScreen'
+
+const AddEditCurriculumScreen = lazy(() => import('./components/add_edit/AddEditCurriculumScreen'))
 
 export default function AdminCurriculums() {
   const { i18n } = useTranslation()
@@ -125,16 +126,18 @@ export default function AdminCurriculums() {
   });
   if (showForm) {
     return (
-      <AddEditCurriculumScreen
-        curriculum={editingItem}
-        isRtl={isRtl}
-        isSaving={createMutation.isPending || updateMutation.isPending}
-        onSave={handleSave}
-        onCancel={() => {
-          setShowForm(false)
-          setEditingItem(null)
-        }}
-      />
+      <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+        <AddEditCurriculumScreen
+          curriculum={editingItem}
+          isRtl={isRtl}
+          isSaving={createMutation.isPending || updateMutation.isPending}
+          onSave={handleSave}
+          onCancel={() => {
+            setShowForm(false)
+            setEditingItem(null)
+          }}
+        />
+      </Suspense>
     )
   }
   if (isLoading) {

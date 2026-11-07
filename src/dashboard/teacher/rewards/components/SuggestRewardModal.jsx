@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   X,
@@ -8,9 +8,10 @@ import {
    Check,
   Loader2,
 } from 'lucide-react';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
 import toast from 'react-hot-toast';
 import { teacherRewardsApi } from '@/shared/services/api/teacherRewardsApi.js';
+
+const LazyEmojiPicker = lazy(() => import('emoji-picker-react'));
 
 const POPULAR_REWARD_EMOJIS = [
   '⭐',
@@ -262,15 +263,21 @@ export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
                     {isRtl ? 'إغلاق ✕' : 'Close ✕'}
                   </button>
                 </div>
-                <div className="flex justify-center max-w-full overflow-hidden">
-                  <EmojiPicker
-                    onEmojiClick={handleEmojiClick}
-                    theme={Theme.AUTO}
-                    searchPlaceholder={isRtl ? 'ابحث عن إيموجي...' : 'Search emoji...'}
-                    previewConfig={{ showPreview: false }}
-                    width="100%"
-                    height={350}
-                  />
+                <div className="flex justify-center max-w-full overflow-hidden min-h-[350px]">
+                  <Suspense fallback={
+                    <div className="h-[350px] w-full flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-[#00594C]" />
+                    </div>
+                  }>
+                    <LazyEmojiPicker
+                      onEmojiClick={handleEmojiClick}
+                      theme="auto"
+                      searchPlaceholder={isRtl ? 'ابحث عن إيموجي...' : 'Search emoji...'}
+                      previewConfig={{ showPreview: false }}
+                      width="100%"
+                      height={350}
+                    />
+                  </Suspense>
                 </div>
               </div>
             )}

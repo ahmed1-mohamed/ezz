@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -8,9 +8,10 @@ import { teachersApi } from '@/shared/services/api/teachersApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import TeachersList from './components/TeachersList'
 import TeacherProfileCard from './components/TeacherProfileCard'
-import AddEditTeacherScreen from './components/AddEditTeacherScreen'
-import TeacherDetailsScreen from './components/TeacherDetailsScreen'
 import Spinner from '@/shared/components/Spinner'
+
+const AddEditTeacherScreen = lazy(() => import('./components/AddEditTeacherScreen'))
+const TeacherDetailsScreen = lazy(() => import('./components/TeacherDetailsScreen'))
 
 export default function AdminTeachers() {
   const navigate = useNavigate()
@@ -299,34 +300,38 @@ export default function AdminTeachers() {
         </>
       )}
       {(viewMode === 'add-teacher' || viewMode === 'edit-teacher') && (
-        <AddEditTeacherScreen
-          teacher={viewMode === 'edit-teacher' ? selectedTeacherRecord : null}
-          isRtl={isRtl}
-          t={t}
-          isSaving={isSavingTeacher}
-          onSave={handleSaveTeacher}
-          onCancel={() => {
-            setSelectedTeacherRecord(null)
-            setViewMode('list')
-          }}
-        />
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <AddEditTeacherScreen
+            teacher={viewMode === 'edit-teacher' ? selectedTeacherRecord : null}
+            isRtl={isRtl}
+            t={t}
+            isSaving={isSavingTeacher}
+            onSave={handleSaveTeacher}
+            onCancel={() => {
+              setSelectedTeacherRecord(null)
+              setViewMode('list')
+            }}
+          />
+        </Suspense>
       )}
       {viewMode === 'view-teacher' && (
-        <TeacherDetailsScreen
-          teacher={selectedTeacherRecord}
-          isRtl={isRtl}
-          t={t}
-          onCancel={() => {
-            setSelectedTeacherRecord(null)
-            setViewMode('list')
-          }}
-          onToggleStatus={handleToggleStatus}
-          onDelete={handleDeleteTeacher}
-          onEdit={(teacher) => {
-            setSelectedTeacherRecord(teacher)
-            setViewMode('edit-teacher')
-          }}
-        />
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <TeacherDetailsScreen
+            teacher={selectedTeacherRecord}
+            isRtl={isRtl}
+            t={t}
+            onCancel={() => {
+              setSelectedTeacherRecord(null)
+              setViewMode('list')
+            }}
+            onToggleStatus={handleToggleStatus}
+            onDelete={handleDeleteTeacher}
+            onEdit={(teacher) => {
+              setSelectedTeacherRecord(teacher)
+              setViewMode('edit-teacher')
+            }}
+          />
+        </Suspense>
       )}
     </div>
   )
