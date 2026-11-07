@@ -230,7 +230,7 @@ export default function EditSupervisorScreen({
                     required
                     value={formData.nameEn}
                     onChange={(e) => handleFieldChange('nameEn', e.target.value)}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                     dir="ltr"
                   />
                 </div>
@@ -244,7 +244,7 @@ export default function EditSupervisorScreen({
                     required
                     value={formData.name}
                     onChange={(e) => handleFieldChange('name', e.target.value)}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                   />
                 </div>
                 <div>
@@ -269,7 +269,7 @@ export default function EditSupervisorScreen({
                       </button>
                       {isDropdownOpen && (
                         <div role="listbox" className="absolute start-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-850 py-2 max-h-60 overflow-y-auto animate-fadeIn text-start">
-                          <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
+                          <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-950 z-10">
                             <label htmlFor="editCountrySearchInput" className="sr-only">
                               {isRtl ? 'بحث...' : 'Search...'}
                             </label>
@@ -327,7 +327,7 @@ export default function EditSupervisorScreen({
                         }
                         handleFieldChange('phone', val);
                       }}
-                      className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+                      className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                     />
                   </div>
                 </div>
@@ -340,7 +340,7 @@ export default function EditSupervisorScreen({
                     required
                     value={formData.countryId || ''}
                     onChange={(e) => handleFieldChange('countryId', e.target.value)}
-                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-[#f3f7f6] text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+                    className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-[#f3f7f6] text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
                   >
                     <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
                     {sortedCountries.map((country) => (

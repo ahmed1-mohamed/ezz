@@ -144,7 +144,7 @@ export default function TeacherAcademicInfoCard({
             min="0"
             value={formData.yearsOfExperience ?? ''}
             onChange={(e) => onChange('yearsOfExperience', e.target.value === '' ? '' : Number(e.target.value))}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder={isRtl ? 'عدد سنوات الخبرة' : 'Years of experience'}
           />
         </div>
@@ -160,7 +160,7 @@ export default function TeacherAcademicInfoCard({
                 step="0.01"
                 value={formData.hourlyRate ?? ''}
                 onChange={(e) => onChange('hourlyRate', e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+                className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
                 placeholder={isRtl ? 'سعر الساعة بالدولار' : 'Hourly rate in USD'}
                 dir="ltr"
               />
@@ -182,7 +182,7 @@ export default function TeacherAcademicInfoCard({
               onChange('degree', e.target.value)
               onChange('qualification', e.target.value)
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder={isRtl ? 'مثال: ليسانس لغة عربية - جامعة عين شمس' : 'e.g. BA in Arabic'}
             dir="rtl"
           />
@@ -198,7 +198,7 @@ export default function TeacherAcademicInfoCard({
               onChange('degreeEn', e.target.value)
               onChange('qualificationEn', e.target.value)
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder="e.g. BA in Arabic - Ain Shams University"
             dir="ltr"
           />
@@ -219,7 +219,7 @@ export default function TeacherAcademicInfoCard({
                 en: bioEnValue
               })
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
             placeholder={isRtl ? 'نبذة مختصرة عن خبرات المعلم ومؤهلاته بالعربية...' : 'Brief summary of teacher experience in Arabic...'}
             dir="rtl"
           />
@@ -238,7 +238,7 @@ export default function TeacherAcademicInfoCard({
                 en: e.target.value
               })
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
             placeholder="Brief summary of teacher experience and credentials in English..."
             dir="ltr"
           />
@@ -263,7 +263,7 @@ export default function TeacherAcademicInfoCard({
                   handleAddAchievement(e)
                 }
               }}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
               placeholder={isRtl ? 'مثال: إجازة في قراءة عاصم بروايتي حفص وشعبة' : 'e.g. Ijazah in Asim recitation'}
               dir="rtl"
             />
@@ -282,7 +282,7 @@ export default function TeacherAcademicInfoCard({
                   handleAddAchievement(e)
                 }
               }}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
               placeholder="e.g. Certified Quran Teacher with Ijazah"
               dir="ltr"
             />

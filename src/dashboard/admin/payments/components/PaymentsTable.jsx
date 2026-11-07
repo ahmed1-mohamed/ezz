@@ -113,7 +113,7 @@ export default function PaymentsTable({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {subscriptions.map((sub) => {
-              const currency = sub.currency || 'USD'
+              const currency = '$'
               const shortId = sub.id ? `${sub.id.slice(0, 8)}...${sub.id.slice(-4)}` : '-'
               const studentNames = (sub.students || []).map((s) => s.name).filter(Boolean)
               return (

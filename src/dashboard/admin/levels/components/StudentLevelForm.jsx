@@ -33,7 +33,7 @@ export default function StudentLevelForm({
             required
             value={levelNameAr}
             onChange={(e) => setLevelNameAr(e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder={isRtl ? 'مثال: المستوى الأول' : 'e.g. Level One'}
           />
         </div>
@@ -46,7 +46,7 @@ export default function StudentLevelForm({
             required
             value={levelNameEn}
             onChange={(e) => setLevelNameEn(e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder={isRtl ? 'Level One :مثال' : 'e.g. Level One'}
           />
         </div>

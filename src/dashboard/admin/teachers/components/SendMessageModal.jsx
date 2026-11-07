@@ -104,7 +104,7 @@ export default function SendMessageModal({
               rows={5}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm resize-none leading-relaxed"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm resize-none leading-relaxed"
               placeholder={isRtl ? 'اكتب الرسالة .............' : 'Write your message here...'}
               required
             />

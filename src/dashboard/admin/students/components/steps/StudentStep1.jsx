@@ -76,7 +76,7 @@ export default function StudentStep1({
             required
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder={isRtl ? 'عمر خالد المنصور' : 'Omar Khaled Al-Mansour'}
           />
         </div>
@@ -88,7 +88,7 @@ export default function StudentStep1({
             type="text"
             value={formData.nameEn}
             onChange={(e) => handleChange('nameEn', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder="Omar Khaled Al-Mansour"
             dir="ltr"
           />
@@ -104,13 +104,13 @@ export default function StudentStep1({
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
+                className="h-12 flex items-center justify-center gap-2 px-3 bg-[#f3f7f6] dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent rounded-2xl transition-all text-sm font-semibold text-slate-800 dark:text-slate-205 cursor-pointer"
               >
                 <span>{selectedCountryCode?.flag || '🌍'}</span>
                 <span>{(selectedCountryCode?.dialCode || selectedCountryCode?.code) ? `(${selectedCountryCode.dialCode || selectedCountryCode.code})` : ''}</span>
               </button>
               {isDropdownOpen && (
-                <div className="absolute start-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 animate-fadeIn">
+                <div className="absolute start-0 mt-2 z-20 w-48 max-h-60 overflow-y-auto bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 animate-fadeIn">
                   {sortedCountryCodes.map((country) => (
                     <button
                       key={(country.dialCode || country.code) + (country.name || country.nameEn || '')}
@@ -131,7 +131,7 @@ export default function StudentStep1({
               required
               value={phoneVal}
               onChange={(e) => setPhoneVal(e.target.value)}
-              className="flex-1 bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-450"
+              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
               placeholder="501234567"
             />
           </div>
@@ -145,7 +145,7 @@ export default function StudentStep1({
             required
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder="omar.khaled@example.com"
             dir="ltr"
           />
@@ -160,7 +160,7 @@ export default function StudentStep1({
             required
             value={formData.country}
             onChange={(e) => handleChange('country', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
           >
             <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
             {sortedCountries.map((c) => {
@@ -183,7 +183,7 @@ export default function StudentStep1({
             required
             value={formData.birthDate || ''}
             onChange={(e) => handleChange('birthDate', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer"
           />
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function StudentStep1({
           required
           value={formData.studentLevel}
           onChange={(e) => handleChange('studentLevel', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-855 dark:text-slate-105 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm cursor-pointer"
         >
           <option value="" disabled>{isRtl ? 'اختر المستوى التعليمي' : 'Select Educational Level'}</option>
           {levels.map((lvl) => {

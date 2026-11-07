@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -443,7 +443,13 @@ export default function HomeworkSubmissions() {
                       <td className="py-4 px-6 text-center">
                         <button
                           type="button"
-                          onClick={() => setSelectedSubmission(sub)}
+                          onClick={() => {
+                            if (sub.id) {
+                              navigate(`/dashboard/teacher/homework/submissions/${sub.id}`);
+                            } else {
+                              setSelectedSubmission(sub);
+                            }
+                          }}
                           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#d2ede6] hover:bg-[#bce4da] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900 transition-all cursor-pointer shadow-xs"
                           title={t('teacherHomework.viewSubmission', 'عرض تفاصيل الواجب والتسليم')}
                         >

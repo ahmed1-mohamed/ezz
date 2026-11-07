@@ -24,6 +24,9 @@ export default function InSessionRewardModal({ isOpen, onClose, session }) {
     queryKey: ['teacher-live-rewards-list'],
     queryFn: () => teacherRewardsApi.fetchRewards(),
     enabled: isOpen,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const rewardsList = useMemo(() => {
     if (!rewardsData?.data) return [];

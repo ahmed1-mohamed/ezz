@@ -22,7 +22,7 @@ export default function TeacherDropdown({ value, onChange, teachers = [] }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 rounded-2xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
+        className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 rounded-2xl py-2.5 px-4 text-sm text-slate-800 dark:text-slate-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
       >
         <ChevronDown size={16} className="text-slate-400 shrink-0" />
         <span className={selected ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'}>

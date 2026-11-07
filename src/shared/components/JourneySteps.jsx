@@ -1,29 +1,46 @@
 import React from 'react';
 import { motion } from "framer-motion";
-import { UserPlus, GraduationCap, MonitorPlay } from "lucide-react";
+import { UserPlus, CalendarCheck, MonitorPlay } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/shared/context/useAuth.jsx";
+import { getRedirectPath } from "@/shared/services/authService.js";
 
 export default React.memo(function JourneySteps() {
     const { t } = useTranslation();
+    const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+    const executeRegister = () => {
+        const targetUrl = '/dashboard/parent/students?action=trial';
+        if (!isAuthenticated) {
+            navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`);
+            return;
+        }
+        if (user?.role?.toLowerCase() === 'parent') {
+            navigate(targetUrl);
+            return;
+        }
+        navigate(getRedirectPath(user?.role) || '/');
+    };
     const steps = [
         {
             id: "1",
-            title: t('journey.steps.register.title', 'إنشاء حساب'),
-            description: t('journey.steps.register.description', 'سجل بياناتك للبدء'),
+            title: t('journey.steps.register.title', 'سجّل في الأكاديمية'),
+            description: t('journey.steps.register.description', 'أكمل التسجيل عبر الموقع للبدء.'),
             icon: UserPlus,
             position: "right",
         },
         {
             id: "2",
-            title: t('journey.steps.choose.title', 'اختر البرنامج'),
-            description: t('journey.steps.choose.description', 'تصفح البرامج المتاحة واختبر ما يناسبك'),
-            icon: GraduationCap,
+            title: t('journey.steps.choose.title', 'ننسّق معك حصّتك الأولى'),
+            description: t('journey.steps.choose.description', 'يتواصل معك فريق الأكاديمية للتعرّف إلى احتياجات الطالب وترشيح معلّم متخصّص والاتفاق على موعد مناسب.'),
+            icon: CalendarCheck,
             position: "center",
         },
         {
             id: "3",
-            title: t('journey.steps.start.title', 'ابدأ التعلم'),
-            description: t('journey.steps.start.description', 'احضر الدروس وتفاعل مع المعلمين'),
+            title: t('journey.steps.start.title', 'ابدأ التعلّم'),
+            description: t('journey.steps.start.description', 'احضر حصّتك الفردية المباشرة عبر الإنترنت في الموعد المتّفق عليه.'),
             icon: MonitorPlay,
             position: "left",
         },
@@ -39,10 +56,10 @@ export default React.memo(function JourneySteps() {
                     className="text-center mb-24"
                 >
                     <span className="inline-block px-5 py-2 rounded-full bg-[#0F7A6C]/10 dark:bg-[#0F7A6C]/25 text-[#0F7A6C] dark:text-emerald-400 text-sm font-bold mb-5">
-                        {t('journey.badge', 'كيف نبدأ؟')}
+                        {t('journey.badge', 'خطوات بسيطة')}
                     </span>
                     <h2 className="text-4xl md:text-6xl font-black text-[#1B1B1B] dark:text-white leading-tight">
-                        {t('journey.title', 'خطوات بسيطة لبدء رحلتك التعليمية')}
+                        {t('journey.title', 'كيف تبدأ التعلّم معنا؟')}
                     </h2>
                     <p className="mt-5 text-[#6B7280] dark:text-slate-300 text-lg max-w-2xl mx-auto">
                         {t('journey.description', 'نرافقك خطوة بخطوة في رحلتك التعليمية معنا.')}
@@ -123,6 +140,15 @@ export default React.memo(function JourneySteps() {
                             </motion.div>
                         );
                     })}
+                    </div>
+                    <div className="mt-16 text-center">
+                        <button
+                            type="button"
+                            onClick={executeRegister}
+                            className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-600 to-brand-700 px-8 py-4 text-base sm:text-lg font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+                        >
+                            {t('journey.cta', 'سجّل الآن')}
+                        </button>
                     </div>
                 </div>
             </div>

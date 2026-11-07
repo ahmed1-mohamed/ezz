@@ -14,7 +14,7 @@ import Spinner from '@/shared/components/Spinner'
 import { adminEarningsApi } from '@/shared/services/api/adminEarningsApi'
 import EarningsStats from './components/EarningsStats'
 import TeacherEarningsList from './components/TeacherEarningsList'
-import WithdrawalRequests from './components/WithdrawalRequests'
+import AdminPayoutsSection from './components/AdminPayoutsSection'
 
 export default function AdminEarnings() {
   const { t, i18n } = useTranslation()
@@ -22,41 +22,21 @@ export default function AdminEarnings() {
   const [mode, setMode] = useState('monthly')
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [earningsData, setEarningsData] = useState(null)
-  const [requests, setRequests] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
   const loadData = useCallback(async () => {
-    setLoading(true)
+    setIsLoading(true)
     try {
-      let earningsPromise
-      if (mode === 'all-time') {
-        earningsPromise = adminEarningsApi.fetchAllTimeEarnings()
-      } else {
-        earningsPromise = adminEarningsApi.fetchMonthlyEarnings(monthStr)
-      }
-      const [earningsRes, requestsRes] = await Promise.all([
-        earningsPromise,
-        adminEarningsApi.fetchWithdrawalRequests(),
-      ])
+      const earningsRes = mode === 'all-time'
+        ? await adminEarningsApi.fetchAllTimeEarnings()
+        : await adminEarningsApi.fetchMonthlyEarnings(monthStr)
       if (earningsRes?.data) {
         setEarningsData(earningsRes.data)
-      } else if (earningsRes?.success === false) {
-        const fallbackStats = await adminEarningsApi.fetchEarningsStats(monthStr)
-        const fallbackTeachers = await adminEarningsApi.fetchTeacherEarnings(monthStr)
-        setEarningsData({
-          currency: fallbackStats?.data?.currency || 'USD',
-          platform: fallbackStats?.data?.platform || fallbackStats?.data,
-          teachers: Array.isArray(fallbackTeachers?.data) ? fallbackTeachers.data : [],
-          period: { type: mode, month: monthStr },
-        })
-      }
-      if (requestsRes?.data) {
-        setRequests(requestsRes.data)
       }
     } catch (err) {
       console.error('Failed to load admin earnings:', err)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }, [mode, monthStr])
   useEffect(() => {
@@ -78,26 +58,16 @@ export default function AdminEarnings() {
     const options = { month: 'long', year: 'numeric' }
     return currentDate.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', options)
   }
-  const handleApprove = async (id, proofImage) => {
-    const res = await adminEarningsApi.approveWithdrawal(id, proofImage)
-    if (res?.success) {
-      setRequests((prev) =>
-        prev.map((req) => (req.id === id ? { ...req, status: 'paid', proofImage: proofImage || '' } : req))
-      )
-    }
-  }
-  const handleReject = async (id) => {
-    const res = await adminEarningsApi.rejectWithdrawal(id)
-    if (res?.success) {
-      setRequests((prev) =>
-        prev.map((req) => (req.id === id ? { ...req, status: 'rejected' } : req))
-      )
-    }
-  }
-  const platform = earningsData?.platform || {}
-  const teachers = earningsData?.teachers || []
-  const currency = earningsData?.currency || 'USD'
-  const period = earningsData?.period || {}
+  const platform = earningsData?.platform || earningsData?.summary || earningsData?.statistics || earningsData?.overview || (earningsData && typeof earningsData === 'object' && !Array.isArray(earningsData) ? earningsData : {})
+  const teachers = Array.isArray(earningsData?.teachers)
+    ? earningsData.teachers
+    : Array.isArray(earningsData?.data)
+    ? earningsData.data
+    : Array.isArray(earningsData)
+    ? earningsData
+    : []
+  const currency = earningsData?.currency || platform?.currency || 'USD'
+  const period = earningsData?.period || { type: mode, month: monthStr }
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -147,20 +117,20 @@ export default function AdminEarnings() {
               <button
                 type="button"
                 onClick={isRtl ? handlePrevMonth : handleNextMonth}
-                disabled={loading}
+                disabled={isLoading}
                 aria-label={isRtl ? 'الشهر السابق' : 'Previous Month'}
                 className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <ChevronRight size={18} />
               </button>
               <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-white min-w-[100px] text-center flex items-center justify-center gap-1.5">
-                {loading && <Loader2 size={13} className="animate-spin text-[#0f7a6c]" />}
+                {isLoading && <Loader2 size={13} className="animate-spin text-[#0f7a6c]" />}
                 {formatMonth()}
               </span>
               <button
                 type="button"
                 onClick={isRtl ? handleNextMonth : handlePrevMonth}
-                disabled={loading}
+                disabled={isLoading}
                 aria-label={isRtl ? 'الشهر التالي' : 'Next Month'}
                 className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
               >
@@ -176,15 +146,15 @@ export default function AdminEarnings() {
           <button
             type="button"
             onClick={loadData}
-            disabled={loading}
+            disabled={isLoading}
             title="تحديث البيانات"
             className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
           >
-            <RotateCcw size={16} className={loading ? 'animate-spin' : ''} />
+            <RotateCcw size={16} className={isLoading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
-      {loading && !earningsData ? (
+      {isLoading && !earningsData ? (
         <div className="flex items-center justify-center h-60">
           <Spinner />
         </div>
@@ -201,10 +171,9 @@ export default function AdminEarnings() {
             currency={currency}
             periodInfo={period}
           />
-          <WithdrawalRequests
-            requests={requests}
-            onApprove={handleApprove}
-            onReject={handleReject}
+          <AdminPayoutsSection
+            teachersList={teachers}
+            onPayoutRecorded={loadData}
           />
         </>
       )}

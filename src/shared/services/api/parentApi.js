@@ -894,6 +894,28 @@ export const parentApi = {
       skipLang: true
     });
     return response.data;
+  },
+  fetchTrialSessionsAndEligibility: async () => {
+    const response = await api.get('/api/v1/parent/trial-sessions', {
+      skipGlobalErrorToast: true,
+    });
+    return response.data;
+  },
+  fetchTrialCurricula: async () => {
+    const response = await api.get('/api/v1/parent/trial-sessions/curricula', {
+      skipGlobalErrorToast: true,
+    });
+    return response.data;
+  },
+  requestTrialSession: async (payload) => {
+    const response = await api.post('/api/v1/parent/trial-sessions', payload);
+    return response.data;
+  },
+  fetchTrialSessionDetails: async (id) => {
+    const response = await api.get(`/api/v1/parent/trial-sessions/${id}`, {
+      skipGlobalErrorToast: true,
+    });
+    return response.data;
   }
 };
 

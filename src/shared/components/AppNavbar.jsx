@@ -85,13 +85,13 @@ export default memo(function AppNavbar() {
                     >
                         <img
                             src={logoImg}
-                            alt={t('appName', 'منارة العز')}
+                            alt={t('appName', 'أكاديمية منارة العز')}
                             className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
                             width="36"
                             height="36"
                         />
                         <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent dark:from-emerald-400 dark:to-emerald-600">
-                            {t('appName', 'منارة العز')}
+                            {t('appName', 'أكاديمية منارة العز')}
                         </span>
                     </Link>
                     <div className="hidden lg:flex items-center gap-5 xl:gap-7">

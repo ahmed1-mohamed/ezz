@@ -43,6 +43,7 @@ export default function StudentDetailsScreen({
 }) {
   const { t } = useTranslation()
   const [isChangeGroupOpen, setIsChangeGroupOpen] = useState(false)
+  const [selectedSourceGroupId, setSelectedSourceGroupId] = useState(null)
   const [isAddSessionsOpen, setIsAddSessionsOpen] = useState(false)
   const [isAddingSessions, setIsAddingSessions] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
@@ -65,6 +66,11 @@ export default function StudentDetailsScreen({
     phone: rawParent.phone || '-',
     email: rawParent.email || '-',
     initial: String(rawParentName || '?').trim().charAt(0) || '?'
+  }
+  const handleOpenChangeGroup = (sourceGroupId = null) => {
+    const cleanId = typeof sourceGroupId === 'string' && sourceGroupId.trim() ? sourceGroupId.trim() : null
+    setSelectedSourceGroupId(cleanId)
+    setIsChangeGroupOpen(true)
   }
   const handlePasswordUpdate = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
@@ -293,7 +299,7 @@ export default function StudentDetailsScreen({
           <StudentGroupCard
             student={student}
             isRtl={isRtl}
-            onOpenChangeGroup={() => setIsChangeGroupOpen(true)}
+            onOpenChangeGroup={handleOpenChangeGroup}
             t={t}
           />
         </div>
@@ -327,9 +333,13 @@ export default function StudentDetailsScreen({
         {isChangeGroupOpen && (
           <ChangeGroupModal
             isOpen={isChangeGroupOpen}
-            onClose={() => setIsChangeGroupOpen(false)}
+            onClose={() => {
+              setIsChangeGroupOpen(false)
+              setSelectedSourceGroupId(null)
+            }}
             student={student}
             isRtl={isRtl}
+            initialGroupId={selectedSourceGroupId}
             onChangeGroup={onChangeGroup}
           />
         )}

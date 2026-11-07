@@ -7,18 +7,18 @@ export default React.memo(function PremiumParentsSection() {
     const { t } = useTranslation();
     const cards = [
         {
-            title: t('premiumParents.cards.tracking.title', 'متابعة الأداء'),
-            description: t('premiumParents.cards.tracking.description', 'تقارير دورية لمتابعة أداء الطالب'),
+            title: t('premiumParents.cards.tracking.title', 'متابعة تقدّم الطالب'),
+            description: t('premiumParents.cards.tracking.description', 'تتيح بوابة أولياء الأمور الاطّلاع على مستوى الطالب ومتابعة تقدّمه في الدروس وحفظ القرآن الكريم.'),
             Icon: ShieldCheck,
         },
         {
-            title: t('premiumParents.cards.certified.title', 'معلمون معتمدون'),
-            description: t('premiumParents.cards.certified.description', 'نخبة من المعلمين المعتمدين والمؤهلين'),
+            title: t('premiumParents.cards.certified.title', 'معلّمون متخصّصون'),
+            description: t('premiumParents.cards.certified.description', 'يقدّم الدروس معلّمون مؤهّلون في مجالاتهم، ويضمّ فريق تعليم القرآن الكريم معلّمين حاصلين على إجازات قرآنية. ويراعي كل معلّم مستوى الطالب وأهدافه عند اختيار أسلوب الشرح والتدريب.'),
             Icon: BookOpen,
         },
         {
-            title: t('premiumParents.cards.live.title', 'بث مباشر'),
-            description: t('premiumParents.cards.live.description', 'فصول تفاعلية مباشرة مع المعلمين'),
+            title: t('premiumParents.cards.live.title', 'حصص مباشرة وتفاعلية'),
+            description: t('premiumParents.cards.live.description', 'يتعلّم الطالب في حصص فردية مباشرة عبر الإنترنت، يشارك فيها ويطرح أسئلته ويتلقّى ملاحظات فورية من معلّمه. ويُكيّف المعلّم الشرح والتدريب وفق مستوى الطالب ووتيرة تعلّمه.'),
             Icon: Video,
         },
     ];
@@ -35,11 +35,11 @@ export default React.memo(function PremiumParentsSection() {
                     className="text-center max-w-3xl mx-auto"
                 >
                     <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C] dark:text-emerald-400">
-                        {t('premiumParents.title', 'لماذا يثق بنا الآباء؟')}
+                        {t('premiumParents.title', 'لماذا تختار الأسر أكاديمية منارة العز؟')}
                     </h2>
                     <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
                     <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-7">
-                        {t('premiumParents.description', 'نوفر بيئة آمنة وتقارير دورية لنضمن لك راحة البال التامة تجاه تقدم أبنائك.')}
+                        {t('premiumParents.description', 'نقدّم دروسًا فردية عبر الإنترنت مع معلّمين متخصّصين، ونُتيح لأولياء الأمور متابعة تقدّم أبنائهم بسهولة عبر بوابة أولياء الأمور.')}
                     </p>
                 </motion.div>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

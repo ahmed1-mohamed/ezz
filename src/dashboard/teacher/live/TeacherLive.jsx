@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Video, Clock, CheckCircle2, Radio } from 'lucide-react';
 import BeforeSessionTab from './components/BeforeSessionTab';
 import DuringSessionTab from './components/DuringSessionTab';
 import AfterSessionTab from './components/AfterSessionTab';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
+import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi.js';
 
 const STAGES = [
   { id: 'before', labelKey: 'teacherLive.stageBefore', defaultLabel: 'قبل الجلسة', icon: Clock },
@@ -15,28 +16,132 @@ const STAGES = [
 export default function TeacherLive() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const [activeStage, setActiveStage] = useState('before');
-  const [currentLiveSession, setCurrentLiveSession] = useState(null);
-  const handleStartSession = (session) => {
-    const check = checkCanJoinSession(session);
-    if (!check.canJoin) {
-      showSessionJoinAlert(check.message, isRtl);
-      return;
+  const { sessionId: paramSessionId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [activeStage, setActiveStage] = useState(() => {
+    if (paramSessionId || location.pathname.includes('/live/room')) {
+      return 'during';
     }
-    setCurrentLiveSession(session);
+    const urlStage = searchParams.get('stage');
+    if (urlStage === 'during' || urlStage === 'after') {
+      return urlStage;
+    }
+    try {
+      const storedStage = sessionStorage.getItem('teacher_live_stage');
+      const storedSession = sessionStorage.getItem('teacher_live_session');
+      if (storedStage === 'during' && storedSession) {
+        return 'during';
+      }
+      if (storedStage === 'after') {
+        return 'after';
+      }
+    } catch {}
+    return 'before';
+  });
+
+  const [currentLiveSession, setCurrentLiveSession] = useState(() => {
+    const sid = paramSessionId || searchParams.get('sessionId') || searchParams.get('session');
+    try {
+      const stored = sessionStorage.getItem('teacher_live_session');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && (parsed.id || parsed._id)) {
+          if (!sid || String(parsed.id) === String(sid) || String(parsed._id) === String(sid)) {
+            return parsed;
+          }
+        }
+      }
+    } catch {}
+    if (sid) {
+      return { id: sid, _id: sid };
+    }
+    return null;
+  });
+
+  // If we restored session by ID on reload, fetch its full details once if title is missing
+  useEffect(() => {
+    const sid = currentLiveSession?.id || currentLiveSession?._id;
+    if (sid && !currentLiveSession?.title && activeStage === 'during') {
+      teacherSessionsApi.fetchSessionDetails(sid).then((details) => {
+        if (details) {
+          const merged = { ...currentLiveSession, ...details };
+          setCurrentLiveSession(merged);
+          try {
+            sessionStorage.setItem('teacher_live_session', JSON.stringify(merged));
+          } catch {}
+        }
+      }).catch((err) => {
+        console.warn('[TeacherLive] Could not refresh session details:', err);
+      });
+    }
+  }, [currentLiveSession, activeStage]);
+
+  // Synchronize route when in during stage so refresh preserves live room
+  useEffect(() => {
+    if (activeStage === 'during') {
+      const sid = currentLiveSession?.id || currentLiveSession?._id || paramSessionId;
+      if (sid && !location.pathname.includes('/live/room')) {
+        navigate(`/dashboard/teacher/live/room/${sid}`, { replace: true });
+      }
+    }
+  }, [activeStage, currentLiveSession, paramSessionId, location.pathname, navigate]);
+
+  const handleStartSession = (session, joinData = null) => {
+    const sid = session?.id || session?._id;
+    const merged = joinData ? { ...session, ...joinData } : session;
+    setCurrentLiveSession(merged);
     setActiveStage('during');
+    try {
+      sessionStorage.setItem('teacher_live_session', JSON.stringify(merged));
+      if (joinData) {
+        sessionStorage.setItem('teacher_live_joindata', JSON.stringify(joinData));
+      }
+      sessionStorage.setItem('teacher_live_stage', 'during');
+    } catch {}
+    if (sid) {
+      navigate(`/dashboard/teacher/live/room/${sid}`, { replace: true });
+    } else {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set('stage', 'during');
+      setSearchParams(nextParams, { replace: true });
+    }
   };
+
   const handleEndSession = () => {
     setActiveStage('after');
+    try {
+      sessionStorage.removeItem('teacher_live_session');
+      sessionStorage.removeItem('teacher_live_joindata');
+      sessionStorage.setItem('teacher_live_stage', 'after');
+    } catch {}
+    navigate('/dashboard/teacher/live?stage=after', { replace: true });
   };
+
   const handleBackToBefore = () => {
     setActiveStage('before');
+    try {
+      sessionStorage.removeItem('teacher_live_session');
+      sessionStorage.removeItem('teacher_live_joindata');
+      sessionStorage.setItem('teacher_live_stage', 'before');
+    } catch {}
+    setCurrentLiveSession(null);
+    navigate('/dashboard/teacher/live', { replace: true });
   };
+
   const handleSelectStage = (stageId) => {
     if (stageId === 'during') {
       return;
     }
     setActiveStage(stageId);
+    try {
+      sessionStorage.setItem('teacher_live_stage', stageId);
+    } catch {}
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('stage', stageId);
+    setSearchParams(nextParams, { replace: true });
   };
   return (
     <div className="space-y-6 pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -64,11 +169,11 @@ export default function TeacherLive() {
                 <button
                   type="button"
                   key={stage.id}
-                  onClick={() => handleSelectStage(stage.id)}
-                  disabled={isDuring && !isActive}
+                  onClick={isDuring ? undefined : () => handleSelectStage(stage.id)}
+                  disabled={isDuring}
                   title={
-                    isDuring && !isActive
-                      ? t('teacherLive.duringLockedHint', 'زر أثناء الجلسة غير مفعل مباشرة، يتم الفتح عبر زر بدء الجلسة فقط')
+                    isDuring
+                      ? t('teacherLive.duringLockedHint', 'لا يمكن الدخول من هنا، يتم الدخول فقط عبر زر بدء الجلسة')
                       : undefined
                   }
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
@@ -76,7 +181,7 @@ export default function TeacherLive() {
                       ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 shadow-sm'
                       : isDuring
                       ? 'text-slate-400 dark:text-slate-600 opacity-60 cursor-not-allowed select-none'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 cursor-pointer'
                   }`}
                 >
                   <StageIcon className={`w-4 h-4 ${isActive && isDuring ? 'animate-pulse text-red-500' : ''}`} />

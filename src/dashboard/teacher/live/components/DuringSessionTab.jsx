@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Radio,
   Video,
-  ExternalLink,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -45,36 +44,45 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const sessionId = session?.id || session?._id;
+
+  const initialCachedJoin = useMemo(() => {
+    try {
+      const stored = sessionStorage.getItem('teacher_live_joindata');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && (parsed.meetingId || parsed.joinUrl || parsed.startUrl)) return parsed;
+      }
+    } catch {}
+    return null;
+  }, []);
+
   const { data: joinDataRes, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['teacher-session-join', sessionId],
     queryFn: () => teacherSessionsApi.fetchSessionJoinData(sessionId),
     enabled: Boolean(sessionId),
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: 'always',
+    initialData: initialCachedJoin,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
+
   const joinData = useMemo(() => {
-    if (!joinDataRes) return null;
-    return joinDataRes.data || joinDataRes;
-  }, [joinDataRes]);
+    const raw = joinDataRes?.data || joinDataRes || initialCachedJoin;
+    if (raw) {
+      try {
+        sessionStorage.setItem('teacher_live_joindata', JSON.stringify(raw));
+      } catch {}
+    }
+    return raw;
+  }, [joinDataRes, initialCachedJoin]);
   const sessionTitle = typeof session?.title === 'object' && session?.title !== null
     ? (isRtl ? session.title.ar : session.title.en)
     : (session?.title || session?.subject || t('teacherLive.liveSessionTitle', 'حصة مباشرة'));
   const groupName = typeof session?.group === 'object' && session?.group !== null
     ? (isRtl ? session.group.name?.ar || session.group.name : session.group.name?.en || session.group.name)
     : (session?.groupName || session?.group || '-');
-  const hostWebClientUrl = useMemo(() => {
-    const cleanId = String(joinData?.meetingId || session?.meetingId || '').replace(/\s/g, '');
-    if (!cleanId) return null;
-    const pwd = joinData?.passcode || session?.passcode || '';
-    const zak = joinData?.zak || '';
-    const q = new URLSearchParams();
-    q.set('prefer', '1');
-    if (pwd) q.set('pwd', pwd);
-    if (zak) q.set('zak', zak);
-    return `https://app.zoom.us/wc/${cleanId}/start?${q.toString()}`;
-  }, [joinData, session]);
 
   const teacherName = (() => {
     if (!user) return 'المعلم';
@@ -122,18 +130,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
               >
                 <Video className="w-4 h-4" />
                 <span>{t('teacherLive.startAsHostApp', '🚀 بدء البث في Zoom (Host)')}</span>
-              </a>
-            )}
-            {hostWebClientUrl && (
-              <a
-                href={hostWebClientUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
-                title={t('teacherLive.openInBrowser', 'فتح كمعلم في المتصفح')}
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>{t('teacherLive.openInBrowser', 'المتصفح (Web)')}</span>
               </a>
             )}
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">

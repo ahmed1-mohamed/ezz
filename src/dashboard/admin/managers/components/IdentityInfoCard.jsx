@@ -109,7 +109,7 @@ export default function IdentityInfoCard({
             required
             value={formData.nameEn || ''}
             onChange={(e) => onChange('nameEn', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
             dir="ltr"
           />
         </div>
@@ -123,7 +123,7 @@ export default function IdentityInfoCard({
             required
             value={formData.name || ''}
             onChange={(e) => onChange('name', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function IdentityInfoCard({
           required
           value={formData.email || ''}
           onChange={(e) => onChange('email', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           dir="ltr"
         />
       </div>
@@ -162,8 +162,8 @@ export default function IdentityInfoCard({
               <span aria-hidden="true">{(selectedPhoneCountry?.dialCode || selectedPhoneCountry?.phoneCode) ? `(${selectedPhoneCountry.dialCode || selectedPhoneCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
             </button>
             {isDropdownOpen && (
-              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
-                <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
+              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+                <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-950 z-10">
                   <label htmlFor="countrySearchInput" className="sr-only">
                     {isRtl ? 'بحث...' : 'Search...'}
                   </label>
@@ -199,7 +199,7 @@ export default function IdentityInfoCard({
             required
             value={formData.phone || ''}
             onChange={(e) => onChange('phone', e.target.value)}
-            className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+            className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function IdentityInfoCard({
           required
           value={formData.countryId || ''}
           onChange={(e) => onChange('countryId', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
         >
           <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
           {sortedCountries.map((country) => (

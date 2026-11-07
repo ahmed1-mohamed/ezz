@@ -159,7 +159,7 @@ export const adminGroupsApi = {
       student: payload?.student || payload?.student_id || payload?.studentId,
       targetGroup: payload?.targetGroup || payload?.targetGroupId,
     };
-    const response = await api.post(`/api/v1/groups/private/${groupId}/students/transfer`, body);
+    const response = await api.patch(`/api/v1/groups/private/${groupId}/students/transfer`, body);
     return response.data;
   },
 };

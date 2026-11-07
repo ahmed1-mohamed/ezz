@@ -169,6 +169,9 @@ export default function AfterSessionTab() {
   const { data: pendingRes, isLoading, isError } = useQuery({
     queryKey: ['teacher-completed-pending-evals', offset],
     queryFn: () => teacherSessionsApi.fetchCompletedPendingEvaluations(offset),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const session = useMemo(() => {
     if (!pendingRes) return null;

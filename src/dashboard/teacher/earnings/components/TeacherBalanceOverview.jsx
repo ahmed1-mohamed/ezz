@@ -1,18 +1,35 @@
-import { TrendingUp, Clock, CheckCircle2, Receipt } from 'lucide-react'
+import {
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  Receipt,
+  Calendar,
+  GraduationCap,
+  Hourglass,
+  Coins,
+} from 'lucide-react'
 
-export default function TeacherBalanceOverview({ balance, isLoading, t }) {
-  const currency = t('teacher.earnings.currency', 'ج.م')
+export default function TeacherBalanceOverview({ balance, isLoading, t, isRtl = true }) {
+  const currency = isRtl ? 'دولار' : '$'
   const formatAmount = (val) => {
     const num = Number(val ?? 0)
     if (Number.isNaN(num)) return '0'
     return num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
   }
+  const totalEarningsVal = balance?.totalEarnings ?? balance?.totalRevenue ?? balance?.totalAmount ?? 0
+  const dueEarningsVal = balance?.dueEarnings ?? balance?.currentBalance ?? balance?.availableBalance ?? balance?.balance ?? 0
+  const totalPaidVal = balance?.totalPaid ?? balance?.paidEarnings ?? balance?.transferredAmount ?? 0
+  const monthlyEarningsVal = balance?.monthlyEarnings ?? balance?.currentMonthEarnings ?? balance?.thisMonthEarnings ?? 0
+  const payoutsCountVal = balance?.payoutsCount ?? balance?.totalPayouts ?? balance?.transfersCount ?? 0
+  const completedSessionsVal = balance?.completedSessionsCount ?? balance?.totalSessions ?? balance?.sessionsCount ?? balance?.completedLessons ?? 0
+  const totalHoursVal = balance?.totalTeachingHours ?? balance?.totalHours ?? balance?.hoursCount ?? 0
+  const pendingEarningsVal = balance?.pendingEarnings ?? balance?.pendingPayoutsAmount ?? balance?.pendingPayouts ?? balance?.inReviewEarnings ?? 0
   const cards = [
     {
       id: 'totalEarnings',
       title: t('teacher.earnings.balance.totalEarnings', 'إجمالي الأرباح'),
       desc: t('teacher.earnings.balance.totalEarningsDesc', 'إجمالي الأرباح المحققة حتى الآن'),
-      value: `${formatAmount(balance?.totalEarnings)} ${currency}`,
+      value: `${formatAmount(totalEarningsVal)} ${currency}`,
       icon: TrendingUp,
       color: 'text-emerald-700 dark:text-emerald-400',
       bg: 'bg-emerald-50 dark:bg-emerald-950/30',
@@ -22,7 +39,7 @@ export default function TeacherBalanceOverview({ balance, isLoading, t }) {
       id: 'dueEarnings',
       title: t('teacher.earnings.balance.dueEarnings', 'الرصيد المستحق'),
       desc: t('teacher.earnings.balance.dueEarningsDesc', 'مستحقات جاهزة للتحويل القادم'),
-      value: `${formatAmount(balance?.dueEarnings)} ${currency}`,
+      value: `${formatAmount(dueEarningsVal)} ${currency}`,
       icon: Clock,
       color: 'text-amber-700 dark:text-amber-400',
       bg: 'bg-amber-50 dark:bg-amber-950/30',
@@ -32,27 +49,67 @@ export default function TeacherBalanceOverview({ balance, isLoading, t }) {
       id: 'totalPaid',
       title: t('teacher.earnings.balance.totalPaid', 'إجمالي المحوّل'),
       desc: t('teacher.earnings.balance.totalPaidDesc', 'إجمالي ما تم تحويله لحسابك'),
-      value: `${formatAmount(balance?.totalPaid)} ${currency}`,
+      value: `${formatAmount(totalPaidVal)} ${currency}`,
       icon: CheckCircle2,
       color: 'text-blue-700 dark:text-blue-400',
       bg: 'bg-blue-50 dark:bg-blue-950/30',
       border: 'border-blue-200/60 dark:border-blue-800/40',
     },
     {
+      id: 'monthlyEarnings',
+      title: t('teacher.earnings.balance.monthlyEarnings', 'أرباح الشهر الحالي'),
+      desc: t('teacher.earnings.balance.monthlyEarningsDesc', 'الأرباح المستحقة عن هذا الشهر'),
+      value: `${formatAmount(monthlyEarningsVal)} ${currency}`,
+      icon: Calendar,
+      color: 'text-teal-700 dark:text-teal-400',
+      bg: 'bg-teal-50 dark:bg-teal-950/30',
+      border: 'border-teal-200/60 dark:border-teal-800/40',
+    },
+    {
       id: 'payoutsCount',
       title: t('teacher.earnings.balance.payoutsCount', 'عدد التحويلات'),
       desc: t('teacher.earnings.balance.payoutsCountDesc', 'عمليات التحويل المنفذة بنجاح'),
-      value: String(balance?.payoutsCount ?? 0),
+      value: String(payoutsCountVal),
       icon: Receipt,
       color: 'text-purple-700 dark:text-purple-400',
       bg: 'bg-purple-50 dark:bg-purple-950/30',
       border: 'border-purple-200/60 dark:border-purple-800/40',
     },
+    {
+      id: 'completedSessions',
+      title: t('teacher.earnings.balance.completedSessions', 'الحصص المنجزة'),
+      desc: t('teacher.earnings.balance.completedSessionsDesc', 'إجمالي الحصص المنفذة المعتمدة'),
+      value: String(completedSessionsVal),
+      icon: GraduationCap,
+      color: 'text-indigo-700 dark:text-indigo-400',
+      bg: 'bg-indigo-50 dark:bg-indigo-950/30',
+      border: 'border-indigo-200/60 dark:border-indigo-800/40',
+    },
+    {
+      id: 'totalHours',
+      title: t('teacher.earnings.balance.totalHours', 'ساعات التدريس'),
+      desc: t('teacher.earnings.balance.totalHoursDesc', 'إجمالي الساعات التدريسية المكتملة'),
+      value: `${formatAmount(totalHoursVal)} ${isRtl ? 'ساعة' : 'hrs'}`,
+      icon: Hourglass,
+      color: 'text-sky-700 dark:text-sky-400',
+      bg: 'bg-sky-50 dark:bg-sky-950/30',
+      border: 'border-sky-200/60 dark:border-sky-800/40',
+    },
+    {
+      id: 'pendingEarnings',
+      title: t('teacher.earnings.balance.pendingEarnings', 'قيد المراجعة / التحويل'),
+      desc: t('teacher.earnings.balance.pendingEarningsDesc', 'مبالغ جاري مراجعتها للتحويل'),
+      value: `${formatAmount(pendingEarningsVal)} ${currency}`,
+      icon: Coins,
+      color: 'text-rose-700 dark:text-rose-400',
+      bg: 'bg-rose-50 dark:bg-rose-950/30',
+      border: 'border-rose-200/60 dark:border-rose-800/40',
+    },
   ]
   if (isLoading && !balance) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-        {Array.from({ length: 4 }).map((_, idx) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {Array.from({ length: 8 }).map((_, idx) => (
           <div
             key={idx}
             className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-soft animate-pulse flex items-center justify-between"
@@ -69,7 +126,7 @@ export default function TeacherBalanceOverview({ balance, isLoading, t }) {
     )
   }
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       {cards.map((card) => {
         const Icon = card.icon
         return (
@@ -99,4 +156,3 @@ export default function TeacherBalanceOverview({ balance, isLoading, t }) {
     </div>
   )
 }
-

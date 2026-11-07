@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -21,31 +21,37 @@ function isStudentEvaluated(raw) {
   return false;
 }
 
-function normalizePendingStudent(raw, idx, isRtl, t) {
-  if (!raw || isStudentEvaluated(raw)) return null;
-  const s = raw.student && typeof raw.student === 'object' ? raw.student : raw;
-  if (isStudentEvaluated(s)) return null;
-  const rawId = s.id || s._id || s.student_id || raw.student_id || raw.studentId || raw.id;
+function normalizePendingStudent(raw, idx, isRtl, t, nameMap = {}) {
+  if (!raw) return null;
+  const isDirectString = typeof raw === 'string';
+  const s = (!isDirectString && raw.student && typeof raw.student === 'object') ? raw.student : raw;
+  const rawId = isDirectString
+    ? raw
+    : (typeof s === 'string'
+      ? s
+      : (s?.id || s?._id || s?.student_id || raw?.student_id || raw?.studentId || raw?.id));
   if (!rawId) return null;
-  const rawName = s.name || raw.studentName || raw.name;
+  const idStr = String(rawId).trim();
+  const rawName = !isDirectString ? (s?.name || raw?.studentName || raw?.name) : null;
+  const mappedName = nameMap[idStr] || null;
   const fallbackName = t('teacherEvaluations.defaultStudentName', 'طالب {{number}}', { number: idx + 1 });
-  let nameStr = fallbackName;
+  let nameStr = mappedName || fallbackName;
   if (typeof rawName === 'object' && rawName !== null) {
-    nameStr = (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar) || fallbackName;
+    nameStr = (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar) || nameStr;
   } else if (typeof rawName === 'string' && rawName.trim()) {
     nameStr = rawName.trim();
   }
-  const avgRating = s.averageRating ?? s.rating ?? raw.averageRating ?? raw.rating ?? (s.lastGrade ? s.lastGrade / 20 : null);
-  const lastGrade = s.lastGrade ?? raw.lastGrade ?? null;
+  const avgRating = !isDirectString ? (s?.averageRating ?? s?.rating ?? raw?.averageRating ?? raw?.rating ?? (s?.lastGrade ? s.lastGrade / 20 : null)) : null;
+  const lastGrade = !isDirectString ? (s?.lastGrade ?? raw?.lastGrade ?? null) : null;
   return {
-    id: String(rawId),
+    id: idStr,
     name: nameStr,
     averageRating: avgRating,
     lastGrade,
   };
 }
 
-function extractSessionPendingStudents(item, isRtl, t) {
+function extractSessionPendingStudents(item, isRtl, t, nameMap = {}) {
   if (!item) return [];
   const sess = item.session && typeof item.session === 'object' ? item.session : item;
   const directPending =
@@ -59,8 +65,7 @@ function extractSessionPendingStudents(item, isRtl, t) {
     sess.unevaluatedStudents;
   if (Array.isArray(directPending) && directPending.length > 0) {
     return directPending
-      .filter((st) => !isStudentEvaluated(st))
-      .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t))
+      .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t, nameMap))
       .filter((st) => Boolean(st && st.id));
   }
   const pendingIds =
@@ -74,33 +79,33 @@ function extractSessionPendingStudents(item, isRtl, t) {
       ...(Array.isArray(sess.attendance) ? sess.attendance : []),
       ...(Array.isArray(item.students) ? item.students : []),
       ...(Array.isArray(sess.students) ? sess.students : []),
+      ...(Array.isArray(item.group?.students) ? item.group.students : []),
+      ...(Array.isArray(sess.group?.students) ? sess.group.students : []),
     ];
-    const matched = pool.filter((st) => {
-      if (isStudentEvaluated(st)) return false;
-      const sObj = st.student && typeof st.student === 'object' ? st.student : st;
-      const id = sObj?.id || sObj?._id || sObj?.student_id || st?.student_id || st?.studentId || st?.id;
-      return id && pendingIds.some((pid) => String(pid) === String(id));
-    });
-    if (matched.length > 0) {
-      return matched
-        .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t))
-        .filter((st) => Boolean(st && st.id));
-    }
+    return pendingIds.map((pid, idx) => {
+      const pidStr = String(pid);
+      const foundInPool = pool.find((st) => {
+        const sObj = st.student && typeof st.student === 'object' ? st.student : st;
+        const id = typeof st === 'string' ? st : (sObj?.id || sObj?._id || sObj?.student_id || st?.student_id || st?.studentId || st?.id);
+        return String(id) === pidStr;
+      });
+      return normalizePendingStudent(foundInPool || pid, idx, isRtl, t, nameMap);
+    }).filter((st) => Boolean(st && st.id));
   }
-  const attendance = Array.isArray(item.attendance) ? item.attendance : Array.isArray(sess.attendance) ? sess.attendance : null;
+  const attendance = Array.isArray(item.attendance) ? item.attendance : (Array.isArray(sess.attendance) ? sess.attendance : null);
   if (Array.isArray(attendance) && attendance.length > 0) {
-    const unEvaluated = attendance.filter((att) => !isStudentEvaluated(att));
+    const unEvaluated = attendance.filter((att) => att.isEvaluated !== true && att.evaluated !== true);
     if (unEvaluated.length > 0) {
       return unEvaluated
-        .map((att, idx) => normalizePendingStudent(att.student || att, idx, isRtl, t))
+        .map((att, idx) => normalizePendingStudent(att.student || att, idx, isRtl, t, nameMap))
         .filter((st) => Boolean(st && st.id));
     }
   }
-  const students = Array.isArray(item.students) ? item.students : Array.isArray(sess.students) ? sess.students : null;
+  const students = Array.isArray(item.students) ? item.students : (Array.isArray(sess.students) ? sess.students : null);
   if (Array.isArray(students) && students.length > 0) {
-    const unEvaluated = students.filter((st) => !isStudentEvaluated(st));
+    const unEvaluated = students.filter((st) => st.isEvaluated !== true && st.evaluated !== true);
     return unEvaluated
-      .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t))
+      .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t, nameMap))
       .filter((st) => Boolean(st && st.id));
   }
   return [];
@@ -203,6 +208,24 @@ export default function TeacherEvaluations() {
     enabled: isValidObjectId(activeGroupId),
     staleTime: 60 * 1000,
   });
+  const studentNameMap = useMemo(() => {
+    const map = {};
+    const rawGroups = groupsRes?.data || (Array.isArray(groupsRes) ? groupsRes : []);
+    if (Array.isArray(rawGroups)) {
+      rawGroups.forEach((g) => {
+        const gStudents = Array.isArray(g.students) ? g.students : [];
+        gStudents.forEach((st) => {
+          const sObj = st.student && typeof st.student === 'object' ? st.student : st;
+          const id = String(sObj?.id || sObj?._id || sObj?.student_id || st?.id || '').trim();
+          const name = typeof sObj?.name === 'object'
+            ? (isRtl ? sObj.name?.ar || sObj.name?.en : sObj.name?.en || sObj.name?.ar)
+            : (sObj?.name || st?.name);
+          if (id && name) map[id] = name;
+        });
+      });
+    }
+    return map;
+  }, [groupsRes, isRtl]);
   const sessionsList = useMemo(() => {
     const rawList = pendingSessionsRes?.data;
     if (!Array.isArray(rawList)) return [];
@@ -225,7 +248,7 @@ export default function TeacherEvaluations() {
           (sessObj?.sessionNumber ? (isRtl ? `الحصة رقم ${sessObj.sessionNumber}` : `Session #${sessObj.sessionNumber}`) : '') ||
           t('teacherEvaluations.defaultSessionName', 'الحصة {{number}}', { number: idx + 1 });
         const date = sessObj?.date || sessObj?.startTime?.split('T')[0] || item?.date || '';
-        const pendingStudents = extractSessionPendingStudents(item, isRtl, t);
+        const pendingStudents = extractSessionPendingStudents(item, isRtl, t, studentNameMap);
         return {
           id,
           name,
@@ -237,7 +260,7 @@ export default function TeacherEvaluations() {
       .filter(Boolean);
     const withPending = mapped.filter((s) => s.pendingStudents && s.pendingStudents.length > 0);
     return withPending.length > 0 ? withPending : mapped;
-  }, [pendingSessionsRes, isRtl, t]);
+  }, [pendingSessionsRes, isRtl, t, studentNameMap]);
   const activeSessionId = useMemo(() => {
     if (selectedSessionId && sessionsList.some((s) => s.id === selectedSessionId)) {
       return selectedSessionId;
@@ -248,8 +271,17 @@ export default function TeacherEvaluations() {
     return sessionsList.find((s) => s.id === activeSessionId) || null;
   }, [sessionsList, activeSessionId]);
   const studentsList = useMemo(() => {
-    return activeSession?.pendingStudents || [];
-  }, [activeSession]);
+    if (activeSession?.pendingStudents && activeSession.pendingStudents.length > 0) {
+      return activeSession.pendingStudents;
+    }
+    const currentGroup = (groupsRes?.data || []).find((g) => (g.id || g._id) === activeGroupId);
+    if (currentGroup && Array.isArray(currentGroup.students) && currentGroup.students.length > 0) {
+      return currentGroup.students
+        .map((st, idx) => normalizePendingStudent(st, idx, isRtl, t, studentNameMap))
+        .filter((st) => Boolean(st && st.id));
+    }
+    return [];
+  }, [activeSession, groupsRes, activeGroupId, isRtl, t, studentNameMap]);
   const activeStudentId = useMemo(() => {
     if (selectedStudentId && studentsList.some((st) => st.id === selectedStudentId)) {
       return selectedStudentId;

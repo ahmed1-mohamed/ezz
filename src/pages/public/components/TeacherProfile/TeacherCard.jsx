@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/shared/context/useAuth.jsx'
 
 const getImageUrl = (imagePath) => {
     if (!imagePath || typeof imagePath !== 'string' || !imagePath.trim()) return null
@@ -15,6 +16,7 @@ const getImageUrl = (imagePath) => {
 
 export default function TeacherCard({ teacher, t, isRtl }) {
     const navigate = useNavigate()
+    const { user, isAuthenticated } = useAuth()
     const [hasImgError, setHasImgError] = useState(false)
     const [prevImg, setPrevImg] = useState(teacher?.image)
     if (prevImg !== teacher?.image) {
@@ -23,6 +25,19 @@ export default function TeacherCard({ teacher, t, isRtl }) {
     }
     const imgUrl = hasImgError ? null : getImageUrl(teacher?.image)
     const teacherInitial = teacher?.name ? teacher.name.trim().charAt(0) : 'م'
+
+    const handleBookTrial = () => {
+        const teacherId = teacher?.id || teacher?._id
+        const targetUrl = '/dashboard/parent/students?action=trial' + (teacherId ? `&teacherId=${teacherId}` : '')
+        if (!isAuthenticated) {
+            navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`)
+        } else if (user?.role?.toLowerCase() === 'parent') {
+            navigate(targetUrl)
+        } else {
+            navigate('/')
+        }
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -69,7 +84,7 @@ export default function TeacherCard({ teacher, t, isRtl }) {
             </div>
             <div className="w-full space-y-3">
                 <button
-                    onClick={() => navigate('/contact')}
+                    onClick={handleBookTrial}
                     className="w-full bg-[#00695C] hover:bg-[#004D40] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-md active:scale-95 text-lg cursor-pointer"
                 >
                     {t('teacherProfile.bookTrial', 'احجز حصة تجريبية')}

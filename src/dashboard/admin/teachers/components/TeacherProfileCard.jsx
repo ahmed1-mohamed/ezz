@@ -59,7 +59,7 @@ export default function TeacherProfileCard({
         )}
       </div>
        <div className="space-y-1 w-full">
-        <h3 className="text-lg font-extrabold text-slate-850 dark:text-white">
+        <h3 className="text-lg font-extrabold text-slate-800 dark:text-white">
           {teacherDisplayName}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">

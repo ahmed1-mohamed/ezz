@@ -186,6 +186,29 @@ export const SYSTEM_PERMISSIONS = [
     ]
   },
   {
+    module: 'trial_sessions',
+    titleAr: 'إدارة الحصص التجريبية',
+    titleEn: 'Trial Sessions Management',
+    actions: [
+      {
+        key: 'READ_TRIAL_SESSIONS',
+        labelAr: 'عرض طلبات الحصص التجريبية',
+        labelEn: 'View Trial Sessions',
+        aliases: ['trial_sessions.read']
+      },
+      {
+        key: 'WRITE_TRIAL_SESSIONS',
+        labelAr: 'تسكين وإلغاء الحصص التجريبية',
+        labelEn: 'Assign & Cancel Trial Sessions',
+        aliases: [
+          'trial_sessions.assign',
+          'trial_sessions.cancel',
+          'trial_sessions.write'
+        ]
+      }
+    ]
+  },
+  {
     module: 'timetable',
     titleAr: 'إدارة الجدول الدراسي',
     titleEn: 'Timetable Management',

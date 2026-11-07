@@ -1,0 +1,63 @@
+import api from './axiosConfig'
+
+export const adminTrialSessionsApi = {
+  fetchTrialSessions: async (params = {}) => {
+    try {
+      const cleanParams = {}
+      if (params.page) cleanParams.page = params.page
+      if (params.limit) cleanParams.limit = params.limit
+      if (params.status && params.status !== 'all') cleanParams.status = params.status
+      if (params.search && params.search.trim()) cleanParams.search = params.search.trim()
+      const response = await api.get('/api/v1/trial-sessions/private', { params: cleanParams })
+      return response.data
+    } catch (error) {
+      console.error('API fetchTrialSessions failed:', error)
+      throw error
+    }
+  },
+
+  fetchTrialSessionById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/trial-sessions/private/${id}`)
+      return response.data
+    } catch (error) {
+      console.error(`API fetchTrialSessionById(${id}) failed:`, error)
+      throw error
+    }
+  },
+
+  fetchAvailableGroups: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/trial-sessions/private/${id}/available-groups`)
+      return response.data
+    } catch (error) {
+      console.error(`API fetchAvailableGroups(${id}) failed:`, error)
+      throw error
+    }
+  },
+
+  assignSession: async (id, { groupId, sessionId }) => {
+    try {
+      const response = await api.patch(`/api/v1/trial-sessions/private/${id}/assign-session`, {
+        groupId,
+        sessionId,
+      })
+      return response.data
+    } catch (error) {
+      console.error(`API assignSession(${id}) failed:`, error)
+      throw error
+    }
+  },
+
+  cancelTrialSession: async (id, payload = {}) => {
+    try {
+      const body = typeof payload === 'string' ? { reason: payload } : (payload || {})
+      const response = await api.patch(`/api/v1/trial-sessions/private/${id}/cancel`, body)
+      return response.data
+    } catch (error) {
+      console.error(`API cancelTrialSession(${id}) failed:`, error)
+      throw error
+    }
+  },
+}
+

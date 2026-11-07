@@ -70,7 +70,10 @@ export default function AdminPayments() {
   })
   const stats = statsRes?.data || subsRes?.statistics || {}
   const rawSubscriptions = subsRes?.data || []
-  const pagination = subsRes?.pagination || { currentPage: 1, limit: 20, numberOfPages: 1 }
+  const rawPagination = subsRes?.pagination || (subsRes && typeof subsRes === 'object' && !Array.isArray(subsRes) ? subsRes : {})
+  const totalPages = Number(rawPagination?.numberOfPages || rawPagination?.totalPages || rawPagination?.pages || (rawPagination?.total ? Math.ceil(rawPagination.total / (rawPagination.limit || 20)) : 1))
+  const currentPageNum = Number(rawPagination?.currentPage || rawPagination?.page || currentPage)
+  const totalItemsCount = Number(rawPagination?.totalItems || rawPagination?.total || rawPagination?.count || rawSubscriptions.length)
   const filteredSubscriptions = useMemo(() => {
     if (!packageTypeFilter || packageTypeFilter === 'all') return rawSubscriptions
     return rawSubscriptions.filter((sub) => sub.package?.type === packageTypeFilter)
@@ -111,7 +114,7 @@ export default function AdminPayments() {
       </div>
     )
   }
-  const currency = rawSubscriptions[0]?.currency || 'USD'
+  const currency = '$'
   return (
     <div className="space-y-6 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -130,7 +133,7 @@ export default function AdminPayments() {
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 text-[#005953] dark:text-emerald-400 border border-emerald-200/50 text-xs font-bold shadow-sm">
             <Receipt size={16} />
             <span>
-              {isRtl ? 'العملة الأساسية:' : 'Base Currency:'} {currency}
+              {isRtl ? 'العملة الأساسية: دولار ($)' : 'Base Currency: USD ($)'}
             </span>
           </span>
         </div>
@@ -163,26 +166,26 @@ export default function AdminPayments() {
             subscriptions={filteredSubscriptions}
             onViewDetails={(sub) => setSelectedSubscription(sub)}
           />
-          {pagination.numberOfPages > 1 && (
+          {totalPages > 1 && (
             <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm text-xs">
               <span className="text-slate-400 font-semibold">
                 {isRtl
-                  ? `صفحة ${pagination.currentPage} من ${pagination.numberOfPages}`
-                  : `Page ${pagination.currentPage} of ${pagination.numberOfPages}`}
+                  ? `صفحة ${currentPageNum} من ${totalPages} (${totalItemsCount} عملية)`
+                  : `Page ${currentPageNum} of ${totalPages} (${totalItemsCount} transactions)`}
               </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  disabled={currentPage <= 1 || isSubsFetching}
+                  disabled={currentPageNum <= 1 || isSubsFetching}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-600 dark:text-slate-300 disabled:opacity-40 cursor-pointer"
                 >
                   {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                   <span>{isRtl ? 'السابق' : 'Previous'}</span>
                 </button>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: pagination.numberOfPages }, (_, i) => i + 1)
-                    .filter((p) => p === 1 || p === pagination.numberOfPages || Math.abs(p - currentPage) <= 1)
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPageNum) <= 1)
                     .map((pageNum, idx, arr) => (
                       <React.Fragment key={pageNum}>
                         {idx > 0 && arr[idx - 1] !== pageNum - 1 && (
@@ -193,7 +196,7 @@ export default function AdminPayments() {
                           onClick={() => setCurrentPage(pageNum)}
                           disabled={isSubsFetching}
                           className={`w-8 h-8 rounded-xl font-bold transition-all cursor-pointer ${
-                            currentPage === pageNum
+                            currentPageNum === pageNum
                               ? 'bg-[#005953] text-white shadow-sm'
                               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
@@ -205,8 +208,8 @@ export default function AdminPayments() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setCurrentPage((p) => Math.min(p + 1, pagination.numberOfPages))}
-                  disabled={currentPage >= pagination.numberOfPages || isSubsFetching}
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={currentPageNum >= totalPages || isSubsFetching}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-600 dark:text-slate-300 disabled:opacity-40 cursor-pointer"
                 >
                   <span>{isRtl ? 'التالي' : 'Next'}</span>

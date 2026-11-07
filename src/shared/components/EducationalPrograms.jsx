@@ -165,7 +165,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                         </h2>
                         <div className="mx-auto mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
                         <p className="mt-5 sm:mt-6 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-7 sm:leading-8">
-                            {t('programs.description', 'نقدم مجموعة متنوعة من البرامج التعليمية المتميزة لتلبية احتياجات جميع أبنائنا.')}
+                            {t('programs.description', 'نقدّم برامج في القرآن الكريم والتجويد، واللغة العربية، والتربية الإسلامية، إلى جانب دروس في المواد المدرسية. تناسب برامجنا مستويات مختلفة، وتجمع بين شرح المفاهيم والتدريب على تطبيقها، بما يتوافق مع أهداف كل طالب.')}
                         </p>
                     </div>
                     <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">

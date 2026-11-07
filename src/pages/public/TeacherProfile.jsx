@@ -6,6 +6,7 @@ import TeacherCard from './components/TeacherProfile/TeacherCard.jsx'
 import TeacherAbout from './components/TeacherProfile/TeacherAbout.jsx'
 import TeacherSubjects from './components/TeacherProfile/TeacherSubjects.jsx'
 import TeacherStats from './components/TeacherProfile/TeacherStats.jsx'
+import TeacherAvailabilityCard from '../../shared/components/TeacherAvailabilityCard.jsx'
 import { teachersApi } from '../../shared/services/api/teachersApi.js'
 
 export default function TeacherProfile() {
@@ -52,7 +53,8 @@ export default function TeacherProfile() {
                         }))
                         : [],
                     levels: Array.isArray(realData?.levels) ? realData.levels : [],
-                    schedule: Array.isArray(realData?.schedule) ? realData.schedule : []
+                    schedule: Array.isArray(realData?.schedule) ? realData.schedule : [],
+                    availability: Array.isArray(realData?.availability) ? realData.availability : (Array.isArray(realData?.schedule) ? realData.schedule : []),
                 }
                 setTeacher(teacherData)
                 setLoading(false)
@@ -90,6 +92,11 @@ export default function TeacherProfile() {
                     <div className="lg:col-span-7 order-2 lg:order-1 space-y-6">
                         <TeacherAbout teacher={teacher} t={t} />
                         <TeacherSubjects subjects={teacher.subjects} t={t} />
+                        <TeacherAvailabilityCard
+                            availability={teacher.availability}
+                            isRtl={isRtl}
+                            title={isRtl ? 'الأيام المتاحة للعمل' : 'Available Working Days'}
+                        />
                     </div>
                     <div className="lg:col-span-5 order-1 lg:order-2">
                         <TeacherCard teacher={teacher} t={t} isRtl={isRtl} />

@@ -1,12 +1,10 @@
 import React from 'react';
-import { Calendar, Bell } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherCurriculaHeader({
   currentTimeStr = '',
   currentDateStr = '',
-  userInitial = 'أ',
-  notificationsCount = 3,
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
@@ -24,19 +22,6 @@ export default React.memo(function TeacherCurriculaHeader({
         </p>
       </div>
       <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-        <div className="w-9 h-9 rounded-full bg-[#E5AA38] text-white font-bold flex items-center justify-center text-sm shadow-xs select-none">
-          {userInitial}
-        </div>
-        <div className="relative">
-          <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
-            <Bell size={16} />
-          </div>
-          {notificationsCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#00594C] text-white text-[10px] font-bold flex items-center justify-center">
-              {notificationsCount}
-            </span>
-          )}
-        </div>
         {currentDateStr && (
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />

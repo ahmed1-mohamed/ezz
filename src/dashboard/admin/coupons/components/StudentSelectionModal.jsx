@@ -203,7 +203,7 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 pt-2">
                             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6 min-h-[400px]">
-                                <h3 className="text-slate-855 dark:text-white font-bold mb-6 text-start">
+                                <h3 className="text-slate-800 dark:text-white font-bold mb-6 text-start">
                                     {t('adminDashboard.coupons.availableStudents', 'الطلاب المتاحون')} ({students.length})
                                 </h3>
                                 {loading ? (

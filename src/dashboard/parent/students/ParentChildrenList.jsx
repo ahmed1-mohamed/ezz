@@ -1,21 +1,36 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Filter, Users } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Plus, Search, Filter, Users, Sparkles } from 'lucide-react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ChildDetailsView from '../components/child_details/ChildDetailsView';
 import ChildCard from './components/children/ChildCard';
 import ChildrenStatsBar from './components/children/ChildrenStatsBar';
+import BookTrialSessionModal from './components/trial/BookTrialSessionModal';
 import { parentApi } from '@/shared/services/api/parentApi';
 
 export default function ParentChildrenList() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isTrialAction = searchParams.get('action') === 'trial';
+  const teacherIdParam = searchParams.get('teacherId');
+
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [isLoading, setIsLoading] = useState(true);
   const [childrenList, setChildrenList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevelFilter, setSelectedLevelFilter] = useState('all');
+
+  const [isTrialModalOpen, setIsTrialModalOpen] = useState(() => isTrialAction);
+  const [selectedTrialChildId, setSelectedTrialChildId] = useState(null);
+
+  useEffect(() => {
+    if (isTrialAction) {
+      setIsTrialModalOpen(true);
+    }
+  }, [isTrialAction]);
+
   const selectedChildId = location.state?.childId || null;
   const handleSelectChild = (child) => {
     const studentId = child?.student_id || child?.id || child?.user_id;
@@ -92,14 +107,27 @@ export default function ParentChildrenList() {
             {t('parent.childrenList.subtitle', 'متابعة الحضور، رصيد الحصص، والمجموعات الدراسية لكل ابن')}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate('/dashboard/parent/packages')}
-          className="w-full md:w-auto px-6 py-3 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#0f7a6c]/20 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('parent.childrenList.addNew', 'إضافة ابن جديد / اشتراك باقة')}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedTrialChildId(null);
+              setIsTrialModalOpen(true);
+            }}
+            className="flex-1 md:flex-none px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span>{isRtl ? 'احجز حصة تجريبية مجانية' : 'Book a Free Trial'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/parent/packages')}
+            className="flex-1 md:flex-none px-5 py-3 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#0f7a6c]/20 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('parent.childrenList.addNew', 'إضافة ابن جديد / اشتراك باقة')}</span>
+          </button>
+        </div>
       </div>
       {!isLoading && childrenList.length > 0 && (
         <ChildrenStatsBar childrenList={childrenList} />
@@ -175,11 +203,34 @@ export default function ParentChildrenList() {
                 key={studentId}
                 child={child}
                 onViewDetails={handleSelectChild}
+                onBookTrial={(c) => {
+                  setSelectedTrialChildId(c.student_id || c.id || c.user_id);
+                  setIsTrialModalOpen(true);
+                }}
               />
             );
           })}
         </div>
       )}
+
+      <BookTrialSessionModal
+        isOpen={isTrialModalOpen}
+        onClose={() => {
+          setIsTrialModalOpen(false);
+          if (isTrialAction) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete('action');
+            newParams.delete('teacherId');
+            setSearchParams(newParams, { replace: true });
+          }
+        }}
+        childrenList={childrenList}
+        initialChildId={selectedTrialChildId}
+        initialTeacherId={teacherIdParam}
+        onSuccess={() => {
+          // Success callback
+        }}
+      />
     </div>
   );
 }

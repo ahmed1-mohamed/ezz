@@ -44,7 +44,7 @@ export default function TeacherEarningsTable({
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
-  const currency = t('teacher.earnings.currency', 'ج.م');
+  const currency = isRtl ? 'دولار' : '$';
   const formatAmount = (val) => {
     const num = Number(val ?? 0);
     if (Number.isNaN(num)) return '0';

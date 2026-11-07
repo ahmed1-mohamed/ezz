@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -144,7 +144,8 @@ export default function CreateHomework() {
     }
     for (let index = 0; index < questions.length; index++) {
       const q = questions[index];
-      if (!q.question || !q.question.trim()) {
+      const qText = (q.questionText || q.question || '').trim();
+      if (!qText) {
         toast.error(t('teacherHomework.errQuestionTextRequired', 'يرجى كتابة نص السؤال رقم {{number}}', { number: index + 1 }));
         return;
       }
@@ -159,18 +160,19 @@ export default function CreateHomework() {
     setIsSubmitting(true);
     try {
       const cleanQuestions = questions.map((q) => {
-        const item = {
+        const qText = (q.questionText || q.question || '').trim();
+        const pts = Math.max(0, Number(q.points) >= 0 ? Number(q.points) : 5);
+        const correctIdx = q.type === 'multiple_choice' ? (Number(q.correctOptionIndex) >= 0 ? Number(q.correctOptionIndex) : 0) : 0;
+        const validOptions = q.type === 'multiple_choice'
+          ? (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0)
+          : [];
+        return {
           type: q.type || 'multiple_choice',
-          question: q.question.trim(),
-          points: Number(q.points) || 5,
+          questionText: qText,
+          points: pts,
+          options: validOptions,
+          correctOptionIndex: correctIdx,
         };
-        if (q.type === 'multiple_choice') {
-          item.options = (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0);
-          item.correctOptionIndex = Number(q.correctOptionIndex) || 0;
-        } else {
-          item.options = [];
-        }
-        return item;
       });
       let payload;
       if (mediaFile || documentFile) {
@@ -186,19 +188,7 @@ export default function CreateHomework() {
           payload.append('document', documentFile);
         }
         if (cleanQuestions.length > 0) {
-          cleanQuestions.forEach((q, idx) => {
-            payload.append(`questions[${idx}][type]`, q.type);
-            payload.append(`questions[${idx}][question]`, q.question);
-            payload.append(`questions[${idx}][points]`, String(q.points));
-            if (q.type === 'multiple_choice') {
-              q.options.forEach((opt, oIdx) => {
-                payload.append(`questions[${idx}][options][${oIdx}]`, opt);
-              });
-              payload.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
-            } else {
-              payload.append(`questions[${idx}][options][]`, '');
-            }
-          });
+          payload.append('questions', JSON.stringify(cleanQuestions));
         }
       } else {
         payload = {
@@ -215,7 +205,7 @@ export default function CreateHomework() {
       setIsSubmitting(false);
       if (res.success) {
         toast.success(t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'));
-        navigate('/dashboard/teacher/assignments/submissions');
+        navigate('/dashboard/teacher/homework/submissions');
       } else {
         const errorMsg = Array.isArray(res.message) ? res.message.join(' - ') : res.message;
         toast.error(errorMsg || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));

@@ -9,6 +9,7 @@ import {
   Book,
   Award,
   Heart,
+  Star,
   Layers,
   Globe,
   Calendar,
@@ -28,14 +29,19 @@ import {
   LogOut,
   Languages,
   Settings,
+  CalendarCheck,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
+import { setLanguage } from '@/i18n'
 
 const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers', permission: 'users.read' },
   { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers', permission: 'teachers.read' },
+  { path: '/dashboard/admin/teacher-evaluations', icon: Star, transKey: 'teacherEvaluations', permission: 'teachers.read' },
   { path: '/dashboard/admin/students', icon: Book, transKey: 'students', permission: 'students.read' },
   { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels', permission: 'student_levels.read' },
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents', permission: 'parents.read' },
@@ -54,6 +60,7 @@ const NAV_ITEMS = [
     ],
   },
   { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions', permission: 'sessions.read' },
+  { path: '/dashboard/admin/trial-sessions', icon: CalendarCheck, transKey: 'trialSessions', permission: 'trial_sessions.read' },
   { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule', permission: 'timetable.read' },
   {
     path: '/dashboard/admin/packages',
@@ -117,16 +124,20 @@ const NavItem = memo(function NavItem({ item, t, onClose, isCollapsed }) {
 })
 
 export default memo(function AdminLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout, theme, toggleTheme } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   const handleLogout = useCallback(() => {
     logout()
     navigate('/login')
   }, [logout, navigate])
+  const handleLanguageToggle = useCallback(() => {
+    setLanguage(isRtl ? 'en' : 'ar')
+  }, [isRtl])
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
   const toggleSidebar = useCallback(() => setIsSidebarCollapsed(prev => !prev), [])
@@ -170,33 +181,53 @@ export default memo(function AdminLayout() {
             </div>
           </div>
         </div>
-        <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
-          <div className="text-end">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[100px] sm:max-w-[140px]">
-              {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
-            </h4>
-            <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium line-clamp-1">
-              {displayRole}
-            </p>
-          </div>
-          <div
-            className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+            aria-label="Toggle theme"
           >
-            {(() => {
-              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-              return cleanImg ? (
-                <img
-                  src={cleanImg}
-                  alt={resolvedName || 'User profile'}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                userInitial
-              );
-            })()}
-          </div>
-        </Link>
+            {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-[#0f7a6c]" />}
+          </button>
+          <button
+            type="button"
+            onClick={handleLanguageToggle}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold text-xs"
+            title={t('language.toggle', 'تغيير اللغة')}
+            aria-label="Toggle language"
+          >
+            <Globe size={18} />
+          </button>
+          <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
+            <div className="text-end">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[90px] sm:max-w-[140px]">
+                {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+              </h4>
+              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium line-clamp-1">
+                {displayRole}
+              </p>
+            </div>
+            <div
+              className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
+            >
+              {(() => {
+                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                return cleanImg ? (
+                  <img
+                    src={cleanImg}
+                    alt={resolvedName || 'User profile'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userInitial
+                );
+              })()}
+            </div>
+          </Link>
+        </div>
       </header>
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -287,32 +318,54 @@ export default memo(function AdminLayout() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-end hidden xl:block">
-              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
-              </h4>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                {displayRole}
-              </p>
-            </div>
-            <div
-              className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
-              aria-label={resolvedName || 'المستخدم'}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all cursor-pointer shadow-xs"
+              title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+              aria-label="Toggle theme"
             >
-              {(() => {
-                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-                return cleanImg ? (
-                  <img
-                    src={cleanImg}
-                    alt={resolvedName || 'User profile'}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  userInitial
-                );
-              })()}
-            </div>
+              {isDarkMode ? <Sun size={19} className="text-amber-400" /> : <Moon size={19} className="text-[#0f7a6c]" />}
+            </button>
+            <button
+              type="button"
+              onClick={handleLanguageToggle}
+              className="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all font-bold text-xs cursor-pointer shadow-xs"
+              title={t('language.toggle', 'تغيير اللغة')}
+              aria-label="Toggle language"
+            >
+              <Globe size={16} />
+              <span>{isRtl ? 'English' : 'عربي'}</span>
+            </button>
+            <div className="h-6 w-px bg-slate-200 dark:border-slate-800 mx-1" />
+            <Link to="/dashboard/admin/settings" className="flex items-center gap-3 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition-colors">
+              <div className="text-end hidden xl:block">
+                <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+                </h4>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                  {displayRole}
+                </p>
+              </div>
+              <div
+                className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
+                aria-label={resolvedName || 'المستخدم'}
+              >
+                {(() => {
+                  const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                  const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                  return cleanImg ? (
+                    <img
+                      src={cleanImg}
+                      alt={resolvedName || 'User profile'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    userInitial
+                  );
+                })()}
+              </div>
+            </Link>
           </div>
         </header>
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">

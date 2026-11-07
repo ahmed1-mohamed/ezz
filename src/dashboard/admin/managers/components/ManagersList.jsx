@@ -170,7 +170,7 @@ export default function ManagersList({
               value={searchVal}
               onChange={(e) => onSearchChange(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSearch(); } }}
-              className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-4 pr-4' : 'pl-4 pr-4'} outline-none transition-all text-sm placeholder-slate-400`}
+              className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${isRtl ? 'pl-4 pr-4' : 'pl-4 pr-4'} outline-none transition-all text-sm placeholder-slate-400`}
             />
           </div>
           <button

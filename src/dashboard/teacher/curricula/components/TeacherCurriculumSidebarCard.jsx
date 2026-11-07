@@ -17,8 +17,11 @@ export default React.memo(function TeacherCurriculumSidebarCard({
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   if (!curriculum) return null;
   const name = resolveName(curriculum.name, isRtl) || curriculum.title || '-';
-  const level = curriculum.level || t('teacherCurricula.beginner', 'مبتدئ');
-  const unitsCount = Array.isArray(curriculum.units) ? curriculum.units.length : (Number(curriculum.unitsCount) || 6);
+  const levels = Array.isArray(curriculum.levels) ? curriculum.levels : [];
+  const level = curriculum.level || (levels.length > 0 ? resolveName(levels[0]?.name, isRtl) : t('teacherCurricula.beginner', 'مبتدئ'));
+  const unitsCount = levels.length > 0
+    ? (levels.reduce((acc, l) => acc + (Array.isArray(l.units) ? l.units.length : 0), 0) || levels.length)
+    : (Array.isArray(curriculum.units) ? curriculum.units.length : (Number(curriculum.unitsCount) || 6));
   const totalLessons = Number(curriculum.totalLessons ?? curriculum.lessonsCount ?? 30);
   const resourcesCount = Array.isArray(curriculum.resources) ? curriculum.resources.length : (Number(curriculum.resourcesCount) || 5);
   const progress = Number(curriculum.progress ?? curriculum.teachingProgress ?? 0);
@@ -42,6 +45,7 @@ export default React.memo(function TeacherCurriculumSidebarCard({
         </h4>
       </div>
       <p className="text-xs text-slate-400 font-semibold">
+        {levels.length > 0 && `${levels.length} ${t('teacherCurricula.levelsWord', 'مستويات')} • `}
         {unitsCount} {t('teacherCurricula.unitsWord', 'وحدات')} • {totalLessons} {t('teacherCurricula.lessonsWord', 'درساً')} • {resourcesCount} {t('teacherCurricula.resourcesWord', 'مصادر مرتبطة')}
       </p>
       {groupsNames && (
@@ -75,4 +79,3 @@ export default React.memo(function TeacherCurriculumSidebarCard({
     </div>
   );
 });
-

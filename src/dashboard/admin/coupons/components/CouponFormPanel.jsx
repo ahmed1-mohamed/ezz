@@ -113,7 +113,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         value={form.code}
                                         onChange={(e) => setField('code', e.target.value)}
                                         placeholder={t('adminDashboard.coupons.codePlaceholder', 'مثال: RAMADAN50')}
-                                        className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-850 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
+                                        className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                     />
                                 </div>
                                 <div>
@@ -135,7 +135,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                 setField('discountPercentage', e.target.value)
                                             }
                                             placeholder="20"
-                                            className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-855 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
+                                            className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                         />
                                         <div className="absolute inset-y-0 end-0 flex items-center pe-4 pointer-events-none text-slate-450 font-medium">
                                             %
@@ -161,7 +161,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                             onChange={(e) =>
                                                 setField('expirationDate', e.target.value)
                                             }
-                                            className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-855 dark:text-slate-100 rounded-xl ps-11 pe-4 py-3 text-sm outline-none transition-all"
+                                            className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-800 dark:text-slate-100 rounded-xl ps-11 pe-4 py-3 text-sm outline-none transition-all"
                                         />
                                     </div>
                                 </div>

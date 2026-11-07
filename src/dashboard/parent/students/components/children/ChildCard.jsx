@@ -11,7 +11,8 @@ import {
   ChevronUp,
   ArrowRight,
   ArrowLeft,
-  } from 'lucide-react';
+  Sparkles,
+} from 'lucide-react';
 
 function resolveStudentLevel(level, isRtl) {
   const norm = String(level || '').toLowerCase();
@@ -30,7 +31,7 @@ function resolveStudentLevel(level, isRtl) {
   return String(level || (isRtl ? 'مرحلة دراسية' : 'Student Level'));
 }
 
-export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
+export default function ChildCard({ child, onViewDetails, onRenewPackage, onBookTrial }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
@@ -231,6 +232,17 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             <Layers className="w-3.5 h-3.5" />
             <span>{t('parent.childrenList.package', 'الباقة')}</span>
           </button>
+          {onBookTrial && (
+            <button
+              type="button"
+              onClick={() => onBookTrial(child)}
+              className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-300 text-xs font-black transition-colors flex items-center gap-1 cursor-pointer border border-emerald-200/60 dark:border-emerald-800/40"
+              title={isRtl ? 'حجز حصة تجريبية مجانية' : 'Book Free Trial'}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>{isRtl ? 'حصة تجريبية' : 'Trial'}</span>
+            </button>
+          )}
         </div>
         <button
           type="button"

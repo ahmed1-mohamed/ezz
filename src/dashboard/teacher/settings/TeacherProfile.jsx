@@ -1,9 +1,10 @@
-﻿import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { User, ShieldCheck, BookOpen, Palette } from 'lucide-react';
+import { User, ShieldCheck, BookOpen, Palette, Calendar } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
+import { teachersApi } from '@/shared/services/api/teachersApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import { normalizeCountries, sortCountries, resolveCountryIdFromLabel, DEFAULT_DIAL_CODE } from '@/shared/utils/countryUtils.js';
@@ -15,6 +16,7 @@ import TeacherProfileHeader from './components/TeacherProfileHeader.jsx';
 import TeacherPersonalInfoCard from './components/TeacherPersonalInfoCard.jsx';
 import TeacherPasswordCard from './components/TeacherPasswordCard.jsx';
 import TeacherTeachingInfoCard from './components/TeacherTeachingInfoCard.jsx';
+import TeacherAvailabilityCard from '@/shared/components/TeacherAvailabilityCard.jsx';
 import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
 
 export default function TeacherProfile() {
@@ -34,6 +36,7 @@ export default function TeacherProfile() {
   const [apiCountries, setApiCountries] = useState([]);
   const [selectedDialCode, setSelectedDialCode] = useState(DEFAULT_DIAL_CODE);
   const [phoneWithoutCode, setPhoneWithoutCode] = useState('');
+  const [teacherAvailability, setTeacherAvailability] = useState([]);
   const [profileForm, setProfileForm] = useState({
     nameAr: '',
     nameEn: '',
@@ -159,6 +162,27 @@ export default function TeacherProfile() {
             avatar: d.image || d.photo || d.photoUrl || user?.image || '',
             imageFile: null,
           });
+          let resolvedAvailability = Array.isArray(d.availability)
+            ? d.availability
+            : (Array.isArray(d.schedule)
+                ? d.schedule
+                : (Array.isArray(d.workingHours)
+                    ? d.workingHours
+                    : (Array.isArray(d.teacher?.availability) ? d.teacher.availability : [])));
+          const teacherIdentifier = d.teacherId || d.teacher_id || d.id || d._id || user?.teacher_id || user?.id;
+          if ((!resolvedAvailability || resolvedAvailability.length === 0) && teacherIdentifier) {
+            try {
+              const tRes = await teachersApi.fetchTeacherById(teacherIdentifier).catch(() => null);
+              if (Array.isArray(tRes?.data?.availability) && tRes.data.availability.length > 0) {
+                resolvedAvailability = tRes.data.availability;
+              }
+            } catch {
+              // Ignore fallback errors
+            }
+          }
+          if (isMounted) {
+            setTeacherAvailability(resolvedAvailability || []);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -299,8 +323,9 @@ export default function TeacherProfile() {
     { key: 'personal', label: t('teacherProfilePage.personalInfo', 'البيانات الشخصية'), icon: User },
     { key: 'security', label: t('teacherProfilePage.security', 'الأمان وكلمة المرور'), icon: ShieldCheck },
     { key: 'teaching', label: t('teacherProfilePage.stats', 'المعلومات التعليمية والنبذة'), icon: BookOpen },
+    { key: 'availability', label: isRtl ? 'الأيام المتاحة للعمل' : 'Working Days', icon: Calendar },
     { key: 'display', label: t('parentSettings.languageDisplay', 'اللغة والعرض'), icon: Palette },
-  ], [t]);
+  ], [t, isRtl]);
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherProfileHeader
@@ -355,11 +380,18 @@ export default function TeacherProfile() {
         />
       ) : activeTab === 'display' ? (
         <LanguageAppearancePanel />
+      ) : activeTab === 'availability' ? (
+        <TeacherAvailabilityCard
+          availability={teacherAvailability}
+          isRtl={isRtl}
+          title={isRtl ? 'الأيام المتاحة للعمل' : 'Available Working Days'}
+        />
       ) : (
         <TeacherTeachingInfoCard
           t={t}
           profileForm={profileForm}
           isRtl={isRtl}
+          availability={teacherAvailability}
         />
       )}
     </div>

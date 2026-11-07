@@ -1,14 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
-  Users,
-  GraduationCap,
-  UserCheck,
-  BookOpen,
-  Video,
-  Star,
   DollarSign,
   CreditCard,
   FileText,
@@ -16,72 +9,12 @@ import {
   ArrowUpRight,
   TrendingUp,
 } from 'lucide-react';
-import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import AnalyticsChartSection from './components/AnalyticsChartSection';
 import TeacherPerformanceRanking from './components/TeacherPerformanceRanking';
 
 export default function AdminReports() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const { data: statsRes, isLoading } = useQuery({
-    queryKey: ['admin-reports-stats'],
-    queryFn: () => dashboardApi.fetchStatistics(),
-    staleTime: 5 * 60 * 1000,
-  });
-  const statsData = useMemo(() => {
-    const apiData = statsRes?.data?.data ?? statsRes?.data ?? {};
-    return apiData?.statistics ?? apiData?.stats ?? apiData ?? {};
-  }, [statsRes]);
-  const metrics = useMemo(() => [
-    {
-      title: t('adminReports.totalStudents', 'إجمالي الطلاب'),
-      value: statsData.students ?? statsData.totalStudents ?? '0',
-      icon: Users,
-      color: 'text-blue-600 dark:text-blue-400',
-      bg: 'bg-blue-50 dark:bg-blue-950/40',
-      border: 'border-blue-100 dark:border-blue-900/40',
-    },
-    {
-      title: t('adminReports.totalTeachers', 'إجمالي المعلمين'),
-      value: statsData.teachers ?? statsData.totalTeachers ?? '0',
-      icon: GraduationCap,
-      color: 'text-[#00594C] dark:text-emerald-400',
-      bg: 'bg-[#e8f7f3] dark:bg-emerald-950/40',
-      border: 'border-[#00594C]/10 dark:border-emerald-900/40',
-    },
-    {
-      title: t('adminReports.totalParents', 'أولياء الأمور'),
-      value: statsData.parents ?? statsData.totalParents ?? '0',
-      icon: UserCheck,
-      color: 'text-indigo-600 dark:text-indigo-400',
-      bg: 'bg-indigo-50 dark:bg-indigo-950/40',
-      border: 'border-indigo-100 dark:border-indigo-900/40',
-    },
-    {
-      title: t('adminReports.totalGroups', 'المجموعات الدراسية'),
-      value: statsData.groups ?? statsData.totalGroups ?? statsData.classes ?? '0',
-      icon: BookOpen,
-      color: 'text-amber-600 dark:text-amber-400',
-      bg: 'bg-amber-50 dark:bg-amber-950/40',
-      border: 'border-amber-100 dark:border-amber-900/40',
-    },
-    {
-      title: t('adminReports.activeSessions', 'الحصص النشطة اليوم'),
-      value: statsData.todayActiveSessions ?? statsData.activeSessionsToday ?? statsData.activeSessions ?? '0',
-      icon: Video,
-      color: 'text-rose-600 dark:text-rose-400',
-      bg: 'bg-rose-50 dark:bg-rose-950/40',
-      border: 'border-rose-100 dark:border-rose-900/40',
-    },
-    {
-      title: t('adminReports.rating', 'تقييم المنصة العام'),
-      value: statsData.platformRating ?? statsData.rating ?? '5.0',
-      icon: Star,
-      color: 'text-yellow-500 dark:text-yellow-400',
-      bg: 'bg-yellow-50 dark:bg-yellow-950/40',
-      border: 'border-yellow-100 dark:border-yellow-900/40',
-    },
-  ], [statsData, t]);
   const quickLinks = useMemo(() => [
     {
       title: t('adminReports.viewEarnings', 'عرض الأرباح والمكاسب'),
@@ -132,36 +65,6 @@ export default function AdminReports() {
             <span>مؤشرات مباشرة</span>
           </span>
         </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-32 bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 animate-pulse"
-              />
-            ))
-          : metrics.map((m, idx) => {
-              const Icon = m.icon;
-              return (
-                <div
-                  key={idx}
-                  className={`bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border ${m.border} flex items-center justify-between gap-4 transition-all hover:shadow-md`}
-                >
-                  <div className="space-y-1">
-                    <span className="text-xs font-bold text-slate-400 block">
-                      {m.title}
-                    </span>
-                    <span className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white block">
-                      {m.value}
-                    </span>
-                  </div>
-                  <div className={`p-4 rounded-2xl ${m.bg} ${m.color}`}>
-                    <Icon size={26} />
-                  </div>
-                </div>
-              );
-            })}
       </div>
       <AnalyticsChartSection />
       <TeacherPerformanceRanking />

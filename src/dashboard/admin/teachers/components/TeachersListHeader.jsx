@@ -50,7 +50,7 @@ export default function TeachersListHeader({
                   if (onSearchSubmit) onSearchSubmit()
                 }
               }}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-2.5 ps-9 pe-8 outline-none transition-all text-sm placeholder-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-2.5 ps-9 pe-8 outline-none transition-all text-sm placeholder-slate-400"
             />
             {searchVal ? (
               <button

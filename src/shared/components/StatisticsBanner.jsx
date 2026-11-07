@@ -25,12 +25,18 @@ export default React.memo(function StatisticsBanner({ data }) {
     const { t, i18n } = useTranslation()
     const locale = i18n.language === 'ar' ? 'ar-EG' : 'en-US'
     const statistics = [
-        { number: data?.students ?? 1250, label: t('statistics.students', 'طالب مسجل') },
-        { number: data?.teachers ?? 85, label: t('statistics.teachers', 'معلم معتمد') },
-        { number: data?.classes ?? 320, label: t('statistics.classes', 'حصة تعليمية') },
+        { number: data?.students ?? 535, label: t('statistics.students', 'طالبًا وطالبةً التحقوا ببرامجنا') },
+        { number: data?.teachers ?? 15, label: t('statistics.teachers', 'معلّمًا ومعلّمةً ضمن فريقنا التعليمي') },
+        { number: data?.classes ?? 250, label: t('statistics.classes', 'حصةً تعليميةً قدّمناها') },
     ]
     return (
         <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-8xl mx-auto">
+            <div className="text-center mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C] dark:text-emerald-400">
+                    {t('statistics.title', 'منارة العز بالأرقام')}
+                </h2>
+                <div className="mx-auto mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
+            </div>
             <motion.section
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}

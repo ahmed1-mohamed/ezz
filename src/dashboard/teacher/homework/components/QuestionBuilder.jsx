@@ -19,6 +19,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
     const newQ = {
       id: `q_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       type,
+      questionText: '',
       question: '',
       points: 5,
       options: type === 'multiple_choice' ? ['', '', '', ''] : [],
@@ -31,6 +32,9 @@ export default function QuestionBuilder({ questions = [], onChange }) {
   const handleUpdateQuestion = (id, field, value) => {
     const nextList = questions.map((q) => {
       if (q.id === id) {
+        if (field === 'question' || field === 'questionText') {
+          return { ...q, questionText: value, question: value };
+        }
         return { ...q, [field]: value };
       }
       return q;
@@ -269,8 +273,8 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                         ? t('teacherHomework.mcqPlaceholder', 'مثال: ما هو حكم النون الساكنة إذا جاء بعدها حرف الياء؟')
                         : t('teacherHomework.essayPlaceholder', 'مثال: اذكر باختصار تعريف المد اللازم الكلمي المثقل مع مثال من سورة الفاتحة.')
                     }
-                    value={currentQ.question}
-                    onChange={(e) => handleUpdateQuestion(currentQ.id, 'question', e.target.value)}
+                    value={currentQ.questionText || currentQ.question || ''}
+                    onChange={(e) => handleUpdateQuestion(currentQ.id, 'questionText', e.target.value)}
                     className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
                   />
                 </div>

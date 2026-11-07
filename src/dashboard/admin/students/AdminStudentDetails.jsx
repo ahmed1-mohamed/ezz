@@ -63,10 +63,11 @@ export default function AdminStudentDetails() {
   }
   const handleChangeGroup = async (currentGroupId, targetGroupId) => {
     try {
+      const studentId = student?.student_id || student?.id || student?._id || id
       if (currentGroupId) {
-        await adminGroupsApi.transferStudent(currentGroupId, { student: id, targetGroup: targetGroupId })
+        await adminGroupsApi.transferStudent(currentGroupId, { student: studentId, targetGroup: targetGroupId })
       } else {
-        await adminGroupsApi.addStudentToGroup(targetGroupId, id)
+        await adminGroupsApi.addStudentToGroup(targetGroupId, studentId)
       }
       await refreshStudent()
       toast.success(isRtl ? 'تم تغيير المجموعة بنجاح' : 'Group changed successfully')

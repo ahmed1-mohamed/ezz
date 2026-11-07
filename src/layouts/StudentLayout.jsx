@@ -16,8 +16,12 @@ import {
   User,
   Menu,
   X,
+  Sun,
+  Moon,
+  LogOut,
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
+import { setLanguage } from '@/i18n.js'
 
 const navItems = [
   { path: '/dashboard/student', icon: Home, transKey: 'home', end: true },
@@ -39,6 +43,25 @@ export default function StudentLayout() {
   const location = useLocation()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark'
+  })
+  const toggleTheme = () => {
+    const nextDark = !isDarkMode
+    setIsDarkMode(nextDark)
+    if (nextDark) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }
+  const handleLanguageToggle = () => {
+    const newLang = isRtl ? 'en' : 'ar'
+    setLanguage(newLang)
+  }
   const [prevLocationKey, setPrevLocationKey] = useState(location.key)
   if (prevLocationKey !== location.key) {
     setPrevLocationKey(location.key)
@@ -78,23 +101,42 @@ export default function StudentLayout() {
             </div>
           </div>
         </div>
-        <Link to="/dashboard/student/profile" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
-          <div className="text-end">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[120px]">
-              {displayName}
-            </h4>
-            <p className="text-[10px] text-slate-400 font-medium">
-              {t('studentDashboard.user.role', 'طالب')}
-            </p>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-            {userImage ? (
-              <img src={userImage} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              <span>{initialLetter}</span>
-            )}
-          </div>
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+          >
+            {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-[#00594C]" />}
+          </button>
+          <button
+            type="button"
+            onClick={handleLanguageToggle}
+            className="flex items-center gap-1 p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
+            title={t('language.toggle', 'تغيير اللغة')}
+          >
+            <Globe size={16} />
+            <span>{isRtl ? 'EN' : 'عربي'}</span>
+          </button>
+          <Link to="/dashboard/student/profile" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
+            <div className="text-end hidden sm:block">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[120px]">
+                {displayName}
+              </h4>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {t('studentDashboard.user.role', 'طالب')}
+              </p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+              {userImage ? (
+                <img src={userImage} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                <span>{initialLetter}</span>
+              )}
+            </div>
+          </Link>
+        </div>
       </header>
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -152,8 +194,28 @@ export default function StudentLayout() {
             ))}
           </nav>
         </div>
-        <div className="pt-4 mt-4 shrink-0">
-          <div className="flex items-center gap-3 px-1 mb-3">
+        <div className="pt-4 mt-4 shrink-0 space-y-3">
+          <div className="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+            >
+              {isDarkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-[#00594C]" />}
+              <span>{isDarkMode ? t('theme.light', 'نهاري') : t('theme.dark', 'ليلي')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleLanguageToggle}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={t('language.toggle', 'تغيير اللغة')}
+            >
+              <Globe size={15} />
+              <span>{isRtl ? 'English' : 'العربية'}</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-3 px-1">
             <div className="w-11 h-11 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0 overflow-hidden">
               {userImage ? (
                 <img src={userImage} alt={displayName} className="w-full h-full object-cover" />
@@ -170,9 +232,10 @@ export default function StudentLayout() {
           <button
             type="button"
             onClick={logout}
-            className="w-full py-3.5 bg-[#EB3D3D] hover:bg-[#DC2626] text-white font-bold text-sm rounded-2xl shadow-sm transition-all active:scale-[0.98] cursor-pointer text-center"
+            className="w-full py-3 bg-[#EB3D3D] hover:bg-[#DC2626] text-white font-bold text-sm rounded-2xl shadow-sm transition-all active:scale-[0.98] cursor-pointer text-center flex items-center justify-center gap-2"
           >
-            {t('dashboard.logout', 'تسجيل الخروج')}
+            <LogOut size={16} />
+            <span>{t('dashboard.logout', 'تسجيل الخروج')}</span>
           </button>
         </div>
       </aside>

@@ -10,19 +10,19 @@ export default React.memo(function AboutCoreValues() {
     const values = useMemo(() => [
         {
             title: t('curriculum.coreValues.v1.title', t('about.values.v1.title', 'الأمانة العلمية')),
-            desc: t('curriculum.coreValues.v1.desc', 'نقل المعرفة بسند متصل ومنهجية رصينة تحفظ الأصالة.'),
+            desc: t('curriculum.coreValues.v1.desc', 'نحرص على دقّة ما نعلّمه، ونقدّم المعرفة بأسلوب واضح يناسب مستوى كل طالب.'),
             icon: <Check className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.1
         },
         {
-            title: t('curriculum.coreValues.v2.title', t('about.values.v2.title', 'الرفق واللين')),
-            desc: t('curriculum.coreValues.v2.desc', 'التعليم بالحب والتشجيع وفق المنهج التربوي الكريم.'),
+            title: t('curriculum.coreValues.v2.title', t('about.values.v2.title', 'الرفق والتشجيع')),
+            desc: t('curriculum.coreValues.v2.desc', 'نُعلّم بصبر ورفق، ونشجّع طلابنا على السؤال والمحاولة حتى يتعلّموا بثقة.'),
             icon: <Heart className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.2
         },
         {
-            title: t('curriculum.coreValues.v3.title', t('about.values.v3.title', 'التيسير والشمول')),
-            desc: t('curriculum.coreValues.v3.desc', 'جعل المعرفة متاحة للجميع مهما كانت المسافات والظروف.'),
+            title: t('curriculum.coreValues.v3.title', t('about.values.v3.title', 'المرونة وإتاحة التعلّم')),
+            desc: t('curriculum.coreValues.v3.desc', 'نقدّم دروسًا عبر الإنترنت بمواعيد مرنة، ونراعي اختلاف مستويات طلابنا واحتياجاتهم.'),
             icon: <Globe className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.3
         }

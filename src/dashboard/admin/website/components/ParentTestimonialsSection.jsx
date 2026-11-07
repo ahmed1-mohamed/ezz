@@ -13,7 +13,7 @@ export default function ParentTestimonialsSection({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8 mt-6 lg:mt-8">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-        <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           {t('adminDashboard.website.parentTestimonialsTitle', isRtl ? 'آراء أولياء الأمور' : 'Parents Testimonials')}
         </h2>
         {handleOpenAddTestimonial && (

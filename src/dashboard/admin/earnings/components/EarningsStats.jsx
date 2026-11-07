@@ -9,28 +9,26 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-function formatCurrency(val, currency = 'USD') {
+function formatCurrency(val) {
   const num = Number(val || 0)
   const formatted = num.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })
-  if (currency === 'USD' || currency === '$') return `${formatted} $`
-  if (currency === 'SAR') return `${formatted} ر.س`
-  return `${formatted} ${currency}`
+  return `${formatted} $`
 }
 
 export default function EarningsStats({ stats, platform, currency = 'USD', mode = 'monthly' }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
-  const p = platform || stats?.platform || {}
+  const p = platform || stats?.platform || stats || {}
   const curr = currency || p.currency || stats?.currency || 'USD'
-  const grossCollected = p.grossCollected ?? stats?.totalRevenue ?? 0
-  const netProfit = p.netProfit ?? stats?.netProfit ?? 0
-  const revenueAfterFees = p.revenueAfterPaymentFees ?? stats?.platformEarnings ?? (grossCollected - (p.paymentFeesAmount ?? 0))
-  const teacherEarnings = p.teacherEarnings ?? stats?.teacherPayments ?? 0
-  const paymentFees = p.paymentFeesAmount ?? 0
-  const couponDiscount = p.couponDiscountAmount ?? 0
+  const grossCollected = p.grossCollected ?? p.totalRevenue ?? p.totalCollected ?? p.grossRevenue ?? stats?.totalRevenue ?? 0
+  const netProfit = p.netProfit ?? p.netRevenue ?? p.profit ?? stats?.netProfit ?? 0
+  const paymentFees = p.paymentFeesAmount ?? p.paymentFees ?? 0
+  const revenueAfterFees = p.revenueAfterPaymentFees ?? p.netAfterFees ?? stats?.platformEarnings ?? (grossCollected - paymentFees)
+  const teacherEarnings = p.teacherEarnings ?? p.teacherPayments ?? p.teachersTotalEarnings ?? stats?.teacherPayments ?? 0
+  const couponDiscount = p.couponDiscountAmount ?? p.couponDiscount ?? p.discounts ?? 0
   const items = [
     {
       title: t('adminDashboard.earnings.netProfit', 'صافي ربح المنصة'),

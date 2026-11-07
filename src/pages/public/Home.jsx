@@ -1,11 +1,13 @@
 import { memo, useEffect, useState, lazy, Suspense } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '@/shared/components/Button.jsx'
 import heroImage from '@/images/hero/cheerful-academy-kids.webp'
 import { fetchLandingPage } from '@/store/landingSlice'
+import { useAuth } from '@/shared/context/useAuth.jsx'
+import { getRedirectPath } from '@/shared/services/authService.js'
 
 const StatisticsBanner = lazy(() => import('@/shared/components/StatisticsBanner.jsx'))
 const PremiumParentsSection = lazy(() => import('@/shared/components/PremiumParentsSection.jsx'))
@@ -56,11 +58,25 @@ export default memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const { user, isAuthenticated } = useAuth()
     const { landingData } = useSelector((state) => state.landing)
     const [localData] = useState(readLocalStorage)
     useEffect(() => {
         dispatch(fetchLandingPage(i18n.language))
     }, [dispatch, i18n.language])
+    const executeWatchExperience = () => {
+        const targetUrl = '/dashboard/parent/students?action=trial'
+        if (!isAuthenticated) {
+            navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`)
+            return
+        }
+        if (user?.role?.toLowerCase() === 'parent') {
+            navigate(targetUrl)
+            return
+        }
+        navigate(getRedirectPath(user?.role) || '/')
+    }
     const heroInitial = { opacity: 0, scale: 0.92, x: isRtl ? 30 : -30 }
     const heroAnimate = { opacity: 1, scale: 1, x: 0 }
     const heroTransition = { duration: 0.7, ease: 'easeOut', delay: 0.2 }
@@ -93,14 +109,22 @@ export default memo(function Home() {
                                 {t('home.description', 'القرآن الكريم، واللغة العربية، والمواد الدراسية، والمناهج الدولية... في منصة واحدة تُنمّي قدراته وتُرسّخ قيمه.')}
                             </motion.p>
                             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center lg:justify-start w-full">
-                                <Link to="/about" className="w-full sm:w-auto">
-                                    <Button variant="secondary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform">
-                                        {t('home.ctaSecondary', 'تعرف علينا')}
-                                    </Button>
-                                </Link>
-                                <Link to="/login" className="w-full sm:w-auto">
-                                    <Button variant="primary" className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform">
-                                        {t('home.ctaPrimary', 'انضم الآن')}
+                                <Button
+                                    variant="secondary"
+                                    onClick={executeWatchExperience}
+                                    className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform"
+                                >
+                                    {t('home.ctaSecondary', 'شاهد التجربة')}
+                                </Button>
+                                <Link
+                                    to={isAuthenticated ? (getRedirectPath(user?.role) || '/dashboard') : '/login'}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <Button
+                                        variant="primary"
+                                        className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg hover:scale-105 transition-transform"
+                                    >
+                                        {isAuthenticated ? t('public.dashboard', 'لوحة التحكم') : t('home.ctaPrimary', 'انضم الآن')}
                                     </Button>
                                 </Link>
                             </motion.div>

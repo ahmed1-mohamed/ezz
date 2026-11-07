@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2 } from 'lucide-react'
+import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
@@ -14,7 +14,8 @@ export default function Register() {
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
     const navigate = useNavigate()
-    const { signup, loading } = useAuth()
+    const { signup, loading, theme, toggleTheme } = useAuth()
+    const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     const [formValues, setFormValues] = useState({
         name: '',
         email: '',
@@ -170,20 +171,29 @@ export default function Register() {
         }
     }
     return (
-        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans py-6">
-            <div className="absolute top-6 start-6 z-10">
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col font-sans">
+            <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 shrink-0">
                 <Link
                     to="/"
-                    className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm backdrop-blur-sm border border-transparent dark:border-slate-800"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-3 sm:px-4 py-2 rounded-full shadow-xs border border-slate-200/60 dark:border-slate-800 text-xs sm:text-sm cursor-pointer"
                 >
-                    <ArrowIcon className="w-5 h-5" />
+                    <ArrowIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t('register.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
-            </div>
-            <div className="absolute top-6 end-6 z-10">
-                <LanguageSwitcher />
-            </div>
-            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 my-auto pt-14 pb-8">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/70 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer shadow-xs"
+                        title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+                        aria-label="Toggle theme"
+                    >
+                        {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#00695C]" />}
+                    </button>
+                    <LanguageSwitcher />
+                </div>
+            </header>
+            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-6 my-auto">
                 <div className="text-center mb-6">
                     <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
                         <BookOpen className="w-9 h-9 sm:w-10 sm:h-10 text-[#00695C] dark:text-emerald-400" />

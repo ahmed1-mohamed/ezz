@@ -1,5 +1,16 @@
 {
   "appName": "Manarat Al-Ezz Academy",
+  "teacherPerformance": {
+    "badge": "Teacher Performance Ranking",
+    "title": "Excellence List & Teacher Performance Ranking",
+    "description": "Ranking top teachers based on average rating and total student evaluations",
+    "topTeacher": "Top Teacher 🏆",
+    "evaluations": "evaluations",
+    "evaluationsCount": "Number of Evaluations",
+    "avgRating": "Average Rating",
+    "generalRanking": "General Teacher Ranking",
+    "totalRanked": "Total Ranked Teachers"
+  },
   "common": {
     "search": "Search",
     "errorLoading": "An error occurred while loading teachers data",
@@ -858,11 +869,12 @@
   },
   "language": {
     "arabic": "Arabic",
-    "english": "English"
+    "english": "English",
+    "toggle": "Switch Language"
   },
   "programs": {
     "title": "Our Educational Programs",
-    "description": "Our programs are carefully designed to suit all levels with a modern, interactive approach that combines deep understanding and practical application.",
+    "description": "We provide specialized programs in the Holy Quran, Tajweed, Arabic language, and Islamic education, alongside support lessons in school subjects. Our programs cater to various levels, seamlessly blending concept explanation with hands-on practice aligned with each student's goals.",
     "cta": "Register Now",
     "list": {
       "integrated": {
@@ -921,6 +933,7 @@
     "nav": {
       "home": "Home",
       "teachers": "Teachers",
+      "teacherEvaluations": "Teacher Evaluations",
       "curriculums": "Curriculums",
       "dailySchedule": "Daily Schedule",
       "pricing": "Pricing",
@@ -1039,44 +1052,46 @@
     "cta": "Join now and start"
   },
   "statistics": {
-    "students": "Students",
-    "teachers": "Certified Teachers",
-    "classes": "Successful Classes"
+    "title": "Manarat Al-Ezz in Numbers",
+    "students": "Students enrolled in our programs",
+    "teachers": "Teachers in our educational team",
+    "classes": "Educational classes provided"
   },
   "premiumParents": {
-    "title": "Why do parents choose us?",
-    "description": "We offer an integrated experience with smart and professional educational services to monitor the educational process with clarity and transparency.",
+    "title": "Why Do Families Choose Manarat Al-Ezz Academy?",
+    "description": "We provide one-on-one online lessons with specialized educators, and allow parents to effortlessly track their children's progress through the dedicated Parents Portal.",
     "cards": {
       "tracking": {
-        "title": "Precise Tracking",
-        "description": "A comprehensive dashboard for parents providing a complete view of the student's level and progress in memorization and lessons moment by moment."
+        "title": "Student Progress Tracking",
+        "description": "The Parents Portal allows families to monitor the student's academic level and track their progress in lessons and Quran memorization."
       },
       "certified": {
-        "title": "Certified Teachers",
-        "description": "An elite of distinguished teachers holding high ijazahs in Quran and qualified certificates in education and teaching."
+        "title": "Specialized Educators",
+        "description": "Lessons are delivered by educators qualified in their respective fields, with our Quran department featuring teachers holding authentic Quranic Ijazahs. Every educator tailors their teaching and practice methodology to the student's level and learning goals."
       },
       "live": {
-        "title": "Live Sessions",
-        "description": "Live interactive sessions ensuring focus and continuous follow-up between teacher and student with the latest technologies."
+        "title": "Live & Interactive Sessions",
+        "description": "Students learn through one-on-one live online sessions, actively participating, asking questions, and receiving immediate feedback from their teacher. Educators adapt explanations and practice to match each student's proficiency level and learning pace."
       }
     }
   },
   "journey": {
     "badge": "Simple Steps",
-    "title": "Start your journey in 3 steps",
-    "description": "Simply access quality education",
+    "title": "How to start learning with us?",
+    "description": "We accompany you step by step throughout your learning journey with us.",
+    "cta": "Register Now",
     "steps": {
       "register": {
-        "title": "Register your account",
-        "description": "Create your profile and set your educational goals, a fast and secure registration process ensuring your data privacy."
+        "title": "Register with the Academy",
+        "description": "Complete your registration on the website to get started."
       },
       "choose": {
-        "title": "Choose your teacher",
-        "description": "Browse lists of specialized teachers, review their ratings and experiences, and choose who suits your learning style."
+        "title": "We Coordinate Your First Session",
+        "description": "Our academy team contacts you to understand the student's needs, recommend a specialized teacher, and agree on a convenient schedule."
       },
       "start": {
-        "title": "Start your live session",
-        "description": "Embark on your learning journey through our advanced virtual classrooms, direct interaction, motivating environment, and tangible results."
+        "title": "Start Learning",
+        "description": "Attend your live one-on-one session online at the agreed time."
       }
     }
   },
@@ -1270,68 +1285,68 @@
     "coreValues": {
       "title": "Our Core Values",
       "v1": {
-        "title": "Scientific Integrity",
-        "desc": "Transferring knowledge with connected authenticity and rigorous methodology preserving heritage."
+        "title": "Academic Integrity",
+        "desc": "We are committed to the accuracy of what we teach, presenting knowledge clearly to suit each student's level."
       },
       "v2": {
-        "title": "Gentleness & Compassion",
-        "desc": "Teaching with love and encouragement following the noble pedagogical approach."
+        "title": "Kindness & Encouragement",
+        "desc": "We teach with patience and kindness, encouraging our students to ask questions and try until they learn with confidence."
       },
       "v3": {
-        "title": "Facilitation & Inclusiveness",
-        "desc": "Making knowledge accessible to all regardless of distance and circumstances."
+        "title": "Flexibility & Accessibility",
+        "desc": "We provide online lessons with flexible schedules, accommodating the diverse levels and needs of our students."
       }
     },
     "comprehensiveness": {
-      "mainTitle": "Comprehensive Educational Curricula",
+      "mainTitle": "School Curriculum Support",
       "coverage": {
-        "title": "Comprehensive Curriculum Coverage",
-        "subtitle": "Covering all essential subjects, focusing on lesson comprehension, exercises, and reviews to prepare students with confidence.",
+        "title": "Academic Support Aligned with the School Curriculum",
+        "subtitle": "We provide one-on-one online lessons across various subjects, including Mathematics, Science, and English. We tailor our teaching to the student's school curriculum, focusing on topics and skills that require reinforcement.",
         "lessonExplanation": {
           "title": "Lesson Explanations",
-          "desc": "Starting from fundamentals, explaining concepts simply and clearly with practical examples."
+          "desc": "We explain concepts step by step, using solved examples that help students understand the idea and apply it independently."
         },
         "exercises": {
-          "title": "Exercises & Practice",
-          "desc": "Applying knowledge through diverse exercises to reinforce skills and retain information."
+          "title": "Training & Application",
+          "desc": "We offer progressive exercises varying in difficulty, reviewing student answers together to identify mistakes and learn how to correct them."
         },
         "reviews": {
-          "title": "Periodic Reviews",
-          "desc": "Tracking progress systematically with regular reviews to boost retention and exam readiness."
+          "title": "Review & Exam Preparation",
+          "desc": "We regularly review what the student has learned, identifying topics that require further practice ahead of exams."
         }
       },
       "stages": {
-        "title": "Diverse Educational Stages",
-        "subtitle": "Covering different stages with tailored depth and methodology according to each stage's needs.",
+        "title": "Support Across Educational Stages",
+        "subtitle": "We tailor our teaching approach and exercise difficulty to match the school curriculum and student needs at every stage.",
         "primary": {
-          "title": "Primary Stage",
-          "desc": "Focusing on solid foundations and fundamental concepts and rules."
+          "title": "Primary Stage (Elementary)",
+          "desc": "We build foundational skills using relatable real-life examples and activities that help students understand and apply concepts."
         },
         "preparatory": {
-          "title": "Preparatory Stage",
-          "desc": "Deepening comprehension and applying concepts to more advanced problem-solving."
+          "title": "Preparatory Stage (Middle School)",
+          "desc": "We help students connect concepts and apply them to multi-step problem-solving, training them to clearly explain their methodology."
         },
         "secondary": {
-          "title": "Secondary Stage",
-          "desc": "Focusing on exam preparation, analytical reasoning, and critical thinking."
+          "title": "Secondary Stage (High School)",
+          "desc": "We support students in mastering advanced topics and cultivate analytical and reasoning skills through practice with questions tailored to their curriculum and exam requirements."
         }
       },
       "subjects": {
         "math": {
           "title": "Mathematics",
-          "desc": "Focusing on core concepts and operations with interactive and accessible problem-solving."
+          "desc": "We explain mathematical concepts step by step, from basic arithmetic operations to topics such as algebra and geometry, tailored to grade level and curriculum. Students practice selecting the appropriate problem-solving strategy and verifying their answers."
         },
         "science": {
           "title": "Science",
-          "desc": "Connecting theory and experiments to nurture scientific inquiry and understanding of nature."
+          "desc": "We connect scientific concepts to real-world phenomena observed in everyday life. Through simplified examples and hands-on experiments, students practice interpreting results and drawing evidence-based conclusions."
         },
         "languages": {
           "title": "Languages",
-          "desc": "Developing reading, writing, and speaking skills with focus on comprehension and communication."
+          "desc": "We cultivate listening, speaking, reading, and writing skills through activities tailored to each student's proficiency level and goals. Students practice text comprehension, expressing their ideas clearly, and communicating with confidence in academic and daily life."
         },
         "social": {
           "title": "Social Studies",
-          "desc": "Connecting history, geography, and citizenship to build a holistic worldview and cultural appreciation."
+          "desc": "We integrate history, geography, and civics to help students understand their community and the wider world. Students learn to read maps, analyze historical sources, and appreciate the role of heritage in shaping cultural identity."
         }
       }
     },
@@ -1475,11 +1490,11 @@
     },
     "vision": {
       "title": "Our Vision",
-      "desc": "Providing excellent Quranic and Arabic education accessible to everyone, everywhere. We believe that knowledge is a shared right and the beauty of our language and religion must reach every heart clearly and easily."
+      "desc": "To be a trusted benchmark for online learning, making it easy for learners around the world to master the recitation of the Holy Quran, use the Arabic language with confidence, and understand and practice the teachings of Islam in their daily lives."
     },
     "mission": {
       "title": "Our Mission",
-      "desc": "Empowering Muslims around the world to learn their language and religion through modern educational technologies and specialized teachers, while preserving the Islamic role model and character."
+      "desc": "We offer online educational programs in the recitation, memorization, and Tajweed of the Holy Quran, Arabic for native and non-native speakers, and Islamic education. These programs are delivered by specialized educators who cater to each learner's level and goals, actively tracking their progress with personalized guidance and constructive feedback to advance their skills."
     },
     "features": {
       "title": "Why Do Parents Choose Us?",
@@ -1502,19 +1517,19 @@
     },
     "values": {
       "title": "Our Values",
-      "mainTitle": "Manarat Al-Ezz Core Values",
-      "mainDesc": "Manarat Al-Ezz Academy derives its principles from the teachings of our true religion, to be a solid foundation upon which we rely in all the educational and upbringing services we offer.",
+      "mainTitle": "Our Core Values",
+      "mainDesc": "Manarat Al-Ezz Academy derives its principles from the teachings of our true religion, serving as a solid foundation upon which we rely in all the educational and upbringing services we offer.",
       "v1": {
-        "title": "Scientific Integrity",
-        "desc": "Transmitting knowledge with a continuous chain of transmission and a solid methodology that preserves authenticity."
+        "title": "Academic Integrity",
+        "desc": "We are committed to the accuracy of what we teach, presenting knowledge clearly to suit each student's level."
       },
       "v2": {
-        "title": "Gentleness and Kindness",
-        "desc": "Teaching with love and encouragement according to the honorable Prophetic approach."
+        "title": "Kindness & Encouragement",
+        "desc": "We teach with patience and kindness, encouraging our students to ask questions and try until they learn with confidence."
       },
       "v3": {
-        "title": "Inclusiveness",
-        "desc": "Providing content that meets all the needs of the individual in their religion and worldly life."
+        "title": "Flexibility & Accessibility",
+        "desc": "We provide online lessons with flexible schedules, accommodating the diverse levels and needs of our students."
       }
     }
   },
@@ -2229,6 +2244,7 @@
       "liveSession": "Live Session",
       "recordedSessions": "Recorded Sessions",
       "teachers": "Teachers",
+      "teacherEvaluations": "Teacher Evaluations",
       "assignments": "Assignments",
       "excuses": "Children Excuses",
       "grades": "Grades",
@@ -2832,6 +2848,34 @@
     "teacherMaryam": "T. Maryam Al-Ali"
   },
   "adminDashboard": {
+    "teacherEvaluations": {
+      "badge": "Parent Evaluations",
+      "pageTitle": "Teacher Evaluations",
+      "pageSubtitle": "Review and track parent evaluations and feedback on teachers' performance",
+      "allTeachers": "All Teachers",
+      "filterByTeacher": "Filter by Teacher",
+      "searchPlaceholder": "Search by teacher, parent, or notes...",
+      "totalEvaluations": "Total Evaluations",
+      "averageRating": "Overall Average Rating",
+      "fiveStarRatings": "5-Star Ratings",
+      "evaluatedTeachers": "Evaluated Teachers",
+      "allRatings": "All Ratings",
+      "parentLabel": "Parent",
+      "studentLabel": "Student",
+      "teacherLabel": "Teacher",
+      "notesLabel": "Evaluation Notes",
+      "noNotes": "No notes provided with this evaluation",
+      "noEvaluationsFound": "No evaluations recorded yet",
+      "noEvaluationsFilter": "No evaluations match the selected filter criteria",
+      "resetFilter": "Reset Filter",
+      "refresh": "Refresh",
+      "starsCount": "{{count}} Stars",
+      "ratingLevelExcellent": "Excellent",
+      "ratingLevelVeryGood": "Very Good",
+      "ratingLevelGood": "Good",
+      "ratingLevelAcceptable": "Acceptable",
+      "ratingLevelPoor": "Poor"
+    },
     "header": {
       "title": "Manarat Al-Ezz",
       "subtitle": "Admin Panel"
@@ -2955,6 +2999,7 @@
       "home": "Overview",
       "managers": "Managers",
       "teachers": "Teachers",
+      "teacherEvaluations": "Teacher Evaluations",
       "students": "Students",
       "studentLevels": "Student Levels",
       "parents": "Parents",
@@ -2963,6 +3008,7 @@
       "mainWebsite": "Main Website",
       "website": "Website Settings",
       "sessions": "Sessions",
+      "trialSessions": "Trial Sessions",
       "studySchedule": "Study Schedule",
       "packages": "Packages & Pricing",
       "payments": "Payments",
@@ -4247,5 +4293,10 @@
     "tax": "Tax",
     "total": "Total",
     "currency": "EGP"
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode",
+    "toggle": "Toggle Theme"
   }
 }

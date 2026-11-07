@@ -5,9 +5,9 @@ import { landingApi } from '@/shared/services/api/landingApi';
 export default function useWebsiteStats(showNotification, enabled = true) {
   const { t } = useTranslation();
   const [stats, setStats] = useState({
-    classes: 320,
-    teachers: 85,
-    students: 1250
+    classes: 250,
+    teachers: 15,
+    students: 535
   });
   const [isLoading, setIsLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
@@ -29,9 +29,9 @@ export default function useWebsiteStats(showNotification, enabled = true) {
         const statsData = res?.data || res;
         if (statsData && isMounted) {
           setStats({
-            classes: statsData.classes ?? 320,
-            teachers: statsData.teachers ?? 85,
-            students: statsData.students ?? 1250
+            classes: statsData.classes ?? 250,
+            teachers: statsData.teachers ?? 15,
+            students: statsData.students ?? 535
           });
         }
       } catch (err) {
@@ -86,9 +86,9 @@ export default function useWebsiteStats(showNotification, enabled = true) {
       const statsData = res?.data || res;
       if (statsData) {
         setStats({
-          classes: statsData.classes ?? 320,
-          teachers: statsData.teachers ?? 85,
-          students: statsData.students ?? 1250
+          classes: statsData.classes ?? 250,
+          teachers: statsData.teachers ?? 15,
+          students: statsData.students ?? 535
         });
       }
     } catch {
@@ -96,7 +96,7 @@ export default function useWebsiteStats(showNotification, enabled = true) {
       if (savedStats) {
         setStats(JSON.parse(savedStats));
       } else {
-        setStats({ classes: 320, teachers: 85, students: 1250 });
+        setStats({ classes: 250, teachers: 15, students: 535 });
       }
     }
     showNotification(t('adminDashboard.website.statsReverted', 'تم إلغاء التغييرات الإحصائية'), 'info');

@@ -89,19 +89,20 @@ export default function RecordTeacherPayoutModal({
       setErrorMessage(isRtl ? 'يرجى إدخال مبلغ تحويل صحيح أكبر من صفر' : 'Please enter a valid amount greater than 0')
       return
     }
-    if (!methodId) {
-      setErrorMessage(isRtl ? 'يرجى اختيار طريقة دفع لتحويل المبلغ' : 'Please select a payment method')
-      return
-    }
     setIsSubmitting(true)
     try {
       const fd = new FormData()
       fd.append('amount', String(numAmount))
-      fd.append('methodId', methodId)
-      if (referenceNumber.trim()) fd.append('referenceNumber', referenceNumber.trim())
-      if (paidAt) fd.append('paidAt', paidAt)
-      if (notes.trim()) fd.append('notes', notes.trim())
-      if (proofImageFile) {
+      if (methodId && String(methodId).trim()) {
+        fd.append('paymentMethodId', String(methodId).trim())
+      }
+      if (referenceNumber && referenceNumber.trim()) {
+        fd.append('referenceNumber', referenceNumber.trim())
+      }
+      if (notes && notes.trim()) {
+        fd.append('notes', notes.trim())
+      }
+      if (proofImageFile instanceof File) {
         fd.append('proofImage', proofImageFile)
       }
       await teachersApi.createTeacherPayout(teacherId, fd)

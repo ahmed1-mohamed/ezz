@@ -108,7 +108,7 @@ export default function CurriculumBasicInfoCard({
                   ? (isRtl ? lang.name.ar : lang.name.en) || lang.name.ar || lang.name.en
                   : lang.name
                 return (
-                  <option key={langId} value={langId} className="dark:bg-slate-850">
+                  <option key={langId} value={langId} className="dark:bg-slate-900">
                     {langName}
                   </option>
                 )
@@ -136,7 +136,7 @@ export default function CurriculumBasicInfoCard({
                   ? (isRtl ? lvl.name.ar || lvl.name.en : lvl.name.en || lvl.name.ar)
                   : (lvl.name || lvl.title || lvlId)
                 return (
-                  <option key={lvlId} value={lvlId} className="dark:bg-slate-850">
+                  <option key={lvlId} value={lvlId} className="dark:bg-slate-900">
                     {lvlName}
                   </option>
                 )

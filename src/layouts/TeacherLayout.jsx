@@ -1,4 +1,4 @@
-﻿import { useState, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,13 +22,18 @@ import {
   Menu,
   X,
   Globe,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
+import { setLanguage } from '@/i18n.js';
 
 export default function TeacherLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, theme, toggleTheme } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language?.startsWith('ar') ?? true;
+  const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const handleLanguageToggle = () => setLanguage(isRtl ? 'en' : 'ar');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const teacherName = (() => {
     if (!user) return t('teacher.teacherFallback', 'معلم');
@@ -183,6 +188,26 @@ export default function TeacherLayout() {
             ))}
           </nav>
           <div className="p-4 space-y-3 shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+              >
+                {isDarkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-[#00594C]" />}
+                <span>{isDarkMode ? t('theme.light', 'نهاري') : t('theme.dark', 'ليلي')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleLanguageToggle}
+                className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                title={t('language.toggle', 'تغيير اللغة')}
+              >
+                <Globe size={15} />
+                <span>{isRtl ? 'EN' : 'عربي'}</span>
+              </button>
+            </div>
             <Link
               to="/dashboard/teacher/profile"
               className="flex items-center justify-start gap-3 px-1 hover:opacity-80 transition-opacity"
@@ -221,7 +246,23 @@ export default function TeacherLayout() {
               {t('appName', 'منارة العز')} · {t('teacher.platformTitle', 'منصة المعلم')}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+            >
+              {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#00594C]" />}
+            </button>
+            <button
+              type="button"
+              onClick={handleLanguageToggle}
+              className="p-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold text-xs"
+              title={t('language.toggle', 'تغيير اللغة')}
+            >
+              <Globe size={17} />
+            </button>
             <Link
               to="/dashboard/teacher/profile"
               className="w-8 h-8 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-xs overflow-hidden shadow-xs shrink-0"

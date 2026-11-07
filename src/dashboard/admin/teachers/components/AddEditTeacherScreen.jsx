@@ -4,6 +4,7 @@ import { showErrorToast } from '@/shared/utils/sweetAlert'
 import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
 import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
+import TeacherWebsiteSettingsCard from './TeacherWebsiteSettingsCard'
 import TeacherAvailabilityCard from './TeacherAvailabilityCard'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
@@ -101,7 +102,9 @@ const getInitialFormData = (teacher) => ({
   aboutAr: getInitialBioAr(teacher),
   aboutEn: getInitialBioEn(teacher),
   bio: { ar: getInitialBioAr(teacher), en: getInitialBioEn(teacher) },
-  showOnWebsite: Boolean(teacher?.showOnWebsite),
+  showOnWebsite: teacher ? Boolean(teacher.showOnWebsite) : true,
+  totalStudents: teacher?.totalStudents ?? teacher?.studentsCount ?? '',
+  totalLessons: teacher?.totalLessons ?? teacher?.totalSessions ?? '',
   specializations: (teacher?.specializations || []).map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean),
   achievements: normalizeAchievements(teacher?.achievements),
   availability: Array.isArray(teacher?.availability) ? teacher.availability : [],
@@ -184,6 +187,8 @@ export default function AddEditTeacherScreen({
       yearsOfExperience: Math.max(0, Number(formData.yearsOfExperience) || 0),
       achievements: formData.achievements,
       showOnWebsite: Boolean(formData.showOnWebsite),
+      totalStudents: formData.totalStudents === '' ? 0 : Math.max(0, Number(formData.totalStudents) || 0),
+      totalLessons: formData.totalLessons === '' ? 0 : Math.max(0, Number(formData.totalLessons) || 0),
       availability: formData.availability,
       profileImageFile: formData.profileImageFile,
       ...(teacher
@@ -250,6 +255,11 @@ export default function AddEditTeacherScreen({
           isRtl={isRtl}
           curricula={apiCurricula}
           isEdit={!!teacher}
+        />
+        <TeacherWebsiteSettingsCard
+          formData={formData}
+          onChange={handleFieldChange}
+          isRtl={isRtl}
         />
         <TeacherAvailabilityCard
           formData={formData}

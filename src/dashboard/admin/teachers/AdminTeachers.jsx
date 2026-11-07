@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Coins } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
@@ -10,7 +10,6 @@ import TeachersList from './components/TeachersList'
 import TeacherProfileCard from './components/TeacherProfileCard'
 import AddEditTeacherScreen from './components/AddEditTeacherScreen'
 import TeacherDetailsScreen from './components/TeacherDetailsScreen'
-import AllTeachersPayoutsModal from './components/AllTeachersPayoutsModal'
 import Spinner from '@/shared/components/Spinner'
 
 export default function AdminTeachers() {
@@ -22,7 +21,6 @@ export default function AdminTeachers() {
   const [selectedTeacherId, setSelectedTeacherId] = useState(null)
   const [selectedTeacherRecord, setSelectedTeacherRecord] = useState(null)
   const [isSavingTeacher, setIsSavingTeacher] = useState(false)
-  const [isAllPayoutsOpen, setIsAllPayoutsOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchVal, setSearchVal] = useState('')
   const [committedSearch, setCommittedSearch] = useState('')
@@ -182,14 +180,16 @@ export default function AdminTeachers() {
                 {t('adminDashboard.teachers.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsAllPayoutsOpen(true)}
-              className="flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-[#005953] dark:text-emerald-400 border border-[#005953]/20 font-bold text-sm shadow-soft transition-all active:scale-95 cursor-pointer"
-            >
-              <Coins size={18} className="text-[#005953] dark:text-emerald-400" />
-              <span>{isRtl ? 'سجل تحويلات المعلمين' : 'All Teachers Payouts'}</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/admin/teacher-evaluations')}
+                className="flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 font-bold text-sm shadow-soft transition-all active:scale-95 cursor-pointer"
+              >
+                <Star size={18} className="fill-amber-400 text-amber-400" />
+                <span>{isRtl ? 'تقييمات المعلمين' : 'Teacher Evaluations'}</span>
+              </button>
+            </div>
           </div>
            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <button
@@ -328,11 +328,6 @@ export default function AdminTeachers() {
           }}
         />
       )}
-      <AllTeachersPayoutsModal
-        isOpen={isAllPayoutsOpen}
-        onClose={() => setIsAllPayoutsOpen(false)}
-        isRtl={isRtl}
-      />
     </div>
   )
 }

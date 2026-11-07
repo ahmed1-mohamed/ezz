@@ -186,7 +186,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
                       setUrl(formatUrl(e.target.value))
                     }
                   }}
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm font-mono"
+                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm font-mono"
                   placeholder="https://drive.google.com/... or https://..."
                   dir="ltr"
                 />
@@ -205,7 +205,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               required
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'مثال: كتاب الشرح أو رابط المحاضرة' : 'e.g. Explanation Book or Lecture Link'}
             />
           </div>
@@ -217,7 +217,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               type="text"
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'e.g. Explanation Book' : 'e.g. Explanation Book'}
             />
           </div>

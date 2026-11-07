@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import { setCookie, getCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
+import { useAuth } from '@/shared/context/useAuth.jsx'
 
 export default function ResetPassword() {
+    const { theme, toggleTheme } = useAuth()
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
+    const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
     const location = useLocation()
     const [searchParams] = useSearchParams()
@@ -88,17 +91,29 @@ export default function ResetPassword() {
         }
     }
     return (
-        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
-            <div className="absolute top-6 start-6 z-10">
-                <Link to="/login" className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/50 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm border border-transparent dark:border-slate-800">
-                    <ArrowIcon className="w-5 h-5" />
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col font-sans">
+            <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 shrink-0">
+                <Link
+                    to="/login"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-3 sm:px-4 py-2 rounded-full shadow-xs border border-slate-200/60 dark:border-slate-800 text-xs sm:text-sm cursor-pointer"
+                >
+                    <ArrowIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t('forgotPassword.backToLogin', 'العودة لتسجيل الدخول')}</span>
                 </Link>
-            </div>
-            <div className="absolute top-6 end-6 z-10">
-                <LanguageSwitcher />
-            </div>
-            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/70 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer shadow-xs"
+                        title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+                        aria-label="Toggle theme"
+                    >
+                        {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#00695C]" />}
+                    </button>
+                    <LanguageSwitcher />
+                </div>
+            </header>
+            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-8">
                 <div className="text-center mb-8">
                     <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
                         <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />

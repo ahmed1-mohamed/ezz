@@ -33,6 +33,7 @@ const AdminEditStudent = lazy(() => import('../dashboard/admin/students/AdminEdi
 const AdminStudentLevels = lazy(() => import('../dashboard/admin/levels/AdminStudentLevels.jsx'))
 const AdminTeachers = lazy(() => import('../dashboard/admin/teachers/AdminTeachers.jsx'))
 const AdminTeacherDetails = lazy(() => import('../dashboard/admin/teachers/AdminTeacherDetails.jsx'))
+const AdminTeacherEvaluations = lazy(() => import('../dashboard/admin/teachers/AdminTeacherEvaluations.jsx'))
 const AdminReports = lazy(() => import('../dashboard/admin/reports/AdminReports.jsx'))
 const AdminSettings = lazy(() => import('../dashboard/admin/settings/AdminSettings.jsx'))
 const AdminParents = lazy(() => import('../dashboard/admin/parents/AdminParents.jsx'))
@@ -56,6 +57,7 @@ const AdminCoupons = lazy(() => import('../dashboard/admin/coupons/AdminCoupons.
 const AdminExplanationLanguages = lazy(() => import('../dashboard/admin/explanation_languages/AdminExplanationLanguages.jsx'))
 const AdminCurriculums = lazy(() => import('../dashboard/admin/curriculums/AdminCurriculums.jsx'))
 const AdminCurriculumDetails = lazy(() => import('../dashboard/admin/curriculums/AdminCurriculumDetails.jsx'))
+const AdminTrialSessions = lazy(() => import('../dashboard/admin/trial_sessions/AdminTrialSessions.jsx'))
 
 const TeacherLayout = lazy(() => import('../layouts/TeacherLayout.jsx'))
 const StudentLayout = lazy(() => import('../layouts/StudentLayout.jsx'))
@@ -78,6 +80,7 @@ const TeacherRewards = lazy(() => import('../dashboard/teacher/rewards/TeacherRe
 const TeacherEvaluations = lazy(() => import('../dashboard/teacher/student_evaluations/TeacherEvaluations.jsx'))
 const CreateHomework = lazy(() => import('../dashboard/teacher/homework/CreateHomework.jsx'))
 const HomeworkSubmissions = lazy(() => import('../dashboard/teacher/homework/HomeworkSubmissions.jsx'))
+const TeacherSubmissionDetailsPage = lazy(() => import('../dashboard/teacher/homework/TeacherSubmissionDetailsPage.jsx'))
 const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 const TeacherCurricula = lazy(() => import('../dashboard/teacher/curricula/TeacherCurricula.jsx'))
 const TeacherEarnings = lazy(() => import('../dashboard/teacher/earnings/TeacherEarnings.jsx'))
@@ -313,6 +316,10 @@ export default function AppRoutes() {
                                         element={<PermissionRoute permission="teachers.read"><AdminTeacherDetails /></PermissionRoute>}
                                     />
                                     <Route
+                                        path="/dashboard/admin/teacher-evaluations"
+                                        element={<PermissionRoute permission="teachers.read"><AdminTeacherEvaluations /></PermissionRoute>}
+                                    />
+                                    <Route
                                         path="/dashboard/admin/reports"
                                         element={<PermissionRoute permissions={['reports.read', 'dashboard.reports.read']}><AdminReports /></PermissionRoute>}
                                     />
@@ -429,6 +436,10 @@ export default function AppRoutes() {
                                         element={<PermissionRoute permission="curricula.read"><AdminCurriculumDetails /></PermissionRoute>}
                                     />
                                     <Route
+                                        path="/dashboard/admin/trial-sessions"
+                                        element={<PermissionRoute permission="trial_sessions.read"><AdminTrialSessions /></PermissionRoute>}
+                                    />
+                                    <Route
                                         path="/dashboard/admin/logs"
                                         element={<PermissionRoute permission="logs.read"><AdminLogs /></PermissionRoute>}
                                     />
@@ -475,6 +486,14 @@ export default function AppRoutes() {
                                         element={<TeacherLive />}
                                     />
                                     <Route
+                                        path="/dashboard/teacher/live/room/:sessionId"
+                                        element={<TeacherLive />}
+                                    />
+                                    <Route
+                                        path="/dashboard/teacher/live/room"
+                                        element={<TeacherLive />}
+                                    />
+                                    <Route
                                         path="/dashboard/teacher/sessions"
                                         element={<TeacherSessions />}
                                     />
@@ -516,7 +535,11 @@ export default function AppRoutes() {
                                      />
                                      <Route
                                          path="/dashboard/teacher/assignments/submissions/:id"
-                                         element={<HomeworkSubmissions />}
+                                         element={<TeacherSubmissionDetailsPage />}
+                                     />
+                                     <Route
+                                         path="/dashboard/teacher/homework/submissions/:id"
+                                         element={<TeacherSubmissionDetailsPage />}
                                      />
                                      <Route
                                          path="/dashboard/teacher/assignments/:id"

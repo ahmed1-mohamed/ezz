@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
@@ -50,7 +50,7 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
               required
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'الاسم بالعربية...' : 'Arabic name...'}
             />
           </div>
@@ -63,7 +63,7 @@ export default function BasicModal({ isOpen, onClose, title, isSaving, onSubmit,
               required
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'الاسم بالإنجليزية...' : 'English name...'}
             />
           </div>

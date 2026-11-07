@@ -77,7 +77,7 @@ export default function ParentPersonalInfo({
             onChange={(e) => handleChange('nameEn', e.target.value)}
             placeholder="Khaled Al-Mansour"
             dir="ltr"
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
           />
         </div>
         <div>
@@ -90,7 +90,7 @@ export default function ParentPersonalInfo({
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder={isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 text-start"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 text-start"
           />
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function ParentPersonalInfo({
               <button
                 type="button"
                 onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
-                className="h-12 flex items-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
+                className="h-12 flex items-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent rounded-2xl text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
               >
                 <span>{selectedCountryCode?.flag || '🌍'}</span>
                 <span className="text-xs">{(selectedCountryCode?.dialCode || selectedCountryCode?.code) ? `(${selectedCountryCode.dialCode || selectedCountryCode.code})` : ''}</span>
@@ -144,7 +144,7 @@ export default function ParentPersonalInfo({
               value={phoneVal}
               onChange={(e) => setPhoneVal(e.target.value)}
               placeholder="501234567"
-              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
+              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
             />
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function ParentPersonalInfo({
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="khalid@email.com"
             dir="ltr"
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
           />
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function ParentPersonalInfo({
         <button
           type="button"
           onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-          className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-105 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
+          className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
         >
           <ChevronDown size={16} className="text-slate-400" />
           <span>

@@ -12,7 +12,7 @@ export default function EliteTeachersSection({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           {t('adminDashboard.website.eliteTeachersTitle', isRtl ? 'افضل المعلمين' : 'Elite Teachers')}
         </h2>
         {handleOpenAddTeacher && (

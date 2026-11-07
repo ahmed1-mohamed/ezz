@@ -3,14 +3,11 @@ import {
   Video,
   Maximize2,
   Minimize2,
-  Copy,
   RotateCcw,
   ShieldCheck,
   UserCheck,
-  ExternalLink,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { showSuccessToast } from '@/shared/utils/sweetAlert.js';
 
 export default function ZoomMeetingPlayer({
   meetingId,
@@ -55,26 +52,6 @@ export default function ZoomMeetingPlayer({
     }
   })();
   const isStartLinkExpired = isHost && startZakExp !== null && startZakExp * 1000 < currentTime;
-  const studentWebClientUrl = (() => {
-    if (!cleanMeetingId) return joinUrl || '';
-    let pwd;
-    try {
-      pwd = new URL(joinUrl).searchParams.get('pwd') || cleanPasscode;
-    } catch {
-      pwd = cleanPasscode;
-    }
-    const q = new URLSearchParams();
-    if (pwd) q.set('pwd', pwd);
-    q.set('prefer', '1');
-    if (userName) {
-      try {
-        q.set('un', btoa(unescape(encodeURIComponent(userName))));
-      } catch (err) {
-        console.debug('Failed to encode username for Zoom:', err);
-      }
-    }
-    return `https://app.zoom.us/wc/${cleanMeetingId}/join?${q.toString()}`;
-  })();
   const effectiveHostStartUrl = (() => {
     if (startUrl) {
       try {
@@ -90,34 +67,26 @@ export default function ZoomMeetingPlayer({
     }
     return joinUrl || '';
   })();
-  const hostWebClientUrl = (() => {
-    if (!cleanMeetingId) return effectiveHostStartUrl || joinUrl || '';
-    const q = new URLSearchParams();
-    q.set('prefer', '1');
-    if (cleanPasscode) q.set('pwd', cleanPasscode);
-    const effectiveZak = zakToken || (() => {
-      try {
-        return startUrl ? new URL(startUrl).searchParams.get('zak') || '' : '';
-      } catch {
-        return '';
-      }
-    })();
-    if (effectiveZak) q.set('zak', effectiveZak);
-    return `https://app.zoom.us/wc/${cleanMeetingId}/start?${q.toString()}`;
-  })();
   const launchAppUrl = isHost
     ? (effectiveHostStartUrl || joinUrl || '')
     : (joinUrl || (cleanMeetingId ? `zoommtg://zoom.us/join?action=join&confno=${cleanMeetingId}${cleanPasscode ? `&pwd=${cleanPasscode}` : ''}` : ''));
-  const webClientUrl = isHost
-    ? (hostWebClientUrl || effectiveHostStartUrl || joinUrl || '')
-    : (studentWebClientUrl || joinUrl || '');
   const embedUrl = (() => {
     if (!cleanMeetingId && !startUrl && !joinUrl) return '';
     const params = new URLSearchParams();
     if (cleanMeetingId) params.set('meetingId', cleanMeetingId);
     if (cleanPasscode) params.set('passcode', cleanPasscode);
     params.set('role', String(role));
-    params.set('sdkKey', 'O3n0tKuQ0WS9yk0N9JeqQ');
+    const extractedSdkKey = (() => {
+      try {
+        if (!sdkSignature || !sdkSignature.includes('.')) return '';
+        const payload = JSON.parse(atob(sdkSignature.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        return payload.sdkKey || payload.appKey || '';
+      } catch {
+        return '';
+      }
+    })();
+    const finalSdkKey = extractedSdkKey || import.meta.env?.VITE_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ';
+    params.set('sdkKey', finalSdkKey);
     if (sdkSignature) params.set('sdkSignature', sdkSignature);
     const startUrlZak = (() => {
       try {
@@ -139,17 +108,6 @@ export default function ZoomMeetingPlayer({
     params.set('_k', String(iframeKey));
     return `/zoom-embed.html?${params.toString()}`;
   })();
-  const handleCopyMeetingInfo = () => {
-    const lines = [];
-    if (cleanMeetingId) lines.push(`Meeting ID: ${cleanMeetingId}`);
-    if (cleanPasscode) lines.push(`Passcode: ${cleanPasscode}`);
-    if (isHost && startUrl) lines.push(`Host Start URL: ${startUrl}`);
-    if (joinUrl) lines.push(`Student Join URL: ${joinUrl}`);
-    if (lines.length > 0) {
-      navigator.clipboard.writeText(lines.join('\n'));
-      showSuccessToast(t('teacherLive.copiedMeetingDetails', 'تم نسخ بيانات الاجتماع بنجاح'), isRtl);
-    }
-  };
   const handleToggleFullscreen = () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
@@ -166,11 +124,6 @@ export default function ZoomMeetingPlayer({
       window.open(launchAppUrl, '_blank', 'noopener,noreferrer');
     }
   };
-  const handleLaunchWebClient = () => {
-    if (webClientUrl) {
-      window.open(webClientUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
   const handleRefreshServerData = () => {
     if (onRefreshJoinData) {
       onRefreshJoinData();
@@ -181,11 +134,19 @@ export default function ZoomMeetingPlayer({
     const handleFullscreenChange = () => {
       setIsFullscreen(Boolean(document.fullscreenElement));
     };
+    const handleZoomMessage = (event) => {
+      if (event.data?.type === 'ZOOM_MEETING_LEFT') {
+        const destination = event.data.leaveUrl || (isHost ? '/dashboard/teacher/sessions' : '/dashboard/student/schedule');
+        window.location.href = destination;
+      }
+    };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('message', handleZoomMessage);
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      window.removeEventListener('message', handleZoomMessage);
     };
-  }, []);
+  }, [isHost]);
   return (
     <div
       ref={containerRef}
@@ -222,18 +183,6 @@ export default function ZoomMeetingPlayer({
                 )}
               </span>
             </div>
-            <div className="flex items-center gap-3 text-xs text-slate-400 font-mono mt-0.5">
-              {cleanMeetingId && (
-                <span>
-                  ID: <strong className="text-slate-200">{cleanMeetingId}</strong>
-                </span>
-              )}
-              {cleanPasscode && (
-                <span>
-                  Pass: <strong className="text-emerald-400">{cleanPasscode}</strong>
-                </span>
-              )}
-            </div>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -248,17 +197,6 @@ export default function ZoomMeetingPlayer({
               <span>{isHost ? t('teacherLive.startAsHostApp', 'بدء عبر تطبيق Zoom') : t('studentDashboard.live.joinAsStudentApp', 'انضمام عبر تطبيق Zoom')}</span>
             </button>
           )}
-          {webClientUrl && (
-            <button
-              type="button"
-              onClick={handleLaunchWebClient}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
-              title={t('teacherLive.openInBrowser', 'فتح في المتصفح')}
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('teacherLive.openInBrowser', 'المتصفح')}</span>
-            </button>
-          )}
           {onRefreshJoinData && (
             <button
               type="button"
@@ -270,15 +208,6 @@ export default function ZoomMeetingPlayer({
               <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
           )}
-          <button
-            type="button"
-            onClick={handleCopyMeetingInfo}
-            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-            title={t('teacherLive.copyDetails', 'نسخ البيانات')}
-          >
-            <Copy className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">{t('teacherLive.copyDetails', 'نسخ البيانات')}</span>
-          </button>
           <button
             type="button"
             onClick={handleReloadStream}

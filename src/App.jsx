@@ -46,6 +46,11 @@ function App() {
         document.documentElement.classList.remove('dark')
       }
     }
+    const iconLink = document.querySelector("link[rel*='icon']") || document.createElement('link')
+    iconLink.type = 'image/png'
+    iconLink.rel = 'shortcut icon'
+    iconLink.href = '/favicon.png?v=20261107'
+    document.getElementsByTagName('head')[0].appendChild(iconLink)
   }, [currentLang, isArabic, theme])
   return (
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">

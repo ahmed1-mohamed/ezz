@@ -18,7 +18,7 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
         {onOpenChangeGroup && (
           <button
             type="button"
-            onClick={onOpenChangeGroup}
+            onClick={() => onOpenChangeGroup(null)}
             className="px-3.5 py-1.5 bg-[#005953]/10 hover:bg-[#005953]/20 text-[#005953] dark:text-emerald-400 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/25 text-xs font-bold rounded-xl transition-all cursor-pointer hover:scale-102"
           >
             {isRtl ? 'تغيير المجموعة' : 'Change Group'}
@@ -80,10 +80,22 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                       </p>
                     )}
                   </div>
-                  <span className="inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5 animate-pulse" />
-                    {isRtl ? 'نشط' : 'Active'}
-                  </span>
+                  <div className="flex items-center gap-2 self-start sm:self-center">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5 animate-pulse" />
+                      {isRtl ? 'نشط' : 'Active'}
+                    </span>
+                    {onOpenChangeGroup && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenChangeGroup(groupId)}
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-600 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-[11px] font-bold rounded-xl transition-all cursor-pointer hover:border-[#005953]"
+                        title={isRtl ? 'نقل الطالب من هذه المجموعة' : 'Transfer student from this group'}
+                      >
+                        {isRtl ? 'نقل من المجموعة' : 'Transfer'}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-start">
                   {studentsCount !== null && (

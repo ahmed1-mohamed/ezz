@@ -70,14 +70,17 @@ export const teacherSessionsApi = {
         skipLang: true,
       });
       raw = response.data?.data ?? response.data ?? null;
-    } catch {
+    } catch (err) {
+      if (err.response?.status === 403 || err.response?.status === 400) {
+        throw err;
+      }
       try {
         const detailRes = await api.get(`/api/v1/teacher/sessions/${sessionId}`, {
           skipLang: true,
         });
         raw = detailRes.data?.data ?? detailRes.data ?? null;
       } catch {
-        raw = null;
+        throw err;
       }
     }
     if (!raw) return null;

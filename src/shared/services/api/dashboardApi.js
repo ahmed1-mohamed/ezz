@@ -13,20 +13,13 @@ export const dashboardApi = {
 
   fetchAnalytics: async (params = {}) => {
     try {
-      let queryParams = {};
-      if (typeof params === 'string') {
-        queryParams = { period: params, timeframe: params, filter: params };
-      } else if (params && typeof params === 'object') {
-        const p = params.period || params.timeframe || params.filter || 'monthly';
-        queryParams = {
-          period: p,
-          timeframe: p,
-          filter: p,
-          ...params,
-        };
+      let period = typeof params === 'string' ? params : (params?.period || 'monthly');
+      const validPeriods = ['daily', 'weekly', 'monthly', 'yearly'];
+      if (!validPeriods.includes(period)) {
+        period = 'monthly';
       }
       const response = await api.get('/api/v1/dashboard/private/analytics', {
-        params: queryParams,
+        params: { period },
       });
       return {
         success: true,

@@ -42,9 +42,11 @@ const buildTeacherPayload = (data = {}, { isCreate }) => {
   }
   if (data.showOnWebsite !== undefined) payload.showOnWebsite = Boolean(data.showOnWebsite);
   if (data.availability !== undefined) payload.availability = toAvailabilityPayload(data.availability);
-  ['totalLessons', 'totalStudents', 'totalGroups'].forEach((key) => {
-    if (data[key] !== undefined) payload[key] = Math.max(0, Number(data[key]) || 0);
-  });
+  const studentsVal = data.totalStudents !== undefined ? data.totalStudents : data.studentsCount;
+  if (studentsVal !== undefined && studentsVal !== '') payload.totalStudents = Math.max(0, Number(studentsVal) || 0);
+  const lessonsVal = data.totalLessons !== undefined ? data.totalLessons : (data.totalSessions !== undefined ? data.totalSessions : data.sessionsCount);
+  if (lessonsVal !== undefined && lessonsVal !== '') payload.totalLessons = Math.max(0, Number(lessonsVal) || 0);
+  if (data.totalGroups !== undefined && data.totalGroups !== '') payload.totalGroups = Math.max(0, Number(data.totalGroups) || 0);
   if (isCreate) {
     payload.email = data.email;
     payload.password = data.password;
@@ -595,28 +597,53 @@ export const teachersApi = {
 
   createTeacherPayout: async (id, payoutData) => {
     try {
-      let body = payoutData;
-      let headers = {};
+      let body;
       if (payoutData instanceof FormData) {
         body = payoutData;
-        headers = { 'Content-Type': 'multipart/form-data' };
+        if (body.has('methodId')) {
+          const mVal = body.get('methodId');
+          if (!body.has('paymentMethodId') && mVal) {
+            body.append('paymentMethodId', String(mVal));
+          }
+          body.delete('methodId');
+        }
+        body.delete('paidAt');
+        body.delete('method');
+        body.delete('id');
+        body.delete('teacherId');
+        if (body.has('paymentMethodId') && !body.get('paymentMethodId')) {
+          body.delete('paymentMethodId');
+        }
+        if (body.has('referenceNumber') && !body.get('referenceNumber')) {
+          body.delete('referenceNumber');
+        }
+        if (body.has('notes') && !body.get('notes')) {
+          body.delete('notes');
+        }
+        if (body.has('proofImage') && !(body.get('proofImage') instanceof File)) {
+          body.delete('proofImage');
+        }
       } else if (payoutData && typeof payoutData === 'object') {
         const fd = new FormData();
-        if (payoutData.amount !== undefined) fd.append('amount', String(payoutData.amount));
-        const methodId = payoutData.methodId || payoutData.paymentMethodId || payoutData.paymentMethod;
-        if (methodId) fd.append('methodId', methodId);
-        if (payoutData.referenceNumber) fd.append('referenceNumber', String(payoutData.referenceNumber).trim());
-        if (payoutData.notes) fd.append('notes', String(payoutData.notes).trim());
-        if (payoutData.paidAt) fd.append('paidAt', payoutData.paidAt);
+        if (payoutData.amount !== undefined && payoutData.amount !== '') {
+          fd.append('amount', String(payoutData.amount));
+        }
+        const methodVal = payoutData.paymentMethodId || payoutData.methodId;
+        if (methodVal && String(methodVal).trim()) {
+          fd.append('paymentMethodId', String(methodVal).trim());
+        }
+        if (payoutData.referenceNumber && String(payoutData.referenceNumber).trim()) {
+          fd.append('referenceNumber', String(payoutData.referenceNumber).trim());
+        }
+        if (payoutData.notes && String(payoutData.notes).trim()) {
+          fd.append('notes', String(payoutData.notes).trim());
+        }
         if (payoutData.proofImage instanceof File) {
-          fd.append('proofImage', payoutData.proofImage);
-        } else if (payoutData.proofImage && typeof payoutData.proofImage === 'string') {
           fd.append('proofImage', payoutData.proofImage);
         }
         body = fd;
-        headers = { 'Content-Type': 'multipart/form-data' };
       }
-      const response = await api.post(`/api/v1/teachers/private/${id}/payouts`, body, { headers });
+      const response = await api.post(`/api/v1/teachers/private/${id}/payouts`, body);
       return response.data;
     } catch (error) {
       console.error('API createTeacherPayout failed:', error);
@@ -641,6 +668,34 @@ export const teachersApi = {
     } catch (error) {
       console.error('API fetchAllTeachersPayouts failed:', error);
       throw error;
+    }
+  },
+
+  fetchTeacherEvaluations: async (params = {}) => {
+    try {
+      const apiParams = {};
+      if (params.page) apiParams.page = params.page;
+      if (params.limit) apiParams.limit = params.limit;
+      if (params.teacherId) apiParams.teacherId = params.teacherId;
+      if (params.search && typeof params.search === 'string' && params.search.trim()) {
+        apiParams.search = params.search.trim();
+      }
+      const response = await api.get('/api/v1/teachers/private/evaluations', { params: apiParams });
+      return {
+        success: true,
+        data: response.data?.data || response.data,
+        pagination: response.data?.pagination || null,
+        statistics: response.data?.statistics || null,
+      };
+    } catch (error) {
+      console.error('API fetchTeacherEvaluations failed:', error);
+      return {
+        success: false,
+        data: [],
+        pagination: null,
+        statistics: null,
+        error,
+      };
     }
   }
 };

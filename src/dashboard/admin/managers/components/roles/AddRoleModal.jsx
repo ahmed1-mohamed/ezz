@@ -86,7 +86,7 @@ export default function AddRoleModal({
               required
               value={newRoleNameAr}
               onChange={(e) => setNewRoleNameAr(e.target.value)}
-              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'مثال: مشرف معلمين' : 'e.g., Teachers Supervisor'}
               dir={isRtl ? 'rtl' : 'ltr'}
             />
@@ -101,7 +101,7 @@ export default function AddRoleModal({
               required
               value={newRoleNameEn}
               onChange={(e) => setNewRoleNameEn(e.target.value)}
-              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'مثال: Teachers Supervisor' : 'e.g., Teachers Supervisor'}
               dir="ltr"
             />

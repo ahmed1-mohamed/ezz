@@ -18,8 +18,11 @@ import {
   Menu,
   X,
   LogOut,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth';
+import { setLanguage } from '@/i18n';
 
 const navItems = [
   { path: '/dashboard/parent', icon: Home, transKey: 'home', end: true },
@@ -37,28 +40,30 @@ const navItems = [
 ];
 
 export default function ParentLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, theme, toggleTheme } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
+  const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const handleLanguageToggle = () => setLanguage(isRtl ? 'en' : 'ar');
   const [prevLocationKey, setPrevLocationKey] = useState(location.key);
   if (prevLocationKey !== location.key) {
     setPrevLocationKey(location.key);
     setIsMobileMenuOpen(false);
   }
   const displayName = (() => {
-    if (!user) return t('parentDashboard.user.name');
+    if (!user) return t('parentDashboard.user.name', 'ولي أمر');
     if (typeof user.name === 'object' && user.name !== null) {
       return isRtl ? (user.name.ar || user.name.en || '') : (user.name.en || user.name.ar || '');
     }
     if (user.nameAr || user.nameEn) {
       return isRtl ? (user.nameAr || user.nameEn || user.name) : (user.nameEn || user.nameAr || user.name);
     }
-    return user.name || t('parentDashboard.user.name');
+    return user.name || t('parentDashboard.user.name', 'ولي أمر');
   })();
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
           <button
@@ -68,30 +73,48 @@ export default function ParentLayout() {
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div className="text-start hidden sm:block">
-            <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">{t('parentDashboard.header.title')}</h2>
+            <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">{t('parentDashboard.header.title', 'منارة العز')}</h2>
           </div>
         </div>
-        <Link to="/dashboard/parent/settings" className="flex items-center gap-2.5 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
-          <div className="text-end">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[100px] sm:max-w-[140px]">
-              {displayName}
-            </h4>
-            <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-              {t('parentDashboard.user.role')}
-            </p>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden">
-            {(() => {
-              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-              return cleanImg ? (
-                <img src={cleanImg} alt={displayName} className="w-full h-full object-cover" />
-              ) : (
-                (displayName?.charAt(0) || 'P').toUpperCase()
-              );
-            })()}
-          </div>
-        </Link>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+          >
+            {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#0f7a6c]" />}
+          </button>
+          <button
+            type="button"
+            onClick={handleLanguageToggle}
+            className="p-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold text-xs"
+            title={t('language.toggle', 'تغيير اللغة')}
+          >
+            <Globe size={17} />
+          </button>
+          <Link to="/dashboard/parent/settings" className="flex items-center gap-2.5 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
+            <div className="text-end">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[90px] sm:max-w-[140px]">
+                {displayName}
+              </h4>
+              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
+                {t('parentDashboard.user.role', 'ولي أمر')}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden">
+              {(() => {
+                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                return cleanImg ? (
+                  <img src={cleanImg} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  (displayName?.charAt(0) || 'P').toUpperCase()
+                );
+              })()}
+            </div>
+          </Link>
+        </div>
       </header>
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -150,13 +173,33 @@ export default function ParentLayout() {
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 mt-auto border-t border-slate-100 dark:border-slate-800 shrink-0">
+        <div className="p-4 mt-auto border-t border-slate-100 dark:border-slate-800 space-y-3 shrink-0">
+          <div className="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+              title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+            >
+              {isDarkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-[#0f7a6c]" />}
+              <span>{isDarkMode ? t('theme.light', 'نهاري') : t('theme.dark', 'ليلي')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleLanguageToggle}
+              className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={t('language.toggle', 'تغيير اللغة')}
+            >
+              <Globe size={15} />
+              <span>{isRtl ? 'EN' : 'عربي'}</span>
+            </button>
+          </div>
           <button
             onClick={logout}
-            className="w-full flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-lg transition-all font-medium group"
+            className="w-full flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-lg transition-all font-medium group cursor-pointer"
           >
             <LogOut size={18} className="me-2 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm">{t('dashboard.logout')}</span>
+            <span className="text-sm">{t('dashboard.logout', 'تسجيل الخروج')}</span>
           </button>
         </div>
       </aside>

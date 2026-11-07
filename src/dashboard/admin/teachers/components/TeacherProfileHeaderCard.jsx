@@ -27,7 +27,7 @@ export default function TeacherProfileHeaderCard({
               {avatarLetter}
             </div>
             <div className="space-y-1.5">
-              <h2 className="text-xl font-bold text-slate-850 dark:text-white">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                 {displayName}
               </h2>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">

@@ -13,12 +13,14 @@ import {
   AlertCircle,
   CheckCircle2,
   CalendarClock,
+  Loader2,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
+import Swal from 'sweetalert2';
 import CountdownTimer from './CountdownTimer';
 import AttendanceList from './AttendanceList';
 import RescheduleSessionModal from './RescheduleSessionModal';
+import { checkCanJoinSession } from '@/shared/utils/sessionTiming.js';
 
 function normalizeStatusKey(raw) {
   if (!raw) return 'scheduled';
@@ -58,8 +60,9 @@ export default function BeforeSessionTab({ onStartSession }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [searchParams] = useSearchParams();
-  const querySessionId = searchParams.get('session');
+  const querySessionId = searchParams.get('session') || searchParams.get('sessionId');
   const [offset, setOffset] = useState(0);
+  const [isStarting, setIsStarting] = useState(false);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
   const { data: sessionData, isLoading, isError, refetch } = useQuery({
     queryKey: ['teacher-session-detail-or-offset', querySessionId, offset],
@@ -69,6 +72,9 @@ export default function BeforeSessionTab({ onStartSession }) {
       }
       return teacherSessionsApi.fetchNextSessionWithOffset(offset);
     },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const session = useMemo(() => {
     if (!sessionData) return null;
@@ -110,13 +116,30 @@ export default function BeforeSessionTab({ onStartSession }) {
   const handleResetOffset = () => {
     setOffset(0);
   };
-  const handleStartSessionClick = () => {
-    const check = checkCanJoinSession(session);
-    if (!check.canJoin) {
-      showSessionJoinAlert(check.message, isRtl);
-      return;
+  const handleStartSessionClick = async () => {
+    if (isStarting || !session) return;
+    setIsStarting(true);
+    const sid = session?.id || session?._id;
+    try {
+      const joinData = await teacherSessionsApi.fetchSessionJoinData(sid);
+      setIsStarting(false);
+      onStartSession(session, joinData);
+    } catch (err) {
+      setIsStarting(false);
+      const serverMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        t('teacherLive.cannotJoinNow', 'لا يمكنك الانضمام الآن، يمكنك الدخول قبل موعد الحصة بـ 5 دقائق وحتى 30 دقيقة بعد انتهائها');
+      const finalMsg = Array.isArray(serverMessage) ? serverMessage.join(', ') : serverMessage;
+      Swal.fire({
+        icon: 'warning',
+        title: isRtl ? 'موعد الحصة المباشرة' : 'Live Session Notice',
+        text: finalMsg,
+        confirmButtonText: isRtl ? 'حسناً' : 'OK',
+        confirmButtonColor: '#0f7a6c',
+      });
     }
-    onStartSession(session);
   };
   return (
     <div className="space-y-6">
@@ -265,28 +288,28 @@ export default function BeforeSessionTab({ onStartSession }) {
                 </div>
               )}
             </div>
-            {!isLive && !joinCheck.canJoin && joinCheck.isTooEarly && (
-              <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/70 text-amber-800 dark:text-amber-200 text-xs sm:text-sm font-semibold">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>{joinCheck.message}</span>
-              </div>
-            )}
             <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={handleStartSessionClick}
-                  disabled={isCancelled}
+                  disabled={isCancelled || isStarting}
                   className={`px-7 py-3 rounded-2xl font-bold text-sm shadow-md transition-all flex items-center gap-2.5 ${
-                    isCancelled
+                    isCancelled || isStarting
                       ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                      : !joinCheck.canJoin
-                      ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-slate-700/20'
                       : 'bg-[#0f7a6c] hover:bg-[#0c6156] text-white shadow-[#0f7a6c]/25 hover:scale-[1.01]'
                   }`}
                 >
-                  <PlayCircle className="w-5 h-5" />
-                  <span>{t('teacherLive.startSessionButton', 'بدء الجلسة')}</span>
+                  {isStarting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <PlayCircle className="w-5 h-5" />
+                  )}
+                  <span>
+                    {isStarting
+                      ? t('teacherLive.startingSession', 'جاري بدء الجلسة...')
+                      : t('teacherLive.startSessionButton', 'بدء الجلسة')}
+                  </span>
                 </button>
                 <button
                   type="button"

@@ -65,7 +65,7 @@ export default React.memo(function StudentEditProfileForm({
             required
             value={formData.name || ''}
             onChange={(e) => onFormChange('name', e.target.value)}
-            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold placeholder:text-slate-400"
+            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold placeholder:text-slate-400"
             placeholder={isRtl ? 'عمر أحمد' : 'Omar Ahmed'}
           />
         </div>
@@ -78,7 +78,7 @@ export default React.memo(function StudentEditProfileForm({
             value={formData.nameEn || ''}
             onChange={(e) => onFormChange('nameEn', e.target.value)}
             dir="ltr"
-            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold placeholder:text-slate-400"
+            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold placeholder:text-slate-400"
             placeholder="Omar Ahmed"
           />
         </div>
@@ -124,7 +124,7 @@ export default React.memo(function StudentEditProfileForm({
               required
               value={formData.phone || ''}
               onChange={(e) => onFormChange('phone', e.target.value)}
-              className="flex-1 bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 font-mono"
+              className="flex-1 bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 font-mono"
               placeholder="501234567"
             />
           </div>
@@ -138,7 +138,7 @@ export default React.memo(function StudentEditProfileForm({
               required
               value={formData.country || ''}
               onChange={(e) => onFormChange('country', e.target.value)}
-              className="w-full appearance-none bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold cursor-pointer"
+              className="w-full appearance-none bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold cursor-pointer"
             >
               <option value="" disabled>{t('studentDashboard.profile.selectCountry', 'اختر الدولة')}</option>
               {sortedCountries.map((c) => {
@@ -166,7 +166,7 @@ export default React.memo(function StudentEditProfileForm({
             required
             value={formData.birthDate || ''}
             onChange={(e) => onFormChange('birthDate', e.target.value)}
-            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold cursor-pointer"
+            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold cursor-pointer"
           />
         </div>
         <div className="space-y-1.5">

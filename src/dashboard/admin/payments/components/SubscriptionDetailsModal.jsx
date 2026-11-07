@@ -103,7 +103,7 @@ export default function SubscriptionDetailsModal({
         )
     }
   }
-  const currency = sub.currency || 'USD'
+  const currency = '$'
   return createPortal(
     <div
       onClick={(e) => {
@@ -186,7 +186,7 @@ export default function SubscriptionDetailsModal({
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3.5">
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3.5">
                   <div className="flex items-center gap-2.5 text-[#005953] dark:text-emerald-400 font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2.5">
                     <User size={18} />
                     <span>{isRtl ? 'بيانات ولي الأمر' : 'Parent Information'}</span>
@@ -212,7 +212,7 @@ export default function SubscriptionDetailsModal({
                     )}
                   </div>
                 </div>
-                <div className="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3.5">
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3.5">
                   <div className="flex items-center gap-2.5 text-[#005953] dark:text-emerald-400 font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2.5">
                     <Package size={18} />
                     <span>{isRtl ? 'بيانات الباقة المشترك بها' : 'Package Information'}</span>
@@ -249,7 +249,7 @@ export default function SubscriptionDetailsModal({
                   </div>
                 </div>
               </div>
-              <div className="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3">
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
                   <div className="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-sm">
                     <Users size={18} className="text-[#005953] dark:text-emerald-400" />
@@ -342,54 +342,6 @@ export default function SubscriptionDetailsModal({
                   </span>
                 </div>
               </div>
-              {(sub.stripeSessionId || sub.stripePaymentIntentId || sub.checkoutUrl) && (
-                <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800 space-y-2 text-xs">
-                  <span className="font-bold text-slate-700 dark:text-slate-300 block">
-                    {isRtl ? 'بيانات بوابة الدفع (Stripe)' : 'Payment Gateway Data (Stripe)'}
-                  </span>
-                  {sub.stripeSessionId && (
-                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                      <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        Session: {sub.stripeSessionId}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(sub.stripeSessionId, 'session')}
-                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer shrink-0"
-                        title={isRtl ? 'نسخ معرف الجلسة' : 'Copy session ID'}
-                      >
-                        {copiedKey === 'session' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                      </button>
-                    </div>
-                  )}
-                  {sub.stripePaymentIntentId && (
-                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                      <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        PaymentIntent: {sub.stripePaymentIntentId}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(sub.stripePaymentIntentId, 'pi')}
-                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer shrink-0"
-                        title={isRtl ? 'نسخ معرف نية الدفع' : 'Copy payment intent ID'}
-                      >
-                        {copiedKey === 'pi' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                      </button>
-                    </div>
-                  )}
-                  {sub.checkoutUrl && (
-                    <a
-                      href={sub.checkoutUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#005953] dark:text-emerald-400 hover:underline pt-1"
-                    >
-                      <ExternalLink size={14} />
-                      <span>{isRtl ? 'فتح رابط الدفع (Checkout URL)' : 'Open Checkout Link'}</span>
-                    </a>
-                  )}
-                </div>
-              )}
             </>
           )}
         </div>
