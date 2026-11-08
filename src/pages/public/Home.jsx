@@ -1,13 +1,11 @@
 import { memo, useEffect, useState, lazy, Suspense } from 'react';
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '@/shared/components/Button.jsx'
 import heroImage from '@/images/hero/cheerful-academy-kids.webp'
 import { fetchLandingPage } from '@/store/landingSlice'
-import { useAuth } from '@/shared/context/useAuth.jsx'
-import { getRedirectPath } from '@/shared/services/authService.js'
 
 const StatisticsBanner = lazy(() => import('@/shared/components/StatisticsBanner.jsx'))
 const PremiumParentsSection = lazy(() => import('@/shared/components/PremiumParentsSection.jsx'))
@@ -58,30 +56,11 @@ export default memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const { user, isAuthenticated } = useAuth()
     const { landingData } = useSelector((state) => state.landing)
     const [localData] = useState(readLocalStorage)
     useEffect(() => {
         dispatch(fetchLandingPage(i18n.language))
     }, [dispatch, i18n.language])
-    const executeWatchExperience = () => {
-        const programsEl = document.getElementById('educational-programs')
-        if (programsEl) {
-            programsEl.scrollIntoView({ behavior: 'smooth' })
-            return
-        }
-        const targetUrl = '/dashboard/parent/students?action=trial'
-        if (!isAuthenticated) {
-            navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`)
-            return
-        }
-        if (user?.role?.toLowerCase() === 'parent') {
-            navigate(targetUrl)
-            return
-        }
-        navigate(getRedirectPath(user?.role) || '/')
-    }
     const heroInitial = { opacity: 0, scale: 0.92, x: isRtl ? 30 : -30 }
     const heroAnimate = { opacity: 1, scale: 1, x: 0 }
     const heroTransition = { duration: 0.7, ease: 'easeOut', delay: 0.2 }
@@ -113,23 +92,16 @@ export default memo(function Home() {
                             <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg lg:text-xl leading-[1.8] sm:leading-[2.2] text-slate-600 dark:text-slate-300">
                                 {t('home.description', 'القرآن الكريم، واللغة العربية، والمواد الدراسية، ودعم المناهج الدولية... في منصة واحدة تُنمّي قدراته وتساعد الأطفال على بناء قيم راسخة.')}
                             </motion.p>
-                            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-6 justify-center lg:justify-start w-full">
-                                <Button
-                                    variant="secondary"
-                                    onClick={executeWatchExperience}
-                                    className="w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base lg:text-lg hover:scale-105 transition-transform"
-                                >
-                                    {t('home.ctaSecondary', 'استكشف برامجنا')}
-                                </Button>
+                            <motion.div variants={itemVariants} className="flex justify-center lg:justify-start w-full">
                                 <Link
-                                    to={isAuthenticated ? (getRedirectPath(user?.role) || '/dashboard') : '/register'}
+                                    to="/trial-session"
                                     className="w-full sm:w-auto"
                                 >
                                     <Button
-                                        variant="primary"
-                                        className="w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base lg:text-lg hover:scale-105 transition-transform"
+                                        variant="secondary"
+                                        className="w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-4.5 text-base sm:text-lg font-extrabold hover:scale-105 transition-all shadow-[0_4px_22px_rgba(202,138,4,0.32)] hover:shadow-[0_8px_32px_rgba(202,138,4,0.48)] dark:shadow-[0_4px_22px_rgba(234,179,8,0.25)] border-2 border-[#00695C] dark:border-emerald-500 ring-2 ring-amber-400/40"
                                     >
-                                        {isAuthenticated ? t('public.dashboard', 'لوحة التحكم') : t('home.ctaPrimary', 'سجّل الآن')}
+                                        {t('home.bookTrialSession', 'احجز حصتك التجريبية')}
                                     </Button>
                                 </Link>
                             </motion.div>

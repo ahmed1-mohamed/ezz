@@ -2,26 +2,9 @@ import React from 'react';
 import { motion } from "framer-motion";
 import { UserPlus, CalendarCheck, MonitorPlay } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/shared/context/useAuth.jsx";
-import { getRedirectPath } from "@/shared/services/authService.js";
 
 export default React.memo(function JourneySteps() {
     const { t } = useTranslation();
-    const { user, isAuthenticated } = useAuth();
-    const navigate = useNavigate();
-    const executeRegister = () => {
-        const targetUrl = '/dashboard/parent/students?action=trial';
-        if (!isAuthenticated) {
-            navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`);
-            return;
-        }
-        if (user?.role?.toLowerCase() === 'parent') {
-            navigate(targetUrl);
-            return;
-        }
-        navigate(getRedirectPath(user?.role) || '/');
-    };
     const steps = [
         {
             id: "1",
@@ -140,15 +123,6 @@ export default React.memo(function JourneySteps() {
                             </motion.div>
                         );
                     })}
-                    </div>
-                    <div className="mt-16 text-center">
-                        <button
-                            type="button"
-                            onClick={executeRegister}
-                            className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-600 to-brand-700 px-8 py-4 text-base sm:text-lg font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-                        >
-                            {t('journey.cta', 'سجّل الآن')}
-                        </button>
                     </div>
                 </div>
             </div>

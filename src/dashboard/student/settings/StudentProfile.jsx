@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi.js';
 import { fetchCountries, getCountryName } from '@/shared/utils/countryUtils.js';
 import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
 import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
 import StudentProfileHeader from './components/StudentProfileHeader.jsx';
-import StudentCoreStatsGrid from './components/StudentCoreStatsGrid.jsx';
 import StudentSessionBalanceCard from './components/StudentSessionBalanceCard.jsx';
 import StudentSubscriptionCard from './components/StudentSubscriptionCard.jsx';
 import StudentParentCard from './components/StudentParentCard.jsx';
@@ -55,6 +55,7 @@ export default function StudentProfile() {
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [statsData, setStatsData] = useState(null);
+  const [currencyInfo, setCurrencyInfo] = useState({ symbol: '$', exchangeRate: 1 });
   const [countriesList, setCountriesList] = useState([]);
   const [isGoogleLinked, setIsGoogleLinked] = useState(false);
   const [isLinkingGoogle, setIsLinkingGoogle] = useState(false);
@@ -73,10 +74,11 @@ export default function StudentProfile() {
     async function loadData() {
       try {
         setLoading(true);
-        const [profRes, statsRes, countriesRes] = await Promise.allSettled([
+        const [profRes, statsRes, countriesRes, currencyRes] = await Promise.allSettled([
           profileApi.fetchProfile(),
           studentPortalApi.fetchDashboardStatistics(),
           fetchCountries(),
+          currenciesApi.fetchExchangeRate(),
         ]);
         let activeProfile = user || {};
         if (profRes.status === 'fulfilled' && profRes.value?.success) {
@@ -89,6 +91,10 @@ export default function StudentProfile() {
         }
         if (statsRes.status === 'fulfilled') {
           setStatsData(statsRes.value);
+        }
+        if (currencyRes.status === 'fulfilled') {
+          const parsed = parseExchangeRateData(currencyRes.value);
+          setCurrencyInfo(parsed);
         }
         const loadedCountries = countriesRes.status === 'fulfilled' ? countriesRes.value : [];
         setCountriesList(loadedCountries);
@@ -141,16 +147,6 @@ export default function StudentProfile() {
       day: 'numeric',
     });
   }, [formData.birthDate, p.birthDate, p.dateOfBirth, isRtl]);
-  const joinDateFormatted = useMemo(() => {
-    if (!p.createdAt) return '-';
-    const d = new Date(p.createdAt);
-    if (Number.isNaN(d.getTime())) return '-';
-    return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }, [p.createdAt, isRtl]);
   const academicLevel = useMemo(() => {
     return p.level || p.grade || p.studentLevel || t('teacherCurricula.intermediate', 'متوسط');
   }, [p.level, p.grade, p.studentLevel, t]);
@@ -332,18 +328,15 @@ export default function StudentProfile() {
           age={age}
           countryName={countryName}
           birthDateFormatted={birthDateFormatted}
-          joinDateFormatted={joinDateFormatted}
-          onImageChange={handleImageChange}
-        />
-        <StudentCoreStatsGrid
           attendanceRate={attendanceRate}
           averageRating={averageRating}
           totalEvaluations={totalEvaluations}
           academicLevel={academicLevel}
+          onImageChange={handleImageChange}
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <StudentSessionBalanceCard sessionBalance={sessionBalanceData} />
-          <StudentSubscriptionCard subscription={subscriptionData} />
+          <StudentSubscriptionCard subscription={subscriptionData} currencyInfo={currencyInfo} />
         </div>
         <StudentParentCard parent={parentData} />
         <StudentEditProfileForm

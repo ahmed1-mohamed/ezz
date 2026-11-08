@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2, Sun, Moon } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2, Sun, Moon } from 'lucide-react'
+import logoImg from '@/images/programs/NewLogo.webp'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
@@ -218,8 +219,8 @@ export default function Register() {
             </header>
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-6 my-auto">
                 <div className="text-center mb-6">
-                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
-                        <BookOpen className="w-9 h-9 sm:w-10 sm:h-10 text-[#00695C] dark:text-emerald-400" />
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5 p-2">
+                        <img src={logoImg} alt={t('register.academyName', 'أكاديمية منارة العز')} className="w-12 h-12 sm:w-14 sm:h-14 object-contain" width="56" height="56" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-1.5">
                         {t('register.academyName', 'أكاديمية منارة العز')}

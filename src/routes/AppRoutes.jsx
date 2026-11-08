@@ -23,6 +23,7 @@ const Teachers = lazy(() => import('../pages/public/Teachers.jsx'))
 const Contact = lazy(() => import('../pages/public/Contact.jsx'))
 const SchedulePage = lazy(() => import('../pages/public/SchedulePage.jsx'))
 const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
+const TrialSession = lazy(() => import('../pages/public/TrialSession.jsx'))
 
 const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
 const AdminManagers = lazy(() => import('../dashboard/admin/managers/AdminManagers.jsx'))
@@ -169,6 +170,8 @@ export default function AppRoutes() {
                             <Route path="teachers" element={<Teachers />} />
                             <Route path="schedule" element={<SchedulePage />} />
                             <Route path="contact" element={<Contact />} />
+                            <Route path="trial-session" element={<TrialSession />} />
+                            <Route path="trial" element={<Navigate to="/trial-session" replace />} />
                             <Route path="teachers/:id" element={<TeacherProfile />} />
                         </Route>
                         <Route

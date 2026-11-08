@@ -43,7 +43,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const sessionId = session?.id || session?._id;
-
   const initialCachedJoin = useMemo(() => {
     try {
       const stored = sessionStorage.getItem('teacher_live_joindata');
@@ -54,7 +53,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
     } catch (err) { void err; }
     return null;
   }, []);
-
   const { data: joinDataRes, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['teacher-session-join', sessionId],
     queryFn: () => teacherSessionsApi.fetchSessionJoinData(sessionId),
@@ -66,7 +64,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
-
   const joinData = useMemo(() => {
     const raw = joinDataRes?.data || joinDataRes || initialCachedJoin;
     if (raw) {
@@ -82,7 +79,6 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const groupName = typeof session?.group === 'object' && session?.group !== null
     ? (isRtl ? session.group.name?.ar || session.group.name : session.group.name?.en || session.group.name)
     : (session?.groupName || session?.group || '-');
-
   const teacherName = (() => {
     if (!user) return 'المعلم';
     if (typeof user.name === 'object' && user.name !== null) {

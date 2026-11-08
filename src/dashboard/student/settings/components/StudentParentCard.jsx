@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCheck, Phone, Mail, ShieldAlert } from 'lucide-react';
+import { UserCheck, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 function resolveName(nameField, isRtl) {
@@ -37,8 +37,6 @@ export default React.memo(function StudentParentCard({ parent }) {
   }
   const parentName = resolveName(parent.name, isRtl) || parent.fullName || '-';
   const initial = (parentName === '-' ? 'و' : parentName).trim().charAt(0);
-  const phone = parent.phone || parent.phoneNumber || '-';
-  const email = parent.email || '-';
   return (
     <div
       className="bg-white dark:bg-slate-900 rounded-[28px] border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-xs text-start space-y-5"
@@ -65,31 +63,6 @@ export default React.memo(function StudentParentCard({ parent }) {
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 text-start">
-          <Phone size={15} className="text-[#005953] shrink-0" />
-          <div className="min-w-0">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
-              {t('studentDashboard.profile.parentPhone', 'رقم هاتف ولي الأمر')}
-            </span>
-            <span className="font-bold text-slate-700 dark:text-slate-200 block truncate" dir="ltr">
-              {phone}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 text-start truncate">
-          <Mail size={15} className="text-[#005953] shrink-0" />
-          <div className="min-w-0 truncate">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
-              {t('studentDashboard.profile.parentEmail', 'بريد ولي الأمر')}
-            </span>
-            <span className="font-bold text-slate-700 dark:text-slate-200 block truncate" dir="ltr">
-              {email}
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 });
-

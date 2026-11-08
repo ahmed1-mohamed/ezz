@@ -77,7 +77,7 @@ export default function ZoomMeetingPlayer({
     if (effectiveEmail) params.set('userEmail', effectiveEmail);
     if (startUrl) params.set('startUrl', startUrl);
     if (joinUrl) params.set('joinUrl', joinUrl);
-    params.set('_v', '3');
+    params.set('_v', '6');
     params.set('_t', String(mountedAt));
     params.set('_k', String(iframeKey));
     return `/zoom-embed.html?${params.toString()}`;

@@ -1,9 +1,9 @@
 import api from './axiosConfig';
 
 export const currenciesApi = {
-  fetchExchangeRate: async () => {
+  fetchExchangeRate: async (params) => {
     try {
-      const response = await api.get('/api/v1/currencies/public/exchange-rate');
+      const response = await api.get('/api/v1/currencies/public/exchange-rate', { params });
       return response.data;
     } catch (error) {
       console.warn('Failed to fetch exchange rate, fallback to default USD:', error);

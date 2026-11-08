@@ -38,7 +38,8 @@
     "description": "The Holy Quran, Arabic language, school subjects, and support for international curricula... on one platform nurturing their abilities and helping children develop strong values.",
     "ctaPrimary": "Register Now",
     "ctaSecondary": "Explore Our Programmes",
-    "heroImageAlt": "Manarat Al-Ezz Academy - Direct Quranic and Educational Learning"
+    "heroImageAlt": "Manarat Al-Ezz Academy - Direct Quranic and Educational Learning",
+    "bookTrialSession": "Book Your Trial Session"
   },
   "login": {
     "academyName": "Manarat Al-Ezz Academy",
@@ -4311,5 +4312,63 @@
     "light": "Light Mode",
     "dark": "Dark Mode",
     "toggle": "Toggle Theme"
+  },
+  "trialSessionLanding": {
+    "badge": "100% Free Trial Session",
+    "title": "Book your free trial session",
+    "titleEn": "Book your free trial session",
+    "subtitle": "Begin your child's learning journey with specialized expert educators in a safe, interactive 1-on-1 environment.",
+    "aboutSectionTitle": "About Us",
+    "aboutSectionSubtitle": "من نحن",
+    "aboutBriefLine1": "Manarat Al-Ezz is not just an academy, but a journey into knowledge designed to be a digital sanctuary combining authentic heritage with modern technology.",
+    "aboutBriefLine2": "We accompany your children step by step on their educational path with dedicated teachers who cater to each student's level and goals.",
+    "perks": {
+      "oneOnOne": "100% Live 1-on-1 Session",
+      "certifiedTeachers": "Certified Expert Teachers",
+      "freeNoCommitment": "Completely Free - No Obligation"
+    },
+    "form": {
+      "title": "Request Your Free Trial Session",
+      "subtitle": "Fill in the details below and our team will coordinate the most convenient time for you",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "e.g. John Smith",
+      "email": "Email Address",
+      "emailPlaceholder": "example@email.com",
+      "country": "Country",
+      "selectCountry": "-- Select Country --",
+      "phone": "Phone / WhatsApp Number",
+      "phonePlaceholder": "50 123 4567",
+      "curriculum": "Curriculum to Try",
+      "selectCurriculum": "-- Select Curriculum --",
+      "studentAge": "Student Age",
+      "selectAge": "-- Select Student Age --",
+      "yearsOld": "years old",
+      "preferredDay": "Preferred Day",
+      "selectDay": "-- Select Preferred Day --",
+      "preferredTime": "Preferred Time",
+      "selectTime": "-- Select Preferred Time Slot --",
+      "notes": "Additional Notes (Optional)",
+      "notesPlaceholder": "Any details regarding student's level or specific requirements...",
+      "submit": "Confirm Free Trial Session Booking",
+      "submitting": "Submitting booking request...",
+      "successTitle": "Request Submitted Successfully!",
+      "successMessage": "Thank you for choosing Manarat Al-Ezz Academy. Our team will contact you via WhatsApp or phone to coordinate your trial session.",
+      "errors": {
+        "nameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "countryRequired": "Please select a country",
+        "phoneRequired": "Phone number is required",
+        "curriculumRequired": "Please select a curriculum",
+        "ageRequired": "Please select student age",
+        "dayRequired": "Please select a preferred day",
+        "timeRequired": "Please select a preferred time"
+      }
+    },
+    "testimonials": {
+      "badge": "Real Experiences",
+      "title": "Parents Testimonials",
+      "subtitle": "What parents say about their educational journey with Manarat Al-Ezz Academy"
+    }
   }
 }

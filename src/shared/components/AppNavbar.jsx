@@ -86,9 +86,10 @@ export default memo(function AppNavbar() {
                         <img
                             src={logoImg}
                             alt={t('appName', 'أكاديمية منارة العز')}
-                            className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
-                            width="36"
-                            height="36"
+                            className="h-9 w-9 sm:h-11 sm:w-11 object-contain shrink-0 drop-shadow-xs"
+                            width="44"
+                            height="44"
+                            loading="eager"
                         />
                         <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent dark:from-emerald-400 dark:to-emerald-600">
                             {t('appName', 'أكاديمية منارة العز')}
@@ -213,6 +214,18 @@ export default memo(function AppNavbar() {
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="absolute left-4 right-4 top-16 z-[999] bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:bg-slate-900/95 dark:border-slate-800 p-6 flex flex-col space-y-4 lg:hidden"
                         >
+                            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200/60 dark:border-slate-800">
+                                <img
+                                    src={logoImg}
+                                    alt={t('appName', 'أكاديمية منارة العز')}
+                                    className="h-9 w-9 object-contain shrink-0 drop-shadow-xs"
+                                    width="36"
+                                    height="36"
+                                />
+                                <span className="font-extrabold text-base bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent dark:from-emerald-400 dark:to-emerald-600">
+                                    {t('appName', 'أكاديمية منارة العز')}
+                                </span>
+                            </div>
                             <nav className="flex flex-col space-y-2" aria-label={t('public.nav.mobile', 'قائمة الجوال')}>
                                 {navItems.map((item) => (
                                     <NavLink

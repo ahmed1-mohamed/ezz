@@ -1,5 +1,5 @@
-import React from 'react';
-import { CreditCard, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { CreditCard, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 function formatDate(value, isRtl) {
@@ -20,9 +20,21 @@ function resolveName(nameField, isRtl) {
   return String(nameField || '');
 }
 
-export default React.memo(function StudentSubscriptionCard({ subscription }) {
+export default React.memo(function StudentSubscriptionCard({ subscription, currencyInfo }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const formattedPrice = useMemo(() => {
+    if (subscription?.price === undefined || subscription?.price === null) return '-';
+    const rawPrice = Number(subscription.price);
+    if (Number.isNaN(rawPrice)) return String(subscription.price);
+    const rate = Number(currencyInfo?.exchangeRate) > 0 ? Number(currencyInfo.exchangeRate) : 1;
+    const symbol = currencyInfo?.symbol || '$';
+    if (rate !== 1 && symbol !== '$' && symbol !== 'USD') {
+      const converted = Math.round(rawPrice * rate);
+      return `${converted} ${symbol}`;
+    }
+    return `${rawPrice} $`;
+  }, [subscription?.price, currencyInfo]);
   if (!subscription) {
     return (
       <div
@@ -47,13 +59,11 @@ export default React.memo(function StudentSubscriptionCard({ subscription }) {
     );
   }
   const subName = resolveName(subscription.name, isRtl) || subscription.packageName || t('studentDashboard.profile.package', 'الباقة التعليمية');
-  const isExpired = subscription.expiresAt ? new Date(subscription.expiresAt) < new Date() : false;
   const rows = [
     { label: t('studentDashboard.profile.package', 'الباقة'), value: subName },
-    { label: t('studentDashboard.profile.price', 'السعر'), value: subscription.price !== undefined ? `${subscription.price} ر.س` : '-' },
+    { label: t('studentDashboard.profile.price', 'السعر'), value: formattedPrice },
     { label: t('studentDashboard.profile.sessionsCount', 'عدد الحصص'), value: subscription.sessionsCount ? `${subscription.sessionsCount} ${t('studentDashboard.profile.sessionsWord', 'حصة')}` : '-' },
     { label: t('studentDashboard.profile.subscribedAt', 'تاريخ الاشتراك'), value: formatDate(subscription.subscribedAt || subscription.createdAt, isRtl) },
-    { label: t('studentDashboard.profile.expiresAt', 'تاريخ الانتهاء'), value: formatDate(subscription.expiresAt, isRtl) },
   ];
   return (
     <div
@@ -69,16 +79,6 @@ export default React.memo(function StudentSubscriptionCard({ subscription }) {
             {t('studentDashboard.profile.lastSubscriptionTitle', 'آخر اشتراك')}
           </h3>
         </div>
-        <span
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-            isExpired
-              ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400'
-              : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
-          }`}
-        >
-          <CheckCircle2 size={12} />
-          <span>{isExpired ? t('studentDashboard.profile.statusExpired', 'منتهي') : t('studentDashboard.profile.statusActive', 'ساري')}</span>
-        </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
         {rows.map((row, idx) => (
@@ -91,4 +91,3 @@ export default React.memo(function StudentSubscriptionCard({ subscription }) {
     </div>
   );
 });
-

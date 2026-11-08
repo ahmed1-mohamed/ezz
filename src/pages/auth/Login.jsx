@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, BookOpen, ArrowRight, ArrowLeft, Sun, Moon } from 'lucide-react'
+import { Mail, Lock, ArrowRight, ArrowLeft, Sun, Moon } from 'lucide-react'
+import logoImg from '@/images/programs/NewLogo.webp'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { triggerGoogleAuth, loadGoogleScript } from '@/shared/services/googleAuthService.js'
@@ -25,7 +26,6 @@ export default function Login() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const redirectUrl = searchParams.get('redirect')
-
     const handleNavigationAfterAuth = (loggedInUser) => {
         const isParent = loggedInUser?.role?.toLowerCase() === 'parent'
         if (redirectUrl) {
@@ -141,8 +141,8 @@ export default function Login() {
             </header>
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-8">
                 <div className="text-center mb-8">
-                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
-                        <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4 p-2">
+                        <img src={logoImg} alt={t('login.academyName', 'أكاديمية منارة العز')} className="w-14 h-14 object-contain" width="56" height="56" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-2">
                         {t('login.academyName', 'أكاديمية منارة العز')}
