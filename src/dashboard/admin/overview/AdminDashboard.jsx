@@ -5,7 +5,6 @@ import { BookOpen, GraduationCap, Users, Calendar, Layers, Activity, Clock, Radi
 import StatsCard from '@/shared/components/StatsCard.jsx'
 import DataTable from '@/shared/components/DataTable.jsx'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
-import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi.js'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 
 function utcToLocalTime(utcValue) {
@@ -53,11 +52,6 @@ export default function AdminDashboard() {
         queryKey: ['dashboard-stats'],
         queryFn: () => dashboardApi.fetchStatistics(),
         staleTime: 5 * 60 * 1000,
-    });
-    const { data: scheduledSessionsRes } = useQuery({
-        queryKey: ['admin-scheduled-sessions-count'],
-        queryFn: () => adminSessionsApi.fetchSessions({ status: 'scheduled', limit: 1 }),
-        staleTime: 2 * 60 * 1000,
     });
     const apiData = statsRes?.data?.data ?? statsRes?.data ?? {};
     const rawLatest =
@@ -204,8 +198,6 @@ export default function AdminDashboard() {
         ];
     });
     const upcomingSessionsCount =
-        scheduledSessionsRes?.statistics?.scheduled ??
-        scheduledSessionsRes?.pagination?.totalCount ??
         statsData?.upcomingSessionsToday ??
         statsData?.upcomingSessions ??
         statsData?.scheduledSessions ??

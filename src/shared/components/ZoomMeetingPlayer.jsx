@@ -78,6 +78,7 @@ export default function ZoomMeetingPlayer({
     if (startUrl) params.set('startUrl', startUrl);
     if (joinUrl) params.set('joinUrl', joinUrl);
     params.set('_v', '6');
+    params.set('lang', isRtl ? 'ar' : 'en');
     params.set('_t', String(mountedAt));
     params.set('_k', String(iframeKey));
     return `/zoom-embed.html?${params.toString()}`;

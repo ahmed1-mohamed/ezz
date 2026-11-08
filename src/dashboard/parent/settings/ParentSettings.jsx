@@ -17,6 +17,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { fetchCountries } from '@/shared/utils/countryUtils.js';
+import { setCookie } from '@/shared/utils/cookieUtils.js';
+import api from '@/shared/services/api/axiosConfig.js';
 import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
@@ -215,6 +217,38 @@ export default function ParentSettings() {
         confirmPassword: passwordForm.confirmPassword,
       });
       if (res?.success) {
+        const resData = res.data?.data || res.data;
+        const newAccessToken =
+          resData?.token ||
+          resData?.accessToken ||
+          resData?.access_token ||
+          res.data?.token ||
+          res.data?.accessToken ||
+          res.data?.access_token;
+        const newRefreshToken =
+          resData?.refreshToken ||
+          resData?.refresh_token ||
+          res.data?.refreshToken ||
+          res.data?.refresh_token;
+        if (newAccessToken) {
+          setCookie('access_token', newAccessToken, 7);
+          try {
+            localStorage.setItem('access_token', newAccessToken);
+          } catch (e) {
+            void e;
+          }
+          if (api?.defaults?.headers?.common) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          }
+        }
+        if (newRefreshToken) {
+          setCookie('refresh_token', newRefreshToken, 7);
+          try {
+            localStorage.setItem('refresh_token', newRefreshToken);
+          } catch (e) {
+            void e;
+          }
+        }
         showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح!' : 'Password updated successfully!');
         setPasswordForm({
           current: '',

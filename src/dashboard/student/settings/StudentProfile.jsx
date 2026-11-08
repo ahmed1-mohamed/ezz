@@ -6,6 +6,8 @@ import { profileApi } from '@/shared/services/api/profileApi.js';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
 import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi.js';
 import { fetchCountries, getCountryName } from '@/shared/utils/countryUtils.js';
+import { setCookie } from '@/shared/utils/cookieUtils.js';
+import api from '@/shared/services/api/axiosConfig.js';
 import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
@@ -46,6 +48,51 @@ function parseCountryDialCodeAndPhone(rawPhone, countryList = []) {
     }
   }
   return { dialCode: '+966', phoneVal: cleaned.replace(/^0+/, '') };
+}
+
+function resolveStudentCountry(rawCountry, dialCode, countriesList = []) {
+  if (!Array.isArray(countriesList) || countriesList.length === 0) return '';
+  if (typeof rawCountry === 'object' && rawCountry !== null) {
+    const objId = rawCountry.id || rawCountry._id;
+    if (objId) {
+      const match = countriesList.find((c) => (c.id || c._id) === objId);
+      if (match) return match.id || match._id;
+    }
+    const objName = rawCountry.name || rawCountry.nameAr || rawCountry.nameEn || '';
+    if (objName) {
+      const match = countriesList.find((c) => {
+        const cn = (c.name || '').trim();
+        const ce = (c.nameEn || '').trim().toLowerCase();
+        const cf = (c.flag || '').trim();
+        return (cn && (objName.includes(cn) || cn.includes(objName))) ||
+          (ce && (objName.toLowerCase().includes(ce) || ce.includes(objName.toLowerCase()))) ||
+          (cf && objName.includes(cf));
+      });
+      if (match) return match.id || match._id;
+    }
+  }
+  const cleanStr = String(rawCountry || '').trim();
+  if (cleanStr) {
+    const directMatch = countriesList.find((c) => (c.id || c._id) === cleanStr);
+    if (directMatch) return directMatch.id || directMatch._id;
+    const codeMatch = countriesList.find((c) => (c.code || '').toUpperCase() === cleanStr.toUpperCase());
+    if (codeMatch) return codeMatch.id || codeMatch._id;
+    const nameMatch = countriesList.find((c) => {
+      const cn = (c.name || '').trim();
+      const ce = (c.nameEn || '').trim().toLowerCase();
+      const cf = (c.flag || '').trim();
+      return (cn && (cleanStr.includes(cn) || cn.includes(cleanStr))) ||
+        (ce && (cleanStr.toLowerCase().includes(ce) || ce.includes(cleanStr.toLowerCase()))) ||
+        (cf && cleanStr.includes(cf));
+    });
+    if (nameMatch) return nameMatch.id || nameMatch._id;
+  }
+  if (dialCode) {
+    const cleanDial = String(dialCode).trim();
+    const dialMatch = countriesList.find((c) => (c.dialCode || c.phoneCode || c.code) === cleanDial);
+    if (dialMatch) return dialMatch.id || dialMatch._id;
+  }
+  return '';
 }
 
 export default function StudentProfile() {
@@ -107,12 +154,17 @@ export default function StudentProfile() {
         const parsed = parseCountryDialCodeAndPhone(activeProfile.phone, loadedCountries);
         const rawDob = activeProfile.birthDate || activeProfile.dateOfBirth || '';
         const formattedDob = rawDob ? String(rawDob).slice(0, 10) : '';
+        const resolvedCountryId = resolveStudentCountry(
+          activeProfile.country || activeProfile.countryAr || activeProfile.countryEn || activeProfile.countryCode,
+          parsed.dialCode,
+          loadedCountries
+        );
         setFormData({
           name: nameAr,
           nameEn: nameEn,
           phone: parsed.phoneVal,
           countryDialCode: parsed.dialCode,
-          country: activeProfile.country || (loadedCountries[0]?.id || ''),
+          country: resolvedCountryId,
           birthDate: formattedDob,
           imageFile: null,
         });
@@ -133,8 +185,17 @@ export default function StudentProfile() {
   const countryName = useMemo(() => {
     const cIdOrName = formData.country || p.country;
     if (!cIdOrName) return '';
-    const match = countriesList.find((c) => (c.id || c._id || c.name || c.code) === cIdOrName);
-    return match ? getCountryName(match, isRtl) : cIdOrName;
+    const match = countriesList.find((c) =>
+      (c.id || c._id) === cIdOrName ||
+      c.name === cIdOrName ||
+      c.nameEn === cIdOrName ||
+      (c.code && c.code.toUpperCase() === String(cIdOrName).toUpperCase())
+    );
+    if (match) {
+      const name = getCountryName(match, isRtl);
+      return match.flag ? `${match.flag} ${name}` : name;
+    }
+    return typeof cIdOrName === 'object' ? getCountryName(cIdOrName, isRtl) : String(cIdOrName);
   }, [formData.country, p.country, countriesList, isRtl]);
   const birthDateFormatted = useMemo(() => {
     const raw = formData.birthDate || p.birthDate || p.dateOfBirth;
@@ -297,6 +358,38 @@ export default function StudentProfile() {
         confirmPassword,
       });
       if (res?.success) {
+        const resData = res.data?.data || res.data;
+        const newAccessToken =
+          resData?.token ||
+          resData?.accessToken ||
+          resData?.access_token ||
+          res.data?.token ||
+          res.data?.accessToken ||
+          res.data?.access_token;
+        const newRefreshToken =
+          resData?.refreshToken ||
+          resData?.refresh_token ||
+          res.data?.refreshToken ||
+          res.data?.refresh_token;
+        if (newAccessToken) {
+          setCookie('access_token', newAccessToken, 7);
+          try {
+            localStorage.setItem('access_token', newAccessToken);
+          } catch (e) {
+            void e;
+          }
+          if (api?.defaults?.headers?.common) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          }
+        }
+        if (newRefreshToken) {
+          setCookie('refresh_token', newRefreshToken, 7);
+          try {
+            localStorage.setItem('refresh_token', newRefreshToken);
+          } catch (e) {
+            void e;
+          }
+        }
         showSuccessToast(t('studentDashboard.profile.passwordUpdatedSuccess', 'تم تحديث كلمة المرور بنجاح'));
         if (clearFields) clearFields();
       } else {

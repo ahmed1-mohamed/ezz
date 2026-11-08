@@ -1,4 +1,41 @@
 import api from './axiosConfig';
+import { setCookie } from '@/shared/utils/cookieUtils';
+
+function syncAuthTokens(rawResponse) {
+  if (!rawResponse) return;
+  const resData = rawResponse.data?.data || rawResponse.data || rawResponse;
+  const newAccessToken =
+    resData?.token ||
+    resData?.accessToken ||
+    resData?.access_token ||
+    rawResponse?.token ||
+    rawResponse?.accessToken ||
+    rawResponse?.access_token;
+  const newRefreshToken =
+    resData?.refreshToken ||
+    resData?.refresh_token ||
+    rawResponse?.refreshToken ||
+    rawResponse?.refresh_token;
+  if (newAccessToken) {
+    setCookie('access_token', newAccessToken, 7);
+    try {
+      localStorage.setItem('access_token', newAccessToken);
+    } catch (e) {
+      void e;
+    }
+    if (api?.defaults?.headers?.common) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+    }
+  }
+  if (newRefreshToken) {
+    setCookie('refresh_token', newRefreshToken, 7);
+    try {
+      localStorage.setItem('refresh_token', newRefreshToken);
+    } catch (e) {
+      void e;
+    }
+  }
+}
 
 export const profileApi = {
   fetchProfile: async () => {
@@ -59,12 +96,14 @@ export const profileApi = {
         const response = await api.patch('/api/v1/profile/change-password', cleanData, {
           skipGlobalErrorToast: true,
         });
+        syncAuthTokens(response.data);
         return { success: true, data: response.data };
       } catch (err) {
         if (err.response?.status === 404 && data.userId) {
           const resUser = await api.patch(`/api/v1/users/${data.userId}/change-password`, cleanData, {
             skipGlobalErrorToast: true,
           });
+          syncAuthTokens(resUser.data);
           return { success: true, data: resUser.data };
         }
         throw err;
@@ -88,12 +127,14 @@ export const profileApi = {
         const response = await api.patch('/api/v1/profile/create-password', cleanData, {
           skipGlobalErrorToast: true,
         });
+        syncAuthTokens(response.data);
         return { success: true, data: response.data };
       } catch (err) {
         if (err.response?.status === 404 && data.userId) {
           const resUser = await api.patch(`/api/v1/users/${data.userId}/change-password`, cleanData, {
             skipGlobalErrorToast: true,
           });
+          syncAuthTokens(resUser.data);
           return { success: true, data: resUser.data };
         }
         throw err;

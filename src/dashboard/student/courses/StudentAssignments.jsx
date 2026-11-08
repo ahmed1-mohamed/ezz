@@ -1,21 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Calendar,
-  X,
   User,
   Clock,
   Star,
   CheckCircle,
-  Upload,
-  Send,
-  Download,
   FileText,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
-import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert';
 import Spinner from '@/shared/components/Spinner';
 
 const TABS_CONFIG = [
@@ -23,6 +18,50 @@ const TABS_CONFIG = [
   { key: 'completed', labelAr: 'المكتملة', labelEn: 'Completed', defaultCount: 3 },
   { key: 'overdue', labelAr: 'المتأخرة', labelEn: 'Overdue', defaultCount: 1 },
 ];
+
+function resolveEvaluationStatus(item, isRtl) {
+  const raw = item?.evaluationStatus || item?.submission?.evaluationStatus || item?.evalStatus;
+  if (typeof raw === 'string' && raw.trim()) {
+    const clean = raw.trim().toLowerCase();
+    if (clean === 'evaluated' || clean.includes('تم التقييم') || clean.includes('مقيم') || clean === 'done') {
+      return { isEvaluated: true, label: isRtl ? 'تم التقييم' : 'Evaluated' };
+    }
+    if (clean === 'not_evaluated' || clean.includes('لم يتم التقييم') || clean.includes('غير مقيم') || clean === 'pending') {
+      return { isEvaluated: false, label: isRtl ? 'لم يتم التقييم' : 'Not Evaluated' };
+    }
+    return { isEvaluated: Boolean(item?.grade || item?.submission?.grade), label: raw.trim() };
+  }
+  if (typeof item?.evaluated === 'boolean') {
+    return {
+      isEvaluated: item.evaluated,
+      label: item.evaluated ? (isRtl ? 'تم التقييم' : 'Evaluated') : (isRtl ? 'لم يتم التقييم' : 'Not Evaluated'),
+    };
+  }
+  if (item?.grade !== null && item?.grade !== undefined && item?.grade !== '') {
+    return { isEvaluated: true, label: isRtl ? 'تم التقييم' : 'Evaluated' };
+  }
+  return { isEvaluated: false, label: isRtl ? 'لم يتم التقييم' : 'Not Evaluated' };
+}
+
+function isHomeworkSubmittedLate(item) {
+  const rawStatus = (item?.status || item?.rawStatus || item?.submission?.status || '').toString().toLowerCase();
+  return rawStatus === 'submitted_late' ||
+    Boolean(item?.isSubmittedLate) ||
+    Boolean(item?.isLate) ||
+    Boolean(item?.submittedLate) ||
+    rawStatus.includes('late');
+}
+
+function formatHomeworkDate(dateStr, isRtl) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return String(dateStr);
+  return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 const MOCK_ASSIGNMENTS = {
   ongoing: [
@@ -38,10 +77,10 @@ const MOCK_ASSIGNMENTS = {
       sessionNameEn: 'Tajweed Session - Surah Al-Baqarah',
       dueDate: '17 أبريل 2026',
       dueDateEn: '17 April 2026',
-      status: 'ongoing',
+      status: 'pending',
+      rawStatus: 'pending',
       statusLabelAr: 'قيد التنفيذ',
       statusLabelEn: 'In Progress',
-      progress: 60,
       description: 'حل تدريبات كتاب أحكام التلاوة ص 45 وتطبيق أحكام الإظهار والإدغام على الآيات المقررة مع تسجيل مقطع صوتي قصير.',
       fileUrl: null,
     },
@@ -57,10 +96,10 @@ const MOCK_ASSIGNMENTS = {
       sessionNameEn: 'Memorization & Review Session',
       dueDate: '20 أبريل 2026',
       dueDateEn: '20 April 2026',
-      status: 'ongoing',
+      status: 'pending',
+      rawStatus: 'pending',
       statusLabelAr: 'قيد التنفيذ',
       statusLabelEn: 'In Progress',
-      progress: 35,
       description: 'حفظ الآيات حفظاً متقناً مع تطبيق أحكام المد ومراعاة مخارج الحروف.',
       fileUrl: null,
     },
@@ -76,10 +115,10 @@ const MOCK_ASSIGNMENTS = {
       sessionNameEn: 'Grammar & Morphology Session',
       dueDate: '22 أبريل 2026',
       dueDateEn: '22 April 2026',
-      status: 'ongoing',
+      status: 'pending',
+      rawStatus: 'pending',
       statusLabelAr: 'قيد التنفيذ',
       statusLabelEn: 'In Progress',
-      progress: 80,
       description: 'إعراب الأبيات الخمسة الأولى إعراباً كاملاً مفصلاً وتسليمه ملف PDF أو صورة واضحة.',
       fileUrl: null,
     },
@@ -97,9 +136,12 @@ const MOCK_ASSIGNMENTS = {
       sessionNameEn: 'Tajweed Session - Surah Al-Baqarah',
       submissionDate: '17 أبريل 2026',
       submissionDateEn: '17 April 2026',
-      status: 'completed',
+      status: 'submitted',
+      rawStatus: 'submitted',
+      isSubmittedLate: false,
       statusLabelAr: 'مكتملة',
       statusLabelEn: 'Completed',
+      evaluationStatus: 'تم التقييم',
       grade: '9/10',
       feedback: 'أحسنت يا بطل، إجابات متميزة مع مراعاة مراجعة حكم الإخفاء في السؤال الثالث.',
       description: 'حل تدريبات كتاب أحكام التلاوة ص 45 وتطبيق أحكام الإظهار والإدغام.',
@@ -117,9 +159,12 @@ const MOCK_ASSIGNMENTS = {
       sessionNameEn: 'Recitation Session',
       submissionDate: '14 أبريل 2026',
       submissionDateEn: '14 April 2026',
-      status: 'completed',
-      statusLabelAr: 'مكتملة',
-      statusLabelEn: 'Completed',
+      status: 'submitted_late',
+      rawStatus: 'submitted_late',
+      isSubmittedLate: true,
+      statusLabelAr: 'متسلم متأخر',
+      statusLabelEn: 'Submitted Late',
+      evaluationStatus: 'تم التقييم',
       grade: '10/10',
       feedback: 'ما شاء الله تبارك الله، تلاوة متقنة وصوت رائع.',
       description: 'تسميع السورة مع مراعاة أحكام الوقف والابتداء.',
@@ -137,11 +182,14 @@ const MOCK_ASSIGNMENTS = {
       sessionNameEn: 'Rhetoric Session',
       submissionDate: '10 أبريل 2026',
       submissionDateEn: '10 April 2026',
-      status: 'completed',
+      status: 'submitted',
+      rawStatus: 'submitted',
+      isSubmittedLate: false,
       statusLabelAr: 'مكتملة',
       statusLabelEn: 'Completed',
-      grade: '8.5/10',
-      feedback: 'إجابات جيدة جداً، تدرب أكثر على استخراج الجناس والطباق.',
+      evaluationStatus: 'لم يتم التقييم',
+      grade: null,
+      feedback: null,
       description: 'استخراج المحسنات البديعية من النص الشعري.',
       fileUrl: null,
     },
@@ -162,6 +210,7 @@ const MOCK_ASSIGNMENTS = {
       lateTextAr: 'متأخر 5 أيام',
       lateTextEn: '5 days overdue',
       status: 'overdue',
+      rawStatus: 'overdue',
       statusLabelAr: 'متأخر',
       statusLabelEn: 'Overdue',
       description: 'يرجى سرعة تسليم هذا الواجب لتفادي خصم درجات التأخير من التقييم النهائي.',
@@ -170,285 +219,119 @@ const MOCK_ASSIGNMENTS = {
   ],
 };
 
-function HomeworkDetailsModal({ homework, isRtl, onClose, onSuccess, t }) {
-  const fileInputRef = useRef(null);
-  const [submissionText, setSubmissionText] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const isCompleted = homework.status === 'completed';
-  const title = isRtl ? homework.title : (homework.titleEn || homework.title);
-  const teacher = isRtl ? homework.teacher : (homework.teacherEn || homework.teacher);
-  const subject = isRtl ? homework.subject : (homework.subjectEn || homework.subject);
-  const statusLabel = isRtl ? homework.statusLabelAr : (homework.statusLabelEn || homework.statusLabelAr);
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!submissionText.trim() && !selectedFile) {
-      showErrorToast(isRtl ? 'يرجى كتابة نص الإجابة أو إرفاق ملف' : 'Please provide answer text or attach a file');
-      return;
-    }
-    try {
-      setSubmitting(true);
-      const formData = new FormData();
-      if (submissionText.trim()) {
-        formData.append('text', submissionText.trim());
-        formData.append('answer', submissionText.trim());
-      }
-      if (selectedFile) {
-        formData.append('file', selectedFile);
-        formData.append('attachment', selectedFile);
-      }
-      if (homework.id && typeof homework.id === 'string' && homework.id.length > 10) {
-        await studentPortalApi.submitHomework(homework.id, formData);
-      }
-      showSuccessToast(isRtl ? 'تم تسليم الواجب بنجاح' : 'Homework submitted successfully');
-      onSuccess();
-      onClose();
-    } catch (error) {
-      const message = error.response?.data?.message || error.message || (isRtl ? 'فشل تسليم الواجب' : 'Failed to submit homework');
-      showErrorToast(Array.isArray(message) ? message.join(', ') : message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-  if (typeof document === 'undefined') return null;
-  return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fade-in"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.94, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.94, opacity: 0 }}
-        className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 my-8"
-        dir={isRtl ? 'rtl' : 'ltr'}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#E3EFFC] text-[#2563EB]">
-              {subject}
-            </span>
-            <span
-              className={`text-xs font-bold px-3 py-1 rounded-full ${
-                homework.status === 'completed'
-                  ? 'bg-[#D1FAE5] text-[#059669]'
-                  : homework.status === 'overdue'
-                  ? 'bg-[#FEE2E2] text-[#EF4444]'
-                  : 'bg-[#FEF3C7] text-[#D97706]'
-              }`}
-            >
-              {statusLabel}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer text-slate-500"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="p-6 space-y-5 text-start">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              {title}
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              {isRtl ? homework.sessionName : (homework.sessionNameEn || homework.sessionName)}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5">
-              <p className="text-[11px] text-slate-400 mb-1">{t('studentDashboard.homework.teacher', 'المعلم')}</p>
-              <p className="font-bold text-slate-700 dark:text-slate-200 text-xs">{teacher}</p>
-            </div>
-            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5">
-              <p className="text-[11px] text-slate-400 mb-1">
-                {isCompleted ? t('studentDashboard.assignments.submittedDateLabel', 'تاريخ التسليم') : t('studentDashboard.homework.dueDate', 'موعد التسليم')}
-              </p>
-              <p className="font-bold text-slate-700 dark:text-slate-200 text-xs">
-                {isCompleted ? (isRtl ? homework.submissionDate : homework.submissionDateEn) : (isRtl ? homework.dueDate : homework.dueDateEn)}
-              </p>
-            </div>
-          </div>
-          {homework.description && (
-            <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
-              <h4 className="text-xs font-bold text-slate-500 mb-1.5">{t('studentDashboard.homework.description', 'تعليمات الواجب')}</h4>
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                {homework.description}
-              </p>
-            </div>
-          )}
-          {homework.fileUrl && (
-            <div className="flex items-center justify-between p-3.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-100 dark:border-emerald-800/40">
-              <span className="text-xs font-bold text-[#00594C] dark:text-emerald-400">
-                {t('studentDashboard.homework.attachedFile', 'ملف مرفق بالواجب')}
-              </span>
-              <a
-                href={homework.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00594C] text-white text-xs font-bold"
-              >
-                <Download size={13} />
-                <span>{t('studentDashboard.homework.download', 'تحميل')}</span>
-              </a>
-            </div>
-          )}
-          {!isCompleted ? (
-            <form onSubmit={handleSubmit} className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                {t('studentDashboard.homework.submitHomework', 'تسليم الواجب')}
-              </h3>
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
-                  {t('studentDashboard.homework.yourAnswer', 'نص الإجابة / ملاحظاتك')}
-                </label>
-                <textarea
-                  rows={4}
-                  value={submissionText}
-                  onChange={(event) => setSubmissionText(event.target.value)}
-                  placeholder={t('studentDashboard.homework.answerPlaceholder', 'اكتب إجابتك هنا...')}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-[#00594C] transition-colors resize-none"
-                />
-              </div>
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
-                  className="hidden"
-                />
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-[#00594C] rounded-2xl p-4 text-center cursor-pointer transition-colors bg-slate-50/50 dark:bg-slate-800/30"
-                >
-                  <Upload size={20} className="mx-auto text-slate-400 mb-1.5" />
-                  <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                    {selectedFile ? selectedFile.name : t('studentDashboard.homework.chooseFile', 'اضغط لاختيار ملف (PDF، صورة، مستند)')}
-                  </p>
-                  {selectedFile && (
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  )}
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-3.5 rounded-2xl bg-[#00594C] hover:bg-[#004742] active:scale-[0.98] text-white text-sm font-bold shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
-              >
-                <Send size={16} />
-                <span>{submitting ? t('studentDashboard.homework.submitting', 'جاري التسليم...') : t('studentDashboard.homework.submitNow', 'إرسال الواجب')}</span>
-              </button>
-            </form>
-          ) : (
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                <CheckCircle size={18} />
-                <span className="text-sm font-bold">{t('studentDashboard.homework.alreadySubmitted', 'تم تسليم هذا الواجب بنجاح')}</span>
-              </div>
-              {homework.grade && (
-                <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">{t('studentDashboard.homework.grade', 'الدرجة')}</span>
-                    <span className="font-extrabold text-[#00594C] dark:text-emerald-400 text-sm">{homework.grade}</span>
-                  </div>
-                  {homework.feedback && (
-                    <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60">
-                      <p className="text-slate-500 mb-0.5">{t('studentDashboard.homework.feedback', 'ملاحظة المعلم:')}</p>
-                      <p className="text-slate-700 dark:text-slate-200 italic">{homework.feedback}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>,
-    document.body
-  );
-}
-
 export default function StudentAssignments() {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [activeTab, setActiveTab] = useState('ongoing');
   const [assignmentsByTab, setAssignmentsByTab] = useState(MOCK_ASSIGNMENTS);
-  const [activeHomework, setActiveHomework] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  async function fetchHomeworkData() {
-    try {
-      setIsLoading(true);
-      const [pendingRes, submittedRes, overdueRes] = await Promise.allSettled([
-        studentPortalApi.fetchPendingHomework(),
-        studentPortalApi.fetchSubmittedHomework(),
-        studentPortalApi.fetchOverdueHomework(),
-      ]);
-      const formatApiItems = (result, defaultList, statusKey) => {
-        if (result.status === 'fulfilled') {
-          const raw = result.value?.data || result.value;
-          if (Array.isArray(raw) && raw.length > 0) {
-            return raw.map((item, index) => ({
-              id: item.id || item._id || index + 1,
-              title: item.title || (isRtl ? item.titleAr : item.titleEn) || 'واجب مدرسي',
-              titleEn: item.titleEn || item.title || 'Homework',
-              subject: item.group?.subject || item.subject || 'القرآن الكريم',
-              subjectEn: item.group?.subjectEn || item.subjectEn || 'Holy Quran',
-              teacher: item.teacher?.name || item.teacherName || 'الشيخ أحمد السيد',
-              teacherEn: item.teacher?.name || item.teacherName || 'Sheikh Ahmed Al-Sayed',
-              sessionName: item.group?.name || 'حصة التجويد - سورة البقرة',
-              sessionNameEn: item.group?.name || 'Tajweed Session - Surah Al-Baqarah',
-              dueDate: item.formattedDueDate || item.dueDate || '17 أبريل 2026',
-              dueDateEn: item.formattedDueDate || item.dueDate || '17 April 2026',
-              submissionDate: item.submittedAt || '17 أبريل 2026',
-              submissionDateEn: item.submittedAt || '17 April 2026',
-              lateTextAr: item.lateDays ? `متأخر ${item.lateDays} أيام` : 'متأخر 5 أيام',
-              lateTextEn: item.lateDays ? `${item.lateDays} days overdue` : '5 days overdue',
-              status: statusKey,
-              statusLabelAr: statusKey === 'completed' ? 'مكتملة' : statusKey === 'overdue' ? 'متأخر' : 'قيد التنفيذ',
-              statusLabelEn: statusKey === 'completed' ? 'Completed' : statusKey === 'overdue' ? 'Overdue' : 'In Progress',
-              progress: item.progress || (statusKey === 'ongoing' ? 60 : 100),
-              grade: item.grade || item.submission?.grade || '9/10',
-              feedback: item.feedback || item.submission?.feedback || null,
-              description: item.description || item.desc || '',
-              fileUrl: item.fileUrl || null,
-            }));
-          }
-        }
-        return defaultList;
-      };
-      setAssignmentsByTab({
-        ongoing: formatApiItems(pendingRes, MOCK_ASSIGNMENTS.ongoing, 'ongoing'),
-        completed: formatApiItems(submittedRes, MOCK_ASSIGNMENTS.completed, 'completed'),
-        overdue: formatApiItems(overdueRes, MOCK_ASSIGNMENTS.overdue, 'overdue'),
-      });
-    } catch {
-      setAssignmentsByTab(MOCK_ASSIGNMENTS);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    fetchHomeworkData();
-  }, []);
+    let isMounted = true;
+    async function loadHomeworkData() {
+      setIsLoading(true);
+      try {
+        const [pendingRes, submittedRes, submittedLateRes, overdueRes] = await Promise.allSettled([
+          studentPortalApi.fetchPendingHomework(),
+          studentPortalApi.fetchSubmittedHomework(),
+          studentPortalApi.fetchSubmittedLateHomework(),
+          studentPortalApi.fetchOverdueHomework(),
+        ]);
+        if (!isMounted) return;
+        const formatApiItems = (result, defaultList, statusKey) => {
+          if (result.status === 'fulfilled') {
+            const raw = result.value?.data || result.value;
+            if (Array.isArray(raw) && raw.length > 0) {
+              return raw.map((item, index) => {
+                const rawStatus = (item.status || item.submission?.status || statusKey || '').toString().toLowerCase();
+                const isLate = statusKey === 'submitted_late' || rawStatus === 'submitted_late' || Boolean(item.isLate) || Boolean(item.submittedLate);
+                const isOverdue = statusKey === 'overdue' || rawStatus === 'overdue';
+                const isCompleted = statusKey === 'completed' || statusKey === 'submitted_late' || rawStatus === 'submitted' || rawStatus === 'submitted_late';
+                const rawEval = item.evaluationStatus || item.submission?.evaluationStatus || item.evalStatus;
+                let evalLabel = '';
+                if (typeof rawEval === 'string' && rawEval.trim()) {
+                  const clean = rawEval.trim().toLowerCase();
+                  if (clean === 'evaluated' || clean.includes('تم التقييم') || clean.includes('مقيم') || clean === 'done') {
+                    evalLabel = 'تم التقييم';
+                  } else if (clean === 'not_evaluated' || clean.includes('لم يتم التقييم') || clean.includes('غير مقيم') || clean === 'pending') {
+                    evalLabel = 'لم يتم التقييم';
+                  } else {
+                    evalLabel = rawEval.trim();
+                  }
+                } else if (typeof item.evaluated === 'boolean') {
+                  evalLabel = item.evaluated ? 'تم التقييم' : 'لم يتم التقييم';
+                } else if (item.grade !== null && item.grade !== undefined && item.grade !== '') {
+                  evalLabel = 'تم التقييم';
+                } else if (isCompleted) {
+                  evalLabel = 'لم يتم التقييم';
+                }
+                const dueFormatted = item.formattedDueDate || formatHomeworkDate(item.dueDate || item.deadline, isRtl) || (isRtl ? '17 أبريل 2026' : '17 April 2026');
+                const submittedFormatted = formatHomeworkDate(item.submittedAt || item.submission?.submittedAt, isRtl) || (isRtl ? '17 أبريل 2026' : '17 April 2026');
+                return {
+                  id: item.id || item._id || index + 1,
+                  title: item.title || (isRtl ? item.titleAr : item.titleEn) || item.name || 'واجب مدرسي',
+                  titleEn: item.titleEn || item.title || 'Homework',
+                  subject: item.group?.subject || item.subject || 'القرآن الكريم',
+                  subjectEn: item.group?.subjectEn || item.subjectEn || 'Holy Quran',
+                  teacher: item.teacher?.name || item.teacherName || 'الشيخ أحمد السيد',
+                  teacherEn: item.teacher?.name || item.teacherName || 'Sheikh Ahmed Al-Sayed',
+                  sessionName: item.group?.name || 'حصة التجويد - سورة البقرة',
+                  sessionNameEn: item.group?.name || 'Tajweed Session - Surah Al-Baqarah',
+                  dueDate: dueFormatted,
+                  dueDateEn: dueFormatted,
+                  submissionDate: submittedFormatted,
+                  submissionDateEn: submittedFormatted,
+                  lateTextAr: item.lateDays ? `متأخر ${item.lateDays} أيام` : 'متأخر 5 أيام',
+                  lateTextEn: item.lateDays ? `${item.lateDays} days overdue` : '5 days overdue',
+                  status: isCompleted ? (isLate ? 'submitted_late' : 'completed') : (isOverdue ? 'overdue' : 'pending'),
+                  rawStatus: rawStatus || statusKey,
+                  isSubmittedLate: isLate,
+                  evaluationStatus: evalLabel,
+                  statusLabelAr: isCompleted ? (isLate ? 'متسلم متأخر' : 'مكتملة') : (isOverdue ? 'متأخر' : 'قيد التنفيذ'),
+                  statusLabelEn: isCompleted ? (isLate ? 'Submitted Late' : 'Completed') : (isOverdue ? 'Overdue' : 'In Progress'),
+                  grade: item.grade || item.submission?.grade || null,
+                  feedback: item.feedback || item.submission?.feedback || null,
+                  description: item.description || item.desc || '',
+                  fileUrl: item.fileUrl || null,
+                };
+              });
+            }
+          }
+          return defaultList;
+        };
+        const pendingItems = formatApiItems(pendingRes, MOCK_ASSIGNMENTS.ongoing, 'pending');
+        const submittedItems = formatApiItems(submittedRes, [], 'completed');
+        const submittedLateItems = formatApiItems(submittedLateRes, [], 'submitted_late');
+        const combinedCompleted = [...submittedItems];
+        submittedLateItems.forEach((lateItem) => {
+          if (!combinedCompleted.some((c) => String(c.id) === String(lateItem.id))) {
+            combinedCompleted.push(lateItem);
+          }
+        });
+        const overdueItems = formatApiItems(overdueRes, MOCK_ASSIGNMENTS.overdue, 'overdue');
+        if (!isMounted) return;
+        setAssignmentsByTab({
+          ongoing: pendingItems,
+          completed: combinedCompleted.length > 0 ? combinedCompleted : MOCK_ASSIGNMENTS.completed,
+          overdue: overdueItems,
+        });
+      } catch {
+        if (!isMounted) return;
+        setAssignmentsByTab(MOCK_ASSIGNMENTS);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+    loadHomeworkData();
+    return () => {
+      isMounted = false;
+    };
+  }, [isRtl]);
   function handleTabChange(tabKey) {
     setActiveTab(tabKey);
   }
   function handleOpenDetails(item) {
-    setActiveHomework(item);
-  }
-  function handleCloseDetails() {
-    setActiveHomework(null);
-  }
-  function handleReload() {
-    fetchHomeworkData();
+    navigate(`/dashboard/student/assignments/${item.id}`, { state: { homework: item } });
   }
   const currentList = assignmentsByTab[activeTab] || [];
   const ongoingCount = assignmentsByTab.ongoing?.length ?? 3;
@@ -528,11 +411,13 @@ export default function StudentAssignments() {
                 const teacher = isRtl ? item.teacher : (item.teacherEn || item.teacher);
                 const subject = isRtl ? item.subject : (item.subjectEn || item.subject);
                 const sessionName = isRtl ? item.sessionName : (item.sessionNameEn || item.sessionName);
-                const isOverdue = item.status === 'overdue';
-                const isCompleted = item.status === 'completed';
-                const isOngoing = item.status === 'ongoing';
+                const isOverdue = item.status === 'overdue' || item.rawStatus === 'overdue';
+                const isCompleted = item.status === 'completed' || item.status === 'submitted' || item.status === 'submitted_late' || item.rawStatus === 'submitted' || item.rawStatus === 'submitted_late';
+                const isOngoing = !isCompleted && !isOverdue;
+                const isLateSubmitted = isHomeworkSubmittedLate(item);
+                const evalInfo = resolveEvaluationStatus(item, isRtl);
                 const statusBadgeLabel = isCompleted
-                  ? t('studentDashboard.assignments.completed', 'مكتملة')
+                  ? (isLateSubmitted ? (isRtl ? 'متسلم متأخر' : 'Submitted Late') : t('studentDashboard.assignments.completed', 'مكتملة'))
                   : isOverdue
                   ? t('studentDashboard.assignments.overdue', 'متأخر')
                   : t('studentDashboard.assignments.inProgress', 'قيد التنفيذ');
@@ -578,44 +463,42 @@ export default function StudentAssignments() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end shrink-0">
-                        <span
-                          className={`text-xs font-bold px-4 py-1.5 rounded-full ${
-                            isCompleted
-                              ? 'bg-[#D1FAE5] text-[#059669]'
-                              : isOverdue
-                              ? 'bg-[#FEE2E2] text-[#EF4444]'
-                              : 'bg-[#FEF3C7] text-[#D97706]'
-                          }`}
-                        >
-                          {statusBadgeLabel}
-                        </span>
-                        {isCompleted && item.grade && (
-                          <div className="flex items-center gap-1 mt-3 text-sm font-bold text-slate-800 dark:text-slate-100">
+                      <div className="flex flex-col items-end shrink-0 gap-2">
+                        <div className="flex items-center gap-2 flex-wrap justify-end">
+                          <span
+                            className={`text-xs font-bold px-4 py-1.5 rounded-full ${
+                              isCompleted
+                                ? isLateSubmitted
+                                  ? 'bg-[#FEF3C7] text-[#D97706]'
+                                  : 'bg-[#D1FAE5] text-[#059669]'
+                                : isOverdue
+                                ? 'bg-[#FEE2E2] text-[#EF4444]'
+                                : 'bg-[#FEF3C7] text-[#D97706]'
+                            }`}
+                          >
+                            {statusBadgeLabel}
+                          </span>
+                          {isCompleted && (
+                            <span
+                              className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${
+                                evalInfo.isEvaluated
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50'
+                                  : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                              }`}
+                            >
+                              <CheckCircle size={12} className={evalInfo.isEvaluated ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'} />
+                              <span>{evalInfo.label}</span>
+                            </span>
+                          )}
+                        </div>
+                        {isCompleted && evalInfo.isEvaluated && item.grade && (
+                          <div className="flex items-center gap-1 mt-1 text-sm font-bold text-slate-800 dark:text-slate-100">
                             <span className="font-mono">{item.grade}</span>
                             <Star size={16} className="fill-[#F59E0B] text-[#F59E0B]" />
                           </div>
                         )}
                       </div>
                     </div>
-                    {isOngoing && typeof item.progress === 'number' && (
-                      <div className="space-y-1.5 pt-1">
-                        <div className="flex items-center justify-between text-xs font-bold">
-                          <span className="text-slate-400 dark:text-slate-500">
-                            {t('studentDashboard.assignments.progress', 'التقدم')}
-                          </span>
-                          <span className="text-slate-700 dark:text-slate-200 font-mono">
-                            {item.progress}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
-                            style={{ width: `${item.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
                     <div className="pt-2">
                       <button
                         type="button"
@@ -628,7 +511,7 @@ export default function StudentAssignments() {
                             : 'bg-[#F1F5F9] dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
                         }`}
                       >
-                        {t('studentDashboard.assignments.viewSubmit', 'عرض التفاصيل والتسليم')}
+                        {isCompleted ? t('studentDashboard.assignments.viewDetails', 'عرض التفاصيل') : t('studentDashboard.assignments.viewSubmit', 'عرض التفاصيل والتسليم')}
                       </button>
                     </div>
                   </motion.div>
@@ -638,17 +521,6 @@ export default function StudentAssignments() {
           )}
         </div>
       </div>
-      <AnimatePresence>
-        {activeHomework && (
-          <HomeworkDetailsModal
-            homework={activeHomework}
-            isRtl={isRtl}
-            t={t}
-            onClose={handleCloseDetails}
-            onSuccess={handleReload}
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 }

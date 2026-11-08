@@ -95,6 +95,7 @@ const StudentRecorded = lazy(() => import('../dashboard/student/courses/StudentR
 const StudentTeachers = lazy(() => import('../dashboard/student/overview/StudentTeachers.jsx'))
 const StudentTeacherProfile = lazy(() => import('../dashboard/student/components/StudentTeacherProfile.jsx'))
 const StudentAssignments = lazy(() => import('../dashboard/student/courses/StudentAssignments.jsx'))
+const StudentAssignmentDetails = lazy(() => import('../dashboard/student/courses/StudentAssignmentDetails.jsx'))
 const StudentGrades = lazy(() => import('../dashboard/student/grades/StudentGrades.jsx'))
 const StudentAttendance = lazy(() => import('../dashboard/student/schedule/StudentAttendance.jsx'))
 const StudentAchievements = lazy(() => import('../dashboard/student/grades/StudentAchievements.jsx'))
@@ -599,6 +600,7 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/student/teachers" element={<StudentTeachers />} />
                                     <Route path="/dashboard/student/teachers/:id" element={<StudentTeacherProfile />} />
                                     <Route path="/dashboard/student/assignments" element={<StudentAssignments />} />
+                                    <Route path="/dashboard/student/assignments/:id" element={<StudentAssignmentDetails />} />
                                     <Route path="/dashboard/student/grades" element={<StudentGrades />} />
                                     <Route path="/dashboard/student/attendance" element={<StudentAttendance />} />
                                     <Route path="/dashboard/student/achievements" element={<StudentAchievements />} />

@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { User, Calendar, Mail, GraduationCap, Save, ChevronDown, Lock } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { User, Calendar, Mail, GraduationCap, Save, ChevronDown, Lock, Search, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils';
 
@@ -16,8 +16,11 @@ export default React.memo(function StudentEditProfileForm({
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
   const sortedCountryCodes = useMemo(
-    () => sortCountryCodes(countryCodes, isRtl),
+    () => sortCountryCodes(countryCodes.filter((c) => Boolean(c.dialCode || c.code || c.phoneCode)), isRtl),
     [countryCodes, isRtl]
   );
   const sortedCountries = useMemo(
@@ -26,15 +29,72 @@ export default React.memo(function StudentEditProfileForm({
   );
   const selectedCountryCodeObj = useMemo(() => {
     const code = formData.countryDialCode || '+966';
-    return sortedCountryCodes.find((c) => (c.dialCode || c.code) === code) || {
+    return sortedCountryCodes.find((c) => (c.dialCode || c.code || c.phoneCode) === code) || {
       dialCode: code,
       flag: '🇸🇦',
     };
   }, [sortedCountryCodes, formData.countryDialCode]);
+  const selectedCountryId = useMemo(() => {
+    if (!formData.country) return '';
+    const raw = typeof formData.country === 'object' && formData.country !== null
+      ? (formData.country.id || formData.country._id || formData.country.name)
+      : String(formData.country).trim();
+    const match = sortedCountries.find((c) => {
+      const cid = c.id || c._id;
+      return cid === raw ||
+        c.name === raw ||
+        c.nameEn === raw ||
+        (c.code && c.code.toUpperCase() === raw.toUpperCase()) ||
+        (c.name && raw.includes(c.name)) ||
+        (c.nameEn && raw.toLowerCase().includes(c.nameEn.toLowerCase()));
+    });
+    return match ? (match.id || match._id) : raw;
+  }, [formData.country, sortedCountries]);
+  const filteredCountryCodes = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return sortedCountryCodes;
+    return sortedCountryCodes.filter((c) => {
+      const dial = (c.dialCode || c.code || c.phoneCode || '').toLowerCase();
+      const name = (c.name || '').toLowerCase();
+      const nameEn = (c.nameEn || '').toLowerCase();
+      return dial.includes(q) || name.includes(q) || nameEn.includes(q);
+    });
+  }, [sortedCountryCodes, searchQuery]);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false);
+      }
+    }
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDropdownOpen]);
   function handleSelectCode(country) {
-    const dial = country.dialCode || country.code || '+966';
+    const dial = country.dialCode || country.code || country.phoneCode || '+966';
     onFormChange('countryDialCode', dial);
     setIsDropdownOpen(false);
+  }
+  function handleSelectCountry(e) {
+    const countryId = e.target.value;
+    onFormChange('country', countryId);
+    const matched = sortedCountries.find((c) => (c.id || c._id) === countryId);
+    if (matched && (matched.dialCode || matched.phoneCode)) {
+      onFormChange('countryDialCode', matched.dialCode || matched.phoneCode);
+    }
   }
   return (
     <form
@@ -88,34 +148,79 @@ export default React.memo(function StudentEditProfileForm({
           <label className="text-xs font-black text-slate-700 dark:text-slate-300 block">
             {t('studentDashboard.profile.phone', 'رقم الهاتف')} *
           </label>
-          <div className="flex gap-2.5" dir="ltr">
-            <div className="relative shrink-0">
+          <div className="flex gap-2.5 items-center" dir="ltr">
+            <div ref={dropdownRef} className="relative shrink-0">
               <button
                 type="button"
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
-                className="h-11.5 flex items-center justify-center gap-1.5 px-3 bg-[#f8faf9] dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer"
+                onClick={() => {
+                  setIsDropdownOpen((prev) => !prev);
+                  setSearchQuery('');
+                }}
+                className="h-11.5 flex items-center justify-center gap-2 px-3.5 bg-[#f8faf9] dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer shadow-2xs active:scale-[0.98]"
               >
-                <span>{selectedCountryCodeObj?.flag || '🌍'}</span>
-                <span>{selectedCountryCodeObj?.dialCode || selectedCountryCodeObj?.code || '+966'}</span>
-                <ChevronDown size={13} className="text-slate-400" />
+                <span className="text-base shrink-0">{selectedCountryCodeObj?.flag || '🌍'}</span>
+                <span className="font-mono font-bold text-xs shrink-0">{selectedCountryCodeObj?.dialCode || selectedCountryCodeObj?.code || '+966'}</span>
+                <ChevronDown size={13} className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               {isDropdownOpen && (
-                <div className="absolute start-0 mt-1.5 z-30 w-52 max-h-60 overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 animate-fadeIn">
-                  {sortedCountryCodes.map((country) => {
-                    const dial = country.dialCode || country.code;
-                    return (
-                      <button
-                        key={`${dial}-${country.name || country.code}`}
-                        type="button"
-                        onClick={() => handleSelectCode(country)}
-                        className="w-full px-3.5 py-2 flex items-center gap-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors text-start cursor-pointer"
-                      >
-                        <span className="text-base">{country.flag}</span>
-                        <span className="font-mono">{dial}</span>
-                        <span className="text-slate-400 truncate">{getCountryName(country, isRtl)}</span>
-                      </button>
-                    );
-                  })}
+                <div
+                  className="absolute start-0 top-full mt-2 z-50 w-72 sm:w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col"
+                  dir={isRtl ? 'rtl' : 'ltr'}
+                >
+                  <div className="p-2.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/70 dark:bg-slate-800/80">
+                    <Search size={14} className="text-slate-400 shrink-0" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder={isRtl ? 'ابحث عن دولة أو رمز...' : 'Search country or code...'}
+                      className="w-full bg-transparent border-none text-slate-800 dark:text-white text-xs outline-none placeholder:text-slate-400 font-semibold"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto divide-y divide-slate-50 dark:divide-slate-800/40 py-1">
+                    {filteredCountryCodes.length > 0 ? (
+                      filteredCountryCodes.map((country) => {
+                        const dial = country.dialCode || country.code || country.phoneCode;
+                        const isSelected = dial === (selectedCountryCodeObj?.dialCode || selectedCountryCodeObj?.code);
+                        const cName = getCountryName(country, isRtl);
+                        return (
+                          <button
+                            key={`${dial}-${country.id || country._id || country.name || country.code}`}
+                            type="button"
+                            onClick={() => handleSelectCode(country)}
+                            className={`w-full px-3.5 py-2.5 flex items-center justify-between gap-2.5 transition-colors text-start cursor-pointer group ${
+                              isSelected
+                                ? 'bg-emerald-50/80 dark:bg-emerald-950/40 text-[#005953] dark:text-emerald-300 font-bold'
+                                : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-700 dark:text-slate-200'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span className="text-lg shrink-0 group-hover:scale-110 transition-transform">{country.flag}</span>
+                              <span className="text-xs truncate font-semibold">{cName}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span
+                                dir="ltr"
+                                className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                                  isSelected
+                                    ? 'bg-[#005953] text-white border-transparent'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60'
+                                }`}
+                              >
+                                {dial}
+                              </span>
+                              {isSelected && <Check size={13} className="text-[#005953] dark:text-emerald-400 shrink-0" />}
+                            </div>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="py-6 px-4 text-center text-xs text-slate-400 font-bold">
+                        {isRtl ? 'لا توجد نتائج مطابقة' : 'No matching countries'}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -136,13 +241,13 @@ export default React.memo(function StudentEditProfileForm({
           <div className="relative">
             <select
               required
-              value={formData.country || ''}
-              onChange={(e) => onFormChange('country', e.target.value)}
+              value={selectedCountryId}
+              onChange={handleSelectCountry}
               className="w-full appearance-none bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold cursor-pointer"
             >
               <option value="" disabled>{t('studentDashboard.profile.selectCountry', 'اختر الدولة')}</option>
               {sortedCountries.map((c) => {
-                const cid = c.id || c._id || c.name || c.code;
+                const cid = c.id || c._id;
                 const cname = getCountryName(c, isRtl);
                 return (
                   <option key={cid} value={cid}>
@@ -226,4 +331,3 @@ export default React.memo(function StudentEditProfileForm({
     </form>
   );
 });
-

@@ -97,11 +97,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage, onBook
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400">
                   {studentLevelText}
                 </span>
-                {studentId && (
-                  <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                    ID: {studentId.slice(0, 8)}...
-                  </span>
-                )}
               </div>
             </div>
           </div>

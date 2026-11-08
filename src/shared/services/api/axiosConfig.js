@@ -101,9 +101,29 @@ api.interceptors.response.use(
     if (!newToken && exposeHeader && typeof exposeHeader === 'string' && exposeHeader.length > 20 && !exposeHeader.includes(',')) {
       newToken = exposeHeader.trim();
     }
+    const reqUrl = response.config?.url || '';
+    if (!newToken && (reqUrl.includes('/change-password') || reqUrl.includes('/create-password'))) {
+      const resData = response.data?.data || response.data;
+      newToken = resData?.token || resData?.accessToken || resData?.access_token || response.data?.token || response.data?.accessToken;
+    }
     if (newToken) {
-      setCookie('access_token', newToken);
+      setCookie('access_token', newToken, 7);
+      try {
+        localStorage.setItem('access_token', newToken);
+      } catch (e) {
+        void e;
+      }
       api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    }
+    const resData = response.data?.data || response.data;
+    const newRefresh = resData?.refreshToken || resData?.refresh_token || response.data?.refreshToken || response.data?.refresh_token;
+    if (newRefresh) {
+      setCookie('refresh_token', newRefresh, 7);
+      try {
+        localStorage.setItem('refresh_token', newRefresh);
+      } catch (e) {
+        void e;
+      }
     }
     return response;
   },
