@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 import api from '@/shared/services/api/axiosConfig'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { fetchCountries, sortCountries } from '@/shared/utils/countryUtils'
@@ -157,7 +158,14 @@ export default function TrialSession() {
   const executeFormSubmit = useCallback(async (e) => {
     e.preventDefault()
     setSubmitError('')
-    if (!validateForm()) return
+    if (!validateForm()) {
+      toast.error(
+        isRtl
+          ? 'يرجى استكمال جميع الحقول المطلوبة بشكل صحيح'
+          : 'Please complete all required fields correctly'
+      )
+      return
+    }
     setIsSubmitting(true)
     const selectedCountryObj = countriesList.find((c) =>
       String(c.id || c._id) === String(formData.country) ||
@@ -191,6 +199,11 @@ export default function TrialSession() {
         }
       }
       setIsSuccess(true)
+      toast.success(
+        isRtl
+          ? 'تم إرسال طلب حجز الحصة التجريبية بنجاح!'
+          : 'Trial session request submitted successfully!'
+      )
       const defaultC = countriesList.find((c) => c.code === 'AE') || countriesList[0]
       setFormData({
         name: '',
@@ -205,7 +218,9 @@ export default function TrialSession() {
       })
     } catch (err) {
       const msg = err.response?.data?.message || err.message || (isRtl ? 'حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً' : 'Failed to submit trial session request')
-      setSubmitError(Array.isArray(msg) ? msg.join(', ') : msg)
+      const formattedMsg = Array.isArray(msg) ? msg.join(', ') : msg
+      setSubmitError(formattedMsg)
+      toast.error(formattedMsg)
     } finally {
       setIsSubmitting(false)
     }

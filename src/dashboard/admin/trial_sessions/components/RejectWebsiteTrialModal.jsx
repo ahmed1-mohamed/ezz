@@ -41,7 +41,9 @@ export default function RejectWebsiteTrialModal({
       onClose()
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || (isRtl ? 'فشل رفض الطلب' : 'Failed to reject request')
-      setErrorMsg(Array.isArray(msg) ? msg.join(', ') : msg)
+      const formatted = Array.isArray(msg) ? msg.join(', ') : msg
+      setErrorMsg(formatted)
+      toast.error(formatted)
     } finally {
       setIsSubmitting(false)
     }

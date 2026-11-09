@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Clock, Calendar, AlertCircle, Loader2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 function parseDateForInput(val) {
   if (!val) return new Date().toISOString().split('T')[0]
@@ -63,15 +64,21 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
   const handleSubmit = async (e) => {
     e?.preventDefault?.()
     if (!date) {
-      setError(t('adminDashboard.sessions.errors.dateRequired', 'يرجى اختيار التاريخ'))
+      const msg = t('adminDashboard.sessions.errors.dateRequired', 'يرجى اختيار التاريخ')
+      setError(msg)
+      toast.error(msg)
       return
     }
     if (!startTime) {
-      setError(t('adminDashboard.sessions.errors.startTimeRequired', 'يرجى اختيار وقت البداية'))
+      const msg = t('adminDashboard.sessions.errors.startTimeRequired', 'يرجى اختيار وقت البداية')
+      setError(msg)
+      toast.error(msg)
       return
     }
     if (!endTime) {
-      setError(t('adminDashboard.sessions.errors.endTimeRequired', 'يرجى اختيار وقت النهاية'))
+      const msg = t('adminDashboard.sessions.errors.endTimeRequired', 'يرجى اختيار وقت النهاية')
+      setError(msg)
+      toast.error(msg)
       return
     }
     setError('')

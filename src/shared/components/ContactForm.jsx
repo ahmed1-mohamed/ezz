@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import { Send } from 'lucide-react'
+import { toast as hotToast } from 'react-hot-toast'
 import { fetchContactInfo, sendMessage, resetMessageSubmitStatus } from '@/store/landingSlice'
 import ContactBanner from './ContactBanner.jsx'
 import ContactInfoCards from './ContactInfoCards.jsx'
@@ -28,10 +29,12 @@ export default function ContactForm() {
     }, [dispatch])
     useEffect(() => {
         if (messageSubmitStatus === 'success') {
+            const successMsg = t('contact.toast.success', 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.')
+            hotToast.success(successMsg)
             setTimeout(() => {
                 setToast({
                     show: true,
-                    message: t('contact.toast.success', 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'),
+                    message: successMsg,
                     type: 'success'
                 })
                 setFormData({
@@ -50,8 +53,9 @@ export default function ContactForm() {
                     return;
                 }
                 const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
-                const errorMsg = sanitizeErrorMessage(submitError, null, isArabic);
+                const errorMsg = sanitizeErrorMessage(submitError, null, isArabic) || t('contact.toast.error', 'حدث خطأ أثناء إرسال الرسالة');
                 if (errorMsg) {
+                    hotToast.error(errorMsg);
                     setToast({
                         show: true,
                         message: errorMsg,
@@ -126,9 +130,11 @@ export default function ContactForm() {
         }
         setErrors(newErrors)
         if (Object.keys(newErrors).length > 0) {
+            const formErr = t('contact.validation.formError', 'خطأ في نموذج التواصل: يرجى تصحيح الحقول المحددة')
+            hotToast.error(formErr)
             setToast({
                 show: true,
-                message: t('contact.validation.formError', 'خطأ في نموذج التواصل: يرجى تصحيح الحقول المحددة'),
+                message: formErr,
                 type: 'error'
             })
             const firstErrorField = Object.keys(newErrors)[0]

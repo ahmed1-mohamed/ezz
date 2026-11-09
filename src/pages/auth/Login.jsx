@@ -7,6 +7,7 @@ import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { triggerGoogleAuth, loadGoogleScript } from '@/shared/services/googleAuthService.js'
 import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
+import { toast as hotToast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -62,12 +63,17 @@ export default function Login() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setServerError('')
-        if (!validate()) return
+        if (!validate()) {
+            hotToast.error(t('login.validationError', 'يرجى إدخال البريد الإلكتروني وكلمة المرور'))
+            return
+        }
         try {
             const user = await login(formValues.email, formValues.password, true)
+            const successMsg = t('login.successMessage', 'تم تسجيل الدخول بنجاح!')
+            hotToast.success(successMsg)
             setToast({
                 show: true,
-                message: t('login.successMessage', 'تم تسجيل الدخول بنجاح!'),
+                message: successMsg,
                 type: 'success'
             })
             setTimeout(() => {
@@ -76,9 +82,11 @@ export default function Login() {
         } catch (error) {
             setServerError(error.message)
             if (canShowErrorInToaster(error)) {
+                const errText = error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور')
+                hotToast.error(errText)
                 setToast({
                     show: true,
-                    message: error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور'),
+                    message: errText,
                     type: 'error'
                 })
             }
@@ -90,9 +98,11 @@ export default function Login() {
         try {
             const googleProfile = await triggerGoogleAuth()
             const user = await loginWithGoogle({ googleId: googleProfile.googleId })
+            const successMsg = t('login.successMessage', 'تم تسجيل الدخول بنجاح!')
+            hotToast.success(successMsg)
             setToast({
                 show: true,
-                message: t('login.successMessage', 'تم تسجيل الدخول بنجاح!'),
+                message: successMsg,
                 type: 'success'
             })
             setTimeout(() => {
@@ -106,6 +116,7 @@ export default function Login() {
                 : (error.message || (isRtl ? 'فشل تسجيل الدخول بحساب جوجل' : 'Google sign-in failed'))
             setServerError(errorMsg)
             if (canShowErrorInToaster(error)) {
+                hotToast.error(errorMsg)
                 setToast({
                     show: true,
                     message: errorMsg,

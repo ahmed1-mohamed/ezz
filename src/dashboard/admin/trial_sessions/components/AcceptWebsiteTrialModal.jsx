@@ -79,7 +79,9 @@ export default function AcceptWebsiteTrialModal({
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!selectedStudent) {
-      setErrorMsg(isRtl ? 'يرجى اختيار طالب لربطه بهذا الطلب' : 'Please select a student to link')
+      const requiredMsg = isRtl ? 'يرجى اختيار طالب لربطه بهذا الطلب' : 'Please select a student to link'
+      setErrorMsg(requiredMsg)
+      toast.error(requiredMsg)
       return
     }
     setIsSubmitting(true)
@@ -96,7 +98,9 @@ export default function AcceptWebsiteTrialModal({
       onClose()
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || (isRtl ? 'فشل تحديث الطلب' : 'Failed to update request')
-      setErrorMsg(Array.isArray(msg) ? msg.join(', ') : msg)
+      const formatted = Array.isArray(msg) ? msg.join(', ') : msg
+      setErrorMsg(formatted)
+      toast.error(formatted)
     } finally {
       setIsSubmitting(false)
     }

@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-hot-toast';
 import { adminCouponsApi } from '@/shared/services/api/adminCouponsApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
+import { getApiErrorText } from '@/shared/utils/errorHandler';
 
 export function useCoupons() {
     const { i18n } = useTranslation();
@@ -38,28 +40,43 @@ export function useCoupons() {
         loadAll(val, false);
     }, [loadAll]);
     const handleSaveCoupon = useCallback(async (data) => {
-        const res = await adminCouponsApi.createCoupon(data);
-        if (res?.success) {
-            setCoupons((prev) => [...prev, res.data]);
-            setIsFormOpen(false);
-            loadAll(searchQuery, false);
+        const isRtl = i18n.language.startsWith('ar');
+        try {
+            const res = await adminCouponsApi.createCoupon(data);
+            if (res?.success) {
+                setCoupons((prev) => [...prev, res.data]);
+                setIsFormOpen(false);
+                toast.success(isRtl ? 'تم إنشاء كود الخصم بنجاح' : 'Coupon created successfully');
+                loadAll(searchQuery, false);
+            } else {
+                toast.error(res?.message || (isRtl ? 'فشل إنشاء كود الخصم' : 'Failed to create coupon'));
+            }
+        } catch (err) {
+            toast.error(getApiErrorText(err, isRtl ? 'حدث خطأ أثناء إنشاء كود الخصم' : 'Failed to create coupon'));
         }
-    }, [loadAll, searchQuery]);
+    }, [loadAll, searchQuery, i18n.language]);
     const handleDeleteCoupon = useCallback(async (id, code) => {
         const isRtl = i18n.language.startsWith('ar');
         const isConfirmed = await showDeleteConfirm(isRtl, code);
         if (!isConfirmed) return;
-        const res = await adminCouponsApi.deleteCoupon(id);
-        if (res?.success) {
-            setCoupons((prev) => prev.filter((c) => c.id !== id));
-            setIsDetailsOpen((open) => {
-                if (open && selectedCoupon?.id === id) {
-                    setSelectedCoupon(null);
-                    return false;
-                }
-                return open;
-            });
-            loadAll(searchQuery, false);
+        try {
+            const res = await adminCouponsApi.deleteCoupon(id);
+            if (res?.success) {
+                setCoupons((prev) => prev.filter((c) => c.id !== id));
+                toast.success(isRtl ? 'تم حذف الكوبون بنجاح' : 'Coupon deleted successfully');
+                setIsDetailsOpen((open) => {
+                    if (open && selectedCoupon?.id === id) {
+                        setSelectedCoupon(null);
+                        return false;
+                    }
+                    return open;
+                });
+                loadAll(searchQuery, false);
+            } else {
+                toast.error(res?.message || (isRtl ? 'فشل حذف الكوبون' : 'Failed to delete coupon'));
+            }
+        } catch (err) {
+            toast.error(getApiErrorText(err, isRtl ? 'حدث خطأ أثناء حذف الكوبون' : 'Failed to delete coupon'));
         }
     }, [i18n.language, selectedCoupon, loadAll, searchQuery]);
     const handleViewCoupon = useCallback((coupon) => {

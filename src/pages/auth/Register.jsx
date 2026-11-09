@@ -8,6 +8,7 @@ import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import { sortCountries, getCountryName, fetchCountries, searchCountriesBackend } from '@/shared/utils/countryUtils'
 import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
+import { toast as hotToast } from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Register() {
@@ -156,7 +157,10 @@ export default function Register() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setServerError('')
-        if (!validate()) return
+        if (!validate()) {
+            hotToast.error(t('register.validationError', 'يرجى استكمال ومراجعة جميع الحقول المطلوبة'))
+            return
+        }
         let localDigits = formValues.phoneLocal.trim().replace(/\D/g, '')
         if (localDigits.startsWith('0')) {
             localDigits = localDigits.substring(1)
@@ -174,9 +178,11 @@ export default function Register() {
         }
         try {
             const user = await signup(signupPayload)
+            const successMsg = t('register.successMessage', 'تم إنشاء الحساب بنجاح! جاري تحويلك...')
+            hotToast.success(successMsg)
             setToast({
                 show: true,
-                message: t('register.successMessage', 'تم إنشاء الحساب بنجاح! جاري تحويلك...'),
+                message: successMsg,
                 type: 'success'
             })
             setTimeout(() => {
@@ -186,6 +192,7 @@ export default function Register() {
             const errorMsg = error.message || t('register.errorMessage', 'فشل إنشاء الحساب، يرجى المحاولة مرة أخرى.')
             setServerError(errorMsg)
             if (canShowErrorInToaster(error)) {
+                hotToast.error(errorMsg)
                 setToast({
                     show: true,
                     message: errorMsg,

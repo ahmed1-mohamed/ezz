@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Mail, BookOpen, ArrowRight, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import { setCookie } from '@/shared/utils/cookieUtils.js'
@@ -22,7 +23,9 @@ export default function ForgotPassword() {
         event.preventDefault()
         setError('')
         if (!email) {
-            setError(t('forgotPassword.emailRequired', 'البريد الإلكتروني مطلوب.'))
+            const reqMsg = t('forgotPassword.emailRequired', 'البريد الإلكتروني مطلوب.')
+            setError(reqMsg)
+            toast.error(reqMsg)
             return
         }
         try {
@@ -35,10 +38,12 @@ export default function ForgotPassword() {
                 setCookie('access_token', returnedToken)
             }
             setIsSubmitted(true)
+            toast.success(t('forgotPassword.successToast', 'تم إرسال رابط ورمز استعادة كلمة المرور بنجاح'))
         } catch (err) {
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('forgotPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
             setError(msg)
+            toast.error(msg)
         } finally {
             setLoading(false)
         }

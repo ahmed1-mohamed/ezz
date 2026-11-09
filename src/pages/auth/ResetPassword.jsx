@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import { setCookie, getCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
@@ -27,7 +28,9 @@ export default function ResetPassword() {
         e.preventDefault()
         setErrors({})
         if (!resetCode.trim()) {
-            setErrors({ resetCode: t('resetPassword.codeRequired', 'رمز التحقق مطلوب.') })
+            const reqMsg = t('resetPassword.codeRequired', 'رمز التحقق مطلوب.')
+            setErrors({ resetCode: reqMsg })
+            toast.error(reqMsg)
             return
         }
         try {
@@ -50,6 +53,7 @@ export default function ResetPassword() {
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
             setErrors({ submit: msg })
+            toast.error(msg)
         } finally {
             setLoading(false)
         }
@@ -68,6 +72,7 @@ export default function ResetPassword() {
         }
         if (Object.keys(nextErrors).length > 0) {
             setErrors(nextErrors)
+            toast.error(Object.values(nextErrors)[0])
             return
         }
         try {
@@ -82,10 +87,12 @@ export default function ResetPassword() {
             sessionStorage.removeItem('reset_token')
             deleteCookie('access_token')
             setStep(3)
+            toast.success(t('resetPassword.successToast', 'تم تغيير كلمة المرور بنجاح!'))
         } catch (err) {
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
             setErrors({ submit: msg })
+            toast.error(msg)
         } finally {
             setLoading(false)
         }

@@ -190,7 +190,15 @@ export default function CreateSessionModal({
   }
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!validateForm()) return
+    if (!validateForm()) {
+      showErrorToast(
+        isRtl
+          ? 'يرجى استكمال ومراجعة جميع الحقول المطلوبة'
+          : 'Please review and fill all required fields',
+        isRtl
+      )
+      return
+    }
     setIsSubmitting(true)
     try {
       const payload = {
