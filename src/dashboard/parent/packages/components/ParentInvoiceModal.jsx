@@ -8,7 +8,6 @@ import {
   Clock,
   XCircle,
   AlertTriangle,
-  Printer,
   Calendar,
   Layers,
   CreditCard,
@@ -21,7 +20,11 @@ import Spinner from '@/shared/components/Spinner';
 
 function formatCurrency(amount, currency = 'ج.م') {
   const num = Number(amount || 0);
-  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
+  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  if (currency === 'USD' || currency === '$') {
+    return `USD ${formattedNum}`;
+  }
+  return `${formattedNum} ${currency}`;
 }
 
 function formatDate(dateVal, isRtl = true) {
@@ -90,7 +93,8 @@ export default function ParentInvoiceModal({
     staleTime: 60 * 1000,
   });
   if (!isOpen || typeof document === 'undefined') return null;
-  const sub = detailsRes || initialData || {};
+  const rawSub = detailsRes?.subscription || detailsRes?.data || detailsRes || initialData || {};
+  const sub = rawSub?.subscription || rawSub;
   const statusInfo = getStatusBadge(sub.status, t);
   const StatusIcon = statusInfo.icon;
   const orderNumber = sub.orderNumber || sub.subscriptionNumber || sub.invoiceNumber || (subscriptionId ? `RN-${String(subscriptionId).slice(-8).toUpperCase()}` : '-');
@@ -108,17 +112,63 @@ export default function ParentInvoiceModal({
     if (sub.studentName) return sub.studentName;
     return t('parentPackages.student', 'الابن');
   })();
-  const currency = sub.currency || 'ج.م';
-  const amount = Number(sub.amount || sub.subtotal || sub.package?.price || 0);
-  const tax = Number(sub.tax || sub.taxAmount || 0);
-  const discount = Number(sub.discount || sub.discountAmount || 0);
-  const total = Number(sub.total || sub.finalAmount || (amount + tax - discount) || 0);
-  const sessionsCount = sub.package?.sessionsCount || sub.sessionsCount || sub.totalSessions || 0;
-  const startDate = sub.startDate || sub.startsAt;
-  const endDate = sub.endDate || sub.expiresAt;
-  const handlePrint = () => {
-    window.print();
-  };
+  const currency = sub.currency || sub.package?.currency || 'ج.م';
+  const tax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
+  const explicitTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
+  const explicitDiscount = Number(
+    sub.discountAmount ??
+    sub.discount ??
+    sub.coupon?.discountAmount ??
+    sub.couponDiscount ??
+    sub.package?.discountAmount ??
+    sub.package?.discount ??
+    0
+  );
+  const explicitPriceAfterDiscount = Number(
+    sub.priceAfterDiscount ??
+    sub.package?.priceAfterDiscount ??
+    sub.subtotalAfterDiscount ??
+    sub.amountAfterDiscount ??
+    0
+  );
+  const rawAmount = Number(
+    sub.baseAmount ??
+    sub.subtotalAmount ??
+    sub.subtotal ??
+    sub.originalPrice ??
+    sub.packagePrice ??
+    sub.package?.originalPrice ??
+    sub.package?.price ??
+    sub.amount ??
+    0
+  );
+  let discount = explicitDiscount;
+  let priceAfterDiscount = explicitPriceAfterDiscount;
+  let amount = rawAmount;
+  let total = explicitTotal;
+  if (total <= 0) {
+    total = amount + tax - discount;
+  }
+  if (amount <= 0 && total > 0) {
+    amount = Math.max(0, total - tax + discount);
+  }
+  if (discount > 0 && priceAfterDiscount <= 0 && amount > discount) {
+    priceAfterDiscount = amount - discount;
+  } else if (priceAfterDiscount > 0 && discount <= 0 && amount > priceAfterDiscount) {
+    discount = amount - priceAfterDiscount;
+  }
+  const sessionsCount = Number(
+    sub.sessionsPerStudent ??
+    sub.package?.sessionsPerStudent ??
+    sub.package?.sessionsCount ??
+    sub.package?.monthlySessions ??
+    sub.package?.sessions ??
+    sub.sessionsCount ??
+    sub.totalSessions ??
+    sub.sessionsBalance?.total ??
+    sub.sessions ??
+    (Array.isArray(sub.students) && sub.students[0]?.sessionsBalance?.total ? sub.students[0].sessionsBalance.total : 0)
+  );
   return createPortal(
     <div
       onClick={onClose}
@@ -144,14 +194,6 @@ export default function ParentInvoiceModal({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              title={t('common.print', 'طباعة')}
-            >
-              <Printer size={18} />
-            </button>
             <button
               type="button"
               onClick={onClose}
@@ -206,24 +248,12 @@ export default function ParentInvoiceModal({
                         {packageType === 'family' ? t('parentPackages.familyType', 'عائلية') : t('parentPackages.individualType', 'فردية')}
                       </span>
                     </div>
-                    {sessionsCount > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">{t('parentPackages.sessionsCount', 'عدد الحصص')}:</span>
-                        <span className="font-bold text-slate-800 dark:text-white">{sessionsCount} {t('common.session', 'حصة')}</span>
-                      </div>
-                    )}
-                    {startDate && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">{t('parentPackages.startDate', 'بداية الاشتراك')}:</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatDate(startDate, isRtl)}</span>
-                      </div>
-                    )}
-                    {endDate && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">{t('parentPackages.endDate', 'نهاية الاشتراك')}:</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatDate(endDate, isRtl)}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">{t('parentPackages.studentSessionsCount', 'عدد الحصص للطالب')}:</span>
+                      <span className="font-bold text-slate-800 dark:text-white">
+                        {sessionsCount > 0 ? `${sessionsCount} ${t('common.session', 'حصة')}` : '-'}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
@@ -258,13 +288,19 @@ export default function ParentInvoiceModal({
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                    <span>{t('parentPackages.amount', 'المبلغ الأساسي')}</span>
+                    <span>{t('parentPackages.amount', 'المبلغ')}</span>
                     <span className="font-bold font-mono">{formatCurrency(amount, currency)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                      <span>{t('parentPackages.discount', 'خصم الكوبون')}</span>
+                      <span>{t('parentPackages.discount', 'الخصم')}</span>
                       <span className="font-bold font-mono">-{formatCurrency(discount, currency)}</span>
+                    </div>
+                  )}
+                  {priceAfterDiscount > 0 && (
+                    <div className="flex justify-between text-slate-600 dark:text-slate-400">
+                      <span>{t('parentPackages.priceAfterDiscount', 'السعر بعد الخصم')}</span>
+                      <span className="font-bold font-mono">{formatCurrency(priceAfterDiscount, currency)}</span>
                     </div>
                   )}
                   {tax > 0 && (
@@ -274,7 +310,7 @@ export default function ParentInvoiceModal({
                     </div>
                   )}
                   <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between text-sm">
-                    <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.total', 'الإجمالي المدفوع')}</span>
+                    <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.total', 'الإجمالي')}</span>
                     <span className="font-black font-mono text-[#0f7a6c] dark:text-emerald-400 text-base">
                       {formatCurrency(total, currency)}
                     </span>
@@ -302,4 +338,3 @@ export default function ParentInvoiceModal({
     document.body
   );
 }
-

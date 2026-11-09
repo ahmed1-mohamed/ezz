@@ -3,22 +3,21 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   X,
+  Calendar,
+  Clock,
+  Globe,
+  Check,
+  Users,
+  User,
+  ShieldCheck,
   Star,
   Award,
   Crown,
   Sparkles,
   BookOpen,
   Layers,
-  Users,
-  User,
-  Clock,
-  Calendar,
-  Globe,
-  Check,
-  CreditCard,
-  ArrowRight,
-  ArrowLeft,
-  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
 
@@ -37,18 +36,22 @@ function resolveModalIcon(iconName) {
 function formatPriceString(priceValue) {
   const num = Number(priceValue);
   if (isNaN(num)) return String(priceValue || '0');
-  return num.toLocaleString('en-US');
+  const rounded = Math.round(num * 100) / 100;
+  return Number.isInteger(rounded)
+    ? rounded.toLocaleString('en-US')
+    : rounded.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
 
 export default function ParentPackageDetailsModal({
   isOpen,
   packageItem,
+  currencyInfo,
   onClose,
   onSubscribe,
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const [details, setDetails] = useState(packageItem);
+  const [fetchedDetails, setFetchedDetails] = useState(null);
   useEffect(() => {
     let isMounted = true;
     async function loadFullDetails() {
@@ -56,28 +59,78 @@ export default function ParentPackageDetailsModal({
       try {
         const res = await parentPackagesApi.fetchPackageDetails(packageItem.id);
         if (isMounted && res) {
-          setDetails((prev) => ({ ...prev, ...res }));
+          setFetchedDetails(res);
         }
       } catch (err) {
         console.warn('Failed to fetch full package details:', err);
       }
     }
-    setDetails(packageItem);
     if (packageItem?.id) {
       loadFullDetails();
     }
     return () => {
       isMounted = false;
     };
-  }, [packageItem]);
+  }, [packageItem?.id]);
   if (!isOpen || !packageItem || typeof document === 'undefined') return null;
-  const activeData = details || packageItem;
+  const activeData = fetchedDetails ? { ...packageItem, ...fetchedDetails } : packageItem;
   const isFamily = activeData?.type === 'family' || String(activeData?.typeText || '').includes('عائل');
   const countryName = activeData?.country?.name || '';
   const countryFlag = activeData?.country?.flag || '';
-  const currencyLabel = t('parentPackages.currency', 'ج.م');
+  const rate = Number(currencyInfo?.exchangeRate || packageItem?.exchangeRate) > 0
+    ? Number(currencyInfo?.exchangeRate || packageItem?.exchangeRate)
+    : 1;
+  const currencySymbol = currencyInfo?.symbol || packageItem?.currency || t('parentPackages.currency', 'ج.م');
   const featuresList = Array.isArray(activeData?.features) ? activeData.features : [];
   const familyTiers = Array.isArray(activeData?.familyTiers) ? activeData.familyTiers : null;
+  const rawBasePrice = Number(activeData?.price ?? 0);
+  const rawOriginalPrice = activeData?.originalPrice != null
+    ? Number(activeData.originalPrice)
+    : (activeData?.priceBeforeDiscount != null
+      ? Number(activeData.priceBeforeDiscount)
+      : (activeData?.oldPrice != null ? Number(activeData.oldPrice) : null));
+  const rawPriceAfterDiscount = activeData?.priceAfterDiscount != null
+    ? Number(activeData.priceAfterDiscount)
+    : (activeData?.discountedPrice != null ? Number(activeData.discountedPrice) : null);
+  const rawDiscountPercent = activeData?.discountPercentage != null
+    ? Number(activeData.discountPercentage)
+    : (activeData?.discountPercent != null
+      ? Number(activeData.discountPercent)
+      : (activeData?.discount != null && Number(activeData.discount) > 0 && Number(activeData.discount) <= 100 ? Number(activeData.discount) : null));
+  let hasDiscount = false;
+  let usdOriginal = rawBasePrice;
+  let usdFinal = rawBasePrice;
+  let discountPercent = 0;
+  if (rawOriginalPrice != null && rawOriginalPrice > rawBasePrice) {
+    hasDiscount = true;
+    usdOriginal = rawOriginalPrice;
+    usdFinal = rawBasePrice;
+    discountPercent = rawDiscountPercent || Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
+  } else if (rawPriceAfterDiscount != null && rawPriceAfterDiscount < rawBasePrice) {
+    hasDiscount = true;
+    usdOriginal = rawBasePrice;
+    usdFinal = rawPriceAfterDiscount;
+    discountPercent = rawDiscountPercent || Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
+  } else if (rawDiscountPercent != null && rawDiscountPercent > 0 && rawDiscountPercent < 100) {
+    hasDiscount = true;
+    usdOriginal = rawBasePrice;
+    discountPercent = Math.round(rawDiscountPercent);
+    usdFinal = rawBasePrice * (1 - discountPercent / 100);
+  } else if (activeData?.hasDiscount && activeData?.discountAmount) {
+    hasDiscount = true;
+    usdOriginal = rawBasePrice;
+    usdFinal = Math.max(0, rawBasePrice - Number(activeData.discountAmount));
+    discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
+  }
+  const convertedFinal = Math.round(usdFinal * rate);
+  const convertedOriginal = Math.round(usdOriginal * rate);
+  const enrichedActiveData = {
+    ...activeData,
+    convertedPrice: convertedFinal,
+    convertedOriginalPrice: convertedOriginal,
+    currency: currencySymbol,
+    exchangeRate: rate,
+  };
   return createPortal(
     <div
       className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
@@ -136,13 +189,23 @@ export default function ParentPackageDetailsModal({
               <span className="text-xs text-slate-400 font-semibold block">
                 {t('parentPackages.subscriptionFee', 'قيمة الاشتراك الشهري')}
               </span>
-              <div className="flex items-baseline gap-2 mt-0.5">
+              <div className="flex items-baseline gap-2 mt-0.5 flex-wrap">
                 <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400">
-                  {formatPriceString(activeData?.price)}
+                  {formatPriceString(convertedFinal)}
                 </span>
                 <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                  {currencyLabel} / {t('parentPackages.monthly', 'شهرياً')}
+                  {currencySymbol} / {t('parentPackages.monthly', 'شهرياً')}
                 </span>
+                {hasDiscount && (
+                  <span className="line-through text-slate-400 text-sm font-semibold ms-1">
+                    {formatPriceString(convertedOriginal)} {currencySymbol}
+                  </span>
+                )}
+                {hasDiscount && discountPercent > 0 && (
+                  <span className="text-xs font-black px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40">
+                    %{discountPercent}-
+                  </span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-4 text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -186,19 +249,22 @@ export default function ParentPackageDetailsModal({
                 <span>{t('parentPackages.familyTiersTitle', 'شرائح الاشتراك العائلي حسب عدد الأفراد')}</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {familyTiers.map((tier, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20 flex items-center justify-between text-xs"
-                  >
-                    <span className="font-bold text-slate-800 dark:text-slate-200">
-                      {tier.membersCount || tier.members || idx + 2} {t('parentPackages.membersUnit', 'أفراد')}
-                    </span>
-                    <span className="font-black text-amber-700 dark:text-amber-400">
-                      {formatPriceString(tier.price)} {currencyLabel}
-                    </span>
-                  </div>
-                ))}
+                {familyTiers.map((tier, idx) => {
+                  const tierPrice = Math.round(Number(tier.price || 0) * rate);
+                  return (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20 flex items-center justify-between text-xs"
+                    >
+                      <span className="font-bold text-slate-800 dark:text-slate-200">
+                        {tier.membersCount || tier.members || idx + 2} {t('parentPackages.membersUnit', 'أفراد')}
+                      </span>
+                      <span className="font-black text-amber-700 dark:text-amber-400">
+                        {formatPriceString(tierPrice)} {currencySymbol}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -234,13 +300,12 @@ export default function ParentPackageDetailsModal({
             type="button"
             onClick={() => {
               onClose();
-              onSubscribe?.(activeData);
+              onSubscribe?.(enrichedActiveData);
             }}
             className="px-7 py-3 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white font-extrabold text-xs shadow-md shadow-[#0f7a6c]/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
           >
-            <CreditCard className="w-4 h-4" />
             <span>{t('parentPackages.proceedToSubscribe', 'متابعة للاشتراك والدفع')}</span>
-            {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+            {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
         </div>
       </div>

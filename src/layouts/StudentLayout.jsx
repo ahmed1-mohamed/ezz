@@ -40,6 +40,7 @@ export default function StudentLayout() {
   const location = useLocation()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const isLiveSession = location.pathname.includes('/student/live') && location.search.includes('stage=during')
   const [prevLocationKey, setPrevLocationKey] = useState(location.key)
   if (prevLocationKey !== location.key) {
     setPrevLocationKey(location.key)
@@ -58,7 +59,7 @@ export default function StudentLayout() {
   const initialLetter = displayName ? displayName.trim().charAt(0) : (isRtl ? 'ط' : 'S')
   const userImage = user?.image || user?.avatar || user?.photoUrl || user?.photo || null
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className={`flex flex-col lg:flex-row bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans ${isLiveSession ? 'h-screen max-h-screen overflow-hidden' : 'min-h-screen'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
           <button
@@ -187,7 +188,7 @@ export default function StudentLayout() {
           </div>
         </div>
       </aside>
-      <main className="flex-1 overflow-x-hidden min-h-screen relative">
+      <main className={`flex-1 overflow-x-hidden relative ${isLiveSession ? 'overflow-y-hidden h-full max-h-screen flex flex-col min-h-0' : 'min-h-screen'}`}>
         <Suspense
           fallback={
             <div className="flex items-center justify-center py-24 min-h-[400px]">

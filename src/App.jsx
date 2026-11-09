@@ -5,6 +5,7 @@ import { useAuth } from '@/shared/context/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
 import AppRoutes from './routes/AppRoutes.jsx'
 import ScrollManager from '@/shared/components/ScrollManager.jsx'
+import AppErrorBoundary from '@/shared/components/AppErrorBoundary.jsx'
 
 function App() {
   const queryClient = useQueryClient()
@@ -55,7 +56,9 @@ function App() {
   return (
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
       <ScrollManager />
-      <AppRoutes key={currentLang} />
+      <AppErrorBoundary>
+        <AppRoutes key={currentLang} />
+      </AppErrorBoundary>
       <Toaster 
         position={isArabic ? 'top-left' : 'top-right'}
         reverseOrder={false}

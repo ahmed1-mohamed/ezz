@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, ChevronDown, ChevronRight, ChevronLeft, User, BookOpen, Video } from 'lucide-react';
+import { Calendar, Clock, ChevronDown, ChevronRight, ChevronLeft, User, BookOpen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { parentApi } from '@/shared/services/api/parentApi';
 
@@ -54,41 +54,55 @@ export default function ParentSchedule() {
       cardBorder: 'border-s-4 border-s-[#0f7a6c]'
     };
   };
-  const loadStudents = useCallback(async () => {
-    try {
-      const res = await parentApi.fetchChildren();
-      if (res?.success && Array.isArray(res.data)) {
-        setStudentsList(res.data);
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchChildrenList() {
+      try {
+        const res = await parentApi.fetchChildren();
+        if (isMounted && res?.success && Array.isArray(res.data)) {
+          setStudentsList(res.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to load children for schedule:', err);
+        }
       }
-    } catch (err) {
-      console.error('Failed to load children for schedule:', err);
     }
-  }, []);
-  const loadTimetable = useCallback(async (dateParam, studentParam) => {
-    setIsLoading(true);
-    try {
-      const params = {};
-      if (dateParam) params.date = dateParam;
-      if (studentParam && studentParam !== 'all') params.studentId = studentParam;
-      const res = await parentApi.fetchTimetable(params);
-      if (res?.success && res.data) {
-        setTimetableData({
-          weekInfo: res.data.weekInfo || null,
-          days: Array.isArray(res.data.days) ? res.data.days : []
-        });
-      }
-    } catch (err) {
-      console.error('Failed to load parent timetable:', err);
-    } finally {
-      setIsLoading(false);
-    }
+    fetchChildrenList();
+    return () => {
+      isMounted = false;
+    };
   }, []);
   useEffect(() => {
-    loadStudents();
-  }, [loadStudents]);
-  useEffect(() => {
-    loadTimetable(targetDate, selectedStudent);
-  }, [loadTimetable, targetDate, selectedStudent]);
+    let isMounted = true;
+    async function fetchSchedule() {
+      setIsLoading(true);
+      try {
+        const params = {};
+        if (targetDate) params.date = targetDate;
+        if (selectedStudent && selectedStudent !== 'all') params.studentId = selectedStudent;
+        const res = await parentApi.fetchTimetable(params);
+        if (isMounted && res?.success && res.data) {
+          setTimetableData({
+            weekInfo: res.data.weekInfo || null,
+            days: Array.isArray(res.data.days) ? res.data.days : []
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to load parent timetable:', err);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchSchedule();
+    return () => {
+      isMounted = false;
+    };
+  }, [targetDate, selectedStudent]);
   const handlePrevWeek = () => {
     if (timetableData.weekInfo?.previousWeekDate) {
       setTargetDate(timetableData.weekInfo.previousWeekDate);
@@ -263,14 +277,6 @@ export default function ParentSchedule() {
                             )}
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
-                        {session.canJoinNow ? (
-                          <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-red-600/20 transition-all active:scale-95 cursor-pointer">
-                            <Video className="w-4 h-4" />
-                            <span>{isRtl ? 'دخول الحصة الآن' : 'Join Session Now'}</span>
-                          </button>
-                        ) : null}
                       </div>
                     </motion.div>
                   );

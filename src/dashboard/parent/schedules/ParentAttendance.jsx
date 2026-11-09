@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   ChevronRight,
@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { parentApi } from '@/shared/services/api/parentApi';
 
 const containerVariants = {
@@ -25,6 +26,65 @@ const itemVariants = {
   hidden: { opacity: 0, y: 15 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 320, damping: 26 } }
 };
+
+const ARABIC_MONTH_NAMES = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+];
+
+const ENGLISH_MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function parseMonthNumber(val) {
+  if (val === null || val === undefined || val === '') return null;
+  if (typeof val === 'number') {
+    return val >= 1 && val <= 12 ? val : null;
+  }
+  const str = String(val).trim();
+  if (str.includes('-')) {
+    const parts = str.split('-');
+    const m = Number(parts[parts.length - 1]);
+    return !isNaN(m) && m >= 1 && m <= 12 ? m : null;
+  }
+  const parsed = Number(str);
+  return !isNaN(parsed) && parsed >= 1 && parsed <= 12 ? parsed : null;
+}
+
+function buildMonthInfo(rawMonthInfo, monthQueryParam, baseCurrentMonth, baseCurrentYear) {
+  const parsedTargetMonth = parseMonthNumber(monthQueryParam);
+  const activeYear = Number(rawMonthInfo?.year) || baseCurrentYear;
+  const activeMonth = parsedTargetMonth || Number(rawMonthInfo?.month) || baseCurrentMonth;
+  const isCurrentMonth = monthQueryParam === null
+    ? (rawMonthInfo?.isCurrentMonth !== undefined ? Boolean(rawMonthInfo.isCurrentMonth) : (activeYear === baseCurrentYear && activeMonth === baseCurrentMonth))
+    : (activeYear === baseCurrentYear && activeMonth === baseCurrentMonth);
+  const prevMonth = parseMonthNumber(rawMonthInfo?.previousMonth) ?? (activeMonth > 1 ? activeMonth - 1 : null);
+  const canGoPrevious = rawMonthInfo?.canGoPrevious !== undefined ? Boolean(rawMonthInfo.canGoPrevious) : activeMonth > 1;
+  const canGoNext = rawMonthInfo?.canGoNext !== undefined
+    ? Boolean(rawMonthInfo.canGoNext)
+    : ((activeYear < baseCurrentYear) || (activeYear === baseCurrentYear && activeMonth < baseCurrentMonth));
+  const nextMonth = parseMonthNumber(rawMonthInfo?.nextMonth) ?? (canGoNext ? (activeMonth === 12 ? 1 : activeMonth + 1) : null);
+  const localizedLabel = {
+    ar: `${ARABIC_MONTH_NAMES[activeMonth - 1]} ${activeYear}`,
+    en: `${ENGLISH_MONTH_NAMES[activeMonth - 1]} ${activeYear}`
+  };
+  const rawLabel = rawMonthInfo?.month === activeMonth ? rawMonthInfo.monthLabel : null;
+  const monthLabel = rawLabel ? extractSafeText(rawLabel, true).replace(/\(الشهر الحالي\)|\(Current Month\)/gi, '').trim() : localizedLabel;
+  return {
+    year: activeYear,
+    month: activeMonth,
+    monthKey: rawMonthInfo?.monthKey || `${activeYear}-${String(activeMonth).padStart(2, '0')}`,
+    monthLabel,
+    isCurrentMonth,
+    previousMonth: prevMonth,
+    nextMonth,
+    canGoPrevious,
+    canGoNext,
+    startDate: rawMonthInfo?.startDate || null,
+    endDate: rawMonthInfo?.endDate || null,
+  };
+}
 
 function extractSafeText(val, isRtl = true) {
   if (val === null || val === undefined) return '';
@@ -65,11 +125,14 @@ function extractExcuseDetails(excuse, isRtl = true) {
 
 export default function ParentAttendance() {
   const { t, i18n } = useTranslation();
+  const [searchParams] = useSearchParams();
   const isRtl = i18n.language.startsWith('ar');
+  const studentIdQuery = searchParams.get('studentId');
   const [isLoading, setIsLoading] = useState(true);
   const [studentsList, setStudentsList] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [monthQuery, setMonthQuery] = useState(null);
+  const currentMonthInfoRef = useRef(null);
   const [attendanceData, setAttendanceData] = useState({
     student: null,
     monthInfo: null,
@@ -122,66 +185,82 @@ export default function ParentAttendance() {
     }
     return 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400';
   };
-  const loadStudents = useCallback(async () => {
-    try {
-      const res = await parentApi.fetchChildren();
-      if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-        setStudentsList(res.data);
-        const first = res.data[0];
-        const defaultId = first.student_id || first.id || first.user_id;
-        setSelectedStudentId((prev) => prev || defaultId);
-      }
-    } catch (err) {
-      console.error('Failed to load children for attendance:', err);
-    }
-  }, []);
-  const loadAttendance = useCallback(async (studentId, monthParam) => {
-    if (!studentId) return;
-    setIsLoading(true);
-    try {
-      const params = {};
-      if (monthParam) {
-        params.monthKey = monthParam;
-        if (monthParam.includes('-')) {
-          const parts = monthParam.split('-');
-          params.year = Number(parts[0]);
-          params.month = Number(parts[1]);
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStudents = async () => {
+      try {
+        const res = await parentApi.fetchChildren();
+        if (isMounted && res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setStudentsList(res.data);
+          const match = studentIdQuery ? res.data.find((s) => (s.student_id || s.id || s.user_id) === studentIdQuery) : null;
+          const initialStudent = match || res.data[0];
+          const defaultId = initialStudent?.student_id || initialStudent?.id || initialStudent?.user_id;
+          setSelectedStudentId((prev) => prev || defaultId);
         }
+      } catch (err) {
+        console.error('Failed to load children for attendance:', err);
       }
-      const res = await parentApi.fetchAttendance(studentId, params);
-      if (res?.success && res.data) {
-        setAttendanceData({
-          student: res.data.student || null,
-          monthInfo: res.data.monthInfo || null,
-          statistics: res.data.statistics || null,
-          days: Array.isArray(res.data.days) ? res.data.days : []
-        });
+    };
+    fetchStudents();
+    return () => {
+      isMounted = false;
+    };
+  }, [studentIdQuery]);
+  useEffect(() => {
+    if (!selectedStudentId) return;
+    let isMounted = true;
+    const fetchAttendanceData = async () => {
+      try {
+        const monthNumber = parseMonthNumber(monthQuery);
+        const params = {};
+        if (monthNumber !== null) {
+          params.month = monthNumber;
+        }
+        const res = await parentApi.fetchAttendance(selectedStudentId, params);
+        if (isMounted && res?.success && res.data) {
+          const rawInfo = res.data.monthInfo || null;
+          const currentRealDate = new Date();
+          const baseMonth = currentMonthInfoRef.current?.month || Number(rawInfo?.baseMonth || rawInfo?.currentMonth) || (currentRealDate.getMonth() + 1);
+          const baseYear = currentMonthInfoRef.current?.year || Number(rawInfo?.baseYear || rawInfo?.currentYear) || currentRealDate.getFullYear();
+          if (!currentMonthInfoRef.current && !monthQuery && rawInfo?.month) {
+            currentMonthInfoRef.current = {
+              month: Number(rawInfo.month),
+              year: Number(rawInfo.year) || baseYear
+            };
+          }
+          const resolvedMonthInfo = buildMonthInfo(rawInfo, monthQuery, baseMonth, baseYear);
+          setAttendanceData({
+            student: res.data.student || null,
+            monthInfo: resolvedMonthInfo,
+            statistics: res.data.statistics || null,
+            days: Array.isArray(res.data.days) ? res.data.days : []
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load student attendance:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Failed to load student attendance:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-  useEffect(() => {
-    loadStudents();
-  }, [loadStudents]);
-  useEffect(() => {
-    if (selectedStudentId) {
-      loadAttendance(selectedStudentId, monthQuery);
-    }
-  }, [loadAttendance, selectedStudentId, monthQuery]);
+    };
+    fetchAttendanceData();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedStudentId, monthQuery]);
   const handlePrevMonth = () => {
     if (attendanceData.monthInfo?.previousMonth) {
+      setIsLoading(true);
       setMonthQuery(attendanceData.monthInfo.previousMonth);
     }
   };
   const handleNextMonth = () => {
     if (attendanceData.monthInfo?.nextMonth) {
+      setIsLoading(true);
       setMonthQuery(attendanceData.monthInfo.nextMonth);
     }
   };
   const handleCurrentMonth = () => {
+    setIsLoading(true);
     setMonthQuery(null);
   };
   const statsList = [
@@ -256,7 +335,10 @@ export default function ParentAttendance() {
           <div className="relative w-full sm:w-60">
             <select
               value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
+              onChange={(e) => {
+                setIsLoading(true);
+                setSelectedStudentId(e.target.value);
+              }}
               className="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl py-3 px-4 pe-10 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/40 font-bold text-sm cursor-pointer transition-all shadow-sm"
             >
               {studentsList.map((s) => {
@@ -315,7 +397,7 @@ export default function ParentAttendance() {
             <button
               type="button"
               onClick={handlePrevMonth}
-              disabled={!attendanceData.monthInfo.canGoPrevious && !attendanceData.monthInfo.previousMonth}
+              disabled={!attendanceData.monthInfo.canGoPrevious || !attendanceData.monthInfo.previousMonth}
               className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
               title={isRtl ? 'الشهر السابق' : 'Previous Month'}
             >
@@ -324,7 +406,7 @@ export default function ParentAttendance() {
             <button
               type="button"
               onClick={handleNextMonth}
-              disabled={!attendanceData.monthInfo.canGoNext && !attendanceData.monthInfo.nextMonth}
+              disabled={!attendanceData.monthInfo.canGoNext || !attendanceData.monthInfo.nextMonth}
               className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-700 dark:text-slate-200 cursor-pointer"
               title={isRtl ? 'الشهر القادم' : 'Next Month'}
             >

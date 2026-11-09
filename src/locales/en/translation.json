@@ -4351,13 +4351,18 @@
     "package": "Package",
     "advancedPackage": "Advanced Package",
     "sessionsCount": "Number of Sessions",
+    "studentSessionsCount": "Sessions per Student",
     "sessionsPerMonth": "24 sessions / month",
     "operationType": "Operation Type",
     "subscriptionRenewal": "Subscription Renewal",
     "amount": "Amount",
+    "discount": "Discount",
+    "priceAfterDiscount": "Price after Discount",
     "tax": "Tax",
     "total": "Total",
-    "currency": "EGP"
+    "currency": "EGP",
+    "completePayment": "Complete Payment",
+    "completingPayment": "Processing Payment..."
   },
   "theme": {
     "light": "Light Mode",

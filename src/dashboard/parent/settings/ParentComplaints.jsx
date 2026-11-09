@@ -22,7 +22,6 @@ export default function ParentComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
@@ -61,11 +60,7 @@ export default function ParentComplaints() {
     setIsLoading(true);
     try {
       const res = await parentApi.fetchComplaints(tab);
-      if (res?.success && Array.isArray(res.data)) {
-        setComplaints(res.data);
-      } else {
-        setComplaints([]);
-      }
+      setComplaints(res?.success && Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Failed to load complaints:', err);
       setComplaints([]);
@@ -74,8 +69,30 @@ export default function ParentComplaints() {
     }
   }, []);
   useEffect(() => {
-    loadComplaints(activeTab);
-  }, [loadComplaints, activeTab]);
+    let isMounted = true;
+    async function fetchList() {
+      setIsLoading(true);
+      try {
+        const res = await parentApi.fetchComplaints(activeTab);
+        if (isMounted) {
+          setComplaints(res?.success && Array.isArray(res.data) ? res.data : []);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to load complaints:', err);
+          setComplaints([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchList();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab]);
   const handleOpenDetails = async (item) => {
     setSelectedComplaint(item);
     try {
@@ -129,7 +146,6 @@ export default function ParentComplaints() {
     }
   };
   const filteredComplaints = complaints.filter((item) => {
-    if (typeFilter !== 'all' && item.type !== typeFilter) return false;
     if (activeTab === 'pending' && (item.status === 'resolved' || item.status === 'accepted' || item.status === 'rejected')) return false;
     return true;
   });
@@ -348,18 +364,6 @@ export default function ParentComplaints() {
           >
             {isRtl ? 'المرفوضة' : 'Rejected'}
           </button>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-slate-400 font-medium">{isRtl ? 'النوع:' : 'Type:'}</span>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
-          >
-            <option value="all">{isRtl ? 'الكل' : 'All'}</option>
-            <option value="suggestion">{isRtl ? 'اقتراح' : 'Suggestion'}</option>
-            <option value="complaint">{isRtl ? 'شكوى' : 'Complaint'}</option>
-          </select>
         </div>
       </div>
       {isLoading ? (

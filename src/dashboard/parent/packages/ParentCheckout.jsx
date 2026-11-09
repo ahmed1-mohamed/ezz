@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { parentApi } from '@/shared/services/api/parentApi';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
 function formatCurrency(amount, currency = 'ج.م') {
@@ -62,9 +63,22 @@ export default function ParentCheckout() {
   }, [allPackagesRes]);
 
   const [selectedPackageOverride, setSelectedPackageOverride] = useState(null);
-
+  const initialCurrencyInfo = location.state?.currencyInfo || null;
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: currenciesApi.fetchExchangeRate,
+    staleTime: 1000 * 60 * 10,
+    enabled: !initialCurrencyInfo,
+  });
+  const currencyInfo = useMemo(() => {
+    if (initialCurrencyInfo) return initialCurrencyInfo;
+    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
+    return { symbol: 'ج.م', exchangeRate: 1 };
+  }, [initialCurrencyInfo, exchangeRateRes]);
   const selectedPackage = selectedPackageOverride || initialPackage || fetchedPackage || (availablePackagesList.length > 0 ? availablePackagesList[0] : null);
-
+  const currencyRate = Number(currencyInfo?.exchangeRate || selectedPackage?.exchangeRate || 1);
+  const currencySymbol = currencyInfo?.symbol || 'ج.م';
+  const packageDisplayPrice = selectedPackage?.convertedPrice ?? Math.round(Number(selectedPackage?.price || 0) * currencyRate);
   const isPackageLoading = (!initialPackage && Boolean(packageIdParam) && isSinglePackageLoading) || (!initialPackage && !packageIdParam && isAllPackagesLoading);
 
   const {
@@ -209,7 +223,9 @@ export default function ParentCheckout() {
   };
 
   const fallbackFinancials = useMemo(() => {
-    const basePrice = Number(selectedPackage?.price || 0);
+    const rate = Number(currencyInfo?.exchangeRate || selectedPackage?.exchangeRate || 1);
+    const currency = currencyInfo?.symbol || 'ج.م';
+    const basePrice = Number(selectedPackage?.convertedPrice ?? Math.round(Number(selectedPackage?.price || 0) * rate));
     const count = Math.max(1, effectiveStudentIds.length);
     const multiplier = isFamilyPackage ? count : 1;
     const subtotal = basePrice * multiplier;
@@ -220,25 +236,31 @@ export default function ParentCheckout() {
       discount: 0,
       tax,
       total,
-      currency: selectedPackage?.currency || 'ج.م',
+      currency,
     };
-  }, [selectedPackage, effectiveStudentIds.length, isFamilyPackage]);
+  }, [selectedPackage, effectiveStudentIds.length, isFamilyPackage, currencyInfo]);
 
   const summary = useMemo(() => {
     if (!previewData) return fallbackFinancials;
-    const subtotal = Number(
+    const rawSubtotal = Number(
       previewData.subtotalAmount ??
       previewData.baseAmount ??
       previewData.subtotal ??
       previewData.originalPrice ??
       fallbackFinancials.subtotal
     );
-    const discount = Number(previewData.discountAmount ?? previewData.discount ?? 0);
-    const tax = Number(previewData.taxAmount ?? previewData.tax ?? previewData.vat ?? fallbackFinancials.tax);
-    const total = Number(previewData.finalAmount ?? previewData.total ?? fallbackFinancials.total);
-    const currency = previewData.currency || fallbackFinancials.currency;
+    const rawDiscount = Number(previewData.discountAmount ?? previewData.discount ?? 0);
+    const rawTax = Number(previewData.taxAmount ?? previewData.tax ?? previewData.vat ?? fallbackFinancials.tax);
+    const rawTotal = Number(previewData.finalAmount ?? previewData.total ?? fallbackFinancials.total);
+    const rate = Number(currencyInfo?.exchangeRate || 1);
+    const isUsdScale = rate > 1 && rawSubtotal > 0 && fallbackFinancials.subtotal > 0 && rawSubtotal <= (fallbackFinancials.subtotal / 2);
+    const subtotal = isUsdScale ? Math.round(rawSubtotal * rate) : rawSubtotal;
+    const discount = isUsdScale ? Math.round(rawDiscount * rate) : rawDiscount;
+    const tax = isUsdScale ? Number((rawTax * rate).toFixed(2)) : rawTax;
+    const total = isUsdScale ? Math.round(rawTotal * rate) : rawTotal;
+    const currency = currencyInfo?.symbol || 'ج.م';
     return { subtotal, discount, tax, total, currency };
-  }, [previewData, fallbackFinancials]);
+  }, [previewData, fallbackFinancials, currencyInfo]);
 
   if (isPackageLoading) {
     return (
@@ -293,7 +315,7 @@ export default function ParentCheckout() {
               {t('parentPackages.checkoutTitle', 'إتمام الاشتراك والدفع')}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-0.5 text-xs sm:text-sm font-medium">
-              {t('parentPackages.checkoutSubtitle', 'اختر الأبناء المراد إشراكهم واستكمل الدفع الآمن عبر سترايب')}
+              {t('parentPackages.checkoutSubtitle', 'اختر الأبناء المراد إشراكهم واستكمل الدفع الآمن')}
             </p>
           </div>
         </div>
@@ -343,7 +365,7 @@ export default function ParentCheckout() {
                 <div className="text-end">
                   <span className="text-xs text-slate-400 block font-bold">{t('parentPackages.packageBasePrice', 'السعر')}</span>
                   <span className="text-xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
-                    {formatCurrency(selectedPackage.price, selectedPackage.currency || 'ج.م')}
+                    {formatCurrency(packageDisplayPrice, currencySymbol)}
                   </span>
                 </div>
               </div>
@@ -464,18 +486,6 @@ export default function ParentCheckout() {
                 )}
               </div>
             </div>
-
-            <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-3xl p-5 flex items-center gap-4 text-emerald-900 dark:text-emerald-200 text-xs sm:text-sm">
-              <div className="w-10 h-10 rounded-2xl bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <p className="leading-relaxed">
-                {t(
-                  'parentPackages.secureStripeNotice',
-                  'يتم تنفيذ عملية الدفع بشكل آمن ومباشر عبر بوابة Stripe المعتمدة عالمياً. بيانات بطاقتك الائتمانية مشفرة بالكامل ولا يتم تخزينها في خوادمنا.'
-                )}
-              </p>
-            </div>
           </div>
 
           <div className="lg:col-span-1">
@@ -550,12 +560,12 @@ export default function ParentCheckout() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>{t('parentPackages.redirectingToStripe', 'جارٍ التحويل إلى سترايب...')}</span>
+                    <span>{t('parentPackages.completingPayment', 'جارٍ إتمام عملية الدفع...')}</span>
                   </>
                 ) : (
                   <>
                     <CreditCard className="w-5 h-5" />
-                    <span>{t('parentPackages.proceedToStripe', 'الانتقال إلى سترايب للدفع')}</span>
+                    <span>{t('parentPackages.completePayment', 'إتمام عملية الدفع')}</span>
                   </>
                 )}
               </button>

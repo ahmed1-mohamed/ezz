@@ -16,7 +16,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
-import { fetchCountries } from '@/shared/utils/countryUtils.js';
+import {
+  fetchCountries,
+  normalizeCountries,
+  sortCountries,
+} from '@/shared/utils/countryUtils.js';
 import { setCookie } from '@/shared/utils/cookieUtils.js';
 import api from '@/shared/services/api/axiosConfig.js';
 import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
@@ -31,13 +35,28 @@ const MIN_PASSWORD_LENGTH = 6;
 function parseDialCodeAndPhone(rawPhone, countryList = []) {
   if (!rawPhone) return { dialCode: DEFAULT_DIAL_CODE, phoneVal: '' };
   const cleaned = String(rawPhone).trim();
-  for (const c of countryList) {
-    const dial = c.dialCode || c.phoneCode;
+  const sorted = [...countryList]
+    .filter((c) => c.dialCode || c.phoneCode)
+    .sort((a, b) => String(b.dialCode || b.phoneCode).length - String(a.dialCode || a.phoneCode).length);
+  for (const c of sorted) {
+    const dial = String(c.dialCode || c.phoneCode).trim();
     if (dial && cleaned.startsWith(dial)) {
       return {
         dialCode: dial,
         phoneVal: cleaned.slice(dial.length).replace(/^0+/, ''),
       };
+    }
+  }
+  if (!cleaned.startsWith('+')) {
+    const withPlus = `+${cleaned}`;
+    for (const c of sorted) {
+      const dial = String(c.dialCode || c.phoneCode).trim();
+      if (dial && withPlus.startsWith(dial)) {
+        return {
+          dialCode: dial,
+          phoneVal: withPlus.slice(dial.length).replace(/^0+/, ''),
+        };
+      }
     }
   }
   if (cleaned.startsWith('+')) {
@@ -47,6 +66,65 @@ function parseDialCodeAndPhone(rawPhone, countryList = []) {
     }
   }
   return { dialCode: DEFAULT_DIAL_CODE, phoneVal: cleaned.replace(/^0+/, '') };
+}
+
+function resolveParentCountry(rawCountry, phone, dialCode, countryList = []) {
+  if (!Array.isArray(countryList) || countryList.length === 0) return '';
+  if (typeof rawCountry === 'object' && rawCountry !== null) {
+    const directId = rawCountry.id || rawCountry._id;
+    if (directId) {
+      const match = countryList.find((c) => (c.id || c._id) === directId);
+      if (match) return match.id || match._id;
+    }
+    const countryName = rawCountry.name || rawCountry.nameAr || rawCountry.nameEn || '';
+    if (countryName) {
+      const match = countryList.find((c) => {
+        const cn = (c.name || '').trim();
+        const ce = (c.nameEn || '').trim().toLowerCase();
+        return (cn && countryName.includes(cn)) || (ce && countryName.toLowerCase().includes(ce));
+      });
+      if (match) return match.id || match._id;
+    }
+  }
+  const cleanStr = String(rawCountry || '').trim();
+  if (cleanStr) {
+    const directMatch = countryList.find((c) => (c.id || c._id) === cleanStr);
+    if (directMatch) return directMatch.id || directMatch._id;
+    const codeMatch = countryList.find((c) => (c.code || '').toUpperCase() === cleanStr.toUpperCase());
+    if (codeMatch) return codeMatch.id || codeMatch._id;
+    const nameMatch = countryList.find((c) => {
+      const cn = (c.name || '').trim();
+      const ce = (c.nameEn || '').trim().toLowerCase();
+      return (cn && (cleanStr.includes(cn) || cn.includes(cleanStr))) ||
+        (ce && (cleanStr.toLowerCase().includes(ce) || ce.includes(cleanStr.toLowerCase())));
+    });
+    if (nameMatch) return nameMatch.id || nameMatch._id;
+  }
+  const testDial = dialCode || '';
+  if (testDial) {
+    const dialMatch = countryList.find((c) => (c.dialCode || c.phoneCode) === testDial);
+    if (dialMatch) return dialMatch.id || dialMatch._id;
+  }
+  if (phone) {
+    const cleanPhone = String(phone).trim();
+    const sorted = [...countryList]
+      .filter((c) => c.dialCode || c.phoneCode)
+      .sort((a, b) => String(b.dialCode || b.phoneCode).length - String(a.dialCode || a.phoneCode).length);
+    for (const c of sorted) {
+      const code = String(c.dialCode || c.phoneCode).trim();
+      if (code && cleanPhone.startsWith(code)) {
+        return c.id || c._id;
+      }
+    }
+    const phoneWithPlus = cleanPhone.startsWith('+') ? cleanPhone : `+${cleanPhone}`;
+    for (const c of sorted) {
+      const code = String(c.dialCode || c.phoneCode).trim();
+      if (code && phoneWithPlus.startsWith(code)) {
+        return c.id || c._id;
+      }
+    }
+  }
+  return '';
 }
 
 export default function ParentSettings() {
@@ -90,8 +168,9 @@ export default function ParentSettings() {
         const loadedCountries = countriesRes.status === 'fulfilled' && Array.isArray(countriesRes.value)
           ? countriesRes.value
           : [];
+        const normalizedCountries = sortCountries(normalizeCountries(loadedCountries), isRtl);
         if (isMounted) {
-          setApiCountries(loadedCountries);
+          setApiCountries(normalizedCountries);
         }
         let activeProfile = user || {};
         if (profRes.status === 'fulfilled' && profRes.value?.success) {
@@ -105,14 +184,20 @@ export default function ParentSettings() {
           const parsedEn = typeof rawName === 'object' && rawName !== null
             ? (rawName.en || '')
             : (activeProfile.nameEn || '');
-          const parsedPhone = parseDialCodeAndPhone(activeProfile.phone, loadedCountries);
+          const parsedPhone = parseDialCodeAndPhone(activeProfile.phone, normalizedCountries);
+          const mappedCountry = resolveParentCountry(
+            activeProfile.country || activeProfile.countryId,
+            activeProfile.phone,
+            parsedPhone.dialCode,
+            normalizedCountries
+          );
           setSelectedDialCode(parsedPhone.dialCode);
           setPhoneWithoutCode(parsedPhone.phoneVal);
           setProfileForm({
             nameAr: parsedAr,
             nameEn: parsedEn,
             email: activeProfile.email || '',
-            country: activeProfile.country || activeProfile.countryId || '',
+            country: mappedCountry,
             avatar: activeProfile.image || activeProfile.avatar || activeProfile.photoUrl || '',
             imageFile: null,
           });
@@ -130,7 +215,24 @@ export default function ParentSettings() {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user, isRtl]);
+  const handleCountryChange = (countryId) => {
+    setProfileForm((prev) => ({ ...prev, country: countryId }));
+    const matched = apiCountries.find((c) => (c.id || c._id) === countryId);
+    if (matched && (matched.dialCode || matched.phoneCode)) {
+      setSelectedDialCode(matched.dialCode || matched.phoneCode);
+    }
+  };
+  const handleDialCodeChange = (dialCode) => {
+    setSelectedDialCode(dialCode);
+    const currentCountry = apiCountries.find((c) => (c.id || c._id) === profileForm.country);
+    if (!currentCountry || (currentCountry.dialCode !== dialCode && currentCountry.phoneCode !== dialCode)) {
+      const matched = apiCountries.find((c) => (c.dialCode || c.phoneCode) === dialCode);
+      if (matched) {
+        setProfileForm((prev) => ({ ...prev, country: matched.id || matched._id }));
+      }
+    }
+  };
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -452,18 +554,20 @@ export default function ParentSettings() {
               <div className="relative">
                 <select
                   value={profileForm.country}
-                  onChange={(e) => setProfileForm({ ...profileForm, country: e.target.value })}
-                  className="w-full px-4 py-3 ps-10 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all cursor-pointer"
+                  onChange={(e) => handleCountryChange(e.target.value)}
+                  className="w-full px-4 py-3 pe-10 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all cursor-pointer text-start"
                 >
                   <option value="">{t('common.selectCountry', 'اختر الدولة...')}</option>
                   {apiCountries.map((c) => (
-                    <option key={c.id || c._id} value={c.id || c._id || c.name}>
+                    <option key={c.id || c._id} value={c.id || c._id}>
                       {c.flag ? `${c.flag} ` : ''}
-                      {isRtl ? c.name : c.nameEn || c.name}
+                      {isRtl ? c.name : (c.nameEn || c.name)}
                     </option>
                   ))}
                 </select>
-                <Globe className="w-4 h-4 absolute top-1/2 -translate-y-1/2 start-3.5 text-slate-400 pointer-events-none" />
+                <div className={`absolute top-1/2 -translate-y-1/2 ${isRtl ? 'left-3.5' : 'right-3.5'} text-slate-400 pointer-events-none`}>
+                  <Globe className="w-4 h-4" />
+                </div>
               </div>
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -473,12 +577,12 @@ export default function ParentSettings() {
               <div className="flex items-center gap-2" dir="ltr">
                 <select
                   value={selectedDialCode}
-                  onChange={(e) => setSelectedDialCode(e.target.value)}
-                  className="px-3 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all cursor-pointer shrink-0"
+                  onChange={(e) => handleDialCodeChange(e.target.value)}
+                  className="px-3 py-3 min-w-[110px] sm:min-w-[130px] rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all cursor-pointer shrink-0"
                 >
                   {apiCountries.map((c) => (
-                    <option key={c.id || c._id} value={c.dialCode || DEFAULT_DIAL_CODE}>
-                      {c.dialCode || DEFAULT_DIAL_CODE} {c.flag ? c.flag : ''}
+                    <option key={c.id || c._id} value={c.dialCode || c.phoneCode || DEFAULT_DIAL_CODE}>
+                      {c.flag ? `${c.flag} ` : ''}{c.dialCode || c.phoneCode || DEFAULT_DIAL_CODE} ({isRtl ? c.name : (c.nameEn || c.name)})
                     </option>
                   ))}
                 </select>
@@ -487,9 +591,9 @@ export default function ParentSettings() {
                     type="tel"
                     dir="ltr"
                     value={phoneWithoutCode}
-                    onChange={(e) => setPhoneWithoutCode(e.target.value)}
+                    onChange={(e) => setPhoneWithoutCode(e.target.value.replace(/[^0-9]/g, ''))}
                     placeholder="1012345678"
-                    className="w-full px-4 py-3 ps-10 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all text-start"
+                    className="w-full px-4 py-3 ps-10 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-[#0f7a6c]/20 focus:border-[#0f7a6c] transition-all text-start"
                   />
                   <Phone className="w-4 h-4 absolute top-1/2 -translate-y-1/2 start-3.5 text-slate-400 pointer-events-none" />
                 </div>
@@ -522,11 +626,10 @@ export default function ParentSettings() {
                 type="button"
                 onClick={handleToggleGoogleLink}
                 disabled={isLinkingGoogle}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
-                  isGoogleLinked
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${isGoogleLinked
                     ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-900'
                     : 'bg-[#111] hover:bg-black text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 {isGoogleLinked ? (
                   <>

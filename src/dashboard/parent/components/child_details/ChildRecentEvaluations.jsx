@@ -20,7 +20,7 @@ export default function ChildRecentEvaluations({ childId, initialEvaluations }) 
     Promise.resolve().then(async () => {
       if (!isMounted) return;
       setIsLoading(true);
-      const res = await parentApi.fetchStudentEvaluations({ studentId: childId });
+      const res = await parentApi.fetchStudentEvaluations({ student: childId });
       if (isMounted) {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           setEvaluations(res.data);

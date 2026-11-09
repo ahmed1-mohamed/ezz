@@ -13,13 +13,26 @@ import {
   GraduationCap,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/shared/context/useAuth.jsx'
 import Spinner from '@/shared/components/Spinner'
 import ZoomMeetingPlayer from '@/shared/components/ZoomMeetingPlayer'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 
 export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
   const { i18n } = useTranslation()
+  const { user } = useAuth()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
+  const adminDisplayName = (() => {
+    if (!user) return isRtl ? 'إدارة منارة العز (مراقبة)' : 'Manarat Al-Ezz Supervisor';
+    if (typeof user.name === 'object' && user.name !== null) {
+      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || '';
+    }
+    return user.name || user.fullName || '';
+  })();
+  const finalAdminName = adminDisplayName
+    ? `${adminDisplayName} ${isRtl ? '(إدارة)' : '(Admin)'}`
+    : (isRtl ? 'إدارة منارة العز (مراقبة)' : 'Manarat Al-Ezz Supervisor');
+  const finalAdminEmail = user?.email || 'manartalezzacademy1@gmail.com';
   const [monitorData, setMonitorData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState(null)
@@ -121,13 +134,20 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
   const hasInteractiveZoom = Boolean(resolvedMeetingId || resolvedJoinUrl)
   const handleJoinSession = () => {
     if (resolvedJoinUrl) {
-      window.open(resolvedJoinUrl, '_blank', 'noopener,noreferrer')
-      return
+      try {
+        const u = new URL(resolvedJoinUrl);
+        u.searchParams.set('uname', finalAdminName);
+        window.open(u.toString(), '_blank', 'noopener,noreferrer');
+        return;
+      } catch {
+        window.open(resolvedJoinUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
     }
     if (resolvedMeetingId) {
-      const directZoom = `https://zoom.us/j/${resolvedMeetingId}${resolvedPasscode ? `?pwd=${resolvedPasscode}` : ''}`
-      window.open(directZoom, '_blank', 'noopener,noreferrer')
-      return
+      const directZoom = `https://zoom.us/j/${resolvedMeetingId}${resolvedPasscode ? `?pwd=${resolvedPasscode}` : ''}&uname=${encodeURIComponent(finalAdminName)}`;
+      window.open(directZoom, '_blank', 'noopener,noreferrer');
+      return;
     }
     adminSessionsApi.fetchMonitorJoinData(session.id).then((res) => {
       const url =
@@ -135,11 +155,17 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
         res.data?.joinUrl ||
         res.data?.join_url ||
         res.data?.url ||
-        res.data?.startUrl
+        res.data?.startUrl;
       if (url) {
-        window.open(url, '_blank', 'noopener,noreferrer')
+        try {
+          const u = new URL(url);
+          u.searchParams.set('uname', finalAdminName);
+          window.open(u.toString(), '_blank', 'noopener,noreferrer');
+        } catch {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
       }
-    })
+    });
   }
   return createPortal(
     <div
@@ -236,9 +262,17 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
               sdkSignature={resolvedSdkSignature}
               zakToken={resolvedZak}
               joinUrl={resolvedJoinUrl}
-              userName={isRtl ? 'إدارة منارة العز (مراقبة)' : 'Manarat Al-Ezz Supervisor'}
+              userName={finalAdminName}
+              userEmail={finalAdminEmail}
               sessionTitle={session.title || session.groupName || (isRtl ? 'حصة دراسية' : 'Session')}
               className="w-full h-full"
+              onRefreshJoinData={() => {
+                if (session?.id) {
+                  adminSessionsApi.fetchMonitorJoinData(session.id).then((res) => {
+                    if (res?.success && res.data) setMonitorData(res.data)
+                  })
+                }
+              }}
             />
           ) : (
             <div className="max-w-xl mx-auto p-8 text-center text-slate-200 space-y-6">
@@ -251,8 +285,8 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {isRtl
-                    ? 'جاري تجهيز نقطة اتصال المراقبة التلقائية (GET /api/v1/sessions/private/:id/monitor-join). يمكنك الضغط على زر انضمام أعلاه أو أدناه للدخول فوراً.'
-                    : 'The automated monitor endpoint (GET /api/v1/sessions/private/:id/monitor-join) is connecting. You can click the Join button above or below to join directly.'}
+                    ? 'جاري تجهيز اتصال المراقبة المباشرة. يمكنك الضغط على زر انضمام أعلاه أو أدناه للدخول فوراً.'
+                    : 'The live monitor connection is preparing. You can click the Join button above or below to join directly.'}
                 </p>
               </div>
               <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-start space-y-2 text-xs">
@@ -305,9 +339,6 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
               <span>{isRtl ? 'انضمام مباشر للحصة' : 'Direct Join'}</span>
               <ExternalLink size={12} />
             </button>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500">
-              <span>GET /api/v1/sessions/private/{session.id}/monitor-join</span>
-            </div>
           </div>
         </div>
       </div>

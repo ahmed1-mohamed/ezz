@@ -29,18 +29,18 @@ export default function TeacherLive() {
     if (urlStage === 'during' || urlStage === 'after') {
       return urlStage;
     }
-    try {
-      const storedStage = sessionStorage.getItem('teacher_live_stage');
-      const storedSession = sessionStorage.getItem('teacher_live_session');
-      if (storedStage === 'during' && storedSession) {
-        return 'during';
-      }
-      if (storedStage === 'after') {
-        return 'after';
-      }
-    } catch (err) { void err; }
     return 'before';
   });
+
+  useEffect(() => {
+    return () => {
+      try {
+        sessionStorage.removeItem('teacher_live_stage');
+        sessionStorage.removeItem('teacher_live_session');
+        sessionStorage.removeItem('teacher_live_joindata');
+      } catch (err) { void err; }
+    };
+  }, []);
 
   const [currentLiveSession, setCurrentLiveSession] = useState(() => {
     const sid = paramSessionId || searchParams.get('sessionId') || searchParams.get('session');
@@ -88,24 +88,6 @@ export default function TeacherLive() {
       }
     }
   }, [activeStage, currentLiveSession, paramSessionId, location.pathname, navigate]);
-
-  useEffect(() => {
-    if (location.pathname.includes('/live/room')) {
-      setActiveStage('during');
-      return;
-    }
-    const stage = searchParams.get('stage');
-    if (stage === 'after') {
-      setActiveStage('after');
-      return;
-    }
-    if (stage === 'before' || (!stage && location.pathname === '/dashboard/teacher/live')) {
-      const storedStage = sessionStorage.getItem('teacher_live_stage');
-      if (storedStage !== 'during') {
-        setActiveStage('before');
-      }
-    }
-  }, [location.pathname, searchParams]);
 
   const handleStartSession = (session, joinData = null) => {
     const sid = session?.id || session?._id;
@@ -163,6 +145,17 @@ export default function TeacherLive() {
     } catch (err) { void err; }
     navigate(`/dashboard/teacher/live?stage=${stageId}`, { replace: true });
   };
+  if (activeStage === 'during') {
+    return (
+      <div className="h-[calc(100vh-5rem)] lg:h-[calc(100vh-2rem)] flex flex-col overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+        <DuringSessionTab
+          session={currentLiveSession}
+          onEndSession={handleEndSession}
+          onBackToBefore={handleBackToBefore}
+        />
+      </div>
+    );
+  }
   return (
     <div className="space-y-6 pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm">
@@ -214,13 +207,6 @@ export default function TeacherLive() {
       </div>
       {activeStage === 'before' && (
         <BeforeSessionTab onStartSession={handleStartSession} />
-      )}
-      {activeStage === 'during' && (
-        <DuringSessionTab
-          session={currentLiveSession}
-          onEndSession={handleEndSession}
-          onBackToBefore={handleBackToBefore}
-        />
       )}
       {activeStage === 'after' && (
         <AfterSessionTab />

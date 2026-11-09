@@ -43,36 +43,19 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const sessionId = session?.id || session?._id;
-  const initialCachedJoin = useMemo(() => {
-    try {
-      const stored = sessionStorage.getItem('teacher_live_joindata');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && (parsed.meetingId || parsed.joinUrl || parsed.startUrl)) return parsed;
-      }
-    } catch (err) { void err; }
-    return null;
-  }, []);
   const { data: joinDataRes, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['teacher-session-join', sessionId],
     queryFn: () => teacherSessionsApi.fetchSessionJoinData(sessionId),
     enabled: Boolean(sessionId),
-    initialData: initialCachedJoin,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
-    refetchOnMount: false,
+    staleTime: 30 * 1000,
+    gcTime: 60 * 1000,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
   const joinData = useMemo(() => {
-    const raw = joinDataRes?.data || joinDataRes || initialCachedJoin;
-    if (raw) {
-      try {
-        sessionStorage.setItem('teacher_live_joindata', JSON.stringify(raw));
-      } catch (err) { void err; }
-    }
-    return raw;
-  }, [joinDataRes, initialCachedJoin]);
+    return joinDataRes?.data || joinDataRes || null;
+  }, [joinDataRes]);
   const sessionTitle = typeof session?.title === 'object' && session?.title !== null
     ? (isRtl ? session.title.ar : session.title.en)
     : (session?.title || session?.subject || t('teacherLive.liveSessionTitle', 'حصة مباشرة'));
@@ -87,8 +70,8 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
     return user.name || user.fullName || 'المعلم';
   })();
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+    <div className="h-full flex-1 min-h-0 flex flex-col space-y-3 sm:space-y-4 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -150,13 +133,13 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
         </div>
       </div>
       {isLoading ? (
-        <div className="bg-[#080d14] rounded-3xl min-h-[560px] border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white">
+        <div className="bg-[#080d14] rounded-3xl flex-1 min-h-0 border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white">
           <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
           <p className="font-bold text-base">{t('teacherLive.loadingSessionData', 'جاري تجهيز بيانات البث المباشر...')}</p>
           <p className="text-xs text-slate-400 mt-1">{t('teacherLive.connectingToZoom', 'يتم الاتصال بخوادم Zoom وتوليد مفاتيح الحصة')}</p>
         </div>
       ) : joinData && joinData.canJoinNow === false ? (
-        <div className="bg-[#080d14] rounded-3xl min-h-[560px] border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white space-y-4">
+        <div className="bg-[#080d14] rounded-3xl flex-1 min-h-0 border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
             <Radio className="w-8 h-8 animate-pulse" />
           </div>
@@ -204,7 +187,7 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
           userName={teacherName}
           userEmail={import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com'}
           sessionTitle={sessionTitle}
-          className="w-full"
+          className="w-full flex-1 min-h-0 h-full overflow-hidden"
           onRefreshJoinData={refetch}
           isRefreshing={isFetching}
         />

@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CalendarX, Plus, User, GraduationCap, Users, Calendar, Clock, AlertCircle, CheckCircle2, ChevronDown, X, Info } from 'lucide-react';
+import { CalendarX, Plus, User, GraduationCap, Users, Calendar, Clock, AlertCircle, ChevronDown, X, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import { parentApi } from '@/shared/services/api/parentApi';
 import ParentPagination from '../overview/components/ParentPagination';
@@ -33,6 +32,31 @@ function formatDate(dateStr, isRtl) {
     return dateStr;
   }
   return dateStr;
+}
+
+function formatSessionOptionLabel(sess, isRtl) {
+  const rawGroup = sess.group ?? sess.groupName ?? sess.groupId ?? sess.subject ?? sess.subjectName;
+  let groupName = '';
+  if (typeof rawGroup === 'string') {
+    groupName = rawGroup.trim();
+  } else if (typeof rawGroup === 'object' && rawGroup !== null) {
+    if (typeof rawGroup.name === 'object' && rawGroup.name !== null) {
+      groupName = isRtl ? (rawGroup.name.ar || rawGroup.name.en || '') : (rawGroup.name.en || rawGroup.name.ar || '');
+    } else {
+      groupName = isRtl ? (rawGroup.name || rawGroup.ar || rawGroup.title || rawGroup.en || '') : (rawGroup.name || rawGroup.en || rawGroup.title || rawGroup.ar || '');
+    }
+  }
+  const sessionNum = sess.sessionNumber ? (isRtl ? `الحصة رقم ${sess.sessionNumber}` : `Session #${sess.sessionNumber}`) : '';
+  const rawTitle = sess.title ? String(sess.title).trim() : '';
+  const baseTitle = rawTitle || sessionNum || (isRtl ? 'حصة دراسية' : 'Session');
+  let titleWithGroup = baseTitle;
+  if (groupName && !baseTitle.toLowerCase().includes(groupName.toLowerCase())) {
+    titleWithGroup = `${baseTitle} - ${groupName}`;
+  }
+  const day = sess.day || '';
+  const date = sess.formattedDate || sess.date || '';
+  const time = sess.timeRange || (sess.startTime ? `${sess.startTime} - ${sess.endTime || ''}` : '');
+  return `${titleWithGroup}${day ? ` | ${day}` : ''}${date ? ` (${date})` : ''}${time ? ` - ${time}` : ''}`;
 }
 
 export default function ParentExcuses() {
@@ -107,8 +131,48 @@ export default function ParentExcuses() {
     }
   }, []);
   useEffect(() => {
-    loadExcuses(selectedStudentFilter, currentPage);
-  }, [loadExcuses, selectedStudentFilter, currentPage]);
+    let isMounted = true;
+    async function fetchList() {
+      setIsLoading(true);
+      try {
+        const params = { page: currentPage, limit: 10 };
+        if (selectedStudentFilter && selectedStudentFilter !== 'all') {
+          params.studentId = selectedStudentFilter;
+        }
+        const res = await parentApi.fetchExcusesList(params);
+        if (isMounted) {
+          const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
+          setExcusesData({
+            list: rawList,
+            totalExcuses: res?.totalExcuses ?? rawList.length,
+            pagination: res?.pagination || {
+              currentPage,
+              totalPages: Math.max(1, Math.ceil(rawList.length / 10)),
+              limit: 10,
+              totalItems: res?.totalExcuses ?? rawList.length
+            }
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to load excuses list', err);
+          setExcusesData({
+            list: [],
+            totalExcuses: 0,
+            pagination: { currentPage, totalPages: 1, limit: 10, totalItems: 0 }
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchList();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedStudentFilter, currentPage]);
   const loadEligibleSessions = useCallback(async (studentId) => {
     if (!studentId) {
       setEligibleSessions([]);
@@ -134,22 +198,52 @@ export default function ParentExcuses() {
     }
   }, []);
   useEffect(() => {
-    if (isSubmitModalOpen && formStudentId) {
-      loadEligibleSessions(formStudentId);
+    let isMounted = true;
+    async function fetchSessions() {
+      if (!isSubmitModalOpen || !formStudentId) {
+        return;
+      }
+      setIsLoadingSessions(true);
+      try {
+        const res = await parentApi.fetchStudentEligibleSessions(formStudentId);
+        if (isMounted) {
+          const sessions = res?.success && Array.isArray(res.data) ? res.data : [];
+          setEligibleSessions(sessions);
+          if (sessions.length > 0) {
+            setFormSessionId(sessions[0].id || sessions[0]._id || '');
+          } else {
+            setFormSessionId('');
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to load eligible sessions', err);
+          setEligibleSessions([]);
+          setFormSessionId('');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingSessions(false);
+        }
+      }
     }
-  }, [isSubmitModalOpen, formStudentId, loadEligibleSessions]);
+    fetchSessions();
+    return () => {
+      isMounted = false;
+    };
+  }, [isSubmitModalOpen, formStudentId]);
   const handleOpenSubmitModal = useCallback(() => {
     setIsSubmitModalOpen(true);
     setFormReason('');
     if (studentsList.length > 0) {
       const initId = formStudentId || studentsList[0].student_id || studentsList[0].user_id || studentsList[0].id;
       setFormStudentId(initId);
-      loadEligibleSessions(initId);
     }
-  }, [studentsList, formStudentId, loadEligibleSessions]);
+  }, [studentsList, formStudentId]);
   const handleCloseSubmitModal = useCallback(() => {
     setIsSubmitModalOpen(false);
     setFormReason('');
+    setIsSubmittingExcuse(false);
   }, []);
   const handleFormStudentChange = useCallback((e) => {
     const newStudentId = e.target.value;
@@ -177,14 +271,8 @@ export default function ParentExcuses() {
         reason: formReason.trim()
       });
       if (res?.success) {
-        await Swal.fire({
-          icon: 'success',
-          title: t('parent.excuses.submitSuccessTitle', 'تم تقديم العذر بنجاح'),
-          text: res.message || t('parent.excuses.submitSuccessText', 'تم تسجيل طلب الاعتذار عن الحصة وجاري المتابعة'),
-          confirmButtonColor: '#0f7a6c',
-          confirmButtonText: t('common.ok', 'حسناً')
-        });
         handleCloseSubmitModal();
+        toast.success(res.message || t('parent.excuses.submitSuccessText', 'تم تسجيل طلب الاعتذار عن الحصة وجاري المتابعة'));
         loadExcuses(selectedStudentFilter, 1);
       } else {
         toast.error(res?.message || t('parent.excuses.submitError', 'حدث خطأ أثناء تقديم العذر'));
@@ -222,16 +310,7 @@ export default function ParentExcuses() {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
-  const stats = useMemo(() => {
-    const list = excusesData.list || [];
-    const excusedCount = list.filter(item => item.excuse?.status?.includes('معذور') || item.excuse?.status === 'excused').length;
-    const withinCutoffCount = list.filter(item => item.excuse?.isWithinCutoff === true).length;
-    return {
-      total: excusesData.totalExcuses || list.length,
-      excused: excusedCount,
-      withinCutoff: withinCutoffCount
-    };
-  }, [excusesData.list, excusesData.totalExcuses]);
+  const totalExcusesCount = excusesData.totalExcuses || excusesData.list?.length || 0;
   return (
     <motion.div
       variants={containerVariants}
@@ -277,44 +356,18 @@ export default function ParentExcuses() {
           </button>
         </div>
       </motion.div>
-      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="text-start">
             <span className="text-xs text-slate-400 font-medium block mb-1">
               {t('parent.excuses.totalExcusesStat', 'إجمالي طلبات الاعتذار')}
             </span>
             <span className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-              {stats.total}
+              {totalExcusesCount}
             </span>
           </div>
           <div className="text-sky-500 shrink-0">
             <CalendarX size={28} strokeWidth={1.75} />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="text-start">
-            <span className="text-xs text-slate-400 font-medium block mb-1">
-              {t('parent.excuses.excusedStat', 'الطلبات المقبولة (معذور)')}
-            </span>
-            <span className="text-3xl font-bold text-emerald-500">
-              {stats.excused}
-            </span>
-          </div>
-          <div className="text-emerald-500 shrink-0">
-            <CheckCircle2 size={28} strokeWidth={1.75} />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="text-start">
-            <span className="text-xs text-slate-400 font-medium block mb-1">
-              {t('parent.excuses.withinCutoffStat', 'في الموعد المحدد')}
-            </span>
-            <span className="text-3xl font-bold text-[#0f7a6c] dark:text-emerald-400">
-              {stats.withinCutoff}
-            </span>
-          </div>
-          <div className="text-[#0f7a6c] dark:text-emerald-400 shrink-0">
-            <Clock size={28} strokeWidth={1.75} />
           </div>
         </div>
       </motion.div>
@@ -512,13 +565,9 @@ export default function ParentExcuses() {
                       >
                         {eligibleSessions.map((sess) => {
                           const sid = sess.id || sess._id;
-                          const title = sess.title || sess.group || 'حصة دراسية';
-                          const day = sess.day || '';
-                          const date = sess.formattedDate || sess.date || '';
-                          const time = sess.timeRange || (sess.startTime ? `${sess.startTime} - ${sess.endTime || ''}` : '');
                           return (
                             <option key={sid} value={sid}>
-                              {title} {day && `| ${day}`} {date && `(${date})`} {time && `- ${time}`}
+                              {formatSessionOptionLabel(sess, isRtl)}
                             </option>
                           );
                         })}

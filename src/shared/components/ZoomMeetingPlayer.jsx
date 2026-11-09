@@ -8,8 +8,6 @@ import {
   Maximize2,
   Minimize2,
   RotateCcw,
-  ShieldCheck,
-  UserCheck,
   ExternalLink,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -144,6 +142,29 @@ export default function ZoomMeetingPlayer({
       window.removeEventListener('message', handleZoomMessage);
     };
   }, [isHost]);
+  useEffect(() => {
+    if (!sdkSignature || !sdkSignature.includes('.')) return;
+    try {
+      const payload = JSON.parse(atob(sdkSignature.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      const expSec = payload.exp || payload.tokenExp;
+      if (expSec) {
+        const expMs = Number(expSec) * 1000;
+        const now = Date.now();
+        const diffMs = expMs - now;
+        if (diffMs <= 180000 && onRefreshJoinData) {
+          onRefreshJoinData();
+        } else if (diffMs > 180000 && onRefreshJoinData) {
+          const timeoutMs = Math.min(diffMs - 180000, 7100000);
+          const timer = setTimeout(() => {
+            onRefreshJoinData();
+          }, timeoutMs);
+          return () => clearTimeout(timer);
+        }
+      }
+    } catch {
+      // Signature parsing non-fatal
+    }
+  }, [sdkSignature, onRefreshJoinData]);
   return (
     <div
       ref={containerRef}
@@ -159,25 +180,6 @@ export default function ZoomMeetingPlayer({
             <div className="flex items-center gap-2">
               <span className="font-black text-sm text-white truncate">
                 {sessionTitle || t('teacherLive.liveSessionTitle', 'الحصة المباشرة')}
-              </span>
-              <span
-                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                  isHost
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                }`}
-              >
-                {isHost ? (
-                  <>
-                    <ShieldCheck className="w-3 h-3" />
-                    <span>{t('teacherLive.hostTeacherBadge', 'مضيف الجلسة (معلّم)')}</span>
-                  </>
-                ) : (
-                  <>
-                    <UserCheck className="w-3 h-3" />
-                    <span>{t('studentDashboard.live.participantBadge', 'مشارك (طالب)')}</span>
-                  </>
-                )}
               </span>
             </div>
           </div>
@@ -270,7 +272,7 @@ export default function ZoomMeetingPlayer({
           </button>
         </div>
       </div>
-      <div className="relative w-full flex-1 min-h-[560px] bg-[#020508] overflow-hidden flex flex-col justify-center items-center">
+      <div className="relative w-full flex-1 min-h-[320px] sm:min-h-[360px] bg-[#020508] overflow-hidden flex flex-col justify-center items-center">
         {!embedUrl && !cleanMeetingId ? (
           <div className="max-w-md mx-6 text-center flex flex-col items-center gap-3 p-6 rounded-3xl bg-[#0f172a] border border-white/10">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-300 flex items-center justify-center">
@@ -298,7 +300,7 @@ export default function ZoomMeetingPlayer({
             key={iframeKey}
             src={embedUrl}
             title="Zoom Live Meeting Stream"
-            className="w-full h-full min-h-[560px] border-0 relative z-10 flex-1"
+            className="w-full h-full min-h-[320px] sm:min-h-[360px] border-0 relative z-10 flex-1"
             allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection; unload"
           />
         )}
@@ -309,7 +311,9 @@ export default function ZoomMeetingPlayer({
           <span>
             {isHost
               ? t('teacherLive.hostLiveHint', 'أنت متصل الآن كمعلّم رئيسي (Host). يمكنك الشرح ومشاركة الشاشة وتقييم الطلاب في نفس الوقت.')
-              : t('studentDashboard.live.participantLiveHint', 'أنت متصل الآن بالحصة كطالب (Participant). يمكنك متابعة الشرح والتفاعل مع المعلم.')}
+              : (userName.includes('إدارة') || userName.includes('Admin'))
+              ? (isRtl ? 'أنت متصل الآن بوضع المراقبة والإشراف المباشر.' : 'You are connected in live supervisory mode.')
+              : t('studentDashboard.live.participantLiveHint', 'أنت متصل الآن بالحصة المباشرة. يمكنك متابعة الشرح والتفاعل مع المعلم.')}
           </span>
         </div>
         <div className="flex items-center gap-2">

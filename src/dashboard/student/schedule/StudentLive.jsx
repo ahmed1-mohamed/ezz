@@ -19,75 +19,61 @@ export default function StudentLive() {
 
   const [stage, setStage] = useState(() => {
     const urlStage = searchParams.get('stage');
-    if (urlStage === 'during') return 'during';
-    try {
-      const stored = sessionStorage.getItem('student_live_stage');
-      if (stored === 'during') return 'during';
-    } catch (err) { void err; }
+    const sid = searchParams.get('sessionId') || searchParams.get('session');
+    if (urlStage === 'during' && sid && initialSession) return 'during';
     return 'before';
   });
 
   const [session, setSession] = useState(() => {
     if (initialSession) return initialSession;
-    try {
-      const stored = sessionStorage.getItem('student_live_session');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && (parsed.id || parsed._id)) return parsed;
-      }
-    } catch (err) { void err; }
     const sid = searchParams.get('sessionId') || searchParams.get('session');
     if (sid) return { id: sid, _id: sid };
     return null;
   });
 
-  const [joinData, setJoinData] = useState(() => {
-    try {
-      const stored = sessionStorage.getItem('student_live_joindata');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && (parsed.meetingId || parsed.joinUrl || parsed.sdkSignature)) return parsed;
-      }
-    } catch (err) { void err; }
-    return null;
-  });
+  const [joinData, setJoinData] = useState(null);
 
   const [isLoading, setIsLoading] = useState(() => {
-    if (stage === 'during' && (session || joinData)) return false;
-    return !initialSession && !session;
+    if (stage === 'during') return false;
+    return !initialSession;
   });
 
   const [isJoining, setIsJoining] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
+    return () => {
+      try {
+        sessionStorage.removeItem('student_live_stage');
+        sessionStorage.removeItem('student_live_session');
+        sessionStorage.removeItem('student_live_joindata');
+      } catch (err) { void err; }
+    };
+  }, []);
 
-    // If student is already active in a live session, skip fetching next session
-    // to prevent unwanted requests and avoid overwriting current live state
+  useEffect(() => {
+    let isMounted = true;
     if (stage === 'during') {
-      setIsLoading(false);
       return;
     }
-
     async function loadNextSession() {
       try {
-        if (!initialSession && !session) {
+        if (!initialSession) {
           setIsLoading(true);
         }
         const data = await studentPortalApi.fetchNextSession();
         if (isMounted) {
           if (initialSession) {
             const sameId = data && (data.id || data._id) === (initialSession.id || initialSession._id);
-            if (sameId) setSession({ ...initialSession, ...data });
+            if (sameId) setSession((prev) => ({ ...initialSession, ...(prev || {}), ...data }));
           } else if (data && (data.id || data._id || data.title)) {
             setSession(data);
-          } else if (!initialSession) {
+          } else {
             setSession(null);
           }
         }
       } catch (err) {
         console.error('Error fetching student next session:', err);
-        if (isMounted && !initialSession && !session) {
+        if (isMounted && !initialSession) {
           setSession(null);
         }
       } finally {
@@ -96,7 +82,6 @@ export default function StudentLive() {
         }
       }
     }
-
     loadNextSession();
     return () => {
       isMounted = false;
@@ -108,9 +93,6 @@ export default function StudentLive() {
     const sid = targetSession?.id || targetSession?._id;
     if (!sid) {
       setStage('during');
-      try {
-        sessionStorage.setItem('student_live_stage', 'during');
-      } catch (err) { void err; }
       return;
     }
     try {
@@ -123,11 +105,6 @@ export default function StudentLive() {
       setJoinData(data);
       setSession(targetSession);
       setStage('during');
-      try {
-        sessionStorage.setItem('student_live_session', JSON.stringify(targetSession));
-        sessionStorage.setItem('student_live_joindata', JSON.stringify(data));
-        sessionStorage.setItem('student_live_stage', 'during');
-      } catch (err) { void err; }
       const nextParams = new URLSearchParams(searchParams);
       nextParams.set('stage', 'during');
       nextParams.set('sessionId', sid);
@@ -171,13 +148,13 @@ export default function StudentLive() {
   }
   return (
     <div
-      className="min-h-screen bg-[#edf4f2] dark:bg-slate-950 p-4 sm:p-6"
+      className={stage === 'during' ? "h-[calc(100vh-4.5rem)] lg:h-[calc(100vh-2rem)] bg-[#edf4f2] dark:bg-slate-950 p-2 sm:p-4 flex flex-col overflow-hidden" : "min-h-screen bg-[#edf4f2] dark:bg-slate-950 p-4 sm:p-6"}
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto space-y-6"
+        className={stage === 'during' ? "max-w-6xl w-full mx-auto flex-1 min-h-0 flex flex-col h-full overflow-hidden" : "max-w-6xl mx-auto space-y-6"}
       >
         {stage === 'before' ? (
           <StudentBeforeSessionView

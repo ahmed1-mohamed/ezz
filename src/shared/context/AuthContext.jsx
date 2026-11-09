@@ -90,6 +90,11 @@ export function AuthProvider({ children }) {
             const cookieDays = remember ? 7 : null
             if (accessToken) setCookie('access_token', accessToken, cookieDays)
             if (refreshToken) setCookie('refresh_token', refreshToken, cookieDays)
+            try {
+                sessionStorage.clear()
+            } catch (err) {
+                void err;
+            }
             const userDetails = data.user || data
             let authUser = {
                 id: userDetails.id || 1,
@@ -176,6 +181,11 @@ export function AuthProvider({ children }) {
             const refreshToken = responseData?.refresh_token || responseData?.refreshToken || data?.refresh_token || data?.refreshToken;
             if (accessToken) setCookie('access_token', accessToken, 7);
             if (refreshToken) setCookie('refresh_token', refreshToken, 7);
+            try {
+                sessionStorage.clear();
+            } catch (err) {
+                void err;
+            }
             const userDetails = data.user || data;
             let authUser = {
                 id: userDetails.id || userDetails._id || 1,
@@ -249,6 +259,11 @@ export function AuthProvider({ children }) {
                 localStorage.removeItem('access_token')
                 localStorage.removeItem('refresh_token')
                 localStorage.removeItem('authUser')
+            } catch (err) {
+                void err;
+            }
+            try {
+                sessionStorage.clear();
             } catch (err) {
                 void err;
             }

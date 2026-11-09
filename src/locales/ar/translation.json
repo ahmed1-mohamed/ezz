@@ -4351,13 +4351,18 @@
     "package": "الباقة",
     "advancedPackage": "الباقة المتقدمة",
     "sessionsCount": "عدد الحصص",
+    "studentSessionsCount": "عدد الحصص للطالب",
     "sessionsPerMonth": "24 حصة شهرياً",
     "operationType": "نوع العملية",
     "subscriptionRenewal": "تجديد الاشتراك",
     "amount": "المبلغ",
+    "discount": "الخصم",
+    "priceAfterDiscount": "السعر بعد الخصم",
     "tax": "الضريبة",
     "total": "الإجمالي",
-    "currency": "ج.م"
+    "currency": "ج.م",
+    "completePayment": "إتمام عملية الدفع",
+    "completingPayment": "جارٍ إتمام عملية الدفع..."
   },
   "theme": {
     "light": "الوضع النهاري",

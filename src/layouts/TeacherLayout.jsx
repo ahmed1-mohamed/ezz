@@ -1,5 +1,5 @@
 import { useState, Suspense } from 'react';
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Home,
@@ -28,7 +28,9 @@ import { useAuth } from '@/shared/context/useAuth.jsx';
 export default function TeacherLayout() {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const isRtl = i18n.language?.startsWith('ar') ?? true;
+  const isLiveRoom = location.pathname.includes('/live/room') || (location.pathname.includes('/teacher/live') && location.search.includes('stage=during'));
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const teacherName = (() => {
     if (!user) return t('teacher.teacherFallback', 'معلم');
@@ -216,7 +218,7 @@ export default function TeacherLayout() {
           </div>
         </div>
       </aside>
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 ${isLiveRoom ? 'h-screen max-h-screen overflow-hidden' : ''}`}>
         <header className="lg:hidden sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-4 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <button
@@ -243,7 +245,7 @@ export default function TeacherLayout() {
             </Link>
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className={`flex-1 overflow-x-hidden ${isLiveRoom ? 'p-2 sm:p-3 overflow-y-hidden max-h-screen flex flex-col min-h-0' : 'p-4 sm:p-6 lg:p-8'}`}>
           <Suspense
             fallback={
               <div className="flex items-center justify-center py-24 min-h-[400px]">

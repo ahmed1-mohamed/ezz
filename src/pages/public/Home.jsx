@@ -1,5 +1,5 @@
 import { memo, useEffect, useState, lazy, Suspense } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
@@ -7,6 +7,7 @@ import Button from '@/shared/components/Button.jsx'
 import heroImage from '@/images/hero/cheerful-academy-kids.webp'
 import { fetchLandingPage } from '@/store/landingSlice'
 
+const ParentPaymentStatus = lazy(() => import('@/dashboard/parent/packages/ParentPaymentStatus.jsx'))
 const StatisticsBanner = lazy(() => import('@/shared/components/StatisticsBanner.jsx'))
 const PremiumParentsSection = lazy(() => import('@/shared/components/PremiumParentsSection.jsx'))
 const EducationalPrograms = lazy(() => import('@/shared/components/EducationalPrograms.jsx'))
@@ -56,11 +57,24 @@ export default memo(function Home() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const dispatch = useDispatch()
+    const [searchParams] = useSearchParams()
+    const hasPaymentParam = searchParams.has('payment') || searchParams.has('session_id') || searchParams.has('subscriptionId')
     const { landingData } = useSelector((state) => state.landing)
     const [localData] = useState(readLocalStorage)
     useEffect(() => {
-        dispatch(fetchLandingPage(i18n.language))
-    }, [dispatch, i18n.language])
+        if (!hasPaymentParam) {
+            dispatch(fetchLandingPage(i18n.language))
+        }
+    }, [dispatch, i18n.language, hasPaymentParam])
+    if (hasPaymentParam) {
+        return (
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-9 h-9 border-3 border-[#0f7a6c] border-t-transparent rounded-full animate-spin" /></div>}>
+                <div className="py-4 sm:py-8 max-w-5xl mx-auto px-2 sm:px-4">
+                    <ParentPaymentStatus />
+                </div>
+            </Suspense>
+        )
+    }
     const heroInitial = { opacity: 0, scale: 0.92, x: isRtl ? 30 : -30 }
     const heroAnimate = { opacity: 1, scale: 1, x: 0 }
     const heroTransition = { duration: 0.7, ease: 'easeOut', delay: 0.2 }

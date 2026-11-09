@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   CheckCircle2,
   XCircle,
   Info,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 
 const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
@@ -19,7 +21,9 @@ function formatCurrency(amount, currency = 'ج.م') {
 function formatDate(dateVal) {
   if (!dateVal) return '-';
   try {
-    return new Date(dateVal).toISOString().split('T')[0];
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '-';
+    return d.toISOString().split('T')[0];
   } catch {
     return String(dateVal);
   }
@@ -31,15 +35,23 @@ export default function ParentPaymentStatus() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const subscriptionId =
-    searchParams.get('subscriptionId') ||
-    searchParams.get('id') ||
-    searchParams.get('sub_id') ||
-    searchParams.get('session_id') ||
-    localStorage.getItem('last_checkout_sub_id') ||
-    '';
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: currenciesApi.fetchExchangeRate,
+    staleTime: 1000 * 60 * 10,
+  });
+  const currencyInfo = useMemo(() => {
+    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
+    return { symbol: 'ج.م', exchangeRate: 1 };
+  }, [exchangeRateRes]);
 
-  const explicitStatus = (searchParams.get('status') || searchParams.get('state') || searchParams.get('preview') || '').toLowerCase();
+  const sessionId = searchParams.get('session_id') || searchParams.get('sessionId') || '';
+  const querySubId = searchParams.get('subscriptionId') || searchParams.get('id') || searchParams.get('sub_id') || '';
+  const storedSubId = localStorage.getItem('last_checkout_sub_id') || '';
+  const subscriptionId = querySubId || storedSubId || sessionId || '';
+
+  const paymentParam = (searchParams.get('payment') || '').toLowerCase();
+  const explicitStatus = (searchParams.get('status') || searchParams.get('state') || searchParams.get('preview') || paymentParam || '').toLowerCase();
 
   const [statusState, setStatusState] = useState(() => {
     if (explicitStatus === 'success' || explicitStatus === 'paid') return 'success';
@@ -53,43 +65,62 @@ export default function ParentPaymentStatus() {
   const pollTimerRef = useRef(null);
 
   useEffect(() => {
-    if (explicitStatus === 'success' || explicitStatus === 'paid') {
-      setStatusState('success');
-      if (!subscriptionId) return;
-    } else if (explicitStatus === 'verifying' || explicitStatus === 'loading') {
-      setStatusState('verifying');
-      if (!subscriptionId) return;
-    } else if (explicitStatus === 'failed' || explicitStatus === 'cancelled' || explicitStatus === 'canceled') {
-      setStatusState('failed');
-      if (!subscriptionId) return;
-    }
-
-    if (!subscriptionId) return;
     let isCancelled = false;
-
     const executeCheck = async () => {
       try {
-        const data = await parentPackagesApi.fetchSubscriptionDetails(subscriptionId);
-        if (isCancelled) return;
-        setSubscriptionData(data);
-        const s = String(data?.status || '').toLowerCase();
-        if (s === 'paid' || s === 'active' || s === 'completed') {
-          setStatusState('success');
-          localStorage.removeItem('last_checkout_sub_id');
-          return;
+        let data = null;
+        const realId = querySubId || storedSubId;
+        if (realId && !realId.startsWith('cs_')) {
+          try {
+            data = await parentPackagesApi.fetchSubscriptionDetails(realId);
+          } catch (e) {
+            console.warn('Could not fetch details by subscriptionId:', e);
+          }
         }
-        if (s === 'failed' || s === 'cancelled' || s === 'canceled') {
-          setStatusState('failed');
+        if (!data) {
+          try {
+            const listRes = await parentPackagesApi.fetchSubscriptions({ limit: 1 });
+            const list = Array.isArray(listRes?.data) ? listRes.data : (Array.isArray(listRes) ? listRes : (listRes?.subscriptions || []));
+            if (list.length > 0) {
+              data = list[0];
+            }
+          } catch (e) {
+            console.warn('Could not fetch latest subscription from list:', e);
+          }
+        }
+        if (!data && subscriptionId && !subscriptionId.startsWith('cs_')) {
+          data = await parentPackagesApi.fetchSubscriptionDetails(subscriptionId);
+        }
+        if (isCancelled) return;
+        if (data) {
+          setSubscriptionData(data);
+          const s = String(data?.status || '').toLowerCase();
+          if (s === 'paid' || s === 'active' || s === 'completed') {
+            setStatusState('success');
+            localStorage.removeItem('last_checkout_sub_id');
+            return;
+          }
+          if (s === 'failed' || s === 'cancelled' || s === 'canceled') {
+            setStatusState('failed');
+            return;
+          }
+        }
+        if (explicitStatus === 'success' || explicitStatus === 'paid') {
+          setStatusState('success');
           return;
         }
         if (pollCountRef.current < 5) {
           pollCountRef.current += 1;
           pollTimerRef.current = setTimeout(executeCheck, 2500);
         } else {
-          setStatusState('failed');
+          setStatusState(explicitStatus === 'success' ? 'success' : 'failed');
         }
       } catch {
         if (!isCancelled) {
+          if (explicitStatus === 'success' || explicitStatus === 'paid') {
+            setStatusState('success');
+            return;
+          }
           if (pollCountRef.current < 3) {
             pollCountRef.current += 1;
             pollTimerRef.current = setTimeout(executeCheck, 2500);
@@ -99,16 +130,14 @@ export default function ParentPaymentStatus() {
         }
       }
     };
-
     executeCheck();
-
     return () => {
       isCancelled = true;
       if (pollTimerRef.current) {
         clearTimeout(pollTimerRef.current);
       }
     };
-  }, [subscriptionId]);
+  }, [subscriptionId, querySubId, storedSubId, explicitStatus]);
 
   const sub = subscriptionData || {};
   const orderNumber =
@@ -122,21 +151,44 @@ export default function ParentPaymentStatus() {
     (subscriptionId ? `TX-${String(subscriptionId).slice(-8).toUpperCase()}` : 'TX-20261027-1048');
   const studentName = (() => {
     if (Array.isArray(sub.students) && sub.students.length > 0) {
-      return sub.students.map((st) => (typeof st.name === 'object' ? st.name.ar || st.name.en : st.name)).filter(Boolean).join('، ');
+      return sub.students.map((st) => {
+        if (!st) return '';
+        const n = typeof st === 'object' ? (st.name || st.studentName || st.student?.name) : st;
+        if (typeof n === 'object' && n !== null) return isRtl ? (n.ar || n.en || '') : (n.en || n.ar || '');
+        return String(n || '');
+      }).filter(Boolean).join('، ');
     }
-    if (sub.student?.name) {
-      return typeof sub.student.name === 'object' ? sub.student.name.ar || sub.student.name.en : sub.student.name;
+    const directStudent = sub.student || sub.studentName;
+    if (directStudent) {
+      const n = typeof directStudent === 'object' ? (directStudent.name || directStudent) : directStudent;
+      if (typeof n === 'object' && n !== null) return isRtl ? (n.ar || n.en || '') : (n.en || n.ar || '');
+      return String(n);
     }
-    return sub.studentName || 'محمد أحمد';
+    return isRtl ? 'الطالب المستفيد' : 'Subscribed Student';
   })();
-  const studentInitial = studentName ? studentName.trim().charAt(0) : 'م';
-  const packageName = sub.package?.name || sub.packageName || 'الباقة المتقدمة';
-  const currency = sub.currency || 'ج.م';
-  const price = Number(sub.amount || sub.subtotal || sub.package?.price || 800);
-  const tax = Number(sub.tax || sub.taxAmount || 112);
-  const total = Number(sub.total || sub.finalAmount || (price + tax) || 912);
-  const sessionsCount = sub.package?.sessionsCount || sub.sessionsCount || 24;
-  const savedSessionsCount = sub.savedSessionsCount || 29;
+  const studentInitial = typeof studentName === 'string' && studentName.trim() ? studentName.trim().charAt(0) : 'م';
+  const packageName = (() => {
+    const raw = sub.package?.name || sub.packageName || sub.name;
+    if (typeof raw === 'object' && raw !== null) return isRtl ? (raw.ar || raw.en || '') : (raw.en || raw.ar || '');
+    if (raw && typeof raw === 'string') return raw;
+    return isRtl ? 'الباقة المعتمدة' : 'Subscribed Package';
+  })();
+  const currencyRate = Number(currencyInfo?.exchangeRate || 1);
+  const currency = currencyInfo?.symbol || 'ج.م';
+  const rawBasePrice = Number(sub.amount || sub.subtotal || sub.package?.price || 0);
+  const price = (currencyRate > 1 && rawBasePrice > 0 && rawBasePrice < 200)
+    ? Math.round(rawBasePrice * currencyRate)
+    : (rawBasePrice || (isRtl ? 1200 : 24));
+  const rawTax = Number(sub.tax || sub.taxAmount || 0);
+  const tax = (currencyRate > 1 && rawTax > 0 && rawTax < 20)
+    ? Number((rawTax * currencyRate).toFixed(2))
+    : (rawTax || Number((price * 0.05).toFixed(2)));
+  const rawTotal = Number(sub.total || sub.finalAmount || 0);
+  const total = (currencyRate > 1 && rawTotal > 0 && rawTotal < 250)
+    ? Math.round(rawTotal * currencyRate)
+    : (rawTotal || (price + tax));
+  const sessionsCount = sub.package?.sessionsCount || sub.sessionsCount || 8;
+  const savedSessionsCount = sub.savedSessionsCount || sub.remainingSessions || sessionsCount;
 
   const paymentDate = useMemo(() => {
     return formatDate(sub.paidAt || sub.paymentDate || sub.createdAt || new Date());
@@ -449,44 +501,6 @@ export default function ParentPaymentStatus() {
           </div>
         </div>
       )}
-
-      {/* شريط تبديل سريع للمعاينة بين الحالات الثلاث */}
-      <div className="pt-6 flex flex-wrap items-center justify-center gap-2 border-t border-dashed border-slate-200 dark:border-slate-800">
-        <span className="text-xs font-semibold text-slate-400">معاينة الحالات الثلاث:</span>
-        <button
-          type="button"
-          onClick={() => setStatusState('success')}
-          className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-            statusState === 'success'
-              ? 'bg-[#0f7a6c] text-white shadow-sm ring-2 ring-[#0f7a6c]/30'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-          }`}
-        >
-          ✓ تم الدفع بنجاح (الصورة 1)
-        </button>
-        <button
-          type="button"
-          onClick={() => setStatusState('verifying')}
-          className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-            statusState === 'verifying'
-              ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-600/30'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-          }`}
-        >
-          ⏳ التحقق من الدفع (الصورة 3)
-        </button>
-        <button
-          type="button"
-          onClick={() => setStatusState('failed')}
-          className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-            statusState === 'failed'
-              ? 'bg-rose-600 text-white shadow-sm ring-2 ring-rose-600/30'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-          }`}
-        >
-          ✕ لم يكتمل الدفع (الصورة 2)
-        </button>
-      </div>
 
       <ParentInvoiceModal
         isOpen={isInvoiceModalOpen}

@@ -33,11 +33,15 @@ function resolvePackageIcon(iconName) {
 function formatPriceNumber(priceValue) {
   const num = Number(priceValue);
   if (isNaN(num)) return String(priceValue || '0');
-  return num.toLocaleString('en-US');
+  const rounded = Math.round(num * 100) / 100;
+  return Number.isInteger(rounded)
+    ? rounded.toLocaleString('en-US')
+    : rounded.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
 
 const ParentPackageCard = memo(function ParentPackageCard({
   packageItem,
+  currencyInfo,
   onViewDetails,
   onSubscribe,
 }) {
@@ -47,12 +51,61 @@ const ParentPackageCard = memo(function ParentPackageCard({
   const IconComponent = resolvePackageIcon(packageItem?.icon);
   const countryName = packageItem?.country?.name || '';
   const countryFlag = packageItem?.country?.flag || '';
-  const currencyLabel = t('parentPackages.currency', 'ج.م');
+  const rate = Number(currencyInfo?.exchangeRate) > 0 ? Number(currencyInfo.exchangeRate) : 1;
+  const currencySymbol = currencyInfo?.symbol || t('parentPackages.currency', 'ج.م');
   const sessionsCount = packageItem?.sessionsCount || 8;
   const sessionDuration = packageItem?.sessionDuration || 60;
   const featuresList = Array.isArray(packageItem?.features) ? packageItem.features : [];
   const previewFeatures = featuresList.slice(0, 4);
   const remainingFeaturesCount = Math.max(0, featuresList.length - 4);
+  const rawBasePrice = Number(packageItem?.price ?? 0);
+  const rawOriginalPrice = packageItem?.originalPrice != null
+    ? Number(packageItem.originalPrice)
+    : (packageItem?.priceBeforeDiscount != null
+      ? Number(packageItem.priceBeforeDiscount)
+      : (packageItem?.oldPrice != null ? Number(packageItem.oldPrice) : null));
+  const rawPriceAfterDiscount = packageItem?.priceAfterDiscount != null
+    ? Number(packageItem.priceAfterDiscount)
+    : (packageItem?.discountedPrice != null ? Number(packageItem.discountedPrice) : null);
+  const rawDiscountPercent = packageItem?.discountPercentage != null
+    ? Number(packageItem.discountPercentage)
+    : (packageItem?.discountPercent != null
+      ? Number(packageItem.discountPercent)
+      : (packageItem?.discount != null && Number(packageItem.discount) > 0 && Number(packageItem.discount) <= 100 ? Number(packageItem.discount) : null));
+  let hasDiscount = false;
+  let usdOriginal = rawBasePrice;
+  let usdFinal = rawBasePrice;
+  let discountPercent = 0;
+  if (rawOriginalPrice != null && rawOriginalPrice > rawBasePrice) {
+    hasDiscount = true;
+    usdOriginal = rawOriginalPrice;
+    usdFinal = rawBasePrice;
+    discountPercent = rawDiscountPercent || Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
+  } else if (rawPriceAfterDiscount != null && rawPriceAfterDiscount < rawBasePrice) {
+    hasDiscount = true;
+    usdOriginal = rawBasePrice;
+    usdFinal = rawPriceAfterDiscount;
+    discountPercent = rawDiscountPercent || Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
+  } else if (rawDiscountPercent != null && rawDiscountPercent > 0 && rawDiscountPercent < 100) {
+    hasDiscount = true;
+    usdOriginal = rawBasePrice;
+    discountPercent = Math.round(rawDiscountPercent);
+    usdFinal = rawBasePrice * (1 - discountPercent / 100);
+  } else if (packageItem?.hasDiscount && packageItem?.discountAmount) {
+    hasDiscount = true;
+    usdOriginal = rawBasePrice;
+    usdFinal = Math.max(0, rawBasePrice - Number(packageItem.discountAmount));
+    discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
+  }
+  const convertedFinal = Math.round(usdFinal * rate);
+  const convertedOriginal = Math.round(usdOriginal * rate);
+  const enrichedPackage = {
+    ...packageItem,
+    convertedPrice: convertedFinal,
+    convertedOriginalPrice: convertedOriginal,
+    currency: currencySymbol,
+    exchangeRate: rate,
+  };
   return (
     <div
       className={`group relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 border bg-white dark:bg-slate-900 ${isFamily
@@ -100,13 +153,23 @@ const ParentPackageCard = memo(function ParentPackageCard({
           <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold block">
             {t('parentPackages.subscriptionFee', 'قيمة الاشتراك')}
           </span>
-          <div className="flex items-baseline gap-1.5 mt-0.5">
+          <div className="flex items-baseline gap-1.5 mt-0.5 flex-wrap">
             <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              {formatPriceNumber(packageItem?.price)}
+              {formatPriceNumber(convertedFinal)}
             </span>
             <span className="text-xs font-bold text-[#0f7a6c] dark:text-emerald-400">
-              {currencyLabel}
+              {currencySymbol}
             </span>
+            {hasDiscount && (
+              <span className="line-through text-slate-400 text-xs font-semibold ms-1">
+                {formatPriceNumber(convertedOriginal)} {currencySymbol}
+              </span>
+            )}
+            {hasDiscount && discountPercent > 0 && (
+              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40">
+                %{discountPercent}-
+              </span>
+            )}
           </div>
         </div>
         <div className="text-end">
@@ -166,7 +229,7 @@ const ParentPackageCard = memo(function ParentPackageCard({
         {remainingFeaturesCount > 0 && (
           <button
             type="button"
-            onClick={() => onViewDetails?.(packageItem)}
+            onClick={() => onViewDetails?.(enrichedPackage)}
             className="text-[11px] font-bold text-[#0f7a6c] dark:text-emerald-400 hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer"
           >
             <span>+{remainingFeaturesCount} {t('parentPackages.moreFeatures', 'مزايا إضافية')}</span>
@@ -177,7 +240,7 @@ const ParentPackageCard = memo(function ParentPackageCard({
       <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
         <button
           type="button"
-          onClick={() => onViewDetails?.(packageItem)}
+          onClick={() => onViewDetails?.(enrichedPackage)}
           className="flex-1 py-3 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-extrabold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           title={t('parentPackages.viewDetails', 'تفاصيل الباقة')}
         >
@@ -186,7 +249,7 @@ const ParentPackageCard = memo(function ParentPackageCard({
         </button>
         <button
           type="button"
-          onClick={() => onSubscribe?.(packageItem)}
+          onClick={() => onSubscribe?.(enrichedPackage)}
           className={`flex-[2] py-3 px-4 rounded-2xl text-white font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${isFamily
               ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'
               : 'bg-[#0f7a6c] hover:bg-[#0c6156] shadow-[#0f7a6c]/20'

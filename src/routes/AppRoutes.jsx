@@ -174,6 +174,9 @@ export default function AppRoutes() {
                             <Route path="trial-session" element={<TrialSession />} />
                             <Route path="trial" element={<Navigate to="/trial-session" replace />} />
                             <Route path="teachers/:id" element={<TeacherProfile />} />
+                            <Route path="checkout/status" element={<ParentPaymentStatus />} />
+                            <Route path="payment/status" element={<ParentPaymentStatus />} />
+                            <Route path="payment/success" element={<ParentPaymentStatus />} />
                         </Route>
                         <Route
                             path="/login"

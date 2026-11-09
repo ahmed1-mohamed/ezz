@@ -16,6 +16,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi.js';
 import ParentPackageCard from './components/ParentPackageCard.jsx';
 import ParentPackageDetailsModal from './components/ParentPackageDetailsModal.jsx';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs.jsx';
@@ -59,6 +60,14 @@ export default function ParentPackages() {
     queryKey: ['parent-packages-list', queryParams],
     queryFn: () => parentPackagesApi.fetchPackages(queryParams),
   });
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: () => currenciesApi.fetchExchangeRate(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const currencyInfo = useMemo(() => {
+    return parseExchangeRateData(exchangeRateRes);
+  }, [exchangeRateRes]);
   const rawPackagesList = useMemo(() => {
     if (!packagesResponse) return [];
     if (Array.isArray(packagesResponse.data)) return packagesResponse.data;
@@ -122,7 +131,7 @@ export default function ParentPackages() {
   };
   const handleSubscribe = (packageItem) => {
     navigate('/dashboard/parent/checkout', {
-      state: { package: packageItem },
+      state: { package: packageItem, currencyInfo },
     });
   };
   const handleResetFilters = () => {
@@ -348,6 +357,7 @@ export default function ParentPackages() {
               <ParentPackageCard
                 key={pkg.id || pkg._id}
                 packageItem={pkg}
+                currencyInfo={currencyInfo}
                 onViewDetails={handleOpenDetails}
                 onSubscribe={handleSubscribe}
               />
@@ -381,6 +391,7 @@ export default function ParentPackages() {
       <ParentPackageDetailsModal
         isOpen={isDetailsOpen}
         packageItem={activeModalPackage}
+        currencyInfo={currencyInfo}
         onClose={handleCloseDetails}
         onSubscribe={handleSubscribe}
       />

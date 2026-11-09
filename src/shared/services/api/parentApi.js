@@ -27,8 +27,8 @@ function setCachedDashboard(data) {
 
 function formatChildRecord(child, index = 0) {
   const id = String(child.student_id || child.user_id || child.id || child._id || `child-${index}`);
-  const totalClasses = Number(child.sessionsBalance?.total || child.totalClasses || 20);
-  const usedClasses = Number(child.sessionsBalance?.used || child.usedClasses || 6);
+  const totalClasses = Number(child.sessionsBalance?.total || child.totalClasses || 0);
+  const usedClasses = Number(child.sessionsBalance?.used || child.usedClasses || 0);
   const remainingClasses = child.sessionsBalance?.remaining !== undefined
     ? Number(child.sessionsBalance.remaining)
     : Math.max(0, totalClasses - usedClasses);
@@ -37,14 +37,14 @@ function formatChildRecord(child, index = 0) {
   const primarySubject = groupsList.length > 0
     ? groupsList[0]
     : (typeof child.subject === 'object' && child.subject !== null
-        ? (child.subject.ar || child.subject.en || child.subject.name || 'القرآن الكريم واللغة العربية')
-        : String(child.subject || 'القرآن الكريم واللغة العربية'));
+        ? (child.subject.ar || child.subject.en || child.subject.name || '')
+        : String(child.subject || ''));
   const studentLevel = typeof child.studentLevel === 'object' && child.studentLevel !== null
-    ? (child.studentLevel.ar || child.studentLevel.en || child.studentLevel.name || 'متوسط')
-    : String(child.studentLevel || 'متوسط');
+    ? (child.studentLevel.ar || child.studentLevel.en || child.studentLevel.name || '')
+    : String(child.studentLevel || '');
   const name = typeof child.name === 'object' && child.name !== null
-    ? (child.name.ar || child.name.en || 'ابن')
-    : String(child.name || 'ابن');
+    ? (child.name.ar || child.name.en || '')
+    : String(child.name || '');
   return {
     ...child,
     id,
@@ -60,13 +60,11 @@ function formatChildRecord(child, index = 0) {
     groupsNames: groupsList,
     subject: primarySubject,
     studentLevel,
-    attendanceRate: child.attendanceRate !== undefined ? Number(child.attendanceRate) : 94,
-    averageRating: child.averageRating !== undefined ? Number(child.averageRating) : 4.9,
-    totalEvaluations: child.totalEvaluations !== undefined ? Number(child.totalEvaluations) : 8,
-    sessionsBalance: typeof child.sessionsBalance === 'object' && child.sessionsBalance !== null
-      ? { total: totalClasses, used: usedClasses, remaining: remainingClasses }
-      : { total: totalClasses, used: usedClasses, remaining: remainingClasses },
-    totalClasses: totalClasses > 0 ? totalClasses : 1,
+    attendanceRate: child.attendanceRate !== undefined ? Number(child.attendanceRate) : 0,
+    averageRating: child.averageRating !== undefined ? Number(child.averageRating) : 0,
+    totalEvaluations: child.totalEvaluations !== undefined ? Number(child.totalEvaluations) : 0,
+    sessionsBalance: { total: totalClasses, used: usedClasses, remaining: remainingClasses },
+    totalClasses,
     usedClasses,
     remainingClasses,
     lastSubscription: typeof child.lastSubscription === 'object' && child.lastSubscription !== null ? child.lastSubscription : null,
@@ -75,10 +73,24 @@ function formatChildRecord(child, index = 0) {
     completedHomework: child.completedHomework !== undefined ? Number(child.completedHomework) : 0,
     pendingHomework: child.pendingHomework !== undefined ? Number(child.pendingHomework) : 0,
     sessionTransactions: Array.isArray(child.sessionTransactions) ? child.sessionTransactions : [],
-    joinDate: typeof child.joinDate === 'object' ? '2026-01-15' : String(child.joinDate || '2026-01-15'),
+    joinDate: child.joinDate ? (typeof child.joinDate === 'object' ? '' : String(child.joinDate)) : '',
     statusColor: remainingClasses > 5 ? 'bg-emerald-500' : remainingClasses > 0 ? 'bg-amber-500' : 'bg-red-500',
     textColor: remainingClasses > 5 ? 'text-emerald-500' : remainingClasses > 0 ? 'text-amber-500' : 'text-red-500'
   };
+}
+
+function extractSessionGroupName(s) {
+  if (!s) return '';
+  const raw = s.group ?? s.groupName ?? s.groupId ?? s.subject ?? s.subjectName ?? s.course;
+  if (!raw) return '';
+  if (typeof raw === 'string') return raw.trim();
+  if (typeof raw === 'object') {
+    if (typeof raw.name === 'object' && raw.name !== null) {
+      return raw.name.ar || raw.name.en || '';
+    }
+    return raw.name || raw.ar || raw.title || raw.en || '';
+  }
+  return String(raw).trim();
 }
 
 export const parentApi = {
@@ -87,73 +99,39 @@ export const parentApi = {
       const response = await api.get('/api/v1/parent/dashboard', { skipGlobalErrorToast: true });
       const payload = response.data?.data || response.data;
       if (payload) {
+        if (Array.isArray(payload.children)) {
+          payload.children = payload.children.map((child, idx) => formatChildRecord(child, idx));
+        }
         setCachedDashboard(payload);
         return { success: true, data: payload };
       }
-    } catch (err) { void err; }
+    } catch (err) {
+      const cached = getCachedDashboard();
+      if (cached) {
+        return { success: true, data: cached };
+      }
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch dashboard'
+      };
+    }
     const cached = getCachedDashboard();
     if (cached) {
       return { success: true, data: cached };
     }
-    const defaultData = {
-      statistics: {
-        totalChildren: 2,
-        attendanceRate: 47,
-        averageRating: 4.9,
-        completedHomework: '4/8',
-        homeworkStats: { completed: 4, total: 8, text: '4/8' }
-      },
-      children: [
-        formatChildRecord({
-          user_id: '6ad23867c4bb08f9bf5d6641',
-          student_id: '6ad2386ac4bb08f9bf5d6642',
-          name: 'سارة محمد علي',
-          image: null,
-          groups: ['مجموعة مهارات العلوم المتكاملة', 'مجموعة اللغة الإنجليزية والمحادثة المتقدمة'],
-          studentLevel: 'متوسط',
-          attendanceRate: 94,
-          averageRating: 4.9,
-          totalEvaluations: 8,
-          sessionsBalance: { total: 20, used: 6, remaining: 14 }
-        }, 0),
-        formatChildRecord({
-          user_id: '6adcc166a289fbac8a0776ec',
-          student_id: '6adcc166a289fbac8a0776f0',
-          name: 'حمزة محمد الصاوي',
-          image: null,
-          groups: ['مجموعة نوابغ الرياضيات (الصف السادس)'],
-          studentLevel: 'متوسط',
-          attendanceRate: 0,
-          averageRating: 4.9,
-          totalEvaluations: 9,
-          sessionsBalance: { total: 12, used: 2, remaining: 10 }
-        }, 1)
-      ],
-      upcomingSessions: [
-        {
-          id: '6ae66569fef631c65d8b1d70',
-          group: 'مجموعة مهارات العلوم المتكاملة',
-          teacher: 'مريم مصطفى رضوان',
-          student: 'سارة محمد علي',
-          canJoinNow: false,
-          date: '2026-11-02',
-          day: 'الإثنين',
-          durationTime: 90,
-          endTime: '19:30',
-          sessionNumber: 9,
-          startTime: '18:00',
-          status: 'مجدولة',
-          timeRange: '6 م - 7:30 م',
-          title: 'الحصة رقم 9',
-          type: 'عادية'
-        }
-      ]
-    };
-    return { success: true, data: defaultData };
+    return { success: false, data: null };
   },
   fetchDashboardStats: async () => {
-    const dashRes = await parentApi.fetchDashboard();
-    return { success: true, data: dashRes?.data?.statistics || null };
+    try {
+      const dashRes = await parentApi.fetchDashboard();
+      if (dashRes?.success && dashRes.data?.statistics) {
+        return { success: true, data: dashRes.data.statistics };
+      }
+      return { success: false, data: null };
+    } catch (err) {
+      return { success: false, data: null, message: err?.message };
+    }
   },
   fetchStudents: async (params = {}) => {
     try {
@@ -161,54 +139,23 @@ export const parentApi = {
       const rawList = Array.isArray(response.data?.data)
         ? response.data.data
         : (Array.isArray(response.data) ? response.data : []);
-      if (rawList.length > 0) {
-        const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
-        return { success: true, data: formatted };
-      }
-    } catch (err) { void err; }
-    try {
-      const dashRes = await parentApi.fetchDashboard();
-      const rawList = Array.isArray(dashRes?.data?.children) ? dashRes.data.children : [];
-      if (rawList.length > 0) {
-        const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
-        return { success: true, data: formatted };
-      }
-    } catch (err) { void err; }
-    const defaultStudents = [
-      formatChildRecord({
-        user_id: '6ad23867c4bb08f9bf5d6641',
-        student_id: '6ad2386ac4bb08f9bf5d6642',
-        name: 'Sarah Mohamed Ali',
-        image: null,
-        groups: [
-          'Advanced English & Conversation Group',
-          'Science & Nature Discovery Group',
-          'Quran Pioneers Group',
-          'Modern Physics Academy - Grade 10',
-          'Biology & Simplified Medical Science',
-          'Advanced Math & Olympiad Problem Solving',
-          'Integrated Science Skills Group'
-        ],
-        studentLevel: 'Middle',
-        attendanceRate: 91,
-        averageRating: 4.9,
-        totalEvaluations: 8,
-        sessionsBalance: { total: 19, used: 7, remaining: 12 }
-      }, 0),
-      formatChildRecord({
-        user_id: '6adcc166a289fbac8a0776ec',
-        student_id: '6adcc166a289fbac8a0776f0',
-        name: 'Hamza Mohamed El-Sawy',
-        image: null,
-        groups: ['Math Geniuses Group (Grade 6)'],
-        studentLevel: 'Middle',
-        attendanceRate: 0,
-        averageRating: 4.9,
-        totalEvaluations: 9,
-        sessionsBalance: { total: 12, used: 2, remaining: 10 }
-      }, 1)
-    ];
-    return { success: true, data: defaultStudents };
+      const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
+      return { success: true, data: formatted };
+    } catch (err) {
+      try {
+        const dashRes = await parentApi.fetchDashboard();
+        const rawList = Array.isArray(dashRes?.data?.children) ? dashRes.data.children : [];
+        if (rawList.length > 0) {
+          const formatted = rawList.map((child, idx) => formatChildRecord(child, idx));
+          return { success: true, data: formatted };
+        }
+      } catch (dashErr) { void dashErr; }
+      return {
+        success: false,
+        data: [],
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch students'
+      };
+    }
   },
   fetchChildren: async () => {
     return parentApi.fetchStudents();
@@ -227,12 +174,14 @@ export const parentApi = {
         }
       }
     } catch (err) { void err; }
-    const childrenRes = await parentApi.fetchChildren();
-    const list = childrenRes?.data || [];
-    const matched = list.find((c) => String(c.id) === String(id) || String(c.student_id) === String(id) || String(c.user_id) === String(id));
-    if (matched) {
-      return { success: true, data: formatChildRecord(matched) };
-    }
+    try {
+      const childrenRes = await parentApi.fetchChildren();
+      const list = childrenRes?.data || [];
+      const matched = list.find((c) => String(c.id) === String(id) || String(c.student_id) === String(id) || String(c.user_id) === String(id));
+      if (matched) {
+        return { success: true, data: formatChildRecord(matched) };
+      }
+    } catch (fallbackErr) { void fallbackErr; }
     return { success: false, data: null };
   },
   fetchStudentById: async (id) => {
@@ -242,20 +191,20 @@ export const parentApi = {
     try {
       const response = await api.get('/api/v1/teachers/public', { params: { limit: 50 }, skipGlobalErrorToast: true });
       const items = response.data?.data || (Array.isArray(response.data) ? response.data : []);
-      if (Array.isArray(items) && items.length > 0) {
-        return { success: true, data: items };
-      }
-    } catch (err) { void err; }
-    const defaultTeachers = [
-      { id: 't1', name: 'مريم مصطفى رضوان', nameEn: 'Maryam Mostafa Radwan', avatar: 'م' },
-      { id: 't2', name: 'الشيخ أحمد منصور', nameEn: 'Sheikh Ahmed Mansour', avatar: 'أ' }
-    ];
-    return { success: true, data: defaultTeachers };
+      return { success: true, data: Array.isArray(items) ? items : [] };
+    } catch (err) {
+      return {
+        success: false,
+        data: [],
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch teachers'
+      };
+    }
   },
   fetchStudentEvaluations: async (params = {}) => {
     const cleanParams = {};
-    if (params.studentId && params.studentId !== 'all') {
-      cleanParams.studentId = params.studentId;
+    const student = params.student || params.studentId;
+    if (student && student !== 'all') {
+      cleanParams.student = student;
     }
     if (params.page) cleanParams.page = params.page;
     if (params.limit) cleanParams.limit = params.limit;
@@ -266,59 +215,31 @@ export const parentApi = {
       });
       const payload = response.data;
       const list = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
-      if (Array.isArray(list)) {
-        return {
-          success: true,
-          data: list,
-          totalEvaluations: payload?.totalEvaluations ?? list.length,
-          averageRating: payload?.averageRating !== undefined ? Number(payload.averageRating) : 4.4,
-          pagination: payload?.pagination || {
-            currentPage: Number(cleanParams.page || 1),
-            limit: Number(cleanParams.limit || 20),
-            numberOfPages: Math.max(1, Math.ceil((payload?.totalEvaluations ?? list.length) / Number(cleanParams.limit || 20)))
-          }
-        };
-      }
-    } catch (err) { void err; }
-    const fallbackList = [
-      {
-        id: '6addf1b7d6009ba999219945',
-        rating: 5,
-        notes: 'تطور كبير في الطلاقة والثقة بالنفس أثناء التحدث، إجابات متميزة في اختبار المحاكاة.',
-        createdAt: '2026-10-10T10:00:00.000Z',
-        updatedAt: '2026-10-10T10:00:00.000Z',
-        studentData: {
-          id: '6ad23860c4bb08f9bf5d6639',
-          name: 'زياد أحمد محمود',
-          image: null
-        },
-        teacherData: {
-          id: '6a9f5f9fb8eb6cb7ba5502f7',
-          name: 'مريم مصطفى رضوان',
-          image: null
-        },
-        sessionData: {
-          id: '6ad8d4002bfdb3fa47e14589',
-          title: 'الحصة رقم 2: مراجعة وشرح تفاعلي',
-          date: '2026-10-09',
-          status: 'completed'
+      return {
+        success: true,
+        data: list,
+        totalEvaluations: payload?.totalEvaluations ?? list.length,
+        averageRating: payload?.averageRating !== undefined ? Number(payload.averageRating) : 0,
+        pagination: payload?.pagination || {
+          currentPage: Number(cleanParams.page || 1),
+          limit: Number(cleanParams.limit || 20),
+          numberOfPages: Math.max(1, Math.ceil((payload?.totalEvaluations ?? list.length) / Number(cleanParams.limit || 20)))
         }
-      }
-    ];
-    const filtered = cleanParams.studentId
-      ? fallbackList.filter(item => String(item.studentData?.id) === String(cleanParams.studentId))
-      : fallbackList;
-    return {
-      success: true,
-      data: filtered,
-      totalEvaluations: filtered.length,
-      averageRating: 4.4,
-      pagination: {
-        currentPage: 1,
-        limit: 20,
-        numberOfPages: 1
-      }
-    };
+      };
+    } catch (err) {
+      return {
+        success: false,
+        data: [],
+        totalEvaluations: 0,
+        averageRating: 0,
+        pagination: {
+          currentPage: Number(cleanParams.page || 1),
+          limit: Number(cleanParams.limit || 20),
+          numberOfPages: 1
+        },
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch evaluations'
+      };
+    }
   },
   fetchPastRatings: async (params = {}) => {
     return parentApi.fetchStudentEvaluations(params);
@@ -327,8 +248,11 @@ export const parentApi = {
     try {
       const response = await api.post('/api/v1/parent/ratings', data, { skipGlobalErrorToast: true });
       return { success: true, data: response.data };
-    } catch {
-      return { success: true, data: { message: 'تم إرسال التقييم بنجاح' } };
+    } catch (err) {
+      return {
+        success: false,
+        message: err?.response?.data?.message || err?.message || 'Failed to submit rating'
+      };
     }
   },
   fetchHomeworkList: async (filter = 'all', params = {}) => {
@@ -343,8 +267,9 @@ export const parentApi = {
       endpoint = '/api/v1/parent/homework/overdue';
     }
     const cleanParams = {};
-    if (params.studentId && params.studentId !== 'all') {
-      cleanParams.studentId = params.studentId;
+    const student = params.student || params.studentId;
+    if (student && student !== 'all') {
+      cleanParams.student = student;
     }
     if (params.page) cleanParams.page = params.page;
     if (params.limit) cleanParams.limit = params.limit;
@@ -355,44 +280,27 @@ export const parentApi = {
       });
       const payload = response.data;
       const list = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
-      if (Array.isArray(list)) {
-        return {
-          success: true,
-          data: list,
-          pagination: payload?.pagination || {
-            currentPage: Number(cleanParams.page || 1),
-            limit: Number(cleanParams.limit || 20),
-            numberOfPages: Math.max(1, Math.ceil(list.length / Number(cleanParams.limit || 20)))
-          }
-        };
-      }
-    } catch (err) { void err; }
-    const fallbackList = [
-      {
-        id: '6ade37c558d405558e55647d',
-        homework: 'واجب سورة البقرة وتجويد النون',
-        student: 'زياد أحمد محمود',
-        group: 'مجموعة الفرقان لتحفيظ القرآن (أ)',
-        teacher: 'أحمد منصور',
-        submissionStatus: 'تم التسليم',
-        evaluationStatus: 'تم التقييم',
-        grade: 95,
-        teacherNotes: 'إجابات نموذجية وممتازة',
-        submittedAt: '2026-10-12T14:00:00.000Z',
-        deadline: '2026-10-22T21:32:14.294Z',
-        media: null,
-        document: null
-      }
-    ];
-    return {
-      success: true,
-      data: fallbackList,
-      pagination: {
-        currentPage: 1,
-        limit: 20,
-        numberOfPages: 1
-      }
-    };
+      return {
+        success: true,
+        data: list,
+        pagination: payload?.pagination || {
+          currentPage: Number(cleanParams.page || 1),
+          limit: Number(cleanParams.limit || 20),
+          numberOfPages: Math.max(1, Math.ceil(list.length / Number(cleanParams.limit || 20)))
+        }
+      };
+    } catch (err) {
+      return {
+        success: false,
+        data: [],
+        pagination: {
+          currentPage: Number(cleanParams.page || 1),
+          limit: Number(cleanParams.limit || 20),
+          numberOfPages: 1
+        },
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch homework list'
+      };
+    }
   },
   fetchHomeworkSubmission: async (submissionId) => {
     try {
@@ -403,42 +311,14 @@ export const parentApi = {
       if (item && typeof item === 'object') {
         return { success: true, data: item };
       }
-    } catch (err) { void err; }
-    const defaultSubmission = {
-      id: submissionId,
-      homeworkId: '6ada8de9537a23121d5432dc',
-      homework: 'واجب سورة البقرة وتجويد النون',
-      description: 'حفظ ومراجعة الآيات من 1 إلى 20 وحل الأسئلة المرفقة',
-      canSubmit: false,
-      questions: [
-        {
-          id: '6ada8de9537a23121d5432da',
-          type: 'multiple_choice',
-          questionText: 'ما هو حكم النون الساكنة في (مَن يَقُولُ)؟',
-          options: [
-            'إدغام بغنة',
-            'إظهار حلقي',
-            'إقلاب'
-          ],
-          points: 5
-        }
-      ],
-      answers: [],
-      textAnswer: null,
-      attachments: [],
-      student: 'زياد أحمد محمود',
-      group: 'مجموعة الفرقان لتحفيظ القرآن (أ)',
-      teacher: 'أحمد منصور',
-      submissionStatus: 'تم التسليم',
-      evaluationStatus: 'تم التقييم',
-      grade: 95,
-      teacherNotes: 'إجابات نموذجية وممتازة',
-      media: null,
-      document: null,
-      submittedAt: '2026-10-12T14:00:00.000Z',
-      deadline: '2026-10-22T21:32:14.294Z'
-    };
-    return { success: true, data: defaultSubmission };
+      return { success: false, data: null };
+    } catch (err) {
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch homework submission'
+      };
+    }
   },
   fetchAssignments: async (params = {}) => {
     return parentApi.fetchHomeworkList('all', params);
@@ -447,191 +327,102 @@ export const parentApi = {
     try {
       const response = await api.get('/api/v1/parent/reports', { params, skipGlobalErrorToast: true });
       const item = response.data?.data || response.data;
-      if (item) {
-        return { success: true, data: item };
-      }
-    } catch (err) { void err; }
-    const defaultReport = {
-      attendanceRate: 94,
-      averageRating: 4.9,
-      homeworkCompleted: 4,
-      homeworkTotal: 8,
-      sessionsRemaining: 14,
-      sessionsTotal: 20,
-      strengths: ['الالتزام الكامل بمواعيد الحصص', 'سرعة الاستيعاب والمشاركة النشطة', 'التفوق في التطبيقات العملية'],
-      improvements: ['الاستمرار في مراجعة المفردات والتمارين الأسبوعية'],
-      recentEvaluations: [
-        { id: 1, subject: 'مهارات العلوم المتكاملة', score: 95, date: '2026-11-01', teacher: 'مريم مصطفى رضوان', notes: 'أداء ممتاز وتفاعل متميز' },
-        { id: 2, subject: 'اللغة الإنجليزية والمحادثة', score: 92, date: '2026-10-28', teacher: 'مريم مصطفى رضوان', notes: 'إتقان ملحوظ للنطق وحفظ المصطلحات' }
-      ]
-    };
-    return { success: true, data: defaultReport };
+      return { success: true, data: item || null };
+    } catch (err) {
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch reports'
+      };
+    }
   },
   fetchTimetable: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/parent/timetable', { params, skipGlobalErrorToast: true });
       const payload = response.data?.data || response.data;
-      if (payload) {
-        return { success: true, data: payload };
-      }
-    } catch (err) { void err; }
-    const dashRes = await parentApi.fetchDashboard();
-    const sessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
-    const defaultTimetable = {
-      weekInfo: {
-        startDate: '2026-10-25',
-        endDate: '2026-10-31',
-        formattedRange: 'من تاريخ 25/10/2026 الي تاريخ 31/10/2026',
-        isCurrentWeek: true,
-        weekLabel: 'الأسبوع الحالي',
-        previousWeekDate: '2026-10-18',
-        nextWeekDate: '2026-11-01',
-        currentWeekDate: '2026-10-26',
-        totalSessions: sessions.length > 0 ? sessions.length : 1
-      },
-      days: [
-        {
-          day: 'الأحد',
-          date: '2026-10-25',
-          formattedDate: '25/10/2026',
-          sessionsCount: sessions.length > 0 ? sessions.length : 1,
-          sessions: sessions.length > 0 ? sessions.map((s, idx) => ({
-            id: s.id || `session-${idx}`,
-            sessionNumber: s.sessionNumber || idx + 1,
-            title: s.title || `الحصة رقم ${s.sessionNumber || idx + 1}`,
-            group: s.group || 'مجموعة عباقرة الرياضيات',
-            teacher: s.teacher || 'أحمد منصور',
-            student: s.student || 'زياد أحمد محمود',
-            date: s.date || '2026-10-25',
-            formattedDate: '25/10/2026',
-            day: s.day || 'الأحد',
-            startTime: s.startTime || '15:00',
-            endTime: s.endTime || '16:30',
-            timeRange: s.timeRange || '3 م - 4:30 م',
-            durationMinutes: s.durationTime || 90,
-            type: s.type || 'عادية',
-            status: s.status || 'مجدولة',
-            color: s.color || 'teal',
-            canJoinNow: Boolean(s.canJoinNow)
-          })) : [
-            {
-              id: '6add1d6adabe4163ab1482b4',
-              sessionNumber: 20,
-              title: 'الحصة رقم 20',
-              group: 'مجموعة عباقرة الرياضيات (الصف السادس)',
-              teacher: 'أحمد منصور',
-              student: 'زياد أحمد محمود',
-              date: '2026-10-25',
-              formattedDate: '25/10/2026',
-              day: 'الأحد',
-              startTime: '15:00',
-              endTime: '16:30',
-              timeRange: '3 م - 4:30 م',
-              durationMinutes: 90,
-              type: 'عادية',
-              status: 'ملغاة',
-              color: 'red',
-              canJoinNow: false
-            }
-          ]
-        }
-      ]
-    };
-    return { success: true, data: defaultTimetable };
+      return { success: true, data: payload || null };
+    } catch (err) {
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch timetable'
+      };
+    }
   },
   fetchSchedules: async (params = {}) => {
-    const timetableRes = await parentApi.fetchTimetable(params);
-    if (timetableRes?.success && timetableRes.data) {
-      return timetableRes;
+    try {
+      const timetableRes = await parentApi.fetchTimetable(params);
+      if (timetableRes?.success && timetableRes.data) {
+        if (Array.isArray(timetableRes.data)) {
+          return { success: true, data: timetableRes.data };
+        }
+        if (Array.isArray(timetableRes.data?.days)) {
+          const flattened = [];
+          timetableRes.data.days.forEach((d) => {
+            if (Array.isArray(d.sessions)) {
+              d.sessions.forEach((s) => {
+                flattened.push({ ...s, date: s.date || d.date, day: s.day || d.day });
+              });
+            }
+          });
+          return { success: true, data: flattened };
+        }
+        return { success: true, data: [] };
+      }
+      return { success: false, data: [] };
+    } catch {
+      return { success: false, data: [] };
     }
-    return { success: false, data: null };
   },
   fetchAttendance: async (studentIdOrParams, queryParams = {}) => {
     let studentId = '';
-    let params = {};
+    let targetMonth = null;
     if (typeof studentIdOrParams === 'object' && studentIdOrParams !== null) {
       studentId = studentIdOrParams.studentId || studentIdOrParams.id || studentIdOrParams.student;
-      params = { ...studentIdOrParams };
-      delete params.studentId;
-      delete params.id;
-      delete params.student;
+      const rawVal = studentIdOrParams.month ?? studentIdOrParams.monthKey;
+      if (rawVal !== undefined && rawVal !== null) {
+        const rawStr = String(rawVal);
+        const parsed = rawStr.includes('-') ? Number(rawStr.split('-').pop()) : Number(rawStr);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= 12) {
+          targetMonth = parsed;
+        }
+      }
     } else if (typeof studentIdOrParams === 'string' || typeof studentIdOrParams === 'number') {
       studentId = String(studentIdOrParams);
-      params = { ...queryParams };
+      const rawVal = (typeof queryParams === 'object' && queryParams !== null) ? (queryParams.month ?? queryParams.monthKey) : queryParams;
+      if (rawVal !== undefined && rawVal !== null) {
+        const rawStr = String(rawVal);
+        const parsed = rawStr.includes('-') ? Number(rawStr.split('-').pop()) : Number(rawStr);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= 12) {
+          targetMonth = parsed;
+        }
+      }
     }
     if (!studentId) {
-      const childrenRes = await parentApi.fetchChildren();
-      const firstChild = childrenRes?.data?.[0];
-      studentId = firstChild?.student_id || firstChild?.id || '6ad23860c4bb08f9bf5d6639';
+      try {
+        const childrenRes = await parentApi.fetchChildren();
+        const firstChild = childrenRes?.data?.[0];
+        studentId = firstChild?.student_id || firstChild?.id || firstChild?.user_id;
+      } catch (err) { void err; }
+    }
+    if (!studentId) {
+      return { success: false, data: null, message: 'Student ID required' };
+    }
+    const requestConfig = { skipGlobalErrorToast: true };
+    if (targetMonth !== null) {
+      requestConfig.params = { month: targetMonth };
     }
     try {
-      const response = await api.get(`/api/v1/parent/students/${studentId}/attendance`, { params, skipGlobalErrorToast: true });
+      const response = await api.get(`/api/v1/parent/students/${studentId}/attendance`, requestConfig);
       const payload = response.data?.data || response.data;
-      if (payload) {
-        return { success: true, data: payload };
-      }
-    } catch (err) { void err; }
-    const defaultAttendance = {
-      student: {
-        id: studentId,
-        name: 'زياد أحمد محمود',
-        studentLevel: 'متوسط',
-        overallAttendanceRate: 95
-      },
-      monthInfo: {
-        year: 2026,
-        month: 10,
-        monthKey: '2026-10',
-        monthLabel: 'أكتوبر 2026',
-        startDate: '2026-10-01',
-        endDate: '2026-10-31',
-        isCurrentMonth: true,
-        previousMonth: '2026-09',
-        nextMonth: null,
-        canGoPrevious: true,
-        canGoNext: false
-      },
-      statistics: {
-        attendanceRate: 66.7,
-        attendanceRateFormatted: '66.7%',
-        totalSessions: 36,
-        attendedCount: 12,
-        absentCount: 7,
-        lateCount: 2,
-        excusedCount: 0,
-        pendingCount: 15
-      },
-      days: [
-        {
-          day: 'الخميس',
-          dayNumber: 1,
-          date: '2026-10-01',
-          formattedDate: '01/10/2026',
-          sessionsCount: 1,
-          sessions: [
-            {
-              id: '6ab56b2c0f00ffb1e5222630',
-              sessionNumber: 1,
-              title: 'حصة الرياضيات: حل المعادلات والكسور',
-              group: 'مجموعة عباقرة الرياضيات (الصف السادس)',
-              teacher: 'أحمد منصور',
-              date: '2026-10-01',
-              day: 'الخميس',
-              startTime: '21:30',
-              endTime: '22:00',
-              timeRange: '9:30 م - 10 م',
-              durationMinutes: 30,
-              sessionStatus: 'ملغاة',
-              attendanceStatus: 'غائب',
-              color: 'red',
-              notes: null,
-              excuse: null
-            }
-          ]
-        }
-      ]
-    };
-    return { success: true, data: defaultAttendance };
+      return { success: true, data: payload || null };
+    } catch (err) {
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch attendance'
+      };
+    }
   },
   fetchBadges: async () => {
     return { success: true, data: [] };
@@ -648,8 +439,14 @@ export const parentApi = {
       const raw = response.data?.data || (Array.isArray(response.data) ? response.data : []);
       const items = Array.isArray(raw) ? raw : [];
       return { success: true, data: items, length: response.data?.length ?? items.length };
-    } catch (err) { void err; }
-    return { success: true, data: [], length: 0 };
+    } catch (err) {
+      return {
+        success: false,
+        data: [],
+        length: 0,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch complaints'
+      };
+    }
   },
   fetchComplaintById: async (id) => {
     if (!id) return { success: false, data: null };
@@ -657,21 +454,31 @@ export const parentApi = {
       const response = await api.get(`/api/v1/parent/complaints-suggestions/${id}`, { skipGlobalErrorToast: true });
       const item = response.data?.data || response.data;
       return { success: true, data: item || null };
-    } catch (err) { void err; }
-    return { success: false, data: null };
+    } catch (err) {
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch complaint'
+      };
+    }
   },
   createComplaint: async (payload) => {
     try {
       let body = payload;
       let headers = undefined;
-      if (payload && !(payload instanceof FormData) && Array.isArray(payload.attachments) && payload.attachments.some(f => f instanceof File)) {
+      if (payload instanceof FormData) {
+        body = payload;
+        headers = { 'Content-Type': 'multipart/form-data' };
+      } else if (payload && typeof payload === 'object') {
         const formData = new FormData();
-        formData.append('type', payload.type || 'suggestion');
-        formData.append('title', payload.title || '');
-        formData.append('details', payload.details || '');
-        payload.attachments.forEach(file => {
-          if (file instanceof File) formData.append('attachments[]', file);
-        });
+        if (payload.type) formData.append('type', payload.type);
+        if (payload.title) formData.append('title', payload.title);
+        if (payload.details) formData.append('details', payload.details);
+        if (Array.isArray(payload.attachments)) {
+          payload.attachments.forEach((file) => {
+            if (file instanceof File) formData.append('attachments', file);
+          });
+        }
         body = formData;
         headers = { 'Content-Type': 'multipart/form-data' };
       }
@@ -685,7 +492,8 @@ export const parentApi = {
         data: response.data?.data || response.data
       };
     } catch (err) {
-      const errorMsg = err?.response?.data?.message || err?.message || 'تعذر إرسال الطلب، يرجى المحاولة لاحقاً';
+      const rawMsg = err?.response?.data?.message || err?.message;
+      const errorMsg = Array.isArray(rawMsg) ? rawMsg.join(' - ') : (rawMsg || 'تعذر إرسال الطلب، يرجى المحاولة لاحقاً');
       return {
         success: false,
         message: errorMsg,
@@ -716,43 +524,20 @@ export const parentApi = {
           totalItems: payload?.totalExcuses ?? list.length
         }
       };
-    } catch (err) { void err; }
-    const fallbackList = [
-      {
-        sessionId: '6adfd44a4cb294b1a783430c',
-        studentId: '6ab70ad53723775e5b181ce7',
-        student: 'زياد أحمد النجار',
-        group: 'مجموعة الفرقان لتحفيظ القرآن (أ)',
-        teacher: 'أحمد منصور',
-        title: 'حصة تجريبية للاعتذار',
-        date: '2026-10-30',
-        day: 'الجمعة',
-        time: {
-          start: '18:00',
-          end: '19:00'
+    } catch (err) {
+      return {
+        success: false,
+        data: [],
+        totalExcuses: 0,
+        pagination: {
+          currentPage: Number(cleanParams.page || 1),
+          totalPages: 1,
+          limit: Number(cleanParams.limit || 10),
+          totalItems: 0
         },
-        excuse: {
-          reason: 'ظرف صحي مفاجئ',
-          submittedAt: '2026-10-26T22:29:30.181Z',
-          isWithinCutoff: true,
-          status: 'معذور'
-        }
-      }
-    ];
-    const filtered = cleanParams.studentId
-      ? fallbackList.filter(e => String(e.studentId) === String(cleanParams.studentId))
-      : fallbackList;
-    return {
-      success: true,
-      data: filtered,
-      totalExcuses: filtered.length,
-      pagination: {
-        currentPage: 1,
-        totalPages: 1,
-        limit: 10,
-        totalItems: filtered.length
-      }
-    };
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch excuses'
+      };
+    }
   },
   fetchExcuseDetails: async (sessionId) => {
     if (!sessionId) return { success: false, data: null };
@@ -764,32 +549,14 @@ export const parentApi = {
       if (item && typeof item === 'object') {
         return { success: true, data: item, message: response.data?.message };
       }
-    } catch (err) { void err; }
-    const defaultDetails = {
-      sessionId,
-      studentId: '6ab70ad53723775e5b181ce7',
-      student: 'زياد أحمد النجار',
-      group: 'مجموعة الفرقان لتحفيظ القرآن (أ)',
-      teacher: 'أحمد منصور',
-      title: 'حصة تجريبية للاعتذار',
-      date: '2026-10-30',
-      day: 'الجمعة',
-      time: {
-        start: '18:00',
-        end: '19:00'
-      },
-      durationMinutes: 60,
-      sessionStatus: 'ملغاة',
-      excuse: {
-        reason: 'ظرف صحي مفاجئ',
-        notes: 'تم التواصل مع الإدارة',
-        submittedAt: '2026-10-26T22:29:30.181Z',
-        isWithinCutoff: true,
-        submittedByRole: 'ولي الأمر',
-        status: 'معذور'
-      }
-    };
-    return { success: true, data: defaultDetails };
+      return { success: false, data: null };
+    } catch (err) {
+      return {
+        success: false,
+        data: null,
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch excuse details'
+      };
+    }
   },
   createSessionExcuse: async (sessionId, payload) => {
     try {
@@ -799,9 +566,11 @@ export const parentApi = {
       }, {
         skipGlobalErrorToast: true
       });
+      const resData = response.data?.data || response.data;
+      const isSuccess = response.data?.success !== undefined ? Boolean(response.data.success) : true;
       return {
-        success: true,
-        data: response.data?.data || response.data,
+        success: isSuccess,
+        data: resData,
         message: response.data?.message || 'تم تقديم عذر الغياب بنجاح وجاري المتابعة'
       };
     } catch (err) {
@@ -824,17 +593,35 @@ export const parentApi = {
       const payload = response.data?.data || response.data;
       const allSessions = [];
       if (Array.isArray(payload?.days)) {
-        payload.days.forEach(d => {
+        payload.days.forEach((d) => {
           if (Array.isArray(d?.sessions)) {
-            allSessions.push(...d.sessions);
+            d.sessions.forEach((s) => {
+              allSessions.push({
+                ...s,
+                group: extractSessionGroupName(s) || s.group || '',
+                day: s.day || d.day || '',
+                date: s.date || d.date || '',
+                formattedDate: s.formattedDate || d.formattedDate || ''
+              });
+            });
           }
         });
       } else if (Array.isArray(payload?.sessions)) {
-        allSessions.push(...payload.sessions);
+        payload.sessions.forEach((s) => {
+          allSessions.push({
+            ...s,
+            group: extractSessionGroupName(s) || s.group || ''
+          });
+        });
       } else if (Array.isArray(payload)) {
-        allSessions.push(...payload);
+        payload.forEach((s) => {
+          allSessions.push({
+            ...s,
+            group: extractSessionGroupName(s) || s.group || ''
+          });
+        });
       }
-      const eligible = allSessions.filter(s => {
+      const eligible = allSessions.filter((s) => {
         const st = String(s.status || '').toLowerCase();
         return st === 'scheduled' || st === 'rescheduled' || st.includes('مجدول') || st.includes('قادم');
       });
@@ -842,14 +629,22 @@ export const parentApi = {
         return { success: true, data: eligible };
       }
     } catch (err) { void err; }
-    const dashRes = await parentApi.fetchDashboard();
-    const upSessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
-    const matched = upSessions.filter(s => {
-      const st = String(s.status || '').toLowerCase();
-      const isStatusOk = st === 'scheduled' || st === 'rescheduled' || st.includes('مجدول') || st.includes('عادية');
-      return isStatusOk;
-    });
-    return { success: true, data: matched };
+    try {
+      const dashRes = await parentApi.fetchDashboard();
+      const upSessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
+      const matched = upSessions.filter((s) => {
+        const matchesStudent = !s.studentId || String(s.studentId) === String(studentId) || !s.student || String(s.student) === String(studentId);
+        const st = String(s.status || '').toLowerCase();
+        const isStatusOk = st === 'scheduled' || st === 'rescheduled' || st.includes('مجدول') || st.includes('عادية');
+        return matchesStudent && isStatusOk;
+      }).map((s) => ({
+        ...s,
+        group: extractSessionGroupName(s) || s.group || ''
+      }));
+      return { success: true, data: matched };
+    } catch {
+      return { success: true, data: [] };
+    }
   },
   fetchPackages: async (params = {}) => {
     const response = await api.get('/api/v1/parent/packages', { params, skipLang: true });
@@ -880,13 +675,13 @@ export const parentApi = {
   },
   fetchTrialSessionsAndEligibility: async () => {
     const response = await api.get('/api/v1/parent/trial-sessions', {
-      skipGlobalErrorToast: true,
+      skipGlobalErrorToast: true
     });
     return response.data;
   },
   fetchTrialCurricula: async () => {
     const response = await api.get('/api/v1/parent/trial-sessions/curricula', {
-      skipGlobalErrorToast: true,
+      skipGlobalErrorToast: true
     });
     return response.data;
   },
@@ -896,7 +691,7 @@ export const parentApi = {
   },
   fetchTrialSessionDetails: async (id) => {
     const response = await api.get(`/api/v1/parent/trial-sessions/${id}`, {
-      skipGlobalErrorToast: true,
+      skipGlobalErrorToast: true
     });
     return response.data;
   }

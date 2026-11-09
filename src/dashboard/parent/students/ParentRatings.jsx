@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Star,
@@ -165,76 +165,85 @@ export default function ParentRatings() {
       isMounted = false;
     };
   }, []);
-  const fetchStudentRatings = useCallback(async (studentId, page) => {
-    setIsLoadingStudents(true);
-    try {
-      const params = { page, limit: 10 };
-      if (studentId && studentId !== 'all') {
-        params.studentId = studentId;
-      }
-      const res = await parentApi.fetchStudentEvaluations(params);
-      const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
-      const evaluations = rawList.map((item, idx) => {
-        const id = item.id || item._id || `eval-${idx}`;
-        const rating = Number(item.rating ?? item.score ?? 5);
-        const notes = extractSafeText(item.notes || item.comment, isRtl);
-        const studentName = extractSafeText(item.studentData?.name || item.studentName || item.student, isRtl) || '-';
-        const studentImage = typeof item.studentData?.image === 'string' && item.studentData.image.trim() ? item.studentData.image : null;
-        const teacherName = extractSafeText(item.teacherData?.name || item.teacherName || item.teacher, isRtl) || '-';
-        const teacherImage = typeof item.teacherData?.image === 'string' && item.teacherData.image.trim() ? item.teacherData.image : null;
-        const sessionTitle = extractSafeText(item.sessionData?.title || item.subject || item.title, isRtl) || t('parent.ratings.sessionDefault', 'حصة تفاعلية');
-        const sessionDate = item.sessionData?.date || item.date || item.createdAt?.slice(0, 10) || '-';
-        const sessionStatus = item.sessionData?.status || 'completed';
-        const meta = getRatingMeta(rating, t);
-        return {
-          id,
-          rating,
-          notes,
-          studentName,
-          studentImage,
-          teacherName,
-          teacherImage,
-          sessionTitle,
-          sessionDate,
-          sessionStatus,
-          label: meta.label,
-          badgeClass: meta.badgeClass,
-        };
-      });
-      const totalCount = res?.totalEvaluations ?? evaluations.length;
-      const averageRating = res?.averageRating !== undefined
-        ? Number(res.averageRating)
-        : (evaluations.length > 0 ? evaluations.reduce((acc, e) => acc + e.rating, 0) / evaluations.length : 0);
-      const excellentCount = evaluations.filter((e) => e.rating >= 4.5).length;
-      setStudentRatingsData({
-        evaluations,
-        stats: {
-          average: averageRating,
-          count: totalCount,
-          excellent: excellentCount,
-        },
-        pagination: res?.pagination || {
-          currentPage: page,
-          limit: 10,
-          numberOfPages: Math.max(1, Math.ceil(totalCount / 10)),
-        },
-      });
-    } catch (err) {
-      console.error('Failed to fetch student evaluations', err);
-      setStudentRatingsData({
-        evaluations: [],
-        stats: { average: 0, count: 0, excellent: 0 },
-        pagination: { currentPage: 1, limit: 10, numberOfPages: 1 },
-      });
-    } finally {
-      setIsLoadingStudents(false);
-    }
-  }, [t, isRtl]);
   useEffect(() => {
-    if (activeTab === 'students') {
-      fetchStudentRatings(selectedStudent, currentStudentPage);
+    if (activeTab !== 'students') return;
+    let isMounted = true;
+    async function loadRatings() {
+      setIsLoadingStudents(true);
+      try {
+        const params = { page: currentStudentPage, limit: 10 };
+        if (selectedStudent && selectedStudent !== 'all') {
+          params.student = selectedStudent;
+        }
+        const res = await parentApi.fetchStudentEvaluations(params);
+        if (isMounted) {
+          const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
+          const evaluations = rawList.map((item, idx) => {
+            const id = item.id || item._id || `eval-${idx}`;
+            const rating = Number(item.rating ?? item.score ?? 5);
+            const notes = extractSafeText(item.notes || item.comment, isRtl);
+            const studentName = extractSafeText(item.studentData?.name || item.studentName || item.student, isRtl) || '-';
+            const studentImage = typeof item.studentData?.image === 'string' && item.studentData.image.trim() ? item.studentData.image : null;
+            const teacherName = extractSafeText(item.teacherData?.name || item.teacherName || item.teacher, isRtl) || '-';
+            const teacherImage = typeof item.teacherData?.image === 'string' && item.teacherData.image.trim() ? item.teacherData.image : null;
+            const sessionTitle = extractSafeText(item.sessionData?.title || item.subject || item.title, isRtl) || t('parent.ratings.sessionDefault', 'حصة تفاعلية');
+            const sessionDate = item.sessionData?.date || item.date || item.createdAt?.slice(0, 10) || '-';
+            const sessionStatus = item.sessionData?.status || 'completed';
+            const meta = getRatingMeta(rating, t);
+            return {
+              id,
+              rating,
+              notes,
+              studentName,
+              studentImage,
+              teacherName,
+              teacherImage,
+              sessionTitle,
+              sessionDate,
+              sessionStatus,
+              label: meta.label,
+              badgeClass: meta.badgeClass,
+            };
+          });
+          const totalCount = res?.totalEvaluations ?? evaluations.length;
+          const averageRating = res?.averageRating !== undefined
+            ? Number(res.averageRating)
+            : (evaluations.length > 0 ? evaluations.reduce((acc, e) => acc + e.rating, 0) / evaluations.length : 0);
+          const excellentCount = evaluations.filter((e) => e.rating >= 4.5).length;
+          setStudentRatingsData({
+            evaluations,
+            stats: {
+              average: averageRating,
+              count: totalCount,
+              excellent: excellentCount,
+            },
+            pagination: res?.pagination || {
+              currentPage: currentStudentPage,
+              limit: 10,
+              numberOfPages: Math.max(1, Math.ceil(totalCount / 10)),
+            },
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to fetch student evaluations', err);
+          setStudentRatingsData({
+            evaluations: [],
+            stats: { average: 0, count: 0, excellent: 0 },
+            pagination: { currentPage: 1, limit: 10, numberOfPages: 1 },
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingStudents(false);
+        }
+      }
     }
-  }, [activeTab, fetchStudentRatings, selectedStudent, currentStudentPage]);
+    loadRatings();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab, selectedStudent, currentStudentPage, t, isRtl]);
   const handleOpenEvaluateModal = (teacher) => {
     setSelectedTeacherForEval(teacher);
     setIsEvalModalOpen(true);

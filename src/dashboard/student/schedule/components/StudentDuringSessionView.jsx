@@ -51,15 +51,20 @@ export default React.memo(function StudentDuringSessionView({
   const sessionTitle = resolveName(session?.title, isRtl) || session?.className || t('studentDashboard.live.nextSessionTitle', 'الحصة المباشرة');
   const studentName = (() => {
     if (!user) return 'الطالب';
-    if (typeof user.name === 'object' && user.name !== null) {
-      return (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar) || 'الطالب';
+    const isSpecialRole = user.role === 'Admin' || user.role === 'super_admin' || user.role === 'Manager';
+    const rawName = (typeof user.name === 'object' && user.name !== null)
+      ? (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar)
+      : (user.name || user.fullName);
+    if (isSpecialRole) {
+      const roleLabel = isRtl ? '(إدارة)' : '(Admin)';
+      return `${rawName || 'Admin'} ${roleLabel}`;
     }
-    return user.name || user.fullName || 'الطالب';
+    return rawName || 'الطالب';
   })();
   const studentEmail = user?.email || '';
   return (
-    <div className="space-y-4 max-w-6xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
-      <header className="bg-white dark:bg-slate-900 rounded-[28px] px-5 py-4 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="h-full flex-1 min-h-0 flex flex-col space-y-3 max-w-6xl w-full mx-auto overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+      <header className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl px-4 py-2.5 sm:px-5 sm:py-3 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0">
         <div className="text-start space-y-1">
           <div className="flex items-center gap-2 text-xs font-bold text-[#00594C] dark:text-emerald-400">
             <Users size={14} className="shrink-0" />
@@ -104,7 +109,7 @@ export default React.memo(function StudentDuringSessionView({
         userName={studentName}
         userEmail={joinData?.userEmail || studentEmail || user?.email || import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com'}
         sessionTitle={sessionTitle}
-        className="w-full"
+        className="w-full flex-1 min-h-0 h-full overflow-hidden"
         onRefreshJoinData={onRefreshJoinData}
         isRefreshing={isRefreshing}
       />

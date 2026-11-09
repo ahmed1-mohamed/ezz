@@ -89,7 +89,7 @@ export default function ParentChildren() {
     const loadEvaluations = async () => {
       setIsEvaluationsLoading(true);
       try {
-        const res = await parentApi.fetchStudentEvaluations({ studentId: activeStudentId });
+        const res = await parentApi.fetchStudentEvaluations({ student: activeStudentId });
         if (isMounted && res?.success && Array.isArray(res.data)) {
           setChildEvaluations(res.data);
         }
