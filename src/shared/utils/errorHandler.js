@@ -27,6 +27,12 @@ const TECHNICAL_LEAK_PATTERNS = [
   /network\s+error/i,
   /reference\s*error/i,
   /type\s*error/i,
+  /(\/api\/|\bapi\/v\d+|\/v\d+\/)/i,
+  /\b(cannot\s+(get|post|put|patch|delete))\b/i,
+  /\b(route|endpoint)\s+.*not\s+found\b/i,
+  /https?:\/\//i,
+  /localhost(:\d+)?/i,
+  /status\s*code\s*\d{3}/i,
 ];
 
 const toastRegistry = {
@@ -81,6 +87,19 @@ export function isServerError(errorOrMessage, options = {}) {
     if (/خطأ\s*في\s*الخادم|خطأ\s*داخلي|فشل\s*الاتصال\s*بالخادم|تعذر\s*الاتصال\s*بالخادم|خطأ\s*بالخادم|حدث\s*خطأ\s*في\s*الخادم/i.test(text)) return true;
   }
   return false;
+}
+
+export function stripEndpointAndUrls(text) {
+  if (typeof text !== 'string') return '';
+  let cleaned = text;
+  cleaned = cleaned.replace(/https?:\/\/[^\s"'`<>]+/gi, '');
+  cleaned = cleaned.replace(/\/?api\/v\d+\/[^\s"'`<>]+/gi, '');
+  cleaned = cleaned.replace(/\/?api\/[^\s"'`<>]+/gi, '');
+  cleaned = cleaned.replace(/\bCannot\s+(GET|POST|PUT|PATCH|DELETE)\s+[^\s"'`<>]+/gi, '');
+  cleaned = cleaned.replace(/\b(Route|Endpoint)\s+[^\s"'`<>]*\s*not\s+found\b/gi, '');
+  cleaned = cleaned.replace(/["'{}[\]]/g, '');
+  cleaned = cleaned.replace(/^[\s:,-]+|[\s:,-]+$/g, '').trim();
+  return cleaned;
 }
 
 export function containsTechnicalLeak(text) {
@@ -300,6 +319,28 @@ if (typeof toast !== 'undefined' && typeof toast.error === 'function' && !toast.
 }
 
 export const getApiErrorText = (err, fallback) => {
-  const msg = extractErrorMessage(err, (localStorage.getItem('appLanguage') || 'ar') === 'ar');
-  return msg || fallback;
+  const isArabic = (localStorage.getItem('appLanguage') || 'ar') === 'ar';
+  let status = null;
+  if (err && typeof err === 'object' && err !== null) {
+    status = err.response?.status ?? err.status ?? err.statusCode;
+  }
+  const sanitized = sanitizeErrorMessage(err, status, isArabic);
+  if (sanitized && !containsTechnicalLeak(sanitized)) {
+    const cleanSanitized = stripEndpointAndUrls(sanitized);
+    if (cleanSanitized && !containsTechnicalLeak(cleanSanitized)) return cleanSanitized;
+  }
+  const rawMsg = extractErrorMessage(err, isArabic);
+  const clean = stripEndpointAndUrls(rawMsg);
+  if (clean && !containsTechnicalLeak(clean)) {
+    return clean;
+  }
+  if (fallback) {
+    const cleanFallback = stripEndpointAndUrls(typeof fallback === 'string' ? fallback : '');
+    if (cleanFallback && !containsTechnicalLeak(cleanFallback)) {
+      return cleanFallback;
+    }
+  }
+  return isArabic
+    ? 'حدث خطأ أثناء تحميل البيانات، يرجى المحاولة لاحقاً'
+    : 'An error occurred while loading data. Please try again later.';
 };

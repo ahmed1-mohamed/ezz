@@ -67,12 +67,41 @@ function App() {
         }}
         containerClassName="!z-[99999999]"
         toastOptions={{
-          className: 'dark:bg-slate-800 dark:text-white pointer-events-auto',
+          duration: 3500,
+          className: 'dark:bg-slate-900 dark:text-slate-100 border border-slate-100 dark:border-slate-800 pointer-events-auto font-medium text-sm',
           style: {
             borderRadius: '16px',
-            padding: '16px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-            zIndex: 99999999
+            padding: '14px 18px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+            zIndex: 99999999,
+            backgroundColor: '#ffffff',
+            color: '#1e293b',
+          },
+          error: {
+            className: 'dark:!bg-slate-900 dark:!text-red-400 dark:!border-red-900/60 font-bold text-sm pointer-events-auto shadow-xl',
+            style: {
+              backgroundColor: '#ffffff',
+              color: '#dc2626',
+              border: '1px solid #fecaca',
+              borderInlineStart: '4px solid #ef4444',
+            },
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#ffffff',
+            },
+          },
+          success: {
+            className: 'dark:!bg-slate-900 dark:!text-emerald-400 dark:!border-emerald-900/60 font-bold text-sm pointer-events-auto shadow-xl',
+            style: {
+              backgroundColor: '#ffffff',
+              color: '#0f7a6c',
+              border: '1px solid #ccfbf1',
+              borderInlineStart: '4px solid #0f7a6c',
+            },
+            iconTheme: {
+              primary: '#0f7a6c',
+              secondary: '#ffffff',
+            },
           },
         }} 
       />

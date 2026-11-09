@@ -16,7 +16,8 @@ const getImageUrl = (imagePath) => {
 
 export default React.memo(function EducationalPrograms({ curricula: propCurricula }) {
     const { t, i18n } = useTranslation();
-    const isRtl = i18n.language === 'ar';
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar';
+    const isRtl = currentLang === 'ar';
     const reduxCurricula = useSelector((state) => state.landing?.landingData?.curricula);
     const rawCurricula = propCurricula || reduxCurricula;
     const hasDynamicData = Array.isArray(rawCurricula) && rawCurricula.length > 0;
@@ -314,7 +315,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                 </div>
                                 <div className="p-5 sm:p-6 pt-3 mt-auto">
                                     <Link
-                                        to="/curriculums"
+                                        to={`/${currentLang}/curriculums`}
                                         onClick={handleCardClick}
                                         className="block w-full"
                                     >
@@ -345,7 +346,7 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     </div>
                     <div className="flex items-center gap-3">
                         <Link
-                            to="/curriculums"
+                            to={`/${currentLang}/curriculums`}
                             className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0F7A6C] dark:text-emerald-400 hover:text-[#005F54] dark:hover:text-emerald-300 transition-colors"
                         >
                             <span>{isRtl ? 'عرض جميع المناهج' : 'View All Curricula'}</span>

@@ -28,7 +28,8 @@ export default function CountryPhoneInput({
     placeholder,
     disabled = false,
     defaultCountry = 'AE',
-    defaultDialCode = '+971'
+    defaultDialCode = '+971',
+    hideLabel = false
 }) {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language.startsWith('ar')
@@ -173,9 +174,11 @@ export default function CountryPhoneInput({
     }, [rawCountries, countryCode, defaultDialCode, defaultCountry])
     return (
         <div className="space-y-2 text-start">
-            <label className="block text-sm font-semibold text-slate-650 dark:text-slate-400 px-1">
-                {label || t('contact.form.phone', 'رقم الهاتف')}
-            </label>
+            {!hideLabel && label !== false && (
+                <label className="block text-sm font-semibold text-slate-650 dark:text-slate-400 px-1">
+                    {label || t('contact.form.phone', 'رقم الهاتف')}
+                </label>
+            )}
             <div className="flex gap-2.5 items-stretch" dir={isRtl ? 'rtl' : 'ltr'}>
                 <div className="relative country-dropdown-container shrink-0">
                     <button

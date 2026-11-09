@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   History,
@@ -57,7 +57,10 @@ export default function ChildTransactionsLog({ transactions = [] }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [isExpanded, setIsExpanded] = useState(false);
-  const list = Array.isArray(transactions) ? transactions : [];
+  const list = useMemo(() => {
+    if (!Array.isArray(transactions) || transactions.length === 0) return [];
+    return [...transactions].reverse();
+  }, [transactions]);
   if (list.length === 0) {
     return null;
   }
@@ -128,7 +131,7 @@ export default function ChildTransactionsLog({ transactions = [] }) {
                         : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
                     }`}
                   >
-                    {amount > 0 ? `+${amount}` : amount} {t('parent.childrenList.classes', 'حصة')}
+                    {amount > 0 ? `+${amount}` : amount} {t('parent.childrenList.sessionUnit', 'حصة')}
                   </span>
                   <div className="text-[11px] text-slate-400 font-semibold mt-0.5">
                     {t('parent.childrenList.balanceAfter', 'الرصيد بعد الحركة')}: <strong className="text-slate-700 dark:text-slate-200">{balanceAfter}</strong>

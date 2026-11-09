@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { MessageSquare, Search, X, ChevronRight, ChevronLeft } from 'lucide-react'
 import { messagesApi } from '@/shared/services/api/messagesApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
+import TabErrorState from '@/shared/components/TabErrorState'
 import MessagesStats from './components/MessagesStats'
 import MessageCard from './components/MessageCard'
 
@@ -113,7 +115,9 @@ export default function AdminMessages() {
       console.error('Failed to mark message as read:', err)
     }
   }
-  const errorMessage = isTabError ? (tabError?.response?.data?.message || tabError?.message || t('adminDashboard.messages.errorLoading', 'حدث خطأ أثناء تحميل الرسائل')) : null
+  const errorMessage = isTabError
+    ? getApiErrorText(tabError, t('adminDashboard.messages.errorLoading', 'حدث خطأ أثناء تحميل الرسائل'))
+    : null
   return (
     <div className="space-y-6 sm:space-y-8 animate-fadeIn p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -131,9 +135,12 @@ export default function AdminMessages() {
         </div>
       </div>
       {errorMessage && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
-          {errorMessage}
-        </div>
+        <TabErrorState
+          message={errorMessage}
+          compact
+          onRetry={() => queryClient.invalidateQueries({ queryKey: ['registrationRequestsTab'] })}
+          isRtl={isRtl}
+        />
       )}
       <MessagesStats
         statistics={statistics}

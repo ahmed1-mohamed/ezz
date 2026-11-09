@@ -17,7 +17,8 @@ const getImageUrl = (imagePath) => {
 
 export default React.memo(function Courses() {
     const { t, i18n } = useTranslation();
-    const isRtl = i18n.language?.startsWith('ar') ?? true;
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar';
+    const isRtl = currentLang === 'ar';
     const {
         data: curriculaData,
         isLoading,
@@ -79,7 +80,7 @@ export default React.memo(function Courses() {
                     ))}
                 </div>
             ) : isError ? (
-                <div className="rounded-3xl border border-red-200 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900/40 p-8 text-center space-y-3">
+                <div className="rounded-3xl border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 bg-white dark:bg-slate-900 p-8 text-center space-y-3 shadow-xs">
                     <p className="text-red-600 dark:text-red-400 font-bold">
                         {t('common.errorLoading', 'حدث خطأ أثناء تحميل البرامج')}
                     </p>
@@ -139,14 +140,14 @@ export default React.memo(function Courses() {
                             </div>
                             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                                 <Link
-                                    to="/curriculums"
+                                    to={`/${currentLang}/curriculums`}
                                     className="inline-flex items-center gap-2 text-sm font-bold text-[#00695C] dark:text-emerald-400 hover:underline cursor-pointer"
                                 >
                                     <span>{t('publicCourses.learnMore', 'تفاصيل البرنامج')}</span>
                                     <ArrowIcon className="w-4 h-4" />
                                 </Link>
                                 <Link
-                                    to="/pricing"
+                                    to={`/${currentLang}/pricing`}
                                     className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
                                 >
                                     {t('publicCourses.enrollNow', 'سجل الآن')}
@@ -173,7 +174,7 @@ export default React.memo(function Courses() {
                         </p>
                     </div>
                     <Link
-                        to="/contact"
+                        to={`/${currentLang}/contact`}
                         className="inline-flex items-center justify-center bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap cursor-pointer text-center"
                     >
                         {t('publicCourses.ctaButton', 'تواصل مع مستشار تعليمي')}

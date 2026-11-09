@@ -257,20 +257,20 @@ export default function Login() {
                         animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, x: 50, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-white font-bold border ${toast.type === 'success'
-                            ? 'bg-[#00695C] border-[#004D40] text-white'
-                            : 'bg-red-600 border-red-700 text-white'
+                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl font-bold border bg-white dark:bg-slate-900 ${toast.type === 'success'
+                            ? 'bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#00695C] text-[#00695C] dark:text-emerald-400'
+                            : 'bg-white dark:bg-slate-900 border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
                             }`}
                     >
                         {toast.type === 'success' ? (
-                            <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <span className="flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/40 rounded-full p-1.5 shrink-0 text-[#00695C] dark:text-emerald-400">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </span>
                         ) : (
-                            <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <span className="flex items-center justify-center bg-red-50 dark:bg-red-950/40 rounded-full p-1.5 shrink-0 text-red-500">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
                             </span>

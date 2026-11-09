@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Search, Calendar, ChevronLeft, ChevronRight, X, CalendarPlus } from 'lucide-react'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
+import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 import Spinner from '@/shared/components/Spinner'
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import StatCard from './components/StatCard'
 import SessionRow from './components/SessionRow'
 import AdminSessionMonitorModal from './components/AdminSessionMonitorModal'
+import CreateSessionModal from './components/CreateSessionModal'
 
 const STATUS_TABS = [
   { key: 'all', label: 'الكل' },
@@ -20,6 +22,8 @@ const STATUS_TABS = [
 export default function AdminSessions() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
+  const { hasPermission, isSuperAdmin } = useAdminPermissions()
+  const canCreate = hasPermission('sessions.create_extra') || hasPermission('sessions.write') || isSuperAdmin
   const [apiStats, setApiStats] = useState(null)
   const [sessions, setSessions] = useState([])
   const [teachers, setTeachers] = useState([])
@@ -33,6 +37,7 @@ export default function AdminSessions() {
   const [expandedRow, setExpandedRow] = useState(null)
   const [expandedPanel, setExpandedPanel] = useState(null)
   const [monitoringSession, setMonitoringSession] = useState(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const itemsPerPage = 10
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -228,13 +233,25 @@ export default function AdminSessions() {
           <Spinner />
         </div>
       )}
-      <div className="text-start">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-          {t('adminDashboard.sessions.title', 'إدارة الحصص الدراسية')}
-        </h1>
-        <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
-          {t('adminDashboard.sessions.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="text-start">
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+            {t('adminDashboard.sessions.title', 'إدارة الحصص الدراسية')}
+          </h1>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+            {t('adminDashboard.sessions.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
+          </p>
+        </div>
+        {canCreate && (
+          <button
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-[#005953] hover:bg-[#004742] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#005953]/20 transition-all cursor-pointer w-fit"
+          >
+            <CalendarPlus size={16} />
+            <span>{t('adminDashboard.sessions.createSessionBtn', 'إضافة حصة')}</span>
+          </button>
+        )}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard
@@ -389,6 +406,14 @@ export default function AdminSessions() {
         isOpen={Boolean(monitoringSession)}
         onClose={() => setMonitoringSession(null)}
       />
+      {isCreateModalOpen && (
+        <CreateSessionModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => loadSessions()}
+          isRtl={isRtl}
+        />
+      )}
     </div>
   )
 }

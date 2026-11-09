@@ -11,8 +11,6 @@ import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 
-const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
-
 function formatCurrency(amount, currency = 'ج.م') {
   const num = Number(amount || 0);
   return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
@@ -93,6 +91,17 @@ export default function ParentPaymentStatus() {
         }
         if (isCancelled) return;
         if (data) {
+          const pkgId = data.packageId || data.package?.id || data.package?._id;
+          if (pkgId && (!data.package?.sessionsCount || !data.package?.name)) {
+            try {
+              const pkgDetails = await parentPackagesApi.fetchPackageDetails(pkgId);
+              if (pkgDetails) {
+                data.package = { ...(pkgDetails || {}), ...(data.package || {}) };
+              }
+            } catch (err) {
+              console.warn('Could not fetch full package details:', err);
+            }
+          }
           setSubscriptionData(data);
           const s = String(data?.status || '').toLowerCase();
           if (s === 'paid' || s === 'active' || s === 'completed') {
@@ -139,7 +148,7 @@ export default function ParentPaymentStatus() {
     };
   }, [subscriptionId, querySubId, storedSubId, explicitStatus]);
 
-  const sub = subscriptionData || {};
+  const sub = useMemo(() => subscriptionData || {}, [subscriptionData]);
   const orderNumber =
     sub.orderNumber ||
     sub.subscriptionNumber ||
@@ -175,33 +184,81 @@ export default function ParentPaymentStatus() {
   })();
   const currencyRate = Number(currencyInfo?.exchangeRate || 1);
   const currency = currencyInfo?.symbol || 'ج.م';
-  const rawBasePrice = Number(sub.amount || sub.subtotal || sub.package?.price || 0);
-  const price = (currencyRate > 1 && rawBasePrice > 0 && rawBasePrice < 200)
-    ? Math.round(rawBasePrice * currencyRate)
-    : (rawBasePrice || (isRtl ? 1200 : 24));
-  const rawTax = Number(sub.tax || sub.taxAmount || 0);
-  const tax = (currencyRate > 1 && rawTax > 0 && rawTax < 20)
-    ? Number((rawTax * currencyRate).toFixed(2))
-    : (rawTax || Number((price * 0.05).toFixed(2)));
-  const rawTotal = Number(sub.total || sub.finalAmount || 0);
-  const total = (currencyRate > 1 && rawTotal > 0 && rawTotal < 250)
-    ? Math.round(rawTotal * currencyRate)
-    : (rawTotal || (price + tax));
-  const sessionsCount = sub.package?.sessionsCount || sub.sessionsCount || 8;
-  const savedSessionsCount = sub.savedSessionsCount || sub.remainingSessions || sessionsCount;
-
+  const rawTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
+  const rawTax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
+  const rawDiscount = Number(
+    sub.discountAmount ??
+    sub.discount ??
+    sub.coupon?.discountAmount ??
+    sub.couponDiscount ??
+    sub.package?.discountAmount ??
+    0
+  );
+  const rawSubtotalCandidate = Number(
+    sub.baseAmount ??
+    sub.subtotalAmount ??
+    sub.subtotal ??
+    sub.priceAfterDiscount ??
+    sub.originalPrice ??
+    sub.packagePrice ??
+    sub.package?.price ??
+    sub.amount ??
+    sub.price ??
+    0
+  );
+  let total = rawTotal;
+  let tax = rawTax;
+  let discount = rawDiscount;
+  let price = rawSubtotalCandidate;
+  if (total <= 0 && price > 0) {
+    if (tax <= 0) {
+      tax = Number((price * 0.05).toFixed(2));
+    }
+    total = price + tax - discount;
+  } else if (total > 0 && price <= 0) {
+    price = Math.max(0, total - tax + discount);
+  } else if (total > 0 && price > 0 && Math.abs((price + tax - discount) - total) > 1) {
+    price = Math.max(0, total - tax + discount);
+  }
+  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0 && total < 150;
+  if (isUsdScale) {
+    price = Math.round(price * currencyRate);
+    tax = Number((tax * currencyRate).toFixed(2));
+    total = Math.round(total * currencyRate);
+    if (discount > 0) {
+      discount = Math.round(discount * currencyRate);
+    }
+  }
+  const sessionsCount = Number(
+    sub.sessionsPerStudent ??
+    sub.package?.sessionsPerStudent ??
+    sub.package?.sessionsCount ??
+    sub.package?.monthlySessions ??
+    sub.package?.sessions ??
+    sub.sessionsCount ??
+    sub.totalSessions ??
+    sub.sessionsBalance?.total ??
+    sub.sessions ??
+    (Array.isArray(sub.students) && sub.students[0]?.sessionsBalance?.total ? sub.students[0].sessionsBalance.total : 0) ??
+    12
+  );
   const paymentDate = useMemo(() => {
     return formatDate(sub.paidAt || sub.paymentDate || sub.createdAt || new Date());
   }, [sub.paidAt, sub.paymentDate, sub.createdAt]);
-
-  const startDate = useMemo(() => {
-    return formatDate(sub.startDate || sub.startsAt || new Date());
-  }, [sub.startDate, sub.startsAt]);
-
-  const endDate = useMemo(() => {
-    if (sub.endDate || sub.expiresAt) return formatDate(sub.endDate || sub.expiresAt);
-    return formatDate(new Date(Date.parse(startDate) + ONE_MONTH_MS));
-  }, [sub.endDate, sub.expiresAt, startDate]);
+  const subscriptionDate = useMemo(() => {
+    return formatDate(sub.startDate || sub.startsAt || sub.paidAt || sub.paymentDate || sub.createdAt || new Date());
+  }, [sub.startDate, sub.startsAt, sub.paidAt, sub.paymentDate, sub.createdAt]);
+  const resolvedSubscription = useMemo(() => ({
+    ...sub,
+    subtotal: price,
+    baseAmount: price,
+    amount: price,
+    tax,
+    total,
+    discount,
+    currency,
+    sessionsCount,
+  }), [sub, price, tax, total, discount, currency, sessionsCount]);
 
   const handleRetryPayment = () => {
     const stripeUrl = sub.stripeUrl || sub.sessionUrl || sub.url || sub.checkoutUrl;
@@ -332,6 +389,12 @@ export default function ParentPaymentStatus() {
                   <span>{t('parentPackages.amount', 'المبلغ')}</span>
                   <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(price, currency)}</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
+                    <span>{t('parentPackages.discount', 'الخصم')}</span>
+                    <span className="font-bold font-mono">-{formatCurrency(discount, currency)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>{t('parentPackages.tax', 'الضريبة')}</span>
                   <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(tax, currency)}</span>
@@ -373,24 +436,14 @@ export default function ParentPaymentStatus() {
                   <span className="font-bold text-slate-800 dark:text-white">{packageName}</span>
                 </div>
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
-                  <span>{t('parentPackages.renewDuration', 'مدة التجديد')}</span>
-                  <span className="font-bold text-slate-800 dark:text-white">{t('parentPackages.oneMonth', 'شهر واحد')}</span>
-                </div>
-                <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
-                  <span>{t('parentPackages.startDate', 'بداية الاشتراك')}</span>
-                  <span className="font-bold text-slate-800 dark:text-white font-mono">{startDate}</span>
-                </div>
-                <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
-                  <span>{t('parentPackages.endDate', 'نهاية الاشتراك')}</span>
-                  <span className="font-bold text-slate-800 dark:text-white font-mono">{endDate}</span>
+                  <span>{t('parentPackages.subscriptionDate', 'تاريخ الاشتراك')}</span>
+                  <span className="font-bold text-slate-800 dark:text-white font-mono">{subscriptionDate}</span>
                 </div>
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>{t('parentPackages.monthlySessions', 'الحصص الشهرية')}</span>
-                  <span className="font-bold text-slate-800 dark:text-white">{sessionsCount} حصة</span>
-                </div>
-                <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
-                  <span>{t('parentPackages.savedSessions', 'الحصص السابقة المحفوظة')}</span>
-                  <span className="font-bold text-slate-800 dark:text-white">{savedSessionsCount} حصة</span>
+                  <span className="font-bold text-slate-800 dark:text-white font-mono">
+                    {sessionsCount} {t('parentPackages.sessionsUnit', 'حصة شهرياً')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -506,7 +559,8 @@ export default function ParentPaymentStatus() {
         isOpen={isInvoiceModalOpen}
         onClose={() => setIsInvoiceModalOpen(false)}
         subscriptionId={subscriptionId}
-        initialData={sub}
+        initialData={resolvedSubscription}
+        currencyInfo={currencyInfo}
         t={t}
         isRtl={isRtl}
       />

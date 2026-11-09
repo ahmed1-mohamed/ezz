@@ -93,6 +93,29 @@ function extractSessionGroupName(s) {
   return String(raw).trim();
 }
 
+function formatYearMonthKey(rawVal, fallbackYear = null) {
+  if (rawVal === null || rawVal === undefined || rawVal === '') {
+    return null;
+  }
+  if (typeof rawVal === 'number' && rawVal >= 1 && rawVal <= 12) {
+    const safeYear = fallbackYear || new Date().getFullYear();
+    return `${safeYear}-${String(rawVal).padStart(2, '0')}`;
+  }
+  const str = String(rawVal).trim();
+  const match = str.match(/^(\d{4})-(\d{1,2})$/);
+  if (match) {
+    const yearPart = match[1];
+    const monthPart = match[2].padStart(2, '0');
+    return `${yearPart}-${monthPart}`;
+  }
+  const parsedNum = Number(str);
+  if (!isNaN(parsedNum) && parsedNum >= 1 && parsedNum <= 12) {
+    const safeYear = fallbackYear || new Date().getFullYear();
+    return `${safeYear}-${String(parsedNum).padStart(2, '0')}`;
+  }
+  return null;
+}
+
 export const parentApi = {
   fetchDashboard: async () => {
     try {
@@ -377,25 +400,20 @@ export const parentApi = {
   fetchAttendance: async (studentIdOrParams, queryParams = {}) => {
     let studentId = '';
     let targetMonth = null;
+    let fallbackYear = null;
     if (typeof studentIdOrParams === 'object' && studentIdOrParams !== null) {
       studentId = studentIdOrParams.studentId || studentIdOrParams.id || studentIdOrParams.student;
+      fallbackYear = studentIdOrParams.year ? Number(studentIdOrParams.year) : null;
       const rawVal = studentIdOrParams.month ?? studentIdOrParams.monthKey;
-      if (rawVal !== undefined && rawVal !== null) {
-        const rawStr = String(rawVal);
-        const parsed = rawStr.includes('-') ? Number(rawStr.split('-').pop()) : Number(rawStr);
-        if (!isNaN(parsed) && parsed >= 1 && parsed <= 12) {
-          targetMonth = parsed;
-        }
-      }
+      targetMonth = formatYearMonthKey(rawVal, fallbackYear);
     } else if (typeof studentIdOrParams === 'string' || typeof studentIdOrParams === 'number') {
       studentId = String(studentIdOrParams);
-      const rawVal = (typeof queryParams === 'object' && queryParams !== null) ? (queryParams.month ?? queryParams.monthKey) : queryParams;
-      if (rawVal !== undefined && rawVal !== null) {
-        const rawStr = String(rawVal);
-        const parsed = rawStr.includes('-') ? Number(rawStr.split('-').pop()) : Number(rawStr);
-        if (!isNaN(parsed) && parsed >= 1 && parsed <= 12) {
-          targetMonth = parsed;
-        }
+      if (typeof queryParams === 'object' && queryParams !== null) {
+        fallbackYear = queryParams.year ? Number(queryParams.year) : null;
+        const rawVal = queryParams.month ?? queryParams.monthKey;
+        targetMonth = formatYearMonthKey(rawVal, fallbackYear);
+      } else if (queryParams !== undefined && queryParams !== null) {
+        targetMonth = formatYearMonthKey(queryParams, fallbackYear);
       }
     }
     if (!studentId) {
@@ -409,7 +427,7 @@ export const parentApi = {
       return { success: false, data: null, message: 'Student ID required' };
     }
     const requestConfig = { skipGlobalErrorToast: true };
-    if (targetMonth !== null) {
+    if (targetMonth) {
       requestConfig.params = { month: targetMonth };
     }
     try {

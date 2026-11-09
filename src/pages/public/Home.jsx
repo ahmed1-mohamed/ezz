@@ -55,7 +55,8 @@ const SectionSkeleton = () => <div className="h-40 rounded-2xl bg-slate-100 dark
 
 export default memo(function Home() {
     const { t, i18n } = useTranslation()
-    const isRtl = i18n.language === 'ar'
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
+    const isRtl = currentLang === 'ar'
     const dispatch = useDispatch()
     const [searchParams] = useSearchParams()
     const hasPaymentParam = searchParams.has('payment') || searchParams.has('session_id') || searchParams.has('subscriptionId')
@@ -108,7 +109,7 @@ export default memo(function Home() {
                             </motion.p>
                             <motion.div variants={itemVariants} className="flex justify-center lg:justify-start w-full">
                                 <Link
-                                    to="/trial-session"
+                                    to={`/${currentLang}/trial-session`}
                                     className="w-full sm:w-auto"
                                 >
                                     <Button

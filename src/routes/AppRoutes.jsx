@@ -1,5 +1,5 @@
 import { Suspense, lazy, memo } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
@@ -143,6 +143,11 @@ const AnimatedPage = memo(function AnimatedPage({ children }) {
     )
 })
 
+function LegacyTeacherRedirect() {
+    const { id } = useParams()
+    return <Navigate to={`/ar/teachers/${id || ''}`} replace />
+}
+
 export default function AppRoutes() {
     const { user } = useAuth()
     return (
@@ -155,8 +160,25 @@ export default function AppRoutes() {
                 }
             >
                 <Routes>
+                        {/* Legacy Public Route Redirects to default Arabic (/ar/...) */}
+                        <Route path="/" element={<Navigate to="/ar" replace />} />
+                        <Route path="/about" element={<Navigate to="/ar/about" replace />} />
+                        <Route path="/courses" element={<Navigate to="/ar/courses" replace />} />
+                        <Route path="/curriculums" element={<Navigate to="/ar/curriculums" replace />} />
+                        <Route path="/teachers" element={<Navigate to="/ar/teachers" replace />} />
+                        <Route path="/teachers/:id" element={<LegacyTeacherRedirect />} />
+                        <Route path="/pricing" element={<Navigate to="/ar/pricing" replace />} />
+                        <Route path="/schedule" element={<Navigate to="/ar/schedule" replace />} />
+                        <Route path="/contact" element={<Navigate to="/ar/contact" replace />} />
+                        <Route path="/trial-session" element={<Navigate to="/ar/trial-session" replace />} />
+                        <Route path="/trial" element={<Navigate to="/ar/trial-session" replace />} />
+                        <Route path="/checkout/status" element={<Navigate to="/ar/checkout/status" replace />} />
+                        <Route path="/payment/status" element={<Navigate to="/ar/payment/status" replace />} />
+                        <Route path="/payment/success" element={<Navigate to="/ar/payment/success" replace />} />
+
+                        {/* Localized Public Routes (/ar/... and /en/...) */}
                         <Route
-                            path="/"
+                            path="/:lang"
                             element={
                                 <AnimatedPage>
                                     <PublicLayout />
@@ -169,11 +191,11 @@ export default function AppRoutes() {
                             <Route path="curriculums" element={<Curriculums />} />
                             <Route path="pricing" element={<Pricing />} />
                             <Route path="teachers" element={<Teachers />} />
+                            <Route path="teachers/:id" element={<TeacherProfile />} />
                             <Route path="schedule" element={<SchedulePage />} />
                             <Route path="contact" element={<Contact />} />
                             <Route path="trial-session" element={<TrialSession />} />
-                            <Route path="trial" element={<Navigate to="/trial-session" replace />} />
-                            <Route path="teachers/:id" element={<TeacherProfile />} />
+                            <Route path="trial" element={<Navigate to="trial-session" replace />} />
                             <Route path="checkout/status" element={<ParentPaymentStatus />} />
                             <Route path="payment/status" element={<ParentPaymentStatus />} />
                             <Route path="payment/success" element={<ParentPaymentStatus />} />

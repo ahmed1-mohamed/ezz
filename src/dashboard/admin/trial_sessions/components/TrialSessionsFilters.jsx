@@ -19,8 +19,14 @@ export default function TrialSessionsFilters({
   isFetching = false,
   isRtl = true,
   stats = {},
+  mode = 'platform',
 }) {
-  const statusOptions = [
+  const statusOptions = mode === 'website' ? [
+    { key: 'all', label: isRtl ? 'الكل' : 'All', count: stats.total, icon: Sparkles },
+    { key: 'pending', label: isRtl ? 'بانتظار الإجراء' : 'Pending', count: stats.pending, icon: Clock, activeClass: 'bg-amber-600 text-white' },
+    { key: 'accepted', label: isRtl ? 'مقبول ومربوط' : 'Accepted', count: stats.accepted, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },
+    { key: 'rejected', label: isRtl ? 'مرفوض' : 'Rejected', count: stats.rejected, icon: XCircle, activeClass: 'bg-rose-600 text-white' },
+  ] : [
     { key: 'all', label: isRtl ? 'الكل' : 'All', count: stats.total, icon: Sparkles },
     { key: 'pending', label: isRtl ? 'بانتظار التسكين' : 'Pending', count: stats.pending, icon: Clock, activeClass: 'bg-amber-600 text-white' },
     { key: 'assigned', label: isRtl ? 'تم التسكين' : 'Assigned', count: stats.assigned, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },

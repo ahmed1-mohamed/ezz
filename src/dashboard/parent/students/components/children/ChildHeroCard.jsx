@@ -53,6 +53,7 @@ export default function ChildHeroCard({
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const studentId = child?.student_id || child?.id || child?.user_id || '';
+  const studentCode = studentId ? String(studentId).slice(-8) : '';
   const studentName = child?.name || '-';
   const avatarChar = studentName.trim().charAt(0) || 'ط';
   const studentLevelText = resolveStudentLevel(child?.studentLevel, isRtl);
@@ -171,10 +172,10 @@ export default function ChildHeroCard({
                 </span>
               )}
             </div>
-            {studentId && (
+            {studentCode && (
               <div className="pt-0.5">
                 <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 px-2.5 py-0.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50">
-                  {t('parent.childrenList.studentIdLabel', 'كود الطالب')}: {studentId}
+                  {t('parent.childrenList.studentIdLabel', 'كود الطالب')}: {studentCode}
                 </span>
               </div>
             )}

@@ -11,8 +11,9 @@ export default function CTASection({
     defaultBtn = 'انضم الآن و أبدأ',
     className = ''
 }) {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const navigate = useNavigate()
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -32,7 +33,7 @@ export default function CTASection({
                 </p>
                 <div className="pt-2 sm:pt-4">
                     <button
-                        onClick={() => navigate('/contact')}
+                        onClick={() => navigate(`/${currentLang}/contact`)}
                         aria-label={t(btnKey, defaultBtn)}
                         className="bg-black hover:bg-slate-900 text-white px-6 py-3.5 sm:px-10 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-lg transition-all active:scale-95 shadow-lg w-full sm:w-auto cursor-pointer hover:-translate-y-1"
                     >

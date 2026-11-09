@@ -21,6 +21,8 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { teacherComplaintsApi } from '@/shared/services/api/teacherComplaintsApi.js';
+import { getApiErrorText } from '@/shared/utils/errorHandler.js';
+import TabErrorState from '@/shared/components/TabErrorState.jsx';
 import TeacherNewComplaintModal from './TeacherNewComplaintModal.jsx';
 import TeacherComplaintDetailsModal from './TeacherComplaintDetailsModal.jsx';
 
@@ -414,21 +416,11 @@ export default function TeacherComplaints() {
             ))}
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-red-200 bg-red-50/50 text-center dark:border-red-900/40 dark:bg-red-950/20">
-            <AlertTriangle size={44} className="text-red-500 mb-3" />
-            <h3 className="text-lg font-bold text-red-900 dark:text-red-200">
-              حدث خطأ أثناء تحميل الشكاوى والمقترحات
-            </h3>
-            <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-              {error?.message || 'يرجى المحاولة مرة أخرى لاحقاً.'}
-            </p>
-            <button
-              onClick={() => refetch()}
-              className="mt-4 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-all cursor-pointer"
-            >
-              إعادة المحاولة
-            </button>
-          </div>
+          <TabErrorState
+            title="حدث خطأ أثناء تحميل الشكاوى والمقترحات"
+            message={getApiErrorText(error, 'يرجى المحاولة مرة أخرى لاحقاً.')}
+            onRetry={() => refetch()}
+          />
         ) : filteredList.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-16 rounded-3xl border border-dashed border-slate-300 bg-white/70 text-center dark:border-slate-700 dark:bg-slate-900/70 shadow-soft">
             <div className="p-4 rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800 mb-3">

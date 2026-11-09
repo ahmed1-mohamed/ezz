@@ -113,8 +113,8 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
         )}
       </div>
       {error && (
-        <div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl text-xs text-red-600 dark:text-red-400 font-semibold">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-2 p-3 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 rounded-xl text-xs text-red-600 dark:text-red-400 font-bold shadow-xs">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
           <span>{error}</span>
         </div>
       )}

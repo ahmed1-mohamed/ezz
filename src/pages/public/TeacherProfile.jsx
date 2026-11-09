@@ -12,7 +12,8 @@ import { teachersApi } from '../../shared/services/api/teachersApi.js'
 export default function TeacherProfile() {
     const { id } = useParams()
     const { t, i18n } = useTranslation()
-    const isRtl = i18n.language === 'ar'
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
+    const isRtl = currentLang === 'ar'
     const ArrowBack = isRtl ? ChevronRight : ChevronLeft
     const [teacher, setTeacher] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -82,7 +83,7 @@ export default function TeacherProfile() {
     return (
         <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 pt-12 font-sans pb-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                <Link to="/teachers" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors font-bold">
+                <Link to={`/${currentLang}/teachers`} className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors font-bold">
                     <ArrowBack className="w-5 h-5" />
                     <span>{t('teacherProfile.back', 'العودة للمعلمين')}</span>
                 </Link>

@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Info,
 } from 'lucide-react';
+import { resolvePackagePrice } from '@/shared/services/api/currenciesApi';
 
 function resolvePackageIcon(iconName) {
   const norm = String(iconName || '').toLowerCase().trim();
@@ -97,10 +98,19 @@ const ParentPackageCard = memo(function ParentPackageCard({
     usdFinal = Math.max(0, rawBasePrice - Number(packageItem.discountAmount));
     discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
   }
-  const convertedFinal = Math.round(usdFinal * rate);
-  const convertedOriginal = Math.round(usdOriginal * rate);
+  const convertedFinal = resolvePackagePrice(usdFinal, currencyInfo, packageItem);
+  const convertedOriginal = resolvePackagePrice(usdOriginal, currencyInfo, packageItem);
+  const maxFamilyMembers = Number(
+    packageItem?.maxMembers ??
+    packageItem?.maxStudents ??
+    packageItem?.max_members ??
+    (Array.isArray(packageItem?.familyTiers) && packageItem.familyTiers.length > 0
+      ? Math.max(...packageItem.familyTiers.map((t) => Number(t?.membersCount ?? t?.members ?? 0)))
+      : 0)
+  ) || 5;
   const enrichedPackage = {
     ...packageItem,
+    maxMembers: maxFamilyMembers,
     convertedPrice: convertedFinal,
     convertedOriginalPrice: convertedOriginal,
     currency: currencySymbol,
@@ -132,7 +142,10 @@ const ParentPackageCard = memo(function ParentPackageCard({
                 }`}
             >
               {isFamily ? <Users className="w-3 h-3" /> : <User className="w-3 h-3" />}
-              <span>{packageItem?.typeText || (isFamily ? 'باقة عائلية' : 'باقة فردية')}</span>
+              <span>
+                {packageItem?.typeText || (isFamily ? 'باقة عائلية' : 'باقة فردية')}
+                {isFamily && ` (حتى ${maxFamilyMembers} أبناء)`}
+              </span>
             </span>
             <h3 className="font-bold text-slate-900 dark:text-white text-lg sm:text-xl mt-1 leading-snug">
               {packageItem?.name || t('parentPackages.package', 'الباقة')}
@@ -204,6 +217,19 @@ const ParentPackageCard = memo(function ParentPackageCard({
             </span>
           </div>
         </div>
+        {isFamily && (
+          <div className="col-span-2 p-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="text-amber-800 dark:text-amber-300 font-bold">
+                {t('parentPackages.maxChildrenAllowed', 'أقصى عدد أبناء للباقة:')}
+              </span>
+            </div>
+            <span className="font-extrabold text-amber-900 dark:text-amber-200 font-mono">
+              {maxFamilyMembers} {t('parentPackages.studentsCountUnit', 'أبناء')}
+            </span>
+          </div>
+        )}
         {packageItem?.language && (
           <div className="col-span-2 p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
             <Globe className="w-4 h-4 text-blue-500 shrink-0" />

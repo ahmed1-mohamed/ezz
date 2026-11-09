@@ -19,6 +19,7 @@ import {
   Users,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 import Spinner from '@/shared/components/Spinner';
@@ -33,7 +34,11 @@ const STATUS_FILTERS = [
 
 function formatCurrency(amount, currency = 'ج.م') {
   const num = Number(amount || 0);
-  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
+  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  if (currency === '$') {
+    return `$${formattedNum}`;
+  }
+  return `${formattedNum} ${currency}`;
 }
 
 function formatDate(dateVal, isRtl = true) {
@@ -101,6 +106,17 @@ export default function ParentSubscriptions() {
     }
     return params;
   }, [currentPage, selectedStatus, debouncedSearch]);
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: currenciesApi.fetchExchangeRate,
+    staleTime: 1000 * 60 * 10,
+  });
+  const currencyInfo = useMemo(() => {
+    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
+    return { symbol: 'ج.م', exchangeRate: 1 };
+  }, [exchangeRateRes]);
+  const currencyRate = Number(currencyInfo?.exchangeRate || 1);
+  const targetCurrency = currencyInfo?.symbol || 'ج.م';
   const {
     data: subscriptionsRes,
     isLoading,
@@ -242,8 +258,9 @@ export default function ParentSubscriptions() {
             const isPending = String(item.status || '').toLowerCase() === 'pending';
             const orderNum = item.orderNumber || item.subscriptionNumber || (item.id ? `RN-${String(item.id).slice(-8).toUpperCase()}` : '-');
             const packageName = item.package?.name || item.packageName || t('parentPackages.package', 'الباقة');
-            const total = Number(item.total || item.finalAmount || item.amount || 0);
-            const currency = item.currency || 'ج.م';
+            const rawTotal = Number(item.total || item.finalAmount || item.amount || 0);
+            const isUsdScale = currencyRate > 1 && targetCurrency !== '$' && targetCurrency !== 'USD' && rawTotal > 0 && rawTotal < 150;
+            const total = isUsdScale ? Math.round(rawTotal * currencyRate) : rawTotal;
             const studentNames = (() => {
               if (Array.isArray(item.students) && item.students.length > 0) {
                 return item.students.map((st) => (typeof st.name === 'object' ? st.name.ar || st.name.en : st.name || st.studentName)).filter(Boolean).join('، ');
@@ -294,7 +311,7 @@ export default function ParentSubscriptions() {
                       {t('parentPackages.total', 'الإجمالي')}
                     </span>
                     <span className="text-base sm:text-lg font-black font-mono text-[#0f7a6c] dark:text-emerald-400">
-                      {formatCurrency(total, currency)}
+                      {formatCurrency(total, targetCurrency)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -353,6 +370,7 @@ export default function ParentSubscriptions() {
         onClose={() => setSelectedInvoice(null)}
         subscriptionId={selectedInvoice?.id}
         initialData={selectedInvoice}
+        currencyInfo={currencyInfo}
         t={t}
         isRtl={isRtl}
       />

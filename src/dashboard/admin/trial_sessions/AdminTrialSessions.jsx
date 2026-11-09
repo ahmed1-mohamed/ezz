@@ -5,6 +5,8 @@ import {
   ChevronRight,
   ShieldAlert,
   CalendarCheck,
+  Globe,
+  Users,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
@@ -16,6 +18,10 @@ import TrialSessionsTable from './components/TrialSessionsTable'
 import TrialSessionDetailsModal from './components/TrialSessionDetailsModal'
 import AssignSessionModal from './components/AssignSessionModal'
 import CancelTrialSessionModal from './components/CancelTrialSessionModal'
+import WebsiteTrialSessionsTable from './components/WebsiteTrialSessionsTable'
+import WebsiteTrialDetailsModal from './components/WebsiteTrialDetailsModal'
+import AcceptWebsiteTrialModal from './components/AcceptWebsiteTrialModal'
+import RejectWebsiteTrialModal from './components/RejectWebsiteTrialModal'
 
 export default function AdminTrialSessions() {
   const { i18n } = useTranslation()
@@ -23,6 +29,7 @@ export default function AdminTrialSessions() {
   const { hasPermission, isSuperAdmin } = useAdminPermissions()
   const queryClient = useQueryClient()
   const canView = hasPermission('trial_sessions.read') || isSuperAdmin
+  const [activeTab, setActiveTab] = useState('parent')
   const [activeStatus, setActiveStatus] = useState('all')
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -30,6 +37,9 @@ export default function AdminTrialSessions() {
   const [selectedTrialForDetails, setSelectedTrialForDetails] = useState(null)
   const [selectedTrialForAssign, setSelectedTrialForAssign] = useState(null)
   const [selectedTrialForCancel, setSelectedTrialForCancel] = useState(null)
+  const [selectedWebsiteTrialForDetails, setSelectedWebsiteTrialForDetails] = useState(null)
+  const [selectedWebsiteTrialForAccept, setSelectedWebsiteTrialForAccept] = useState(null)
+  const [selectedWebsiteTrialForReject, setSelectedWebsiteTrialForReject] = useState(null)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchValue.trim())
@@ -41,20 +51,31 @@ export default function AdminTrialSessions() {
     setActiveStatus(status)
     setCurrentPage(1)
   }
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab)
+    setActiveStatus('all')
+    setSearchValue('')
+    setDebouncedSearch('')
+    setCurrentPage(1)
+  }
   const {
     data: trialSessionsResponse,
     isLoading,
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ['admin-trial-sessions', currentPage, activeStatus, debouncedSearch],
-    queryFn: () =>
-      adminTrialSessionsApi.fetchTrialSessions({
+    queryKey: ['admin-trial-sessions', activeTab, currentPage, activeStatus, debouncedSearch],
+    queryFn: () => {
+      const params = {
         page: currentPage,
         limit: 10,
         status: activeStatus,
         search: debouncedSearch,
-      }),
+      }
+      return activeTab === 'website'
+        ? adminTrialSessionsApi.fetchWebsiteTrialSessions(params)
+        : adminTrialSessionsApi.fetchTrialSessions(params)
+    },
     enabled: canView,
     keepPreviousData: true,
   })
@@ -96,6 +117,24 @@ export default function AdminTrialSessions() {
   }, [trialSessionsResponse, rawList.length, currentPage])
   const stats = useMemo(() => {
     const apiStats = trialSessionsResponse?.stats || trialSessionsResponse?.summary || {}
+    const computedTotal = paginationData.totalItems || rawList.length
+    if (activeTab === 'website') {
+      let pendingCount = 0
+      let acceptedCount = 0
+      let rejectedCount = 0
+      rawList.forEach((item) => {
+        const s = String(item.status || 'pending').toLowerCase()
+        if (s === 'accepted') acceptedCount++
+        else if (s === 'rejected') rejectedCount++
+        else pendingCount++
+      })
+      return {
+        total: Number(apiStats.total ?? computedTotal),
+        pending: Number(apiStats.pending ?? pendingCount),
+        accepted: Number(apiStats.accepted ?? acceptedCount),
+        rejected: Number(apiStats.rejected ?? rejectedCount),
+      }
+    }
     if (apiStats.total !== undefined || apiStats.pending !== undefined) {
       return {
         total: Number(apiStats.total ?? 0),
@@ -105,7 +144,6 @@ export default function AdminTrialSessions() {
         cancelled: Number(apiStats.cancelled ?? apiStats.canceled ?? 0),
       }
     }
-    const computedTotal = paginationData.totalItems || rawList.length
     let pendingCount = 0
     let assignedCount = 0
     let completedCount = 0
@@ -124,7 +162,7 @@ export default function AdminTrialSessions() {
       completed: completedCount,
       cancelled: cancelledCount,
     }
-  }, [trialSessionsResponse, paginationData.totalItems, rawList])
+  }, [trialSessionsResponse, paginationData.totalItems, rawList, activeTab])
   const handleActionSuccess = () => {
     queryClient.invalidateQueries(['admin-trial-sessions'])
   }
@@ -164,13 +202,37 @@ export default function AdminTrialSessions() {
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
             {isRtl
               ? 'متابعة وتسكين وإدارة جميع طلبات الحصص التجريبية للطلاب'
-              : 'Track, assign, and manage all student trial session requests'}
+              : 'Track, review, assign, and manage all trial session requests'}
           </p>
         </div>
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs w-fit">
+          <button
+            type="button"
+            onClick={() => handleTabChange('parent')}
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeTab === 'parent'
+                ? 'bg-[#005953] text-white shadow-md shadow-[#005953]/20'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Users size={16} />
+            <span>{isRtl ? 'طلبات أولياء الأمور' : 'Parent Requests'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabChange('website')}
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeTab === 'website'
+                ? 'bg-[#005953] text-white shadow-md shadow-[#005953]/20'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Globe size={16} />
+            <span>{isRtl ? 'طلبات الموقع الإلكتروني' : 'Website Requests'}</span>
+          </button>
+        </div>
       </div>
-
-      <TrialSessionsStats stats={stats} isRtl={isRtl} />
-
+      <TrialSessionsStats stats={stats} isRtl={isRtl} mode={activeTab} />
       <TrialSessionsFilters
         activeStatus={activeStatus}
         setActiveStatus={handleStatusChange}
@@ -181,8 +243,8 @@ export default function AdminTrialSessions() {
         isFetching={isFetching}
         isRtl={isRtl}
         stats={stats}
+        mode={activeTab}
       />
-
       {isLoading ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-16 flex flex-col items-center justify-center gap-3">
           <Spinner />
@@ -192,14 +254,23 @@ export default function AdminTrialSessions() {
         </div>
       ) : (
         <div className="space-y-4">
-          <TrialSessionsTable
-            trialSessions={rawList}
-            onViewDetails={(item) => setSelectedTrialForDetails(item)}
-            onAssignSession={(item) => setSelectedTrialForAssign(item)}
-            onCancelRequest={(item) => setSelectedTrialForCancel(item)}
-            isRtl={isRtl}
-          />
-
+          {activeTab === 'website' ? (
+            <WebsiteTrialSessionsTable
+              trialSessions={rawList}
+              onViewDetails={(item) => setSelectedWebsiteTrialForDetails(item)}
+              onAccept={(item) => setSelectedWebsiteTrialForAccept(item)}
+              onReject={(item) => setSelectedWebsiteTrialForReject(item)}
+              isRtl={isRtl}
+            />
+          ) : (
+            <TrialSessionsTable
+              trialSessions={rawList}
+              onViewDetails={(item) => setSelectedTrialForDetails(item)}
+              onAssignSession={(item) => setSelectedTrialForAssign(item)}
+              onCancelRequest={(item) => setSelectedTrialForCancel(item)}
+              isRtl={isRtl}
+            />
+          )}
           {paginationData.totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 text-xs">
               <div className="text-slate-500 dark:text-slate-400 font-medium">
@@ -216,7 +287,7 @@ export default function AdminTrialSessions() {
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={() => setCurrentPage((p) => Math.min(p - 1, 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                   disabled={paginationData.currentPage <= 1 || isFetching}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-600 dark:text-slate-300 disabled:opacity-40 cursor-pointer"
                 >
@@ -264,7 +335,6 @@ export default function AdminTrialSessions() {
           )}
         </div>
       )}
-
       {selectedTrialForDetails && (
         <TrialSessionDetailsModal
           isOpen={Boolean(selectedTrialForDetails)}
@@ -274,7 +344,6 @@ export default function AdminTrialSessions() {
           onOpenAssign={handleOpenAssignFromDetails}
         />
       )}
-
       {selectedTrialForAssign && (
         <AssignSessionModal
           isOpen={Boolean(selectedTrialForAssign)}
@@ -284,7 +353,6 @@ export default function AdminTrialSessions() {
           onSuccess={handleActionSuccess}
         />
       )}
-
       {selectedTrialForCancel && (
         <CancelTrialSessionModal
           isOpen={Boolean(selectedTrialForCancel)}
@@ -294,6 +362,35 @@ export default function AdminTrialSessions() {
           onSuccess={handleActionSuccess}
         />
       )}
+      {selectedWebsiteTrialForDetails && (
+        <WebsiteTrialDetailsModal
+          isOpen={Boolean(selectedWebsiteTrialForDetails)}
+          onClose={() => setSelectedWebsiteTrialForDetails(null)}
+          trialSession={selectedWebsiteTrialForDetails}
+          isRtl={isRtl}
+          onOpenAccept={(trial) => setSelectedWebsiteTrialForAccept(trial)}
+          onOpenReject={(trial) => setSelectedWebsiteTrialForReject(trial)}
+        />
+      )}
+      {selectedWebsiteTrialForAccept && (
+        <AcceptWebsiteTrialModal
+          isOpen={Boolean(selectedWebsiteTrialForAccept)}
+          onClose={() => setSelectedWebsiteTrialForAccept(null)}
+          trialSession={selectedWebsiteTrialForAccept}
+          isRtl={isRtl}
+          onSuccess={handleActionSuccess}
+        />
+      )}
+      {selectedWebsiteTrialForReject && (
+        <RejectWebsiteTrialModal
+          isOpen={Boolean(selectedWebsiteTrialForReject)}
+          onClose={() => setSelectedWebsiteTrialForReject(null)}
+          trialSession={selectedWebsiteTrialForReject}
+          isRtl={isRtl}
+          onSuccess={handleActionSuccess}
+        />
+      )}
     </div>
   )
 }
+

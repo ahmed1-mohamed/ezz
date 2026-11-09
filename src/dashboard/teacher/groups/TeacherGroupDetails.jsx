@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +10,6 @@ import {
   Clock,
   Globe,
   Star,
-  AlertCircle,
   ArrowRight,
   ArrowLeft,
   User,
@@ -19,6 +18,8 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
+import { getApiErrorText } from '@/shared/utils/errorHandler.js';
+import TabErrorState from '@/shared/components/TabErrorState.jsx';
 
 function formatTime(val) {
   if (!val) return '—';
@@ -124,20 +125,19 @@ export default function TeacherGroupDetails() {
             <div className="h-64 rounded-3xl bg-slate-200 dark:bg-slate-800" />
           </div>
         ) : error || !group ? (
-          <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-red-200 bg-red-50/50 text-center dark:border-red-900/40 dark:bg-red-950/20">
-            <AlertCircle size={44} className="text-red-500 mb-3" />
-            <h3 className="text-lg font-bold text-red-900 dark:text-red-200">
-              {t('common.errorLoading', 'حدث خطأ أثناء تحميل تفاصيل المجموعة')}
-            </h3>
-            <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-              {error?.message || 'لم نتمكن من العثور على المجموعة المطلوبة.'}
-            </p>
-            <Link
-              to="/dashboard/teacher/groups"
-              className="mt-4 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all cursor-pointer"
-            >
-              {t('teacher.backToGroups', 'الرجوع للمجموعات')}
-            </Link>
+          <div className="space-y-4">
+            <TabErrorState
+              title={t('common.errorLoading', 'حدث خطأ أثناء تحميل تفاصيل المجموعة')}
+              message={getApiErrorText(error, 'لم نتمكن من العثور على المجموعة المطلوبة.')}
+            />
+            <div className="text-center">
+              <Link
+                to="/dashboard/teacher/groups"
+                className="inline-flex px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+              >
+                {t('teacher.backToGroups', 'الرجوع للمجموعات')}
+              </Link>
+            </div>
           </div>
         ) : (
           <>

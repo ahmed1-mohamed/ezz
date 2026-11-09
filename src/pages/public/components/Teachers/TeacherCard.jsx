@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Star, MapPin } from 'lucide-react'
 import { getTeacherImageUrl } from './teachersUtils'
 
 const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
   const navigate = useNavigate()
+  const { i18n } = useTranslation()
+  const currentLang = i18n.language === 'en' ? 'en' : 'ar'
   const rawImg = teacher.image || teacher.avatar || teacher.photo
   const [hasError, setHasError] = useState(false)
   const [prevImg, setPrevImg] = useState(rawImg)
@@ -17,7 +20,7 @@ const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
   const teacherId = teacher.teacher_id || teacher.id || teacher.user_id
   const handleProfileNavigation = () => {
     if (teacherId) {
-      navigate(`/teachers/${teacherId}`)
+      navigate(`/${currentLang}/teachers/${teacherId}`)
     }
   }
   const ratingDisplay = teacher.rating && Number(teacher.rating) > 0

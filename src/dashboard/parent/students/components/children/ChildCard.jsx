@@ -126,7 +126,7 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage, onBook
           </div>
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
-              <span>{t('parent.childrenList.classes', 'رصيد الحصص')}</span>
+              <span>{t('parentDashboard.childrenDetails.totalClasses', 'رصيد الحصص')}</span>
               <BookOpen className="w-3.5 h-3.5 text-[#0f7a6c]" />
             </div>
             <div className="flex items-baseline gap-1">

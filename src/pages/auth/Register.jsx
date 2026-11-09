@@ -456,7 +456,7 @@ export default function Register() {
                             <motion.div
                                 initial={{ opacity: 0, y: -8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-xs sm:text-sm text-center font-medium"
+                                className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400 text-xs sm:text-sm text-center font-bold shadow-xs"
                             >
                                 {serverError}
                             </motion.div>
@@ -496,17 +496,17 @@ export default function Register() {
                         animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, x: 40, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white font-bold border ${
+                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl font-bold border bg-white dark:bg-slate-900 ${
                             toast.type === 'success'
-                                ? 'bg-[#00695C] border-[#004D40]'
-                                : 'bg-red-600 border-red-700'
+                                ? 'border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#00695C] text-[#00695C] dark:text-emerald-400'
+                                : 'border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
                         }`}
                     >
-                        <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
+                        <span className="flex items-center justify-center rounded-full p-1 shrink-0">
                             {toast.type === 'success' ? (
-                                <Check className="w-4 h-4 text-white" />
+                                <Check className="w-4 h-4 text-[#00695C] dark:text-emerald-400" />
                             ) : (
-                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             )}

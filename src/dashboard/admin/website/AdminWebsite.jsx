@@ -182,14 +182,14 @@ export default function AdminWebsite() {
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border text-white font-semibold ${toast.type === 'success'
-                ? 'bg-emerald-600 border-emerald-500'
+              className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border font-bold bg-white dark:bg-slate-900 ${toast.type === 'success'
+                ? 'border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#0f7a6c] text-[#0f7a6c] dark:text-emerald-400'
                 : toast.type === 'info'
-                  ? 'bg-blue-600 border-blue-500'
-                  : 'bg-red-600 border-red-500'
+                  ? 'border-blue-200 dark:border-blue-800 border-s-4 border-s-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
                 }`}
             >
-              {toast.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+              {toast.type === 'success' ? <CheckCircle2 size={20} className="text-[#0f7a6c] dark:text-emerald-400 shrink-0" /> : <AlertCircle size={20} className="text-red-500 shrink-0" />}
               <span className="text-sm sm:text-base">{toast.message}</span>
             </motion.div>
           </div>

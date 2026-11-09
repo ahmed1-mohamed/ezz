@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -16,13 +16,14 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
 import Spinner from '@/shared/components/Spinner';
 
 function formatCurrency(amount, currency = 'ج.م') {
   const num = Number(amount || 0);
   const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  if (currency === 'USD' || currency === '$') {
-    return `USD ${formattedNum}`;
+  if (currency === '$') {
+    return `$${formattedNum}`;
   }
   return `${formattedNum} ${currency}`;
 }
@@ -75,6 +76,7 @@ export default function ParentInvoiceModal({
   onClose,
   subscriptionId,
   initialData,
+  currencyInfo: propCurrencyInfo,
   t,
   isRtl = true,
 }) {
@@ -86,22 +88,44 @@ export default function ParentInvoiceModal({
       document.body.style.overflow = prevOverflow;
     };
   }, [isOpen]);
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: currenciesApi.fetchExchangeRate,
+    staleTime: 1000 * 60 * 10,
+    enabled: Boolean(isOpen && !propCurrencyInfo),
+  });
+  const currencyInfo = useMemo(() => {
+    if (propCurrencyInfo) return propCurrencyInfo;
+    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
+    return { symbol: 'ج.م', exchangeRate: 1 };
+  }, [propCurrencyInfo, exchangeRateRes]);
   const { data: detailsRes, isLoading } = useQuery({
     queryKey: ['parentSubscriptionDetails', subscriptionId],
     queryFn: () => parentPackagesApi.fetchSubscriptionDetails(subscriptionId),
     enabled: Boolean(isOpen && subscriptionId),
     staleTime: 60 * 1000,
   });
-  if (!isOpen || typeof document === 'undefined') return null;
   const rawSub = detailsRes?.subscription || detailsRes?.data || detailsRes || initialData || {};
   const sub = rawSub?.subscription || rawSub;
+  const pkgId = sub.packageId || sub.package?.id || sub.package?._id;
+  const { data: pkgDetails } = useQuery({
+    queryKey: ['parentInvoicePackageDetails', pkgId],
+    queryFn: () => parentPackagesApi.fetchPackageDetails(pkgId),
+    enabled: Boolean(isOpen && pkgId && !sub.package?.sessionsCount),
+    staleTime: 5 * 60 * 1000,
+  });
+  const resolvedPackage = useMemo(() => {
+    if (pkgDetails) return { ...(pkgDetails || {}), ...(sub.package || {}) };
+    return sub.package || {};
+  }, [pkgDetails, sub.package]);
+  if (!isOpen || typeof document === 'undefined') return null;
   const statusInfo = getStatusBadge(sub.status, t);
   const StatusIcon = statusInfo.icon;
   const orderNumber = sub.orderNumber || sub.subscriptionNumber || sub.invoiceNumber || (subscriptionId ? `RN-${String(subscriptionId).slice(-8).toUpperCase()}` : '-');
   const transactionRef = sub.transactionRef || sub.referenceNumber || sub.stripePaymentIntentId || sub.paymentId || (subscriptionId ? `TX-${String(subscriptionId).slice(-8).toUpperCase()}` : '-');
   const paymentDate = sub.paidAt || sub.paymentDate || sub.createdAt || sub.updatedAt;
-  const packageName = sub.package?.name || sub.packageName || t('parentPackages.package', 'الباقة');
-  const packageType = sub.package?.type || (Array.isArray(sub.students) && sub.students.length > 1 ? 'family' : 'individual');
+  const packageName = resolvedPackage?.name || sub.package?.name || sub.packageName || t('parentPackages.package', 'الباقة');
+  const packageType = resolvedPackage?.type || sub.package?.type || (Array.isArray(sub.students) && sub.students.length > 1 ? 'family' : 'individual');
   const studentNames = (() => {
     if (Array.isArray(sub.students) && sub.students.length > 0) {
       return sub.students.map((st) => (typeof st.name === 'object' ? st.name.ar || st.name.en : st.name || st.studentName)).filter(Boolean).join('، ');
@@ -112,8 +136,9 @@ export default function ParentInvoiceModal({
     if (sub.studentName) return sub.studentName;
     return t('parentPackages.student', 'الابن');
   })();
-  const currency = sub.currency || sub.package?.currency || 'ج.م';
-  const tax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
+  const currencyRate = Number(currencyInfo?.exchangeRate || 1);
+  const currency = currencyInfo?.symbol || (sub.currency && sub.currency !== 'USD' && sub.currency !== '$' ? sub.currency : 'ج.م');
+  const rawTax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
   const explicitTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
   const explicitDiscount = Number(
     sub.discountAmount ??
@@ -145,6 +170,7 @@ export default function ParentInvoiceModal({
   let discount = explicitDiscount;
   let priceAfterDiscount = explicitPriceAfterDiscount;
   let amount = rawAmount;
+  let tax = rawTax;
   let total = explicitTotal;
   if (total <= 0) {
     total = amount + tax - discount;
@@ -152,17 +178,28 @@ export default function ParentInvoiceModal({
   if (amount <= 0 && total > 0) {
     amount = Math.max(0, total - tax + discount);
   }
+  if (total > 0 && amount > 0 && Math.abs((amount + tax - discount) - total) > 1) {
+    amount = Math.max(0, total - tax + discount);
+  }
   if (discount > 0 && priceAfterDiscount <= 0 && amount > discount) {
     priceAfterDiscount = amount - discount;
   } else if (priceAfterDiscount > 0 && discount <= 0 && amount > priceAfterDiscount) {
     discount = amount - priceAfterDiscount;
   }
+  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0 && total < 150;
+  if (isUsdScale) {
+    amount = Math.round(amount * currencyRate);
+    tax = Number((tax * currencyRate).toFixed(2));
+    total = Math.round(total * currencyRate);
+    if (discount > 0) discount = Math.round(discount * currencyRate);
+    if (priceAfterDiscount > 0) priceAfterDiscount = Math.round(priceAfterDiscount * currencyRate);
+  }
   const sessionsCount = Number(
     sub.sessionsPerStudent ??
-    sub.package?.sessionsPerStudent ??
-    sub.package?.sessionsCount ??
-    sub.package?.monthlySessions ??
-    sub.package?.sessions ??
+    resolvedPackage?.sessionsPerStudent ??
+    resolvedPackage?.sessionsCount ??
+    resolvedPackage?.monthlySessions ??
+    resolvedPackage?.sessions ??
     sub.sessionsCount ??
     sub.totalSessions ??
     sub.sessionsBalance?.total ??

@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2, ArrowRightLeft } from 'lucide-react'
+import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2, ArrowRightLeft, CalendarPlus } from 'lucide-react'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentSelect from './fields/StudentSelect'
 import StatusBadge from './StatusBadge'
 import TransferStudentModal from './TransferStudentModal'
+import CreateSessionModal from '@/dashboard/admin/sessions/components/CreateSessionModal'
 import { getLocalizedValue } from '../utils/groupUtils'
 
 export default function GroupDetailsModal({
@@ -24,6 +25,7 @@ export default function GroupDetailsModal({
   const [availableStudents, setAvailableStudents] = useState([])
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [studentToTransfer, setStudentToTransfer] = useState(null)
+  const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [isLoadingStudents, setIsLoadingStudents] = useState(false)
   const extractStudentName = useCallback((obj) => {
@@ -205,6 +207,15 @@ export default function GroupDetailsModal({
               </button>
             )}
             <button
+              type="button"
+              onClick={() => setIsCreateSessionOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#005953]/10 dark:bg-emerald-950/40 hover:bg-[#005953]/20 text-[#005953] dark:text-emerald-400 transition-all border border-[#005953]/20 dark:border-emerald-800 cursor-pointer"
+              title={t('adminDashboard.sessions.createSessionBtn', 'إضافة حصة')}
+            >
+              <CalendarPlus size={14} />
+              <span className="hidden sm:inline">{t('adminDashboard.sessions.createSessionBtn', 'إضافة حصة')}</span>
+            </button>
+            <button
               onClick={onClose}
               className="p-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
@@ -352,6 +363,14 @@ export default function GroupDetailsModal({
             }}
             isRtl={isRtl}
             t={t}
+          />
+        )}
+        {isCreateSessionOpen && (
+          <CreateSessionModal
+            isOpen={isCreateSessionOpen}
+            onClose={() => setIsCreateSessionOpen(false)}
+            preselectedGroup={group}
+            isRtl={isRtl}
           />
         )}
       </div>

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { parentApi } from '@/shared/services/api/parentApi';
-import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, resolvePackagePrice } from '@/shared/services/api/currenciesApi';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
 function formatCurrency(amount, currency = 'ج.م') {
@@ -76,9 +76,12 @@ export default function ParentCheckout() {
     return { symbol: 'ج.م', exchangeRate: 1 };
   }, [initialCurrencyInfo, exchangeRateRes]);
   const selectedPackage = selectedPackageOverride || initialPackage || fetchedPackage || (availablePackagesList.length > 0 ? availablePackagesList[0] : null);
-  const currencyRate = Number(currencyInfo?.exchangeRate || selectedPackage?.exchangeRate || 1);
   const currencySymbol = currencyInfo?.symbol || 'ج.م';
-  const packageDisplayPrice = selectedPackage?.convertedPrice ?? Math.round(Number(selectedPackage?.price || 0) * currencyRate);
+  const packageDisplayPrice = useMemo(() => {
+    if (!selectedPackage) return 0;
+    const rawPrice = Number(selectedPackage.price ?? 0);
+    return resolvePackagePrice(rawPrice, currencyInfo, selectedPackage);
+  }, [selectedPackage, currencyInfo]);
   const isPackageLoading = (!initialPackage && Boolean(packageIdParam) && isSinglePackageLoading) || (!initialPackage && !packageIdParam && isAllPackagesLoading);
 
   const {
@@ -102,6 +105,25 @@ export default function ParentCheckout() {
     const typeText = String(selectedPackage.typeText || '').toLowerCase();
     return typeStr === 'family' || typeText.includes('عائل');
   }, [selectedPackage]);
+
+  const maxStudentsAllowed = useMemo(() => {
+    if (!isFamilyPackage) return 1;
+    const directMax = Number(
+      selectedPackage?.maxMembers ??
+      selectedPackage?.maxStudents ??
+      selectedPackage?.max_members ??
+      selectedPackage?.maxChildren ??
+      0
+    );
+    if (directMax > 0) return directMax;
+    if (Array.isArray(selectedPackage?.familyTiers) && selectedPackage.familyTiers.length > 0) {
+      const tierCounts = selectedPackage.familyTiers
+        .map((t) => Number(t?.membersCount ?? t?.members ?? t?.count ?? 0))
+        .filter((n) => n > 0);
+      if (tierCounts.length > 0) return Math.max(...tierCounts);
+    }
+    return 5;
+  }, [isFamilyPackage, selectedPackage]);
 
   const [selectedStudentIds, setSelectedStudentIds] = useState(() => []);
 
@@ -155,12 +177,15 @@ export default function ParentCheckout() {
       setSelectedStudentIds(current.filter((id) => id !== idStr));
       return;
     }
-    if (current.length >= 5) {
-      showErrorToast(t('parentPackages.maxStudentsReached', 'الحد الأقصى المسموح به للباقة العائلية هو 5 طلاب'), isRtl);
+    if (current.length >= maxStudentsAllowed) {
+      showErrorToast(
+        t('parentPackages.maxStudentsReached', `الحد الأقصى المسموح به للباقة العائلية هو ${maxStudentsAllowed} طلاب`),
+        isRtl
+      );
       return;
     }
     setSelectedStudentIds([...current, idStr]);
-  }, [isFamilyPackage, effectiveStudentIds, isRtl, t]);
+  }, [isFamilyPackage, effectiveStudentIds, maxStudentsAllowed, isRtl, t]);
 
   const handleApplyCoupon = (e) => {
     e.preventDefault();
@@ -223,14 +248,21 @@ export default function ParentCheckout() {
   };
 
   const fallbackFinancials = useMemo(() => {
-    const rate = Number(currencyInfo?.exchangeRate || selectedPackage?.exchangeRate || 1);
-    const currency = currencyInfo?.symbol || 'ج.م';
-    const basePrice = Number(selectedPackage?.convertedPrice ?? Math.round(Number(selectedPackage?.price || 0) * rate));
+    const currency = currencySymbol;
+    const basePrice = Number(packageDisplayPrice || 0);
     const count = Math.max(1, effectiveStudentIds.length);
-    const multiplier = isFamilyPackage ? count : 1;
-    const subtotal = basePrice * multiplier;
-    const tax = Number((subtotal * 0.14).toFixed(2));
-    const total = subtotal + tax;
+    let tierPrice = null;
+    if (isFamilyPackage && Array.isArray(selectedPackage?.familyTiers) && selectedPackage.familyTiers.length > 0) {
+      const matchedTier = selectedPackage.familyTiers.find(
+        (t) => Number(t?.membersCount ?? t?.members ?? 0) === count
+      );
+      if (matchedTier && Number(matchedTier.price) > 0) {
+        tierPrice = resolvePackagePrice(matchedTier.price, currencyInfo, selectedPackage);
+      }
+    }
+    const subtotal = tierPrice !== null ? tierPrice : (basePrice * (isFamilyPackage ? count : 1));
+    const tax = Number((subtotal * 0.05).toFixed(2));
+    const total = Number((subtotal + tax).toFixed(2));
     return {
       subtotal,
       discount: 0,
@@ -238,7 +270,7 @@ export default function ParentCheckout() {
       total,
       currency,
     };
-  }, [selectedPackage, effectiveStudentIds.length, isFamilyPackage, currencyInfo]);
+  }, [packageDisplayPrice, effectiveStudentIds.length, isFamilyPackage, selectedPackage, currencyInfo, currencySymbol]);
 
   const summary = useMemo(() => {
     if (!previewData) return fallbackFinancials;
@@ -253,14 +285,14 @@ export default function ParentCheckout() {
     const rawTax = Number(previewData.taxAmount ?? previewData.tax ?? previewData.vat ?? fallbackFinancials.tax);
     const rawTotal = Number(previewData.finalAmount ?? previewData.total ?? fallbackFinancials.total);
     const rate = Number(currencyInfo?.exchangeRate || 1);
-    const isUsdScale = rate > 1 && rawSubtotal > 0 && fallbackFinancials.subtotal > 0 && rawSubtotal <= (fallbackFinancials.subtotal / 2);
+    const isUsdScale = rate > 1 && rawSubtotal > 0 && rawSubtotal < 150 && fallbackFinancials.subtotal >= 150;
     const subtotal = isUsdScale ? Math.round(rawSubtotal * rate) : rawSubtotal;
     const discount = isUsdScale ? Math.round(rawDiscount * rate) : rawDiscount;
     const tax = isUsdScale ? Number((rawTax * rate).toFixed(2)) : rawTax;
     const total = isUsdScale ? Math.round(rawTotal * rate) : rawTotal;
-    const currency = currencyInfo?.symbol || 'ج.م';
+    const currency = currencySymbol;
     return { subtotal, discount, tax, total, currency };
-  }, [previewData, fallbackFinancials, currencyInfo]);
+  }, [previewData, fallbackFinancials, currencyInfo, currencySymbol]);
 
   if (isPackageLoading) {
     return (
@@ -321,8 +353,8 @@ export default function ParentCheckout() {
         </div>
 
         {checkoutError && (
-          <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-300 text-sm flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400 text-sm font-bold flex items-center gap-3 shadow-xs">
+            <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
             <span>{checkoutError}</span>
           </div>
         )}
@@ -337,8 +369,18 @@ export default function ParentCheckout() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/40">
-                        {isFamilyPackage ? t('parentPackages.familyType', 'باقة عائلية') : t('parentPackages.individualType', 'باقة فردية')}
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1.5 ${
+                        isFamilyPackage
+                          ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60'
+                          : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/40'
+                      }`}>
+                        {isFamilyPackage ? <Users className="w-3 h-3 text-amber-600 dark:text-amber-400" /> : <User className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
+                        <span>{isFamilyPackage ? t('parentPackages.familyType', 'باقة عائلية') : t('parentPackages.individualType', 'باقة فردية')}</span>
+                        {isFamilyPackage && (
+                          <span className="font-extrabold text-[11px] text-amber-800 dark:text-amber-200 font-mono">
+                            ({t('parentPackages.maxAllowedHint', 'أقصى عدد:')} {maxStudentsAllowed} {t('parentPackages.studentsCountUnit', 'أبناء')})
+                          </span>
+                        )}
                       </span>
                       {availablePackagesList.length > 1 && (
                         <select
@@ -374,11 +416,15 @@ export default function ParentCheckout() {
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
                     {isFamilyPackage ? <Users className="w-4 h-4 text-[#0f7a6c]" /> : <User className="w-4 h-4 text-[#0f7a6c]" />}
-                    <span>{isFamilyPackage ? t('parentPackages.selectStudentsFamily', 'اختر الأبناء (1 إلى 5 طلاب)') : t('parentPackages.selectStudentSingle', 'اختر الابن المستفيد')}</span>
+                    <span>
+                      {isFamilyPackage
+                        ? t('parentPackages.selectStudentsFamilyDynamic', `اختر الأبناء (1 إلى ${maxStudentsAllowed} طلاب)`)
+                        : t('parentPackages.selectStudentSingle', 'اختر الابن المستفيد')}
+                    </span>
                   </label>
                   {isFamilyPackage && (
                     <span className="text-xs font-bold text-slate-400">
-                      {effectiveStudentIds.length} / 5 {t('parentPackages.studentsCountUnit', 'أبناء')}
+                      {effectiveStudentIds.length} / {maxStudentsAllowed} {t('parentPackages.studentsCountUnit', 'أبناء')}
                     </span>
                   )}
                 </div>
@@ -503,7 +549,8 @@ export default function ParentCheckout() {
                 <div>
                   <div className="text-xs text-slate-400 font-bold mb-1">{t('parentPackages.studentsCovered', 'الطلاب المستفيدين')}</div>
                   <div className="font-bold text-slate-800 dark:text-white">
-                    {effectiveStudentIds.length} {t('parentPackages.studentsCountUnit', 'أبناء')}
+                    {effectiveStudentIds.length}
+                    {isFamilyPackage && ` / ${maxStudentsAllowed}`} {t('parentPackages.studentsCountUnit', 'أبناء')}
                   </div>
                 </div>
 

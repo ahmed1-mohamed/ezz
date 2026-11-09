@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Activity, ChevronLeft, ChevronRight } from 'lucide-react'
 import { logsApi } from '@/shared/services/api/logsApi'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
+import TabErrorState from '@/shared/components/TabErrorState'
 import LogsStats from './components/LogsStats'
 import LogsTimeline from './components/LogsTimeline'
 
@@ -17,6 +19,7 @@ export default function AdminLogs() {
     isLoading,
     isError,
     error,
+    refetch,
   } = useQuery({
     queryKey: ['adminLogs', page, limit, activeTab],
     queryFn: () => {
@@ -33,7 +36,7 @@ export default function AdminLogs() {
   const totalItems = logsData?.pagination?.totalItems || logsData?.pagination?.total || logs.length || 0
   const totalPages = Math.max(1, logsData?.pagination?.numberOfPages || Math.ceil(totalItems / limit) || 1)
   const isPaginationDimmed = totalPages <= 1
-  const errorMessage = isError ? (error?.message || t('adminDashboard.logs.errorLoading', 'حدث خطأ أثناء تحميل الأحداث')) : null
+  const errorMessage = isError ? getApiErrorText(error, t('adminDashboard.logs.errorLoading', 'حدث خطأ أثناء تحميل الأحداث')) : null
   const startIdx = totalItems > 0 ? (page - 1) * limit + 1 : 0
   const endIdx = totalItems > 0 ? (page - 1) * limit + logs.length : 0
   return (
@@ -52,9 +55,12 @@ export default function AdminLogs() {
         </div>
       </div>
       {errorMessage && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
-          {errorMessage}
-        </div>
+        <TabErrorState
+          message={errorMessage}
+          compact
+          onRetry={() => refetch()}
+          isRtl={isRtl}
+        />
       )}
       <LogsStats 
         stats={stats} 

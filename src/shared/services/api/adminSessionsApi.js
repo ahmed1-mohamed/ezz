@@ -320,6 +320,24 @@ export const adminSessionsApi = {
     return { success: false, error: lastError, message };
   },
 
+  createExtraSession: async (sessionData) => {
+    try {
+      const response = await api.post('/api/v1/sessions/private/extra', sessionData);
+      return {
+        success: true,
+        data: response.data?.data || response.data,
+        message: response.data?.message || 'Session created successfully',
+      };
+    } catch (error) {
+      console.warn('createExtraSession failed:', error);
+      return {
+        success: false,
+        error,
+        message: error.response?.data?.message || error.message || 'Failed to create session',
+      };
+    }
+  },
+
   cancelSession: async (id) => {
     try {
       const response = await api.put(`/api/v1/sessions/private/${id}/cancel`);

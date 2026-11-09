@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert';
+import { getApiErrorText } from '@/shared/utils/errorHandler';
 
 export default function useTestimonials(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
@@ -121,8 +122,8 @@ export default function useTestimonials(showNotification, enabled = true) {
     } catch (err) {
       console.error('Backend validation error:', err.response?.data);
       console.error(err);
-      const errMsg = err.response?.data?.message || err.message || '';
-      showNotification(t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات') + (errMsg ? `: ${JSON.stringify(errMsg)}` : ''), 'error');
+      const errMsg = getApiErrorText(err, t('adminDashboard.website.saveDataError', 'فشل حفظ البيانات'));
+      showNotification(errMsg, 'error');
     } finally {
       setIsSaving(false);
     }

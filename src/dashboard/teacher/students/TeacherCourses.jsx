@@ -1,4 +1,4 @@
-﻿import { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -87,8 +87,8 @@ export default function TeacherCourses() {
                     ))}
                 </div>
             ) : isError ? (
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-slate-100 dark:border-slate-800 shadow-xs space-y-3">
-                    <p className="text-rose-500 font-bold text-sm">
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 shadow-xs space-y-3">
+                    <p className="text-red-600 dark:text-red-400 font-bold text-sm">
                         {t('common.errorLoading', 'حدث خطأ أثناء تحميل المقررات')}
                     </p>
                     <button

@@ -15,7 +15,7 @@ export default function TeachersGrid({
 }) {
   if (isError) {
     return (
-      <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-[32px] border border-red-100 dark:border-red-900/40 shadow-sm p-8 space-y-4">
+      <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-[32px] border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 shadow-sm p-8 space-y-4">
         <div className="inline-flex p-3 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
           <AlertCircle className="w-8 h-8" />
         </div>

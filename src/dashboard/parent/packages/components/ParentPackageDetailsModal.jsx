@@ -20,6 +20,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
+import { resolvePackagePrice } from '@/shared/services/api/currenciesApi';
 
 function resolveModalIcon(iconName) {
   const norm = String(iconName || '').toLowerCase().trim();
@@ -122,10 +123,19 @@ export default function ParentPackageDetailsModal({
     usdFinal = Math.max(0, rawBasePrice - Number(activeData.discountAmount));
     discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
   }
-  const convertedFinal = Math.round(usdFinal * rate);
-  const convertedOriginal = Math.round(usdOriginal * rate);
+  const convertedFinal = resolvePackagePrice(usdFinal, currencyInfo, activeData);
+  const convertedOriginal = resolvePackagePrice(usdOriginal, currencyInfo, activeData);
+  const maxFamilyMembers = Number(
+    activeData?.maxMembers ??
+    activeData?.maxStudents ??
+    activeData?.max_members ??
+    (Array.isArray(familyTiers) && familyTiers.length > 0
+      ? Math.max(...familyTiers.map((t) => Number(t?.membersCount ?? t?.members ?? 0)))
+      : 0)
+  ) || (isFamily ? 5 : 1);
   const enrichedActiveData = {
     ...activeData,
+    maxMembers: maxFamilyMembers,
     convertedPrice: convertedFinal,
     convertedOriginalPrice: convertedOriginal,
     currency: currencySymbol,
@@ -227,9 +237,11 @@ export default function ParentPackageDetailsModal({
               </span>
             </div>
             <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400 font-medium">{t('parentPackages.maxMembers', 'الحد الأقصى للمشتركين')}:</span>
+              <span className="text-slate-400 font-medium">
+                {isFamily ? t('parentPackages.maxChildrenAllowed', 'أقصى عدد أبناء للباقة:') : t('parentPackages.maxMembers', 'الحد الأقصى للمشتركين:')}
+              </span>
               <span className="font-extrabold text-slate-800 dark:text-slate-200">
-                {activeData?.maxMembers || 1} {t('parentPackages.membersUnit', 'أفراد')}
+                {maxFamilyMembers} {isFamily ? t('parentPackages.studentsCountUnit', 'أبناء') : t('parentPackages.membersUnit', 'أفراد')}
               </span>
             </div>
             {activeData?.language && (
@@ -250,14 +262,14 @@ export default function ParentPackageDetailsModal({
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {familyTiers.map((tier, idx) => {
-                  const tierPrice = Math.round(Number(tier.price || 0) * rate);
+                  const tierPrice = resolvePackagePrice(tier.price, currencyInfo, activeData);
                   return (
                     <div
                       key={idx}
                       className="p-3 rounded-xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20 flex items-center justify-between text-xs"
                     >
                       <span className="font-bold text-slate-800 dark:text-slate-200">
-                        {tier.membersCount || tier.members || idx + 2} {t('parentPackages.membersUnit', 'أفراد')}
+                        {tier.membersCount || tier.members || idx + 2} {t('parentPackages.studentsCountUnit', 'أبناء')}
                       </span>
                       <span className="font-black text-amber-700 dark:text-amber-400">
                         {formatPriceString(tierPrice)} {currencySymbol}

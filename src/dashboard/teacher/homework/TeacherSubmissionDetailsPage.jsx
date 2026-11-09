@@ -55,19 +55,20 @@ export default function TeacherSubmissionDetailsPage() {
   }
   if (isError && !detailsRes?.data) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-4 text-center" dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
-          <AlertCircle size={28} />
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-base font-black text-slate-800 dark:text-white">
-            {t('teacherHomework.errorLoadingDetails', 'تعذر تحميل تفاصيل الواجب المسلم')}
-          </h3>
-          <p className="text-xs text-slate-400">
-            {t('teacherHomework.errorLoadingDetailsDesc', 'يرجى التحقق من اتصالك بالإنترنت والمحاولة مجدداً')}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 pt-2">
+      <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 rounded-3xl p-8 text-center space-y-4 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-500 flex items-center justify-center mx-auto">
+            <AlertCircle size={28} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-black text-slate-800 dark:text-white">
+              {t('teacherHomework.errorLoadingDetails', 'تعذر تحميل تفاصيل الواجب المسلم')}
+            </h3>
+            <p className="text-xs text-red-600 dark:text-red-400 font-bold">
+              {t('teacherHomework.errorLoadingDetailsDesc', 'يرجى التحقق من اتصالك بالإنترنت والمحاولة مجدداً')}
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-3 pt-2">
           <button
             type="button"
             onClick={handleBack}
@@ -85,7 +86,8 @@ export default function TeacherSubmissionDetailsPage() {
           </button>
         </div>
       </div>
-    );
+    </div>
+  );
   }
   return (
     <div className="animate-fadeIn pb-12" dir={isRtl ? 'rtl' : 'ltr'}>

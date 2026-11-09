@@ -59,5 +59,46 @@ export const adminTrialSessionsApi = {
       throw error
     }
   },
+
+  fetchWebsiteTrialSessions: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/trial-sessions/website/private', { params })
+      return response.data
+    } catch (error) {
+      console.error('API fetchWebsiteTrialSessions failed:', error)
+      throw error
+    }
+  },
+
+  fetchWebsiteTrialSessionById: async (id) => {
+    try {
+      const response = await api.get(`/api/v1/trial-sessions/website/private/${id}`)
+      return response.data
+    } catch (error) {
+      console.error(`API fetchWebsiteTrialSessionById(${id}) failed:`, error)
+      throw error
+    }
+  },
+
+  updateWebsiteTrialSession: async (id, data = {}) => {
+    try {
+      const payload = {
+        status: data.status,
+      }
+      if (data.studentId) {
+        payload.studentId = data.studentId
+      }
+      const noteVal = (data.notes || data.note || data.adminNotes || '').trim()
+      if (noteVal) {
+        payload.notes = noteVal
+        payload.note = noteVal
+      }
+      const response = await api.patch(`/api/v1/trial-sessions/website/private/${id}`, payload)
+      return response.data
+    } catch (error) {
+      console.error(`API updateWebsiteTrialSession(${id}) failed:`, error)
+      throw error
+    }
+  },
 }
 

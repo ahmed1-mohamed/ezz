@@ -271,12 +271,25 @@ api.interceptors.response.use(
           focusInputByError(firstVal);
         }
       }
+      if (typeof error.response?.data?.message === 'string') {
+        const rawBackendMsg = error.response.data.message;
+        if (/(\/api\/|\bCannot\s+(GET|POST|PUT|PATCH|DELETE)|https?:\/\/|\b(route|endpoint)\s+.*not\s+found\b)/i.test(rawBackendMsg)) {
+          error.response.data.message = isArabic
+            ? 'تعذر الوصول إلى الرابط المطلوب أو الخدمة غير متوفرة'
+            : 'Requested resource is currently unavailable.';
+        }
+      }
+      if (error.message && /(\/api\/|\bCannot\s+(GET|POST|PUT|PATCH|DELETE)|https?:\/\/|status\s*code\s*\d{3})/i.test(error.message)) {
+        error.message = isArabic
+          ? 'تعذر استكمال العملية، يرجى المحاولة لاحقاً'
+          : 'Unable to complete the operation. Please try again.';
+      }
       if (!originalRequest?.silent && !originalRequest?.skipGlobalErrorToast) {
         showSafeErrorToast(error, { status, isArabic });
       }
       return Promise.reject(error);
     }
-    if (error.message && /status\s*code|internal\s*server|bad\s*gateway|network\s*error/i.test(error.message)) {
+    if (error.message && /status\s*code|internal\s*server|bad\s*gateway|network\s*error|\/api\/|cannot\s+(get|post|put|patch|delete)|https?:\/\//i.test(error.message)) {
       error.message = isArabic
         ? 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً'
         : 'An unexpected error occurred. Please try again later.';

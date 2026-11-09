@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 
 const getImageUrl = (imagePath) => {
@@ -16,6 +17,8 @@ const getImageUrl = (imagePath) => {
 
 export default function TeacherCard({ teacher, t, isRtl }) {
     const navigate = useNavigate()
+    const { i18n } = useTranslation()
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
     const { user, isAuthenticated } = useAuth()
     const [hasImgError, setHasImgError] = useState(false)
     const [prevImg, setPrevImg] = useState(teacher?.image)
@@ -34,7 +37,7 @@ export default function TeacherCard({ teacher, t, isRtl }) {
         } else if (user?.role?.toLowerCase() === 'parent') {
             navigate(targetUrl)
         } else {
-            navigate('/')
+            navigate(`/${currentLang}`)
         }
     }
 
@@ -90,7 +93,7 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                     {t('teacherProfile.bookTrial', 'احجز حصة تجريبية')}
                 </button>
                 <button
-                    onClick={() => navigate('/pricing')}
+                    onClick={() => navigate(`/${currentLang}/pricing`)}
                     className="w-full bg-black hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 text-lg cursor-pointer"
                 >
                     {t('teacherProfile.subscribeNow', 'اشترك الآن')}

@@ -4,6 +4,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, CalendarDays, Users } from 'lucide-react'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { timetableApi } from '@/shared/services/api/timetableApi'
+import TabErrorState from '@/shared/components/TabErrorState'
 import ScheduleCalendarGrid from './components/ScheduleCalendarGrid'
 
 const DAYS_IN_WEEK = 7
@@ -32,7 +33,7 @@ export default function AdminSchedule() {
   const today = useMemo(() => new Date(), [])
   const [weekQuery, setWeekQuery] = useState({ weekOffset: 0, date: '' })
   const [selectedTeacherId, setSelectedTeacherId] = useState('')
-  const { data: timetable, isLoading, isFetching, isError } = useQuery({
+  const { data: timetable, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['adminTimetable', weekQuery.weekOffset, weekQuery.date, selectedTeacherId],
     queryFn: () => timetableApi.fetchPrivateTimetable({ ...weekQuery, teacherId: selectedTeacherId }),
     staleTime: STALE_TIME_MS,
@@ -195,9 +196,12 @@ export default function AdminSchedule() {
         </div>
       </div>
       {isError && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
-          {t('adminDashboard.schedule.loadError', 'تعذر تحميل الجدول الدراسي')}
-        </div>
+        <TabErrorState
+          message={t('adminDashboard.schedule.loadError', 'تعذر تحميل الجدول الدراسي')}
+          compact
+          onRetry={() => refetch()}
+          isRtl={isRtl}
+        />
       )}
       {isLoading ? (
         <div className="h-96 rounded-3xl bg-slate-100 dark:bg-slate-800 animate-pulse" />

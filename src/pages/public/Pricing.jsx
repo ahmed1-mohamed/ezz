@@ -16,7 +16,8 @@ export default function Pricing() {
     const { t, i18n } = useTranslation()
     const dispatch = useDispatch()
     const { packagesData, loading } = useSelector((state) => state.landing)
-    const isRtl = i18n.language?.startsWith('ar') ?? true
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar'
+    const isRtl = currentLang === 'ar'
     const [currencyInfo, setCurrencyInfo] = useState({ symbol: '$', exchangeRate: 1 })
     useEffect(() => {
         dispatch(fetchPackagesAndFaqs(i18n.language))
@@ -203,7 +204,7 @@ export default function Pricing() {
                             {t('pricing.contactForCustom', 'يرجى التواصل معنا للاستفسار عن الباقات والعروض الخاصة')}
                         </p>
                         <Link
-                            to="/contact"
+                            to={`/${currentLang}/contact`}
                             className="inline-block px-6 py-3 rounded-2xl bg-[#00695C] text-white font-bold text-sm shadow-md hover:bg-[#005247] transition-all cursor-pointer"
                         >
                             {t('public.nav.contactUs', 'تواصل معنا')}

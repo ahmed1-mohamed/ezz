@@ -1,4 +1,4 @@
-      import { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -77,9 +77,49 @@ export default function SubmissionDetailsView({
       icon: Clock,
     };
   }, [isEvaluated, rawStatus, liveData.grade]);
+  const studentTextAnswer = useMemo(() => {
+    return (
+      liveData.textAnswer ||
+      liveData.answerText ||
+      liveData.submission?.textAnswer ||
+      liveData.submission?.answerText ||
+      submission?.textAnswer ||
+      submission?.answerText ||
+      liveData.notes ||
+      submission?.notes ||
+      ''
+    ).trim();
+  }, [liveData, submission]);
   const attachedDocuments = useMemo(() => {
-    if (Array.isArray(liveData.documents) && liveData.documents.length > 0) {
-      return liveData.documents;
+    const rawAtts =
+      (Array.isArray(liveData.attachments) && liveData.attachments.length > 0 && liveData.attachments) ||
+      (Array.isArray(liveData.submission?.attachments) && liveData.submission.attachments.length > 0 && liveData.submission.attachments) ||
+      (Array.isArray(submission?.attachments) && submission.attachments.length > 0 && submission.attachments) ||
+      (Array.isArray(liveData.documents) && liveData.documents.length > 0 && liveData.documents) ||
+      [];
+    if (rawAtts.length > 0) {
+      return rawAtts.map((att, idx) => {
+        if (!att) return null;
+        if (typeof att === 'string') {
+          const rawName = decodeURIComponent(att.split('/').pop()?.split('?')[0] || `ملف_${idx + 1}`);
+          return {
+            id: `att-${idx}`,
+            name: rawName,
+            url: att,
+            size: 'ملف مرفق',
+            type: rawName.endsWith('.pdf') ? 'pdf' : 'file',
+          };
+        }
+        const rawUrl = att.url || att.fileUrl || att.path || '#';
+        const rawName = decodeURIComponent(att.name || att.fileName || (typeof rawUrl === 'string' ? rawUrl.split('/').pop()?.split('?')[0] : '') || `ملف_${idx + 1}`);
+        return {
+          id: att.id || att._id || `att-${idx}`,
+          name: rawName,
+          url: rawUrl,
+          size: att.size || att.fileSize || 'ملف مرفق',
+          type: rawName.endsWith('.pdf') || att.type === 'pdf' ? 'pdf' : 'file',
+        };
+      }).filter(Boolean);
     }
     return [
       {
@@ -99,7 +139,7 @@ export default function SubmissionDetailsView({
         url: '#',
       },
     ];
-  }, [liveData.documents]);
+  }, [liveData, submission]);
   const [selectedPreviewDoc, setSelectedPreviewDoc] = useState(attachedDocuments[0]);
   const audioRecordings = useMemo(() => {
     if (Array.isArray(liveData.audioRecordings) && liveData.audioRecordings.length > 0) {
@@ -134,9 +174,62 @@ export default function SubmissionDetailsView({
     const list =
       liveData.questions ||
       liveData.homeworkData?.questions ||
-      liveData.homework?.questions;
+      liveData.homework?.questions ||
+      submission?.questions ||
+      submission?.homework?.questions;
     if (Array.isArray(list) && list.length > 0) {
-      return list;
+      const answersList = Array.isArray(liveData.answers)
+        ? liveData.answers
+        : (Array.isArray(liveData.submission?.answers)
+          ? liveData.submission.answers
+          : (Array.isArray(submission?.answers) ? submission.answers : []));
+      const answersMap = {};
+      answersList.forEach((a) => {
+        if (a && typeof a === 'object') {
+          const qId = String(a.questionId || a.id || a.question || a._id || '').trim();
+          if (qId) {
+            answersMap[qId] = a;
+          }
+        }
+      });
+      return list.map((q, idx) => {
+        const qId = String(q.id || q._id || q.questionId || `q-${idx}`).trim();
+        const ans = answersMap[qId] || null;
+        let studentAnsText = '';
+        if (ans) {
+          if (ans.selectedOptionIndex !== undefined && ans.selectedOptionIndex !== null) {
+            const optIdx = Number(ans.selectedOptionIndex);
+            if (Array.isArray(q.options) && q.options[optIdx] !== undefined) {
+              studentAnsText = `الخيار (${optIdx + 1}): ${q.options[optIdx]}`;
+            } else {
+              studentAnsText = `الخيار رقم ${optIdx + 1}`;
+            }
+          } else if (ans.selectedOption !== undefined && ans.selectedOption !== null) {
+            const optIdx = Number(ans.selectedOption);
+            if (Array.isArray(q.options) && q.options[optIdx] !== undefined) {
+              studentAnsText = `الخيار (${optIdx + 1}): ${q.options[optIdx]}`;
+            } else {
+              studentAnsText = `الخيار رقم ${optIdx + 1}`;
+            }
+          } else if (ans.answerText) {
+            studentAnsText = String(ans.answerText);
+          } else if (ans.textAnswer) {
+            studentAnsText = String(ans.textAnswer);
+          } else if (ans.text) {
+            studentAnsText = String(ans.text);
+          } else if (ans.answer) {
+            studentAnsText = String(ans.answer);
+          }
+        }
+        return {
+          ...q,
+          id: qId,
+          question: q.questionText || q.question || `السؤال ${idx + 1}`,
+          points: Number(q.points) || 5,
+          studentAnswer: studentAnsText || q.studentAnswer || '',
+          isCorrect: ans?.isCorrect !== undefined ? ans.isCorrect : (q.isCorrect !== undefined ? q.isCorrect : null),
+        };
+      });
     }
     return [
       {
@@ -157,24 +250,22 @@ export default function SubmissionDetailsView({
         isCorrect: true,
       },
     ];
-  }, [liveData]);
-  const [questionResults, setQuestionResults] = useState(() => {
-    const init = {};
-    quizQuestions.forEach((q) => {
-      init[q.id] = q.isCorrect !== false;
-    });
-    return init;
-  });
-  const toggleQuestionCorrect = (qId) => {
+  }, [liveData, submission]);
+  const [questionResults, setQuestionResults] = useState({});
+  const isQuestionResultCorrect = (q) => {
+    if (questionResults[q.id] !== undefined) {
+      return Boolean(questionResults[q.id]);
+    }
+    return q.isCorrect !== false;
+  };
+  const toggleQuestionCorrect = (qId, defaultVal) => {
     setQuestionResults((prev) => ({
       ...prev,
-      [qId]: !prev[qId],
+      [qId]: prev[qId] !== undefined ? !prev[qId] : !defaultVal,
     }));
   };
-  const [grade, setGrade] = useState(liveData.grade ?? 85);
-  const [teacherNotes, setTeacherNotes] = useState(
-    liveData.teacherNotes || ''
-  );
+  const [grade, setGrade] = useState(() => liveData.grade ?? 85);
+  const [teacherNotes, setTeacherNotes] = useState(() => liveData.teacherNotes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const quickGrades = [
     [70, 65, 60],
@@ -188,12 +279,15 @@ export default function SubmissionDetailsView({
     }
     setIsSubmitting(true);
     try {
-      const evaluatedQuestions = quizQuestions.map((q) => ({
-        questionId: q.id,
-        isCorrect: Boolean(questionResults[q.id]),
-        earnedPoints: questionResults[q.id] ? q.points || 5 : 0,
-        teacherFeedback: '',
-      }));
+      const evaluatedQuestions = quizQuestions.map((q) => {
+        const isCorr = isQuestionResultCorrect(q);
+        return {
+          questionId: q.id,
+          isCorrect: isCorr,
+          earnedPoints: isCorr ? q.points || 5 : 0,
+          teacherFeedback: '',
+        };
+      });
       const payload = {
         grade: Number(grade),
         teacherNotes: teacherNotes.trim(),
@@ -304,14 +398,16 @@ export default function SubmissionDetailsView({
             </div>
           </div>
         </div>
-        <div className="rounded-2xl p-4 bg-[#fffbeb] border border-[#fef3c7] dark:bg-amber-950/20 dark:border-amber-900/30 text-start space-y-1">
-          <div className="text-xs font-bold text-[#b45309] dark:text-amber-400 flex items-center gap-1.5">
-            <span>ملاحظة من الطالب</span>
+        {studentTextAnswer && (
+          <div className="rounded-2xl p-4 bg-[#fffbeb] border border-[#fef3c7] dark:bg-amber-950/20 dark:border-amber-900/30 text-start space-y-1">
+            <div className="text-xs font-bold text-[#b45309] dark:text-amber-400 flex items-center gap-1.5">
+              <span>إجابة الطالب / ملاحظات الحل</span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-[#92400e] dark:text-amber-300 whitespace-pre-wrap">
+              {studentTextAnswer}
+            </p>
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-[#92400e] dark:text-amber-300">
-            أرجو مراجعة التلاوة والتأكد من صحة تطبيق أحكام المد
-          </p>
-        </div>
+        )}
       </div>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
         <div className="flex items-center gap-2">
@@ -444,7 +540,7 @@ export default function SubmissionDetailsView({
           </div>
           <div className="space-y-4">
             {quizQuestions.map((q, idx) => {
-              const isCorrect = Boolean(questionResults[q.id]);
+              const isCorrect = isQuestionResultCorrect(q);
               return (
                 <div
                   key={q.id}
@@ -462,7 +558,7 @@ export default function SubmissionDetailsView({
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
-                        onClick={() => toggleQuestionCorrect(q.id)}
+                        onClick={() => toggleQuestionCorrect(q.id, q.isCorrect !== false)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
                           isCorrect
                             ? 'bg-emerald-600 text-white shadow-xs'
@@ -474,7 +570,7 @@ export default function SubmissionDetailsView({
                       </button>
                       <button
                         type="button"
-                        onClick={() => toggleQuestionCorrect(q.id)}
+                        onClick={() => toggleQuestionCorrect(q.id, q.isCorrect !== false)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
                           !isCorrect
                             ? 'bg-rose-600 text-white shadow-xs'

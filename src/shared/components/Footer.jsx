@@ -95,12 +95,13 @@ const SOCIAL_LINKS = [
 
 export default function Footer() {
     const { t, i18n } = useTranslation()
-    const isRtl = i18n?.language?.startsWith('ar') ?? true
+    const currentLang = i18n?.language?.startsWith('en') ? 'en' : 'ar'
+    const isRtl = currentLang === 'ar'
     const quickLinks = [
-        { label: t('public.nav.curriculums', 'المناهج'), href: '/curriculums' },
-        { label: t('public.nav.pricing', 'الأسعار'), href: '/pricing' },
-        { label: t('public.nav.aboutUs', 'من نحن'), href: '/about' },
-        { label: t('public.nav.contactUs', 'تواصل معنا'), href: '/contact' },
+        { label: t('public.nav.curriculums', 'المناهج'), href: `/${currentLang}/curriculums` },
+        { label: t('public.nav.pricing', 'الأسعار'), href: `/${currentLang}/pricing` },
+        { label: t('public.nav.aboutUs', 'من نحن'), href: `/${currentLang}/about` },
+        { label: t('public.nav.contactUs', 'تواصل معنا'), href: `/${currentLang}/contact` },
     ]
     const Chevron = isRtl ? ChevronLeft : ChevronRight
     return (
@@ -109,7 +110,7 @@ export default function Footer() {
             <div className="container mx-auto px-6 py-12 lg:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 text-start items-start">
                     <div className="lg:col-span-5 space-y-5">
-                        <div className="flex items-center gap-3">
+                        <Link to={`/${currentLang}`} className="flex items-center gap-3 group hover:opacity-90 transition-opacity">
                             <img
                                 src={logoImg}
                                 alt="Manarat Al-Ezz Logo"
@@ -126,7 +127,7 @@ export default function Footer() {
                                     {t('home.badge', 'أكاديمية تعليمية متكاملة')}
                                 </span>
                             </div>
-                        </div>
+                        </Link>
                         <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed max-w-md">
                             {t('public.footer.description', isRtl
                                 ? 'منارة العز م م ح (Manart Alezz FZE) — مؤسسة منطقة حرة مرخّصة من مدينة الشارقة للنشر – هيئة منطقة حرة، حكومة الشارقة، الإمارات العربية المتحدة. رخصة تجارية رقم 4429961.01.'

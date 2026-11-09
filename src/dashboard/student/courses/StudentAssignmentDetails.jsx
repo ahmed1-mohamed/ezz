@@ -261,12 +261,79 @@ function resolveHomeworkDetails(rawItem, fallbackId, isRtl) {
   const teacherName = typeof itemData.teacher === 'object' ? itemData.teacher?.name : (itemData.teacher || itemData.teacherName || fallback.teacher);
   const rawStatus = (itemData.submissionStatus || itemData.status || itemData.submission?.status || fallback.submissionStatus || 'pending').toString().toLowerCase();
   const isLateSubmitted = rawStatus === 'submitted_late' || (rawStatus.includes('متأخر') && (rawStatus.includes('تسليم') || rawStatus.includes('مسلم') || rawStatus.includes('submitted'))) || Boolean(itemData.isLate) || Boolean(itemData.submittedLate);
-  const isCompleted = Boolean(itemData.submittedAt) || rawStatus === 'submitted' || rawStatus === 'completed' || rawStatus.includes('مكتمل') || rawStatus.includes('تم التسليم') || isLateSubmitted;
+  const isRealApiData = Boolean(rawItem.data || (itemData.id && String(itemData.id).length > 10) || itemData.homeworkId);
+  const rawAnswers = (
+    (Array.isArray(itemData.answers) && itemData.answers.length > 0 && itemData.answers) ||
+    (Array.isArray(itemData.submission?.answers) && itemData.submission.answers.length > 0 && itemData.submission.answers) ||
+    (Array.isArray(itemData.solution?.answers) && itemData.solution.answers.length > 0 && itemData.solution.answers) ||
+    (Array.isArray(itemData.homeworkSubmission?.answers) && itemData.homeworkSubmission.answers.length > 0 && itemData.homeworkSubmission.answers) ||
+    (Array.isArray(itemData.studentSubmission?.answers) && itemData.studentSubmission.answers.length > 0 && itemData.studentSubmission.answers) ||
+    (Array.isArray(itemData.mySubmission?.answers) && itemData.mySubmission.answers.length > 0 && itemData.mySubmission.answers) ||
+    (!isRealApiData && fallback.answers ? fallback.answers : [])
+  );
+  const rawQuestions = (
+    (Array.isArray(itemData.questions) && itemData.questions) ||
+    (Array.isArray(itemData.homework?.questions) && itemData.homework.questions) ||
+    (Array.isArray(itemData.homeworkData?.questions) && itemData.homeworkData.questions) ||
+    (!isRealApiData && fallback.questions ? fallback.questions : [])
+  );
+  const questionsList = rawQuestions.map((q, idx) => {
+    const qId = String(q.id || q._id || q.questionId || `q-${idx}`).trim();
+    return {
+      ...q,
+      id: qId,
+      _id: q._id || q.id || qId,
+      questionText: q.questionText || q.question || q.title || '',
+      questionTextEn: q.questionTextEn || q.questionEn || q.questionText || q.question || '',
+      type: q.type || (Array.isArray(q.options) && q.options.length > 0 ? 'multiple_choice' : 'text'),
+      options: Array.isArray(q.options) ? q.options : [],
+      optionsEn: Array.isArray(q.optionsEn) ? q.optionsEn : (Array.isArray(q.options) ? q.options : []),
+      points: Number(q.points) || 5,
+    };
+  });
+  const initialAnswersMap = {};
+  const answerDetailsMap = {};
+  if (Array.isArray(rawAnswers) && rawAnswers.length > 0) {
+    rawAnswers.forEach((ans) => {
+      if (ans && typeof ans === 'object') {
+        const qId = String(ans.questionId || ans.id || ans.question || ans._id || '').trim();
+        let val = null;
+        if (ans.selectedOptionIndex !== undefined && ans.selectedOptionIndex !== null) {
+          val = Number(ans.selectedOptionIndex);
+        } else if (ans.selectedOption !== undefined && ans.selectedOption !== null) {
+          val = Number(ans.selectedOption);
+        } else if (ans.answerText !== undefined && ans.answerText !== null && String(ans.answerText).trim() !== '') {
+          val = String(ans.answerText);
+        } else if (ans.textAnswer !== undefined && ans.textAnswer !== null && String(ans.textAnswer).trim() !== '') {
+          val = String(ans.textAnswer);
+        } else if (ans.text !== undefined && ans.text !== null && String(ans.text).trim() !== '') {
+          val = String(ans.text);
+        } else if (ans.answer !== undefined && ans.answer !== null && String(ans.answer).trim() !== '') {
+          val = ans.answer;
+        }
+        if (qId) {
+          initialAnswersMap[qId] = val;
+          answerDetailsMap[qId] = {
+            value: val,
+            selectedOptionIndex: ans.selectedOptionIndex !== undefined && ans.selectedOptionIndex !== null
+              ? Number(ans.selectedOptionIndex)
+              : (ans.selectedOption !== undefined && ans.selectedOption !== null ? Number(ans.selectedOption) : null),
+            answerText: ans.answerText || ans.textAnswer || ans.text || (typeof val === 'string' ? val : null),
+            isCorrect: ans.isCorrect !== undefined ? ans.isCorrect : null,
+            earnedPoints: ans.earnedPoints !== undefined && ans.earnedPoints !== null ? Number(ans.earnedPoints) : null,
+            teacherFeedback: ans.teacherFeedback || ans.feedback || null,
+            attachments: Array.isArray(ans.attachments) ? ans.attachments : []
+          };
+        }
+      }
+    });
+  }
+  const hasSubmittedAnswers = Object.keys(initialAnswersMap).length > 0 && Object.values(initialAnswersMap).some((v) => v !== null && v !== undefined && String(v).trim() !== '');
+  const isCompleted = Boolean(itemData.submittedAt) || rawStatus === 'submitted' || rawStatus === 'completed' || rawStatus.includes('مكتمل') || rawStatus.includes('تم التسليم') || isLateSubmitted || hasSubmittedAnswers;
   const isOverdue = !isCompleted && (rawStatus === 'overdue' || rawStatus.includes('متأخر'));
   const rawEval = (itemData.evaluationStatus || itemData.submission?.evaluationStatus || fallback.evaluationStatus || '').toString().toLowerCase();
   const isEvaluated = rawEval === 'evaluated' || rawEval.includes('تم التقييم') || rawEval.includes('مقيم') || (itemData.grade !== null && itemData.grade !== undefined && itemData.grade !== '');
-  const canStudentSubmit = typeof itemData.canSubmit === 'boolean' ? itemData.canSubmit : (!isCompleted && !itemData.submittedAt);
-  const isRealApiData = Boolean(rawItem.data || (itemData.id && String(itemData.id).length > 10) || itemData.homeworkId);
+  const canStudentSubmit = typeof itemData.canSubmit === 'boolean' ? itemData.canSubmit : (!isCompleted && !itemData.submittedAt && !hasSubmittedAnswers);
   const docsList = [];
   if (Array.isArray(itemData.attachments) && itemData.attachments.length > 0) {
     itemData.attachments.forEach((att, idx) => {
@@ -314,28 +381,60 @@ function resolveHomeworkDetails(rawItem, fallbackId, isRtl) {
   if (!isRealApiData && audiosList.length === 0 && fallback.audioRecordings) {
     audiosList.push(...fallback.audioRecordings);
   }
-  const questionsList = isRealApiData
-    ? (Array.isArray(itemData.questions) ? itemData.questions : [])
-    : (Array.isArray(itemData.questions) && itemData.questions.length > 0 ? itemData.questions : fallback.questions);
-  const initialAnswersMap = {};
-  if (Array.isArray(itemData.answers) && itemData.answers.length > 0) {
-    itemData.answers.forEach((ans) => {
-      if (ans && typeof ans === 'object') {
-        const qId = ans.questionId || ans.id || ans.question;
-        const val = ans.selectedOption !== undefined ? ans.selectedOption : (ans.textAnswer !== undefined ? ans.textAnswer : ans.answer);
-        if (qId) {
-          initialAnswersMap[qId] = val;
-        }
-      }
-    });
-  } else if (fallback.answers) {
-    fallback.answers.forEach((ans) => {
-      if (ans?.questionId) {
-        initialAnswersMap[ans.questionId] = ans.selectedOption !== undefined ? ans.selectedOption : ans.textAnswer;
-      }
-    });
+  const studentTextAnswer = (
+    itemData.textAnswer ||
+    itemData.answerText ||
+    itemData.submission?.textAnswer ||
+    itemData.submission?.answerText ||
+    itemData.solution?.textAnswer ||
+    itemData.solution?.answerText ||
+    fallback.textAnswer ||
+    ''
+  ).trim();
+  const rawStudentAttachments = (
+    (Array.isArray(itemData.submission?.attachments) && itemData.submission.attachments) ||
+    (Array.isArray(itemData.solution?.attachments) && itemData.solution.attachments) ||
+    (Array.isArray(itemData.studentAttachments) && itemData.studentAttachments) ||
+    (Array.isArray(itemData.submittedAttachments) && itemData.submittedAttachments) ||
+    (studentTextAnswer && Array.isArray(itemData.attachments) ? itemData.attachments : [])
+  );
+  const studentAttachmentsList = (rawStudentAttachments || []).map((att, idx) => {
+    if (!att) return null;
+    if (typeof att === 'string') {
+      const rawName = decodeURIComponent(att.split('/').pop()?.split('?')[0] || `ملف_مرفق_${idx + 1}`);
+      return {
+        id: `att-${idx}`,
+        name: rawName,
+        url: att,
+        size: 'ملف مرفق',
+        type: rawName.endsWith('.pdf') ? 'pdf' : 'file',
+      };
+    }
+    if (typeof att === 'object') {
+      const rawUrl = att.url || att.fileUrl || att.path || '#';
+      const rawName = decodeURIComponent(att.name || att.fileName || (typeof rawUrl === 'string' ? rawUrl.split('/').pop()?.split('?')[0] : '') || `ملف_مرفق_${idx + 1}`);
+      return {
+        id: att.id || att._id || `att-${idx}`,
+        name: rawName,
+        url: rawUrl,
+        size: att.size || att.fileSize || 'ملف مرفق',
+        type: rawName.endsWith('.pdf') || att.type === 'pdf' ? 'pdf' : 'file',
+      };
+    }
+    return null;
+  }).filter(Boolean);
+  if (itemData.submittedFile && (itemData.submittedFile.url || itemData.submittedFile.name)) {
+    const subName = itemData.submittedFile.name || 'ملف_الحل_المرفق.pdf';
+    if (!studentAttachmentsList.some((a) => a.name === subName || a.url === itemData.submittedFile.url)) {
+      studentAttachmentsList.push({
+        id: 'submitted-file-main',
+        name: subName,
+        url: itemData.submittedFile.url || '#',
+        size: itemData.submittedFile.size || 'ملف مرفق',
+        type: subName.endsWith('.pdf') ? 'pdf' : 'file',
+      });
+    }
   }
-  const studentTextAnswer = itemData.textAnswer || fallback.textAnswer || itemData.submission?.studentNotes || '';
   const dueFormatted = formatAssignmentDate(itemData.deadline || itemData.dueDate || fallback.deadline || fallback.dueDate, isRtl);
   const submittedFormatted = formatAssignmentDate(itemData.submittedAt || itemData.submissionDate || fallback.submittedAt || fallback.submissionDate, isRtl);
   return {
@@ -368,7 +467,10 @@ function resolveHomeworkDetails(rawItem, fallbackId, isRtl) {
     audioRecordings: audiosList,
     questions: questionsList,
     initialAnswers: initialAnswersMap,
+    answerDetails: answerDetailsMap,
     initialTextAnswer: studentTextAnswer,
+    textAnswer: studentTextAnswer,
+    studentAttachments: studentAttachmentsList,
     submittedFile: itemData.submittedFile || fallback.submittedFile || null,
   };
 }
@@ -517,15 +619,21 @@ export default function StudentAssignmentDetails() {
       const formattedAnswers = Object.entries(selectedAnswers).map(([qId, value]) => {
         const targetQ = (homework.questions || []).find((q) => String(q.id) === String(qId));
         if (targetQ && targetQ.type === 'multiple_choice') {
-          const optText = Array.isArray(targetQ.options) ? targetQ.options[Number(value)] : '';
+          const optIdx = Number(value);
+          const optText = Array.isArray(targetQ.options) ? targetQ.options[optIdx] : '';
           return {
             questionId: qId,
-            selectedOption: Number(value),
+            selectedOptionIndex: optIdx,
+            selectedOption: optIdx,
             answer: optText || String(value),
+            answerText: null,
           };
         }
         return {
           questionId: qId,
+          selectedOptionIndex: null,
+          selectedOption: null,
+          answerText: String(value),
           textAnswer: String(value),
           answer: String(value),
         };
@@ -741,6 +849,65 @@ export default function StudentAssignmentDetails() {
                 </p>
               </motion.div>
             )}
+            {Boolean((homework.textAnswer && homework.textAnswer.trim()) || (Array.isArray(homework.studentAttachments) && homework.studentAttachments.length > 0)) && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.08 }}
+                className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+                    {t('studentDashboard.assignments.studentSubmissionTitle', 'إجابة وحل الواجب المسلم')}
+                  </h3>
+                </div>
+                {homework.textAnswer && homework.textAnswer.trim() && (
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-1">
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
+                      {t('studentDashboard.assignments.textAnswerLabel', 'الإجابة النصية:')}
+                    </span>
+                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-medium leading-relaxed whitespace-pre-wrap">
+                      {homework.textAnswer}
+                    </p>
+                  </div>
+                )}
+                {Array.isArray(homework.studentAttachments) && homework.studentAttachments.length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
+                      {t('studentDashboard.assignments.submittedAttachments', 'مرفقات الحل:')}
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {homework.studentAttachments.map((att) => {
+                        const isPdf = att.type === 'pdf';
+                        return (
+                          <div
+                            key={att.id}
+                            className="bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 rounded-2xl p-3.5 flex items-center justify-between gap-3 border border-slate-100 dark:border-slate-700/60 transition"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isPdf ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'}`}>
+                                <FileText size={18} />
+                              </div>
+                              <div className="min-w-0 text-start">
+                                <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">{att.name}</h5>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500">{att.size}</p>
+                              </div>
+                            </div>
+                            {att.url && att.url !== '#' && (
+                              <a href={att.url} download={att.name} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-xs font-bold text-[#00594C] dark:text-emerald-400 border border-slate-200 dark:border-slate-600 transition shrink-0 cursor-pointer shadow-xs">
+                                <Download size={13} />
+                                <span>{t('studentDashboard.assignments.downloadFile', 'تحميل')}</span>
+                              </a>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
             {((Array.isArray(homework.documents) && homework.documents.length > 0) ||
               (Array.isArray(homework.audioRecordings) && homework.audioRecordings.length > 0)) && (
               <motion.div
@@ -852,6 +1019,7 @@ export default function StudentAssignmentDetails() {
                     const qPoints = Number(q.points) || 5;
                     const isMcq = q.type === 'multiple_choice';
                     const studentAns = selectedAnswers[q.id];
+                    const ansDetails = homework.answerDetails?.[q.id] || null;
                     const optionsList = isRtl ? (q.options || []) : (q.optionsEn || q.options || []);
                     return (
                       <div
@@ -867,15 +1035,31 @@ export default function StudentAssignmentDetails() {
                               {isRtl ? q.questionText : (q.questionTextEn || q.questionText)}
                             </h4>
                           </div>
-                          <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 shrink-0">
-                            {qPoints} {t('studentDashboard.assignments.pointsCount', 'درجات')}
-                          </span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {ansDetails?.isCorrect === true && (
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 flex items-center gap-1">
+                                <CheckCircle size={12} />
+                                <span>{t('studentDashboard.assignments.correctAnswer', 'إجابة صحيحة')}</span>
+                              </span>
+                            )}
+                            {ansDetails?.isCorrect === false && (
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 flex items-center gap-1">
+                                <AlertCircle size={12} />
+                                <span>{t('studentDashboard.assignments.incorrectAnswer', 'إجابة خاطئة')}</span>
+                              </span>
+                            )}
+                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+                              {ansDetails?.earnedPoints !== null && ansDetails?.earnedPoints !== undefined
+                                ? `${ansDetails.earnedPoints} / ${qPoints} ${t('studentDashboard.assignments.pointsCount', 'درجات')}`
+                                : `${qPoints} ${t('studentDashboard.assignments.pointsCount', 'درجات')}`}
+                            </span>
+                          </div>
                         </div>
                         {isMcq && Array.isArray(optionsList) && optionsList.length > 0 && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                             {optionsList.map((opt, optIndex) => {
-                              const isSelected = studentAns === optIndex;
-                              const isSubmittedChoice = isCompleted && studentAns === optIndex;
+                              const isSelected = studentAns !== undefined && studentAns !== null && Number(studentAns) === optIndex;
+                              const isSubmittedChoice = isCompleted && isSelected;
                               return (
                                 <button
                                   type="button"
@@ -885,7 +1069,7 @@ export default function StudentAssignmentDetails() {
                                   className={`p-3.5 rounded-xl border text-xs sm:text-sm font-semibold flex items-center gap-3 transition text-start ${
                                     isCompleted
                                       ? isSubmittedChoice
-                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200'
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 ring-2 ring-emerald-500'
                                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 opacity-70'
                                       : !canSubmit
                                       ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 opacity-60 cursor-not-allowed'
@@ -904,19 +1088,26 @@ export default function StudentAssignmentDetails() {
                                     {isSelected || isSubmittedChoice ? '✓' : ''}
                                   </span>
                                   <span className="flex-1">{opt}</span>
+                                  {isSubmittedChoice && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+                                      {t('studentDashboard.assignments.yourAnswer', 'إجابتك')}
+                                    </span>
+                                  )}
                                 </button>
                               );
                             })}
                           </div>
                         )}
                         {!isMcq && (
-                          <div className="pt-1">
+                          <div className="pt-1 space-y-3">
                             {isCompleted ? (
-                              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium space-y-1">
                                 <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
                                   {t('studentDashboard.assignments.yourAnswer', 'إجابتك المسلمة')}:
                                 </span>
-                                {studentAns || (isRtl ? 'تمت الإجابة في ملف الحل المرفق.' : 'Answered in the attached file.')}
+                                <p className="font-semibold text-slate-800 dark:text-slate-100 whitespace-pre-wrap">
+                                  {studentAns || (isRtl ? 'تمت الإجابة في ملف الحل المرفق.' : 'Answered in the attached file.')}
+                                </p>
                               </div>
                             ) : (
                               <textarea
@@ -927,6 +1118,16 @@ export default function StudentAssignmentDetails() {
                                 placeholder={t('studentDashboard.assignments.typeYourAnswer', 'اكتب إجابتك هنا بالتفصيل...')}
                                 className="w-full p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#00594C] dark:focus:border-emerald-500 transition resize-none disabled:opacity-60 disabled:cursor-not-allowed"
                               />
+                            )}
+                            {ansDetails?.teacherFeedback && (
+                              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs">
+                                <span className="font-bold text-amber-800 dark:text-amber-300 block mb-0.5">
+                                  {t('studentDashboard.assignments.teacherFeedback', 'ملاحظات المعلم على السؤال')}:
+                                </span>
+                                <p className="text-amber-900 dark:text-amber-200 font-medium">
+                                  {ansDetails.teacherFeedback}
+                                </p>
+                              </div>
                             )}
                           </div>
                         )}

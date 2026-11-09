@@ -37,48 +37,82 @@ const ENGLISH_MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-function parseMonthNumber(val) {
-  if (val === null || val === undefined || val === '') return null;
-  if (typeof val === 'number') {
-    return val >= 1 && val <= 12 ? val : null;
+function formatYearMonthKey(year, month) {
+  const safeYear = Number(year) || new Date().getFullYear();
+  const safeMonth = Math.min(12, Math.max(1, Number(month) || 1));
+  return `${safeYear}-${String(safeMonth).padStart(2, '0')}`;
+}
+
+function parseYearMonth(val, fallbackYear = null) {
+  if (val === null || val === undefined || val === '') {
+    return null;
+  }
+  if (typeof val === 'number' && val >= 1 && val <= 12) {
+    const safeYear = fallbackYear || new Date().getFullYear();
+    return { year: safeYear, month: val, key: formatYearMonthKey(safeYear, val) };
   }
   const str = String(val).trim();
-  if (str.includes('-')) {
-    const parts = str.split('-');
-    const m = Number(parts[parts.length - 1]);
-    return !isNaN(m) && m >= 1 && m <= 12 ? m : null;
+  const match = str.match(/^(\d{4})-(\d{1,2})$/);
+  if (match) {
+    const y = Number(match[1]);
+    const m = Number(match[2]);
+    if (m >= 1 && m <= 12) {
+      return { year: y, month: m, key: formatYearMonthKey(y, m) };
+    }
   }
-  const parsed = Number(str);
-  return !isNaN(parsed) && parsed >= 1 && parsed <= 12 ? parsed : null;
+  const parsedNum = Number(str);
+  if (!isNaN(parsedNum) && parsedNum >= 1 && parsedNum <= 12) {
+    const safeYear = fallbackYear || new Date().getFullYear();
+    return { year: safeYear, month: parsedNum, key: formatYearMonthKey(safeYear, parsedNum) };
+  }
+  return null;
+}
+
+function getPreviousMonthKey(year, month) {
+  if (month <= 1) {
+    return formatYearMonthKey(year - 1, 12);
+  }
+  return formatYearMonthKey(year, month - 1);
+}
+
+function getNextMonthKey(year, month) {
+  if (month >= 12) {
+    return formatYearMonthKey(year + 1, 1);
+  }
+  return formatYearMonthKey(year, month + 1);
 }
 
 function buildMonthInfo(rawMonthInfo, monthQueryParam, baseCurrentMonth, baseCurrentYear) {
-  const parsedTargetMonth = parseMonthNumber(monthQueryParam);
-  const activeYear = Number(rawMonthInfo?.year) || baseCurrentYear;
-  const activeMonth = parsedTargetMonth || Number(rawMonthInfo?.month) || baseCurrentMonth;
+  const parsedTarget = parseYearMonth(monthQueryParam, baseCurrentYear);
+  const activeYear = parsedTarget?.year || Number(rawMonthInfo?.year) || baseCurrentYear;
+  const activeMonth = parsedTarget?.month || Number(rawMonthInfo?.month) || baseCurrentMonth;
+  const activeMonthKey = formatYearMonthKey(activeYear, activeMonth);
+  const currentMonthKey = formatYearMonthKey(baseCurrentYear, baseCurrentMonth);
   const isCurrentMonth = monthQueryParam === null
-    ? (rawMonthInfo?.isCurrentMonth !== undefined ? Boolean(rawMonthInfo.isCurrentMonth) : (activeYear === baseCurrentYear && activeMonth === baseCurrentMonth))
-    : (activeYear === baseCurrentYear && activeMonth === baseCurrentMonth);
-  const prevMonth = parseMonthNumber(rawMonthInfo?.previousMonth) ?? (activeMonth > 1 ? activeMonth - 1 : null);
-  const canGoPrevious = rawMonthInfo?.canGoPrevious !== undefined ? Boolean(rawMonthInfo.canGoPrevious) : activeMonth > 1;
+    ? (rawMonthInfo?.isCurrentMonth !== undefined ? Boolean(rawMonthInfo.isCurrentMonth) : activeMonthKey === currentMonthKey)
+    : activeMonthKey === currentMonthKey;
+  const parsedRawPrev = parseYearMonth(rawMonthInfo?.previousMonth, activeMonth === 1 ? activeYear - 1 : activeYear);
+  const prevMonthKey = parsedRawPrev?.key || getPreviousMonthKey(activeYear, activeMonth);
+  const canGoPrevious = rawMonthInfo?.canGoPrevious !== undefined ? Boolean(rawMonthInfo.canGoPrevious) : true;
+  const parsedRawNext = parseYearMonth(rawMonthInfo?.nextMonth, activeMonth === 12 ? activeYear + 1 : activeYear);
+  const nextMonthKey = parsedRawNext?.key || getNextMonthKey(activeYear, activeMonth);
   const canGoNext = rawMonthInfo?.canGoNext !== undefined
     ? Boolean(rawMonthInfo.canGoNext)
-    : ((activeYear < baseCurrentYear) || (activeYear === baseCurrentYear && activeMonth < baseCurrentMonth));
-  const nextMonth = parseMonthNumber(rawMonthInfo?.nextMonth) ?? (canGoNext ? (activeMonth === 12 ? 1 : activeMonth + 1) : null);
+    : activeMonthKey < currentMonthKey;
   const localizedLabel = {
-    ar: `${ARABIC_MONTH_NAMES[activeMonth - 1]} ${activeYear}`,
-    en: `${ENGLISH_MONTH_NAMES[activeMonth - 1]} ${activeYear}`
+    ar: `${ARABIC_MONTH_NAMES[activeMonth - 1] || ''} ${activeYear}`,
+    en: `${ENGLISH_MONTH_NAMES[activeMonth - 1] || ''} ${activeYear}`
   };
   const rawLabel = rawMonthInfo?.month === activeMonth ? rawMonthInfo.monthLabel : null;
   const monthLabel = rawLabel ? extractSafeText(rawLabel, true).replace(/\(الشهر الحالي\)|\(Current Month\)/gi, '').trim() : localizedLabel;
   return {
     year: activeYear,
     month: activeMonth,
-    monthKey: rawMonthInfo?.monthKey || `${activeYear}-${String(activeMonth).padStart(2, '0')}`,
+    monthKey: activeMonthKey,
     monthLabel,
     isCurrentMonth,
-    previousMonth: prevMonth,
-    nextMonth,
+    previousMonth: canGoPrevious ? prevMonthKey : null,
+    nextMonth: canGoNext ? nextMonthKey : null,
     canGoPrevious,
     canGoNext,
     startDate: rawMonthInfo?.startDate || null,
@@ -211,10 +245,10 @@ export default function ParentAttendance() {
     let isMounted = true;
     const fetchAttendanceData = async () => {
       try {
-        const monthNumber = parseMonthNumber(monthQuery);
+        const parsedTarget = parseYearMonth(monthQuery);
         const params = {};
-        if (monthNumber !== null) {
-          params.month = monthNumber;
+        if (parsedTarget?.key) {
+          params.month = parsedTarget.key;
         }
         const res = await parentApi.fetchAttendance(selectedStudentId, params);
         if (isMounted && res?.success && res.data) {

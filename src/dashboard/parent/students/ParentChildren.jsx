@@ -182,14 +182,14 @@ export default function ParentChildren() {
         <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-slate-400 mb-1">
-              {t('parent.childrenList.evaluationsCount', 'إجمالي التقييمات')}
+              {t('parent.childrenList.evaluationsCountLabel', 'عدد التقييمات')}
             </p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-slate-800 dark:text-white">
                 {totalEvaluations}
               </span>
               <span className="text-xs text-slate-400">
-                {t('parent.childrenList.classes', 'تقييم')}
+                {t('parent.childrenList.evaluationUnit', 'تقييم')}
               </span>
             </div>
           </div>

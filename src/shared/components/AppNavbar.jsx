@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Globe, Menu, X, Sun, Moon } from 'lucide-react'
-import { useRef, useEffect, useState, memo, useCallback } from 'react'
+import { useRef, useEffect, useState, memo, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from './Button.jsx'
 import Container from './Container.jsx'
@@ -11,11 +11,6 @@ import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
 import logoImg from '@/images/programs/NewLogo.webp'
-
-const navItems = publicNavigation.map((item) => ({
-    label: item.labelKey,
-    to: item.path,
-}))
 
 export default memo(function AppNavbar() {
     const { t, i18n } = useTranslation()
@@ -28,6 +23,17 @@ export default memo(function AppNavbar() {
     const hasToken = !!getCookie('access_token')
     const isAuthenticated = user && hasToken
     const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
+
+    const navItems = useMemo(() => {
+        return publicNavigation.map((item) => ({
+            label: item.labelKey,
+            to: item.path === '/' ? `/${currentLang}` : `/${currentLang}${item.path}`,
+            isHome: item.path === '/',
+        }))
+    }, [currentLang])
+
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.scrollY
@@ -36,8 +42,10 @@ export default memo(function AppNavbar() {
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
     const handleLogoClick = useCallback((e) => {
-        if (location.pathname === '/') {
+        const isHome = location.pathname === `/${currentLang}` || location.pathname === `/${currentLang}/`
+        if (isHome) {
             e.preventDefault()
             const hero = document.getElementById('hero-section')
             if (hero) {
@@ -47,12 +55,12 @@ export default memo(function AppNavbar() {
             }
         } else {
             e.preventDefault()
-            navigate('/', { state: { scrollToHero: true } })
+            navigate(`/${currentLang}`, { state: { scrollToHero: true } })
         }
-    }, [location.pathname, navigate])
+    }, [currentLang, location.pathname, navigate])
+
     const handleLanguageToggle = useCallback((e) => {
-        const newLang = i18n.language === 'ar' ? 'en' : 'ar'
-        setLanguage(newLang)
+        const newLang = currentLang === 'ar' ? 'en' : 'ar'
         const btn = e.currentTarget
         if (btn) {
             btn.style.transition = 'transform 0.6s ease'
@@ -62,7 +70,17 @@ export default memo(function AppNavbar() {
                 btn.style.transform = 'rotate(0deg)'
             }, 600)
         }
-    }, [i18n.language])
+        const pathname = location.pathname
+        const match = pathname.match(/^\/(ar|en)(\/.*)?$/)
+        if (match) {
+            const subPath = match[2] || ''
+            const targetUrl = `/${newLang}${subPath}${location.search}${location.hash}`
+            setLanguage(newLang)
+            navigate(targetUrl)
+        } else {
+            setLanguage(newLang)
+        }
+    }, [currentLang, location.pathname, location.search, location.hash, navigate])
     const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
     const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
     return (
@@ -79,7 +97,7 @@ export default memo(function AppNavbar() {
             <Container>
                 <div className="flex items-center justify-between h-14 sm:h-16 relative">
                     <Link
-                        to="/"
+                        to={`/${currentLang}`}
                         onClick={handleLogoClick}
                         className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 group hover:opacity-90 transition-opacity duration-200"
                     >
@@ -121,6 +139,7 @@ export default memo(function AppNavbar() {
                                 <NavLink
                                     key={item.to}
                                     to={item.to}
+                                    end={item.isHome}
                                     className={({ isActive }) =>
                                         `px-3 xl:px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
                                             ? 'text-white bg-gradient-to-r from-brand-500 to-brand-700 shadow-md'
@@ -144,7 +163,7 @@ export default memo(function AppNavbar() {
                                         {t('public.login', 'تسجيل الدخول')}
                                     </Button>
                                 </Link>
-                                <Link to="/contact">
+                                <Link to={`/${currentLang}/contact`}>
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -231,6 +250,7 @@ export default memo(function AppNavbar() {
                                     <NavLink
                                         key={item.to}
                                         to={item.to}
+                                        end={item.isHome}
                                         onClick={closeMobileMenu}
                                         className={({ isActive }) =>
                                             `px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
@@ -254,7 +274,7 @@ export default memo(function AppNavbar() {
                                                 {t('public.login', 'تسجيل الدخول')}
                                             </Button>
                                         </Link>
-                                        <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Link to={`/${currentLang}/contact`} onClick={() => setIsMobileMenuOpen(false)}>
                                             <motion.button
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}

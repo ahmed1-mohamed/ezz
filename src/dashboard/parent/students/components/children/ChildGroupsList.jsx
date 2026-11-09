@@ -54,7 +54,7 @@ export default function ChildGroupsList({ groups = [] }) {
           </p>
         </div>
         <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20">
-          {groupsList.length} {t('parent.childrenList.classes', 'مجموعات')}
+          {groupsList.length} {t('parent.childrenList.groupsUnit', 'مجموعات')}
         </span>
       </div>
       {groupsList.length === 0 ? (

@@ -6,9 +6,10 @@ import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 
 export default function NotFound() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const { user } = useAuth()
-    const redirectPath = user ? getRedirectPath(user.role) : '/'
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar'
+    const redirectPath = user ? getRedirectPath(user.role) : `/${currentLang}`
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 px-6 py-16 text-slate-900 dark:text-white font-sans">
             <div className="w-full max-w-2xl rounded-[2.5rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center shadow-sm">

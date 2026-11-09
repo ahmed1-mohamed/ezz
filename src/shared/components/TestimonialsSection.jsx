@@ -100,14 +100,18 @@ export default React.memo(function TestimonialsSection({ testimonials: customTes
         if (Array.isArray(customTestimonials) && customTestimonials.length > 0) {
             return customTestimonials.map(item => ({
                 id: item.id || item._id,
-                text: item.review || item.text || item.comment || '',
-                name: item.parentName || item.name || '',
+                text: isRtl
+                    ? (item.reviewAr || item.review || item.text || item.comment || item.content || '')
+                    : (item.reviewEn || item.review || item.text || item.comment || item.content || ''),
+                name: isRtl
+                    ? (item.parentNameAr || item.parentName || item.name || '')
+                    : (item.parentNameEn || item.parentName || item.name || ''),
                 image: item.image || item.avatar || '',
-                role: item.role || 'ولي أمر'
+                role: item.role || (isRtl ? 'ولي أمر' : 'Parent')
             }));
         }
         return fallbackTestimonials;
-    }, [customTestimonials, fallbackTestimonials]);
+    }, [customTestimonials, fallbackTestimonials, isRtl]);
     const checkScrollState = useCallback(() => {
         const el = sliderRef.current;
         if (!el) return;

@@ -1686,6 +1686,10 @@
       "switchChild": "تبديل الابن",
       "studentIdLabel": "كود الطالب",
       "evaluationsCount": "{{count}} تقييمات",
+      "evaluationsCountLabel": "عدد التقييمات",
+      "evaluationUnit": "تقييم",
+      "sessionUnit": "حصة",
+      "groupsUnit": "مجموعات",
       "groupsTitle": "المجموعات الدراسية المسجل بها",
       "noGroups": "لا توجد مجموعات دراسية مسجلة حالياً",
       "balanceCardTitle": "تفاصيل رصيد الحصص والاشتراك",
@@ -1913,7 +1917,19 @@
         "pending": "قيد الانتظار",
         "completionRate": "نسبة الإنجاز"
       },
-      "submissionStatus": "حالة التسليم"
+      "submissionStatus": "حالة التسليم",
+      "studentAnswer": "إجابة الطالب",
+      "noAnswerProvided": "لم يتم تقديم إجابة نصية.",
+      "correctAnswer": "إجابة صحيحة",
+      "incorrectAnswer": "إجابة خاطئة",
+      "textAnswerLabel": "الإجابة النصية:",
+      "uploadedAttachments": "مرفقات الحل المسلمة:",
+      "openFile": "عرض / تحميل",
+      "teacherAttachmentsSection": "ملفات ومرفقات الواجب (المرسلة من المعلم):",
+      "studentAttachmentsSection": "مرفقات وحل الطالب (المرفوعة من الطالب):",
+      "attachedFile": "ملف مرفق",
+      "documentFile": "ملف الواجب المرفق",
+      "mediaFile": "الملف الصوتي / المرئي"
     },
     "childDetails": {
       "evaluateTeachers": "تقييم المعلمين",
@@ -2322,7 +2338,12 @@
       "loadError": "تعذر تحميل تفاصيل الواجب",
       "retry": "إعادة المحاولة",
       "submissionClosed": "انتهى الموعد النهائي لتسليم هذا الواجب ولم يعد متاحاً للتسليم",
-      "submissionClosedBtn": "التسليم مغلق"
+      "submissionClosedBtn": "التسليم مغلق",
+      "correctAnswer": "إجابة صحيحة",
+      "incorrectAnswer": "إجابة خاطئة",
+      "studentSubmissionTitle": "إجابة وحل الواجب المسلم",
+      "textAnswerLabel": "الإجابة النصية:",
+      "submittedAttachments": "مرفقات الحل:"
     },
     "teachers": {
       "title": "قائمة المعلمين",
@@ -4362,7 +4383,16 @@
     "total": "الإجمالي",
     "currency": "ج.م",
     "completePayment": "إتمام عملية الدفع",
-    "completingPayment": "جارٍ إتمام عملية الدفع..."
+    "completingPayment": "جارٍ إتمام عملية الدفع...",
+    "maxChildrenAllowed": "أقصى عدد أبناء للباقة:",
+    "studentsCountUnit": "أبناء",
+    "maxAllowedHint": "أقصى عدد:",
+    "maxAllowedStudents": "الحد الأقصى:",
+    "maxStudentsReached": "الحد الأقصى المسموح به للباقة العائلية هو {{count}} طلاب",
+    "selectStudentsFamilyDynamic": "اختر الأبناء (1 إلى {{count}} طلاب)",
+    "packageBasePrice": "السعر",
+    "studentsCovered": "الطلاب المستفيدين",
+    "subscriptionDate": "تاريخ الاشتراك"
   },
   "theme": {
     "light": "الوضع النهاري",
@@ -4370,7 +4400,7 @@
     "toggle": "تبديل المظهر"
   },
   "trialSessionLanding": {
-    "badge": "حصة تجريبية مجانية 100%",
+    "badge": "حصة تجريبية مجانية",
     "title": "احجز حصتك التجريبية المجانية",
     "titleEn": "Book your free trial session",
     "subtitle": "ابدأ رحلة طفلك التعليمية مع نخبة من أفضل المعلمين المتخصصين في بيئة تفاعلية فردية آمنة.",
@@ -4379,7 +4409,7 @@
     "aboutBriefLine1": "منارة العز ليست مجرد أكاديمية، بل هي رحلة في أعماق المعرفة، صُممت لتكون ملاذاً رقمياً يجمع بين أصالة التراث وحداثة التكنولوجيا لنشر نور الوحي.",
     "aboutBriefLine2": "نرافق أطفالكم خطوة بخطوة في رحلتهم التعليمية مع معلمين متخصصين يراعون مستوى كل متعلم وأهدافه التعليمية والتربوية.",
     "perks": {
-      "oneOnOne": "حصة فردية مباشرة 100%",
+      "oneOnOne": "حصة مجانية مباشرة",
       "certifiedTeachers": "معلمون ومعلمات معتمدون",
       "freeNoCommitment": "مجانية تماماً بدون أي التزام"
     },
@@ -4392,7 +4422,7 @@
       "emailPlaceholder": "example@email.com",
       "country": "الدولة",
       "selectCountry": "-- اختر الدولة --",
-      "phone": "رقم الهاتف / الواتساب",
+      "phone": "رقم الهاتف",
       "phonePlaceholder": "50 123 4567",
       "curriculum": "المنهج الدراسي المراد تجربته",
       "selectCurriculum": "-- اختر المنهج --",
@@ -4416,15 +4446,18 @@
         "countryRequired": "يرجى اختيار الدولة",
         "phoneRequired": "رقم الهاتف مطلوب",
         "curriculumRequired": "يرجى اختيار المنهج الدراسي",
-        "ageRequired": "يرجى تحديد عمر الطالب",
+        "ageRequired": "يرجى إدخال عمر الطالب",
         "dayRequired": "يرجى اختيار اليوم المفضل",
         "timeRequired": "يرجى اختيار الوقت المفضل"
-      }
+      },
+      "agePlaceholder": "مثال: 8"
     },
     "testimonials": {
       "badge": "تجارب حقيقية",
       "title": "آراء أولياء الأمور",
       "subtitle": "ماذا يقول أولياء الأمور عن تجربتهم التعليمية معنا في أكاديمية منارة العز"
-    }
+    },
+    "contactSupportTitle": "هل لديك أي استفسار قبل الحجز؟",
+    "contactSupportSubtitle": "فريقنا متاح دائماً لمساعدتك والإجابة على استفساراتك عبر القنوات التالية"
   }
 }
