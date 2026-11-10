@@ -8,6 +8,7 @@ import TeacherSubjects from './components/TeacherProfile/TeacherSubjects.jsx'
 import TeacherStats from './components/TeacherProfile/TeacherStats.jsx'
 import TeacherAvailabilityCard from '../../shared/components/TeacherAvailabilityCard.jsx'
 import { teachersApi } from '../../shared/services/api/teachersApi.js'
+import SeoHead from '../../shared/components/SeoHead.jsx'
 
 export default function TeacherProfile() {
     const { id } = useParams()
@@ -18,6 +19,18 @@ export default function TeacherProfile() {
     const [teacher, setTeacher] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const seoHead = (
+        <SeoHead
+            lang={currentLang}
+            subPath={'teachers/' + id}
+            customTitle={
+                teacher?.name
+                    ? teacher.name + (isRtl ? ' | معلم في أكاديمية منارة العز' : ' | Teacher at Manarat Al-Ezz Academy')
+                    : undefined
+            }
+            customDescription={teacher?.about ? teacher.about.slice(0, 160) : undefined}
+        />
+    )
     useEffect(() => {
         window.scrollTo(0, 0)
         const fetchTeacher = async () => {
@@ -69,6 +82,7 @@ export default function TeacherProfile() {
     if (loading) {
         return (
             <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 flex items-center justify-center">
+                {seoHead}
                 <div className="w-12 h-12 border-4 border-[#00695C] dark:border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
         )
@@ -76,12 +90,14 @@ export default function TeacherProfile() {
     if (error || !teacher) {
         return (
             <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 flex items-center justify-center">
+                {seoHead}
                 <p className="text-xl font-bold text-red-600 dark:text-red-400">{t('teacherProfile.error', 'حدث خطأ في تحميل بيانات المعلم')}</p>
             </div>
         )
     }
     return (
         <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 pt-12 font-sans pb-10">
+            {seoHead}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
                 <Link to={`/${currentLang}/teachers`} className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors font-bold">
                     <ArrowBack className="w-5 h-5" />

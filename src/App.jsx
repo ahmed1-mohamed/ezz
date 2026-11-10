@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { useAuth } from '@/shared/context/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
 import AppRoutes from './routes/AppRoutes.jsx'
+import IndexingPolicy from '@/shared/components/IndexingPolicy.jsx'
 import ScrollManager from '@/shared/components/ScrollManager.jsx'
 import AppErrorBoundary from '@/shared/components/AppErrorBoundary.jsx'
 
@@ -56,6 +57,7 @@ function App() {
   return (
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
       <ScrollManager />
+      <IndexingPolicy />
       <AppErrorBoundary>
         <AppRoutes key={currentLang} />
       </AppErrorBoundary>

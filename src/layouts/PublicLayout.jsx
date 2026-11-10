@@ -34,7 +34,7 @@ export default memo(function PublicLayout() {
         isSchedule ? 'bg-[#EEF2F0]/80 dark:bg-slate-950' : 'bg-white dark:bg-slate-950'
       }`}
     >
-      <SeoHead lang={lang} subPath={subPath} />
+      {!subPath.startsWith("teachers/") && <SeoHead lang={lang} subPath={subPath} />}
       <AppNavbar />
       <main className="flex-1">
         {isSchedule ? (

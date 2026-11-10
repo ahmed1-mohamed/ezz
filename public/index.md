@@ -19,12 +19,12 @@
 
 ## Key Links
 
-- **Homepage**: <https://manarat-al-ezz.com/>
-- **API Catalog**: <https://manarat-al-ezz.com/.well-known/api-catalog>
-- **Agent Skills**: <https://manarat-al-ezz.com/.well-known/agent-skills/index.json>
-- **MCP Server Card**: <https://manarat-al-ezz.com/.well-known/mcp/server-card.json>
-- **Auth Instructions**: <https://manarat-al-ezz.com/auth.md>
-- **Sitemap**: <https://manarat-al-ezz.com/sitemap.xml>
+- **Homepage**: <https://mezzedu.com/>
+- **API Catalog**: <https://mezzedu.com/.well-known/api-catalog>
+- **Agent Skills**: <https://mezzedu.com/.well-known/agent-skills/index.json>
+- **MCP Server Card**: <https://mezzedu.com/.well-known/mcp/server-card.json>
+- **Auth Instructions**: <https://mezzedu.com/auth.md>
+- **Sitemap**: <https://mezzedu.com/sitemap.xml>
 
 ---
 
@@ -32,7 +32,7 @@
 
 The platform exposes a REST API at `https://manaret-ezz.dramcode.top/api/`.
 
-Authentication is via Bearer tokens (JWT). See the [API Catalog](https://manarat-al-ezz.com/.well-known/api-catalog) and [Auth instructions](https://manarat-al-ezz.com/auth.md) for details.
+Authentication is via Bearer tokens (JWT). See the [API Catalog](https://mezzedu.com/.well-known/api-catalog) and [Auth instructions](https://mezzedu.com/auth.md) for details.
 
 ---
 
@@ -46,4 +46,4 @@ Available in **Arabic (العربية)** and **English**.
 
 - **Email**: info@manaratezz.edu.sa
 - **Organisation**: أكاديمية منارة العز (Manarat Al-Ezz Academy)
-- **Website**: <https://manarat-al-ezz.com/>
+- **Website**: <https://mezzedu.com/>
