@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 export const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -21,7 +22,7 @@ export const getTeacherImageUrl = (imagePath) => {
     return trimmed
   }
   const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`
+  return buildApiAssetUrl(cleanPath)
 }
 
 export const extractTeacherSubjects = (teachersList = []) => {

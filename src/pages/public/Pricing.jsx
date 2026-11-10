@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -52,7 +53,7 @@ export default function Pricing() {
                     return imagePath
                 }
                 const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath
-                return `https://manaret-ezz.dramcode.top/${cleanPath}`
+                return buildApiAssetUrl(cleanPath)
             }
             return <img src={getImageUrl(icon)} className="w-10 h-10 object-contain rounded-full shadow-sm" alt="" />
         }

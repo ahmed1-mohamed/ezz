@@ -30,7 +30,7 @@
 
 ## API
 
-The platform exposes a REST API at `https://manaret-ezz.dramcode.top/api/`.
+The platform exposes a REST API at `__API_BASE_URL__/api/`.
 
 Authentication is via Bearer tokens (JWT). See the [API Catalog](https://mezzedu.com/.well-known/api-catalog) and [Auth instructions](https://mezzedu.com/auth.md) for details.
 

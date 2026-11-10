@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -14,7 +15,7 @@ const getImageUrl = (imagePath) => {
     return trimmed;
   }
   const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 function WebsiteStyleTeacherCard({ teacher, onView, isRtl, t, index = 0 }) {

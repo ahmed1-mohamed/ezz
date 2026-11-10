@@ -7,7 +7,7 @@
     return;
   }
 
-  const BASE_API = 'https://manaret-ezz.dramcode.top/api';
+  const BASE_API = `${window.__MANARET_CONFIG__.API_BASE_URL.replace(/\/+$/, '')}/api`;
 
   navigator.modelContext.provideContext({
     name: 'Manarat Al-Ezz Educational Platform',

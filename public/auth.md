@@ -1,6 +1,6 @@
 ---
 agent_auth:
-  register_uri: https://manaret-ezz.dramcode.top/api/oauth/register
+  register_uri: __API_BASE_URL__/api/oauth/register
   supported_identity_types:
     - email
     - api_key
@@ -8,7 +8,7 @@ agent_auth:
     - jwt
     - api_key
   claim_url: https://mezzedu.com/auth.md
-  revocation_url: https://manaret-ezz.dramcode.top/api/oauth/revoke
+  revocation_url: __API_BASE_URL__/api/oauth/revoke
 ---
 
 # Manarat Al-Ezz auth.md
@@ -21,7 +21,7 @@ agent_auth:
 
 ## Overview
 
-This document describes how AI agents can register and authenticate with the **Manarat Al-Ezz** platform API at `https://manaret-ezz.dramcode.top/api/`.
+This document describes how AI agents can register and authenticate with the **Manarat Al-Ezz** platform API at `__API_BASE_URL__/api/`.
 
 ---
 
@@ -31,10 +31,10 @@ The API uses **OAuth 2.0 / OpenID Connect** (Bearer tokens).
 
 | Property | Value |
 |---|---|
-| Authorization Server | `https://manaret-ezz.dramcode.top` |
-| Token Endpoint | `https://manaret-ezz.dramcode.top/api/oauth/token` |
-| Authorization Endpoint | `https://manaret-ezz.dramcode.top/api/oauth/authorize` |
-| JWKS URI | `https://manaret-ezz.dramcode.top/api/oauth/jwks` |
+| Authorization Server | `__API_BASE_URL__` |
+| Token Endpoint | `__API_BASE_URL__/api/oauth/token` |
+| Authorization Endpoint | `__API_BASE_URL__/api/oauth/authorize` |
+| JWKS URI | `__API_BASE_URL__/api/oauth/jwks` |
 | Token Format | JWT (RS256) |
 
 ---
@@ -58,7 +58,7 @@ Provide:
 Use the **client credentials** grant flow:
 
 ```http
-POST https://manaret-ezz.dramcode.top/api/oauth/token
+POST __API_BASE_URL__/api/oauth/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
@@ -72,7 +72,7 @@ grant_type=client_credentials
 Include the token as a `Bearer` header on all API requests:
 
 ```http
-GET https://manaret-ezz.dramcode.top/api/courses
+GET __API_BASE_URL__/api/courses
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 

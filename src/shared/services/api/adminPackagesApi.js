@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import api from './axiosConfig';
 
 const buildImageUrl = (url) => {
@@ -7,7 +8,7 @@ const buildImageUrl = (url) => {
     return url;
   }
   const cleanPath = url.startsWith('/') ? url.slice(1) : url;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 const mapPackageData = (item) => ({

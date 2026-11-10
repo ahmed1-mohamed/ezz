@@ -38,10 +38,10 @@
     <link rel="alternate" href="/index.md" type="text/markdown" title="Markdown version" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://manaret-ezz.dramcode.top" />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" /></noscript>
+    <script src="/runtime-config.js"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -89,7 +89,7 @@
     <script>
       (function initWebMCP() {
         if (typeof navigator === 'undefined' || !navigator.modelContext || typeof navigator.modelContext.registerTool !== 'function') return;
-        var BASE_API = 'https://manaret-ezz.dramcode.top/api';
+        var BASE_API = window.__MANARET_CONFIG__.API_BASE_URL.replace(/\/+$/, '') + '/api';
         var controller = new AbortController();
         var signal = controller.signal;
 

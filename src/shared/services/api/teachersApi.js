@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import api from './axiosConfig';
 
 export const getImageUrl = (imagePath) => {
@@ -6,7 +7,7 @@ export const getImageUrl = (imagePath) => {
     return imagePath;
   }
   const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 const toBilingual = (value, enFallback = '') => {

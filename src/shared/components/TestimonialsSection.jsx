@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,7 @@ const getImageUrl = (imagePath) => {
         return trimmed;
     }
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+    return buildApiAssetUrl(cleanPath);
 }
 
 const TestimonialCard = React.memo(({ item, index }) => {

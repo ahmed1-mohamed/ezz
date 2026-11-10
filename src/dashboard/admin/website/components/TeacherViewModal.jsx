@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -41,7 +42,7 @@ export default function TeacherViewModal({
             <div className="text-center space-y-6">
               {teacher.image ? (
                 <img
-                  src={teacher.image.startsWith('http') || teacher.image.startsWith('data:') ? teacher.image : `https://manaret-ezz.dramcode.top/${teacher.image}`}
+                  src={teacher.image.startsWith('http') || teacher.image.startsWith('data:') ? teacher.image : buildApiAssetUrl(teacher.image)}
                   alt={teacher.name}
                   className="w-20 h-20 rounded-full object-cover shadow-md mx-auto border-2 border-white"
                 />

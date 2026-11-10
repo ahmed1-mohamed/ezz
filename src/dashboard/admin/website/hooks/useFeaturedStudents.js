@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
@@ -10,7 +11,7 @@ const buildImageUrl = (url) => {
     return url;
   }
   const cleanPath = url.startsWith('/') ? url.slice(1) : url;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 export const parseStudentReview = (item) => {

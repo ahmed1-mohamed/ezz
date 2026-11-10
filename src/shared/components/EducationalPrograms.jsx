@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -11,7 +12,7 @@ const getImageUrl = (imagePath) => {
         return imagePath;
     }
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+    return buildApiAssetUrl(cleanPath);
 };
 
 export default React.memo(function EducationalPrograms({ curricula: propCurricula }) {

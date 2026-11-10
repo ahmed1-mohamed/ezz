@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -13,7 +14,7 @@ const getImageUrl = (imagePath) => {
         return trimmed;
     }
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+    return buildApiAssetUrl(cleanPath);
 }
 
 const StudentSliderCard = React.memo(function StudentSliderCard({ student, index, isRtl }) {

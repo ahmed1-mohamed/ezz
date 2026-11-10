@@ -120,6 +120,20 @@ function createSitemap(pages) {
   return lines.join('\n') + '\n'
 }
 
+const runtimeConfig = await readFile(path.join(projectRoot, 'public', 'runtime-config.js'), 'utf8')
+const apiBaseUrlMatch = runtimeConfig.match(/API_BASE_URL:\s*'([^']+)'/)
+if (!apiBaseUrlMatch) throw new Error('API_BASE_URL is missing from public/runtime-config.js')
+const apiBaseUrl = apiBaseUrlMatch[1].replace(/\/+$/, '')
+for (const documentName of ['auth.md', 'index.md']) {
+  const outputPath = path.join(distDir, documentName)
+  try {
+    const content = await readFile(outputPath, 'utf8')
+    await writeFile(outputPath, content.replaceAll('__API_BASE_URL__', apiBaseUrl))
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
+}
+
 const template = await readFile(path.join(distDir, 'index.html'), 'utf8')
 const pages = Object.entries(SEO_CONFIG).filter(([key]) => key !== 'teacherProfile')
 
