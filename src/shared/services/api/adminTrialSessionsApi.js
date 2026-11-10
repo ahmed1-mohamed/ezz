@@ -36,12 +36,18 @@ export const adminTrialSessionsApi = {
     }
   },
 
-  assignSession: async (id, { groupId, sessionId }) => {
+  assignSession: async (id, payload = {}) => {
     try {
-      const response = await api.patch(`/api/v1/trial-sessions/private/${id}/assign-session`, {
+      const groupId = payload.groupId || payload.group
+      const sessionId = payload.sessionId || payload.session
+      const body = {
         groupId,
+        group: groupId,
         sessionId,
-      })
+        session: sessionId,
+        ...payload,
+      }
+      const response = await api.patch(`/api/v1/trial-sessions/private/${id}/assign-session`, body)
       return response.data
     } catch (error) {
       console.error(`API assignSession(${id}) failed:`, error)
@@ -62,7 +68,21 @@ export const adminTrialSessionsApi = {
 
   fetchWebsiteTrialSessions: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/trial-sessions/website/private', { params })
+      const cleanParams = {}
+      if (params.page !== undefined && params.page !== null) {
+        cleanParams.page = params.page
+      }
+      if (params.limit !== undefined && params.limit !== null) {
+        cleanParams.limit = params.limit
+      }
+      const statusStr = String(params.status || '').toLowerCase().trim()
+      if (statusStr && statusStr !== 'all') {
+        const allowedStatuses = ['pending', 'accepted', 'rejected']
+        if (allowedStatuses.includes(statusStr)) {
+          cleanParams.status = statusStr
+        }
+      }
+      const response = await api.get('/api/v1/trial-sessions/website/private', { params: cleanParams })
       return response.data
     } catch (error) {
       console.error('API fetchWebsiteTrialSessions failed:', error)

@@ -85,7 +85,6 @@ const TeacherSubmissionDetailsPage = lazy(() => import('../dashboard/teacher/hom
 const TeacherProfileSettings = lazy(() => import('../dashboard/teacher/settings/TeacherProfile.jsx'))
 const TeacherCurricula = lazy(() => import('../dashboard/teacher/curricula/TeacherCurricula.jsx'))
 const TeacherEarnings = lazy(() => import('../dashboard/teacher/earnings/TeacherEarnings.jsx'))
-const TeacherPayouts = lazy(() => import('../dashboard/teacher/payouts/TeacherPayouts.jsx'))
 const TeacherPaymentMethods = lazy(() => import('../dashboard/teacher/payment_methods/TeacherPaymentMethods.jsx'))
 
 const StudentHome = lazy(() => import('../dashboard/student/overview/StudentHome.jsx'))
@@ -604,11 +603,11 @@ export default function AppRoutes() {
                                      />
                                      <Route
                                          path="/dashboard/teacher/payouts"
-                                         element={<TeacherPayouts />}
+                                         element={<Navigate to="/dashboard/teacher/earnings?tab=payouts" replace />}
                                      />
                                      <Route
                                          path="/dashboard/teacher/withdrawals"
-                                         element={<TeacherPayouts />}
+                                         element={<Navigate to="/dashboard/teacher/earnings?tab=payouts" replace />}
                                      />
                                      <Route
                                          path="/dashboard/teacher/payment-methods"

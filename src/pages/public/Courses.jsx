@@ -111,11 +111,11 @@ export default React.memo(function Courses() {
                         >
                             <div>
                                 {course.image ? (
-                                    <div className="w-full h-44 rounded-2xl overflow-hidden mb-5 bg-slate-100 dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
+                                    <div className="w-full h-48 rounded-2xl overflow-hidden mb-5 bg-gradient-to-b from-slate-50 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-800/90 border border-slate-100 dark:border-slate-800 flex items-center justify-center p-3">
                                         <img
                                             src={course.image}
                                             alt={course.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 select-none"
                                             loading="lazy"
                                         />
                                     </div>

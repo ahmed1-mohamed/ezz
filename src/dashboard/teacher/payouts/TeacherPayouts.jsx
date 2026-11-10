@@ -1,5 +1,5 @@
-import TeacherEarnings from '../earnings/TeacherEarnings';
+import { Navigate } from 'react-router-dom';
 
 export default function TeacherPayouts() {
-  return <TeacherEarnings defaultSection="payouts" />;
+  return <Navigate to="/dashboard/teacher/earnings?tab=payouts" replace />;
 }

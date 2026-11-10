@@ -28,10 +28,13 @@ export const teacherHomeworkApi = {
       };
     } catch (error) {
       console.warn('API createHomework failed:', error);
-      const responseMessage = error.response?.data?.message || error.response?.data?.error;
+      const rawMsg = error.response?.data?.message || error.response?.data?.error;
+      const responseMessage = Array.isArray(rawMsg)
+        ? rawMsg.join(' - ')
+        : (typeof rawMsg === 'string' ? rawMsg : 'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً');
       return {
         success: false,
-        message: responseMessage || 'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً',
+        message: responseMessage,
         error,
       };
     }
@@ -58,9 +61,11 @@ export const teacherHomeworkApi = {
         : Array.isArray(resData)
           ? resData
           : [];
+      const statistics = resData.statistics || resData.stats || resData.data?.statistics || null;
       return {
         success: true,
         data: list,
+        statistics,
         pagination: resData.pagination || {
           currentPage: 1,
           limit: params.limit || 10,
@@ -73,6 +78,7 @@ export const teacherHomeworkApi = {
       return {
         success: false,
         data: [],
+        statistics: null,
         pagination: { currentPage: 1, limit: 10, totalCount: 0, numberOfPages: 1 },
         error,
       };
@@ -129,9 +135,11 @@ export const teacherHomeworkApi = {
           data: payload,
         };
       }
+      const sanitizedPayload = { ...payload };
+      delete sanitizedPayload.questions;
       const response = await api.patch(
         `/api/v1/teacher/homework/submissions/${submissionId}/evaluate`,
-        payload,
+        sanitizedPayload,
         { skipLang: true }
       );
       return {
@@ -141,12 +149,13 @@ export const teacherHomeworkApi = {
       };
     } catch (error) {
       console.warn('API evaluateSubmission failed:', error);
+      const rawMsg = error.response?.data?.message || error.response?.data?.error;
+      const errorMsg = Array.isArray(rawMsg)
+        ? rawMsg.join(' - ')
+        : (typeof rawMsg === 'string' ? rawMsg : 'تعذر حفظ التصحيح، يرجى المحاولة مرة أخرى');
       return {
         success: false,
-        message:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          'تعذر حفظ التصحيح، يرجى المحاولة مرة أخرى',
+        message: errorMsg,
         error,
       };
     }

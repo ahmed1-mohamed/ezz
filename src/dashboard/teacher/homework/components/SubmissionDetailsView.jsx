@@ -1,14 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Calendar,
   ArrowRight,
-   Clock,
+  Clock,
   User,
   BookOpen,
   FileText,
-   CheckCircle2,
+  CheckCircle2,
   XCircle,
   AlertCircle,
   Mic,
@@ -16,11 +16,106 @@ import {
   Pause,
   Download,
   Star,
-   Loader2,
+  Loader2,
   Hash,
- } from 'lucide-react';
+  Paperclip,
+  GraduationCap,
+  ExternalLink,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { teacherHomeworkApi } from '@/shared/services/api/teacherHomeworkApi.js';
+
+function normalizeFile(rawItem, index, defaultPrefix = 'ملف') {
+  if (!rawItem) return null;
+  if (typeof rawItem === 'string') {
+    const rawName = decodeURIComponent(rawItem.split('/').pop()?.split('?')[0] || `${defaultPrefix}_${index + 1}`);
+    return {
+      id: `${defaultPrefix}-${index}`,
+      name: rawName,
+      url: rawItem,
+      size: 'ملف مرفق',
+      type: rawName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'file',
+      isPdf: rawName.toLowerCase().endsWith('.pdf'),
+    };
+  }
+  const rawUrl = rawItem.url || rawItem.fileUrl || rawItem.path || rawItem.downloadUrl || rawItem.link || '#';
+  const rawName = decodeURIComponent(
+    rawItem.name ||
+    rawItem.fileName ||
+    rawItem.originalName ||
+    (typeof rawUrl === 'string' && rawUrl !== '#' ? rawUrl.split('/').pop()?.split('?')[0] : '') ||
+    `${defaultPrefix}_${index + 1}`
+  );
+  const isPdf = rawName.toLowerCase().endsWith('.pdf') || rawItem.type === 'pdf';
+  return {
+    id: rawItem.id || rawItem._id || `${defaultPrefix}-${index}`,
+    name: rawName,
+    url: rawUrl,
+    size: rawItem.size || rawItem.fileSize || 'ملف مرفق',
+    type: isPdf ? 'pdf' : 'file',
+    isPdf,
+  };
+}
+
+function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen }) {
+  return (
+    <div
+      onClick={() => onSelect(doc)}
+      className="bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-slate-100 dark:border-slate-700/60 transition cursor-pointer"
+    >
+      <div className="flex items-center gap-3.5 min-w-0">
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+            doc.isPdf
+              ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400'
+              : 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
+          }`}
+        >
+          <FileText size={20} />
+        </div>
+        <div className="text-start min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">
+              {doc.name}
+            </h5>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${roleBadgeClass}`}>
+              {roleLabel}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 font-semibold mt-0.5">
+            {doc.size}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen(doc.url);
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:border-[#00594C] hover:text-[#00594C] transition shadow-xs cursor-pointer"
+        >
+          <ExternalLink size={13} />
+          <span>معاينة / فتح</span>
+        </button>
+        {doc.url && doc.url !== '#' && (
+          <a
+            href={doc.url}
+            download={doc.name}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:text-[#00594C] hover:border-[#00594C] transition shadow-xs"
+            title="تنزيل الملف"
+          >
+            <Download size={14} />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function SubmissionDetailsView({
   submission,
@@ -31,6 +126,38 @@ export default function SubmissionDetailsView({
   const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
+  const [internalTimeStr, setInternalTimeStr] = useState('');
+  const [internalDateStr, setInternalDateStr] = useState('');
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      try {
+        setInternalTimeStr(new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }).format(now));
+      } catch {
+        setInternalTimeStr(now.toTimeString().slice(0, 8));
+      }
+      try {
+        setInternalDateStr(new Intl.DateTimeFormat(isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(now));
+      } catch {
+        setInternalDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
+      }
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, [isRtl]);
+  const activeTimeStr = currentTimeStr || internalTimeStr;
+  const activeDateStr = currentDateStr || internalDateStr;
   const submissionId = submission?.id || submission?._id;
   const homeworkId = submission?.homeworkId || submission?.homework?._id || submission?.homework?.id || (typeof submission?.homework === 'string' ? submission?.homework : null);
   const { data: detailsRes } = useQuery({
@@ -43,30 +170,135 @@ export default function SubmissionDetailsView({
   const liveData = useMemo(() => detailsRes?.data || submission || {}, [detailsRes?.data, submission]);
   const studentName =
     typeof liveData.student === 'object'
-      ? liveData.student?.name || 'أحمد محمد علي'
-      : liveData.student || 'أحمد محمد علي';
+      ? liveData.student?.name || 'طالب'
+      : liveData.student || 'طالب';
   const homeworkTitle =
     typeof liveData.homework === 'object'
-      ? liveData.homework?.title || 'واجب أحكام المد والقصر'
-      : liveData.homework || 'واجب أحكام المد والقصر';
+      ? liveData.homework?.title || 'واجب مدرسي'
+      : liveData.homework || 'واجب مدرسي';
   const groupName =
     typeof liveData.group === 'object'
-      ? liveData.group?.name || 'مجموعة التجويد الأولى'
-      : liveData.group || 'مجموعة التجويد الأولى';
-  const rawStatus = (liveData.rawSubmissionStatus || submission?.rawSubmissionStatus || 'pending').toLowerCase();
-  const rawEval = (liveData.rawEvaluationStatus || submission?.rawEvaluationStatus || 'pending').toLowerCase();
-  const isEvaluated = rawEval === 'evaluated' || (liveData.grade !== null && liveData.grade !== undefined);
+      ? liveData.group?.name || 'مجموعة دراسية'
+      : liveData.group || 'مجموعة دراسية';
+  const rawEval = (
+    liveData.rawEvaluationStatus ||
+    liveData.evaluationStatus ||
+    submission?.rawEvaluationStatus ||
+    submission?.evaluationStatus ||
+    liveData.submission?.evaluationStatus ||
+    ''
+  ).toString().toLowerCase().trim();
+  const isEvaluated = Boolean(
+    rawEval === 'evaluated' ||
+    rawEval === 'graded' ||
+    rawEval === 'completed' ||
+    rawEval.includes('تم التقييم') ||
+    liveData.isEvaluated ||
+    submission?.isEvaluated ||
+    (liveData.grade !== null && liveData.grade !== undefined && liveData.grade !== '') ||
+    (submission?.grade !== null && submission?.grade !== undefined && submission?.grade !== '')
+  );
+  const rawStatus = (() => {
+    const st = (
+      liveData.submissionStatus ||
+      liveData.rawSubmissionStatus ||
+      liveData.status ||
+      submission?.submissionStatus ||
+      submission?.rawSubmissionStatus ||
+      submission?.status ||
+      liveData.submission?.submissionStatus ||
+      liveData.submission?.status ||
+      ''
+    ).toString().toLowerCase().trim();
+    const isLate = Boolean(
+      liveData.isLate ||
+      liveData.submittedLate ||
+      submission?.isLate ||
+      submission?.submittedLate ||
+      st.includes('late') ||
+      st.includes('متأخر')
+    );
+    if (st === 'submitted_late' || st === 'submitted-late' || (st === 'submitted' && isLate)) {
+      return 'submitted_late';
+    }
+    if (st === 'submitted' || st.includes('تم التسليم') || st === 'completed' || liveData.submittedAt || submission?.submittedAt) {
+      return isLate ? 'submitted_late' : 'submitted';
+    }
+    if (st === 'overdue' || st === 'late_not_submitted' || st.includes('متأخرة')) {
+      return 'overdue';
+    }
+    return st || 'pending';
+  })();
+  const formattedSubmissionTime = useMemo(() => {
+    const rawDate =
+      liveData.submittedAt ||
+      liveData.submission?.submittedAt ||
+      submission?.submittedAt ||
+      liveData.submissionDate ||
+      submission?.submissionDate ||
+      liveData.date ||
+      submission?.date ||
+      liveData.createdAt ||
+      submission?.createdAt ||
+      submission?.timeText ||
+      null;
+    if (!rawDate) {
+      if (rawStatus === 'pending') {
+        return isRtl ? 'لم يتم التسليم بعد (في الانتظار)' : 'Pending submission';
+      }
+      if (rawStatus === 'overdue') {
+        return isRtl ? 'لم يتم التسليم (متأخر عن الموعد)' : 'Overdue';
+      }
+      return isRtl ? 'غير محدد' : 'Not specified';
+    }
+    const d = new Date(rawDate);
+    if (isNaN(d.getTime())) {
+      return String(rawDate);
+    }
+    try {
+      const datePart = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(d);
+      const timePart = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }).format(d);
+      return `${datePart} - ${timePart}`;
+    } catch {
+      return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB');
+    }
+  }, [liveData, submission, rawStatus, isRtl]);
+  const canEvaluate = !isEvaluated && (rawStatus === 'submitted' || rawStatus === 'submitted_late');
   const statusBadge = useMemo(() => {
     if (isEvaluated) {
+      const displayScore = liveData.grade ?? submission?.grade;
+      const g = (displayScore !== null && displayScore !== undefined && displayScore !== '') ? `${displayScore}%` : '';
       return {
-        label: `تم التقييم ${liveData.grade || 88}%`,
+        label: g ? `تم التقييم (${g})` : 'تم التقييم',
         className: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300',
+        icon: CheckCircle2,
+      };
+    }
+    if (rawStatus === 'submitted_late') {
+      return {
+        label: 'تم التسليم متأخراً',
+        className: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300',
+        icon: Clock,
+      };
+    }
+    if (rawStatus === 'submitted') {
+      return {
+        label: 'تم التسليم',
+        className: 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300',
         icon: CheckCircle2,
       };
     }
     if (rawStatus === 'overdue') {
       return {
-        label: 'متأخر',
+        label: 'متأخر (لم يسلّم)',
         className: 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300',
         icon: AlertCircle,
       };
@@ -76,7 +308,7 @@ export default function SubmissionDetailsView({
       className: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300',
       icon: Clock,
     };
-  }, [isEvaluated, rawStatus, liveData.grade]);
+  }, [isEvaluated, rawStatus, liveData.grade, submission?.grade]);
   const studentTextAnswer = useMemo(() => {
     return (
       liveData.textAnswer ||
@@ -90,78 +322,51 @@ export default function SubmissionDetailsView({
       ''
     ).trim();
   }, [liveData, submission]);
-  const attachedDocuments = useMemo(() => {
+  const studentAttachments = useMemo(() => {
     const rawAtts =
-      (Array.isArray(liveData.attachments) && liveData.attachments.length > 0 && liveData.attachments) ||
-      (Array.isArray(liveData.submission?.attachments) && liveData.submission.attachments.length > 0 && liveData.submission.attachments) ||
-      (Array.isArray(submission?.attachments) && submission.attachments.length > 0 && submission.attachments) ||
-      (Array.isArray(liveData.documents) && liveData.documents.length > 0 && liveData.documents) ||
+      (Array.isArray(liveData.attachments) && liveData.attachments) ||
+      (Array.isArray(liveData.submission?.attachments) && liveData.submission.attachments) ||
+      (Array.isArray(submission?.attachments) && submission.attachments) ||
+      (Array.isArray(liveData.solution?.attachments) && liveData.solution.attachments) ||
       [];
-    if (rawAtts.length > 0) {
-      return rawAtts.map((att, idx) => {
-        if (!att) return null;
-        if (typeof att === 'string') {
-          const rawName = decodeURIComponent(att.split('/').pop()?.split('?')[0] || `ملف_${idx + 1}`);
-          return {
-            id: `att-${idx}`,
-            name: rawName,
-            url: att,
-            size: 'ملف مرفق',
-            type: rawName.endsWith('.pdf') ? 'pdf' : 'file',
-          };
-        }
-        const rawUrl = att.url || att.fileUrl || att.path || '#';
-        const rawName = decodeURIComponent(att.name || att.fileName || (typeof rawUrl === 'string' ? rawUrl.split('/').pop()?.split('?')[0] : '') || `ملف_${idx + 1}`);
-        return {
-          id: att.id || att._id || `att-${idx}`,
-          name: rawName,
-          url: rawUrl,
-          size: att.size || att.fileSize || 'ملف مرفق',
-          type: rawName.endsWith('.pdf') || att.type === 'pdf' ? 'pdf' : 'file',
-        };
-      }).filter(Boolean);
-    }
-    return [
-      {
-        id: 'doc-1',
-        name: 'أحكام_المد_والقصر.pdf',
-        size: '1.2 MB',
-        pages: '4 صفحات',
-        type: 'pdf',
-        url: '#',
-      },
-      {
-        id: 'doc-2',
-        name: 'جدول_المراجعة.docx',
-        size: '340 KB',
-        pages: '',
-        type: 'docx',
-        url: '#',
-      },
-    ];
+    return rawAtts.map((att, idx) => normalizeFile(att, idx, 'مرفق_طالب')).filter(Boolean);
   }, [liveData, submission]);
-  const [selectedPreviewDoc, setSelectedPreviewDoc] = useState(attachedDocuments[0]);
+  const teacherDocuments = useMemo(() => {
+    const hw = liveData.homework || submission?.homework || liveData.homeworkData || {};
+    let rawDocs = [];
+    if (Array.isArray(hw.documents) && hw.documents.length > 0) {
+      rawDocs = hw.documents;
+    } else if (hw.document) {
+      rawDocs = Array.isArray(hw.document) ? hw.document : [hw.document];
+    } else if (Array.isArray(liveData.documents) && liveData.documents.length > 0) {
+      rawDocs = liveData.documents;
+    } else if (liveData.document) {
+      rawDocs = Array.isArray(liveData.document) ? liveData.document : [liveData.document];
+    } else if (Array.isArray(submission?.documents) && submission.documents.length > 0) {
+      rawDocs = submission.documents;
+    } else if (submission?.document) {
+      rawDocs = Array.isArray(submission.document) ? submission.document : [submission.document];
+    }
+    return rawDocs.map((doc, idx) => normalizeFile(doc, idx, 'ملف_الواجب')).filter(Boolean);
+  }, [liveData, submission]);
+  const [selectedPreviewDoc, setSelectedPreviewDoc] = useState(null);
+  const activePreviewDoc = selectedPreviewDoc || studentAttachments[0] || teacherDocuments[0] || null;
+  const handleOpenFile = (fileUrl) => {
+    if (fileUrl && fileUrl !== '#') {
+      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    toast.error(isRtl ? 'رابط الملف غير متوفر حالياً' : 'File URL is not available');
+  };
   const audioRecordings = useMemo(() => {
     if (Array.isArray(liveData.audioRecordings) && liveData.audioRecordings.length > 0) {
       return liveData.audioRecordings;
     }
-    return [
-      {
-        id: 'aud-1',
-        title: 'تلاوة_سورة_البقرة_الآيات_1-5.mp3',
-        duration: '2:34',
-        size: '3.1 MB',
-        url: '',
-      },
-      {
-        id: 'aud-2',
-        title: 'تلاوة_سورة_البقرة_الآيات_1-5.mp3',
-        duration: '2:34',
-        size: '3.1 MB',
-        url: '',
-      },
-    ];
-  }, [liveData.audioRecordings]);
+    if (Array.isArray(liveData.submission?.audioRecordings) && liveData.submission.audioRecordings.length > 0) {
+      return liveData.submission.audioRecordings;
+    }
+    return [];
+  }, [liveData]);
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const togglePlayAudio = (id) => {
     if (playingAudioId === id) {
@@ -231,25 +436,7 @@ export default function SubmissionDetailsView({
         };
       });
     }
-    return [
-      {
-        id: 'q-1',
-        question: 'ما هو حكم النون الساكنة إذا جاء بعدها حرف الياء؟',
-        type: 'multiple_choice',
-        points: 5,
-        studentAnswer: 'إدغام بغنة',
-        isCorrect: true,
-      },
-      {
-        id: 'q-2',
-        question: 'اشرح باختصار الفرق بين المد الطبيعي والمد الفرعي مع ذكر مثال.',
-        type: 'essay',
-        points: 10,
-        studentAnswer:
-          'المد الطبيعي هو الذي لا تقوم ذات الحرف إلا به، أما الفرعي فيتوقف على سبب همز أو سكون.',
-        isCorrect: true,
-      },
-    ];
+    return [];
   }, [liveData, submission]);
   const [questionResults, setQuestionResults] = useState({});
   const isQuestionResultCorrect = (q) => {
@@ -264,8 +451,16 @@ export default function SubmissionDetailsView({
       [qId]: prev[qId] !== undefined ? !prev[qId] : !defaultVal,
     }));
   };
-  const [grade, setGrade] = useState(() => liveData.grade ?? 85);
-  const [teacherNotes, setTeacherNotes] = useState(() => liveData.teacherNotes || '');
+  const [userGrade, setUserGrade] = useState(null);
+  const [userTeacherNotes, setUserTeacherNotes] = useState(null);
+  const grade = userGrade !== null
+    ? userGrade
+    : (liveData.grade !== null && liveData.grade !== undefined
+        ? String(liveData.grade)
+        : (submission?.grade !== null && submission?.grade !== undefined ? String(submission.grade) : ''));
+  const teacherNotes = userTeacherNotes !== null ? userTeacherNotes : (liveData.teacherNotes || submission?.teacherNotes || '');
+  const setGrade = setUserGrade;
+  const setTeacherNotes = setUserTeacherNotes;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const quickGrades = [
     [70, 65, 60],
@@ -273,25 +468,23 @@ export default function SubmissionDetailsView({
     [100, 95, 90],
   ];
   const handleSaveEvaluation = async () => {
+    if (!canEvaluate) {
+      if (isEvaluated) {
+        toast.error('تم تقييم هذا الواجب بالفعل ولا يمكن إعادة تقييمه');
+      } else {
+        toast.error('لا يمكن تقييم الواجب إلا بعد تسليمه من قِبل الطالب');
+      }
+      return;
+    }
     if (grade === '' || isNaN(Number(grade))) {
       toast.error('يرجى تحديد درجة صحيحة للطالب');
       return;
     }
     setIsSubmitting(true);
     try {
-      const evaluatedQuestions = quizQuestions.map((q) => {
-        const isCorr = isQuestionResultCorrect(q);
-        return {
-          questionId: q.id,
-          isCorrect: isCorr,
-          earnedPoints: isCorr ? q.points || 5 : 0,
-          teacherFeedback: '',
-        };
-      });
       const payload = {
         grade: Number(grade),
-        teacherNotes: teacherNotes.trim(),
-        questions: evaluatedQuestions,
+        ...(teacherNotes && teacherNotes.trim() ? { teacherNotes: teacherNotes.trim() } : {}),
       };
       const res = await teacherHomeworkApi.evaluateSubmission(
         submissionId || liveData.id,
@@ -324,11 +517,11 @@ export default function SubmissionDetailsView({
         </div>
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {currentTimeStr}
+            {activeTimeStr}
           </span>
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />
-            <span>{currentDateStr}</span>
+            <span>{activeDateStr}</span>
           </div>
         </div>
       </div>
@@ -371,7 +564,7 @@ export default function SubmissionDetailsView({
             <div className="text-start">
               <span className="text-[11px] font-semibold text-slate-400 block">وقت التسليم</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
-                منذ ساعتين
+                {formattedSubmissionTime}
               </span>
             </div>
           </div>
@@ -409,72 +602,114 @@ export default function SubmissionDetailsView({
           </div>
         )}
       </div>
+
+      {/* قسم مرفقات إجابة الطالب (attachments) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
-        <div className="flex items-center gap-2">
-          <FileText size={18} className="text-[#00594C]" />
-          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-            الملفات المرفقة ({attachedDocuments.length} ملفات)
-          </h3>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Paperclip size={18} className="text-[#00594C]" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+              مرفقات إجابة الطالب ({studentAttachments.length} ملفات)
+            </h3>
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <GraduationCap size={13} />
+            <span>ملفات الطالب (attachments)</span>
+          </span>
         </div>
-        <div className="space-y-3">
-          {attachedDocuments.map((doc) => {
-            const isPdf = doc.name.endsWith('.pdf');
-            return (
-              <div
+        {studentAttachments.length === 0 ? (
+          <div className="rounded-2xl p-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400 font-semibold">
+            لم يقم الطالب بإرفاق أي ملفات في هذا التسليم
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {studentAttachments.map((doc) => (
+              <FileItemCard
                 key={doc.id}
-                onClick={() => setSelectedPreviewDoc(doc)}
-                className="bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4 border border-slate-100 dark:border-slate-700/60 transition cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      isPdf
-                        ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400'
-                        : 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
-                    }`}
-                  >
-                    <FileText size={20} />
-                  </div>
-                  <div className="text-start">
-                    <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
-                      {doc.name}
-                    </h5>
-                    <p className="text-[11px] text-slate-400 font-semibold">
-                      {doc.size} {doc.pages ? `• ${doc.pages}` : ''}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:border-[#00594C] transition"
-                >
-                  معاينة
-                </button>
-              </div>
-            );
-          })}
-        </div>
-        <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-8 text-center space-y-2 bg-slate-50/40 dark:bg-slate-800/20">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
-            <FileText size={24} />
+                doc={doc}
+                roleLabel="مرفق من الطالب"
+                roleBadgeClass="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80"
+                onSelect={(d) => setSelectedPreviewDoc(d)}
+                onOpen={handleOpenFile}
+              />
+            ))}
           </div>
-          <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
-            معاينة الملف: {selectedPreviewDoc?.name}
-          </div>
-          <p className="text-xs text-slate-400">
-            اضغط على &quot;معاينة&quot; لعرض محتوى الملف كاملاً أو تنزيله
-          </p>
-        </div>
+        )}
       </div>
+
+      {/* قسم ملفات الواجب المرفقة من المعلم (documents) */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
-        <div className="flex items-center gap-2">
-          <Mic size={18} className="text-[#00594C]" />
-          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-            التسجيلات الصوتية ({audioRecordings.length} تسجيلات)
-          </h3>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <BookOpen size={18} className="text-blue-600" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+              ملفات الواجب المرفقة من المعلم ({teacherDocuments.length} ملفات)
+            </h3>
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            <FileText size={13} />
+            <span>ملفات المعلم (documents)</span>
+          </span>
         </div>
-        <div className="space-y-3">
-          {audioRecordings.map((audio) => {
+        {teacherDocuments.length === 0 ? (
+          <div className="rounded-2xl p-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400 font-semibold">
+            لا توجد ملفات مرفقة مع هذا الواجب من قِبل المعلم
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {teacherDocuments.map((doc) => (
+              <FileItemCard
+                key={doc.id}
+                doc={doc}
+                roleLabel="ملف الواجب (المعلم)"
+                roleBadgeClass="bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200/80"
+                onSelect={(d) => setSelectedPreviewDoc(d)}
+                onOpen={handleOpenFile}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* صندوق المعاينة السريعة */}
+      {activePreviewDoc && (
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-6 text-center space-y-3 bg-slate-50/50 dark:bg-slate-850/30 text-start">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
+                <FileText size={20} />
+              </div>
+              <div>
+                <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
+                  معاينة الملف: {activePreviewDoc.name}
+                </h5>
+                <p className="text-[11px] text-slate-400">
+                  {activePreviewDoc.size}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenFile(activePreviewDoc.url)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00594C] hover:bg-[#00473c] text-white text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto"
+            >
+              <ExternalLink size={14} />
+              <span>فتح الملف في نافذة جديدة</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {audioRecordings.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
+          <div className="flex items-center gap-2">
+            <Mic size={18} className="text-[#00594C]" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+              التسجيلات الصوتية ({audioRecordings.length} تسجيلات)
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {audioRecordings.map((audio) => {
             const isPlaying = playingAudioId === audio.id;
             return (
               <div
@@ -528,6 +763,7 @@ export default function SubmissionDetailsView({
           })}
         </div>
       </div>
+      )}
       {quizQuestions.length > 0 && (
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
           <div className="flex items-center justify-between">
@@ -556,30 +792,45 @@ export default function SubmissionDetailsView({
                       </h4>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => toggleQuestionCorrect(q.id, q.isCorrect !== false)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                          isCorrect
-                            ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'bg-slate-200 dark:bg-slate-700 text-slate-600'
-                        }`}
-                      >
-                        <CheckCircle2 size={13} />
-                        <span>صح</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleQuestionCorrect(q.id, q.isCorrect !== false)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                          !isCorrect
-                            ? 'bg-rose-600 text-white shadow-xs'
-                            : 'bg-slate-200 dark:bg-slate-700 text-slate-600'
-                        }`}
-                      >
-                        <XCircle size={13} />
-                        <span>خطأ</span>
-                      </button>
+                      {canEvaluate ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => toggleQuestionCorrect(q.id, q.isCorrect !== false)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
+                              isCorrect
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600'
+                            }`}
+                          >
+                            <CheckCircle2 size={13} />
+                            <span>صح</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleQuestionCorrect(q.id, q.isCorrect !== false)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
+                              !isCorrect
+                                ? 'bg-rose-600 text-white shadow-xs'
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600'
+                            }`}
+                          >
+                            <XCircle size={13} />
+                            <span>خطأ</span>
+                          </button>
+                        </>
+                      ) : (
+                        <span
+                          className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
+                            isCorrect
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                          }`}
+                        >
+                          {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                          <span>{isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة'}</span>
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="rounded-xl p-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 text-xs">
@@ -596,85 +847,150 @@ export default function SubmissionDetailsView({
           </div>
         </div>
       )}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
-        <div className="flex items-center gap-2">
-          <Star size={20} className="text-amber-500 fill-amber-500" />
-          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-            التقييم
-          </h3>
+      {isEvaluated ? (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Star size={20} className="text-amber-500 fill-amber-500" />
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+                تقييم الواجب (معتمد)
+              </h3>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <CheckCircle2 size={14} />
+              <span>تم التقييم بنجاح</span>
+            </span>
+          </div>
+          <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 flex items-center gap-3 text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+            <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>تم تقييم هذا الواجب واعتماده مسبقاً من قِبل المعلم، ولا يمكن إعادة تعديل التقييم.</span>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center space-y-2">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                الدرجة المعتمدة
+              </span>
+              <div className="text-4xl sm:text-5xl font-black text-[#00594C] dark:text-emerald-400 tracking-tight">
+                {liveData.grade ?? submission?.grade ?? (grade !== '' ? grade : 0)}
+                <span className="text-lg font-bold text-slate-400 dark:text-slate-500 mr-1.5">/ 100</span>
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400">
+                النسبة المئوية: {liveData.grade ?? submission?.grade ?? (grade !== '' ? grade : 0)}%
+              </span>
+            </div>
+            <div className="lg:col-span-2 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-3">
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
+                  ملاحظات وتغذية راجعة من المعلم
+                </span>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line">
+                  {teacherNotes || liveData.teacherNotes || submission?.teacherNotes || 'تم رصد الدرجة بنجاح دون إضافة ملاحظات نصية إضافية.'}
+                </p>
+              </div>
+              {(liveData.evaluatedAt || submission?.evaluatedAt) && (
+                <span className="text-[11px] text-slate-400 block pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                  تاريخ التقييم: {new Date(liveData.evaluatedAt || submission?.evaluatedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <div className="space-y-4">
-            <div className="space-y-1.5">
+      ) : !canEvaluate ? (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start">
+          <div className="flex items-center gap-2">
+            <Star size={20} className="text-slate-400" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+              التقييم
+            </h3>
+          </div>
+          <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 flex items-center gap-3 text-xs font-semibold text-amber-900 dark:text-amber-200">
+            <AlertCircle size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
+            <span>
+              لا يمكن تقييم هذا الواجب حالياً لأن الطالب لم يقم بالتسليم بعد (حالة التسليم: {statusBadge.label}). يمكن التقييم فقط بعد قيام الطالب بتسليم الواجب (submitted أو submitted_late).
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
+          <div className="flex items-center gap-2">
+            <Star size={20} className="text-amber-500 fill-amber-500" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+              التقييم
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  الدرجة (من 100)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  placeholder="---"
+                  className="w-full text-center py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-2xl font-black text-slate-800 dark:text-white focus:outline-none focus:border-[#00594C] transition"
+                />
+              </div>
+              <div className="space-y-2 pt-1">
+                {quickGrades.map((row, rIdx) => (
+                  <div key={rIdx} className="grid grid-cols-3 gap-2.5">
+                    {row.map((score) => {
+                      const isSelected = Number(grade) === score;
+                      return (
+                        <button
+                          type="button"
+                          key={score}
+                          onClick={() => setGrade(score)}
+                          className={`py-3 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer border ${
+                            isSelected
+                              ? 'bg-[#00594C] text-white border-[#00594C] shadow-xs'
+                              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          {score}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveEvaluation}
+                disabled={isSubmitting}
+                className="w-full py-4 px-6 rounded-2xl bg-[#00594C] hover:bg-[#00473c] text-white text-sm sm:text-base font-bold transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-70 cursor-pointer mt-3"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>جاري حفظ التقييم...</span>
+                  </>
+                ) : (
+                  <>
+                    <Star size={18} className="fill-white" />
+                    <span>حفظ التقييم</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="space-y-1.5 h-full flex flex-col">
               <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                الدرجة (من 100)
+                الملاحظات
               </label>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                placeholder="---"
-                className="w-full text-center py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-2xl font-black text-slate-800 dark:text-white focus:outline-none focus:border-[#00594C] transition"
+              <textarea
+                value={teacherNotes}
+                onChange={(e) => setTeacherNotes(e.target.value)}
+                rows={10}
+                placeholder="اكتب تغذية راجعة للطالب..."
+                className="w-full flex-1 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00594C] transition resize-none min-h-[220px]"
               />
             </div>
-            <div className="space-y-2 pt-1">
-              {quickGrades.map((row, rIdx) => (
-                <div key={rIdx} className="grid grid-cols-3 gap-2.5">
-                  {row.map((score) => {
-                    const isSelected = Number(grade) === score;
-                    return (
-                      <button
-                        type="button"
-                        key={score}
-                        onClick={() => setGrade(score)}
-                        className={`py-3 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer border ${
-                          isSelected
-                            ? 'bg-[#00594C] text-white border-[#00594C] shadow-xs'
-                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        {score}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={handleSaveEvaluation}
-              disabled={isSubmitting}
-              className="w-full py-4 px-6 rounded-2xl bg-[#00594C] hover:bg-[#00473c] text-white text-sm sm:text-base font-bold transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-70 cursor-pointer mt-3"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  <span>جاري حفظ التقييم...</span>
-                </>
-              ) : (
-                <>
-                  <Star size={18} className="fill-white" />
-                  <span>حفظ التقييم</span>
-                </>
-              )}
-            </button>
-          </div>
-          <div className="space-y-1.5 h-full flex flex-col">
-            <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-              الملاحظات
-            </label>
-            <textarea
-              value={teacherNotes}
-              onChange={(e) => setTeacherNotes(e.target.value)}
-              rows={10}
-              placeholder="اكتب تغذية راجعة للطالب..."
-              className="w-full flex-1 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00594C] transition resize-none min-h-[220px]"
-            />
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

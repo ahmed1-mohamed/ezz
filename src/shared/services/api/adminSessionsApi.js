@@ -90,8 +90,9 @@ export const formatTime12h = (timeStr, isRtl = true) => {
   return formatTimeRange12h(timeStr, null, 60, isRtl);
 };
 
-export const mapSessionData = (item) => {
-  if (!item) return null;
+export const mapSessionData = (raw) => {
+  if (!raw) return null;
+  const item = raw.data || raw;
   const id = item.id || item._id;
   let groupName = '';
   let groupId = null;
@@ -100,8 +101,15 @@ export const mapSessionData = (item) => {
     groupName = extractSafeString(item.group.name) || extractSafeString(item.group.title) || '';
   } else if (item.groupName) {
     groupName = extractSafeString(item.groupName);
+    if (typeof item.group === 'string' && /^[a-f\d]{24}$/i.test(item.group.trim())) {
+      groupId = item.group.trim();
+    }
   } else if (typeof item.group === 'string') {
-    groupName = item.group.trim();
+    if (/^[a-f\d]{24}$/i.test(item.group.trim())) {
+      groupId = item.group.trim();
+    } else {
+      groupName = item.group.trim();
+    }
   }
   let teacherName = '';
   let teacherId = null;

@@ -9,7 +9,6 @@ import {
   Frown,
   TrendingDown,
   Award,
-  Radio,
   CheckCircle2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -71,57 +70,6 @@ const RATING_OPTIONS = [
   },
 ]
 
-const isSessionLive = (session) => {
-  const statusStr = String(session?.status || session?.rawStatus || '').toLowerCase().trim()
-  return statusStr === 'live' ||
-    statusStr === 'in_progress' ||
-    statusStr === 'in-progress' ||
-    statusStr === 'started' ||
-    statusStr === 'ongoing' ||
-    statusStr.includes('مباشر') ||
-    statusStr.includes('جاري') ||
-    statusStr.includes('جارية')
-}
-
-const isSessionCompleted = (session) => {
-  const statusStr = String(session?.status || session?.rawStatus || '').toLowerCase().trim()
-  if (
-    statusStr === 'completed' ||
-    statusStr === 'finished' ||
-    statusStr === 'ended' ||
-    statusStr === 'done' ||
-    statusStr.includes('مكتمل') ||
-    statusStr.includes('منتهي')
-  ) {
-    return true
-  }
-  if (statusStr === 'scheduled' || statusStr === 'upcoming' || statusStr === 'مجدولة' || !statusStr) {
-    if (session?.date) {
-      try {
-        const dateStr = session.date.includes('T') ? session.date.split('T')[0] : session.date
-        const endTimeStr = session.endTime || session.startTime || '23:59'
-        const match = endTimeStr.match(/^(\d{1,2}):(\d{2})/)
-        if (match) {
-          const endDateTime = new Date(`${dateStr}T${match[1].padStart(2, '0')}:${match[2]}:00`)
-          if (!isNaN(endDateTime.getTime()) && new Date() > endDateTime) {
-            return true
-          }
-        } else {
-          const sDate = new Date(dateStr)
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          if (!isNaN(sDate.getTime()) && sDate < today) {
-            return true
-          }
-        }
-      } catch {
-        return false
-      }
-    }
-  }
-  return false
-}
-
 const resolveGroupId = (entity) => {
   if (!entity) return ''
   if (typeof entity === 'string') return entity
@@ -139,7 +87,6 @@ export default function AdminAddTeacherEvaluationModal({
   const [teachers, setTeachers] = useState([])
   const [groups, setGroups] = useState([])
   const [rawSessions, setRawSessions] = useState([])
-  const [sessionStatusFilter, setSessionStatusFilter] = useState('all')
   const [selectedTeacherId, setSelectedTeacherId] = useState(initialTeacherId || '')
   const [selectedGroupId, setSelectedGroupId] = useState('')
   const [selectedSessionId, setSelectedSessionId] = useState('')
@@ -209,8 +156,7 @@ export default function AdminAddTeacherEvaluationModal({
       try {
         const res = await adminSessionsApi.fetchAllLocalizedSessions({
           group: selectedGroupId,
-          groupId: selectedGroupId,
-          limit: 200,
+          status: 'completed',
         })
         if (!active) return
         const list = res?.data || (Array.isArray(res) ? res : [])
@@ -231,35 +177,19 @@ export default function AdminAddTeacherEvaluationModal({
     if (!selectedTeacherId) return []
     return groups
   }, [selectedTeacherId, groups])
-  const groupSessions = useMemo(() => {
+  const completedSessions = useMemo(() => {
     if (!selectedGroupId) return []
-    return rawSessions.filter((s) => {
-      const sGroupId = resolveGroupId(s.group) || String(s.groupId || '')
-      return !sGroupId || sGroupId === String(selectedGroupId)
+    return rawSessions.filter((session) => {
+      const sessionGroupId = resolveGroupId(session.group) || String(session.groupId || '')
+      return !sessionGroupId || sessionGroupId === String(selectedGroupId)
     })
   }, [rawSessions, selectedGroupId])
-  const liveSessionsCount = useMemo(() => {
-    return groupSessions.filter(isSessionLive).length
-  }, [groupSessions])
-  const completedSessionsCount = useMemo(() => {
-    return groupSessions.filter((s) => isSessionCompleted(s) && !isSessionLive(s)).length
-  }, [groupSessions])
-  const eligibleSessions = useMemo(() => {
-    return groupSessions.filter((s) => {
-      const live = isSessionLive(s)
-      const completed = isSessionCompleted(s)
-      if (!live && !completed) return false
-      if (sessionStatusFilter === 'live') return live
-      if (sessionStatusFilter === 'completed') return completed && !live
-      return true
-    })
-  }, [groupSessions, sessionStatusFilter])
   const selectedGroup = useMemo(() => {
     return activeGroups.find((g) => (g.id || g._id) === selectedGroupId)
   }, [activeGroups, selectedGroupId])
   const selectedSession = useMemo(() => {
-    return eligibleSessions.find((s) => (s.id || s._id) === selectedSessionId) || null
-  }, [eligibleSessions, selectedSessionId])
+    return completedSessions.find((session) => (session.id || session._id) === selectedSessionId) || null
+  }, [completedSessions, selectedSessionId])
   const handleTeacherChange = (newTeacherId) => {
     setSelectedTeacherId(newTeacherId)
     setSelectedGroupId('')
@@ -283,7 +213,7 @@ export default function AdminAddTeacherEvaluationModal({
       return
     }
     if (!selectedSession || !selectedSessionId) {
-      showErrorToast(isRtl ? 'يرجى اختيار الحصة الدراسية' : 'Please select a session')
+      showErrorToast(isRtl ? 'يرجى اختيار الحصة الدراسية المكتملة' : 'Please select a completed session')
       return
     }
     if (!notes.trim()) {
@@ -446,45 +376,13 @@ export default function AdminAddTeacherEvaluationModal({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-1 flex-wrap">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {isRtl ? '3. اختيار الحصة الدراسية' : '3. Select Session'} *
+                  {isRtl ? '3. اختيار الحصة الدراسية المكتملة' : '3. Select Completed Session'} *
                 </label>
                 {selectedGroupId && (
-                  <div className="inline-flex items-center gap-1 p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
-                    <button
-                      type="button"
-                      onClick={() => setSessionStatusFilter('all')}
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-                        sessionStatusFilter === 'all'
-                          ? 'bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-[#14a693] shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                      }`}
-                    >
-                      {isRtl ? 'الكل' : 'All'} ({liveSessionsCount + completedSessionsCount})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSessionStatusFilter('live')}
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer flex items-center gap-1 ${
-                        sessionStatusFilter === 'live'
-                          ? 'bg-rose-500 text-white shadow-xs'
-                          : 'text-rose-600 dark:text-rose-400 hover:text-rose-700'
-                      }`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                      <span>{isRtl ? 'مباشرة' : 'Live'} ({liveSessionsCount})</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSessionStatusFilter('completed')}
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-                        sessionStatusFilter === 'completed'
-                          ? 'bg-emerald-600 text-white shadow-xs'
-                          : 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-700'
-                      }`}
-                    >
-                      {isRtl ? 'مكتملة' : 'Completed'} ({completedSessionsCount})
-                    </button>
-                  </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
+                    <CheckCircle2 size={11} className="text-emerald-600 dark:text-emerald-400" />
+                    <span>{isRtl ? 'الحصص المكتملة' : 'Completed Sessions'} ({completedSessions.length})</span>
+                  </span>
                 )}
               </div>
               <div className="relative">
@@ -499,23 +397,19 @@ export default function AdminAddTeacherEvaluationModal({
                     {!selectedGroupId
                       ? (isRtl ? '-- اختر المجموعة أولاً --' : '-- Choose Group First --')
                       : isLoadingSessions
-                        ? (isRtl ? 'جاري تحميل الحصص المباشرة والمكتملة...' : 'Loading sessions...')
-                        : eligibleSessions.length === 0
-                          ? (isRtl ? 'لا توجد حصص مباشرة أو مكتملة مطابقة' : 'No matching live or completed sessions')
+                        ? (isRtl ? 'جاري تحميل الحصص المكتملة...' : 'Loading completed sessions...')
+                        : completedSessions.length === 0
+                          ? (isRtl ? 'لا توجد حصص مكتملة لهذه المجموعة' : 'No completed sessions for this group')
                           : (isRtl ? '-- اختر الحصة المراد تقييمها --' : '-- Select Session to Evaluate --')}
                   </option>
-                  {eligibleSessions.map((s) => {
-                    const sid = s.id || s._id
-                    const live = isSessionLive(s)
-                    const statusTag = live
-                      ? (isRtl ? '[مباشرة الآن]' : '[LIVE]')
-                      : (isRtl ? '[مكتملة]' : '[Completed]')
-                    const stitle = s.title || (s.sessionNumber ? `${isRtl ? 'حصة #' : 'Session #'}${s.sessionNumber}` : (isRtl ? 'حصة دراسية' : 'Session'))
-                    const sdate = s.date ? ` - ${s.date}` : ''
-                    const stime = s.time ? ` (${s.time})` : (s.startTime ? ` (${s.startTime})` : '')
+                  {completedSessions.map((session) => {
+                    const sid = session.id || session._id
+                    const stitle = session.title || (session.sessionNumber ? `${isRtl ? 'حصة #' : 'Session #'}${session.sessionNumber}` : (isRtl ? 'حصة دراسية' : 'Session'))
+                    const sdate = session.date ? ` - ${session.date}` : ''
+                    const stime = session.time ? ` (${session.time})` : (session.startTime ? ` (${session.startTime})` : '')
                     return (
                       <option key={sid} value={sid}>
-                        {statusTag} {stitle}{sdate}{stime}
+                        [{isRtl ? 'مكتملة' : 'Completed'}] {stitle}{sdate}{stime}
                       </option>
                     )
                   })}
@@ -527,22 +421,9 @@ export default function AdminAddTeacherEvaluationModal({
                 )}
               </div>
               {selectedSession && (
-                <div className={`text-[11px] font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 ${
-                  isSessionLive(selectedSession)
-                    ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                    : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                }`}>
-                  {isSessionLive(selectedSession) ? (
-                    <>
-                      <Radio size={13} className="text-rose-500 animate-pulse" />
-                      <span>{isRtl ? 'حصة مباشرة جارية الآن - تقييم أداء المعلم أثناء البث' : 'Live ongoing session'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 size={13} className="text-emerald-500" />
-                      <span>{isRtl ? 'حصة مكتملة - تقييم الأداء المسجل' : 'Completed session'}</span>
-                    </>
-                  )}
+                <div className="text-[11px] font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <CheckCircle2 size={13} className="text-emerald-600 dark:text-emerald-400" />
+                  <span>{isRtl ? 'حصة مكتملة - جاهزة لتقييم أداء المعلم' : 'Completed session - ready for teacher evaluation'}</span>
                 </div>
               )}
             </div>

@@ -40,6 +40,12 @@ function formatDate(dateStr, isRtl = true) {
   return String(dateStr)
 }
 
+function getGroupSessions(group) {
+  if (!group) return []
+  const raw = group.upcomingSessions || group.availableSessions || group.sessions || group.nextSessions || []
+  return Array.isArray(raw) ? raw : []
+}
+
 export default function AssignSessionModal({
   isOpen,
   onClose,
@@ -57,12 +63,9 @@ export default function AssignSessionModal({
   useEffect(() => {
     if (!isOpen || !trialId) return
     let isMounted = true
-    setIsLoading(true)
-    setErrorMsg('')
-    setSelectedGroupId('')
-    setSelectedSessionId('')
-    adminTrialSessionsApi.fetchAvailableGroups(trialId)
-      .then((res) => {
+    const loadAvailableGroups = async () => {
+      try {
+        const res = await adminTrialSessionsApi.fetchAvailableGroups(trialId)
         if (!isMounted) return
         const list = res?.data || (Array.isArray(res) ? res : [])
         setAvailableGroups(Array.isArray(list) ? list : [])
@@ -70,22 +73,22 @@ export default function AssignSessionModal({
           const firstGroup = list[0]
           const gId = firstGroup.id || firstGroup._id
           setSelectedGroupId(gId)
-          const sessions = firstGroup.availableSessions || firstGroup.sessions || []
+          const sessions = getGroupSessions(firstGroup)
           if (sessions.length > 0) {
             setSelectedSessionId(sessions[0].id || sessions[0]._id)
           }
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Failed to load available groups for trial session:', err)
         if (isMounted) {
           setErrorMsg(isRtl ? 'فشل تحميل المجموعات المتاحة للحصة التجريبية' : 'Failed to load available groups')
           setAvailableGroups([])
         }
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) setIsLoading(false)
-      })
+      }
+    }
+    loadAvailableGroups()
     return () => {
       isMounted = false
     }
@@ -102,9 +105,7 @@ export default function AssignSessionModal({
     return availableGroups.find((g) => (g.id || g._id) === selectedGroupId) || null
   }, [availableGroups, selectedGroupId])
   const groupSessions = useMemo(() => {
-    if (!selectedGroup) return []
-    const raw = selectedGroup.availableSessions || selectedGroup.sessions || []
-    return Array.isArray(raw) ? raw : []
+    return getGroupSessions(selectedGroup)
   }, [selectedGroup])
   if (!isOpen || !trialSession) return null
   const studentName = resolveText(trialSession.student?.name || trialSession.studentName, isRtl) || (isRtl ? 'طالب' : 'Student')
@@ -112,7 +113,7 @@ export default function AssignSessionModal({
   const handleGroupSelect = (g) => {
     const gId = g.id || g._id
     setSelectedGroupId(gId)
-    const sessions = g.availableSessions || g.sessions || []
+    const sessions = getGroupSessions(g)
     if (sessions.length > 0) {
       setSelectedSessionId(sessions[0].id || sessions[0]._id)
     } else {
@@ -135,7 +136,9 @@ export default function AssignSessionModal({
     try {
       await adminTrialSessionsApi.assignSession(trialId, {
         groupId: selectedGroupId,
+        group: selectedGroupId,
         sessionId: selectedSessionId,
+        session: selectedSessionId,
       })
       toast.success(isRtl ? 'تم تسكين الطالب في الحصة التجريبية بنجاح' : 'Student assigned to trial session successfully')
       onSuccess?.()
@@ -152,40 +155,37 @@ export default function AssignSessionModal({
   }
   return createPortal(
     <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !isSubmitting) onClose()
-      }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
-      dir={isRtl ? 'rtl' : 'ltr'}
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
     >
       <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col my-auto animate-scaleUp text-start"
+        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]"
+        dir={isRtl ? 'rtl' : 'ltr'}
       >
-        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-[#005953] dark:text-emerald-400 flex items-center justify-center font-bold">
-              <CalendarPlus size={20} />
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-[#005953] dark:text-emerald-400 flex items-center justify-center">
+              <CalendarPlus size={18} />
             </div>
             <div>
-              <h3 className="font-black text-base sm:text-lg text-slate-800 dark:text-white">
+              <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white">
                 {isRtl ? 'تسكين طالب في حصة تجريبية' : 'Assign Student to Trial Session'}
               </h3>
-              <p className="text-xs text-slate-400">
-                {isRtl ? 'اختيار المجموعة المناسبة والحصة المتاحة للمنهج المطلوب' : 'Select matching group and available session'}
+              <p className="text-[11px] text-slate-400">
+                {isRtl ? 'اختيار المجموعة المناسبة والحصة المتاحة للمنهج المطلوب' : 'Select a group and available session for the requested curriculum'}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            disabled={isSubmitting}
-            className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
-        <form onSubmit={handleAssignSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleAssignSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {errorMsg && (
             <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2">
               <AlertCircle size={16} className="shrink-0" />
@@ -231,7 +231,7 @@ export default function AssignSessionModal({
                     const isSelected = String(selectedGroupId) === String(gId)
                     const gName = resolveText(grp.name, isRtl)
                     const tName = resolveText(grp.teacher?.name || grp.teacher, isRtl)
-                    const sessionsCount = (grp.availableSessions || grp.sessions || []).length
+                    const sessionsCount = getGroupSessions(grp).length
                     return (
                       <div
                         key={gId}
@@ -246,7 +246,7 @@ export default function AssignSessionModal({
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isSelected ? 'bg-[#005953] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
                             <Users size={14} />
                           </div>
-                          <div className="min-w-0">
+                          <div className="min-w-0 text-start">
                             <span className="text-xs font-bold text-slate-800 dark:text-white block truncate">{gName}</span>
                             {tName && (
                               <span className="text-[10px] text-slate-400 block truncate">{tName}</span>
@@ -276,7 +276,10 @@ export default function AssignSessionModal({
                         const sId = ses.id || ses._id
                         const isSelected = String(selectedSessionId) === String(sId)
                         const sTitle = resolveText(ses.title, isRtl) || `${isRtl ? 'الحصة' : 'Session'} #${ses.sessionNumber || ''}`
-                        const timeStr = ses.startTime ? `${ses.startTime} ${ses.endTime ? `- ${ses.endTime}` : ''}` : ''
+                        const timeStr = ses.time || (ses.startTime ? `${ses.startTime} ${ses.endTime ? `- ${ses.endTime}` : ''}` : '')
+                        const dayText = ses.day ? resolveText(ses.day, isRtl) : ''
+                        const dateFormatted = formatDate(ses.date || ses.scheduledDate, isRtl)
+                        const dateText = dayText && !dateFormatted.includes(dayText) ? `${dayText}، ${dateFormatted}` : dateFormatted
                         return (
                           <div
                             key={sId}
@@ -291,10 +294,10 @@ export default function AssignSessionModal({
                               <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isSelected ? 'bg-[#005953] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
                                 <Clock size={15} />
                               </div>
-                              <div>
+                              <div className="text-start">
                                 <span className="text-xs font-bold text-slate-800 dark:text-white block">{sTitle}</span>
                                 <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
-                                  <span>{formatDate(ses.date || ses.scheduledDate, isRtl)}</span>
+                                  <span>{dateText}</span>
                                   {timeStr && <span>• {timeStr}</span>}
                                 </div>
                               </div>
@@ -311,28 +314,28 @@ export default function AssignSessionModal({
               )}
             </div>
           )}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <div className="pt-2 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             >
               {isRtl ? 'إلغاء' : 'Cancel'}
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !selectedGroupId || !selectedSessionId}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#005953] hover:bg-[#004742] disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+              disabled={isSubmitting || !selectedSessionId || isLoading}
+              className="px-5 py-2.5 rounded-xl bg-[#005953] hover:bg-[#004742] text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 size={15} className="animate-spin" />
+                  <Loader2 size={14} className="animate-spin" />
                   <span>{isRtl ? 'جاري التسكين...' : 'Assigning...'}</span>
                 </>
               ) : (
                 <>
-                  <CalendarPlus size={15} />
+                  <CalendarPlus size={14} />
                   <span>{isRtl ? 'تأكيد تسكين الطالب في الحصة' : 'Confirm Assignment'}</span>
                 </>
               )}

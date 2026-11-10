@@ -13,7 +13,6 @@ import {
   History,
   DollarSign,
   CreditCard,
-  Receipt,
   MessageSquare,
   User,
   BookOpen,
@@ -90,17 +89,12 @@ export default function TeacherLayout() {
     {
       path: '/dashboard/teacher/earnings',
       icon: DollarSign,
-      label: t('teacher.navEarnings', 'الأرباح'),
+      label: t('teacher.navEarnings', 'الأرباح وإثباتات الدفع'),
     },
     {
       path: '/dashboard/teacher/curricula',
       icon: Library,
       label: t('teacher.navCurricula', 'المناهج والمصادر'),
-    },
-    {
-      path: '/dashboard/teacher/payouts',
-      icon: Receipt,
-      label: t('teacher.navPayouts', 'إثباتات الدفع'),
     },
     {
       path: '/dashboard/teacher/payment-methods',

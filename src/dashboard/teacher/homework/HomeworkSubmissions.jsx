@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -74,7 +74,7 @@ export default function HomeworkSubmissions() {
     }),
     staleTime: 30 * 1000,
   });
-  const formatSubmissionTime = (rawDate) => {
+  const formatSubmissionTime = useCallback((rawDate) => {
     if (!rawDate) return t('teacherHomework.notSubmitted', 'لم يتم التسليم');
     const date = new Date(rawDate);
     if (isNaN(date.getTime())) {
@@ -95,7 +95,7 @@ export default function HomeworkSubmissions() {
     } catch {
       return date.toLocaleDateString();
     }
-  };
+  }, [isRtl, t]);
   const normalizeSubmissionStatus = (item) => {
     const st = (
       item.submissionStatus ||
@@ -161,31 +161,48 @@ export default function HomeworkSubmissions() {
       });
     }
     return [];
-  }, [submissionsRes, isRtl, t]);
-  useEffect(() => {
-    if (paramId && rawSubmissions.length > 0 && !selectedSubmission) {
+  }, [submissionsRes, formatSubmissionTime]);
+  const activeSubmission = useMemo(() => {
+    if (selectedSubmission) return selectedSubmission;
+    if (paramId && rawSubmissions.length > 0) {
       const found = rawSubmissions.find((s) => s.id === paramId || s.homeworkId === paramId);
-      if (found) {
-        setSelectedSubmission(found);
-      } else {
-        setSelectedSubmission({ id: paramId, homeworkId: paramId });
-      }
+      return found || { id: paramId, homeworkId: paramId };
     }
-  }, [paramId, rawSubmissions, selectedSubmission]);
+    if (paramId) {
+      return { id: paramId, homeworkId: paramId };
+    }
+    return null;
+  }, [selectedSubmission, paramId, rawSubmissions]);
   const stats = useMemo(() => {
+    const apiStats = submissionsRes?.statistics || submissionsRes?.stats || submissionsRes?.data?.statistics;
+    if (apiStats && typeof apiStats === 'object') {
+      return {
+        all: Number(apiStats.total ?? apiStats.all ?? apiStats.totalCount ?? rawSubmissions.length),
+        pending: Number(apiStats.pending ?? apiStats.waiting ?? 0),
+        submitted: Number(apiStats.submitted ?? apiStats.completed ?? 0),
+        submitted_late: Number(apiStats.submitted_late ?? apiStats.submittedLate ?? apiStats['submitted-late'] ?? 0),
+        overdue: Number(apiStats.overdue ?? apiStats.late ?? 0),
+        evaluated: Number(apiStats.evaluated ?? 0),
+        not_evaluated: Number(apiStats.not_evaluated ?? apiStats.notEvaluated ?? 0),
+      };
+    }
     let all = rawSubmissions.length;
     let pending = 0;
     let submitted = 0;
     let submitted_late = 0;
     let overdue = 0;
+    let evaluated = 0;
+    let not_evaluated = 0;
     rawSubmissions.forEach((s) => {
       if (s.rawStatus === 'pending') pending += 1;
       else if (s.rawStatus === 'submitted') submitted += 1;
       else if (s.rawStatus === 'submitted_late') submitted_late += 1;
       else if (s.rawStatus === 'overdue') overdue += 1;
+      if (s.rawEvaluationStatus === 'evaluated') evaluated += 1;
+      else not_evaluated += 1;
     });
-    return { all, pending, submitted, submitted_late, overdue };
-  }, [rawSubmissions]);
+    return { all, pending, submitted, submitted_late, overdue, evaluated, not_evaluated };
+  }, [submissionsRes, rawSubmissions]);
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((item) => {
       if (statusFilter !== 'all' && item.rawStatus !== statusFilter) {
@@ -200,7 +217,7 @@ export default function HomeworkSubmissions() {
       return true;
     });
   }, [rawSubmissions, statusFilter, evaluationFilter]);
-  if (selectedSubmission) {
+  if (activeSubmission) {
     return (
       <SubmissionDetailsView
         submission={selectedSubmission}
@@ -261,7 +278,7 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-amber-500">
             {stats.pending}
           </div>
-          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.pendingReview', 'في الانتظار')}</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.pendingReview', 'بانتظار المراجعة')}</div>
         </div>
         <div
           onClick={() => setStatusFilter('submitted')}
@@ -274,7 +291,7 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-emerald-600">
             {stats.submitted}
           </div>
-          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.submittedOnTime', 'تم التسليم في الموعد')}</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.submittedOnTime', 'تم التسليم')}</div>
         </div>
         <div
           onClick={() => setStatusFilter('submitted_late')}
@@ -300,7 +317,7 @@ export default function HomeworkSubmissions() {
           <div className="text-2xl sm:text-3xl font-black text-rose-500">
             {stats.overdue}
           </div>
-          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.overdue', 'متأخرة ولم يتم التسليم')}</div>
+          <div className="text-xs font-bold text-slate-400">{t('teacherHomework.overdue', 'متأخر عن الموعد')}</div>
         </div>
       </div>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -308,7 +325,7 @@ export default function HomeworkSubmissions() {
           {[
             { id: 'all', label: t('teacherHomework.allSubmissions', 'الكل') },
             { id: 'evaluated', label: t('teacherHomework.evaluated', 'تم التقييم') },
-            { id: 'not_evaluated', label: t('teacherHomework.notEvaluated', 'لم يتم التقييم') },
+            { id: 'not_evaluated', label: t('teacherHomework.notEvaluated', 'غير مقيم') },
           ].map((tab) => {
             const isActive = evaluationFilter === tab.id;
             return (
@@ -400,7 +417,7 @@ export default function HomeworkSubmissions() {
                         {sub.rawStatus === 'submitted' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
                             <CheckCircle2 size={13} />
-                            <span>{t('teacherHomework.submittedOnTime', 'تم التسليم في الموعد')}</span>
+                            <span>{t('teacherHomework.submittedOnTime', 'تم التسليم')}</span>
                           </span>
                         )}
                         {sub.rawStatus === 'submitted_late' && (
@@ -412,13 +429,13 @@ export default function HomeworkSubmissions() {
                         {sub.rawStatus === 'overdue' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300">
                             <AlertCircle size={13} />
-                            <span>{t('teacherHomework.overdue', 'متأخرة ولم يتم التسليم')}</span>
+                            <span>{t('teacherHomework.overdue', 'متأخر عن الموعد')}</span>
                           </span>
                         )}
                         {sub.rawStatus === 'pending' && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
                             <Clock size={13} />
-                            <span>{t('teacherHomework.pendingReview', 'في الانتظار')}</span>
+                            <span>{t('teacherHomework.pendingReview', 'بانتظار المراجعة')}</span>
                           </span>
                         )}
                       </td>
@@ -433,7 +450,7 @@ export default function HomeworkSubmissions() {
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
                             <Clock size={13} />
-                            <span>{t('teacherHomework.notEvaluated', 'في انتظار التقييم')}</span>
+                            <span>{t('teacherHomework.notEvaluated', 'غير مقيم')}</span>
                           </span>
                         )}
                       </td>
@@ -451,7 +468,7 @@ export default function HomeworkSubmissions() {
                           title={t('teacherHomework.viewSubmission', 'عرض تفاصيل الواجب والتسليم')}
                         >
                           <Eye size={14} />
-                          <span>{t('teacherHomework.viewSubmission', 'عرض الواجب')}</span>
+                          <span>{t('teacherHomework.viewSubmission', 'عرض التسليم')}</span>
                         </button>
                       </td>
                     </tr>

@@ -69,9 +69,6 @@ export const adminPaymentsApi = {
         'Status',
         'Paid At',
         'Created At',
-        'Expires At',
-        'Stripe Session ID',
-        'Stripe Payment Intent ID',
       ];
       const rows = items.map((item) => {
         const studentNames = (item.students || []).map((s) => s.name || s.id).join('; ');
@@ -95,9 +92,6 @@ export const adminPaymentsApi = {
           escape(item.status),
           escape(item.paidAt || ''),
           escape(item.createdAt || ''),
-          escape(item.expiresAt || ''),
-          escape(item.stripeSessionId || ''),
-          escape(item.stripePaymentIntentId || ''),
         ].join(',');
       });
       const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');

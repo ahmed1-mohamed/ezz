@@ -37,7 +37,8 @@ export default function AdminRecordPayoutModal({
   isRtl = true,
   onSuccess,
 }) {
-  const [selectedTeacherId, setSelectedTeacherId] = useState('')
+  const teacherIdProp = teacher?.id || teacher?.teacher_id || teacher?._id || ''
+  const [selectedTeacherId, setSelectedTeacherId] = useState(teacherIdProp)
   const [paymentMethods, setPaymentMethods] = useState([])
   const [isMethodsLoading, setIsMethodsLoading] = useState(false)
   const [amount, setAmount] = useState('')
@@ -48,30 +49,26 @@ export default function AdminRecordPayoutModal({
   const [proofPreviewUrl, setProofPreviewUrl] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const activeTeacherId = selectedTeacherId || teacherIdProp
   useEffect(() => {
-    if (isOpen) {
-      const initialId = teacher?.id || teacher?.teacher_id || teacher?._id || ''
-      setSelectedTeacherId(initialId)
-      setAmount('')
-      setPaymentMethodId('')
-      setReferenceNumber('')
-      setNotes('')
-      setProofImageFile(null)
-      setProofPreviewUrl('')
-      setErrorMessage('')
-    }
-  }, [isOpen, teacher])
-  useEffect(() => {
-    if (!isOpen || !selectedTeacherId) {
-      setPaymentMethods([])
-      return
-    }
+    if (!isOpen || !activeTeacherId) return
     let isMounted = true
-    setIsMethodsLoading(true)
-    teachersApi.fetchTeacherPaymentMethods(selectedTeacherId)
+    teachersApi.fetchTeacherPaymentMethods(activeTeacherId)
       .then((res) => {
         if (!isMounted) return
-        const list = res?.data || (Array.isArray(res) ? res : [])
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.paymentMethods)
+          ? res.data.paymentMethods
+          : Array.isArray(res?.paymentMethods)
+          ? res.paymentMethods
+          : Array.isArray(res?.data?.methods)
+          ? res.data.methods
+          : Array.isArray(res?.methods)
+          ? res.methods
+          : Array.isArray(res)
+          ? res
+          : []
         setPaymentMethods(list)
         const defaultMethod = list.find((m) => m.isDefault) || list[0]
         if (defaultMethod) {
@@ -90,7 +87,7 @@ export default function AdminRecordPayoutModal({
     return () => {
       isMounted = false
     }
-  }, [isOpen, selectedTeacherId])
+  }, [isOpen, activeTeacherId])
   useEffect(() => {
     if (!isOpen) return
     const original = document.body.style.overflow
@@ -126,7 +123,7 @@ export default function AdminRecordPayoutModal({
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErrorMessage('')
-    if (!selectedTeacherId) {
+    if (!activeTeacherId) {
       setErrorMessage(isRtl ? 'يرجى اختيار المعلم أولاً' : 'Please select a teacher first')
       return
     }
@@ -151,7 +148,7 @@ export default function AdminRecordPayoutModal({
       if (proofImageFile instanceof File) {
         fd.append('proofImage', proofImageFile)
       }
-      await teachersApi.createTeacherPayout(selectedTeacherId, fd)
+      await teachersApi.createTeacherPayout(activeTeacherId, fd)
       toast.success(
         isRtl
           ? 'تم تسجيل التحويل المالي وإرسال إثبات الدفع بنجاح'
@@ -179,9 +176,9 @@ export default function AdminRecordPayoutModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col my-auto animate-scaleUp"
+        className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col my-auto animate-scaleUp max-h-[92vh]"
       >
-        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
               <Coins size={20} />
@@ -204,7 +201,7 @@ export default function AdminRecordPayoutModal({
             <X size={16} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-start">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-start overflow-y-auto">
           {errorMessage && (
             <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2">
               <AlertCircle size={16} className="shrink-0" />
@@ -239,18 +236,29 @@ export default function AdminRecordPayoutModal({
             </div>
           )}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
-                {isRtl ? 'طريقة الاستلام المستخدمة' : 'Payment Method Used'} <span className="text-[10px] text-slate-400 font-normal">({isRtl ? 'اختياري - سيتم استخدام الافتراضية إن لم تحدد' : 'Optional - default will be used'})</span>
-              </label>
-              {isMethodsLoading && (
+            <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
+                  {isRtl ? 'طريقة الاستلام المستخدمة' : 'Payment Method Used'}
+                </label>
+                {paymentMethods.length > 0 && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
+                    {paymentMethods.length} {isRtl ? (paymentMethods.length === 1 ? 'حساب متاح' : paymentMethods.length === 2 ? 'حسابان متاحان' : 'حسابات متاحة') : 'available accounts'}
+                  </span>
+                )}
+              </div>
+              {isMethodsLoading ? (
                 <span className="text-[10px] text-[#0f7a6c] flex items-center gap-1 font-bold">
                   <Loader2 size={12} className="animate-spin" />
                   <span>{isRtl ? 'جاري جلب طرق الدفع...' : 'Loading methods...'}</span>
                 </span>
+              ) : (
+                <span className="text-[10px] text-slate-400 font-normal">
+                  ({isRtl ? 'اختياري - سيتم استخدام الافتراضية إن لم تحدد' : 'Optional - default will be used'})
+                </span>
               )}
             </div>
-            {!selectedTeacherId ? (
+            {!activeTeacherId ? (
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 text-center text-xs text-slate-400 font-medium">
                 {isRtl ? 'اختر المعلم أولاً لعرض طرق الدفع المتاحة له' : 'Select a teacher first to view payment methods'}
               </div>
@@ -262,7 +270,7 @@ export default function AdminRecordPayoutModal({
                 </span>
               </div>
             ) : (
-              <div className="space-y-2 max-h-48 overflow-y-auto p-1">
+              <div className="space-y-2 max-h-[380px] overflow-y-auto p-1 pr-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600">
                 {paymentMethods.map((m) => {
                   const mId = m.id || m._id
                   const isSelected = String(paymentMethodId) === String(mId)
@@ -413,7 +421,7 @@ export default function AdminRecordPayoutModal({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !selectedTeacherId || !amount}
+              disabled={isSubmitting || !activeTeacherId || !amount}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
             >
               {isSubmitting ? (

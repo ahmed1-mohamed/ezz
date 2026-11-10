@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { User, ShieldCheck, BookOpen, Palette, Calendar } from 'lucide-react';
+import { User, ShieldCheck, BookOpen, Palette } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { teachersApi } from '@/shared/services/api/teachersApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
-import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import { normalizeCountries, sortCountries, resolveCountryIdFromLabel, DEFAULT_DIAL_CODE } from '@/shared/utils/countryUtils.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import { setCookie } from '@/shared/utils/cookieUtils.js';
@@ -16,7 +14,6 @@ import TeacherProfileHeader from './components/TeacherProfileHeader.jsx';
 import TeacherPersonalInfoCard from './components/TeacherPersonalInfoCard.jsx';
 import TeacherPasswordCard from './components/TeacherPasswordCard.jsx';
 import TeacherTeachingInfoCard from './components/TeacherTeachingInfoCard.jsx';
-import TeacherAvailabilityCard from '@/shared/components/TeacherAvailabilityCard.jsx';
 import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
 
 export default function TeacherProfile() {
@@ -93,21 +90,6 @@ export default function TeacherProfile() {
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-  const { data: statsRes } = useQuery({
-    queryKey: ['teacher-profile-stats'],
-    queryFn: () => dashboardApi.fetchTeacherStatistics(),
-    staleTime: 5 * 60 * 1000,
-  });
-  const stats = useMemo(() => {
-    const raw = statsRes?.data || {};
-    return {
-      activeGroups: raw.groupsCount ?? raw.activeGroupsCount ?? 0,
-      totalSessions: raw.completedSessionsCount ?? raw.sessionsCount ?? 0,
-      totalStudents: raw.studentsCount ?? raw.totalStudentsCount ?? 0,
-      totalEarnings: raw.totalEarnings ?? raw.earnings ?? 0,
-      rating: raw.averageRating ?? raw.rating ?? 0,
-    };
-  }, [statsRes]);
   useEffect(() => {
     let isMounted = true;
     const loadProfileData = async () => {
@@ -322,10 +304,9 @@ export default function TeacherProfile() {
   const tabs = useMemo(() => [
     { key: 'personal', label: t('teacherProfilePage.personalInfo', 'البيانات الشخصية'), icon: User },
     { key: 'security', label: t('teacherProfilePage.security', 'الأمان وكلمة المرور'), icon: ShieldCheck },
-    { key: 'teaching', label: t('teacherProfilePage.stats', 'المعلومات التعليمية والنبذة'), icon: BookOpen },
-    { key: 'availability', label: isRtl ? 'الأيام المتاحة للعمل' : 'Working Days', icon: Calendar },
+    { key: 'teaching', label: t('teacherProfilePage.stats', 'إحصائيات التدريس'), icon: BookOpen },
     { key: 'display', label: t('parentSettings.languageDisplay', 'اللغة والعرض'), icon: Palette },
-  ], [t, isRtl]);
+  ], [t]);
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherProfileHeader
@@ -343,7 +324,6 @@ export default function TeacherProfile() {
         email={profileForm.email}
         phoneWithoutCode={phoneWithoutCode}
         selectedDialCode={selectedDialCode}
-        stats={stats}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         tabs={tabs}
@@ -380,12 +360,6 @@ export default function TeacherProfile() {
         />
       ) : activeTab === 'display' ? (
         <LanguageAppearancePanel />
-      ) : activeTab === 'availability' ? (
-        <TeacherAvailabilityCard
-          availability={teacherAvailability}
-          isRtl={isRtl}
-          title={isRtl ? 'الأيام المتاحة للعمل' : 'Available Working Days'}
-        />
       ) : (
         <TeacherTeachingInfoCard
           t={t}

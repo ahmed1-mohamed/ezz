@@ -59,7 +59,19 @@ export default function TeacherDetailsPayoutsCard({
     staleTime: 60 * 1000,
   })
   const balance = methodsRes?.balance || {}
-  const paymentMethods = methodsRes?.data || []
+  const paymentMethods = Array.isArray(methodsRes?.data)
+    ? methodsRes.data
+    : Array.isArray(methodsRes?.data?.paymentMethods)
+    ? methodsRes.data.paymentMethods
+    : Array.isArray(methodsRes?.paymentMethods)
+    ? methodsRes.paymentMethods
+    : Array.isArray(methodsRes?.data?.methods)
+    ? methodsRes.data.methods
+    : Array.isArray(methodsRes?.methods)
+    ? methodsRes.methods
+    : Array.isArray(methodsRes)
+    ? methodsRes
+    : []
   const payoutsList = payoutsRes?.data || []
   const payoutsStats = payoutsRes?.statistics || {}
   const payoutsPagination = payoutsRes?.pagination || { currentPage: 1, totalPages: 1 }

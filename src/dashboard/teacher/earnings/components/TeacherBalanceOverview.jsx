@@ -1,11 +1,7 @@
 import {
   TrendingUp,
   Clock,
-  CheckCircle2,
-  Receipt,
   Calendar,
-  GraduationCap,
-  Hourglass,
   Coins,
 } from 'lucide-react'
 
@@ -18,12 +14,8 @@ export default function TeacherBalanceOverview({ balance, isLoading, t, isRtl = 
   }
   const totalEarningsVal = balance?.totalEarnings ?? balance?.totalRevenue ?? balance?.totalAmount ?? 0
   const dueEarningsVal = balance?.dueEarnings ?? balance?.currentBalance ?? balance?.availableBalance ?? balance?.balance ?? 0
-  const totalPaidVal = balance?.totalPaid ?? balance?.paidEarnings ?? balance?.transferredAmount ?? 0
+  const hourlyRateVal = balance?.hourlyRate ?? balance?.teacher?.hourlyRate ?? balance?.rate ?? 0
   const monthlyEarningsVal = balance?.monthlyEarnings ?? balance?.currentMonthEarnings ?? balance?.thisMonthEarnings ?? 0
-  const payoutsCountVal = balance?.payoutsCount ?? balance?.totalPayouts ?? balance?.transfersCount ?? 0
-  const completedSessionsVal = balance?.completedSessionsCount ?? balance?.totalSessions ?? balance?.sessionsCount ?? balance?.completedLessons ?? 0
-  const totalHoursVal = balance?.totalTeachingHours ?? balance?.totalHours ?? balance?.hoursCount ?? 0
-  const pendingEarningsVal = balance?.pendingEarnings ?? balance?.pendingPayoutsAmount ?? balance?.pendingPayouts ?? balance?.inReviewEarnings ?? 0
   const cards = [
     {
       id: 'totalEarnings',
@@ -46,11 +38,11 @@ export default function TeacherBalanceOverview({ balance, isLoading, t, isRtl = 
       border: 'border-amber-200/60 dark:border-amber-800/40',
     },
     {
-      id: 'totalPaid',
-      title: t('teacher.earnings.balance.totalPaid', 'إجمالي المحوّل'),
-      desc: t('teacher.earnings.balance.totalPaidDesc', 'إجمالي ما تم تحويله لحسابك'),
-      value: `${formatAmount(totalPaidVal)} ${currency}`,
-      icon: CheckCircle2,
+      id: 'hourlyRate',
+      title: t('teacher.earnings.balance.hourlyRate', 'سعر الساعة'),
+      desc: t('teacher.earnings.balance.hourlyRateDesc', 'سعر احتساب ساعة التدريس'),
+      value: `${formatAmount(hourlyRateVal)} ${currency}`,
+      icon: Coins,
       color: 'text-blue-700 dark:text-blue-400',
       bg: 'bg-blue-50 dark:bg-blue-950/30',
       border: 'border-blue-200/60 dark:border-blue-800/40',
@@ -65,51 +57,11 @@ export default function TeacherBalanceOverview({ balance, isLoading, t, isRtl = 
       bg: 'bg-teal-50 dark:bg-teal-950/30',
       border: 'border-teal-200/60 dark:border-teal-800/40',
     },
-    {
-      id: 'payoutsCount',
-      title: t('teacher.earnings.balance.payoutsCount', 'عدد التحويلات'),
-      desc: t('teacher.earnings.balance.payoutsCountDesc', 'عمليات التحويل المنفذة بنجاح'),
-      value: String(payoutsCountVal),
-      icon: Receipt,
-      color: 'text-purple-700 dark:text-purple-400',
-      bg: 'bg-purple-50 dark:bg-purple-950/30',
-      border: 'border-purple-200/60 dark:border-purple-800/40',
-    },
-    {
-      id: 'completedSessions',
-      title: t('teacher.earnings.balance.completedSessions', 'الحصص المنجزة'),
-      desc: t('teacher.earnings.balance.completedSessionsDesc', 'إجمالي الحصص المنفذة المعتمدة'),
-      value: String(completedSessionsVal),
-      icon: GraduationCap,
-      color: 'text-indigo-700 dark:text-indigo-400',
-      bg: 'bg-indigo-50 dark:bg-indigo-950/30',
-      border: 'border-indigo-200/60 dark:border-indigo-800/40',
-    },
-    {
-      id: 'totalHours',
-      title: t('teacher.earnings.balance.totalHours', 'ساعات التدريس'),
-      desc: t('teacher.earnings.balance.totalHoursDesc', 'إجمالي الساعات التدريسية المكتملة'),
-      value: `${formatAmount(totalHoursVal)} ${isRtl ? 'ساعة' : 'hrs'}`,
-      icon: Hourglass,
-      color: 'text-sky-700 dark:text-sky-400',
-      bg: 'bg-sky-50 dark:bg-sky-950/30',
-      border: 'border-sky-200/60 dark:border-sky-800/40',
-    },
-    {
-      id: 'pendingEarnings',
-      title: t('teacher.earnings.balance.pendingEarnings', 'قيد المراجعة / التحويل'),
-      desc: t('teacher.earnings.balance.pendingEarningsDesc', 'مبالغ جاري مراجعتها للتحويل'),
-      value: `${formatAmount(pendingEarningsVal)} ${currency}`,
-      icon: Coins,
-      color: 'text-rose-700 dark:text-rose-400',
-      bg: 'bg-rose-50 dark:bg-rose-950/30',
-      border: 'border-rose-200/60 dark:border-rose-800/40',
-    },
   ]
   if (isLoading && !balance) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {Array.from({ length: 8 }).map((_, idx) => (
+        {Array.from({ length: 4 }).map((_, idx) => (
           <div
             key={idx}
             className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-soft animate-pulse flex items-center justify-between"

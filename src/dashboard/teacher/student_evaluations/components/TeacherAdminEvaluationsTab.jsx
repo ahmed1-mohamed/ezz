@@ -1,8 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import {
   Star,
-  Search,
-  RotateCcw,
+   RotateCcw,
   Sparkles,
   ChevronLeft,
   ChevronRight,
@@ -18,8 +17,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import Spinner from '@/shared/components/Spinner'
-import useDebounce from '@/shared/hooks/useDebounce'
-import { teacherEvaluationsApi } from '@/shared/services/api/teacherEvaluationsApi'
+ import { teacherEvaluationsApi } from '@/shared/services/api/teacherEvaluationsApi'
 
 const RATING_CONFIG = {
   excellent: {
@@ -76,19 +74,16 @@ const SCORE_MAP = {
   needs_improvement: 1,
 }
 
+const PAGE_LIMIT = 20
+
 export default function TeacherAdminEvaluationsTab() {
   const { i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
   const [currentPage, setCurrentPage] = useState(1)
-  const [ratingFilter, setRatingFilter] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const debouncedSearch = useDebounce(searchQuery, 300)
   const queryParams = useMemo(() => ({
     page: currentPage,
-    limit: 20,
-    rating: ratingFilter !== 'all' ? ratingFilter : undefined,
-    search: debouncedSearch.trim() || undefined,
-  }), [currentPage, ratingFilter, debouncedSearch])
+    limit: PAGE_LIMIT,
+  }), [currentPage])
   const {
     data: responseData,
     isLoading,
@@ -100,20 +95,8 @@ export default function TeacherAdminEvaluationsTab() {
     staleTime: 30 * 1000,
   })
   const evaluations = useMemo(() => {
-    const list = responseData?.data
-    if (!Array.isArray(list)) return []
-    if (!debouncedSearch.trim() && ratingFilter === 'all') return list
-    const q = debouncedSearch.trim().toLowerCase()
-    return list.filter((item) => {
-      const matchRating = ratingFilter === 'all' || item.rating === ratingFilter || (ratingFilter === 'poor' && item.rating === 'weak')
-      if (!matchRating) return false
-      if (!q) return true
-      const groupName = (item.group?.name || item.groupName || '').toLowerCase()
-      const sessionTitle = (item.session?.title || item.sessionTitle || '').toLowerCase()
-      const notes = (item.notes || '').toLowerCase()
-      return groupName.includes(q) || sessionTitle.includes(q) || notes.includes(q)
-    })
-  }, [responseData, debouncedSearch, ratingFilter])
+    return Array.isArray(responseData?.data) ? responseData.data : []
+  }, [responseData])
   const statistics = useMemo(() => {
     const stats = responseData?.statistics
     const list = Array.isArray(responseData?.data) ? responseData.data : []
@@ -132,11 +115,7 @@ export default function TeacherAdminEvaluationsTab() {
       topPercentage,
     }
   }, [responseData])
-  const handleResetFilters = useCallback(() => {
-    setRatingFilter('all')
-    setSearchQuery('')
-    setCurrentPage(1)
-  }, [])
+ 
   const formatDate = useCallback((dateStr) => {
     if (!dateStr) return '-'
     try {
@@ -254,43 +233,6 @@ export default function TeacherAdminEvaluationsTab() {
           </p>
         </div>
       </div>
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft flex flex-wrap items-center justify-between gap-3">
-        <div className="flex-1 min-w-[220px] relative">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isRtl ? 'بحث بالمجموعة، الحصة، أو ملاحظات الإدارة...' : 'Search group, session, or admin notes...'}
-            className="w-full ps-10 pe-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-800 dark:text-slate-100 text-xs sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-[#0f7a6c]"
-          />
-          <Search size={16} className="absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-        </div>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <select
-            value={ratingFilter}
-            onChange={(e) => setRatingFilter(e.target.value)}
-            className="px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-200 text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-[#0f7a6c]"
-          >
-            <option value="all">{isRtl ? 'جميع مستويات التقييم' : 'All Ratings'}</option>
-            <option value="excellent">{isRtl ? 'ممتاز' : 'Excellent'}</option>
-            <option value="very_good">{isRtl ? 'جيد جداً' : 'Very Good'}</option>
-            <option value="good">{isRtl ? 'جيد' : 'Good'}</option>
-            <option value="acceptable">{isRtl ? 'مقبول' : 'Acceptable'}</option>
-            <option value="poor">{isRtl ? 'ضعيف' : 'Poor'}</option>
-            <option value="needs_improvement">{isRtl ? 'يحتاج للتطور' : 'Needs Improvement'}</option>
-          </select>
-          {(ratingFilter !== 'all' || searchQuery) && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              title={isRtl ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}
-              className="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-            >
-              <RotateCcw size={15} />
-            </button>
-          )}
-        </div>
-      </div>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800">
           <Spinner size="lg" />
@@ -377,7 +319,7 @@ export default function TeacherAdminEvaluationsTab() {
           })}
         </div>
       )}
-      {evaluations.length > 20 && (
+      {(currentPage > 1 || evaluations.length === PAGE_LIMIT) && (
         <div className="flex items-center justify-center gap-3 pt-4">
           <button
             type="button"
@@ -393,7 +335,7 @@ export default function TeacherAdminEvaluationsTab() {
           <button
             type="button"
             onClick={() => setCurrentPage((p) => p + 1)}
-            disabled={evaluations.length < 20}
+            disabled={evaluations.length < PAGE_LIMIT}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300"
           >
             {isRtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}

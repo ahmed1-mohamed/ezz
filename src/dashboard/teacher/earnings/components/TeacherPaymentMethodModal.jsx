@@ -103,7 +103,9 @@ function buildCleanPayload(formData, isEdit = false) {
   }
   if (formData.type === 'instapay') {
     base.instapayAddress = (formData.instapayAddress || '').trim();
-    base.accountHolderName = (formData.accountHolderName || '').trim();
+    if (formData.accountHolderName && formData.accountHolderName.trim()) {
+      base.accountHolderName = formData.accountHolderName.trim();
+    }
     if (formData.bankName && formData.bankName.trim()) base.bankName = formData.bankName.trim();
     return base;
   }
@@ -117,7 +119,9 @@ function buildCleanPayload(formData, isEdit = false) {
   }
   if (formData.type === 'paypal') {
     base.paypalEmail = (formData.paypalEmail || '').trim().toLowerCase();
-    base.accountHolderName = (formData.accountHolderName || '').trim();
+    if (formData.accountHolderName && formData.accountHolderName.trim()) {
+      base.accountHolderName = formData.accountHolderName.trim();
+    }
     return base;
   }
   if (formData.type === 'western_union') {
@@ -184,9 +188,6 @@ function TeacherPaymentMethodDialogContent({
       if (!formData.instapayAddress?.trim()) {
         return t('teacher.earnings.modal.validation.instapayRequired', 'يرجى إدخال عنوان الدفع اللحظي IPA (مثل ahmed@instapay أو رقم الهاتف)');
       }
-      if (!formData.accountHolderName?.trim()) {
-        return t('teacher.earnings.modal.validation.instapayHolderRequired', 'يرجى إدخال الاسم المسجل على حساب إنستا باي للتأكيد');
-      }
     } else if (formData.type === 'mobile_wallet') {
       if (!formData.walletProvider) {
         return t('teacher.earnings.modal.validation.walletProviderRequired', 'يرجى اختيار مزود المحفظة');
@@ -199,9 +200,6 @@ function TeacherPaymentMethodDialogContent({
       if (!formData.paypalEmail?.trim() || !emailRegex.test(formData.paypalEmail.trim())) {
         return t('teacher.earnings.modal.validation.paypalEmailRequired', 'يرجى إدخال بريد باي بال صحيح');
       }
-      if (!formData.accountHolderName?.trim()) {
-        return t('teacher.earnings.modal.validation.paypalHolderRequired', 'يرجى إدخال اسم صاحب حساب PayPal');
-      }
     } else if (formData.type === 'western_union') {
       if (!formData.accountHolderName?.trim()) {
         return t('teacher.earnings.modal.validation.westernUnionHolderRequired', 'يرجى إدخال الاسم الرباعي مطابقاً لجواز السفر أو البطاقة');
@@ -212,9 +210,6 @@ function TeacherPaymentMethodDialogContent({
       if (!formData.phoneNumber?.trim()) {
         return t('teacher.earnings.modal.validation.phoneRequired', 'يرجى إدخال رقم الهاتف للتواصل');
       }
-    }
-    if (!formData.isConfirmed) {
-      return t('teacher.earnings.modal.validation.acknowledgeRequired', 'يجب الإقرار بصحة البيانات المدخلة وتحمل مسؤولية أي خطأ فيها');
     }
     return null;
   };
@@ -403,14 +398,14 @@ function TeacherPaymentMethodDialogContent({
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                {t('teacher.earnings.modal.instapayHolderLabel', 'الاسم المسجل على حساب إنستا باي')} *
+                {t('teacher.earnings.modal.instapayHolderLabel', 'الاسم المسجل على حساب إنستا باي (اختياري)')}
               </label>
               <input
                 type="text"
                 name="accountHolderName"
                 value={formData.accountHolderName}
                 onChange={handleChange}
-                placeholder={t('teacher.earnings.modal.instapayHolderPlaceholder', 'الاسم كما يظهر للأدمن في تطبيق إنستا باي')}
+                placeholder={t('teacher.earnings.modal.instapayHolderPlaceholder', 'الاسم كما يظهر للأدمن في تطبيق إنستا باي (اختياري)')}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#005953]"
               />
               <p className="text-[11px] text-slate-400 dark:text-slate-500">
@@ -500,14 +495,14 @@ function TeacherPaymentMethodDialogContent({
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                {t('teacher.earnings.modal.holderLabel', 'اسم صاحب حساب PayPal')} *
+                {t('teacher.earnings.modal.paypalHolderLabel', 'اسم صاحب حساب PayPal (اختياري)')}
               </label>
               <input
                 type="text"
                 name="accountHolderName"
                 value={formData.accountHolderName}
                 onChange={handleChange}
-                placeholder={t('teacher.earnings.modal.holderPlaceholder', 'اسم صاحب حساب PayPal بالكامل')}
+                placeholder={t('teacher.earnings.modal.paypalHolderPlaceholder', 'اسم صاحب حساب PayPal بالكامل (اختياري)')}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#005953]"
               />
             </div>
@@ -665,7 +660,7 @@ function TeacherPaymentMethodDialogContent({
             />
             <span className="text-xs font-bold text-amber-950 dark:text-amber-200 leading-relaxed flex items-center gap-1.5">
               <ShieldAlert size={15} className="shrink-0 text-amber-600 dark:text-amber-400" />
-              <span>{t('teacher.earnings.modal.acknowledgeLabel', 'أقر بصحة البيانات المدخلة وأتحمل مسؤولية أي خطأ فيها')} *</span>
+              <span>{t('teacher.earnings.modal.acknowledgeLabel', 'أقر بصحة البيانات المدخلة وأتحمل مسؤولية أي خطأ فيها')}</span>
             </span>
           </label>
           <label className="flex items-center gap-3 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 cursor-pointer">

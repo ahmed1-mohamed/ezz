@@ -35,6 +35,75 @@ function formatTime(val) {
   return String(val);
 }
 
+function StudentCard({ student, idx, isRtl, t }) {
+  const [hasImageError, setHasImageError] = useState(false);
+  const attended = student.attendanceRate?.attendedSessions ?? 0;
+  const completed = student.attendanceRate?.completedGroupSessions ?? 0;
+  const attendancePercent =
+    completed > 0 ? Math.min(100, Math.round((attended / completed) * 100)) : 0;
+  const studentName =
+    typeof student.name === 'object' && student.name !== null
+      ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
+      : (student.name || 'طالب');
+  const showImage = Boolean(student.image && !hasImageError);
+  return (
+    <div
+      key={student.student_id || idx}
+      className="p-5 rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-soft hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+    >
+      <div className="flex items-center gap-3">
+        {showImage ? (
+          <img
+            src={student.image}
+            alt={studentName}
+            className="w-9 h-9 rounded-full object-cover border border-emerald-500/30 shadow-xs shrink-0"
+            onError={() => setHasImageError(true)}
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+            {studentName ? studentName.charAt(0) : <User size={14} />}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+            {studentName}
+          </h4>
+        </div>
+        {student.averageRating !== undefined && student.averageRating !== null && (
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 shrink-0">
+            <Star size={13} className="fill-amber-400 text-amber-400" />
+            <span className="text-xs font-bold">
+              {Number(student.averageRating).toFixed(1)}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-600 dark:text-slate-400">
+            {t('teacher.attendanceRate', 'معدل الحضور')}:
+          </span>
+          <span className="font-bold text-slate-900 dark:text-white">
+            {attended} من {completed} حصة ({attendancePercent}%)
+          </span>
+        </div>
+        <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              attendancePercent >= 80
+                ? 'bg-emerald-500'
+                : attendancePercent >= 50
+                ? 'bg-amber-500'
+                : 'bg-rose-500'
+            }`}
+            style={{ width: `${attendancePercent}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TeacherGroupDetails() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
@@ -321,74 +390,15 @@ export default function TeacherGroupDetails() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {studentsList.map((student, idx) => {
-                        const attended = student.attendanceRate?.attendedSessions ?? 0;
-                        const completed = student.attendanceRate?.completedGroupSessions ?? 0;
-                        const attendancePercent =
-                          completed > 0 ? Math.min(100, Math.round((attended / completed) * 100)) : 0;
-                        const studentName =
-                          typeof student.name === 'object' && student.name !== null
-                            ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
-                            : (student.name || 'طالب');
-                        return (
-                          <div
-                            key={student.student_id || idx}
-                            className="p-5 rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-soft hover:shadow-md transition-all flex flex-col justify-between space-y-4"
-                          >
-                            <div className="flex items-center gap-3">
-                              {student.image ? (
-                                <img
-                                  src={student.image}
-                                  alt={studentName}
-                                  className="w-13 h-13 rounded-2xl object-cover border-2 border-emerald-500/20 shadow-xs shrink-0"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
-                                  {studentName ? studentName.charAt(0) : <User size={20} />}
-                                </div>
-                              )}
-                              <div className="min-w-0 flex-1">
-                                <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
-                                  {studentName}
-                                </h4>
-                              </div>
-                              {student.averageRating !== undefined && student.averageRating !== null && (
-                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 shrink-0">
-                                  <Star size={14} className="fill-amber-400 text-amber-400" />
-                                  <span className="text-xs font-bold">
-                                    {Number(student.averageRating).toFixed(1)}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="font-semibold text-slate-600 dark:text-slate-400">
-                                  {t('teacher.attendanceRate', 'معدل الحضور')}:
-                                </span>
-                                <span className="font-bold text-slate-900 dark:text-white">
-                                  {attended} من {completed} حصة ({attendancePercent}%)
-                                </span>
-                              </div>
-                              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-500 ${
-                                    attendancePercent >= 80
-                                      ? 'bg-emerald-500'
-                                      : attendancePercent >= 50
-                                      ? 'bg-amber-500'
-                                      : 'bg-rose-500'
-                                  }`}
-                                  style={{ width: `${attendancePercent}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {studentsList.map((student, idx) => (
+                        <StudentCard
+                          key={student.student_id || idx}
+                          student={student}
+                          idx={idx}
+                          isRtl={isRtl}
+                          t={t}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>

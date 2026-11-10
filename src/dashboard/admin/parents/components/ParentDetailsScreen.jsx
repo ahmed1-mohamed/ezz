@@ -22,7 +22,6 @@ import ParentOverviewBanner from './details/ParentOverviewBanner'
 import ParentPersonalInfoSection from './details/ParentPersonalInfoSection'
 import ParentSecuritySection from './details/ParentSecuritySection'
 import ParentChildrenSection from './details/ParentChildrenSection'
-import ParentDetailsActions from './details/ParentDetailsActions'
 
 export default function ParentDetailsScreen({
   parent,
@@ -181,6 +180,9 @@ export default function ParentDetailsScreen({
         isSaving={isSavingPersonal}
         onSave={handleSavePersonalInfo}
         onCancel={onCancel}
+        isSuspended={isSuspended}
+        isSuspending={isSuspending}
+        onToggleSuspend={handleToggleSuspend}
       />
       <ParentStatsRow
         totalChildren={childrenList.length}
@@ -216,12 +218,6 @@ export default function ParentDetailsScreen({
         isRtl={isRtl}
         onAddChild={handleAddChildToParent}
         onViewChildDetails={handleViewChildDetails}
-      />
-      <ParentDetailsActions
-        isRtl={isRtl}
-        isSuspended={isSuspended}
-        isSuspending={isSuspending}
-        onToggleSuspend={handleToggleSuspend}
       />
     </div>
   )

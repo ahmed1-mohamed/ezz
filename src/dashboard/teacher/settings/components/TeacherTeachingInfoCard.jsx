@@ -2,11 +2,11 @@ import { Info } from 'lucide-react';
 import TeacherAvailabilityCard from '@/shared/components/TeacherAvailabilityCard.jsx';
 
 export default function TeacherTeachingInfoCard({ t, profileForm, isRtl, availability = [] }) {
+  const bioValue = (isRtl ? profileForm.bioAr || profileForm.bioEn : profileForm.bioEn || profileForm.bioAr) || profileForm.bio || '';
   const rows = [
-    { label: t('teacherProfilePage.bioAr', 'نبذة عن المعلم (بالعربية)'), value: profileForm.bioAr, wide: true },
-    { label: t('teacherProfilePage.bioEn', 'نبذة عن المعلم (بالإنجليزية)'), value: profileForm.bioEn, wide: true, ltr: true },
+    { label: t('teacherProfilePage.bio', 'النبذة التعريفية'), value: bioValue, wide: true },
     { label: t('teacherProfilePage.experience', 'سنوات الخبرة'), value: profileForm.experience },
-    { label: t('teacherProfilePage.specialization', 'التخصص والمواد'), value: profileForm.specialization },
+    { label: t('teacherProfilePage.specialization', 'التخصص'), value: profileForm.specialization },
   ];
   return (
     <div className="space-y-6">
@@ -24,7 +24,6 @@ export default function TeacherTeachingInfoCard({ t, profileForm, isRtl, availab
             <div key={row.label} className={`space-y-1.5 ${row.wide ? 'md:col-span-2' : ''}`}>
               <dt className="text-xs font-bold text-slate-700 dark:text-slate-300">{row.label}</dt>
               <dd
-                dir={row.ltr ? 'ltr' : undefined}
                 className="px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 whitespace-pre-line min-h-[2.75rem] text-start"
               >
                 {row.value || '-'}

@@ -1,4 +1,4 @@
-import { User, Calendar, RotateCcw, Camera, Mail, Phone, Users, Video, GraduationCap, DollarSign } from 'lucide-react';
+import { User, Calendar, RotateCcw, Camera, Mail, Phone } from 'lucide-react';
 
 export default function TeacherProfileHeader({
   t,
@@ -15,7 +15,6 @@ export default function TeacherProfileHeader({
   email,
   phoneWithoutCode,
   selectedDialCode,
-  stats,
   activeTab,
   onTabChange,
   tabs,
@@ -53,7 +52,7 @@ export default function TeacherProfileHeader({
         </div>
       </div>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+        <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-start">
             <div className="relative group shrink-0">
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#00594C] text-white flex items-center justify-center font-black text-3xl shadow-md overflow-hidden ring-4 ring-[#00594C]/10">
@@ -109,52 +108,6 @@ export default function TeacherProfileHeader({
                   </span>
                 )}
               </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-center space-y-1">
-              <div className="flex items-center justify-center text-[#00594C] dark:text-emerald-400 mb-1">
-                <Users size={18} />
-              </div>
-              <span className="block text-xl font-black text-slate-800 dark:text-white">
-                {stats.activeGroups}
-              </span>
-              <span className="block text-[11px] font-bold text-slate-400">
-                {t('teacherDashboard.groups', 'المجموعات')}
-              </span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-center space-y-1">
-              <div className="flex items-center justify-center text-[#00594C] dark:text-emerald-400 mb-1">
-                <Video size={18} />
-              </div>
-              <span className="block text-xl font-black text-slate-800 dark:text-white">
-                {stats.totalSessions}
-              </span>
-              <span className="block text-[11px] font-bold text-slate-400">
-                {t('teacherDashboard.sessions', 'الجلسات')}
-              </span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-center space-y-1">
-              <div className="flex items-center justify-center text-[#00594C] dark:text-emerald-400 mb-1">
-                <GraduationCap size={18} />
-              </div>
-              <span className="block text-xl font-black text-slate-800 dark:text-white">
-                {stats.totalStudents}
-              </span>
-              <span className="block text-[11px] font-bold text-slate-400">
-                {t('teacherDashboard.students', 'الطلاب')}
-              </span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-center space-y-1">
-              <div className="flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-1">
-                <DollarSign size={18} />
-              </div>
-              <span className="block text-xl font-black text-slate-800 dark:text-white" dir="ltr">
-                ${Number(stats.totalEarnings || 0).toLocaleString('en-US')}
-              </span>
-              <span className="block text-[11px] font-bold text-slate-400">
-                {t('teacherDashboard.earnings', 'الأرباح')}
-              </span>
             </div>
           </div>
         </div>

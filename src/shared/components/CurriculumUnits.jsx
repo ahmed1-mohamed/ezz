@@ -132,27 +132,33 @@ export default React.memo(function CurriculumUnits() {
                                 <div className="absolute top-0 end-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#00695C]/5 dark:from-[#00695C]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
                                 <div className="absolute bottom-0 start-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-500/5 dark:from-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
                                 {currentData.image && (
-                                    <div className="w-full lg:w-2/5 relative z-10">
-                                        <div className="relative rounded-2xl sm:rounded-[2rem] overflow-hidden bg-slate-50 dark:bg-slate-800/40 aspect-[16/10] sm:aspect-[4/3] lg:aspect-[4/5] max-h-52 sm:max-h-80 lg:max-h-none shadow-md border border-slate-100 dark:border-slate-800 group">
-                                            <div className="absolute inset-0 bg-[#00695C]/10 mix-blend-multiply group-hover:bg-transparent transition-colors duration-500 z-10" />
-                                            <img
-                                                src={currentData.image}
-                                                alt="Curriculum Cover"
-                                                className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                                            />
-                                            <div className="absolute bottom-2 inset-x-2 sm:bottom-4 sm:inset-x-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex items-center gap-2 sm:gap-3 shadow-lg border border-transparent dark:border-slate-800 z-20">
-                                                <div className="bg-[#00695C]/10 dark:bg-[#00695C]/30 p-1 sm:p-2 rounded-lg sm:rounded-xl text-[#00695C] dark:text-emerald-400 shrink-0">
+                                    <div className="w-full max-w-[340px] sm:max-w-[380px] lg:max-w-none lg:w-[360px] xl:w-[400px] shrink-0 relative z-10 mx-auto lg:mx-0">
+                                        <div className="relative rounded-2xl sm:rounded-[2.2rem] overflow-hidden bg-white dark:bg-slate-800/80 shadow-xl shadow-[#00695C]/5 dark:shadow-black/30 border border-slate-100 dark:border-slate-800 group transition-all duration-300 flex flex-col">
+                                            <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-b from-slate-50/90 via-slate-50 to-slate-100/70 dark:from-slate-800/40 dark:via-slate-800/60 dark:to-slate-800/90 flex items-center justify-center p-3 sm:p-4">
+                                                <img
+                                                    src={currentData.image}
+                                                    alt={typeof currentData.name === 'object' ? (isRtl ? currentData.name?.ar : currentData.name?.en) || currentData.name?.ar : currentData.name || "Curriculum Cover"}
+                                                    className="w-full h-full object-contain rounded-xl sm:rounded-2xl transform group-hover:scale-[1.02] transition-transform duration-500 ease-out select-none drop-shadow-xs"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                            <div className="p-3 sm:p-3.5 bg-white/95 dark:bg-slate-900/95 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-3">
+                                                <div className="bg-[#00695C]/10 dark:bg-[#00695C]/30 p-2 rounded-xl text-[#00695C] dark:text-emerald-400 shrink-0 shadow-2xs">
                                                     <Award className="w-4 h-4 sm:w-5 sm:h-5" />
                                                 </div>
-                                                <div>
-                                                    <p className="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold mb-0.5">{isRtl ? 'منهج معتمد' : 'Certified Curriculum'}</p>
-                                                    <p className="text-[11px] sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight">{isRtl ? 'جودة تعليمية عالية' : 'High Educational Quality'}</p>
+                                                <div className="min-w-0 text-start">
+                                                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold mb-0.5 truncate">
+                                                        {isRtl ? 'منهج معتمد' : 'Certified Curriculum'}
+                                                    </p>
+                                                    <p className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
+                                                        {isRtl ? 'جودة تعليمية عالية' : 'High Educational Quality'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 )}
-                                <div className={`w-full ${currentData.image ? 'lg:w-3/5' : 'lg:w-full max-w-4xl mx-auto'} relative z-10 text-start space-y-4 sm:space-y-6 lg:space-y-8`}>
+                                <div className={`w-full ${currentData.image ? 'flex-1' : 'max-w-4xl mx-auto'} relative z-10 text-start space-y-4 sm:space-y-6 lg:space-y-8`}>
                                     <div className="space-y-2 sm:space-y-4">
                                         <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold border border-amber-200/60 dark:border-amber-900/40 shadow-2xs">
                                             <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

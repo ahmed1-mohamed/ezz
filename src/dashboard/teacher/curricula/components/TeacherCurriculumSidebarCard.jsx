@@ -24,7 +24,6 @@ export default React.memo(function TeacherCurriculumSidebarCard({
     : (Array.isArray(curriculum.units) ? curriculum.units.length : (Number(curriculum.unitsCount) || 6));
   const totalLessons = Number(curriculum.totalLessons ?? curriculum.lessonsCount ?? 30);
   const resourcesCount = Array.isArray(curriculum.resources) ? curriculum.resources.length : (Number(curriculum.resourcesCount) || 5);
-  const progress = Number(curriculum.progress ?? curriculum.teachingProgress ?? 0);
   const linkedGroups = Array.isArray(curriculum.linkedGroups) ? curriculum.linkedGroups : [];
   const groupsNames = linkedGroups
     .map((g) => resolveName(typeof g === 'object' ? g.name : g, isRtl))
@@ -54,20 +53,6 @@ export default React.memo(function TeacherCurriculumSidebarCard({
           <span className="truncate">{groupsNames}</span>
         </div>
       )}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs">
-          <span className="font-bold text-slate-500 dark:text-slate-400">
-            {t('teacherCurricula.progress', 'تقدم تدريس المنهج')}
-          </span>
-          <span className="font-black text-[#00594C] dark:text-emerald-400">{progress}%</span>
-        </div>
-        <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#00594C] rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-          />
-        </div>
-      </div>
       <div className="pt-1 flex items-center justify-between text-xs font-bold text-[#00594C] dark:text-emerald-300 group">
         <span>{t('teacherCurricula.expandUnitsAndResources', 'استعراض الوحدات والمصادر')}</span>
         {isRtl ? (

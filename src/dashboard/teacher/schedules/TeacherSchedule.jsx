@@ -5,15 +5,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Users,
-  Video,
   RotateCcw,
+  GraduationCap,
+  BookOpen,
+  Timer,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { timetableApi } from '@/shared/services/api/timetableApi.js';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 import Spinner from '@/shared/components/Spinner.jsx';
 
 const DAY_KEYS = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
@@ -205,6 +204,20 @@ export default function TeacherSchedule() {
           const resolvedGroup = resolveGroupName(sess.group || sess.groupName, isRtl, fallbackGroup);
           const resolvedTitle = resolveSessionTitle(sess.title || sess.name, isRtl, fallbackTitle);
           const timeRange = formatSessionTime(sess, isRtl);
+          const durationMinutes = Number(sess.durationMinutes || sess.duration || 0);
+          const durationText = durationMinutes > 0
+            ? `${durationMinutes} ${isRtl ? 'دقيقة' : 'min'}`
+            : (sess.durationText || '-');
+          const type = (sess.type || 'regular').toLowerCase();
+          const typeText = sess.typeText || (
+            type === 'trial'
+              ? (isRtl ? 'تجريبية' : 'Trial')
+              : type === 'makeup' || type === 'replacement'
+              ? (isRtl ? 'تعويضية' : 'Makeup')
+              : type === 'extra'
+              ? (isRtl ? 'إضافية' : 'Extra')
+              : (isRtl ? 'عادية' : 'Regular')
+          );
           return {
             id: sess.id || sess._id || `s-${index}-${sIdx}`,
             title: resolvedTitle,
@@ -212,10 +225,12 @@ export default function TeacherSchedule() {
             startTime: sess.startTime || sess.time || '',
             endTime: sess.endTime || '',
             timeRange,
+            durationMinutes,
+            durationText,
+            type,
+            typeText,
             status: (sess.status || 'scheduled').toLowerCase(),
-            studentsCount: sess.studentsCount ?? (Array.isArray(sess.students) ? sess.students.length : 0),
-            zoomStartUrl: sess.zoomStartUrl || sess.startUrl || sess.zoom?.start_url || sess.zoomJoinUrl || sess.joinUrl || sess.meetingUrl || null,
-            zoomJoinUrl: sess.zoomJoinUrl || sess.joinUrl || sess.meetingUrl || null,
+            statusText: sess.statusText || null,
           };
         });
         return {
@@ -231,23 +246,14 @@ export default function TeacherSchedule() {
     }
     return [];
   }, [timetableData, today, t, isRtl]);
-  useEffect(() => {
-    if (weekDays.length > 0 && selectedDayIndex === null) {
-      const todayIndex = weekDays.findIndex((d) => d.isToday);
-      if (todayIndex >= 0) {
-        setSelectedDayIndex(todayIndex);
-      } else {
-        const firstWithSessions = weekDays.findIndex((d) => d.sessionsCount > 0);
-        setSelectedDayIndex(firstWithSessions >= 0 ? firstWithSessions : 0);
-      }
-    }
-  }, [weekDays, selectedDayIndex]);
   const activeDayIndex = useMemo(() => {
     if (selectedDayIndex !== null && selectedDayIndex >= 0 && selectedDayIndex < weekDays.length) {
       return selectedDayIndex;
     }
     const todayIndex = weekDays.findIndex((d) => d.isToday);
-    return todayIndex !== -1 ? todayIndex : 0;
+    if (todayIndex !== -1) return todayIndex;
+    const firstWithSessions = weekDays.findIndex((d) => d.sessionsCount > 0);
+    return firstWithSessions >= 0 ? firstWithSessions : 0;
   }, [selectedDayIndex, weekDays]);
   const selectedDay = weekDays[activeDayIndex] || weekDays[0] || null;
   const sessions = selectedDay?.sessions || [];
@@ -297,78 +303,34 @@ export default function TeacherSchedule() {
     switch (status) {
       case 'cancelled':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-            <span>{t('teacherSchedule.cancelledSession', 'ملغاة')}</span>
+            <span>{session.statusText || t('teacherSchedule.cancelledSession', 'ملغاة')}</span>
           </span>
         );
       case 'rescheduled':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            <span>{t('teacherSchedule.rescheduled', 'معاد جدولتها')}</span>
+            <span>{session.statusText || t('teacherSchedule.rescheduled', 'معاد جدولتها')}</span>
           </span>
         );
       case 'completed':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-            <span>{t('teacherSchedule.filterCompleted', 'مكتملة')}</span>
+            <span>{session.statusText || t('teacherSchedule.filterCompleted', 'مكتملة')}</span>
           </span>
         );
       case 'scheduled':
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00695C] dark:bg-emerald-400" />
-            <span>{t('teacherSchedule.filterScheduled', 'مجدولة')}</span>
+            <span>{session.statusText || t('teacherSchedule.filterScheduled', 'مجدولة')}</span>
           </span>
         );
     }
-  };
-  const renderActionButton = (session) => {
-    const status = session.status?.toLowerCase();
-    const isLive = status === 'live' || status === 'in_progress';
-    if (status === 'cancelled') {
-      return (
-        <span className="text-xs font-semibold text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-4 py-2 rounded-xl">
-          {t('teacherSchedule.cancelledSession', 'حصة ملغاة')}
-        </span>
-      );
-    }
-    if (status === 'completed') {
-      return (
-        <span className="text-xs font-semibold text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-4 py-2 rounded-xl">
-          {t('teacherSchedule.sessionCompleted', 'الحصة مكتملة')}
-        </span>
-      );
-    }
-    const targetUrl = session.id ? `/dashboard/teacher/live?session=${session.id}` : null;
-    if (targetUrl) {
-      const handleSessionJoinClick = (e) => {
-        const check = checkCanJoinSession(session);
-        if (!check.canJoin) {
-          e.preventDefault();
-          showSessionJoinAlert(check.message, isRtl);
-          return false;
-        }
-      };
-      return (
-        <Link
-          to={targetUrl}
-          onClick={handleSessionJoinClick}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00594C] hover:bg-[#00473C] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
-        >
-          <Video size={16} />
-          <span>{isLive ? t('teacherSchedule.joinLiveNow', 'انتقل إلى البث الآن') : t('teacherSchedule.startSession', 'بدء الحصة')}</span>
-        </Link>
-      );
-    }
-    return (
-      <span className="text-xs font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/40 px-3.5 py-2 rounded-xl border border-slate-100 dark:border-slate-800">
-        {t('teacherSchedule.linkAvailableSoon', 'الرابط متاح قريباً')}
-      </span>
-    );
   };
   const isCurrentWeek = weekOffset === 0 && !selectedDate && (weekInfo?.isCurrentWeek ?? true);
   return (
@@ -524,20 +486,23 @@ export default function TeacherSchedule() {
           ) : (
             <div>
               <div className="hidden md:grid grid-cols-12 items-center text-xs font-bold text-slate-500 dark:text-slate-400 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="col-span-3 text-start">
+                <div className="col-span-2 text-start">
                   {t('teacherSchedule.time', 'الوقت')}
                 </div>
-                <div className="col-span-4 text-start">
-                  {t('teacherSchedule.subjectOrGroup', 'المادة / المجموعة')}
+                <div className="col-span-3 text-start">
+                  {t('teacherSchedule.subjectOrGroup', 'المجموعة التعليمية')}
                 </div>
-                <div className="col-span-2 text-start">
-                  {t('teacherSchedule.students', 'الطلاب')}
+                <div className="col-span-3 text-start">
+                  {t('teacherSchedule.sessionTitle', 'عنوان الحصة')}
                 </div>
                 <div className="col-span-2 text-center">
-                  {t('teacherSchedule.status', 'الحالة')}
+                  {t('teacherSchedule.duration', 'المدة')}
                 </div>
-                <div className="col-span-1 text-end">
-                  {t('teacherSchedule.action', 'الإجراء')}
+                <div className="col-span-1 text-center">
+                  {t('teacherSchedule.sessionType', 'النوع')}
+                </div>
+                <div className="col-span-1 text-center">
+                  {t('teacherSchedule.status', 'الحالة')}
                 </div>
               </div>
               <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
@@ -546,72 +511,88 @@ export default function TeacherSchedule() {
                     key={session.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="py-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors rounded-2xl px-2"
+                    className="py-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors rounded-2xl px-2"
                   >
                     <div className="hidden md:grid grid-cols-12 items-center gap-2">
-                      <div className="col-span-3 text-start">
+                      <div className="col-span-2 text-start">
                         <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
-                          <Clock size={16} className="text-[#00594C] dark:text-emerald-400 shrink-0" />
+                          <Clock size={15} className="text-[#00594C] dark:text-emerald-400 shrink-0" />
                           <span>{session.timeRange || '-'}</span>
                         </div>
                       </div>
-                      <div className="col-span-4 text-start">
-                        <div className="space-y-0.5">
-                          <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+                      <div className="col-span-3 text-start">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-emerald-950/40 text-[#00594C] dark:text-emerald-400 flex items-center justify-center shrink-0">
+                            <GraduationCap size={16} />
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                             {session.groupName}
                           </h4>
-                          {session.title && session.title !== session.groupName && (
-                            <p className="text-xs text-slate-400 dark:text-slate-500 truncate">
-                              {session.title}
-                            </p>
-                          )}
                         </div>
                       </div>
-                      <div className="col-span-2 text-start">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-slate-400">
-                            <Users size={15} />
+                      <div className="col-span-3 text-start">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                            <BookOpen size={15} />
                           </div>
-                          <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                            {session.studentsCount} {t('teacherSchedule.students', 'طلاب')}
+                          <span className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
+                            {session.title || '-'}
                           </span>
                         </div>
                       </div>
-                      <div className="col-span-2 text-center">
-                        <div className="flex justify-center">
-                          {renderStatusBadge(session)}
-                        </div>
+                      <div className="col-span-2 text-center flex justify-center">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                          <Timer size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>{session.durationText}</span>
+                        </span>
                       </div>
-                      <div className="col-span-1 text-end flex justify-end">
-                        {renderActionButton(session)}
+                      <div className="col-span-1 text-center flex justify-center">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                          session.type === 'trial'
+                            ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60'
+                            : session.type === 'makeup' || session.type === 'replacement'
+                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60'
+                            : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60'
+                        }`}>
+                          {session.typeText}
+                        </span>
+                      </div>
+                      <div className="col-span-1 text-center flex justify-center">
+                        {renderStatusBadge(session)}
                       </div>
                     </div>
-                    <div className="md:hidden space-y-3 text-start">
+                    <div className="md:hidden space-y-2.5 text-start">
                       <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        <div className="space-y-0.5 min-w-0">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">
                             {session.groupName}
                           </h4>
-                          {session.title && session.title !== session.groupName && (
-                            <p className="text-xs text-slate-400 dark:text-slate-500">
+                          {session.title && (
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                               {session.title}
                             </p>
                           )}
                         </div>
-                        <div>{renderStatusBadge(session)}</div>
+                        <div className="shrink-0">{renderStatusBadge(session)}</div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300 pt-1">
-                        <div className="flex items-center gap-1.5 font-bold">
-                          <Clock size={14} className="text-[#00594C] dark:text-emerald-400" />
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                          <Clock size={13} className="text-[#00594C] dark:text-emerald-400" />
                           <span>{session.timeRange || '-'}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Users size={14} className="text-slate-400" />
-                          <span>{session.studentsCount} {t('teacherSchedule.students', 'طلاب')}</span>
-                        </div>
-                      </div>
-                      <div className="pt-2 flex justify-end">
-                        {renderActionButton(session)}
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                          <Timer size={13} className="text-amber-600 dark:text-amber-400" />
+                          <span>{session.durationText}</span>
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-xl text-xs font-bold ${
+                          session.type === 'trial'
+                            ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300'
+                            : session.type === 'makeup' || session.type === 'replacement'
+                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'
+                            : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300'
+                        }`}>
+                          {session.typeText}
+                        </span>
                       </div>
                     </div>
                   </motion.div>

@@ -66,15 +66,23 @@ export default function AdminTrialSessions() {
   } = useQuery({
     queryKey: ['admin-trial-sessions', activeTab, currentPage, activeStatus, debouncedSearch],
     queryFn: () => {
+      if (activeTab === 'website') {
+        const websiteParams = {
+          page: currentPage,
+          limit: 10,
+        }
+        if (activeStatus && activeStatus !== 'all') {
+          websiteParams.status = activeStatus
+        }
+        return adminTrialSessionsApi.fetchWebsiteTrialSessions(websiteParams)
+      }
       const params = {
         page: currentPage,
         limit: 10,
         status: activeStatus,
         search: debouncedSearch,
       }
-      return activeTab === 'website'
-        ? adminTrialSessionsApi.fetchWebsiteTrialSessions(params)
-        : adminTrialSessionsApi.fetchTrialSessions(params)
+      return adminTrialSessionsApi.fetchTrialSessions(params)
     },
     enabled: canView,
     keepPreviousData: true,
@@ -87,6 +95,21 @@ export default function AdminTrialSessions() {
     if (Array.isArray(trialSessionsResponse.items)) return trialSessionsResponse.items
     return []
   }, [trialSessionsResponse])
+  const displayedWebsiteList = useMemo(() => {
+    if (!debouncedSearch) return rawList
+    const q = debouncedSearch.toLowerCase().trim()
+    return rawList.filter((item) => {
+      const name = String(item.name || item.studentName || '').toLowerCase()
+      const email = String(item.email || '').toLowerCase()
+      const phone = String(item.phone || '').toLowerCase()
+      const curriculum = String(
+        typeof item.curriculum === 'object'
+          ? item.curriculum?.name || ''
+          : item.curriculum || item.curriculumName || ''
+      ).toLowerCase()
+      return name.includes(q) || email.includes(q) || phone.includes(q) || curriculum.includes(q)
+    })
+  }, [debouncedSearch, rawList])
   const paginationData = useMemo(() => {
     const pag = trialSessionsResponse?.pagination || trialSessionsResponse?.meta || {}
     const totalPages =
@@ -256,7 +279,7 @@ export default function AdminTrialSessions() {
         <div className="space-y-4">
           {activeTab === 'website' ? (
             <WebsiteTrialSessionsTable
-              trialSessions={rawList}
+              trialSessions={displayedWebsiteList}
               onViewDetails={(item) => setSelectedWebsiteTrialForDetails(item)}
               onAccept={(item) => setSelectedWebsiteTrialForAccept(item)}
               onReject={(item) => setSelectedWebsiteTrialForReject(item)}

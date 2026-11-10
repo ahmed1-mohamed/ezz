@@ -188,7 +188,19 @@ export default function CreateHomework() {
           payload.append('document', documentFile);
         }
         if (cleanQuestions.length > 0) {
-          payload.append('questions', JSON.stringify(cleanQuestions));
+          cleanQuestions.forEach((q, idx) => {
+            payload.append(`questions[${idx}][type]`, q.type);
+            payload.append(`questions[${idx}][questionText]`, q.questionText);
+            payload.append(`questions[${idx}][points]`, String(q.points));
+            if (q.type === 'multiple_choice') {
+              (q.options || []).forEach((opt, oIdx) => {
+                payload.append(`questions[${idx}][options][${oIdx}]`, opt);
+              });
+              payload.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
+            } else {
+              payload.append(`questions[${idx}][options][]`, '');
+            }
+          });
         }
       } else {
         payload = {
@@ -196,10 +208,8 @@ export default function CreateHomework() {
           description: description.trim(),
           deadline,
           group: selectedGroupId,
+          questions: cleanQuestions,
         };
-        if (cleanQuestions.length > 0) {
-          payload.questions = cleanQuestions;
-        }
       }
       const res = await teacherHomeworkApi.createHomework(payload);
       setIsSubmitting(false);
