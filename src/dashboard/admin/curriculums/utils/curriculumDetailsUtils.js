@@ -1,3 +1,4 @@
+import { buildApiAssetUrl, isApiAssetUrl } from '@/shared/config/apiConfig.js'
 import {
   FileText,
   Image as ImageIcon,
@@ -11,8 +12,7 @@ import {
 export const buildFullFileUrl = (url) => {
   if (!url) return ''
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-  const baseUrl = 'https://manaret-ezz.dramcode.top/'
-  return `${baseUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+  return buildApiAssetUrl(url)
 }
 
 export const getFileMeta = (file, isRtl = false) => {
@@ -38,7 +38,7 @@ export const getFileMeta = (file, isRtl = false) => {
     isLink = false
   } else if (Boolean(file?.link) && !file?.file && !file?.url) {
     isLink = true
-  } else if (typeof file === 'string' && file.startsWith('http') && !file.includes('manaret-ezz.dramcode.top') && !hasKnownFileExt) {
+  } else if (typeof file === 'string' && file.startsWith('http') && !isApiAssetUrl(file) && !hasKnownFileExt) {
     isLink = true
   }
   if (isLink) {

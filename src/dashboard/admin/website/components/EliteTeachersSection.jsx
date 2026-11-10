@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { Plus, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
@@ -36,7 +37,7 @@ export default function EliteTeachersSection({
             const imageUrl = teacher.image && (teacher.image.startsWith('http') || teacher.image.startsWith('data:'))
               ? teacher.image
               : teacher.image
-                ? `https://manaret-ezz.dramcode.top/${teacher.image}`
+                ? buildApiAssetUrl(teacher.image)
                 : null;
             return (
               <div

@@ -1,4 +1,4 @@
-export const BASE_SITE_URL = 'https://manarat-al-ezz.com'
+export const BASE_SITE_URL = 'https://mezzedu.com'
 
 export const SEO_CONFIG = {
   home: {

@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
@@ -43,7 +44,7 @@ export default function ParentTestimonialsSection({
             const imageUrl = testimonial.image && (testimonial.image.startsWith('http') || testimonial.image.startsWith('data:'))
               ? testimonial.image
               : testimonial.image
-                ? `https://manaret-ezz.dramcode.top/${testimonial.image}`
+                ? buildApiAssetUrl(testimonial.image)
                 : null;
             return (
               <div

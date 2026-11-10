@@ -7,7 +7,7 @@
     return;
   }
 
-  const BASE_API = 'https://manaret-ezz.dramcode.top/api';
+  const BASE_API = `${window.__MANARET_CONFIG__.API_BASE_URL.replace(/\/+$/, '')}/api`;
 
   navigator.modelContext.provideContext({
     name: 'Manarat Al-Ezz Educational Platform',
@@ -56,12 +56,12 @@
           name: 'منارة العز | Manarat Al-Ezz',
           description:
             'Integrated educational management platform for Quran recitation, Arabic language, and Islamic studies.',
-          website: 'https://manarat-al-ezz.com/',
+          website: 'https://mezzedu.com/',
           apiBase: BASE_API,
-          authDocs: 'https://manarat-al-ezz.com/auth.md',
-          apiCatalog: 'https://manarat-al-ezz.com/.well-known/api-catalog',
-          agentSkills: 'https://manarat-al-ezz.com/.well-known/agent-skills/index.json',
-          mcpCard: 'https://manarat-al-ezz.com/.well-known/mcp/server-card.json',
+          authDocs: 'https://mezzedu.com/auth.md',
+          apiCatalog: 'https://mezzedu.com/.well-known/api-catalog',
+          agentSkills: 'https://mezzedu.com/.well-known/agent-skills/index.json',
+          mcpCard: 'https://mezzedu.com/.well-known/mcp/server-card.json',
           contact: 'info@manaratezz.edu.sa',
           languages: ['ar', 'en'],
         }),

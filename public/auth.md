@@ -1,27 +1,27 @@
 ---
 agent_auth:
-  register_uri: https://manaret-ezz.dramcode.top/api/oauth/register
+  register_uri: __API_BASE_URL__/api/oauth/register
   supported_identity_types:
     - email
     - api_key
   supported_credential_types:
     - jwt
     - api_key
-  claim_url: https://manarat-al-ezz.com/auth.md
-  revocation_url: https://manaret-ezz.dramcode.top/api/oauth/revoke
+  claim_url: https://mezzedu.com/auth.md
+  revocation_url: __API_BASE_URL__/api/oauth/revoke
 ---
 
 # Manarat Al-Ezz auth.md
 
 > **Version**: 1.0.0  
 > **Updated**: 2026-08-03  
-> **Platform**: Manarat Al-Ezz Educational Platform (`https://manarat-al-ezz.com`)
+> **Platform**: Manarat Al-Ezz Educational Platform (`https://mezzedu.com`)
 
 ---
 
 ## Overview
 
-This document describes how AI agents can register and authenticate with the **Manarat Al-Ezz** platform API at `https://manaret-ezz.dramcode.top/api/`.
+This document describes how AI agents can register and authenticate with the **Manarat Al-Ezz** platform API at `__API_BASE_URL__/api/`.
 
 ---
 
@@ -31,10 +31,10 @@ The API uses **OAuth 2.0 / OpenID Connect** (Bearer tokens).
 
 | Property | Value |
 |---|---|
-| Authorization Server | `https://manaret-ezz.dramcode.top` |
-| Token Endpoint | `https://manaret-ezz.dramcode.top/api/oauth/token` |
-| Authorization Endpoint | `https://manaret-ezz.dramcode.top/api/oauth/authorize` |
-| JWKS URI | `https://manaret-ezz.dramcode.top/api/oauth/jwks` |
+| Authorization Server | `__API_BASE_URL__` |
+| Token Endpoint | `__API_BASE_URL__/api/oauth/token` |
+| Authorization Endpoint | `__API_BASE_URL__/api/oauth/authorize` |
+| JWKS URI | `__API_BASE_URL__/api/oauth/jwks` |
 | Token Format | JWT (RS256) |
 
 ---
@@ -58,7 +58,7 @@ Provide:
 Use the **client credentials** grant flow:
 
 ```http
-POST https://manaret-ezz.dramcode.top/api/oauth/token
+POST __API_BASE_URL__/api/oauth/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
@@ -72,7 +72,7 @@ grant_type=client_credentials
 Include the token as a `Bearer` header on all API requests:
 
 ```http
-GET https://manaret-ezz.dramcode.top/api/courses
+GET __API_BASE_URL__/api/courses
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
@@ -89,12 +89,12 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 
 ## Machine-Readable Discovery
 
-- **OIDC Config**: `https://manarat-al-ezz.com/.well-known/openid-configuration`
-- **OAuth AS Metadata**: `https://manarat-al-ezz.com/.well-known/oauth-authorization-server`
-- **Protected Resource**: `https://manarat-al-ezz.com/.well-known/oauth-protected-resource`
-- **MCP Server Card**: `https://manarat-al-ezz.com/.well-known/mcp/server-card.json`
-- **Agent Skills**: `https://manarat-al-ezz.com/.well-known/agent-skills/index.json`
-- **API Catalog**: `https://manarat-al-ezz.com/.well-known/api-catalog`
+- **OIDC Config**: `https://mezzedu.com/.well-known/openid-configuration`
+- **OAuth AS Metadata**: `https://mezzedu.com/.well-known/oauth-authorization-server`
+- **Protected Resource**: `https://mezzedu.com/.well-known/oauth-protected-resource`
+- **MCP Server Card**: `https://mezzedu.com/.well-known/mcp/server-card.json`
+- **Agent Skills**: `https://mezzedu.com/.well-known/agent-skills/index.json`
+- **API Catalog**: `https://mezzedu.com/.well-known/api-catalog`
 
 ---
 
@@ -109,4 +109,4 @@ Authenticated requests: **1,000 req/hour** (per token)
 
 **Email**: info@manaratezz.edu.sa  
 **Organisation**: أكاديمية منارة العز (Manarat Al-Ezz Academy)  
-**Website**: https://manarat-al-ezz.com/
+**Website**: https://mezzedu.com/

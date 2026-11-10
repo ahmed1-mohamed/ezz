@@ -19,48 +19,48 @@
     <meta property="og:title" content="منصة منارة العز التعليمية | Manarat Al-Ezz Platform" />
     <meta property="og:description" content="منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://manarat-al-ezz.com/" />
-    <meta property="og:image" content="https://manarat-al-ezz.com/assets/NewLogo.webp" />
+    <meta property="og:url" content="https://mezzedu.com/ar/" />
+    <meta property="og:image" content="https://mezzedu.com/NewLogo.webp" />
     <meta property="og:locale" content="ar_EG" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="منصة منارة العز التعليمية | Manarat Al-Ezz Platform" />
     <meta name="twitter:description" content="منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور." />
-    <meta name="twitter:image" content="https://manarat-al-ezz.com/assets/NewLogo.webp" />
+    <meta name="twitter:image" content="https://mezzedu.com/NewLogo.webp" />
     <meta name="theme-color" content="#0F7A6C" />
-    <link rel="canonical" href="https://manarat-al-ezz.com/ar/" />
-    <link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/" />
-    <link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/" />
-    <link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/" />
+    <link rel="canonical" href="https://mezzedu.com/ar/" />
+    <link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/" />
+    <link rel="alternate" hreflang="en" href="https://mezzedu.com/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/" />
     <link rel="api-catalog" href="/.well-known/api-catalog" type="application/linkset+json" />
     <link rel="service-desc" href="/.well-known/agent-skills/index.json" type="application/json" />
     <link rel="service-doc" href="/auth.md" type="text/markdown" />
     <link rel="alternate" href="/index.md" type="text/markdown" title="Markdown version" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://manaret-ezz.dramcode.top" />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" /></noscript>
+    <script src="/runtime-config.js"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@graph": [
           {
             "@type": "WebSite",
-            "@id": "https://manarat-al-ezz.com/#website",
-            "url": "https://manarat-al-ezz.com/",
+            "@id": "https://mezzedu.com/#website",
+            "url": "https://mezzedu.com/",
             "name": "منصة منارة العز التعليمية",
             "description": "منصة منارة العز التعليمية لإدارة وتسهيل تعليم القرآن الكريم واللغة العربية والمواد الإسلامية",
             "inLanguage": "ar"
           },
           {
             "@type": "EducationalOrganization",
-            "@id": "https://manarat-al-ezz.com/#organization",
+            "@id": "https://mezzedu.com/#organization",
             "name": "أكاديمية منارة العز",
             "alternateName": "Manarat Al-Ezz Educational Platform",
-            "url": "https://manarat-al-ezz.com/",
-            "logo": "https://manarat-al-ezz.com/assets/NewLogo.webp",
+            "url": "https://mezzedu.com/",
+            "logo": "https://mezzedu.com/NewLogo.webp",
             "description": "منصة تعليمية متكاملة لتعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور.",
             "contactPoint": {
               "@type": "ContactPoint",
@@ -89,7 +89,7 @@
     <script>
       (function initWebMCP() {
         if (typeof navigator === 'undefined' || !navigator.modelContext || typeof navigator.modelContext.registerTool !== 'function') return;
-        var BASE_API = 'https://manaret-ezz.dramcode.top/api';
+        var BASE_API = window.__MANARET_CONFIG__.API_BASE_URL.replace(/\/+$/, '') + '/api';
         var controller = new AbortController();
         var signal = controller.signal;
 
@@ -109,7 +109,7 @@
           description: 'Get general information about the Manarat Al-Ezz platform, its mission, and contact details.',
           inputSchema: { type: 'object', properties: {} },
           execute: async function() {
-            return { name: 'منارة العز | Manarat Al-Ezz', website: 'https://manarat-al-ezz.com/', apiBase: BASE_API, authDocs: 'https://manarat-al-ezz.com/auth.md' };
+            return { name: 'منارة العز | Manarat Al-Ezz', website: 'https://mezzedu.com/', apiBase: BASE_API, authDocs: 'https://mezzedu.com/auth.md' };
           }
         }, { signal: signal });
       })();

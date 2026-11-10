@@ -1,185 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-
-  <!-- Home / الرئيسية -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://manarat-al-ezz.com/ar/</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/"/>
+    <loc>https://mezzedu.com/ar/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/"/>
-  </url>
-
-  <!-- About Us / من نحن -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/about</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/about"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/about"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/about"/>
+    <loc>https://mezzedu.com/en/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/about</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/about"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/about"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/about"/>
-  </url>
-
-  <!-- Courses / الدورات -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/courses</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/courses"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/courses"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/courses"/>
+    <loc>https://mezzedu.com/ar/about</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/about" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/courses</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/courses"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/courses"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/courses"/>
-  </url>
-
-  <!-- Curriculums / المناهج -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/curriculums</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/curriculums"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/curriculums"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/curriculums"/>
+    <loc>https://mezzedu.com/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/about" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/curriculums</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/curriculums"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/curriculums"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/curriculums"/>
-  </url>
-
-  <!-- Teachers / المعلمون -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/teachers</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/teachers"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/teachers"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/teachers"/>
+    <loc>https://mezzedu.com/ar/courses</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/courses" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/courses" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/courses" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/teachers</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/teachers"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/teachers"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/teachers"/>
-  </url>
-
-  <!-- Pricing / الأسعار -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/pricing</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/pricing"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/pricing"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/pricing"/>
+    <loc>https://mezzedu.com/en/courses</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/courses" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/courses" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/courses" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/pricing</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/pricing"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/pricing"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/pricing"/>
-  </url>
-
-  <!-- Schedule / الجدول -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/schedule</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/schedule"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/schedule"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/schedule"/>
+    <loc>https://mezzedu.com/ar/curriculums</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/curriculums" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/curriculums" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/curriculums" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/schedule</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/schedule"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/schedule"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/schedule"/>
-  </url>
-
-  <!-- Contact / تواصل معنا -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/contact</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/contact"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/contact"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/contact"/>
+    <loc>https://mezzedu.com/en/curriculums</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/curriculums" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/curriculums" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/curriculums" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/contact</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/contact"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/contact"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/contact"/>
-  </url>
-
-  <!-- Trial Session / الحصة التجريبية -->
-  <url>
-    <loc>https://manarat-al-ezz.com/ar/trial-session</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/trial-session"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/trial-session"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/trial-session"/>
+    <loc>https://mezzedu.com/ar/teachers</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/teachers" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/teachers" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/teachers" />
   </url>
   <url>
-    <loc>https://manarat-al-ezz.com/en/trial-session</loc>
-    <lastmod>2026-11-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://manarat-al-ezz.com/ar/trial-session"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://manarat-al-ezz.com/en/trial-session"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://manarat-al-ezz.com/ar/trial-session"/>
+    <loc>https://mezzedu.com/en/teachers</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/teachers" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/teachers" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/teachers" />
   </url>
-
+  <url>
+    <loc>https://mezzedu.com/ar/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/pricing" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/en/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/pricing" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/ar/schedule</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/schedule" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/schedule" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/schedule" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/en/schedule</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/schedule" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/schedule" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/schedule" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/ar/contact</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/contact" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/contact" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/ar/trial-session</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/trial-session" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/trial-session" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/trial-session" />
+  </url>
+  <url>
+    <loc>https://mezzedu.com/en/trial-session</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mezzedu.com/ar/trial-session" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mezzedu.com/en/trial-session" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mezzedu.com/ar/trial-session" />
+  </url>
 </urlset>

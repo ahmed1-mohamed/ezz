@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
@@ -12,7 +13,7 @@ const getImageUrl = (imagePath) => {
         return trimmed
     }
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`
+    return buildApiAssetUrl(cleanPath)
 }
 
 export default function TeacherCard({ teacher, t, isRtl }) {

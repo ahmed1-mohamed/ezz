@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getCookie, setCookie, deleteCookie } from '@/shared/utils/cookieUtils.js';
 import { showSafeErrorToast } from '@/shared/utils/errorHandler.js';
+import { API_BASE_URL } from '@/shared/config/apiConfig.js';
 
 const inFlightRequests = new Map();
 const shortTermCache = new Map();
@@ -42,7 +43,7 @@ export function clearApiCache() {
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://manaret-ezz.dramcode.top',
+  baseURL: API_BASE_URL,
   timeout: 12000,
   headers: {
     'Content-Type': 'application/json',
