@@ -19,7 +19,13 @@ import {
   Users,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
+import {
+  currenciesApi,
+  parseExchangeRateData,
+  resolvePackagePrice,
+  resolveCurrencySymbol,
+  formatCurrencyDisplay,
+} from '@/shared/services/api/currenciesApi';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 import Spinner from '@/shared/components/Spinner';
@@ -32,14 +38,8 @@ const STATUS_FILTERS = [
   { id: 'cancelled', labelKey: 'parentPackages.filters.cancelled', defaultLabel: 'ملغية' },
 ];
 
-function formatCurrency(amount, currency = '$') {
-  const num = Number(amount || 0);
-  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const sym = resolveCurrencySymbol(currency) || currency || '$';
-  if (sym === '$') {
-    return `$${formattedNum}`;
-  }
-  return `${formattedNum} ${sym}`;
+function formatCurrency(amount, currency = '$', isRtl = true) {
+  return formatCurrencyDisplay(amount, currency, isRtl);
 }
 
 function formatDate(dateVal, isRtl = true) {
@@ -317,7 +317,7 @@ export default function ParentSubscriptions() {
                       {t('parentPackages.total', 'الإجمالي')}
                     </span>
                     <span className="text-base sm:text-lg font-black font-mono text-[#0f7a6c] dark:text-emerald-400">
-                      {formatCurrency(total, itemCurrencySymbol)}
+                      {formatCurrency(total, itemCurrencySymbol, isRtl)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">

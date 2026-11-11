@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { CreditCard, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
 
 function formatDate(value, isRtl) {
   if (!value) return '-';
@@ -31,10 +32,10 @@ export default React.memo(function StudentSubscriptionCard({ subscription, curre
     const symbol = currencyInfo?.symbol || '$';
     if (rate !== 1 && symbol !== '$' && symbol !== 'USD') {
       const converted = Math.round(rawPrice * rate);
-      return `${converted} ${symbol}`;
+      return formatCurrencyDisplay(converted, symbol, isRtl);
     }
-    return `${rawPrice} $`;
-  }, [subscription?.price, currencyInfo]);
+    return formatCurrencyDisplay(rawPrice, '$', isRtl);
+  }, [subscription?.price, currencyInfo, isRtl]);
   if (!subscription) {
     return (
       <div

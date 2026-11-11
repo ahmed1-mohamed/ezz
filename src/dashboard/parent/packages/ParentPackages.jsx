@@ -60,14 +60,10 @@ export default function ParentPackages() {
     queryKey: ['parent-packages-list', queryParams],
     queryFn: () => parentPackagesApi.fetchPackages(queryParams),
   });
-  const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate'],
-    queryFn: () => currenciesApi.fetchExchangeRate(),
-    staleTime: 5 * 60 * 1000,
-  });
-  const currencyInfo = useMemo(() => {
-    return parseExchangeRateData(exchangeRateRes);
-  }, [exchangeRateRes]);
+  const currencyInfo = useMemo(() => ({
+    symbol: '$',
+    exchangeRate: 1,
+  }), []);
   const rawPackagesList = useMemo(() => {
     if (!packagesResponse) return [];
     if (Array.isArray(packagesResponse.data)) return packagesResponse.data;

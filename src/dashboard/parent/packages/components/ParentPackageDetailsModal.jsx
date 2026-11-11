@@ -83,10 +83,11 @@ export default function ParentPackageDetailsModal({
     : 1;
   const rawCurrency = activeData?.currency || packageItem?.currency || activeData?.priceCurrency || packageItem?.priceCurrency;
   const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const currencySymbol = packageCurrencySymbol || '$';
   const effectiveCurrencyInfo = {
     ...currencyInfo,
     symbol: currencySymbol,
+    exchangeRate: 1,
   };
   const featuresList = Array.isArray(activeData?.features) ? activeData.features : [];
   const familyTiers = Array.isArray(activeData?.familyTiers) ? activeData.familyTiers : null;
@@ -208,15 +209,26 @@ export default function ParentPackageDetailsModal({
               </span>
               <div className="flex items-baseline gap-2 mt-0.5 flex-wrap">
                 {currencySymbol === '$' ? (
-                  <>
-                    <span className="text-xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">$</span>
-                    <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
-                      {formatPriceString(convertedFinal)}
-                    </span>
-                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                      / {t('parentPackages.monthly', 'شهرياً')}
-                    </span>
-                  </>
+                  isRtl ? (
+                    <>
+                      <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
+                        {formatPriceString(convertedFinal)}
+                      </span>
+                      <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                        دولار / {t('parentPackages.monthly', 'شهرياً')}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">$</span>
+                      <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
+                        {formatPriceString(convertedFinal)}
+                      </span>
+                      <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                        / {t('parentPackages.monthly', 'شهرياً')}
+                      </span>
+                    </>
+                  )
                 ) : (
                   <>
                     <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
@@ -229,7 +241,9 @@ export default function ParentPackageDetailsModal({
                 )}
                 {hasDiscount && (
                   <span className="line-through text-slate-400 text-sm font-semibold ms-1 font-mono">
-                    {currencySymbol === '$' ? `$${formatPriceString(convertedOriginal)}` : `${formatPriceString(convertedOriginal)} ${currencySymbol}`}
+                    {currencySymbol === '$'
+                      ? (isRtl ? `${formatPriceString(convertedOriginal)} دولار` : `$${formatPriceString(convertedOriginal)}`)
+                      : `${formatPriceString(convertedOriginal)} ${currencySymbol}`}
                   </span>
                 )}
                 {hasDiscount && discountPercent > 0 && (
@@ -293,7 +307,9 @@ export default function ParentPackageDetailsModal({
                         {tier.membersCount || tier.members || idx + 2} {t('parentPackages.studentsCountUnit', 'أبناء')}
                       </span>
                       <span className="font-black text-amber-700 dark:text-amber-400 font-mono">
-                        {currencySymbol === '$' ? `$${formatPriceString(tierPrice)}` : `${formatPriceString(tierPrice)} ${currencySymbol}`}
+                        {currencySymbol === '$'
+                          ? (isRtl ? `${formatPriceString(tierPrice)} دولار` : `$${formatPriceString(tierPrice)}`)
+                          : `${formatPriceString(tierPrice)} ${currencySymbol}`}
                       </span>
                     </div>
                   );

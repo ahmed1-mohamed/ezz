@@ -18,17 +18,17 @@ import {
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { parentApi } from '@/shared/services/api/parentApi';
-import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
+import {
+  currenciesApi,
+  parseExchangeRateData,
+  resolvePackagePrice,
+  resolveCurrencySymbol,
+  formatCurrencyDisplay,
+} from '@/shared/services/api/currenciesApi';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
-function formatCurrency(amount, currency = '$') {
-  const num = Number(amount || 0);
-  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const sym = resolveCurrencySymbol(currency) || currency || '$';
-  if (sym === '$') {
-    return `$${formattedNum}`;
-  }
-  return `${formattedNum} ${sym}`;
+function formatCurrency(amount, currency = '$', isRtl = true) {
+  return formatCurrencyDisplay(amount, currency, isRtl);
 }
 
 export default function ParentCheckout() {
@@ -81,13 +81,13 @@ export default function ParentCheckout() {
     return { symbol: '$', exchangeRate: 1 };
   }, [initialCurrencyInfo, exchangeRateRes]);
   const selectedPackage = selectedPackageOverride || initialPackage || fetchedPackage || (availablePackagesList.length > 0 ? availablePackagesList[0] : null);
-  const rawCurrency = previewData?.currency || selectedPackage?.currency || selectedPackage?.priceCurrency;
+  const rawCurrency = selectedPackage?.currency || selectedPackage?.priceCurrency;
   const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const currencySymbol = packageCurrencySymbol || '$';
   const effectiveCurrencyInfo = useMemo(() => ({
-    ...currencyInfo,
     symbol: currencySymbol,
-  }), [currencyInfo, currencySymbol]);
+    exchangeRate: 1,
+  }), [currencySymbol]);
   const packageDisplayPrice = useMemo(() => {
     if (!selectedPackage) return 0;
     const rawPrice = Number(selectedPackage.price ?? 0);
@@ -418,7 +418,7 @@ export default function ParentCheckout() {
                 <div className="text-end">
                   <span className="text-xs text-slate-400 block font-bold">{t('parentPackages.packageBasePrice', 'السعر')}</span>
                   <span className="text-xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
-                    {formatCurrency(packageDisplayPrice, currencySymbol)}
+                    {formatCurrency(packageDisplayPrice, summary?.currency || currencySymbol, isRtl)}
                   </span>
                 </div>
               </div>
@@ -578,7 +578,7 @@ export default function ParentCheckout() {
                   <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
                     <span>{t('parentPackages.subtotal', 'المبلغ')}</span>
                     <span className="font-mono font-bold text-slate-800 dark:text-white">
-                      {formatCurrency(summary.subtotal, summary.currency)}
+                      {formatCurrency(summary.subtotal, summary.currency, isRtl)}
                     </span>
                   </div>
 
@@ -586,7 +586,7 @@ export default function ParentCheckout() {
                     <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-bold">
                       <span>{t('parentPackages.discount', 'الخصم')}</span>
                       <span className="font-mono">
-                        -{formatCurrency(summary.discount, summary.currency)}
+                        -{formatCurrency(summary.discount, summary.currency, isRtl)}
                       </span>
                     </div>
                   )}
@@ -594,7 +594,7 @@ export default function ParentCheckout() {
                   <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
                     <span>{t('parentPackages.tax', 'الضريبة')}</span>
                     <span className="font-mono font-bold text-slate-800 dark:text-white">
-                      {formatCurrency(summary.tax, summary.currency)}
+                      {formatCurrency(summary.tax, summary.currency, isRtl)}
                     </span>
                   </div>
                 </div>
@@ -604,7 +604,7 @@ export default function ParentCheckout() {
                     {t('parentPackages.total', 'الإجمالي المستحق')}
                   </span>
                   <span className="font-black text-[#0f7a6c] dark:text-emerald-400 text-xl font-mono">
-                    {formatCurrency(summary.total, summary.currency)}
+                    {formatCurrency(summary.total, summary.currency, isRtl)}
                   </span>
                 </div>
               </div>

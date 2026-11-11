@@ -303,10 +303,11 @@ export const parentApi = {
       });
       const payload = response.data;
       const list = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+      const statistics = payload?.statistics || payload?.data?.statistics || payload?.data?.stats || payload?.stats || null;
       return {
         success: true,
         data: list,
-        statistics: payload?.statistics || null,
+        statistics,
         pagination: payload?.pagination || {
           currentPage: Number(cleanParams.page || 1),
           limit: Number(cleanParams.limit || 20),

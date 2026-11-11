@@ -55,10 +55,11 @@ const ParentPackageCard = memo(function ParentPackageCard({
   const rate = Number(currencyInfo?.exchangeRate) > 0 ? Number(currencyInfo.exchangeRate) : 1;
   const rawCurrency = packageItem?.currency || packageItem?.priceCurrency;
   const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const currencySymbol = packageCurrencySymbol || '$';
   const effectiveCurrencyInfo = {
     ...currencyInfo,
     symbol: currencySymbol,
+    exchangeRate: 1,
   };
   const sessionsCount = packageItem?.sessionsCount || 8;
   const sessionDuration = packageItem?.sessionDuration || 60;
@@ -175,12 +176,23 @@ const ParentPackageCard = memo(function ParentPackageCard({
           </span>
           <div className="flex items-baseline gap-1.5 mt-0.5 flex-wrap">
             {currencySymbol === '$' ? (
-              <>
-                <span className="text-xl font-bold text-[#0f7a6c] dark:text-emerald-400 font-mono">$</span>
-                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
-                  {formatPriceNumber(convertedFinal)}
-                </span>
-              </>
+              isRtl ? (
+                <>
+                  <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
+                    {formatPriceNumber(convertedFinal)}
+                  </span>
+                  <span className="text-sm font-bold text-[#0f7a6c] dark:text-emerald-400">
+                    دولار
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xl font-bold text-[#0f7a6c] dark:text-emerald-400 font-mono">$</span>
+                  <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
+                    {formatPriceNumber(convertedFinal)}
+                  </span>
+                </>
+              )
             ) : (
               <>
                 <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
@@ -193,7 +205,9 @@ const ParentPackageCard = memo(function ParentPackageCard({
             )}
             {hasDiscount && (
               <span className="line-through text-slate-400 text-xs font-semibold ms-1 font-mono">
-                {currencySymbol === '$' ? `$${formatPriceNumber(convertedOriginal)}` : `${formatPriceNumber(convertedOriginal)} ${currencySymbol}`}
+                {currencySymbol === '$'
+                  ? (isRtl ? `${formatPriceNumber(convertedOriginal)} دولار` : `$${formatPriceNumber(convertedOriginal)}`)
+                  : `${formatPriceNumber(convertedOriginal)} ${currencySymbol}`}
               </span>
             )}
             {hasDiscount && discountPercent > 0 && (

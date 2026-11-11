@@ -5,6 +5,7 @@ import {
   Calendar,
   Layers,
 } from 'lucide-react';
+import { formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
 
 function formatDate(dateStr, isRtl) {
   if (!dateStr) return '-';
@@ -34,9 +35,9 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
   const price = lastSubscription.price !== undefined ? Number(lastSubscription.price) : null;
   const sessionsCount = Number(lastSubscription.sessionsCount || 0);
   const subscribedAtFormatted = formatDate(lastSubscription.subscribedAt, isRtl);
-  const currency = lastSubscription.currency && lastSubscription.currency !== 'USD' && lastSubscription.currency !== '$'
-    ? lastSubscription.currency
-    : t('parent.packages.currencyEGP', 'ج.م');
+  const formattedPrice = price !== null
+    ? formatCurrencyDisplay(price, lastSubscription.currency || '$', isRtl)
+    : null;
   return (
     <div
       className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-5"
@@ -73,10 +74,7 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
             </span>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-black text-slate-900 dark:text-white">
-                {price}
-              </span>
-              <span className="text-xs text-slate-500 font-bold">
-                {currency}
+                {formattedPrice}
               </span>
             </div>
           </div>

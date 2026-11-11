@@ -50,6 +50,7 @@ export default function ParentAssignments() {
   const [selectedStudent, setSelectedStudent] = useState('all');
   const [activeFilter, setActiveFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [cachedStatistics, setCachedStatistics] = useState(null);
   const [homeworkData, setHomeworkData] = useState({
     list: [],
     statistics: null,
@@ -79,22 +80,25 @@ export default function ParentAssignments() {
       }
       const res = await parentApi.fetchHomeworkList(filter, params);
       const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
-      setHomeworkData({
+      if (res?.statistics) {
+        setCachedStatistics(res.statistics);
+      }
+      setHomeworkData((prev) => ({
         list: rawList,
-        statistics: res?.statistics || null,
+        statistics: res?.statistics || prev.statistics,
         pagination: res?.pagination || {
           currentPage: page,
           limit: 10,
           numberOfPages: 1
         }
-      });
+      }));
     } catch (err) {
       console.error('Failed to load homework list', err);
-      setHomeworkData({
+      setHomeworkData((prev) => ({
         list: [],
-        statistics: null,
+        statistics: prev.statistics,
         pagination: { currentPage: 1, limit: 10, numberOfPages: 1 }
-      });
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -117,30 +121,48 @@ export default function ParentAssignments() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
   const stats = useMemo(() => {
-    const api = homeworkData.statistics;
+    const api = homeworkData.statistics || cachedStatistics;
     if (api) {
       return {
-        total: api.total ?? 0,
-        submitted: (api.submitted ?? 0) + (api.submitted_late ?? 0),
-        evaluated: api.evaluated ?? 0,
-        overdue: api.overdue ?? 0,
-        pending: api.pending ?? 0,
-        submittedLate: api.submitted_late ?? 0,
-        notEvaluated: api.not_evaluated ?? 0
+        total: Number(api.total ?? 0),
+        submitted: Number(api.submitted ?? 0),
+        evaluated: Number(api.evaluated ?? 0),
+        overdue: Number(api.overdue ?? 0),
+        pending: Number(api.pending ?? 0),
+        submittedLate: Number(api.submitted_late ?? 0),
+        notEvaluated: Number(api.not_evaluated ?? 0)
       };
     }
     // fallback: count from current page list
     const list = homeworkData.list || [];
     return {
       total: list.length,
-      submitted: list.filter(item => item.submissionStatus?.includes('تم التسليم')).length,
-      evaluated: list.filter(item => item.evaluationStatus?.includes('تم التقييم')).length,
-      overdue: list.filter(item => item.submissionStatus?.includes('متأخر') || item.submissionStatus?.includes('overdue')).length,
-      pending: list.filter(item => item.submissionStatus?.includes('انتظار')).length,
-      submittedLate: 0,
-      notEvaluated: 0
+      submitted: list.filter(item => {
+        const s = String(item.submissionStatus || '');
+        return s.includes('تم التسليم') && !s.includes('متأخر');
+      }).length,
+      evaluated: list.filter(item => {
+        const e = String(item.evaluationStatus || '');
+        return e.includes('تم التقييم') && !e.includes('لم');
+      }).length,
+      overdue: list.filter(item => {
+        const s = String(item.submissionStatus || '').toLowerCase();
+        return s.includes('متأخر') || s.includes('overdue');
+      }).length,
+      pending: list.filter(item => {
+        const s = String(item.submissionStatus || '');
+        return s.includes('انتظار') || s.includes('pending');
+      }).length,
+      submittedLate: list.filter(item => {
+        const s = String(item.submissionStatus || '');
+        return s.includes('متأخر') && s.includes('تم التسليم');
+      }).length,
+      notEvaluated: list.filter(item => {
+        const e = String(item.evaluationStatus || '');
+        return e.includes('لم يتم');
+      }).length
     };
-  }, [homeworkData.statistics, homeworkData.list]);
+  }, [homeworkData.statistics, cachedStatistics, homeworkData.list]);
   return (
     <motion.div
       variants={containerVariants}

@@ -16,17 +16,17 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
+import {
+  currenciesApi,
+  parseExchangeRateData,
+  resolvePackagePrice,
+  resolveCurrencySymbol,
+  formatCurrencyDisplay,
+} from '@/shared/services/api/currenciesApi';
 import Spinner from '@/shared/components/Spinner';
 
-function formatCurrency(amount, currency = '$') {
-  const num = Number(amount || 0);
-  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const sym = resolveCurrencySymbol(currency) || currency || '$';
-  if (sym === '$') {
-    return `$${formattedNum}`;
-  }
-  return `${formattedNum} ${sym}`;
+function formatCurrency(amount, currency = '$', isRtl = true) {
+  return formatCurrencyDisplay(amount, currency, isRtl);
 }
 
 function formatDate(dateVal, isRtl = true) {
@@ -331,30 +331,30 @@ export default function ParentInvoiceModal({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between text-slate-600 dark:text-slate-400">
                     <span>{t('parentPackages.amount', 'المبلغ')}</span>
-                    <span className="font-bold font-mono">{formatCurrency(amount, currency)}</span>
+                    <span className="font-bold font-mono">{formatCurrency(amount, currency, isRtl)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                       <span>{t('parentPackages.discount', 'الخصم')}</span>
-                      <span className="font-bold font-mono">-{formatCurrency(discount, currency)}</span>
+                      <span className="font-bold font-mono">-{formatCurrency(discount, currency, isRtl)}</span>
                     </div>
                   )}
                   {priceAfterDiscount > 0 && (
                     <div className="flex justify-between text-slate-600 dark:text-slate-400">
                       <span>{t('parentPackages.priceAfterDiscount', 'السعر بعد الخصم')}</span>
-                      <span className="font-bold font-mono">{formatCurrency(priceAfterDiscount, currency)}</span>
+                      <span className="font-bold font-mono">{formatCurrency(priceAfterDiscount, currency, isRtl)}</span>
                     </div>
                   )}
                   {tax > 0 && (
                     <div className="flex justify-between text-slate-600 dark:text-slate-400">
                       <span>{t('parentPackages.tax', 'الضريبة')}</span>
-                      <span className="font-bold font-mono">+{formatCurrency(tax, currency)}</span>
+                      <span className="font-bold font-mono">+{formatCurrency(tax, currency, isRtl)}</span>
                     </div>
                   )}
                   <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between text-sm">
                     <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.total', 'الإجمالي')}</span>
                     <span className="font-black font-mono text-[#0f7a6c] dark:text-emerald-400 text-base">
-                      {formatCurrency(total, currency)}
+                      {formatCurrency(total, currency, isRtl)}
                     </span>
                   </div>
                 </div>

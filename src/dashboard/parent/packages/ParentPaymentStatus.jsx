@@ -8,12 +8,11 @@ import {
   Info,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData, resolvePackagePrice } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 
-function formatCurrency(amount, currency = 'ج.م') {
-  const num = Number(amount || 0);
-  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
+function formatCurrency(amount, currency = '$', isRtl = true) {
+  return formatCurrencyDisplay(amount, currency, isRtl);
 }
 
 function formatDate(dateVal) {
@@ -41,7 +40,7 @@ export default function ParentPaymentStatus() {
   });
   const currencyInfo = useMemo(() => {
     if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: 'ج.م', exchangeRate: 1 };
+    return { symbol: '$', exchangeRate: 1 };
   }, [exchangeRateRes]);
 
   const sessionId = searchParams.get('session_id') || searchParams.get('sessionId') || '';
@@ -189,7 +188,9 @@ export default function ParentPaymentStatus() {
     return isRtl ? 'الباقة المعتمدة' : 'Subscribed Package';
   })();
   const currencyRate = Number(currencyInfo?.exchangeRate || 1);
-  const currency = currencyInfo?.symbol || 'ج.م';
+  const rawCurrency = sub.currency || sub.package?.currency || sub.paymentCurrency;
+  const resolvedSymbol = resolveCurrencySymbol(rawCurrency);
+  const currency = resolvedSymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
   const rawTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
   const rawTax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
   const rawDiscount = Number(
@@ -321,7 +322,7 @@ export default function ParentPaymentStatus() {
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-bold">
                 <span className="text-slate-700 dark:text-slate-300">{t('parentPackages.total', 'الإجمالي')}</span>
                 <span className="font-mono font-black text-[#0f7a6c] dark:text-emerald-400 text-base">
-                  {formatCurrency(total, currency)}
+                  {formatCurrency(total, currency, isRtl)}
                 </span>
               </div>
             </div>
@@ -395,22 +396,22 @@ export default function ParentPaymentStatus() {
                 </div>
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>{t('parentPackages.amount', 'المبلغ')}</span>
-                  <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(price, currency)}</span>
+                  <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(price, currency, isRtl)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
                     <span>{t('parentPackages.discount', 'الخصم')}</span>
-                    <span className="font-bold font-mono">-{formatCurrency(discount, currency)}</span>
+                    <span className="font-bold font-mono">-{formatCurrency(discount, currency, isRtl)}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>{t('parentPackages.tax', 'الضريبة')}</span>
-                  <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(tax, currency)}</span>
+                  <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(tax, currency, isRtl)}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                   <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.totalPaid', 'الإجمالي المدفوع')}</span>
                   <span className="font-black font-mono text-[#0f7a6c] dark:text-emerald-400 text-lg">
-                    {formatCurrency(total, currency)}
+                    {formatCurrency(total, currency, isRtl)}
                   </span>
                 </div>
               </div>
@@ -522,7 +523,7 @@ export default function ParentPaymentStatus() {
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-bold">
                 <span className="text-slate-700 dark:text-slate-300">{t('parentPackages.orderTotal', 'إجمالي الطلب')}</span>
                 <span className="font-mono font-black text-[#0f7a6c] dark:text-emerald-400 text-base">
-                  {formatCurrency(total, currency)}
+                  {formatCurrency(total, currency, isRtl)}
                 </span>
               </div>
             </div>
@@ -539,7 +540,7 @@ export default function ParentPaymentStatus() {
                 className="w-full sm:flex-1 py-3.5 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
               >
                 {t('parentPackages.retryPaymentBtn', 'إعادة المحاولة • {{amount}}', {
-                  amount: formatCurrency(total, currency),
+                  amount: formatCurrency(total, currency, isRtl),
                 })}
               </button>
               <button

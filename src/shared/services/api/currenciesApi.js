@@ -15,14 +15,50 @@ export const currenciesApi = {
 export function resolveCurrencySymbol(currency) {
   if (!currency) return null;
   const c = String(currency).trim().toUpperCase();
-  if (c === 'USD' || c === '$') return '$';
-  if (c === 'EGP' || c === 'ج.م' || c === 'LE' || c === 'L.E') return 'ج.م';
+  if (c === 'USD' || c === '$' || c === 'دولار') return '$';
+  if (c === 'EGP' || c === 'ج.م' || c === 'LE' || c === 'L.E' || c === 'جنيه' || c === 'جنية') return 'ج.م';
   if (c === 'SAR' || c === 'ر.س' || c === 'SR') return 'ر.س';
   if (c === 'AED' || c === 'د.إ') return 'د.إ';
   if (c === 'KWD' || c === 'د.ك') return 'د.ك';
   if (c === 'EUR' || c === '€') return '€';
   if (c === 'GBP' || c === '£') return '£';
   return String(currency).trim();
+}
+
+export function resolveCurrencyLabel(currency = '$', isRtl = true) {
+  const norm = String(currency || '').trim().toUpperCase();
+  const isUSD = norm === 'USD' || norm === '$' || norm === 'دولار';
+  const isEGP = norm === 'EGP' || norm === 'ج.م' || norm === 'LE' || norm === 'L.E' || norm === 'جنيه' || norm === 'جنية';
+  const isSAR = norm === 'SAR' || norm === 'ر.س' || norm === 'SR';
+
+  if (isUSD) {
+    return isRtl ? 'دولار' : '$';
+  }
+  if (isEGP) {
+    return isRtl ? 'ج.م' : 'EGP';
+  }
+  if (isSAR) {
+    return isRtl ? 'ر.س' : 'SAR';
+  }
+  return resolveCurrencySymbol(currency) || currency || (isRtl ? 'دولار' : '$');
+}
+
+export function formatCurrencyDisplay(amount, currency = '$', isRtl = true) {
+  if (amount === null || amount === undefined || isNaN(Number(amount))) return '-';
+  const num = Number(amount);
+  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  const norm = String(currency || '').trim().toUpperCase();
+  const isUSD = norm === 'USD' || norm === '$' || norm === 'دولار';
+
+  if (isUSD) {
+    if (isRtl) {
+      return `${formattedNum} دولار`;
+    }
+    return `$${formattedNum}`;
+  }
+
+  const label = resolveCurrencyLabel(currency, isRtl);
+  return `${formattedNum} ${label}`;
 }
 
 export function parseExchangeRateData(res) {
@@ -60,6 +96,14 @@ export function resolvePackagePrice(rawPrice, currencyInfo, packageItem = null) 
   const isExplicitLocal = pkgCurrency === 'EGP' || pkgCurrency === 'ج.م';
   const isTargetUSD = targetSymbol === '$' || targetSymbol === 'USD';
   const isTargetLocal = targetSymbol === 'EGP' || targetSymbol === 'ج.م';
+
+  // If target is USD, price is already in USD unless explicitly local
+  if (isTargetUSD) {
+    if (isExplicitLocal && rate > 0) {
+      return Math.round(num / rate);
+    }
+    return Math.round(num);
+  }
 
   // If source and target are the same, return as-is
   if (isExplicitLocal && isTargetLocal) {
