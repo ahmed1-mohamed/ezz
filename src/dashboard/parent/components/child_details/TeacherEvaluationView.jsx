@@ -17,7 +17,6 @@ export default function TeacherEvaluationView({ onBack }) {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
@@ -42,11 +41,9 @@ export default function TeacherEvaluationView({ onBack }) {
         if (isMounted) setIsLoading(false);
       }
     };
-
     loadData();
     return () => { isMounted = false; };
   }, []);
-
   const handleSubmitRating = async () => {
     if (!selectedTeacherId || rating === 0) {
       toast.error(t('parent.ratings.selectRatingRequired', 'يرجى اختيار التقييم أولاً'));
@@ -72,7 +69,6 @@ export default function TeacherEvaluationView({ onBack }) {
       setIsSubmitting(false);
     }
   };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -80,14 +76,11 @@ export default function TeacherEvaluationView({ onBack }) {
       transition: { staggerChildren: 0.1 }
     }
   };
-
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
-
   const selectedTeacher = teachers.find(item => (item.id || item._id) === selectedTeacherId);
-
   return (
     <motion.div
       variants={containerVariants}
@@ -105,12 +98,10 @@ export default function TeacherEvaluationView({ onBack }) {
           {t('parent.childDetails.back', 'رجوع')}
         </button>
       </div>
-
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-start gap-2 text-start">
         <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{t('parent.childDetails.evaluateTeachers', 'تقييم المعلمين')}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('parent.ratings.subtitle', 'شاركنا رأيك في أداء معلمي أبنائك')}</p>
       </motion.div>
-
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 text-start">
         <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-6">{t('parent.childDetails.selectTeacher', 'اختر المعلم')}</h2>
         {isLoading ? (
@@ -132,7 +123,6 @@ export default function TeacherEvaluationView({ onBack }) {
               const subject = teacher.subject || teacher.specialization || '';
               const ratingVal = Number(teacher.rating || 5);
               const avatarChar = name.charAt(0) || 'م';
-
               return (
                 <div
                   key={teacherId}
@@ -147,7 +137,6 @@ export default function TeacherEvaluationView({ onBack }) {
                       <img src={teacher.image} alt={name} className="w-full h-full object-cover rounded-full" />
                     ) : avatarChar}
                   </div>
-
                   <div className="flex-grow text-start px-4">
                     <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">{name}</h3>
                     {subject && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-2">{subject}</p>}
@@ -161,7 +150,6 @@ export default function TeacherEvaluationView({ onBack }) {
                       {teacher.reviewsCount !== undefined && <span>{teacher.reviewsCount} {t('parent.ratings.evaluations', 'تقييم')}</span>}
                     </div>
                   </div>
-
                   <div className="shrink-0 w-8 flex items-center justify-end">
                     {isSelected && <CheckCircle2 className="w-5 h-5 text-[#0f7a6c]" />}
                   </div>
@@ -171,7 +159,6 @@ export default function TeacherEvaluationView({ onBack }) {
           </div>
         )}
       </motion.div>
-
       {selectedTeacher && (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 text-start">
           <div className="flex items-center justify-start gap-4 mb-6">
@@ -184,7 +171,6 @@ export default function TeacherEvaluationView({ onBack }) {
               </h3>
             </div>
           </div>
-
           <div className="flex flex-col items-center">
             <span className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-4 w-full text-start">{t('parent.childDetails.rateTeacher', 'قيّم المعلم')} *</span>
             <div className="flex items-center gap-2 mb-4" dir="ltr">
@@ -206,7 +192,6 @@ export default function TeacherEvaluationView({ onBack }) {
                 </button>
               ))}
             </div>
-
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -214,7 +199,6 @@ export default function TeacherEvaluationView({ onBack }) {
               rows={3}
               className="w-full mt-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]"
             />
-
             <button
               onClick={handleSubmitRating}
               disabled={isSubmitting || rating === 0}
@@ -225,7 +209,6 @@ export default function TeacherEvaluationView({ onBack }) {
           </div>
         </motion.div>
       )}
-
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-center sm:text-start">
           <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">{t('parent.childDetails.hasComplaint', 'هل لديك شكوى أو استفسار؟')}</h3>
@@ -239,7 +222,6 @@ export default function TeacherEvaluationView({ onBack }) {
           {t('parent.childDetails.submitComplaint', 'تقديم شكوى')}
         </button>
       </motion.div>
-
       <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 text-start">
         <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-6">{t('parent.ratings.pastRatings', 'التقييمات السابقة')}</h2>
         {previousEvaluations.length === 0 ? (

@@ -16,17 +16,13 @@ export default function AddSessionsModal({
   const maxAllowed = Math.min(MAX_SESSIONS_PER_OPERATION, monthlyRemaining)
   const [sessionsCount, setSessionsCount] = useState(Math.min(1, maxAllowed))
   const [reason, setReason] = useState('')
-
-  if (!isOpen || !student) return null
-
+  if (!isOpen || !student || typeof document === 'undefined') return null
   const studentName = typeof student.name === 'string'
     ? student.name
     : (student.name?.ar || student.name?.en || 'الطالب')
-
   const currentBalance = getRemainingSessions(student.sessionsBalance)
   const manualAddedThisMonth = MAX_MANUAL_SESSIONS_PER_MONTH - monthlyRemaining
   const presets = Array.from({ length: MAX_SESSIONS_PER_OPERATION }, (_, i) => i + 1)
-
   const handleSubmit = (e) => {
     e.preventDefault()
     const count = Number(sessionsCount)
@@ -41,10 +37,9 @@ export default function AddSessionsModal({
     }
     onAddSessions(student.student_id, count, reason.trim())
   }
-
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={isLoading ? undefined : onClose}
     >
@@ -75,7 +70,6 @@ export default function AddSessionsModal({
             <X size={18} />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="p-4 bg-slate-50 dark:bg-slate-950/30 rounded-2xl space-y-2">
             <div className="flex items-center justify-between">
@@ -95,7 +89,6 @@ export default function AddSessionsModal({
               </span>
             </div>
           </div>
-
           <div className="space-y-2 text-start">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
               {isRtl
@@ -125,7 +118,6 @@ export default function AddSessionsModal({
               })}
             </div>
           </div>
-
           {maxAllowed === 0 && (
             <p className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-xs font-bold text-start">
               {isRtl
@@ -133,7 +125,6 @@ export default function AddSessionsModal({
                 : 'The monthly limit of manually added sessions has been reached for this student'}
             </p>
           )}
-
           <div className="space-y-1.5 text-start">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400">
               {isRtl ? 'سبب الإضافة (اختياري)' : 'Reason (optional)'}
@@ -147,7 +138,6 @@ export default function AddSessionsModal({
               className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 px-4 text-slate-800 dark:text-white text-sm outline-none focus:border-brand-500/40 transition-all"
             />
           </div>
-
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"

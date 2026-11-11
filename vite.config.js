@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig(({ mode }) => ({
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] })
@@ -47,6 +48,9 @@ export default defineConfig(({ mode }) => ({
           return 'assets/misc/[name]-[hash][extname]'
         },
         manualChunks(id) {
+          if (id.includes('locales') && id.includes('translation.json')) {
+            return 'locales-data'
+          }
           if (id.includes('node_modules')) {
             if (id.includes('react-router') || id.includes('react-router-dom')) return 'vendor-router'
             if (id.includes('react-redux') || id.includes('@reduxjs/toolkit')) return 'vendor-redux'

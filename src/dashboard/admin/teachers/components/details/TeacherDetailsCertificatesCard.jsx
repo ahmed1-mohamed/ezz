@@ -12,7 +12,6 @@ function CertificateThumbnail({ fileUrl, title }) {
     fileUrl.startsWith('data:image/') ||
     fileUrl.startsWith('blob:')
   )
-
   return (
     <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-500 dark:bg-rose-950/30 dark:text-rose-400 flex items-center justify-center shrink-0 overflow-hidden">
       {isImage ? (
@@ -39,14 +38,12 @@ export default function TeacherDetailsCertificatesCard({
   const certificates = Array.isArray(teacher?.certificates)
     ? teacher.certificates.filter(c => typeof c === 'object' && c !== null && !c?.id?.startsWith?.('ach-'))
     : []
-
   const handleView = (cert) => {
     const fileUrl = cert?.url || cert?.file || cert?.image
     if (fileUrl) {
       window.open(fileUrl, '_blank')
     }
   }
-
   const formatSize = (size) => {
     if (!size) return isRtl ? 'ملف مرفق' : 'Attached file'
     if (typeof size === 'number') {
@@ -54,7 +51,6 @@ export default function TeacherDetailsCertificatesCard({
     }
     return String(size)
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-5 text-start">
       <div className="flex items-center justify-between">
@@ -72,7 +68,6 @@ export default function TeacherDetailsCertificatesCard({
           </button>
         )}
       </div>
-
       {certificates.length > 0 ? (
         <div className="space-y-3.5">
           {certificates.map((cert, index) => {
@@ -80,7 +75,6 @@ export default function TeacherDetailsCertificatesCard({
               ? (isRtl ? (cert.name.ar || cert.name.en) : (cert.name.en || cert.name.ar))
               : (cert.name || (isRtl ? `شهادة #${index + 1}` : `Certificate #${index + 1}`))
             const fileUrl = cert?.url || cert?.file || cert?.image
-
             return (
               <div
                 key={cert.id || cert._id || index}
@@ -97,7 +91,6 @@ export default function TeacherDetailsCertificatesCard({
                     </span>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-2">
                   {onEditCertificate && (
                     <button
@@ -109,7 +102,6 @@ export default function TeacherDetailsCertificatesCard({
                       <Pencil size={15} />
                     </button>
                   )}
-
                   <button
                     type="button"
                     onClick={() => handleView(cert)}
@@ -118,7 +110,6 @@ export default function TeacherDetailsCertificatesCard({
                   >
                     <Eye size={15} />
                   </button>
-
                   {onDeleteCertificate && (
                     <button
                       type="button"

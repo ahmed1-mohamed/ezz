@@ -9,7 +9,6 @@ import AssignmentsTable from './components/AssignmentsTable';
 function AdminAssignments() {
     const { i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const {
         stats,
         loading,
@@ -20,7 +19,6 @@ function AdminAssignments() {
         setSearchValue,
         handleDelete,
     } = useAssignments();
-
     if (loading && !stats) {
         return (
             <div className="flex items-center justify-center h-60">
@@ -28,18 +26,15 @@ function AdminAssignments() {
             </div>
         );
     }
-
     return (
         <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
             {stats && <AssignmentsStats stats={stats} />}
-
             <AssignmentsFilters
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 searchValue={searchValue}
                 setSearchValue={setSearchValue}
             />
-
             {loading ? (
                 <div className="flex items-center justify-center h-40">
                     <Spinner />

@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -16,17 +17,14 @@ export default function Pricing() {
     const { t, i18n } = useTranslation()
     const dispatch = useDispatch()
     const { packagesData, loading } = useSelector((state) => state.landing)
-    const isRtl = i18n.language?.startsWith('ar') ?? true
-
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar'
+    const isRtl = currentLang === 'ar'
     const [currencyInfo, setCurrencyInfo] = useState({ symbol: '$', exchangeRate: 1 })
-
     useEffect(() => {
         dispatch(fetchPackagesAndFaqs(i18n.language))
     }, [dispatch, i18n.language])
-
     useEffect(() => {
         let isMounted = true
-
         const loadExchangeRate = async () => {
             try {
                 const res = await currenciesApi.fetchExchangeRate()
@@ -38,14 +36,11 @@ export default function Pricing() {
                 console.warn('Could not fetch exchange rate, fallback to default USD:', err)
             }
         }
-
         loadExchangeRate()
-
         return () => {
             isMounted = false
         }
     }, [])
-
     const renderIcon = (icon, index) => {
         if (!icon) {
             const fallbacks = [BookOpen, Award, Gem]
@@ -58,7 +53,7 @@ export default function Pricing() {
                     return imagePath
                 }
                 const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath
-                return `https://manaret-ezz.dramcode.top/${cleanPath}`
+                return buildApiAssetUrl(cleanPath)
             }
             return <img src={getImageUrl(icon)} className="w-10 h-10 object-contain rounded-full shadow-sm" alt="" />
         }
@@ -70,26 +65,21 @@ export default function Pricing() {
         const FallbackIcon = fallbacks[index % 3]
         return <FallbackIcon className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
     }
-
     const displayPlans = useMemo(() => {
         const apiPackages = packagesData?.packages?.data || packagesData?.packages || []
         if (!Array.isArray(apiPackages)) return []
-
         const rate = Number(currencyInfo.exchangeRate) > 0 ? Number(currencyInfo.exchangeRate) : 1
         const symbol = currencyInfo.symbol || '$'
-
         return apiPackages.map((pkg, index) => {
             const name = typeof pkg.name === 'object' && pkg.name !== null
                 ? (isRtl ? pkg.name.ar || pkg.name.en : pkg.name.en || pkg.name.ar)
                 : pkg.name || ''
-
             const features = Array.isArray(pkg.features)
                 ? pkg.features.map((f) => ({
                     text: typeof f === 'object' && f !== null ? (isRtl ? f.ar || f.en : f.en || f.ar) : String(f),
                     active: true,
                 }))
                 : []
-
             const sessionsCount = Number(
                 pkg.sessionsCount ?? 
                 pkg.sessions_per_month ?? 
@@ -99,36 +89,30 @@ export default function Pricing() {
                 pkg.totalSessions ?? 
                 0
             )
-
             const sessionDuration = Number(
                 pkg.sessionDuration ?? 
                 pkg.duration ?? 
                 pkg.durationMinutes ?? 
                 0
             )
-
             const rawBasePrice = Number(pkg.price ?? 0)
             const rawOriginalPrice = pkg.originalPrice != null 
                 ? Number(pkg.originalPrice) 
                 : (pkg.priceBeforeDiscount != null 
                     ? Number(pkg.priceBeforeDiscount) 
                     : (pkg.oldPrice != null ? Number(pkg.oldPrice) : null))
-
             const rawPriceAfterDiscount = pkg.priceAfterDiscount != null 
                 ? Number(pkg.priceAfterDiscount) 
                 : (pkg.discountedPrice != null ? Number(pkg.discountedPrice) : null)
-
             const rawDiscountPercent = pkg.discountPercentage != null 
                 ? Number(pkg.discountPercentage) 
                 : (pkg.discountPercent != null 
                     ? Number(pkg.discountPercent) 
                     : (pkg.discount != null && Number(pkg.discount) > 0 && Number(pkg.discount) <= 100 ? Number(pkg.discount) : null))
-
             let hasDiscount = false
             let usdOriginal = rawBasePrice
             let usdFinal = rawBasePrice
             let discountPercent = 0
-
             if (rawOriginalPrice != null && rawOriginalPrice > rawBasePrice) {
                 hasDiscount = true
                 usdOriginal = rawOriginalPrice
@@ -150,10 +134,8 @@ export default function Pricing() {
                 usdFinal = Math.max(0, rawBasePrice - Number(pkg.discountAmount))
                 discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100)
             }
-
             const convertedFinal = usdFinal * rate
             const convertedOriginal = usdOriginal * rate
-
             const formatPrice = (val) => {
                 if (isNaN(val)) return '0'
                 const rounded = Math.round(val * 100) / 100
@@ -161,7 +143,6 @@ export default function Pricing() {
                     ? rounded.toLocaleString()
                     : rounded.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 })
             }
-
             return {
                 id: pkg.id || pkg._id || index,
                 name,
@@ -178,7 +159,6 @@ export default function Pricing() {
             }
         })
     }, [packagesData, currencyInfo, isRtl])
-
     const displayFaqs = useMemo(() => {
         const apiFaqs = packagesData?.faqs?.data || packagesData?.faqs || []
         if (!Array.isArray(apiFaqs)) return []
@@ -192,7 +172,6 @@ export default function Pricing() {
             return { q, a }
         })
     }, [packagesData, isRtl])
-
     return (
         <div className="min-h-screen bg-[#EEF4F2]/50 dark:bg-slate-950 py-16 sm:py-24 overflow-hidden font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <motion.div 
@@ -209,7 +188,6 @@ export default function Pricing() {
                     {t('pricing.header.subtitle', 'خطط مرنة مصممة لتناسب احتياجات كل عائلة، مع نخبة من المعلمين المعتمدين في بيئة تعليمية آمنة وملهمة.')}
                 </p>
             </motion.div>
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
                 {loading && displayPlans.length === 0 ? (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
@@ -227,7 +205,7 @@ export default function Pricing() {
                             {t('pricing.contactForCustom', 'يرجى التواصل معنا للاستفسار عن الباقات والعروض الخاصة')}
                         </p>
                         <Link
-                            to="/contact"
+                            to={`/${currentLang}/contact`}
                             className="inline-block px-6 py-3 rounded-2xl bg-[#00695C] text-white font-bold text-sm shadow-md hover:bg-[#005247] transition-all cursor-pointer"
                         >
                             {t('public.nav.contactUs', 'تواصل معنا')}
@@ -251,9 +229,7 @@ export default function Pricing() {
                                 <div className="bg-[#E6F0ED] dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mb-5">
                                     {renderIcon(plan.icon, index)}
                                 </div>
-
                                 <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{plan.name}</h2>
-
                                 {plan.sessionsCount > 0 && (
                                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F0ED] dark:bg-emerald-950/40 text-[#00695C] dark:text-emerald-400 font-bold text-xs sm:text-sm mb-4">
                                         <Calendar className="w-3.5 h-3.5" />
@@ -269,7 +245,6 @@ export default function Pricing() {
                                         )}
                                     </div>
                                 )}
-                                
                                 <div className="flex flex-col items-center justify-center mb-8 w-full min-h-[80px]">
                                     {plan.hasDiscount ? (
                                         <>
@@ -308,7 +283,6 @@ export default function Pricing() {
                                         </div>
                                     )}
                                 </div>
-
                                 <ul className="space-y-4 w-full mb-10 flex-1 text-start px-2">
                                     {plan.features.map((feat, idx) => (
                                         <li key={idx} className="flex items-center gap-3">
@@ -323,7 +297,6 @@ export default function Pricing() {
                                         </li>
                                     ))}
                                 </ul>
-
                                 <Link 
                                     to="/register"
                                     aria-label={`${t('pricing.btn', 'ابدأ الآن')} - ${plan.name}`}
@@ -336,7 +309,6 @@ export default function Pricing() {
                     </div>
                 )}
             </div>
-
             {displayFaqs.length > 0 && (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 sm:mt-32 mb-10 w-full">
                     <motion.h2 
@@ -347,7 +319,6 @@ export default function Pricing() {
                     >
                         {t('pricing.faq.title', 'الأسئلة الشائعة')}
                     </motion.h2>
-
                     <div className="space-y-4">
                         {displayFaqs.map((faq, idx) => (
                             <motion.div 

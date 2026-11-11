@@ -7,7 +7,8 @@ export default React.memo(function ParentTrackChildrenSection({
   isLoading = false,
   onSelectChild,
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 3;
   const totalItems = children?.length || 0;

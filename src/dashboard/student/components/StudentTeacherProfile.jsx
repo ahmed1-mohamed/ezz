@@ -1,12 +1,14 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Star, Calendar, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Star, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import TeacherAbout from '@/pages/public/components/TeacherProfile/TeacherAbout.jsx';
 import TeacherSubjects from '@/pages/public/components/TeacherProfile/TeacherSubjects.jsx';
 import TeacherStats from '@/pages/public/components/TeacherProfile/TeacherStats.jsx';
+import TeacherAvailabilityCard from '@/shared/components/TeacherAvailabilityCard.jsx';
 import Spinner from '@/shared/components/Spinner';
 
 const getImageUrl = (imagePath) => {
@@ -16,14 +18,13 @@ const getImageUrl = (imagePath) => {
     return trimmed;
   }
   const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 function StudentTeacherSideCard({ teacher, t, isRtl, onScheduleClick, onBackClick }) {
   const [hasImgError, setHasImgError] = useState(false);
   const imgUrl = hasImgError ? null : getImageUrl(teacher?.image);
   const teacherInitial = teacher?.name ? teacher.name.trim().charAt(0) : 'م';
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -49,20 +50,17 @@ function StudentTeacherSideCard({ teacher, t, isRtl, onScheduleClick, onBackClic
           </div>
         )}
       </div>
-
       <h1 className="text-2xl sm:text-[28px] font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-1">
         {teacher?.name}
       </h1>
       <p className="text-slate-600 dark:text-slate-300 font-semibold text-center mb-6 text-sm sm:text-base">
         {teacher?.title}
       </p>
-
       <div className="flex items-center gap-4 mb-8 w-full">
         <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 font-bold shrink-0">
           <span className="text-lg">{teacher?.rating || '5.0'}</span>
           <Star className="w-5 h-5 fill-[#9B7B16] dark:fill-amber-400" />
         </div>
-
         <div className="flex-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
           {(teacher?.tags || []).map((tag, i) => (
             <span key={i} className="whitespace-nowrap bg-[#F2F2F2] dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-full text-xs sm:text-sm font-bold">
@@ -71,7 +69,6 @@ function StudentTeacherSideCard({ teacher, t, isRtl, onScheduleClick, onBackClic
           ))}
         </div>
       </div>
-
       <div className="w-full space-y-3">
         <button
           type="button"
@@ -99,11 +96,9 @@ export default function StudentTeacherProfile() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const ArrowBack = isRtl ? ChevronRight : ChevronLeft;
-
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     window.scrollTo(0, 0);
     const fetchTeacher = async () => {
@@ -111,7 +106,6 @@ export default function StudentTeacherProfile() {
         setLoading(true);
         const res = await studentPortalApi.fetchTeacherById(id);
         const realData = res?.data || res;
-
         const teacherData = {
           id: realData?.teacher_id || realData?.id || id,
           name: typeof realData?.name === 'object' && realData?.name !== null
@@ -143,9 +137,9 @@ export default function StudentTeacherProfile() {
               }))
             : [],
           levels: Array.isArray(realData?.levels) ? realData.levels : [],
-          schedule: Array.isArray(realData?.schedule) ? realData.schedule : []
+          schedule: Array.isArray(realData?.schedule) ? realData.schedule : [],
+          availability: Array.isArray(realData?.availability) ? realData.availability : (Array.isArray(realData?.schedule) ? realData.schedule : [])
         };
-
         setTeacher(teacherData);
       } catch (err) {
         setError(err.message);
@@ -155,7 +149,6 @@ export default function StudentTeacherProfile() {
     };
     fetchTeacher();
   }, [id, t, isRtl]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6 flex items-center justify-center">
@@ -163,7 +156,6 @@ export default function StudentTeacherProfile() {
       </div>
     );
   }
-
   if (error || !teacher) {
     return (
       <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 flex items-center justify-center p-4">
@@ -181,7 +173,6 @@ export default function StudentTeacherProfile() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-[#EEF2F0]/80 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 font-sans pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto mb-6 text-start">
@@ -193,14 +184,17 @@ export default function StudentTeacherProfile() {
           <span>{t('teacherProfile.back', 'العودة للمعلمين')}</span>
         </button>
       </div>
-
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 order-2 lg:order-1 space-y-6 text-start">
             <TeacherAbout teacher={teacher} t={t} />
             <TeacherSubjects subjects={teacher.subjects} t={t} />
+            <TeacherAvailabilityCard
+              availability={teacher.availability}
+              isRtl={isRtl}
+              title={isRtl ? 'الأيام المتاحة للعمل' : 'Available Working Days'}
+            />
           </div>
-
           <div className="lg:col-span-5 order-1 lg:order-2">
             <StudentTeacherSideCard
               teacher={teacher}
@@ -211,7 +205,6 @@ export default function StudentTeacherProfile() {
             />
           </div>
         </div>
-
         <div className="mt-8 space-y-6">
           <TeacherStats stats={teacher.stats} t={t} />
         </div>

@@ -10,16 +10,13 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
   const { t, i18n } = useTranslation()
   const isRtl = propIsRtl !== undefined ? propIsRtl : i18n.language.startsWith('ar')
   const CloseArrow = isRtl ? ArrowRight : ArrowLeft
-
   const [teachers, setTeachers] = useState([])
   const [selectedTeacher, setSelectedTeacher] = useState(null)
   const [isLoadingTeachers, setIsLoadingTeachers] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
   const currentTeacherId = group?.teacher?.id || (typeof group?.teacher === 'string' ? group?.teacher : null)
   const rawTeacherName = group?.teacher?.name || (typeof group?.teacher === 'string' ? group?.teacher : t('adminDashboard.groups.unassigned', 'غير محدد'))
   const currentTeacherName = getLocalizedValue(rawTeacherName, isRtl) || String(rawTeacherName || t('adminDashboard.groups.unassigned', 'غير محدد'))
-
   useEffect(() => {
     let isMounted = true
     const loadTeachers = async () => {
@@ -45,17 +42,14 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
       isMounted = false
     }
   }, [])
-
   const handleSubmit = async (e) => {
     e?.preventDefault()
     if (!selectedTeacher || isSubmitting) return
-
     const selectedId = selectedTeacher.id || selectedTeacher.teacher_id || selectedTeacher._id
     if (String(selectedId) === String(currentTeacherId)) {
       onClose()
       return
     }
-
     setIsSubmitting(true)
     try {
       await onConfirm(selectedId, selectedTeacher)
@@ -64,21 +58,19 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
       setIsSubmitting(false)
     }
   }
-
   const selectedName = selectedTeacher
     ? (typeof selectedTeacher.name === 'object'
         ? (isRtl ? selectedTeacher.name.ar : selectedTeacher.name.en)
         : selectedTeacher.name)
     : ''
-
   const isCurrentSelected = selectedTeacher && String(selectedTeacher.id || selectedTeacher.teacher_id) === String(currentTeacherId)
-
+  if (typeof document === 'undefined') return null
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
       <div
         className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -105,7 +97,6 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
             <UserCheck size={18} />
           </div>
         </div>
-
          <div className="p-6 space-y-5 overflow-y-auto flex-1">
            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -125,7 +116,6 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
               {t('adminDashboard.groups.currentlyAssigned', 'المعين حالياً')}
             </span>
           </div>
-
            <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 text-start">
               {t('adminDashboard.groups.selectNewTeacher', 'اختر المعلم البديل الجديد')}
@@ -141,7 +131,6 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
               disabled={isSubmitting || isLoadingTeachers}
             />
           </div>
-
            {selectedTeacher && (
             <div className="p-4 bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl border border-amber-200 dark:border-amber-800/60 space-y-3 animate-fadeIn">
               <div className="flex items-center justify-between">
@@ -156,7 +145,6 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
                   </span>
                 )}
               </div>
-
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shrink-0 overflow-hidden shadow-sm">
                   {selectedTeacher.image ? (
@@ -183,7 +171,6 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
               </div>
             </div>
           )}
-
            <p className="text-[11px] text-slate-400 leading-relaxed text-start">
             {t(
               'adminDashboard.groups.changeTeacherNotice',
@@ -191,7 +178,6 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
             )}
           </p>
         </div>
-
          <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-end gap-3 sticky bottom-0">
           <button
             type="button"

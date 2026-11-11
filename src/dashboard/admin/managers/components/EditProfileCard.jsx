@@ -12,18 +12,15 @@ export default function EditProfileCard({
   const avatarLetter = useMemo(() => {
     return formData.name ? formData.name.trim().charAt(0) : 'ن'
   }, [formData.name])
-
   const rawImage = formData.photoUrl || formData.image || formData.photo || formData.avatar
   const imageUrl = useMemo(() => {
     if (!rawImage || typeof rawImage !== 'string' || imgError) return null
     return getImageUrl(rawImage)
   }, [rawImage, imgError])
-
   const displayRole = useMemo(() => {
     if (!roleName) return ''
     return typeof roleName === 'object' ? (isRtl ? roleName.ar || roleName.en : roleName.en || roleName.ar) : roleName
   }, [roleName, isRtl])
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft">
       <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -40,7 +37,6 @@ export default function EditProfileCard({
               avatarLetter
             )}
           </div>
-
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
               <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -54,7 +50,6 @@ export default function EditProfileCard({
             </div>
           </div>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto flex-1 max-w-5xl">
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100/50 dark:border-slate-850 rounded-2xl flex items-center gap-3">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800">
@@ -69,7 +64,6 @@ export default function EditProfileCard({
               </p>
             </div>
           </div>
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100/50 dark:border-slate-850 rounded-2xl flex items-center gap-3">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800">
               <Phone size={18} />
@@ -83,7 +77,6 @@ export default function EditProfileCard({
               </p>
             </div>
           </div>
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100/50 dark:border-slate-850 rounded-2xl flex items-center gap-3">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800">
               <Mail size={18} />

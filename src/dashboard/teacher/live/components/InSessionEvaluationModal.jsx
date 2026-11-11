@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { X, Star, AlertCircle } from 'lucide-react';
@@ -19,12 +20,10 @@ function resolveStudentName(student, isRtl) {
 export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [rating, setRating] = useState(5);
   const [notes, setNotes] = useState('');
   const [validationError, setValidationError] = useState('');
-
   const studentsList = useMemo(() => {
     if (!session) return [];
     const raw = Array.isArray(session.attendance)
@@ -41,7 +40,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
       return { id, name };
     });
   }, [session, isRtl]);
-
   const handleClose = () => {
     setSelectedStudentId('');
     setRating(5);
@@ -49,7 +47,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
     setValidationError('');
     onClose();
   };
-
   const mutation = useMutation({
     mutationFn: async () => {
       const sessionId = session?.id || session?._id;
@@ -72,7 +69,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
       toast.error(serverMsg || t('teacherLive.evaluationError', 'تعذر تسجيل التقييم'));
     },
   });
-
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!selectedStudentId || !rating) {
@@ -82,11 +78,9 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
     setValidationError('');
     mutation.mutate();
   };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+  if (!isOpen || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
         className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-100 dark:border-slate-800"
         dir={isRtl ? 'rtl' : 'ltr'}
@@ -113,7 +107,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {validationError && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
@@ -121,7 +114,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
               <span>{validationError}</span>
             </div>
           )}
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {t('teacherLive.chooseStudentLabel', 'اختر الطالب')} *
@@ -140,7 +132,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
               ))}
             </select>
           </div>
-
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {t('teacherLive.ratingLabel', 'التقييم بالنجوم (1 إلى 5)')} *
@@ -170,7 +161,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
               </span>
             </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {t('teacherLive.evaluationNotesLabel', 'ملاحظات التقييم والتلاوة')}
@@ -183,7 +173,6 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]"
             />
           </div>
-
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
@@ -206,6 +195,7 @@ export default function InSessionEvaluationModal({ isOpen, onClose, session }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

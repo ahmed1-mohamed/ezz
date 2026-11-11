@@ -63,7 +63,6 @@ export const managersApi = {
           formData.append(key, val);
         }
       });
-
       const response = await api.post('/api/v1/admins', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -170,7 +169,6 @@ export const managersApi = {
     }
   },
 
-  // PATCH /admins/:adminId { permission: <permission group id> }
   assignAdminPermission: async (adminId, permissionId) => {
     const response = await api.patch(`/api/v1/admins/${adminId}`, { permission: permissionId });
     return response.data;
@@ -197,13 +195,11 @@ export const managersApi = {
     }
   },
 
-  // PATCH /users/:userId/change-password { password, confirmPassword }
   changeUserPassword: async (userId, { password, confirmPassword }) => {
     const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
     return response.data;
   },
 
-  // DELETE /permissions/admin/:adminId
   deleteAdminPermission: async (adminId) => {
     const response = await api.delete(`/api/v1/permissions/admin/${adminId}`);
     return response.data;

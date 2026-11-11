@@ -10,7 +10,6 @@ const STAT_CONFIG = [
 
 function AssignmentsStats({ stats }) {
     const { t } = useTranslation();
-
     return (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {STAT_CONFIG.map(({ key, dataKey, color }) => (

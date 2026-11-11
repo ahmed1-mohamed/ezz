@@ -8,7 +8,6 @@ export default function StudentLevelCard({
 }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-soft transition-all">
       <div className="flex items-center justify-between p-6 select-none">
@@ -32,14 +31,12 @@ export default function StudentLevelCard({
             </button>
           </div>
         </div>
-
         <div className="flex items-center gap-4">
           <div className="text-end">
             <h3 className="text-base font-bold text-slate-800 dark:text-white">
               {isRtl ? lvl.name : lvl.nameEn}
             </h3>
           </div>
-
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-955/10 rounded-2xl flex items-center justify-center text-amber-600 shrink-0 shadow-sm border border-amber-100/50">
             <GraduationCap size={22} />
           </div>

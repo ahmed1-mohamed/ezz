@@ -32,7 +32,6 @@ export default function CurriculumBasicInfoCard({
           </p>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
@@ -48,7 +47,6 @@ export default function CurriculumBasicInfoCard({
             className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-[#00594C] dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-semibold text-slate-800 dark:text-white placeholder:text-slate-400 shadow-xs"
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
             <span>{isRtl ? 'اسم المنهج (بالإنجليزية)' : 'Curriculum Name (English)'}</span>
@@ -64,7 +62,6 @@ export default function CurriculumBasicInfoCard({
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
@@ -78,7 +75,6 @@ export default function CurriculumBasicInfoCard({
             className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-[#00594C] dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 rounded-2xl p-4 outline-none transition-all text-sm text-slate-800 dark:text-white placeholder:text-slate-400 resize-none shadow-xs"
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
             {isRtl ? 'وصف المنهج (بالإنجليزية)' : 'Description (English)'}
@@ -92,7 +88,6 @@ export default function CurriculumBasicInfoCard({
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
@@ -113,7 +108,7 @@ export default function CurriculumBasicInfoCard({
                   ? (isRtl ? lang.name.ar : lang.name.en) || lang.name.ar || lang.name.en
                   : lang.name
                 return (
-                  <option key={langId} value={langId} className="dark:bg-slate-850">
+                  <option key={langId} value={langId} className="dark:bg-slate-900">
                     {langName}
                   </option>
                 )
@@ -122,7 +117,6 @@ export default function CurriculumBasicInfoCard({
             <Languages size={18} className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
             {isRtl ? 'المستوى الدراسي' : 'Student Level'}
@@ -142,7 +136,7 @@ export default function CurriculumBasicInfoCard({
                   ? (isRtl ? lvl.name.ar || lvl.name.en : lvl.name.en || lvl.name.ar)
                   : (lvl.name || lvl.title || lvlId)
                 return (
-                  <option key={lvlId} value={lvlId} className="dark:bg-slate-850">
+                  <option key={lvlId} value={lvlId} className="dark:bg-slate-900">
                     {lvlName}
                   </option>
                 )

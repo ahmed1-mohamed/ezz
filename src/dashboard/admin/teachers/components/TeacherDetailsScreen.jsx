@@ -6,7 +6,6 @@ import { teachersApi } from '@/shared/services/api/teachersApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import { getApiErrorText } from '@/shared/utils/errorHandler'
 import TeacherDetailsHeaderCard from './details/TeacherDetailsHeaderCard'
-import TeacherDetailsPayoutsCard from './details/TeacherDetailsPayoutsCard'
 import TeacherDetailsPersonalInfoCard from './details/TeacherDetailsPersonalInfoCard'
 import TeacherDetailsAcademicCard from './details/TeacherDetailsAcademicCard'
  import TeacherDetailsCertificatesCard from './details/TeacherDetailsCertificatesCard'
@@ -34,32 +33,25 @@ export default function TeacherDetailsScreen({
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [isAddCertModalOpen, setIsAddCertModalOpen] = useState(false)
   const [editingCert, setEditingCert] = useState(null)
-
   const teacherId = teacher?.teacher_id || teacher?.id || teacher?._id
-
   const { data: freshRes, isLoading, refetch } = useQuery({
     queryKey: ['teacher-details', teacherId],
     queryFn: () => teachersApi.fetchTeacherById(teacherId),
     enabled: !!teacherId,
     staleTime: 60 * 1000,
   })
-
   const currentTeacher = freshRes?.data || teacher
-
   const handleRefetchTeacher = async () => {
     await refetch()
     await queryClient.invalidateQueries({ queryKey: ['teacher-details', teacherId] })
     await queryClient.invalidateQueries({ queryKey: ['teachers'] })
   }
-
   const handleDeleteCertificate = async (cert) => {
     if (!cert) return
     const certId = cert.id || cert._id
     const certTitle = cert.name || (isRtl ? 'الشهادة' : 'Certificate')
-
     const isConfirmed = await showDeleteConfirm(isRtl, certTitle)
     if (!isConfirmed) return
-
     try {
       await teachersApi.deleteTeacherCertificate(teacherId, certId)
       toast.success(isRtl ? 'تم حذف الشهادة بنجاح' : 'Certificate deleted successfully')
@@ -72,7 +64,6 @@ export default function TeacherDetailsScreen({
       toast.error(errorText)
     }
   }
-
   if (isLoading && !currentTeacher) {
     return (
       <div className="flex flex-col items-center justify-center p-16 space-y-4">
@@ -83,7 +74,6 @@ export default function TeacherDetailsScreen({
       </div>
     )
   }
-
   if (!currentTeacher) {
     return (
       <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-8 space-y-4 max-w-xl mx-auto">
@@ -102,7 +92,6 @@ export default function TeacherDetailsScreen({
       </div>
     )
   }
-
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12 text-start animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
        <div className="flex flex-wrap items-center justify-between gap-4">
@@ -121,7 +110,6 @@ export default function TeacherDetailsScreen({
             {isRtl ? 'تفاصيل المعلم' : 'Teacher Details'}
           </h1>
         </div>
-
         <div className="flex flex-wrap items-center justify-end gap-2.5">
           <button
             type="button"
@@ -143,34 +131,24 @@ export default function TeacherDetailsScreen({
           )}
         </div>
       </div>
-
       {isLoading && (
         <div className="flex items-center justify-center p-2">
           <Spinner />
         </div>
       )}
-
        <TeacherDetailsHeaderCard
         teacher={currentTeacher}
         isRtl={isRtl}
         onOpenHourlyRateModal={() => setIsHourlyRateModalOpen(true)}
       />
-
-       <TeacherDetailsPayoutsCard
-        teacher={currentTeacher}
-        isRtl={isRtl}
-      />
-
        <TeacherDetailsPersonalInfoCard
         teacher={currentTeacher}
         isRtl={isRtl}
       />
-
        <TeacherDetailsAvailabilityCard
         teacher={currentTeacher}
         isRtl={isRtl}
       />
-
        <TeacherDetailsAcademicCard
         teacher={currentTeacher}
         isRtl={isRtl}
@@ -189,7 +167,6 @@ export default function TeacherDetailsScreen({
             .catch((err) => toast.error(getApiErrorText(err, isRtl ? 'تعذر حذف الإنجاز' : 'Failed to delete achievement')))
         }}
       />
-
        <TeacherDetailsCertificatesCard
         teacher={currentTeacher}
         isRtl={isRtl}
@@ -197,13 +174,11 @@ export default function TeacherDetailsScreen({
         onEditCertificate={(cert) => setEditingCert(cert)}
         onDeleteCertificate={handleDeleteCertificate}
       />
-
        <TeacherDetailsWebsiteCard
         teacher={currentTeacher}
         isRtl={isRtl}
         onSuccess={handleRefetchTeacher}
       />
-
       <UpdateHourlyRateModal
         isOpen={isHourlyRateModalOpen}
         onClose={() => setIsHourlyRateModalOpen(false)}
@@ -211,7 +186,6 @@ export default function TeacherDetailsScreen({
         isRtl={isRtl}
         onSuccess={handleRefetchTeacher}
       />
-
       <ChangeTeacherPasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
@@ -219,7 +193,6 @@ export default function TeacherDetailsScreen({
         isRtl={isRtl}
         onSuccess={handleRefetchTeacher}
       />
-
       <AddCertificateModal
         isOpen={isAddCertModalOpen}
         onClose={() => setIsAddCertModalOpen(false)}
@@ -227,7 +200,6 @@ export default function TeacherDetailsScreen({
         isRtl={isRtl}
         onSuccess={handleRefetchTeacher}
       />
-
       <EditCertificateModal
         isOpen={Boolean(editingCert)}
         onClose={() => setEditingCert(null)}
@@ -236,7 +208,6 @@ export default function TeacherDetailsScreen({
         isRtl={isRtl}
         onSuccess={handleRefetchTeacher}
       />
-
       <Suspense fallback={null}>
         {isMessageModalOpen && (
           <SendMessageModal

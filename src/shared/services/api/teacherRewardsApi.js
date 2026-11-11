@@ -75,7 +75,6 @@ export const teacherRewardsApi = {
     try {
       let endpoint = '/api/v1/teacher/suggested-rewards';
       const normalizedStatus = (status || 'all').toLowerCase();
-
       if (normalizedStatus === 'pending') {
         endpoint = '/api/v1/teacher/suggested-rewards/pending';
       } else if (normalizedStatus === 'accepted') {
@@ -83,16 +82,13 @@ export const teacherRewardsApi = {
       } else if (normalizedStatus === 'rejected') {
         endpoint = '/api/v1/teacher/suggested-rewards/rejected';
       }
-
       const response = await api.get(endpoint, { skipLang: true });
       const resData = response.data || {};
-
       const list = Array.isArray(resData?.data)
         ? resData.data
         : Array.isArray(resData)
         ? resData
         : [];
-
       return {
         success: true,
         stats: resData.stats || {

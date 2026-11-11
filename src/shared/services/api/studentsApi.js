@@ -2,16 +2,13 @@ import api from './axiosConfig';
 
 export const mapStudentData = (item) => {
   if (!item) return null;
-
   const id = item.student_id || item._id || item.id || item.user_id;
-
    const name = typeof item.name === 'object' && item.name !== null
     ? (item.name.ar || item.name.en || '')
     : (item.name || 'بدون اسم');
   const nameEn = typeof item.name === 'object' && item.name !== null
     ? (item.name.en || item.name.ar || '')
     : (item.nameEn || item.name || '');
-
    let parentName = '-';
   let parentPhone = '';
   let parentEmail = '';
@@ -26,7 +23,6 @@ export const mapStudentData = (item) => {
       ? (item.parentName.ar || item.parentName.en || '-')
       : String(item.parentName);
   }
-
    let levelName = '';
   if (item.studentLevel && typeof item.studentLevel === 'object') {
     levelName = typeof item.studentLevel.name === 'object' && item.studentLevel.name !== null
@@ -39,7 +35,6 @@ export const mapStudentData = (item) => {
   } else if (typeof item.studentLevel === 'string') {
     levelName = item.studentLevel;
   }
-
    let country = '';
   if (item.country && typeof item.country === 'object') {
     country = typeof item.country.name === 'object' && item.country.name !== null
@@ -48,7 +43,6 @@ export const mapStudentData = (item) => {
   } else if (typeof item.country === 'string') {
     country = item.country;
   }
-
    let sessionsBalance = 0;
   let sessionsTotal = 0;
   let sessionsUsed = 0;
@@ -66,16 +60,13 @@ export const mapStudentData = (item) => {
     sessionsBalance = Number(rawBalance) || 0;
     sessionsTotal = sessionsBalance;
   }
-
    const active = item.active === true || String(item.active) === 'true';
-
    const averageRating = item.averageRating !== undefined && item.averageRating !== null && !isNaN(Number(item.averageRating))
     ? Number(item.averageRating)
     : null;
   const attendanceRate = item.attendanceRate !== undefined && item.attendanceRate !== null && !isNaN(Number(item.attendanceRate))
     ? Number(item.attendanceRate)
     : null;
-
   return {
     ...item,
     id,
@@ -107,8 +98,6 @@ export const mapStudentData = (item) => {
   };
 };
 
-// Fields accepted by POST/PATCH /students (multipart):
-// name[ar], name[en], email, phone, country, password, confirmPassword, birthDate, studentLevel, parent, image
 const buildStudentFormData = (data = {}, { isCreate }) => {
   const fd = new FormData();
   const nameAr = typeof data.name === 'object' && data.name !== null ? data.name.ar : (data.nameAr ?? data.name);
@@ -127,7 +116,6 @@ const buildStudentFormData = (data = {}, { isCreate }) => {
   return fd;
 };
 
-// Student endpoints don't return the profile image; it lives on the linked user (GET /users/:userId).
 const fetchUserImage = async (userId) => {
   if (!userId) return null;
   try {
@@ -145,20 +133,17 @@ export const studentsApi = {
     if (search && typeof search === 'string' && search.trim()) {
       queryParams.search = search.trim();
     }
-
     let endpoint = '/api/v1/students/localized/all';
     if (status === 'active') {
       endpoint = '/api/v1/students/localized/active';
     } else if (status === 'stopped') {
       endpoint = '/api/v1/students/localized/stopped';
     }
-
     try {
       const response = await api.get(endpoint, { params: queryParams });
       const resData = response.data || {};
       const rawList = resData.data || (Array.isArray(resData) ? resData : []);
       const items = Array.isArray(rawList) ? rawList.map(mapStudentData).filter(Boolean) : [];
-
       const totalCount = resData.pagination?.totalCount ?? resData.pagination?.total ?? resData.statistics?.total ?? items.length;
       const pagination = resData.pagination || {
         currentPage: page,
@@ -166,13 +151,11 @@ export const studentsApi = {
         numberOfPages: Math.max(1, Math.ceil(items.length / limit)),
         totalCount
       };
-
       const statistics = resData.statistics || {
         total: totalCount,
         active: items.filter((s) => s.active).length,
         stopped: items.filter((s) => !s.active).length
       };
-
       return {
         ...resData,
         success: true,
@@ -190,7 +173,6 @@ export const studentsApi = {
           const resData = fallbackRes.data || {};
           const rawList = resData.data || (Array.isArray(resData) ? resData : []);
           const items = Array.isArray(rawList) ? rawList.map(mapStudentData).filter(Boolean) : [];
-
           return {
             ...resData,
             success: true,
@@ -256,7 +238,6 @@ export const studentsApi = {
     return response.data;
   },
 
-  // Localized student profile used by the details page (country, age, lastSubscription, sessionsBalance...)
   fetchStudentById: async (id) => {
     const response = await api.get(`/api/v1/students/localized/${id}`, { skipCache: true });
     const student = response.data?.data || null;
@@ -268,8 +249,6 @@ export const studentsApi = {
     return response.data;
   },
 
-  // Raw (non-localized) student record. The API localizes text by Accept-Language,
-  // so both languages are requested to rebuild the bilingual name for the edit form.
   fetchStudentForEdit: async (id) => {
     const [arRes, enRes] = await Promise.all([
       api.get(`/api/v1/students/${id}`, { headers: { 'Accept-Language': 'ar' }, skipCache: true }),
@@ -303,7 +282,6 @@ export const studentsApi = {
     return response.data;
   },
 
-  // POST /students/:id/add-sessions accepts { count (1..3), reason? }
   addSessions: async (id, count, reason) => {
     const response = await api.post(`/api/v1/students/${id}/add-sessions`, {
       count: Number(count),
@@ -312,7 +290,6 @@ export const studentsApi = {
     return response.data;
   },
 
-  // PATCH /users/:userId/toggle-active — expects the student's user_id
   toggleStudentStatus: async (student) => {
     const userId = student?.user_id;
     if (!userId) throw new Error('Missing student user_id');
@@ -320,7 +297,6 @@ export const studentsApi = {
     return response.data;
   },
 
-  // PATCH /users/:userId/change-password accepts only { password, confirmPassword }
   changeStudentPassword: async (userId, { password, confirmPassword }) => {
     const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
     return response.data;

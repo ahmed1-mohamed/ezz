@@ -1,8 +1,8 @@
 import api from './axiosConfig';
 
 export const parentTeacherEvaluationsApi = {
-  fetchChildrenTeachers: async () => {
-    const response = await api.get('/api/v1/parent/teachers', { skipLang: true });
+  fetchChildrenTeachers: async (params = {}) => {
+    const response = await api.get('/api/v1/parent/teachers', { params, skipLang: true });
     const payload = response.data?.data ?? response.data;
     return Array.isArray(payload) ? payload : [];
   },

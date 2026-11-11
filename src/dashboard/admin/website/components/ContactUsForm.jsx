@@ -23,13 +23,11 @@ export default function ContactUsForm({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [errors, setErrors] = useState({});
-
   const [localContact, setLocalContact] = useState({
     phone: '',
     whatsapp: '',
     email: ''
   });
-
   const [prevContactInfo, setPrevContactInfo] = useState(contactInfo);
   if (prevContactInfo !== contactInfo) {
     setPrevContactInfo(contactInfo);
@@ -41,7 +39,6 @@ export default function ContactUsForm({
       });
     }
   }
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const result = contactSchema.safeParse(localContact);
@@ -56,7 +53,6 @@ export default function ContactUsForm({
     setErrors({});
     onSave(localContact);
   };
-
   const handleCancelClick = () => {
     if (contactInfo) {
       setLocalContact({
@@ -70,13 +66,11 @@ export default function ContactUsForm({
     }
     setErrors({});
   };
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">
         {t('adminDashboard.website.contactUsNumbers', isRtl ? 'ارقام التواصل معنا' : 'Contact Us Numbers')}
       </h2>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
           <div className="space-y-2 text-start">
@@ -99,7 +93,6 @@ export default function ContactUsForm({
             </div>
             {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email}</p>}
           </div>
-
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.phone}
@@ -112,7 +105,6 @@ export default function ContactUsForm({
             />
             {errors.phone && <p className="text-xs text-red-500 font-medium">{errors.phone}</p>}
           </div>
-
           <div className="space-y-2">
             <CountryPhoneInput
               value={localContact.whatsapp}
@@ -126,7 +118,6 @@ export default function ContactUsForm({
             {errors.whatsapp && <p className="text-xs text-red-500 font-medium">{errors.whatsapp}</p>}
           </div>
         </div>
-
         {canUpdate && (
           <div className="flex flex-col sm:flex-row items-center justify-start gap-3 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-6">
             <Button

@@ -4,6 +4,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, CalendarDays, Users } from 'lucide-react'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { timetableApi } from '@/shared/services/api/timetableApi'
+import TabErrorState from '@/shared/components/TabErrorState'
 import ScheduleCalendarGrid from './components/ScheduleCalendarGrid'
 
 const DAYS_IN_WEEK = 7
@@ -30,24 +31,20 @@ export default function AdminSchedule() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const today = useMemo(() => new Date(), [])
-
   const [weekQuery, setWeekQuery] = useState({ weekOffset: 0, date: '' })
   const [selectedTeacherId, setSelectedTeacherId] = useState('')
-
-  const { data: timetable, isLoading, isFetching, isError } = useQuery({
+  const { data: timetable, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['adminTimetable', weekQuery.weekOffset, weekQuery.date, selectedTeacherId],
     queryFn: () => timetableApi.fetchPrivateTimetable({ ...weekQuery, teacherId: selectedTeacherId }),
     staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
-
   const { data: teachersRes } = useQuery({
     queryKey: ['scheduleTeachers'],
     queryFn: () => teachersApi.fetchLocalizedTeachersList(),
     staleTime: STALE_TIME_MS * 5,
   })
   const teachers = Array.isArray(teachersRes?.data) ? teachersRes.data : []
-
   const weekInfo = timetable?.weekInfo
   const weekDates = useMemo(() => {
     if (Array.isArray(timetable?.days) && timetable.days.length === 7) {
@@ -58,12 +55,10 @@ export default function AdminSchedule() {
     }
     return getWeekDates(weekInfo?.startDate)
   }, [timetable, weekInfo?.startDate])
-
   const sessions = useMemo(
     () => (timetable?.days || []).flatMap((day) => day.sessions || []),
     [timetable]
   )
-
   const getTeacherName = (tItem) => {
     if (!tItem) return ''
     if (typeof tItem.name === 'object' && tItem.name !== null) {
@@ -74,7 +69,6 @@ export default function AdminSchedule() {
     }
     return tItem.name || ''
   }
-
   const goToPrevWeek = () => {
     if (weekQuery.date && weekInfo?.previousWeekDate) {
       setWeekQuery({ weekOffset: 0, date: weekInfo.previousWeekDate })
@@ -82,7 +76,6 @@ export default function AdminSchedule() {
     }
     setWeekQuery((prev) => ({ weekOffset: prev.weekOffset - 1, date: '' }))
   }
-
   const goToNextWeek = () => {
     if (weekQuery.date && weekInfo?.nextWeekDate) {
       setWeekQuery({ weekOffset: 0, date: weekInfo.nextWeekDate })
@@ -90,13 +83,11 @@ export default function AdminSchedule() {
     }
     setWeekQuery((prev) => ({ weekOffset: prev.weekOffset + 1, date: '' }))
   }
-
   const handleDateChange = (e) => {
     const { value } = e.target
     if (!value) return
     setWeekQuery({ weekOffset: 0, date: value })
   }
-
   const weekLabel = useMemo(() => {
     if (weekInfo?.isCurrentWeek) {
       return t('adminDashboard.schedule.currentWeek', 'الأسبوع الحالي')
@@ -117,7 +108,6 @@ export default function AdminSchedule() {
     }
     return ''
   }, [weekInfo, isRtl, t])
-
   const formattedWeekRange = useMemo(() => {
     if (weekInfo?.startDate && weekInfo?.endDate) {
       return isRtl
@@ -139,10 +129,8 @@ export default function AdminSchedule() {
     }
     return ''
   }, [weekInfo, isRtl])
-
   const prevLabel = t('adminDashboard.schedule.previousWeek', 'الأسبوع السابق')
   const nextLabel = t('adminDashboard.schedule.nextWeek', 'الأسبوع التالي')
-
   return (
     <div className="space-y-6 p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="text-start">
@@ -157,7 +145,6 @@ export default function AdminSchedule() {
           {t('adminDashboard.schedule.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden lg:min-w-[340px]">
           <button
@@ -181,7 +168,6 @@ export default function AdminSchedule() {
             <ChevronLeft size={20} />
           </button>
         </div>
-
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative">
             <Users size={16} className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -199,7 +185,6 @@ export default function AdminSchedule() {
               ))}
             </select>
           </div>
-
           <input
             type="date"
             id="schedule-date-picker"
@@ -210,13 +195,14 @@ export default function AdminSchedule() {
           />
         </div>
       </div>
-
       {isError && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
-          {t('adminDashboard.schedule.loadError', 'تعذر تحميل الجدول الدراسي')}
-        </div>
+        <TabErrorState
+          message={t('adminDashboard.schedule.loadError', 'تعذر تحميل الجدول الدراسي')}
+          compact
+          onRetry={() => refetch()}
+          isRtl={isRtl}
+        />
       )}
-
       {isLoading ? (
         <div className="h-96 rounded-3xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
       ) : (

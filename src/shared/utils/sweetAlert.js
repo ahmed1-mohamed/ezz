@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 import {
   ALLOWED_ERROR_STATUS_CODES,
   isAllowedErrorCode,
@@ -75,22 +76,8 @@ export const showSuccessToast = (title = '', isRtl = true) => {
   if (cleanTitle === lastSuccessMessage && now - lastSuccessTime < 2000) return;
   lastSuccessMessage = cleanTitle;
   lastSuccessTime = now;
-  Swal.fire({
-    toast: true,
-    position: isRtl ? 'top-start' : 'top-end',
-    icon: 'success',
-    title: cleanTitle,
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toastEl) => {
-      toastEl.dir = isRtl ? 'rtl' : 'ltr';
-    },
-    customClass: {
-      container: '!z-[99999999]',
-      popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 !z-[99999999]',
-      title: 'dark:text-white text-sm font-medium',
-    }
+  toast.success(cleanTitle, {
+    duration: 3500,
   });
 };
 

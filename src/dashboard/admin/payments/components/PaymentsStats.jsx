@@ -1,14 +1,9 @@
-import React from 'react'
 import {
   TrendingUp,
-  CreditCard,
   DollarSign,
-  GraduationCap,
+  Receipt,
   Percent,
   Clock3,
-  AlertCircle,
-  Receipt,
-  Layers,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -20,11 +15,9 @@ function formatVal(val, curr = '$') {
 export default function PaymentsStats({ stats = {}, currency = '$' }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const paid = stats.paid || {}
   const pending = stats.pending || {}
   const expired = stats.expired || {}
-
   const items = [
     {
       title: isRtl ? 'إجمالي المحصل الفعلي' : 'Total Collected Amount',
@@ -45,10 +38,10 @@ export default function PaymentsStats({ stats = {}, currency = '$' }) {
       borderColor: 'border-[#005953]/20 dark:border-emerald-900/30',
     },
     {
-      title: isRtl ? 'إجمالي الحصص المباعة' : 'Total Sessions Sold',
-      value: `${(paid.totalSessionsSold ?? 0).toLocaleString()} ${isRtl ? 'حصة' : 'sessions'}`,
-      subValue: isRtl ? 'ممنوحة للطلاب' : 'Granted to students',
-      icon: GraduationCap,
+      title: isRtl ? 'إجمالي الضريبة' : 'Total Tax',
+      value: formatVal(paid.totalTaxAmount ?? stats.totalTaxAmount, currency),
+      subValue: isRtl ? 'إجمالي الضرائب المحصلة' : 'Total collected taxes',
+      icon: Receipt,
       textColor: 'text-blue-600 dark:text-blue-400',
       iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
       borderColor: 'border-blue-100 dark:border-blue-900/30',
@@ -74,7 +67,6 @@ export default function PaymentsStats({ stats = {}, currency = '$' }) {
       borderColor: 'border-amber-100 dark:border-amber-900/30',
     },
   ]
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {items.map((item, idx) => {
@@ -92,7 +84,6 @@ export default function PaymentsStats({ stats = {}, currency = '$' }) {
                 <Icon size={18} />
               </div>
             </div>
-
             <div className="mt-3">
               <span className={`text-2xl font-extrabold tracking-tight ${item.textColor} block`}>
                 {item.value}

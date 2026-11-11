@@ -10,7 +10,6 @@ export default function ParentSecuritySection({
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-
   const handleSubmit = (e) => {
     e.preventDefault()
     if (onUpdatePassword) {
@@ -23,7 +22,6 @@ export default function ParentSecuritySection({
       )
     }
   }
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -37,7 +35,6 @@ export default function ParentSecuritySection({
           {isRtl ? 'تغيير كلمة المرور' : 'Change Password'}
         </p>
       </div>
-
       <div className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="order-2 md:order-1 text-start">
@@ -61,7 +58,6 @@ export default function ParentSecuritySection({
               </button>
             </div>
           </div>
-
           <div className="order-1 md:order-2 text-start">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
               {isRtl ? 'تأكيد كلمة المرور' : 'Confirm Password'}
@@ -84,7 +80,6 @@ export default function ParentSecuritySection({
             </div>
           </div>
         </div>
-
         <div className="flex justify-end pt-2">
           <button
             type="submit"

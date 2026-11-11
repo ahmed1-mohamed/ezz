@@ -84,7 +84,7 @@ export default function AdminSettings() {
             };
             loadPermissions();
         }
-    }, [isAdmin, isSuperAdmin, user?.id]);
+    }, [isAdmin, isSuperAdmin, user?.id, user?.permission, user?.permissionId, user?.permissions, user?.role]);
     const handleProfileLoaded = (profileInfo) => {
         if (profileInfo?.permission && typeof profileInfo.permission === 'object') {
             setAdminPermissions(profileInfo.permission);

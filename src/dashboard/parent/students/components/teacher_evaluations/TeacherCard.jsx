@@ -141,7 +141,6 @@ const TeacherCard = memo(function TeacherCard({
             </div>
           </div>
         )}
-        {/* Specializations Pills */}
         {specializations.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 mb-4">
             {specializations.map((spec, idx) => {
@@ -158,14 +157,12 @@ const TeacherCard = memo(function TeacherCard({
             })}
           </div>
         )}
-        {/* Bio if exists as clean text */}
         {Boolean(teacherBio) && (
           <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-4">
             {teacherBio}
           </p>
         )}
       </div>
-      {/* Weekly Evaluation Section */}
       <div className="mt-2 pt-4 border-t border-slate-100 dark:border-slate-800">
         {isEvaluated ? (
           <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 space-y-2">

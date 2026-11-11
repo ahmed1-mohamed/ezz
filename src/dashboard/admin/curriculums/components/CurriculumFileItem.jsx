@@ -14,27 +14,22 @@ export default function CurriculumFileItem({
     typeof file?.name === 'object'
       ? (isRtl ? file?.name?.ar : file?.name?.en) || file?.name?.ar
       : file?.name
-
   const meta = getFileMeta(file, isRtl)
   const MetaIcon = meta.icon
-
   const isVisibleToStudents = file?.showToStudents !== false
   const isVisibleToTeachers = file?.showToTeachers !== false
-
   const handleToggleStudents = (e) => {
     e.stopPropagation()
     if (onToggleVisibility) {
       onToggleVisibility(file, 'showToStudents')
     }
   }
-
   const handleToggleTeachers = (e) => {
     e.stopPropagation()
     if (onToggleVisibility) {
       onToggleVisibility(file, 'showToTeachers')
     }
   }
-
   return (
     <div
       className={`bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-xs hover:shadow-sm transition-all ${
@@ -78,18 +73,14 @@ export default function CurriculumFileItem({
             <MetaIcon size={20} />
           </div>
         )}
-
         <div className="overflow-hidden min-w-0 text-start space-y-1">
           <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
             {fileName}
           </p>
-
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[10px] font-semibold text-slate-400">
               {meta.type}
             </span>
-
-            {/* Student visibility flag badge */}
             <button
               type="button"
               onClick={handleToggleStudents}
@@ -111,8 +102,6 @@ export default function CurriculumFileItem({
               <Users size={11} className={isVisibleToStudents ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'} />
               <span>{isRtl ? 'الطلاب' : 'Students'}</span>
             </button>
-
-            {/* Teacher visibility flag badge */}
             <button
               type="button"
               onClick={handleToggleTeachers}
@@ -137,7 +126,6 @@ export default function CurriculumFileItem({
           </div>
         </div>
       </div>
-
       <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
@@ -158,7 +146,6 @@ export default function CurriculumFileItem({
         >
           {meta.isLink ? <ExternalLink size={15} /> : <Eye size={15} />}
         </button>
-
         {!meta.isLink && (
           <button
             type="button"
@@ -172,7 +159,6 @@ export default function CurriculumFileItem({
             <Download size={15} />
           </button>
         )}
-
         {onEdit && (
           <button
             type="button"
@@ -186,7 +172,6 @@ export default function CurriculumFileItem({
             <Pencil size={15} />
           </button>
         )}
-
         <button
           type="button"
           onClick={(e) => {

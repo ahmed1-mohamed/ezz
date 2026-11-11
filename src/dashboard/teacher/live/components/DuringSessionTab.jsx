@@ -7,6 +7,7 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Radio,
 } from 'lucide-react';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -42,14 +43,18 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const sessionId = session?.id || session?._id;
-  const { data: joinDataRes, isLoading } = useQuery({
+  const { data: joinDataRes, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['teacher-session-join', sessionId],
     queryFn: () => teacherSessionsApi.fetchSessionJoinData(sessionId),
     enabled: Boolean(sessionId),
+    staleTime: 30 * 1000,
+    gcTime: 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const joinData = useMemo(() => {
-    if (!joinDataRes) return null;
-    return joinDataRes.data || joinDataRes;
+    return joinDataRes?.data || joinDataRes || null;
   }, [joinDataRes]);
   const sessionTitle = typeof session?.title === 'object' && session?.title !== null
     ? (isRtl ? session.title.ar : session.title.en)
@@ -65,18 +70,18 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
     return user.name || user.fullName || 'المعلم';
   })();
   return (
-    <div className="space-y-6">
-      {/* Top Header Card: Session metadata & quick actions */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+    <div className="h-full flex-1 min-h-0 flex flex-col space-y-3 sm:space-y-4 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onBackToBefore}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-xs shadow-xs"
               title={t('teacherLive.backToBeforeSession', 'الرجوع إلى تفاصيل الحصة')}
             >
-              {isRtl ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+              {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              <span>{t('teacherLive.stageBefore', 'قبل الجلسة')}</span>
             </button>
             <div>
               <div className="flex items-center gap-2">
@@ -127,28 +132,64 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
           </div>
         </div>
       </div>
-      {/* Embedded Zoom Meeting Player Inside Live Screen */}
       {isLoading ? (
-        <div className="bg-[#080d14] rounded-3xl min-h-[560px] border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white">
+        <div className="bg-[#080d14] rounded-3xl flex-1 min-h-0 border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white">
           <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
           <p className="font-bold text-base">{t('teacherLive.loadingSessionData', 'جاري تجهيز بيانات البث المباشر...')}</p>
           <p className="text-xs text-slate-400 mt-1">{t('teacherLive.connectingToZoom', 'يتم الاتصال بخوادم Zoom وتوليد مفاتيح الحصة')}</p>
         </div>
+      ) : joinData && joinData.canJoinNow === false ? (
+        <div className="bg-[#080d14] rounded-3xl flex-1 min-h-0 border border-slate-800 flex flex-col items-center justify-center p-8 text-center text-white space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
+            <Radio className="w-8 h-8 animate-pulse" />
+          </div>
+          <h3 className="text-lg font-extrabold text-white">
+            {t('teacherLive.cannotJoinNow', 'الحصة غير متاحة للانضمام الآن')}
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md">
+            {joinData?.message || t('teacherLive.cannotJoinNowHint', 'لم يبدأ وقت الحصة المسموح به بعد، أو أن الحصة قد انتهت.')}
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onBackToBefore}
+              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors cursor-pointer"
+            >
+              {t('teacherLive.backToBeforeSession', 'الرجوع إلى تفاصيل الحصة')}
+            </button>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="px-5 py-2.5 rounded-xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {t('teacherLive.retryJoin', 'إعادة المحاولة')}
+            </button>
+          </div>
+        </div>
       ) : (
         <ZoomMeetingPlayer
-          meetingId={joinData?.meetingId || joinData?.meetingNumber || session?.meetingId || session?.meetingNumber}
-          passcode={joinData?.passcode || joinData?.password || session?.passcode || session?.password}
+          meetingId={joinData?.meetingId || joinData?.meetingNumber || joinData?.zoom?.id || session?.meetingId || session?.meetingNumber || session?.zoom?.id}
+          passcode={joinData?.passcode || joinData?.password || joinData?.zoom?.password || session?.passcode || session?.password || session?.zoom?.password}
           role={joinData?.role !== undefined ? joinData.role : 1}
           sdkSignature={joinData?.sdkSignature || session?.sdkSignature || joinData?.signature || session?.signature}
-          sdkKey={joinData?.sdkKey || import.meta.env?.VITE_ZOOM_SDK_KEY || import.meta.env?.NEXT_PUBLIC_ZOOM_SDK_KEY || 'O3n0tKuQ0WS9yk0N9JeqQ'}
-          startUrl={joinData?.startUrl || session?.startUrl || session?.zoomStartUrl || session?.zoom_start_url}
-          joinUrl={joinData?.joinUrl || session?.joinUrl || session?.zoomJoinUrl || session?.zoom_join_url}
-          zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token}
-          leaveUrl="/teacher/sessions"
+          startUrl={joinData?.startUrl || joinData?.start_url || joinData?.zoomStartUrl || joinData?.zoom_start_url || joinData?.zoom?.start_url || joinData?.zoom?.startUrl || session?.startUrl || session?.start_url || session?.zoomStartUrl || session?.zoom_start_url || session?.zoom?.start_url || session?.zoom?.startUrl || session?.meetingUrl}
+          joinUrl={joinData?.joinUrl || joinData?.join_url || joinData?.zoomJoinUrl || joinData?.zoom_join_url || joinData?.zoom?.join_url || joinData?.zoom?.joinUrl || session?.joinUrl || session?.join_url || session?.zoomJoinUrl || session?.zoom_join_url || session?.zoom?.join_url || session?.zoom?.joinUrl || session?.meetingUrl}
+          zakToken={joinData?.zak || joinData?.zakToken || joinData?.zak_token || joinData?.zoom?.zak || session?.zak || session?.zakToken || (() => {
+            try {
+              const url = joinData?.startUrl || session?.startUrl;
+              return url ? new URL(url).searchParams.get('zak') : null;
+            } catch {
+              return null;
+            }
+          })()}
+          leaveUrl="/dashboard/teacher/live"
           userName={teacherName}
-          userEmail="manartalezzacademy1@gmail.com"
+          userEmail={import.meta.env?.VITE_ZOOM_EMAIL || import.meta.env?.NEXT_PUBLIC_ZOOM_EMAIL || 'manartalezzacademy1@gmail.com'}
           sessionTitle={sessionTitle}
-          className="w-full"
+          className="w-full flex-1 min-h-0 h-full overflow-hidden"
+          onRefreshJoinData={refetch}
+          isRefreshing={isFetching}
         />
       )}
       <InSessionRewardModal

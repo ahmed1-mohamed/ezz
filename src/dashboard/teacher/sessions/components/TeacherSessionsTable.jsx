@@ -1,10 +1,9 @@
 import React from 'react';
-import { Video, Users, BookOpen } from 'lucide-react';
+import { Users, BookOpen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default React.memo(function TeacherSessionsTable({ sessions }) {
   const { t } = useTranslation();
-
   const renderBadge = (status) => {
     const st = (status || '').toLowerCase();
     if (st === 'rescheduled') {
@@ -42,7 +41,6 @@ export default React.memo(function TeacherSessionsTable({ sessions }) {
       </span>
     );
   };
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 overflow-hidden">
       <div className="overflow-x-auto">

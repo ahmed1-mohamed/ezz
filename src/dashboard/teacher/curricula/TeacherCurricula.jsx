@@ -5,19 +5,11 @@ import { useAuth } from '@/shared/context/useAuth.jsx';
 import { teacherCurriculaApi } from '@/shared/services/api/teacherCurriculaApi.js';
 import TeacherCurriculaHeader from './components/TeacherCurriculaHeader.jsx';
 import TeacherCurriculaStatsGrid from './components/TeacherCurriculaStatsGrid.jsx';
-import TeacherCurriculaFilterBar from './components/TeacherCurriculaFilterBar.jsx';
 import TeacherActiveCurriculumDetail from './components/TeacherActiveCurriculumDetail.jsx';
 import TeacherCurriculumSidebarCard from './components/TeacherCurriculumSidebarCard.jsx';
 import TeacherResourcesTable from './components/TeacherResourcesTable.jsx';
 import TeacherCurriculumPlanModal from './components/TeacherCurriculumPlanModal.jsx';
 import TeacherResourcePreviewModal from './components/TeacherResourcePreviewModal.jsx';
-
-function resolveName(nameField, isRtl) {
-  if (typeof nameField === 'object' && nameField !== null) {
-    return (isRtl ? nameField.ar || nameField.en : nameField.en || nameField.ar) || '';
-  }
-  return String(nameField || '');
-}
 
 const DEFAULT_CURRICULA = [
   {
@@ -142,11 +134,6 @@ export default function TeacherCurricula() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [selectedGroup, setSelectedGroup] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
   const [selectedCurriculumId, setSelectedCurriculumId] = useState(null);
   const [planModalCurriculum, setPlanModalCurriculum] = useState(null);
   const [previewModalResource, setPreviewModalResource] = useState(null);
@@ -196,12 +183,6 @@ export default function TeacherCurricula() {
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
   const { data: responseData, isLoading } = useQuery({
     queryKey: ['teacherCurricula'],
     queryFn: () => teacherCurriculaApi.fetchCurricula(),
@@ -236,108 +217,18 @@ export default function TeacherCurricula() {
     if (merged.length === 0) return DEFAULT_RESOURCES;
     return merged;
   }, [rawCurricula, responseData]);
-  const groups = useMemo(() => {
-    const map = new Map();
-    rawCurricula.forEach((cur) => {
-      if (Array.isArray(cur.linkedGroups)) {
-        cur.linkedGroups.forEach((g) => {
-          const id = g.id || g._id || String(g);
-          if (!map.has(id)) {
-            const gName = resolveName(typeof g === 'object' ? g.name : g, isRtl) || id;
-            map.set(id, { id, name: gName });
-          }
-        });
-      }
-    });
-    return Array.from(map.values());
-  }, [rawCurricula, isRtl]);
-  const tabCounts = useMemo(() => {
-    const bookTypes = ['book', 'كتاب', 'كتب'];
-    const refTypes = ['reference', 'مرجع'];
-    const books = allResources.filter((r) => bookTypes.some((k) => String(r.type || '').toLowerCase().includes(k))).length || 6;
-    const references = allResources.filter((r) => refTypes.some((k) => String(r.type || '').toLowerCase().includes(k))).length || 4;
-    const support = allResources.filter(
-      (r) =>
-        !bookTypes.some((k) => String(r.type || '').toLowerCase().includes(k)) &&
-        !refTypes.some((k) => String(r.type || '').toLowerCase().includes(k))
-    ).length || 8;
-    return {
-      all: rawCurricula.length + allResources.length + 15,
-      curricula: rawCurricula.length,
-      books,
-      references,
-      support,
-    };
-  }, [rawCurricula, allResources]);
-  const filteredCurricula = useMemo(() => {
-    let list = [...rawCurricula];
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase();
-      list = list.filter((c) => {
-        const nm = resolveName(c.name, isRtl);
-        return nm.toLowerCase().includes(q);
-      });
-    }
-    if (selectedGroup) {
-      list = list.filter(
-        (c) =>
-          Array.isArray(c.linkedGroups) &&
-          c.linkedGroups.some((g) => (g.id || g._id) === selectedGroup)
-      );
-    }
-    if (selectedLevel) {
-      list = list.filter((c) => String(c.level || '').toLowerCase().includes(selectedLevel.toLowerCase()));
-    }
-    return list;
-  }, [rawCurricula, debouncedSearch, selectedGroup, selectedLevel, isRtl]);
   const activeCurriculum = useMemo(() => {
-    if (filteredCurricula.length === 0) return null;
+    if (rawCurricula.length === 0) return null;
     if (selectedCurriculumId) {
-      const found = filteredCurricula.find((c) => (c.id || c._id) === selectedCurriculumId);
+      const found = rawCurricula.find((c) => (c.id || c._id) === selectedCurriculumId);
       if (found) return found;
     }
-    return filteredCurricula[0];
-  }, [filteredCurricula, selectedCurriculumId]);
+    return rawCurricula[0];
+  }, [rawCurricula, selectedCurriculumId]);
   const sideCurricula = useMemo(() => {
-    if (!activeCurriculum) return filteredCurricula;
-    return filteredCurricula.filter((c) => (c.id || c._id) !== (activeCurriculum.id || activeCurriculum._id));
-  }, [filteredCurricula, activeCurriculum]);
-  const filteredResources = useMemo(() => {
-    const bookTypes = ['book', 'كتاب', 'كتب'];
-    const refTypes = ['reference', 'مرجع'];
-    let list = allResources;
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase();
-      list = list.filter((r) => {
-        const nm = resolveName(r.name, isRtl);
-        return nm.toLowerCase().includes(q);
-      });
-    }
-    if (selectedGroup) {
-      list = list.filter(
-        (r) =>
-          Array.isArray(r.linkedGroups) &&
-          r.linkedGroups.some((g) => (g.id || g._id) === selectedGroup)
-      );
-    }
-    if (activeTab === 'curricula') return [];
-    if (activeTab === 'books') {
-      return list.filter((r) => bookTypes.some((k) => String(r.type || '').toLowerCase().includes(k)));
-    }
-    if (activeTab === 'references') {
-      return list.filter((r) => refTypes.some((k) => String(r.type || '').toLowerCase().includes(k)));
-    }
-    if (activeTab === 'support') {
-      return list.filter(
-        (r) =>
-          !bookTypes.some((k) => String(r.type || '').toLowerCase().includes(k)) &&
-          !refTypes.some((k) => String(r.type || '').toLowerCase().includes(k))
-      );
-    }
-    return list;
-  }, [allResources, activeTab, debouncedSearch, selectedGroup, isRtl]);
-  const showCurriculaSection = activeTab === 'all' || activeTab === 'curricula';
-  const showResourcesSection = activeTab !== 'curricula';
+    if (!activeCurriculum) return rawCurricula;
+    return rawCurricula.filter((c) => (c.id || c._id) !== (activeCurriculum.id || activeCurriculum._id));
+  }, [rawCurricula, activeCurriculum]);
   function handleSelectCurriculum(curriculum) {
     setSelectedCurriculumId(curriculum.id || curriculum._id);
   }
@@ -375,26 +266,12 @@ export default function TeacherCurricula() {
         supportMaterials={statistics.support}
         linkedGroups={statistics.linkedGroups}
       />
-      <TeacherCurriculaFilterBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedGroup={selectedGroup}
-        onGroupChange={setSelectedGroup}
-        selectedLevel={selectedLevel}
-        onLevelChange={setSelectedLevel}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        groups={groups}
-        tabCounts={tabCounts}
-        curriculaCount={filteredCurricula.length}
-        resourcesCount={allResources.length + 15}
-      />
       {isLoading && (
         <div className="flex items-center justify-center py-20">
           <div className="w-10 h-10 rounded-full border-4 border-[#00594C]/30 border-t-[#00594C] animate-spin" />
         </div>
       )}
-      {!isLoading && showCurriculaSection && (
+      {!isLoading && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-white">
@@ -406,7 +283,7 @@ export default function TeacherCurricula() {
               </p>
             )}
           </div>
-          {filteredCurricula.length === 0 ? (
+          {rawCurricula.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 rounded-[28px] border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col items-center justify-center py-14 text-center px-4">
               <p className="text-sm font-bold text-slate-400">
                 {t('teacherCurricula.noCurricula', 'لا توجد مناهج مطابقة للبحث')}
@@ -436,9 +313,9 @@ export default function TeacherCurricula() {
           )}
         </section>
       )}
-      {!isLoading && showResourcesSection && (
+      {!isLoading && (
         <TeacherResourcesTable
-          resources={filteredResources}
+          resources={allResources}
           onPreview={handlePreviewResource}
           onDownload={handleDownloadResource}
         />

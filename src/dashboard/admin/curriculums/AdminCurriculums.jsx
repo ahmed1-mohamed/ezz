@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -9,26 +9,23 @@ import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import Spinner from '@/shared/components/Spinner'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
 import CurriculumCard from './components/CurriculumCard'
-import AddEditCurriculumScreen from './components/add_edit/AddEditCurriculumScreen'
+
+const AddEditCurriculumScreen = lazy(() => import('./components/add_edit/AddEditCurriculumScreen'))
 
 export default function AdminCurriculums() {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchInput, setSearchInput] = useState('')
   const [appliedSearch, setAppliedSearch] = useState('')
-
   const { data: curriculaResponse, isLoading, isFetching } = useQuery({
     queryKey: ['admin-curricula', appliedSearch],
     queryFn: () => adminCurriculaApi.fetchCurricula({ search: appliedSearch || undefined }),
   })
-
   const curricula = curriculaResponse?.data || []
-
   const createMutation = useMutation({
     mutationFn: adminCurriculaApi.createCurriculum,
     onSuccess: () => {
@@ -41,7 +38,6 @@ export default function AdminCurriculums() {
       toast.error(isRtl ? 'حدث خطأ أثناء إضافة المنهج' : 'Failed to add curriculum')
     }
   })
-
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }) => adminCurriculaApi.updateCurriculum(id, payload),
     onSuccess: () => {
@@ -56,7 +52,6 @@ export default function AdminCurriculums() {
       toast.error(Array.isArray(errMsg) ? errMsg.join(', ') : errMsg)
     }
   })
-
   const deleteMutation = useMutation({
     mutationFn: (id) => adminCurriculaApi.deleteCurriculum(id),
     onSuccess: () => {
@@ -68,7 +63,6 @@ export default function AdminCurriculums() {
       toast.error(isRtl ? 'حدث خطأ أثناء الحذف' : 'Failed to delete curriculum')
     }
   })
-
   const handleSave = async (payload) => {
     if (editingItem) {
       const targetId = editingItem.id || editingItem._id || editingItem.data?.id || editingItem.data?._id
@@ -77,7 +71,6 @@ export default function AdminCurriculums() {
       await createMutation.mutateAsync(payload)
     }
   }
-
   const handleEditClick = async (item) => {
     const targetId = item.id || item._id
     try {
@@ -99,59 +92,41 @@ export default function AdminCurriculums() {
       }
     }
   }
-
   const handleDelete = async (item) => {
     const itemName = typeof item.name === 'object' ? (isRtl ? item.name.ar : item.name.en) : item.name;
     const isConfirmed = await showDeleteConfirm(isRtl, itemName);
     if (!isConfirmed) return;
     await deleteMutation.mutateAsync(item.id || item._id);
   }
-
   const handleView = (item) => {
     const id = item.id || item._id;
     navigate(`/dashboard/admin/curriculums/${id}`);
   }
-
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     setAppliedSearch(searchInput.trim());
   }
-
   const handleClearSearch = () => {
     setSearchInput('');
     setAppliedSearch('');
   }
-
-  const filteredCurricula = (curricula || []).filter((item) => {
-    if (!appliedSearch) return true;
-    const query = appliedSearch.toLowerCase();
-    const arName = typeof item.name === 'object' ? (item.name?.ar || '') : (item.name || '');
-    const enName = typeof item.name === 'object' ? (item.name?.en || '') : (item.name || '');
-    const arDesc = typeof item.description === 'object' ? (item.description?.ar || '') : (item.description || '');
-    const enDesc = typeof item.description === 'object' ? (item.description?.en || '') : (item.description || '');
-    return (
-      arName.toLowerCase().includes(query) ||
-      enName.toLowerCase().includes(query) ||
-      arDesc.toLowerCase().includes(query) ||
-      enDesc.toLowerCase().includes(query)
-    );
-  });
-
+  const filteredCurricula = Array.isArray(curricula) ? curricula : [];
   if (showForm) {
     return (
-      <AddEditCurriculumScreen
-        curriculum={editingItem}
-        isRtl={isRtl}
-        isSaving={createMutation.isPending || updateMutation.isPending}
-        onSave={handleSave}
-        onCancel={() => {
-          setShowForm(false)
-          setEditingItem(null)
-        }}
-      />
+      <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+        <AddEditCurriculumScreen
+          curriculum={editingItem}
+          isRtl={isRtl}
+          isSaving={createMutation.isPending || updateMutation.isPending}
+          onSave={handleSave}
+          onCancel={() => {
+            setShowForm(false)
+            setEditingItem(null)
+          }}
+        />
+      </Suspense>
     )
   }
-
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -159,7 +134,6 @@ export default function AdminCurriculums() {
       </div>
     )
   }
-
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -176,7 +150,6 @@ export default function AdminCurriculums() {
             </p>
           </div>
         </div>
-
         <button
           type="button"
           onClick={() => {
@@ -189,14 +162,12 @@ export default function AdminCurriculums() {
           <span>{isRtl ? 'إضافة منهج جديد' : 'Add Curriculum'}</span>
         </button>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 text-start">
           <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
             {isRtl ? `المناهج المتاحة (${filteredCurricula.length})` : `Available Curricula (${filteredCurricula.length})`}
             {isFetching && <div className="w-4 h-4 border-2 border-[#0f7a6c]/30 border-t-[#0f7a6c] rounded-full animate-spin" />}
           </h2>
-
           <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-72">
               <input
@@ -226,7 +197,6 @@ export default function AdminCurriculums() {
             </button>
           </form>
         </div>
-
         {filteredCurricula.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredCurricula.map((item) => (

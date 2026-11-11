@@ -2,21 +2,17 @@ import { Users, DollarSign, BookOpen, Star, Pencil } from 'lucide-react'
 
 export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpenHourlyRateModal }) {
   const isSuspended = teacher?.active === false
-
   const teacherRawName = typeof teacher?.name === 'object'
     ? (isRtl ? teacher?.name?.ar : teacher?.name?.en) || teacher?.name?.ar || teacher?.name?.en
     : teacher?.name
   const initial = teacherRawName?.trim()?.charAt(0) || 'م'
-
   const totalGroups = teacher?.totalGroups ?? teacher?.groupsCount ?? 0
   const hourlyRate = teacher?.hourlyRate ?? 0
   const totalEarnings = teacher?.totalEarnings ?? 0
   const dueEarnings = teacher?.dueEarnings ?? 0
-  // actualLessons = lessons actually delivered (from the API); totalLessons is the number shown on the public website
   const actualLessons = Number(teacher?.actualLessons ?? 0)
   const ratingNumber = Number(teacher?.rating ?? 0)
   const rating = ratingNumber.toFixed(1)
-
   const specializationNames = (Array.isArray(teacher?.specializations) ? teacher.specializations : [])
     .map((spec) => (typeof spec?.name === 'object' && spec.name !== null
       ? (isRtl ? spec.name.ar || spec.name.en : spec.name.en || spec.name.ar)
@@ -25,11 +21,9 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
   const subjectName = specializationNames.length > 0
     ? specializationNames.join(' · ')
     : (isRtl ? 'غير محدد' : 'Not specified')
-
   const teacherDisplayName = teacherRawName
     ? (isRtl && !teacherRawName.startsWith('أ.') ? `أ. ${teacherRawName}` : teacherRawName)
     : (isRtl ? 'معلم' : 'Teacher')
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -51,7 +45,6 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
           >
             {initial}
           </div>
-
           <div>
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
               {teacherDisplayName}
@@ -79,7 +72,6 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
             </div>
           </div>
         </div>
-
         <span
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
             isSuspended
@@ -91,10 +83,7 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
           <span>{isSuspended ? (isRtl ? 'موقوف' : 'Suspended') : (isRtl ? 'نشط' : 'Active')}</span>
         </span>
       </div>
-
-      
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
-        
         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <Users size={18} />
@@ -108,8 +97,6 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
             </span>
           </div>
         </div>
-
-        
         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <DollarSign size={18} />
@@ -123,8 +110,6 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
             </span>
           </div>
         </div>
-
-        
         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <DollarSign size={18} />
@@ -138,8 +123,6 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
             </span>
           </div>
         </div>
-
-        
         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <BookOpen size={18} />
@@ -153,8 +136,6 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
             </span>
           </div>
         </div>
-
-        
         <div className="bg-[#edf4f3] dark:bg-slate-950/40 rounded-2xl p-4 flex items-center justify-between col-span-2 sm:col-span-1">
           <div className="p-2.5 bg-[#005953] text-white rounded-xl flex items-center justify-center shrink-0">
             <DollarSign size={18} />

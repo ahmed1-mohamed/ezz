@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -13,7 +14,7 @@ const getImageUrl = (imagePath) => {
         return trimmed;
     }
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+    return buildApiAssetUrl(cleanPath);
 }
 
 function StarRating({ rating = 5 }) {
@@ -37,24 +38,19 @@ const TeacherSliderCard = React.memo(function TeacherSliderCard({ teacher, index
     const name = typeof rawName === 'object' && rawName !== null
         ? (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar)
         : (rawName || t('teachers.title', 'معلم معتمد'));
-
     const rawTitle = teacher.titleKey ? t(teacher.titleKey) : (teacher.title || teacher.degree || teacher.subject);
     const title = typeof rawTitle === 'object' && rawTitle !== null
         ? (isRtl ? rawTitle.ar || rawTitle.en : rawTitle.en || rawTitle.ar)
         : (rawTitle || t('teachers.defaultTitle', 'معلم متميز'));
-
     const initialLetter = name ? name.trim().charAt(0) : 'م';
     const rawImg = teacher.image || teacher.avatar || teacher.photo;
     const [hasError, setHasError] = useState(false);
     const [prevImg, setPrevImg] = useState(rawImg);
-
     if (prevImg !== rawImg) {
         setPrevImg(rawImg);
         setHasError(false);
     }
-
     const imgUrl = hasError ? null : getImageUrl(rawImg);
-
     return (
         <motion.article
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -78,7 +74,6 @@ const TeacherSliderCard = React.memo(function TeacherSliderCard({ teacher, index
                         ease: 'linear',
                     }}
                 />
-
                 {imgUrl ? (
                     <img
                         src={imgUrl}
@@ -96,14 +91,12 @@ const TeacherSliderCard = React.memo(function TeacherSliderCard({ teacher, index
                     </div>
                 )}
             </div>
-
             <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-2 line-clamp-1 w-full" title={name}>
                 {name}
             </h3>
             <p className="text-sm font-semibold text-[#0F7A6C] dark:text-emerald-400 mb-5 line-clamp-1 w-full" title={title}>
                 {title}
             </p>
-
             <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700 mt-auto">
                 <StarRating rating={teacher.rating || 5} />
             </div>
@@ -114,19 +107,16 @@ const TeacherSliderCard = React.memo(function TeacherSliderCard({ teacher, index
 export default React.memo(function TeachersSection({ eliteTeachers: propTeachers }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language === 'ar';
-
     const [fetchedTeachers, setFetchedTeachers] = useState([]);
     const sliderRef = useRef(null);
     const isDraggingRef = useRef(false);
     const startXRef = useRef(0);
     const startScrollLeftRef = useRef(0);
     const hasMovedRef = useRef(false);
-
     const [isDragging, setIsDragging] = useState(false);
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(true);
     const [scrollProgress, setScrollProgress] = useState(0);
-
     useEffect(() => {
         let isMounted = true;
         if (!propTeachers || propTeachers.length === 0) {
@@ -146,61 +136,51 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
             isMounted = false;
         };
     }, [propTeachers]);
-
     const displayTeachers = useMemo(() => {
         if (Array.isArray(propTeachers) && propTeachers.length > 0) {
             return propTeachers;
         }
         return fetchedTeachers;
     }, [propTeachers, fetchedTeachers]);
-
     const checkScrollState = useCallback(() => {
         const el = sliderRef.current;
         if (!el) return;
         const { scrollLeft, scrollWidth, clientWidth } = el;
         const maxScroll = scrollWidth - clientWidth;
-
         if (maxScroll <= 5) {
             setCanScrollPrev(false);
             setCanScrollNext(false);
             setScrollProgress(100);
             return;
         }
-
         const current = Math.abs(scrollLeft);
         setCanScrollPrev(current > 8);
         setCanScrollNext(current < maxScroll - 8);
         const pct = Math.min(100, Math.max(0, (current / maxScroll) * 100));
         setScrollProgress(pct);
     }, []);
-
     useEffect(() => {
         const el = sliderRef.current;
         if (!el) return;
-
         checkScrollState();
         el.addEventListener('scroll', checkScrollState, { passive: true });
         window.addEventListener('resize', checkScrollState);
-
         return () => {
             el.removeEventListener('scroll', checkScrollState);
             window.removeEventListener('resize', checkScrollState);
         };
     }, [checkScrollState, displayTeachers.length]);
-
     const scroll = useCallback((direction) => {
         const el = sliderRef.current;
         if (!el) return;
         const card = el.querySelector('article');
         const step = card ? card.offsetWidth + 24 : 300;
         const delta = direction === 'next' ? step : -step;
-
         el.scrollBy({
             left: isRtl ? -delta : delta,
             behavior: 'smooth'
         });
     }, [isRtl]);
-
     const handleMouseDown = (e) => {
         if (!sliderRef.current) return;
         isDraggingRef.current = true;
@@ -209,7 +189,6 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
         startScrollLeftRef.current = sliderRef.current.scrollLeft;
         setIsDragging(true);
     };
-
     const handleMouseMove = (e) => {
         if (!isDraggingRef.current || !sliderRef.current) return;
         e.preventDefault();
@@ -220,24 +199,19 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
         }
         sliderRef.current.scrollLeft = startScrollLeftRef.current - walk;
     };
-
     const handleMouseUp = () => {
         isDraggingRef.current = false;
         setIsDragging(false);
     };
-
     const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
     const NextIcon = isRtl ? ChevronLeft : ChevronRight;
-
     if (displayTeachers.length === 0) {
         return null;
     }
-
     return (
         <section className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-20 sm:py-24 px-4 relative overflow-hidden">
             <div className="absolute top-0 start-0 w-[500px] h-[500px] bg-[#0F7A6C]/5 dark:bg-[#0F7A6C]/15 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
             <div className="absolute bottom-0 end-0 w-[400px] h-[400px] bg-[#D4AF37]/5 dark:bg-[#D4AF37]/15 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
-
             <div className="max-w-7xl mx-auto relative z-10">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -255,7 +229,6 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
                             {t("teachers.desc", "نفخر بكوادرنا التعليمية المؤهلة والمتميزة، من ذوي الخبرة الواسعة في مجالاتهم")}
                         </p>
                     </div>
-
                     <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">
                         <button
                             type="button"
@@ -285,7 +258,6 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
                         </button>
                     </div>
                 </motion.div>
-
                 <div className="relative group/slider">
                     <button
                         type="button"
@@ -298,7 +270,6 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
                     >
                         <PrevIcon className="w-6 h-6" />
                     </button>
-
                     <button
                         type="button"
                         onClick={() => scroll('next')}
@@ -310,7 +281,6 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
                     >
                         <NextIcon className="w-6 h-6" />
                     </button>
-
                     <div
                         ref={sliderRef}
                         onMouseDown={handleMouseDown}
@@ -332,7 +302,6 @@ export default React.memo(function TeachersSection({ eliteTeachers: propTeachers
                             />
                         ))}
                     </div>
-
                     <div className="mt-6 flex items-center justify-between gap-4 pt-2">
                         <div className="flex-1 h-1.5 rounded-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
                             <div

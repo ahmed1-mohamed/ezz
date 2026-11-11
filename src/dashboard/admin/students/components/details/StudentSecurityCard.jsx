@@ -17,12 +17,10 @@ export default function StudentSecurityCard({
           {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
         </h3>
       </div>
-
       <div className="space-y-4">
         <span className="block text-xs font-bold text-slate-400 dark:text-slate-500">
           {isRtl ? 'تعيين كلمة مرور جديدة للطالب' : 'Set New Student Password'}
         </span>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -33,7 +31,7 @@ export default function StudentSecurityCard({
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm"
             />
           </div>
           <div>
@@ -45,11 +43,10 @@ export default function StudentSecurityCard({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm"
             />
           </div>
         </div>
-
         <div className="flex justify-end pt-2">
           <button
             type="button"

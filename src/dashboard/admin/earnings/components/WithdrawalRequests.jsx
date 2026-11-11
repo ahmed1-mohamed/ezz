@@ -6,14 +6,11 @@ import Spinner from '@/shared/components/Spinner'
 export default function WithdrawalRequests({ requests, onApprove, onReject }) {
   const { t } = useTranslation()
   const p = (key) => t(`adminDashboard.earnings.${key}`, key)
-
   const [expandedId, setExpandedId] = useState(null)
   const [proofImage, setProofImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [uploadingId, setUploadingId] = useState(null)
-
   const pendingCount = requests.filter((r) => r.status === 'pending').length
-
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -24,7 +21,6 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
     }
     reader.readAsDataURL(file)
   }
-
   const handleUploadSubmit = async (id) => {
     if (!proofImage) return
     setUploadingId(id)
@@ -34,7 +30,6 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
     setProofImage(null)
     setImagePreview(null)
   }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -47,7 +42,6 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
           </span>
         )}
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-sm overflow-hidden">
         <div className="grid grid-cols-[120px_1.2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 text-start">
           <div className="w-[120px]">{p('colTeacher')}</div>
@@ -58,7 +52,6 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
           <div>{p('colStatus')}</div>
           <div className="text-end">{p('colActions')}</div>
         </div>
-
         {requests.length === 0 ? (
           <div className="py-12 text-center text-slate-400">
             {p('noWithdrawalRequests')}
@@ -67,25 +60,21 @@ export default function WithdrawalRequests({ requests, onApprove, onReject }) {
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {requests.map((req) => {
               const isExpanded = expandedId === req.id
-
               return (
                 <div key={req.id} className="flex flex-col">
                   <div className="grid grid-cols-[120px_1.2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-5 items-center text-start text-sm">
                     <div className="w-[120px] font-bold text-slate-800 dark:text-white">
                       {req.teacher}
                     </div>
-
                     <div className="font-extrabold text-[#0f7a6c] dark:text-emerald-400">
                       {req.amount} $
                     </div>
-
                     <div className="text-slate-700 dark:text-slate-300 font-medium">
                       {req.bank}
                     </div>
                     <div className="text-slate-500 dark:text-slate-400 text-xs font-mono">
                       {req.accountNumber}
                     </div>
-
                     <div className="text-slate-500 dark:text-slate-400 text-xs">
                       {req.date}
                     </div>

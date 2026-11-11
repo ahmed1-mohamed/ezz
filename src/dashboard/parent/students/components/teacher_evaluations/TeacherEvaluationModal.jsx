@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   X,
@@ -6,8 +7,7 @@ import {
   MessageSquare,
   ShieldAlert,
   Send,
-  Sparkles,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { parentTeacherEvaluationsApi } from '@/shared/services/api/parentTeacherEvaluationsApi.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 
@@ -61,7 +61,7 @@ export default function TeacherEvaluationModal({
   const [hoverRating, setHoverRating] = useState(0);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  if (!isOpen || !teacher) return null;
+  if (!isOpen || !teacher || typeof document === 'undefined') return null;
   const teacherId = teacher.teacherId || teacher.id || teacher._id;
   const teacherName = extractText(teacher.name, isRtl) || t('teacherLive.teacherDefaultName', 'المعلم');
   const teacherImage = typeof teacher.image === 'string' && teacher.image.trim() ? teacher.image : null;
@@ -97,9 +97,9 @@ export default function TeacherEvaluationModal({
       setIsSubmitting(false);
     }
   };
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -107,7 +107,6 @@ export default function TeacherEvaluationModal({
         className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 font-black text-base text-[#0f7a6c] dark:text-emerald-400">
@@ -134,9 +133,7 @@ export default function TeacherEvaluationModal({
             <X className="w-5 h-5" />
           </button>
         </div>
-        {/* Modal Form */}
         <form onSubmit={handleSubmitEvaluation} className="p-6 space-y-5">
-          {/* Policy Reminder */}
           <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
             <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span className="leading-relaxed font-semibold">
@@ -146,7 +143,6 @@ export default function TeacherEvaluationModal({
               )}
             </span>
           </div>
-          {/* Interactive Star Rating */}
           <div className="text-center p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-3">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
               {t('parentTeacherEval.chooseRatingLabel', 'حدد تقييمك للمعلم من 1 إلى 5 نجوم:')}
@@ -179,7 +175,6 @@ export default function TeacherEvaluationModal({
               {starMeta.text}
             </div>
           </div>
-          {/* Notes Textarea */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
@@ -201,7 +196,6 @@ export default function TeacherEvaluationModal({
               className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30 focus:border-[#0f7a6c] transition-shadow resize-none"
             />
           </div>
-          {/* Quick Suggestions Chips */}
           <div className="space-y-1.5">
             <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
               {t('parentTeacherEval.quickSuggestions', 'عبارات مقترحة سريعة:')}
@@ -219,7 +213,6 @@ export default function TeacherEvaluationModal({
               ))}
             </div>
           </div>
-          {/* Action Buttons */}
           <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
@@ -244,6 +237,7 @@ export default function TeacherEvaluationModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

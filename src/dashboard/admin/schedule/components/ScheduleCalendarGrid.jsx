@@ -34,7 +34,6 @@ export default function ScheduleCalendarGrid({
 }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft overflow-x-auto">
       <div className="min-w-[860px]">
@@ -46,7 +45,6 @@ export default function ScheduleCalendarGrid({
             const dayKey = DAY_KEYS[dayIdx]
             const fallbackName = isRtl ? DAY_FALLBACKS_AR[dayIdx] : DAY_FALLBACKS_EN[dayIdx]
             const dayLabel = t(`adminDashboard.groups.days.${dayKey}`, fallbackName)
-
             return (
               <div
                 key={`header-${idx}-${date.toISOString()}`}
@@ -65,7 +63,6 @@ export default function ScheduleCalendarGrid({
             )
           })}
         </div>
-
         <div className="grid grid-cols-7 min-h-[320px]">
           {weekDates.map((date, idx) => {
             if (!date) return null
@@ -74,7 +71,6 @@ export default function ScheduleCalendarGrid({
             const daySessions = (filteredSessions || [])
               .filter((s) => s.date === dateKey || (typeof s.date === 'string' && s.date.startsWith(dateKey)))
               .sort(compareByStartTime)
-
             return (
               <div
                 key={`sessions-${idx}-${dateKey}`}

@@ -28,10 +28,13 @@ export const teacherHomeworkApi = {
       };
     } catch (error) {
       console.warn('API createHomework failed:', error);
-      const responseMessage = error.response?.data?.message || error.response?.data?.error;
+      const rawMsg = error.response?.data?.message || error.response?.data?.error;
+      const responseMessage = Array.isArray(rawMsg)
+        ? rawMsg.join(' - ')
+        : (typeof rawMsg === 'string' ? rawMsg : 'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً');
       return {
         success: false,
-        message: responseMessage || 'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً',
+        message: responseMessage,
         error,
       };
     }
@@ -42,7 +45,6 @@ export const teacherHomeworkApi = {
     try {
       let endpoint = '/api/v1/teacher/homework/submissions';
       const normalizedStatus = (status || 'all').toLowerCase();
-
       if (normalizedStatus === 'pending') {
         endpoint = '/api/v1/teacher/homework/submissions/pending';
       } else if (normalizedStatus === 'submitted') {
@@ -52,7 +54,6 @@ export const teacherHomeworkApi = {
       } else if (normalizedStatus === 'overdue') {
         endpoint = '/api/v1/teacher/homework/submissions/overdue';
       }
-
       const response = await api.get(endpoint, { params, skipLang: true });
       const resData = response.data || {};
       const list = Array.isArray(resData?.data)
@@ -60,10 +61,11 @@ export const teacherHomeworkApi = {
         : Array.isArray(resData)
           ? resData
           : [];
-
+      const statistics = resData.statistics || resData.stats || resData.data?.statistics || null;
       return {
         success: true,
         data: list,
+        statistics,
         pagination: resData.pagination || {
           currentPage: 1,
           limit: params.limit || 10,
@@ -76,6 +78,7 @@ export const teacherHomeworkApi = {
       return {
         success: false,
         data: [],
+        statistics: null,
         pagination: { currentPage: 1, limit: 10, totalCount: 0, numberOfPages: 1 },
         error,
       };
@@ -86,11 +89,9 @@ export const teacherHomeworkApi = {
   fetchSubmissionDetails: async (submissionId, homeworkId) => {
     const validSubId = submissionId && /^[0-9a-fA-F]{24}$/.test(String(submissionId)) ? String(submissionId) : null;
     const validHwId = homeworkId && /^[0-9a-fA-F]{24}$/.test(String(homeworkId)) ? String(homeworkId) : null;
-
     if (!validSubId && !validHwId) {
       return { success: true, data: null };
     }
-
     if (validSubId) {
       try {
         const response = await api.get(`/api/v1/teacher/homework/submissions/${validSubId}`, {
@@ -100,10 +101,7 @@ export const teacherHomeworkApi = {
         });
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
-      } catch {
-        // try alternatives silently
-      }
-
+      } catch (err) { void err; }
       try {
         const response = await api.get(`/api/v1/teacher/submissions/${validSubId}`, {
           skipLang: true,
@@ -112,11 +110,8 @@ export const teacherHomeworkApi = {
         });
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
-      } catch {
-        // try next
-      }
+      } catch (err) { void err; }
     }
-
     if (validHwId) {
       try {
         const response = await api.get(`/api/v1/teacher/homework/${validHwId}`, {
@@ -126,11 +121,8 @@ export const teacherHomeworkApi = {
         });
         const resData = response.data?.data || response.data || null;
         if (resData) return { success: true, data: resData };
-      } catch {
-        // ignore
-      }
+      } catch (err) { void err; }
     }
-
     return { success: true, data: null };
   },
 
@@ -143,9 +135,11 @@ export const teacherHomeworkApi = {
           data: payload,
         };
       }
+      const sanitizedPayload = { ...payload };
+      delete sanitizedPayload.questions;
       const response = await api.patch(
         `/api/v1/teacher/homework/submissions/${submissionId}/evaluate`,
-        payload,
+        sanitizedPayload,
         { skipLang: true }
       );
       return {
@@ -155,12 +149,13 @@ export const teacherHomeworkApi = {
       };
     } catch (error) {
       console.warn('API evaluateSubmission failed:', error);
+      const rawMsg = error.response?.data?.message || error.response?.data?.error;
+      const errorMsg = Array.isArray(rawMsg)
+        ? rawMsg.join(' - ')
+        : (typeof rawMsg === 'string' ? rawMsg : 'تعذر حفظ التصحيح، يرجى المحاولة مرة أخرى');
       return {
         success: false,
-        message:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          'تعذر حفظ التصحيح، يرجى المحاولة مرة أخرى',
+        message: errorMsg,
         error,
       };
     }

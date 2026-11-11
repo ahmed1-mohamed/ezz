@@ -8,7 +8,6 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
-
   const handleStartClick = (e, session) => {
     const check = checkCanJoinSession(session);
     if (!check.canJoin) {
@@ -17,15 +16,12 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
       return false;
     }
   };
-
   return (
     <div className="space-y-3">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
           {t('teacherDashboard.upcomingSessions', 'الجلسات القادمة')}
         </h2>
-
         <Link
           to="/dashboard/teacher/schedule"
           className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#00594C] dark:hover:text-emerald-400 transition-colors"
@@ -34,8 +30,6 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
           <ChevronIcon size={16} />
         </Link>
       </div>
-
-      {/* Stack of Upcoming Sessions */}
       {upcomingSessions && upcomingSessions.length > 0 ? (
         <div className="space-y-3">
           {upcomingSessions.slice(0, 4).map((session, idx) => (
@@ -43,7 +37,6 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
               key={session.id || idx}
               className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 hover:shadow-md transition-shadow"
             >
-              {/* Right cluster: Video Icon + Title */}
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-11 h-11 rounded-2xl bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <Video size={20} />
@@ -54,14 +47,11 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
                   </h3>
                 </div>
               </div>
-
-              {/* Middle details: time and relative pill */}
               <div className="hidden sm:flex items-center gap-3 md:gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                 <div className="flex items-center gap-1.5 font-mono">
                   <Clock size={13} className="text-slate-400" />
                   <span>{session.timeStr}</span>
                 </div>
-
                 {session.relativeBadge && (
                   session.badgeVariant === 'blue' ? (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#eff6ff] text-[#2563eb] dark:bg-blue-950/40 dark:text-blue-300">
@@ -74,8 +64,6 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
                   )
                 )}
               </div>
-
-              {/* Left Action Button: ابدأ > */}
               <Link
                 to={session.id ? `/dashboard/teacher/live?session=${session.id}` : '/dashboard/teacher/live'}
                 onClick={(e) => handleStartClick(e, session)}

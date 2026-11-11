@@ -11,14 +11,12 @@ export default function StatusBadge({ status, onChangeStatus, t }) {
     'مكتمل': 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700',
     'completed': 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700',
   }
-
   const getStatusLabel = (st) => {
     if (st === 'نشط' || st === 'active') return t ? t('adminDashboard.groups.status.active', 'نشط') : 'نشط'
     if (st === 'متوقف' || st === 'suspended') return t ? t('adminDashboard.groups.status.suspended', 'متوقف') : 'متوقف'
     if (st === 'مكتمل' || st === 'completed') return t ? t('adminDashboard.groups.status.completed', 'مكتمل') : 'مكتمل'
     return st || ''
   }
-
   if (!onChangeStatus) {
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${map[status] || map['completed']}`}>
@@ -26,13 +24,11 @@ export default function StatusBadge({ status, onChangeStatus, t }) {
       </span>
     )
   }
-
   const options = [
     { value: 'active', label: t ? t('adminDashboard.groups.status.active', 'نشط') : 'نشط', dot: 'bg-brand-500' },
     { value: 'suspended', label: t ? t('adminDashboard.groups.status.suspended', 'متوقف') : 'متوقف', dot: 'bg-amber-500' },
     { value: 'completed', label: t ? t('adminDashboard.groups.status.completed', 'مكتمل') : 'مكتمل', dot: 'bg-slate-400' },
   ]
-
   return (
     <div className="relative inline-block text-start">
       <button
@@ -47,7 +43,6 @@ export default function StatusBadge({ status, onChangeStatus, t }) {
         <span>{getStatusLabel(status)}</span>
         <ChevronDown size={11} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
-
       {open && (
         <>
           <div

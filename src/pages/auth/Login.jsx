@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, BookOpen, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Mail, Lock, ArrowRight, ArrowLeft, Sun, Moon } from 'lucide-react'
+import logoImg from '@/images/programs/NewLogo.webp'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { triggerGoogleAuth, loadGoogleScript } from '@/shared/services/googleAuthService.js'
 import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
+import { toast as hotToast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -15,21 +17,34 @@ export default function Login() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
-
     const [formValues, setFormValues] = useState(initialState)
     const [errors, setErrors] = useState({})
     const [serverError, setServerError] = useState('')
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
     const [googleLoading, setGoogleLoading] = useState(false)
-    const { login, loginWithGoogle, loading } = useAuth()
+    const { login, loginWithGoogle, loading, theme, toggleTheme } = useAuth()
+    const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     const navigate = useNavigate()
-
+    const [searchParams] = useSearchParams()
+    const redirectUrl = searchParams.get('redirect')
+    const handleNavigationAfterAuth = (loggedInUser) => {
+        const isParent = loggedInUser?.role?.toLowerCase() === 'parent'
+        if (redirectUrl) {
+            if (isParent) {
+                navigate(redirectUrl, { replace: true })
+            } else {
+                // If not a parent, redirect to home page as requested
+                navigate('/', { replace: true })
+            }
+        } else {
+            navigate(getRedirectPath(loggedInUser?.role), { replace: true })
+        }
+    }
     useEffect(() => {
         loadGoogleScript().catch((err) => {
             console.warn('Google script prefetch failed:', err);
         });
     }, [])
-
     useEffect(() => {
         if (toast.show) {
             const timer = setTimeout(() => {
@@ -38,7 +53,6 @@ export default function Login() {
             return () => clearTimeout(timer)
         }
     }, [toast.show])
-
     const validate = () => {
         const nextErrors = {}
         if (!formValues.email) nextErrors.email = t('login.emailRequired', 'البريد الإلكتروني مطلوب.')
@@ -46,46 +60,53 @@ export default function Login() {
         setErrors(nextErrors)
         return Object.keys(nextErrors).length === 0
     }
-
     const handleSubmit = async (event) => {
         event.preventDefault()
         setServerError('')
-        if (!validate()) return
+        if (!validate()) {
+            hotToast.error(t('login.validationError', 'يرجى إدخال البريد الإلكتروني وكلمة المرور'))
+            return
+        }
         try {
             const user = await login(formValues.email, formValues.password, true)
+            const successMsg = t('login.successMessage', 'تم تسجيل الدخول بنجاح!')
+            hotToast.success(successMsg)
             setToast({
                 show: true,
-                message: t('login.successMessage', 'تم تسجيل الدخول بنجاح!'),
+                message: successMsg,
                 type: 'success'
             })
             setTimeout(() => {
-                navigate(getRedirectPath(user.role))
+                handleNavigationAfterAuth(user)
             }, 50)
         } catch (error) {
             setServerError(error.message)
             if (canShowErrorInToaster(error)) {
+                const errText = error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور')
+                hotToast.error(errText)
                 setToast({
                     show: true,
-                    message: error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور'),
+                    message: errText,
                     type: 'error'
                 })
             }
         }
     }
-
     const handleGoogleLogin = async () => {
         setServerError('')
         setGoogleLoading(true)
         try {
             const googleProfile = await triggerGoogleAuth()
             const user = await loginWithGoogle({ googleId: googleProfile.googleId })
+            const successMsg = t('login.successMessage', 'تم تسجيل الدخول بنجاح!')
+            hotToast.success(successMsg)
             setToast({
                 show: true,
-                message: t('login.successMessage', 'تم تسجيل الدخول بنجاح!'),
+                message: successMsg,
                 type: 'success'
             })
             setTimeout(() => {
-                navigate(getRedirectPath(user.role))
+                handleNavigationAfterAuth(user)
             }, 50)
         } catch (error) {
             console.error('Google login error:', error)
@@ -95,6 +116,7 @@ export default function Login() {
                 : (error.message || (isRtl ? 'فشل تسجيل الدخول بحساب جوجل' : 'Google sign-in failed'))
             setServerError(errorMsg)
             if (canShowErrorInToaster(error)) {
+                hotToast.error(errorMsg)
                 setToast({
                     show: true,
                     message: errorMsg,
@@ -105,24 +127,33 @@ export default function Login() {
             setGoogleLoading(false)
         }
     }
-
     return (
-        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
-            <div className="absolute top-6 start-6 z-10">
-                <Link to="/" className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/50 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm border border-transparent dark:border-slate-800">
-                    <ArrowIcon className="w-5 h-5" />
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col font-sans">
+            <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 shrink-0">
+                <Link
+                    to="/"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-3 sm:px-4 py-2 rounded-full shadow-xs border border-slate-200/60 dark:border-slate-800 text-xs sm:text-sm cursor-pointer"
+                >
+                    <ArrowIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t('login.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
-            </div>
-
-            <div className="absolute top-6 end-6 z-10">
-                <LanguageSwitcher />
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/70 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer shadow-xs"
+                        title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+                        aria-label="Toggle theme"
+                    >
+                        {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#00695C]" />}
+                    </button>
+                    <LanguageSwitcher />
+                </div>
+            </header>
+            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-8">
                 <div className="text-center mb-8">
-                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
-                        <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4 p-2">
+                        <img src={logoImg} alt={t('login.academyName', 'أكاديمية منارة العز')} className="w-14 h-14 object-contain" width="56" height="56" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-2">
                         {t('login.academyName', 'أكاديمية منارة العز')}
@@ -131,12 +162,10 @@ export default function Login() {
                         {t('login.academySubtitle', 'أكاديمية تعليمية روحية ومعاصرة')}
                     </p>
                 </div>
-
                 <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100 dark:border-slate-800">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-8 text-center sm:text-start">
                         {t('login.formTitle', 'تسجيل الدخول')}
                     </h2>
-
                     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
@@ -156,7 +185,6 @@ export default function Login() {
                             </div>
                             {errors.email && <p className="text-xs text-red-500 px-1">{errors.email}</p>}
                         </div>
-
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                 {t('login.passwordLabel', 'كلمة المرور')}
@@ -180,9 +208,7 @@ export default function Login() {
                                 {t('login.forgotPassword', 'نسيت كلمة المرور؟')}
                             </Link>
                         </div>
-
                         {serverError && <p className="text-sm text-center text-red-500 mt-2">{serverError}</p>}
-
                         <button
                             type="submit"
                             disabled={loading || googleLoading}
@@ -190,7 +216,6 @@ export default function Login() {
                         >
                             {loading ? t('login.signingIn', 'جاري الدخول...') : t('login.submitBtn', 'دخول للمنارة')}
                         </button>
-
                         <div className="relative py-6 flex items-center">
                             <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                             <span className="shrink-0 px-4 text-xs font-medium text-slate-400 dark:text-slate-500">
@@ -198,7 +223,6 @@ export default function Login() {
                             </span>
                             <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                         </div>
-
                         <button
                             type="button"
                             disabled={loading || googleLoading}
@@ -235,16 +259,8 @@ export default function Login() {
                             )}
                         </button>
                     </form>
-
-                    <div className="mt-8 text-center flex items-center justify-center gap-1.5 text-sm">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">{t('login.noAccount', 'لا تملك حسابًا؟')}</span>
-                        <Link to="/register" className="font-bold text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 hover:underline transition-colors">
-                            {t('login.registerNow', 'سجل الآن')}
-                        </Link>
-                    </div>
                 </div>
             </div>
-
             <AnimatePresence>
                 {toast.show && (
                     <motion.div
@@ -252,20 +268,20 @@ export default function Login() {
                         animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, x: 50, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-white font-bold border ${toast.type === 'success'
-                            ? 'bg-[#00695C] border-[#004D40] text-white'
-                            : 'bg-red-600 border-red-700 text-white'
+                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl font-bold border bg-white dark:bg-slate-900 ${toast.type === 'success'
+                            ? 'bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#00695C] text-[#00695C] dark:text-emerald-400'
+                            : 'bg-white dark:bg-slate-900 border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
                             }`}
                     >
                         {toast.type === 'success' ? (
-                            <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <span className="flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/40 rounded-full p-1.5 shrink-0 text-[#00695C] dark:text-emerald-400">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </span>
                         ) : (
-                            <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <span className="flex items-center justify-center bg-red-50 dark:bg-red-950/40 rounded-full p-1.5 shrink-0 text-red-500">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
                             </span>

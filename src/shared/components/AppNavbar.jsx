@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Globe, Menu, X, Sun, Moon } from 'lucide-react'
-import { useRef, useEffect, useState, memo, useCallback } from 'react'
+import { useRef, useEffect, useState, memo, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from './Button.jsx'
 import Container from './Container.jsx'
@@ -12,11 +12,6 @@ import { getRedirectPath } from '@/shared/services/authService.js'
 import { getCookie } from '@/shared/utils/cookieUtils.js'
 import logoImg from '@/images/programs/NewLogo.webp'
 
-const navItems = publicNavigation.map((item) => ({
-    label: item.labelKey,
-    to: item.path,
-}))
-
 export default memo(function AppNavbar() {
     const { t, i18n } = useTranslation()
     const navigate = useNavigate()
@@ -24,24 +19,33 @@ export default memo(function AppNavbar() {
     const navRef = useRef(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
     const { user, logout, theme, toggleTheme } = useAuth()
     const hasToken = !!getCookie('access_token')
     const isAuthenticated = user && hasToken
     const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
+
+    const navItems = useMemo(() => {
+        return publicNavigation.map((item) => ({
+            label: item.labelKey,
+            to: item.path === '/' ? `/${currentLang}` : `/${currentLang}${item.path}`,
+            isHome: item.path === '/',
+        }))
+    }, [currentLang])
 
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.scrollY
             setIsScrolled(scrollTop > 10)
         }
-
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
     const handleLogoClick = useCallback((e) => {
-        if (location.pathname === '/') {
+        const isHome = location.pathname === `/${currentLang}` || location.pathname === `/${currentLang}/`
+        if (isHome) {
             e.preventDefault()
             const hero = document.getElementById('hero-section')
             if (hero) {
@@ -51,13 +55,12 @@ export default memo(function AppNavbar() {
             }
         } else {
             e.preventDefault()
-            navigate('/', { state: { scrollToHero: true } })
+            navigate(`/${currentLang}`, { state: { scrollToHero: true } })
         }
-    }, [location.pathname, navigate])
+    }, [currentLang, location.pathname, navigate])
 
     const handleLanguageToggle = useCallback((e) => {
-        const newLang = i18n.language === 'ar' ? 'en' : 'ar'
-        setLanguage(newLang)
+        const newLang = currentLang === 'ar' ? 'en' : 'ar'
         const btn = e.currentTarget
         if (btn) {
             btn.style.transition = 'transform 0.6s ease'
@@ -67,11 +70,19 @@ export default memo(function AppNavbar() {
                 btn.style.transform = 'rotate(0deg)'
             }, 600)
         }
-    }, [i18n.language])
-
+        const pathname = location.pathname
+        const match = pathname.match(/^\/(ar|en)(\/.*)?$/)
+        if (match) {
+            const subPath = match[2] || ''
+            const targetUrl = `/${newLang}${subPath}${location.search}${location.hash}`
+            setLanguage(newLang)
+            navigate(targetUrl)
+        } else {
+            setLanguage(newLang)
+        }
+    }, [currentLang, location.pathname, location.search, location.hash, navigate])
     const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
     const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
-
     return (
         <motion.header
             ref={navRef}
@@ -86,22 +97,22 @@ export default memo(function AppNavbar() {
             <Container>
                 <div className="flex items-center justify-between h-14 sm:h-16 relative">
                     <Link
-                        to="/"
+                        to={`/${currentLang}`}
                         onClick={handleLogoClick}
                         className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 group hover:opacity-90 transition-opacity duration-200"
                     >
                         <img
                             src={logoImg}
-                            alt={t('appName', 'منارة العز')}
-                            className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
-                            width="36"
-                            height="36"
+                            alt={t('appName', 'أكاديمية منارة العز')}
+                            className="h-9 w-9 sm:h-11 sm:w-11 object-contain shrink-0 drop-shadow-xs"
+                            width="44"
+                            height="44"
+                            loading="eager"
                         />
                         <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent dark:from-emerald-400 dark:to-emerald-600">
-                            {t('appName', 'منارة العز')}
+                            {t('appName', 'أكاديمية منارة العز')}
                         </span>
                     </Link>
-
                     <div className="hidden lg:flex items-center gap-5 xl:gap-7">
                         <div className="flex items-center gap-1.5">
                             <button
@@ -113,7 +124,6 @@ export default memo(function AppNavbar() {
                             >
                                 {isDarkMode ? <Sun size={19} strokeWidth={1.75} /> : <Moon size={19} strokeWidth={1.75} />}
                             </button>
-
                             <button
                                 type="button"
                                 onClick={handleLanguageToggle}
@@ -124,12 +134,12 @@ export default memo(function AppNavbar() {
                                 <Globe size={19} strokeWidth={1.75} />
                             </button>
                         </div>
-
                         <nav className="flex items-center gap-1" aria-label={t('public.nav.main', 'الملاحة الرئيسية')}>
                             {navItems.map((item) => (
                                 <NavLink
                                     key={item.to}
                                     to={item.to}
+                                    end={item.isHome}
                                     className={({ isActive }) =>
                                         `px-3 xl:px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
                                             ? 'text-white bg-gradient-to-r from-brand-500 to-brand-700 shadow-md'
@@ -142,7 +152,6 @@ export default memo(function AppNavbar() {
                             ))}
                         </nav>
                     </div>
-
                     <div className="hidden lg:flex items-center gap-3">
                         {!isAuthenticated ? (
                             <>
@@ -154,7 +163,7 @@ export default memo(function AppNavbar() {
                                         {t('public.login', 'تسجيل الدخول')}
                                     </Button>
                                 </Link>
-                                <Link to="/contact">
+                                <Link to={`/${currentLang}/contact`}>
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -185,7 +194,6 @@ export default memo(function AppNavbar() {
                             </>
                         )}
                     </div>
-
                     <div className="flex lg:hidden items-center gap-2">
                         <button
                             type="button"
@@ -216,7 +224,6 @@ export default memo(function AppNavbar() {
                         </button>
                     </div>
                 </div>
-
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
@@ -226,11 +233,24 @@ export default memo(function AppNavbar() {
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="absolute left-4 right-4 top-16 z-[999] bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:bg-slate-900/95 dark:border-slate-800 p-6 flex flex-col space-y-4 lg:hidden"
                         >
+                            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200/60 dark:border-slate-800">
+                                <img
+                                    src={logoImg}
+                                    alt={t('appName', 'أكاديمية منارة العز')}
+                                    className="h-9 w-9 object-contain shrink-0 drop-shadow-xs"
+                                    width="36"
+                                    height="36"
+                                />
+                                <span className="font-extrabold text-base bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent dark:from-emerald-400 dark:to-emerald-600">
+                                    {t('appName', 'أكاديمية منارة العز')}
+                                </span>
+                            </div>
                             <nav className="flex flex-col space-y-2" aria-label={t('public.nav.mobile', 'قائمة الجوال')}>
                                 {navItems.map((item) => (
                                     <NavLink
                                         key={item.to}
                                         to={item.to}
+                                        end={item.isHome}
                                         onClick={closeMobileMenu}
                                         className={({ isActive }) =>
                                             `px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
@@ -243,7 +263,6 @@ export default memo(function AppNavbar() {
                                     </NavLink>
                                 ))}
                             </nav>
-
                             <div className="flex flex-col gap-2 pt-4 border-t border-slate-200/60 dark:border-slate-800">
                                 {!isAuthenticated ? (
                                     <>
@@ -255,7 +274,7 @@ export default memo(function AppNavbar() {
                                                 {t('public.login', 'تسجيل الدخول')}
                                             </Button>
                                         </Link>
-                                        <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Link to={`/${currentLang}/contact`} onClick={() => setIsMobileMenuOpen(false)}>
                                             <motion.button
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}

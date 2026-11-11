@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-  User,
   Star,
   TrendingUp,
   BookOpen,
@@ -12,7 +11,7 @@ import {
   ChevronUp,
   ArrowRight,
   ArrowLeft,
-  Award,
+  Sparkles,
 } from 'lucide-react';
 
 function resolveStudentLevel(level, isRtl) {
@@ -32,7 +31,7 @@ function resolveStudentLevel(level, isRtl) {
   return String(level || (isRtl ? 'مرحلة دراسية' : 'Student Level'));
 }
 
-export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
+export default function ChildCard({ child, onViewDetails, onRenewPackage, onBookTrial }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
@@ -77,7 +76,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="space-y-5">
-        {/* Top Header: Avatar, Name, Level, and Quick Ratings */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
             {child?.image ? (
@@ -99,15 +97,9 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400">
                   {studentLevelText}
                 </span>
-                {studentId && (
-                  <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                    ID: {studentId.slice(0, 8)}...
-                  </span>
-                )}
               </div>
             </div>
           </div>
-          {/* Average Rating Badge */}
           <div className="shrink-0 flex flex-col items-end">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/30 font-black text-xs">
               <Star className="w-3.5 h-3.5 fill-current" />
@@ -118,9 +110,7 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             </span>
           </div>
         </div>
-        {/* Attendance & Balance Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Attendance Card */}
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
               <span>{t('parentDashboard.childrenDetails.attendanceRate', 'نسبة الحضور')}</span>
@@ -134,10 +124,9 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
               </span>
             </div>
           </div>
-          {/* Sessions Balance Card */}
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
-              <span>{t('parent.childrenList.classes', 'رصيد الحصص')}</span>
+              <span>{t('parentDashboard.childrenDetails.totalClasses', 'رصيد الحصص')}</span>
               <BookOpen className="w-3.5 h-3.5 text-[#0f7a6c]" />
             </div>
             <div className="flex items-baseline gap-1">
@@ -150,7 +139,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             </div>
           </div>
         </div>
-        {/* Sessions Balance Progress Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 dark:text-slate-500">
             <span>
@@ -169,7 +157,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             />
           </div>
         </div>
-        {/* Enrolled Groups Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300">
             <span className="flex items-center gap-1.5">
@@ -212,7 +199,6 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
           )}
         </div>
       </div>
-      {/* Bottom Action Buttons */}
       <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <button
@@ -241,6 +227,17 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage }) {
             <Layers className="w-3.5 h-3.5" />
             <span>{t('parent.childrenList.package', 'الباقة')}</span>
           </button>
+          {onBookTrial && (
+            <button
+              type="button"
+              onClick={() => onBookTrial(child)}
+              className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-300 text-xs font-black transition-colors flex items-center gap-1 cursor-pointer border border-emerald-200/60 dark:border-emerald-800/40"
+              title={isRtl ? 'حجز حصة تجريبية مجانية' : 'Book Free Trial'}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>{isRtl ? 'حصة تجريبية' : 'Trial'}</span>
+            </button>
+          )}
         </div>
         <button
           type="button"

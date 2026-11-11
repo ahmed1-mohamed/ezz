@@ -11,13 +11,11 @@ export default function TeachersPagination({
   t
 }) {
   const isSinglePage = totalPages <= 1
-
   const getPageNumbers = () => {
     if (totalPages <= 1) return [1]
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
-
     const pages = []
     if (currentPage <= 4) {
       for (let i = 1; i <= 5; i++) pages.push(i)
@@ -36,10 +34,8 @@ export default function TeachersPagination({
     }
     return pages
   }
-
   const PrevIcon = isRtl ? ChevronRight : ChevronLeft
   const NextIcon = isRtl ? ChevronLeft : ChevronRight
-
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft select-none">
       <div className="text-xs text-slate-400 dark:text-slate-500 font-bold">
@@ -57,7 +53,6 @@ export default function TeachersPagination({
         </span>{' '}
         {isRtl ? 'معلم' : 'teachers'}
       </div>
-
       <div className="flex items-center gap-1.5">
         <button
           type="button"
@@ -69,7 +64,6 @@ export default function TeachersPagination({
         >
           <PrevIcon size={16} />
         </button>
-
         {getPageNumbers().map((p, idx) => {
           if (p === '...') {
             return (
@@ -78,10 +72,8 @@ export default function TeachersPagination({
               </span>
             )
           }
-
           const isActive = currentPage === p
           const isDisabled = isSinglePage
-
           return (
             <button
               key={p}
@@ -102,7 +94,6 @@ export default function TeachersPagination({
             </button>
           )
         })}
-
         <button
           type="button"
           onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}

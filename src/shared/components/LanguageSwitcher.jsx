@@ -9,7 +9,6 @@ const options = [
 export default function LanguageSwitcher() {
     const { i18n } = useTranslation()
     const current = i18n.language || 'ar'
-
     return (
         <div className="inline-flex overflow-hidden rounded-full border border-brand-200 bg-white text-slate-700 shadow-sm dark:border-brand-700/50 dark:bg-slate-950 dark:text-slate-200">
             {options.map((option) => (

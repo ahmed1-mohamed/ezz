@@ -8,7 +8,6 @@ export default React.memo(function ScheduleDayTabs({
     getLocalizedDay,
 }) {
     const { t } = useTranslation();
-
     return (
         <div className="flex justify-center gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none">
             {days.map((d, idx) => {
@@ -16,7 +15,6 @@ export default React.memo(function ScheduleDayTabs({
                 const sessionCount = d.sessions ? d.sessions.length : (d.sessionsCount || 0);
                 const dayNum = d.dayNumber || (d.date ? d.date.split('-')[2] || d.date : '');
                 const localizedDay = getLocalizedDay(d);
-
                 return (
                     <button
                         key={`${d.day}-${d.date || idx}`}
@@ -30,11 +28,9 @@ export default React.memo(function ScheduleDayTabs({
                         <span className="text-xs uppercase tracking-wider font-extrabold opacity-90 truncate max-w-full">
                             {localizedDay}
                         </span>
-
                         <span className={`text-xl sm:text-2xl font-black ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                             {dayNum || '-'}
                         </span>
-
                         <div className="flex items-center gap-1">
                             {d.isToday && (
                                 <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-emerald-500'} animate-pulse`} />

@@ -27,12 +27,10 @@ export default function CurriculumBenefitsCard({
             </p>
           </div>
         </div>
-
         <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 px-2.5 py-1 rounded-full">
           {isRtl ? 'مطلوب فائدة واحدة كحد أدنى' : 'Min 1 benefit required'}
         </span>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
@@ -43,7 +41,6 @@ export default function CurriculumBenefitsCard({
               {benefitsAr.length} {isRtl ? 'عناصر' : 'items'}
             </span>
           </div>
-
           <div className="space-y-2.5">
             {benefitsAr.map((benefit, idx) => (
               <div key={`ben-ar-${idx}`} className="flex items-center gap-2">
@@ -69,7 +66,6 @@ export default function CurriculumBenefitsCard({
               </div>
             ))}
           </div>
-
           <button
             type="button"
             onClick={onAddBenefitAr}
@@ -79,7 +75,6 @@ export default function CurriculumBenefitsCard({
             <span>{isRtl ? 'إضافة فائدة بالعربية' : 'Add Arabic Benefit'}</span>
           </button>
         </div>
-
         <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
@@ -89,7 +84,6 @@ export default function CurriculumBenefitsCard({
               {benefitsEn.length} {isRtl ? 'عناصر' : 'items'}
             </span>
           </div>
-
           <div className="space-y-2.5">
             {benefitsEn.map((benefit, idx) => (
               <div key={`ben-en-${idx}`} className="flex items-center gap-2">
@@ -115,7 +109,6 @@ export default function CurriculumBenefitsCard({
               </div>
             ))}
           </div>
-
           <button
             type="button"
             onClick={onAddBenefitEn}

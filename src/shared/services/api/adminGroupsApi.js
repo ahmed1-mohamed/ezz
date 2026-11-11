@@ -40,8 +40,16 @@ export const adminGroupsApi = {
   },
 
   fetchLocalizedActiveGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/groups/private/localized/active', { params });
-    return response.data;
+    try {
+      const response = await api.get('/api/v1/groups/private/localized/active', { params });
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        const fallback = await api.get('/api/v1/groups/private', { params: { ...params, status: 'active' } });
+        return fallback.data;
+      }
+      throw err;
+    }
   },
 
   fetchLocalizedStoppedGroups: async (params = {}) => {
@@ -69,7 +77,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // Edit form source: English response gives the enum values (day/status/type) the write endpoints expect.
   fetchGroupForEdit: async (id) => {
     const response = await api.get(`/api/v1/groups/private/${id}`, {
       headers: { 'Accept-Language': 'en' },
@@ -90,8 +97,6 @@ export const adminGroupsApi = {
     return adminGroupsApi.fetchGroupByIdLocalized(id, params);
   },
 
-  // POST /groups/private (multipart): name[ar], name[en], image(file), country, curriculum, studentLevel,
-  // language, maxStudents, teacher, type, startDate, endDate, status, weeklySchedule[i][day|startTime|endTime]
   createGroup: async (groupData) => {
     const response = await api.post('/api/v1/groups/private', buildGroupFormData(groupData, CREATE_FIELDS), {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -99,8 +104,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // PATCH /groups/private/:id only accepts name, image, country, maxStudents, startDate, endDate.
-  // Schedule, status and teacher have their own endpoints.
   updateGroup: async (id, groupData) => {
     const response = await api.patch(`/api/v1/groups/private/${id}`, buildGroupFormData(groupData, UPDATE_FIELDS), {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -142,7 +145,6 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // PATCH /groups/private/:id/schedule { weeklySchedule: [{ day: 'sunday', startTime: 'HH:mm', endTime: 'HH:mm' }] }
   updateGroupSchedule: async (groupId, weeklySchedule) => {
     const body = {
       weeklySchedule: (weeklySchedule || []).map((s) => ({
@@ -155,18 +157,34 @@ export const adminGroupsApi = {
     return response.data;
   },
 
-  // PATCH /groups/private/:id/status { status: 'active' | 'pending' | 'stopped' | 'completed' }
   updateGroupStatus: async (groupId, status) => {
     const response = await api.patch(`/api/v1/groups/private/${groupId}/status`, { status });
     return response.data;
   },
 
   transferStudent: async (groupId, payload) => {
+    const cleanGroupId = typeof groupId === 'object' && groupId !== null
+      ? (groupId.id || groupId._id)
+      : groupId;
+    const studentId = typeof payload === 'string'
+      ? payload
+      : (payload?.student || payload?.student_id || payload?.studentId || payload?.id || payload?._id);
+    const targetGroupId = typeof payload === 'object' && payload !== null
+      ? (payload.targetGroup || payload.targetGroupId || payload.toGroup)
+      : undefined;
     const body = {
-      student: payload?.student || payload?.student_id || payload?.studentId,
-      targetGroup: payload?.targetGroup || payload?.targetGroupId,
+      student: studentId,
+      targetGroup: targetGroupId,
     };
-    const response = await api.post(`/api/v1/groups/private/${groupId}/students/transfer`, body);
-    return response.data;
+    try {
+      const response = await api.post(`/api/v1/groups/private/${cleanGroupId}/students/transfer`, body);
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        const patchRes = await api.patch(`/api/v1/groups/private/${cleanGroupId}/students/transfer`, body);
+        return patchRes.data;
+      }
+      throw err;
+    }
   },
 };

@@ -3,7 +3,6 @@ import {
   Receipt,
   Copy,
   Check,
-  Eye,
   Calendar,
   UserCheck,
   ChevronRight,
@@ -15,6 +14,7 @@ import {
   CreditCard,
   FileCheck,
 } from 'lucide-react'
+import { formatPaymentMethodInfo } from '@/shared/utils/paymentMethodUtils'
 
 const getMethodIcon = (type) => {
   if (type === 'bank_transfer') return Building2
@@ -34,7 +34,7 @@ export default function TeacherPayoutsList({
   isRtl,
 }) {
   const [copiedKey, setCopiedKey] = useState(null)
-  const currency = t('teacher.earnings.currency', 'ج.م')
+  const currency = isRtl ? 'دولار' : '$'
   const stats = payoutsData?.statistics || {}
   const pagination = payoutsData?.pagination || {}
   const items = payoutsData?.data || []
@@ -121,8 +121,8 @@ export default function TeacherPayoutsList({
       <div className="space-y-3">
         {items.map((payout) => {
           const method = payout.paymentMethod || {}
-          const Icon = getMethodIcon(method.type)
-          const methodLabel = method.bankName || method.type || t('teacher.earnings.payouts.method', 'طريقة الاستلام')
+          const methodInfo = formatPaymentMethodInfo(method, isRtl)
+          const Icon = getMethodIcon(method.type || methodInfo.iconType)
           return (
             <div
               key={payout.id}
@@ -175,9 +175,21 @@ export default function TeacherPayoutsList({
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px] font-medium">{t('teacher.earnings.payouts.method', 'طريقة الاستلام')}:</span>
-                    <span className="font-bold text-slate-800 dark:text-white">
-                      {methodLabel} {method.accountNumber ? `(${method.accountNumber})` : ''}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-slate-800 dark:text-white">
+                        {methodInfo.title}
+                      </span>
+                      {methodInfo.subtitle && (
+                        <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/40" dir="ltr">
+                          {methodInfo.subtitle}
+                        </span>
+                      )}
+                      {methodInfo.accountHolder && (
+                        <span className="text-[11px] text-slate-400">
+                          ({methodInfo.accountHolder})
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {payout.notes && (

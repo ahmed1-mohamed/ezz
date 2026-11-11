@@ -1,4 +1,5 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
@@ -222,12 +223,13 @@ function formatCalendarMonthHeader(weekDays, isRtl) {
 function VideoPlayerModal({ recording, onClose, isRtl, t }) {
   const title = isRtl ? recording.title : recording.titleEn;
   const teacher = isRtl ? recording.teacher : recording.teacherEn;
-  return (
+  if (typeof document === 'undefined') return null;
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fade-in"
       onClick={onClose}
     >
       <motion.div
@@ -280,7 +282,8 @@ function VideoPlayerModal({ recording, onClose, isRtl, t }) {
           </p>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }
 
@@ -313,7 +316,6 @@ export default function StudentRecorded() {
     <>
       <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 p-4 sm:p-6 lg:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-6xl mx-auto space-y-5">
-          {/* Top Header Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:px-8 sm:py-6 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between">
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
@@ -327,7 +329,6 @@ export default function StudentRecorded() {
               <Calendar size={28} strokeWidth={2} />
             </div>
           </div>
-          {/* Week Calendar Strip Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between mb-5 px-1">
               <button
@@ -392,7 +393,6 @@ export default function StudentRecorded() {
               })}
             </div>
           </div>
-          {/* Recordings List Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 mb-6">
               {dateHeaderTitle}
@@ -425,7 +425,6 @@ export default function StudentRecorded() {
                       const teacherName = isRtl ? recordingItem.teacher : recordingItem.teacherEn;
                       return (
                         <tr key={recordingItem.id} className="group">
-                          {/* Time Column with blue clock */}
                           <td className="py-5 ps-0 pe-4 align-middle whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -434,7 +433,6 @@ export default function StudentRecorded() {
                               <Clock size={16} className="text-[#3B82F6] shrink-0" />
                             </div>
                           </td>
-                          {/* Session Title & Subject Badge */}
                           <td className="py-5 px-4 align-middle">
                             <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">
                               {sessionTitle}
@@ -443,20 +441,17 @@ export default function StudentRecorded() {
                               {sessionSubject}
                             </span>
                           </td>
-                          {/* Teacher */}
                           <td className="py-5 px-4 align-middle whitespace-nowrap">
                             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                               <User size={15} className="text-slate-400 shrink-0" />
                               <span className="text-xs sm:text-sm font-medium">{teacherName}</span>
                             </div>
                           </td>
-                          {/* Duration */}
                           <td className="py-5 px-4 align-middle whitespace-nowrap">
                             <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 font-mono">
                               {recordingItem.duration}
                             </span>
                           </td>
-                          {/* Action Button */}
                           <td className="py-5 ps-4 pe-0 align-middle whitespace-nowrap">
                             <button
                               type="button"

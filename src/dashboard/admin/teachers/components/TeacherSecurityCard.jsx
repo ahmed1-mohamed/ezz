@@ -1,5 +1,3 @@
-// Password fields for creating a teacher. Changing an existing teacher's password is a separate
-// action on the details page (ChangeTeacherPasswordModal → PATCH /users/:userId/change-password).
 export default function TeacherSecurityCard({
   formData,
   onChange,
@@ -12,7 +10,6 @@ export default function TeacherSecurityCard({
           {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
         </h2>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -22,13 +19,12 @@ export default function TeacherSecurityCard({
             type="password"
             value={formData.password || ''}
             onChange={(e) => onChange('password', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder="••••••••"
             autoComplete="new-password"
             required
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'تأكيد كلمة المرور *' : 'Confirm Password *'}
@@ -37,7 +33,7 @@ export default function TeacherSecurityCard({
             type="password"
             value={formData.confirmPassword || ''}
             onChange={(e) => onChange('confirmPassword', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder="••••••••"
             autoComplete="new-password"
             required

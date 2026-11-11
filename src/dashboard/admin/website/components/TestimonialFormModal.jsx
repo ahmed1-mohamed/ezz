@@ -25,12 +25,10 @@ export default function TestimonialFormModal({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const [errors, setErrors] = useState({});
-
-  if (!isOpen) {
+  if (!isOpen || typeof document === 'undefined') {
     if (Object.keys(errors).length > 0) setErrors({});
     return null;
   }
-
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const result = testimonialSchema.safeParse(currentTestimonial);
@@ -45,7 +43,6 @@ export default function TestimonialFormModal({
     setErrors({});
     onSubmit(e);
   };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -56,16 +53,15 @@ export default function TestimonialFormModal({
       });
     }
   };
-
   return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -92,7 +88,6 @@ export default function TestimonialFormModal({
               <X size={20} />
             </button>
           </div>
-
           <div className="p-6 sm:p-8 overflow-y-auto">
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div className="space-y-4">
@@ -137,7 +132,6 @@ export default function TestimonialFormModal({
                   </div>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <MessageSquare size={18} />
@@ -178,7 +172,6 @@ export default function TestimonialFormModal({
                   </div>
                 </div>
               </div>
-
               <div className="flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-4">
                   {currentTestimonial.previewImage || (currentTestimonial.image && typeof currentTestimonial.image === 'string') ? (
@@ -192,7 +185,6 @@ export default function TestimonialFormModal({
                       <ImageIcon size={24} className="text-slate-400" />
                     </div>
                   )}
-
                   <div>
                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                       <ImageIcon size={16} />

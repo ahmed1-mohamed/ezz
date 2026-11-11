@@ -11,7 +11,6 @@ export default function PackageFeaturesField({
 }) {
   const { t } = useTranslation()
   const p = (key) => t(`adminDashboard.packages.${key}`)
-
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -27,13 +26,11 @@ export default function PackageFeaturesField({
           {p('addFeature')}
         </button>
       </div>
-
       <div className="grid grid-cols-[1fr_1fr_auto] gap-2 mb-2 px-1 items-center">
         <div className="text-xs font-semibold text-slate-400 text-start">{p('featuresAr')}</div>
         <div className="text-xs font-semibold text-slate-400 text-start">{p('featuresEn')}</div>
         <div className="w-7"></div>
       </div>
-
       <div className="space-y-2">
         {features.map((feat, i) => (
           <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
@@ -62,7 +59,6 @@ export default function PackageFeaturesField({
           </div>
         ))}
       </div>
-
       {features.filter(Boolean).length > 0 && (
         <div className="mt-3 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
           <div className="grid grid-cols-2 bg-[#0f7a6c] text-white text-xs font-semibold">

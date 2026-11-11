@@ -1,7 +1,6 @@
 import api from './axiosConfig';
 
 export const studentPortalApi = {
-  // 1. Dashboard Statistics
   fetchDashboardStatistics: async () => {
     try {
       const response = await api.get('/api/v1/student/dashboard/statistics');
@@ -12,7 +11,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 2. Weekly Timetable
   fetchWeeklyTimetable: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/timetable', { params });
@@ -23,7 +21,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 3. Teachers
   fetchTeachers: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/teachers', { params });
@@ -44,7 +41,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 4. Homework
   fetchHomework: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/homework', { params });
@@ -117,7 +113,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 5. Evaluations
   fetchEvaluations: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/evaluations', { params });
@@ -128,7 +123,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 6. Next Session & Join Session
   fetchNextSession: async () => {
     try {
       const response = await api.get('/api/v1/student/sessions/next', {
@@ -157,7 +151,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 7. Attendance
   fetchAttendance: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/sessions/attendance', { params });
@@ -168,7 +161,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 7. Rewards
   fetchRewards: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/rewards', { params });
@@ -179,7 +171,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 8. Curricula & Attachments
   fetchCurriculaAttachments: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/student/curricula/attachments', { params });
@@ -200,7 +191,6 @@ export const studentPortalApi = {
     }
   },
 
-  // 9. Google Linking & Unlinking
   linkGoogleAccount: async (googleData = {}) => {
     try {
       const googleId = typeof googleData === 'string' ? googleData : (googleData?.googleId || googleData?.sub);

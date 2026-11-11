@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2 } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, ArrowLeft, Eye, EyeOff, Search, ChevronDown, Check, Loader2, Sun, Moon } from 'lucide-react'
+import logoImg from '@/images/programs/NewLogo.webp'
 import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
-import { sortCountries, getCountryName, fetchCountries } from '@/shared/utils/countryUtils'
+import { sortCountries, getCountryName, fetchCountries, searchCountriesBackend } from '@/shared/utils/countryUtils'
 import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
+import { toast as hotToast } from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Register() {
@@ -14,8 +16,8 @@ export default function Register() {
     const isRtl = i18n.language === 'ar'
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
     const navigate = useNavigate()
-    const { signup, loading } = useAuth()
-
+    const { signup, loading, theme, toggleTheme } = useAuth()
+    const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     const [formValues, setFormValues] = useState({
         name: '',
         email: '',
@@ -23,20 +25,19 @@ export default function Register() {
         password: '',
         confirmPassword: ''
     })
-
     const [errors, setErrors] = useState({})
     const [serverError, setServerError] = useState('')
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
     const [countriesList, setCountriesList] = useState([])
     const [selectedCountry, setSelectedCountry] = useState(null)
     const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
     const [countrySearch, setCountrySearch] = useState('')
+    const [backendCountries, setBackendCountries] = useState(null)
+    const [isSearchingCountry, setIsSearchingCountry] = useState(false)
     const [loadingCountries, setLoadingCountries] = useState(false)
     const dropdownRef = useRef(null)
-
     useEffect(() => {
         let isMounted = true
         const fetchCountriesData = async () => {
@@ -59,13 +60,11 @@ export default function Register() {
                 if (isMounted) setLoadingCountries(false)
             }
         }
-
         fetchCountriesData()
         return () => {
             isMounted = false
         }
     }, [i18n.language, isRtl])
-
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -79,7 +78,6 @@ export default function Register() {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [countryDropdownOpen])
-
     useEffect(() => {
         if (toast.show) {
             const timer = setTimeout(() => {
@@ -88,78 +86,88 @@ export default function Register() {
             return () => clearTimeout(timer)
         }
     }, [toast.show])
-
+    const [prevCountrySearch, setPrevCountrySearch] = useState(countrySearch)
+    if (prevCountrySearch !== countrySearch) {
+        setPrevCountrySearch(countrySearch)
+        if (!countrySearch.trim()) {
+            setBackendCountries(null)
+            setIsSearchingCountry(false)
+        }
+    }
+    useEffect(() => {
+        const trimmed = countrySearch.trim()
+        if (!trimmed) return
+        let active = true
+        const timer = setTimeout(async () => {
+            setIsSearchingCountry(true)
+            try {
+                const list = await searchCountriesBackend(trimmed)
+                if (active) setBackendCountries(list)
+            } catch (err) {
+                console.warn('Backend country search failed:', err)
+                if (active) setBackendCountries([])
+            } finally {
+                if (active) setIsSearchingCountry(false)
+            }
+        }, 300)
+        return () => {
+            active = false
+            clearTimeout(timer)
+        }
+    }, [countrySearch])
     const filteredCountries = useMemo(() => {
-        const sorted = sortCountries(countriesList, isRtl)
-        if (!countrySearch.trim()) return sorted
-        const q = countrySearch.toLowerCase().trim()
-        return sorted.filter(c =>
-            (c.name && c.name.toLowerCase().includes(q)) ||
-            (c.nameEn && c.nameEn.toLowerCase().includes(q)) ||
-            (c.dialCode && c.dialCode.includes(q)) ||
-            (c.phoneCode && c.phoneCode.includes(q)) ||
-            (c.code && c.code.toLowerCase().includes(q))
-        )
-    }, [countriesList, countrySearch, isRtl])
-
+        const list = backendCountries !== null ? backendCountries : countriesList
+        return sortCountries(list, isRtl)
+    }, [backendCountries, countriesList, isRtl])
     const validate = () => {
         const nextErrors = {}
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
         if (!formValues.name.trim()) {
             nextErrors.name = t('register.nameRequired', 'الاسم الكامل مطلوب.')
         } else if (formValues.name.trim().length < 2) {
             nextErrors.name = t('register.nameMinLength', 'الاسم يجب أن يحتوي على حرفين على الأقل.')
         }
-
         if (!formValues.email.trim()) {
             nextErrors.email = t('register.emailRequired', 'البريد الإلكتروني مطلوب.')
         } else if (!emailRegex.test(formValues.email.trim())) {
             nextErrors.email = t('register.validEmail', 'يرجى إدخال بريد إلكتروني صالح.')
         }
-
         if (!selectedCountry?.id && !selectedCountry?._id) {
             nextErrors.country = t('register.countryRequired', 'يرجى اختيار الدولة.')
         }
-
         const phoneDigits = formValues.phoneLocal.trim().replace(/\D/g, '')
         if (!phoneDigits) {
             nextErrors.phone = t('register.phoneRequired', 'رقم الهاتف مطلوب.')
         } else if (phoneDigits.length < 6) {
             nextErrors.phone = t('register.validPhone', 'يرجى إدخال رقم هاتف صالح.')
         }
-
         if (!formValues.password) {
             nextErrors.password = t('register.passwordRequired', 'كلمة المرور مطلوبة.')
         } else if (formValues.password.length < 6) {
             nextErrors.password = t('register.passwordMinLength', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.')
         }
-
         if (!formValues.confirmPassword) {
             nextErrors.confirmPassword = t('register.confirmPasswordRequired', 'يرجى تأكيد كلمة المرور.')
         } else if (formValues.password !== formValues.confirmPassword) {
             nextErrors.confirmPassword = t('register.passwordMismatch', 'كلمات المرور غير متطابقة.')
         }
-
         setErrors(nextErrors)
         return Object.keys(nextErrors).length === 0
     }
-
     const handleSubmit = async (event) => {
         event.preventDefault()
         setServerError('')
-
-        if (!validate()) return
-
+        if (!validate()) {
+            hotToast.error(t('register.validationError', 'يرجى استكمال ومراجعة جميع الحقول المطلوبة'))
+            return
+        }
         let localDigits = formValues.phoneLocal.trim().replace(/\D/g, '')
         if (localDigits.startsWith('0')) {
             localDigits = localDigits.substring(1)
         }
         const countryCode = selectedCountry?.dialCode || selectedCountry?.phoneCode || ''
         const fullPhone = `${countryCode}${localDigits}`
-
         const countryId = selectedCountry?.id || selectedCountry?._id
-
         const signupPayload = {
             email: formValues.email.trim(),
             name: formValues.name.trim(),
@@ -168,12 +176,13 @@ export default function Register() {
             password: formValues.password,
             confirmPassword: formValues.confirmPassword
         }
-
         try {
             const user = await signup(signupPayload)
+            const successMsg = t('register.successMessage', 'تم إنشاء الحساب بنجاح! جاري تحويلك...')
+            hotToast.success(successMsg)
             setToast({
                 show: true,
-                message: t('register.successMessage', 'تم إنشاء الحساب بنجاح! جاري تحويلك...'),
+                message: successMsg,
                 type: 'success'
             })
             setTimeout(() => {
@@ -183,6 +192,7 @@ export default function Register() {
             const errorMsg = error.message || t('register.errorMessage', 'فشل إنشاء الحساب، يرجى المحاولة مرة أخرى.')
             setServerError(errorMsg)
             if (canShowErrorInToaster(error)) {
+                hotToast.error(errorMsg)
                 setToast({
                     show: true,
                     message: errorMsg,
@@ -191,27 +201,33 @@ export default function Register() {
             }
         }
     }
-
     return (
-        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans py-6">
-            <div className="absolute top-6 start-6 z-10">
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col font-sans">
+            <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 shrink-0">
                 <Link
                     to="/"
-                    className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm backdrop-blur-sm border border-transparent dark:border-slate-800"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-3 sm:px-4 py-2 rounded-full shadow-xs border border-slate-200/60 dark:border-slate-800 text-xs sm:text-sm cursor-pointer"
                 >
-                    <ArrowIcon className="w-5 h-5" />
+                    <ArrowIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t('register.backToHome', 'العودة للرئيسية')}</span>
                 </Link>
-            </div>
-
-            <div className="absolute top-6 end-6 z-10">
-                <LanguageSwitcher />
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 my-auto pt-14 pb-8">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/70 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer shadow-xs"
+                        title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+                        aria-label="Toggle theme"
+                    >
+                        {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#00695C]" />}
+                    </button>
+                    <LanguageSwitcher />
+                </div>
+            </header>
+            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-6 my-auto">
                 <div className="text-center mb-6">
-                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5">
-                        <BookOpen className="w-9 h-9 sm:w-10 sm:h-10 text-[#00695C] dark:text-emerald-400" />
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-18 h-18 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-3.5 p-2">
+                        <img src={logoImg} alt={t('register.academyName', 'أكاديمية منارة العز')} className="w-12 h-12 sm:w-14 sm:h-14 object-contain" width="56" height="56" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-1.5">
                         {t('register.academyName', 'أكاديمية منارة العز')}
@@ -220,7 +236,6 @@ export default function Register() {
                         {t('register.academySubtitle', 'أكاديمية تعليمية روحية ومعاصرة')}
                     </p>
                 </div>
-
                 <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2rem] shadow-sm p-6 sm:p-9 border border-slate-100 dark:border-slate-800">
                     <div className="mb-6 text-center sm:text-start">
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
@@ -230,7 +245,6 @@ export default function Register() {
                             {t('register.description', 'سجل الآن للوصول إلى لوحة التحكم المخصصة لك والبدء في رحلتك التعليمية.')}
                         </p>
                     </div>
-
                     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         <div className="space-y-1.5">
                             <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1 text-start">
@@ -253,7 +267,6 @@ export default function Register() {
                             </div>
                             {errors.name && <p className="text-xs text-red-500 px-1 text-start">{errors.name}</p>}
                         </div>
-
                         <div className="space-y-1.5">
                             <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1 text-start">
                                 {t('register.email', 'البريد الإلكتروني')}
@@ -276,7 +289,6 @@ export default function Register() {
                             </div>
                             {errors.email && <p className="text-xs text-red-500 px-1 text-start">{errors.email}</p>}
                         </div>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div className="space-y-1.5 text-start" ref={dropdownRef}>
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
@@ -299,7 +311,6 @@ export default function Register() {
                                         </div>
                                         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${countryDropdownOpen ? 'rotate-180' : ''}`} />
                                     </button>
-
                                     <AnimatePresence>
                                         {countryDropdownOpen && (
                                             <motion.div
@@ -319,11 +330,10 @@ export default function Register() {
                                                         className="w-full bg-transparent border-none text-slate-800 dark:text-white text-xs sm:text-sm outline-none placeholder-slate-400 dark:placeholder-slate-500"
                                                         autoFocus
                                                     />
-                                                    {loadingCountries && (
+                                                    {(loadingCountries || isSearchingCountry) && (
                                                         <Loader2 className="w-3.5 h-3.5 text-[#00695C] dark:text-emerald-400 animate-spin shrink-0" />
                                                     )}
                                                 </div>
-
                                                 <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50 dark:divide-slate-800">
                                                     {filteredCountries.length > 0 ? (
                                                         filteredCountries.map((c) => {
@@ -364,7 +374,6 @@ export default function Register() {
                                 </div>
                                 {errors.country && <p className="text-xs text-red-500 px-1">{errors.country}</p>}
                             </div>
-
                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.phone', 'رقم الهاتف')}
@@ -390,7 +399,6 @@ export default function Register() {
                                 {errors.phone && <p className="text-xs text-red-500 px-1">{errors.phone}</p>}
                             </div>
                         </div>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
@@ -421,7 +429,6 @@ export default function Register() {
                                 </div>
                                 {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                             </div>
-
                             <div className="space-y-1.5 text-start">
                                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 px-1">
                                     {t('register.confirmPassword', 'تأكيد كلمة المرور')}
@@ -452,17 +459,15 @@ export default function Register() {
                                 {errors.confirmPassword && <p className="text-xs text-red-500 px-1">{errors.confirmPassword}</p>}
                             </div>
                         </div>
-
                         {serverError && (
                             <motion.div
                                 initial={{ opacity: 0, y: -8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-xs sm:text-sm text-center font-medium"
+                                className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400 text-xs sm:text-sm text-center font-bold shadow-xs"
                             >
                                 {serverError}
                             </motion.div>
                         )}
-
                         <button
                             type="submit"
                             disabled={loading}
@@ -478,7 +483,6 @@ export default function Register() {
                             )}
                         </button>
                     </form>
-
                     <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-sm border-t border-slate-100 dark:border-slate-800 pt-5">
                         <span className="text-slate-500 dark:text-slate-400 font-medium">
                             {t('register.haveAccount', 'هل لديك حساب بالفعل؟')}
@@ -492,7 +496,6 @@ export default function Register() {
                     </div>
                 </div>
             </div>
-
             <AnimatePresence>
                 {toast.show && (
                     <motion.div
@@ -500,17 +503,17 @@ export default function Register() {
                         animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, x: 40, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white font-bold border ${
+                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl font-bold border bg-white dark:bg-slate-900 ${
                             toast.type === 'success'
-                                ? 'bg-[#00695C] border-[#004D40]'
-                                : 'bg-red-600 border-red-700'
+                                ? 'border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#00695C] text-[#00695C] dark:text-emerald-400'
+                                : 'border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
                         }`}
                     >
-                        <span className="flex items-center justify-center bg-white/20 rounded-full p-1 shrink-0">
+                        <span className="flex items-center justify-center rounded-full p-1 shrink-0">
                             {toast.type === 'success' ? (
-                                <Check className="w-4 h-4 text-white" />
+                                <Check className="w-4 h-4 text-[#00695C] dark:text-emerald-400" />
                             ) : (
-                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             )}

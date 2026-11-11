@@ -10,6 +10,14 @@ export const fetchLandingPage = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch landing page data');
     }
+  },
+  {
+    condition: (lang, { getState }) => {
+      const { landing } = getState();
+      if (landing.loading) return false;
+      if (landing.landingData && landing.landingLang === lang) return false;
+      return true;
+    }
   }
 );
 
@@ -22,6 +30,13 @@ export const fetchPackagesAndFaqs = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch packages and FAQs');
     }
+  },
+  {
+    condition: (lang, { getState }) => {
+      const { landing } = getState();
+      if (landing.packagesData && landing.packagesLang === lang) return false;
+      return true;
+    }
   }
 );
 
@@ -33,6 +48,13 @@ export const fetchContactInfo = createAsyncThunk(
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch contact info');
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { landing } = getState();
+      if (landing.contactInfo) return false;
+      return true;
     }
   }
 );
@@ -58,14 +80,24 @@ export const fetchPublicFeaturedStudents = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch public featured students');
     }
+  },
+  {
+    condition: (lang, { getState }) => {
+      const { landing } = getState();
+      if (landing.publicFeaturedStudents && landing.publicFeaturedStudentsLang === lang) return false;
+      return true;
+    }
   }
 );
 
 const initialState = {
   landingData: null,
+  landingLang: null,
   packagesData: null,
+  packagesLang: null,
   contactInfo: null,
   publicFeaturedStudents: null,
+  publicFeaturedStudentsLang: null,
   messageSubmitStatus: 'idle',
   loading: false,
   error: null,
@@ -89,6 +121,7 @@ const landingSlice = createSlice({
       .addCase(fetchLandingPage.fulfilled, (state, action) => {
         state.loading = false;
         state.landingData = action.payload?.data || null;
+        state.landingLang = action.meta.arg;
       })
       .addCase(fetchLandingPage.rejected, (state, action) => {
         state.loading = false;
@@ -101,6 +134,7 @@ const landingSlice = createSlice({
       .addCase(fetchPackagesAndFaqs.fulfilled, (state, action) => {
         state.loading = false;
         state.packagesData = action.payload?.data || null;
+        state.packagesLang = action.meta.arg;
       })
       .addCase(fetchPackagesAndFaqs.rejected, (state, action) => {
         state.loading = false;
@@ -131,6 +165,7 @@ const landingSlice = createSlice({
       })
       .addCase(fetchPublicFeaturedStudents.fulfilled, (state, action) => {
         state.publicFeaturedStudents = action.payload?.data || action.payload || null;
+        state.publicFeaturedStudentsLang = action.meta.arg;
       });
   },
 });

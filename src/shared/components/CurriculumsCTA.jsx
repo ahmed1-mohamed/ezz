@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 
 export default function CurriculumsCTA() {
     const navigate = useNavigate()
-    const { t } = useTranslation()
-
+    const { t, i18n } = useTranslation()
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -25,7 +25,7 @@ export default function CurriculumsCTA() {
                     </p>
                     <div className="pt-2">
                         <button
-                            onClick={() => navigate('/contact')}
+                            onClick={() => navigate(`/${currentLang}/contact`)}
                             className="bg-[#00695C] hover:bg-[#004D40] text-white px-8 py-3 rounded-xl font-bold text-lg transition-all active:scale-95 shadow-md w-full sm:w-auto"
                         >
                             {t('curriculum.cta.btn', 'سجل الآن مجاناً')}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -12,21 +12,21 @@ import {
 } from 'lucide-react'
 import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import { showDeleteConfirm, showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
-import AddEditGroupScreen from './components/AddEditGroupScreen'
 import AddStudentsModal from './components/AddStudentsModal'
 import ChangeTeacherModal from './components/ChangeTeacherModal'
 import Spinner from '@/shared/components/Spinner'
 
 import { getLocalizedValue, saveGroupEdits } from './utils/groupUtils'
 import GroupCard from './components/GroupCard'
-import GroupDetailsModal from './components/GroupDetailsModal'
+
+const AddEditGroupScreen = lazy(() => import('./components/AddEditGroupScreen'))
+const GroupDetailsModal = lazy(() => import('./components/GroupDetailsModal'))
 
 export default function AdminGroups() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const { id: routeGroupId } = useParams()
   const navigate = useNavigate()
-
   const [viewMode, setViewMode] = useState(routeGroupId ? 'edit-group' : 'list')
   const [groups, setGroups] = useState([])
   const [pagination, setPagination] = useState(null)
@@ -39,9 +39,7 @@ export default function AdminGroups() {
   const [showAddStudentsModal, setShowAddStudentsModal] = useState(false)
   const [showChangeTeacherModal, setShowChangeTeacherModal] = useState(false)
   const [groupForTeacherChange, setGroupForTeacherChange] = useState(null)
-
   const itemsPerPage = 10
-
   const STATUS_FILTER_KEYS = useMemo(() => [
     { key: 'all', label: t('adminDashboard.groups.filterAll', 'الكل'), matchVal: 'الكل' },
     { key: 'pending', label: t('adminDashboard.groups.pendingGroups', 'قيد الانتظار'), matchVal: 'قيد الانتظار' },
@@ -49,7 +47,6 @@ export default function AdminGroups() {
     { key: 'suspended', label: t('adminDashboard.groups.suspendedGroups', 'المتوقفة مؤقتاً'), matchVal: 'متوقف' },
     { key: 'completed', label: t('adminDashboard.groups.completedGroups', 'المكتملة'), matchVal: 'مكتمل' },
   ], [t])
-
   const loadGroups = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -63,7 +60,6 @@ export default function AdminGroups() {
       if (statusFilter !== 'all') {
         params.status = statusFilter
       }
-
       const res = await adminGroupsApi.fetchGroups(params)
       const rawList = Array.isArray(res?.data)
         ? res.data
@@ -77,9 +73,7 @@ export default function AdminGroups() {
         id: g.id || g._id,
         _id: g._id || g.id,
       }))
-
       setGroups(items)
-
       if (res?.pagination) {
         setPagination(res.pagination)
       } else {
@@ -91,11 +85,9 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }, [currentPage, searchQuery, statusFilter, itemsPerPage])
-
   useEffect(() => {
     loadGroups()
   }, [loadGroups])
-
   useEffect(() => {
     let active = true
     if (routeGroupId) {
@@ -131,11 +123,9 @@ export default function AdminGroups() {
       }
     }
     return () => { active = false }
-  }, [routeGroupId, navigate, isRtl, t])
-
+  }, [routeGroupId, navigate, isRtl, t, selectedGroup, viewMode])
   const filtered = useMemo(() => {
     let result = groups
-
     if (statusFilter !== 'all' && !pagination) {
       result = result.filter((g) => {
         const s = String(g.status || '').toLowerCase()
@@ -146,21 +136,8 @@ export default function AdminGroups() {
         return g.status === statusFilter
       })
     }
-
-    if (searchQuery.trim() && !pagination) {
-      const q = searchQuery.toLowerCase()
-      result = result.filter((g) => {
-        const name = getLocalizedValue(g.name, isRtl).toLowerCase()
-        const teacher = (getLocalizedValue(g.teacher?.name, isRtl) || (typeof g.teacher === 'string' ? g.teacher : '')).toLowerCase()
-        const curriculum = getLocalizedValue(g.curriculum?.name || g.subject, isRtl).toLowerCase()
-        const level = getLocalizedValue(g.studentLevel?.name || g.level, isRtl).toLowerCase()
-        return name.includes(q) || teacher.includes(q) || curriculum.includes(q) || level.includes(q)
-      })
-    }
-
     return result
-  }, [groups, statusFilter, searchQuery, pagination, isRtl])
-
+  }, [groups, statusFilter, pagination])
   const metrics = useMemo(() => {
     const total = pagination?.totalCount ?? groups.length
     const pending = groups.filter((g) => {
@@ -179,14 +156,11 @@ export default function AdminGroups() {
       const s = String(g.status || '').toLowerCase()
       return s.includes('مكتمل') || s === 'completed'
     }).length
-
     return { total, pending, active, suspended, completed }
   }, [groups, pagination])
-
   const totalCount = pagination?.totalCount ?? filtered.length
   const totalPages = pagination?.numberOfPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage))
   const isPaginationDimmed = totalPages <= 1
-
   const paged = useMemo(() => {
     if (pagination) {
       return filtered
@@ -194,14 +168,12 @@ export default function AdminGroups() {
     const start = (currentPage - 1) * itemsPerPage
     return filtered.slice(start, start + itemsPerPage)
   }, [filtered, currentPage, pagination, itemsPerPage])
-
   const handleSaveGroup = async (formData) => {
     setIsLoading(true)
     try {
       const isEditing = (viewMode === 'edit-group' || Boolean(routeGroupId)) && selectedGroup
       if (isEditing) {
         const res = await saveGroupEdits(adminGroupsApi, selectedGroup, formData)
-
         setSelectedGroup(null)
         setViewMode('list')
         navigate('/dashboard/admin/groups')
@@ -226,7 +198,6 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }
-
   const handleDeleteGroup = async (group) => {
     const isConfirmed = await showDeleteConfirm(isRtl, getLocalizedValue(group.name, isRtl))
     if (!isConfirmed) return
@@ -246,11 +217,9 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }
-
   const handleRemoveStudent = async (groupId, studentId, studentName) => {
     const isConfirmed = await showDeleteConfirm(isRtl, studentName)
     if (!isConfirmed) return
-
     try {
       const res = await adminGroupsApi.removeStudentFromGroup(groupId, studentId)
       if (res?.success || res) {
@@ -274,13 +243,11 @@ export default function AdminGroups() {
       showErrorToast(error?.response?.data?.message || t('adminDashboard.groups.removeStudentError', 'فشل إزالة الطالب من المجموعة'), isRtl)
     }
   }
-
   const handleEditGroup = (group) => {
     const groupId = group.id || group._id
     setSelectedGroup({ ...group, id: groupId, _id: groupId })
     navigate(`/dashboard/admin/groups/edit/${groupId}`)
   }
-
   const handleTransferStudent = async (groupId, studentId, targetGroupId) => {
     setIsLoading(true)
     try {
@@ -302,7 +269,6 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }
-
   const handleViewStudents = async (group) => {
     const groupId = group.id || group._id
     const normalizedGroup = { ...group, id: groupId, _id: groupId }
@@ -323,7 +289,6 @@ export default function AdminGroups() {
       console.warn('Could not load detailed localized group data:', err)
     }
   }
-
   const handleAddSingleStudent = async (groupId, student) => {
     try {
       setIsLoading(true)
@@ -343,7 +308,6 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }
-
   const handleAddStudents = async (students) => {
     if (!students || students.length === 0) return
     setIsLoading(true)
@@ -367,12 +331,10 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }
-
   const handleOpenChangeTeacher = (group) => {
     setGroupForTeacherChange(group)
     setShowChangeTeacherModal(true)
   }
-
   const handleChangeTeacher = async (teacherId, teacherObj) => {
     if (!groupForTeacherChange) return
     const groupId = groupForTeacherChange.id || groupForTeacherChange._id
@@ -381,7 +343,6 @@ export default function AdminGroups() {
       const teacherName = typeof teacherObj?.name === 'object'
         ? (teacherObj.name.ar || teacherObj.name.en)
         : (teacherObj?.name || 'المعلم الجديد')
-
       const res = await adminGroupsApi.changeTeacher(groupId, {
         teacher: teacherId,
         teacherId,
@@ -389,22 +350,18 @@ export default function AdminGroups() {
         email: teacherObj?.email,
         phone: teacherObj?.phone,
       })
-
       const newTeacherData = {
         id: teacherId,
         name: teacherName,
         email: teacherObj?.email || '',
         phone: teacherObj?.phone || '',
       }
-
       setGroups((prev) =>
         prev.map((g) => (String(g.id) === String(groupId) ? { ...g, teacher: newTeacherData } : g))
       )
-
       if (selectedGroup && String(selectedGroup.id) === String(groupId)) {
         setSelectedGroup((prev) => (prev ? { ...prev, teacher: newTeacherData } : prev))
       }
-
       loadGroups()
       showSuccessToast(
         res?.message || t('adminDashboard.groups.changeTeacherSuccess', 'تم تغيير معلم المجموعة بنجاح'),
@@ -420,29 +377,28 @@ export default function AdminGroups() {
       setIsLoading(false)
     }
   }
-
   if (viewMode === 'add-group' || viewMode === 'edit-group') {
     return (
-      <AddEditGroupScreen
-        group={viewMode === 'edit-group' ? selectedGroup : null}
-        isRtl={isRtl}
-        t={t}
-        isSaving={isLoading}
-        onSave={handleSaveGroup}
-        onCancel={() => {
-          setSelectedGroup(null)
-          setViewMode('list')
-          if (routeGroupId) {
-            navigate('/dashboard/admin/groups')
-          }
-        }}
-      />
+      <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+        <AddEditGroupScreen
+          group={viewMode === 'edit-group' ? selectedGroup : null}
+          isRtl={isRtl}
+          t={t}
+          isSaving={isLoading}
+          onSave={handleSaveGroup}
+          onCancel={() => {
+            setSelectedGroup(null)
+            setViewMode('list')
+            if (routeGroupId) {
+              navigate('/dashboard/admin/groups')
+            }
+          }}
+        />
+      </Suspense>
     )
   }
-
   const startIdx = totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = totalCount > 0 ? Math.min(currentPage * itemsPerPage, totalCount) : 0
-
   return (
     <div className="space-y-6 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && (
@@ -458,7 +414,6 @@ export default function AdminGroups() {
           {t('adminDashboard.groups.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { label: t('adminDashboard.groups.totalGroups', 'إجمالي المجموعات'), value: metrics.total, cls: 'text-slate-700 dark:text-slate-200' },
@@ -476,7 +431,6 @@ export default function AdminGroups() {
           </div>
         ))}
       </div>
-
        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex items-center gap-3 flex-wrap">
           <button
@@ -518,7 +472,6 @@ export default function AdminGroups() {
           />
         </div>
       </div>
-
        {paged.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60">
           <Layers size={48} strokeWidth={1.5} />
@@ -540,7 +493,6 @@ export default function AdminGroups() {
           ))}
         </div>
       )}
-
        <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
           }`}
@@ -568,7 +520,6 @@ export default function AdminGroups() {
             </>
           )}
         </div>
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -578,11 +529,9 @@ export default function AdminGroups() {
           >
             {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
           </button>
-
           <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
             {currentPage} / {totalPages}
           </span>
-
           <button
             type="button"
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
@@ -593,28 +542,28 @@ export default function AdminGroups() {
           </button>
         </div>
       </div>
-
       {showStudentsModal && selectedGroup && (
-        <GroupDetailsModal
-          group={selectedGroup}
-          onClose={() => {
-            setShowStudentsModal(false)
-            setSelectedGroup(null)
-          }}
-          onRemoveStudent={handleRemoveStudent}
-          onTransferStudent={handleTransferStudent}
-          allGroups={groups}
-          onOpenAddStudents={() => {
-            setShowStudentsModal(false)
-            setShowAddStudentsModal(true)
-          }}
-          onAddStudent={handleAddSingleStudent}
-          onChangeTeacher={handleOpenChangeTeacher}
-          t={t}
-          isRtl={isRtl}
-        />
+        <Suspense fallback={<div className="p-12 flex justify-center"><Spinner /></div>}>
+          <GroupDetailsModal
+            group={selectedGroup}
+            onClose={() => {
+              setShowStudentsModal(false)
+              setSelectedGroup(null)
+            }}
+            onRemoveStudent={handleRemoveStudent}
+            onTransferStudent={handleTransferStudent}
+            allGroups={groups}
+            onOpenAddStudents={() => {
+              setShowStudentsModal(false)
+              setShowAddStudentsModal(true)
+            }}
+            onAddStudent={handleAddSingleStudent}
+            onChangeTeacher={handleOpenChangeTeacher}
+            t={t}
+            isRtl={isRtl}
+          />
+        </Suspense>
       )}
-
       {showAddStudentsModal && selectedGroup && (
         <AddStudentsModal
           group={selectedGroup}
@@ -623,7 +572,6 @@ export default function AdminGroups() {
           onCancel={() => setShowAddStudentsModal(false)}
         />
       )}
-
       {showChangeTeacherModal && groupForTeacherChange && (
         <ChangeTeacherModal
           group={groupForTeacherChange}

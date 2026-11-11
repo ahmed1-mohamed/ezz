@@ -7,7 +7,6 @@ import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessio
 export default memo(function TeacherNextSessionCard({ nextSession }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   if (!nextSession || (!nextSession.title && !nextSession.group)) {
     return (
       <div className="bg-[#00594C] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4">
@@ -22,13 +21,11 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
       </div>
     );
   }
-
   const title = nextSession.title || '';
   const group = nextSession.group ? String(nextSession.group) : '';
   const timeStr = nextSession.timeStr || nextSession.time || '';
   const countdown = nextSession.countdown || '0:00';
   const countdownUnit = nextSession.countdownUnit || '';
-
   const handleEnterClick = (e) => {
     const check = checkCanJoinSession(nextSession);
     if (!check.canJoin) {
@@ -37,10 +34,8 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
       return false;
     }
   };
-
   return (
     <div className="bg-[#00594C] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4">
-      {/* Top: Header & Details */}
       <div className="text-start space-y-1.5">
         <h3 className="font-black text-base text-white">
           {t('teacherDashboard.nextSession', 'الجلسة التالية')}
@@ -63,10 +58,7 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
           </p>
         )}
       </div>
-
-      {/* Bottom: Action Button & Countdown */}
       <div className="flex items-end justify-between pt-2">
-        {/* Button: دخول الجلسة > */}
         <Link
           to={nextSession.id ? `/dashboard/teacher/live?session=${nextSession.id}` : '/dashboard/teacher/live'}
           onClick={handleEnterClick}
@@ -75,8 +67,6 @@ export default memo(function TeacherNextSessionCard({ nextSession }) {
           <span>{t('teacherDashboard.enterSession', 'دخول الجلسة')}</span>
           <Play size={13} className="fill-[#00594C]" />
         </Link>
-
-        {/* Countdown */}
         <div className="text-end">
           <span className="text-[11px] text-emerald-200 block font-medium">
             {t('teacherDashboard.startsIn', 'تبدأ بعد')}

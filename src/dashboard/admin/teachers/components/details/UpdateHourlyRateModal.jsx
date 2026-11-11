@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, DollarSign, Loader2, Check } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -13,25 +14,20 @@ export default function UpdateHourlyRateModal({
   const [hourlyRate, setHourlyRate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [prevSync, setPrevSync] = useState({ teacher, isOpen })
-
   if (prevSync.teacher !== teacher || prevSync.isOpen !== isOpen) {
     setPrevSync({ teacher, isOpen })
     if (teacher && isOpen) {
       setHourlyRate(teacher.hourlyRate !== undefined && teacher.hourlyRate !== null ? String(teacher.hourlyRate) : '0')
     }
   }
-
-  if (!isOpen || !teacher) return null
-
+  if (!isOpen || !teacher || typeof document === 'undefined') return null
   const teacherId = teacher.teacher_id || teacher.id || teacher._id
   const teacherName = typeof teacher.name === 'object' && teacher.name !== null
     ? (isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || ''
     : (teacher.name || '')
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     const rateNumber = Math.max(0, Number(hourlyRate) || 0)
-
     try {
       setIsSubmitting(true)
       await teachersApi.updateTeacherHourlyRate(teacherId, rateNumber)
@@ -53,10 +49,9 @@ export default function UpdateHourlyRateModal({
       setIsSubmitting(false)
     }
   }
-
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -88,7 +83,6 @@ export default function UpdateHourlyRateModal({
             <X size={18} />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -115,7 +109,6 @@ export default function UpdateHourlyRateModal({
                 : `Current rate: ${teacher.hourlyRate ?? 0} $`}
             </p>
           </div>
-
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
@@ -145,6 +138,7 @@ export default function UpdateHourlyRateModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

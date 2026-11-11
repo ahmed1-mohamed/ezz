@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 
 function CouponStatsBar({ total, active, expired, used, selectedStatus, onSelectStatus }) {
     const { t } = useTranslation();
-
     const stats = [
         {
             key: 'all',
@@ -38,7 +37,6 @@ function CouponStatsBar({ total, active, expired, used, selectedStatus, onSelect
             bgIdle: 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
         },
     ];
-
     return (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {stats.map((stat) => {

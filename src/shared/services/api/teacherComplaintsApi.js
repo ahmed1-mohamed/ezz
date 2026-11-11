@@ -12,32 +12,28 @@ const toMultipart = ({ attachments = [], ...fields }) => {
 };
 
 export const teacherComplaintsApi = {
-  fetchComplaints: async (filterOrParams) => {
-    let queryParams = {};
-    if (typeof filterOrParams === 'string' && filterOrParams !== 'all') {
-      queryParams.status = filterOrParams;
-    } else if (typeof filterOrParams === 'object' && filterOrParams !== null) {
-      if (filterOrParams.status && filterOrParams.status !== 'all') {
-        queryParams.status = filterOrParams.status;
-      }
-      if (filterOrParams.page) queryParams.page = filterOrParams.page;
-      if (filterOrParams.limit) queryParams.limit = filterOrParams.limit;
+  fetchComplaints: async (params = {}) => {
+    const cleanParams = {};
+    if (typeof params === 'object' && params !== null) {
+      if (params.page) cleanParams.page = params.page;
+      if (params.limit) cleanParams.limit = params.limit;
+      if (params.search) cleanParams.search = params.search;
     }
-
     try {
       const response = await api.get('/api/v1/teacher/complaints-suggestions', {
-        params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        params: Object.keys(cleanParams).length > 0 ? cleanParams : undefined,
         skipLang: true,
+        skipGlobalErrorToast: true,
       });
       return response.data;
-    } catch (error) {
-      if (Object.keys(queryParams).length > 0) {
-        const fallback = await api.get('/api/v1/teacher/complaints-suggestions', {
+    } catch (err) {
+      if (Object.keys(cleanParams).length > 0) {
+        const fallbackResponse = await api.get('/api/v1/teacher/complaints-suggestions', {
           skipLang: true,
         });
-        return fallback.data;
+        return fallbackResponse.data;
       }
-      throw error;
+      throw err;
     }
   },
 
@@ -48,11 +44,12 @@ export const teacherComplaintsApi = {
     return response.data?.data || response.data;
   },
 
-  // Attachments are uploaded files (multipart, repeated `attachments` field)
   createComplaintOrSuggestion: async (payload) => {
-    const response = await api.post('/api/v1/teacher/complaints-suggestions', toMultipart(payload), {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post(
+      '/api/v1/teacher/complaints-suggestions',
+      toMultipart(payload),
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
     return response.data;
   },
 

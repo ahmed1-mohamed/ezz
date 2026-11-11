@@ -10,7 +10,6 @@ import {
   Star,
   Users,
   Award,
-  AlertCircle,
   RotateCcw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -46,7 +45,6 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEvaluated, setIsEvaluated] = useState(false);
-
   const handleSubmitEvaluation = async (event) => {
     event.preventDefault();
     if (!student.id || !sessionId) return;
@@ -71,9 +69,7 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
       setIsSubmitting(false);
     }
   };
-
   const initial = student.name ? student.name.trim().charAt(0) : 'ط';
-
   if (isEvaluated) {
     return (
       <div className="p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-3 animate-in fade-in">
@@ -95,7 +91,6 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
       </div>
     );
   }
-
   return (
     <form
       onSubmit={handleSubmitEvaluation}
@@ -141,7 +136,6 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
           })}
         </div>
       </div>
-
       <div className="space-y-1">
         <textarea
           rows={2}
@@ -151,7 +145,6 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
           className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]"
         />
       </div>
-
       <div className="flex justify-end">
         <button
           type="submit"
@@ -171,27 +164,25 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
 export default function AfterSessionTab() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [offset, setOffset] = useState(0);
   const [completedStudentIds, setCompletedStudentIds] = useState([]);
-
-  const { data: pendingRes, isLoading, isError, refetch } = useQuery({
+  const { data: pendingRes, isLoading, isError } = useQuery({
     queryKey: ['teacher-completed-pending-evals', offset],
     queryFn: () => teacherSessionsApi.fetchCompletedPendingEvaluations(offset),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
-
   const session = useMemo(() => {
     if (!pendingRes) return null;
     return pendingRes.data?.id ? pendingRes.data : pendingRes.session || pendingRes.data || pendingRes;
   }, [pendingRes]);
-
   const pendingStudentIds = useMemo(() => {
     if (Array.isArray(pendingRes?.pendingEvaluationStudentIds)) {
       return pendingRes.pendingEvaluationStudentIds;
     }
     return [];
   }, [pendingRes]);
-
   const studentsNeedingEval = useMemo(() => {
     if (!session) return [];
     const rawList = Array.isArray(session.attendance)
@@ -201,7 +192,6 @@ export default function AfterSessionTab() {
       : Array.isArray(session.group?.students)
       ? session.group.students
       : [];
-
     const mapped = rawList.map((item, index) => {
       const studentObj = item.student || item.user || item;
       const studentId = studentObj._id || studentObj.student_id || studentObj.id || `stu-${index}`;
@@ -210,47 +200,38 @@ export default function AfterSessionTab() {
       const code = studentObj.code || null;
       return { id: studentId, name, avatar, code };
     });
-
     if (pendingStudentIds.length > 0) {
       return mapped.filter((stu) => pendingStudentIds.includes(stu.id));
     }
     return mapped;
   }, [session, pendingStudentIds, isRtl]);
-
   const remainingStudents = useMemo(() => {
     return studentsNeedingEval.filter((stu) => !completedStudentIds.includes(stu.id));
   }, [studentsNeedingEval, completedStudentIds]);
-
   const handleStudentEvaluated = (evaluatedId) => {
     setCompletedStudentIds((prev) => [...prev, evaluatedId]);
   };
-
   const handleOlderSession = () => {
     setCompletedStudentIds([]);
     setOffset((prev) => prev + 1);
   };
-
   const handleNewerSession = () => {
     if (offset > 0) {
       setCompletedStudentIds([]);
       setOffset((prev) => prev - 1);
     }
   };
-
   const handleResetToLatest = () => {
     setCompletedStudentIds([]);
     setOffset(0);
   };
-
   const sessionTitle = typeof session?.title === 'object' && session?.title !== null
     ? (isRtl ? session.title.ar : session.title.en)
     : (session?.title || session?.subject || t('teacherLive.completedSessionTitle', 'حصة مكتملة'));
   const groupName = typeof session?.group === 'object' && session?.group !== null
     ? (isRtl ? session.group.name?.ar || session.group.name : session.group.name?.en || session.group.name)
     : (session?.groupName || session?.group || '-');
-
   const hasSession = Boolean(session && (session.id || session._id || session.title));
-
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
@@ -262,7 +243,6 @@ export default function AfterSessionTab() {
               : t('teacherLive.olderCompletedSession', 'حصة مكتملة سابقة ({{offset}})', { offset })}
           </span>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -272,7 +252,6 @@ export default function AfterSessionTab() {
             {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             <span>{t('teacherLive.olderSessionNav', 'حصة سابقة')}</span>
           </button>
-
           {offset > 0 && (
             <button
               type="button"
@@ -283,7 +262,6 @@ export default function AfterSessionTab() {
               <span>{t('teacherLive.latestSessionReset', 'العودة للأحدث')}</span>
             </button>
           )}
-
           <button
             type="button"
             onClick={handleNewerSession}
@@ -299,7 +277,6 @@ export default function AfterSessionTab() {
           </button>
         </div>
       </div>
-
       {isLoading ? (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm">
           <div className="w-10 h-10 border-3 border-[#0f7a6c] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
@@ -369,7 +346,6 @@ export default function AfterSessionTab() {
               </span>
             </div>
           </div>
-
           {remainingStudents.length === 0 ? (
             <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-3xl p-8 text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />

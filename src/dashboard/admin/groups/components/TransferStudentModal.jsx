@@ -15,11 +15,9 @@ export default function TransferStudentModal({
   const [selectedTargetGroupId, setSelectedTargetGroupId] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-
   const currentGroupId = String(currentGroup?.id || currentGroup?._id || '')
   const studentName = student?.name || t('adminDashboard.groups.student', 'طالب')
   const currentGroupName = getLocalizedValue(currentGroup?.name, isRtl) || t('adminDashboard.groups.title', 'المجموعة')
-
   const availableTargetGroups = useMemo(() => {
     const list = Array.isArray(groups) ? groups : []
     return list.filter((g) => {
@@ -27,14 +25,12 @@ export default function TransferStudentModal({
       return gId && gId !== currentGroupId
     })
   }, [groups, currentGroupId])
-
   const handleTransferSubmit = async (e) => {
     e?.preventDefault()
     if (!selectedTargetGroupId) {
       setErrorMsg(t('adminDashboard.groups.selectTargetGroupError', 'يرجى اختيار المجموعة المراد النقل إليها'))
       return
     }
-
     setIsSubmitting(true)
     setErrorMsg('')
     try {
@@ -47,13 +43,13 @@ export default function TransferStudentModal({
       setIsSubmitting(false)
     }
   }
-
+  if (typeof document === 'undefined') return null
   return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
       <div
         className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800"
         onClick={(e) => e.stopPropagation()}
@@ -81,7 +77,6 @@ export default function TransferStudentModal({
             <X size={18} />
           </button>
         </div>
-
         <form onSubmit={handleTransferSubmit} className="p-6 space-y-4">
           <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-1.5 text-xs text-start">
             <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
@@ -93,7 +88,6 @@ export default function TransferStudentModal({
               <span className="font-bold text-slate-700 dark:text-slate-200">{studentName}</span>
             </div>
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 text-start">
               {t('adminDashboard.groups.selectTargetGroup', 'اختر المجموعة الجديدة')}
@@ -128,19 +122,16 @@ export default function TransferStudentModal({
               </select>
             )}
           </div>
-
           {errorMsg && (
             <div className="p-3 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-xl text-xs text-start flex items-center gap-2">
               <AlertCircle size={14} className="shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
-
           <div className="p-3 bg-blue-50/60 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30 text-blue-700 dark:text-blue-300 text-xs text-start flex items-center gap-2">
             <Users size={15} className="shrink-0" />
             <span>{t('adminDashboard.groups.transferNotice', 'عند تأكيد النقل، سيتم تحديث تسجيل الطالب وإضافته للمجموعة الجديدة مباشرةً.')}</span>
           </div>
-
           <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

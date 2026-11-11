@@ -1,8 +1,19 @@
 {
   "appName": "Manarat Al-Ezz Academy",
+  "teacherPerformance": {
+    "badge": "Teacher Performance Ranking",
+    "title": "Excellence List & Teacher Performance Ranking",
+    "description": "Ranking top teachers based on average rating and total student evaluations",
+    "topTeacher": "Top Teacher 🏆",
+    "evaluations": "evaluations",
+    "evaluationsCount": "Number of Evaluations",
+    "avgRating": "Average Rating",
+    "generalRanking": "General Teacher Ranking",
+    "totalRanked": "Total Ranked Teachers"
+  },
   "common": {
     "search": "Search",
-    "errorLoading": "An error occurred while loading teachers data",
+    "errorLoading": "Failed to load teachers data. Please try again.",
     "retry": "Retry",
     "refresh": "Refresh",
     "selectCountry": "Select Country",
@@ -10,7 +21,7 @@
     "errorOccurred": "An unexpected error occurred",
     "teacher": "Teacher",
     "successMessage": "Operation completed successfully!",
-    "errorMessage": "An error occurred while sending the request, please try again later",
+    "errorMessage": "Failed to process your request. Please try again later.",
     "prev": "Previous",
     "next": "Next",
     "add": "Add",
@@ -20,23 +31,24 @@
     "logout": "Log out"
   },
   "home": {
-    "badge": "Complete educational academy",
-    "titleLine1": "Enlightening minds,",
-    "titleLine2": "Elevating the future.",
-    "titleLine3": "Your child's future begins with inspiring learning",
-    "description": "The Holy Quran, Arabic language, academic subjects, and international curricula... in one platform nurturing their abilities and instilling their values.",
-    "ctaPrimary": "Get Started",
-    "ctaSecondary": "View Experience",
-    "heroImageAlt": "Manarat Al-Ezz Academy - Direct Quranic and Educational Learning"
+    "badge": "Online Learning Academy",
+    "titleLine1": "Illuminate Minds.",
+    "titleLine2": "Elevate Futures.",
+    "titleLine3": "One-to-One Online Lessons for Your Child",
+    "description": "The Holy Quran, Arabic language, school subjects, and support for international curricula... on one platform nurturing their abilities and helping children develop strong values.",
+    "ctaPrimary": "Register Now",
+    "ctaSecondary": "Explore Our Programmes",
+    "heroImageAlt": "Manarat Al-Ezz Academy - Direct Quranic and Educational Learning",
+    "bookTrialSession": "Book Your Trial Session"
   },
   "login": {
     "academyName": "Manarat Al-Ezz Academy",
-    "academySubtitle": "A modern and spiritual educational academy",
-    "formTitle": "Login",
+    "academySubtitle": "A modern educational platform inspiring excellence and Islamic values",
+    "formTitle": "Sign In",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "forgotPassword": "Forgot password?",
-    "submitBtn": "Enter Manara",
+    "submitBtn": "Sign In",
     "orLoginWith": "Or login with Google",
     "noAccount": "Don't have an account?",
     "registerNow": "Register now",
@@ -350,7 +362,7 @@
     "navRewards": "Rewards",
     "navSchedule": "Weekly Schedule",
     "navSessions": "Sessions History",
-    "navEarnings": "Earnings",
+    "navEarnings": "Earnings & Payment Proofs",
     "navCurricula": "Curricula & Resources",
     "navWithdrawals": "Withdrawal Requests",
     "navComplaints": "Complaints & Suggestions",
@@ -366,6 +378,8 @@
         "totalEarningsDesc": "Total earnings accrued to date",
         "dueEarnings": "Due Earnings",
         "dueEarningsDesc": "Available balance ready for the next payout",
+        "hourlyRate": "Hourly Rate",
+        "hourlyRateDesc": "Rate per teaching hour",
         "totalPaid": "Total Paid",
         "totalPaidDesc": "Total amount disbursed to your accounts",
         "payoutsCount": "Payouts Count",
@@ -373,7 +387,8 @@
       },
       "tabs": {
         "methods": "Payment Methods",
-        "payouts": "Payout History"
+        "payouts": "Payment Proofs",
+        "earnings": "Earnings"
       },
       "methods": {
         "title": "Registered Payment Methods",
@@ -410,7 +425,8 @@
           "mobile_wallet": "Mobile Wallet",
           "instapay": "InstaPay",
           "paypal": "PayPal",
-          "other": "Other Method"
+          "other": "Other Method",
+          "western_union": "Western Union / Cash Transfer"
         },
         "walletProviders": {
           "vodafone_cash": "Vodafone Cash",
@@ -418,8 +434,13 @@
           "etisalat_cash": "Etisalat Cash",
           "we_pay": "WE Pay",
           "smart_wallet": "Smart Wallet",
-          "other": "Other"
-        }
+          "other": "Other",
+          "stc_pay": "STC Pay"
+        },
+        "country": "Country & City",
+        "phoneNumber": "Phone Number",
+        "nationalIdOrPassport": "National ID / Passport",
+        "instapayBankName": "Linked Bank / Wallet"
       },
       "modal": {
         "addTitle": "Add Payment Method",
@@ -466,11 +487,32 @@
           "walletNumberRequired": "Please enter mobile wallet number",
           "instapayRequired": "Please enter InstaPay address",
           "paypalEmailRequired": "Please enter a valid PayPal email",
-          "acknowledgeRequired": "You must acknowledge the accuracy of the entered data and take responsibility for any error"
+          "acknowledgeRequired": "You must acknowledge the accuracy of the entered data and take responsibility for any error",
+          "countryRequired": "Please enter recipient country and city",
+          "phoneRequired": "Please enter contact phone number",
+          "instapayHolderRequired": "Please enter name registered on InstaPay",
+          "paypalHolderRequired": "Please enter PayPal account owner name",
+          "westernUnionHolderRequired": "Please enter full name matching official ID"
         },
         "addSuccess": "Payment method added successfully",
         "updateSuccess": "Payment method updated successfully",
-        "acknowledgeLabel": "I acknowledge the accuracy of the entered data and bear responsibility for any error therein"
+        "acknowledgeLabel": "I acknowledge the accuracy of the entered data and bear responsibility for any error therein",
+        "countryLabel": "Recipient Country & City",
+        "countryPlaceholder": "e.g. Saudi Arabia - Riyadh / Egypt - Cairo",
+        "westernUnionPhoneLabel": "Contact Phone Number",
+        "westernUnionPhonePlaceholder": "e.g. +966501234567",
+        "nationalIdLabel": "National ID or Passport (Optional)",
+        "nationalIdPlaceholder": "National ID or passport number",
+        "instapayBankLabel": "Linked Bank or Wallet Name (Optional)",
+        "instapayBankPlaceholder": "e.g. NBE / CIB / Vodafone Cash",
+        "instapayHolderLabel": "Name on InstaPay Account (Optional)",
+        "instapayHolderPlaceholder": "Name as registered on InstaPay (Optional)",
+        "paypalHolderLabel": "PayPal Account Owner Name (Optional)",
+        "paypalHolderPlaceholder": "Full name of PayPal account owner (Optional)",
+        "westernUnionHolderLabel": "Full Name matching Passport or National ID",
+        "westernUnionHolderPlaceholder": "Quadruple full legal name in Arabic or English",
+        "walletHolderLabel": "Wallet Owner Name (Optional)",
+        "walletHolderPlaceholder": "Owner name for verification"
       },
       "payouts": {
         "title": "Payout History",
@@ -491,8 +533,33 @@
         "proofModalTitle": "Transfer Receipt",
         "downloadProof": "Download Receipt",
         "openInNewTab": "Open in New Tab"
+      },
+      "earningsPageTitle": "Earnings & Payment Proofs",
+      "earningsPageSubtitle": "Track your financial balance and completed session payouts",
+      "payoutsPageTitle": "Payment Proofs",
+      "payoutsPageSubtitle": "All payment proofs and disbursements processed by the administration",
+      "methodsPageTitle": "Payment Methods",
+      "methodsPageSubtitle": "Manage and configure your bank accounts and wallets for payouts",
+      "table": {
+        "title": "Earnings Details & Session Payouts",
+        "subtitle": "List of all completed sessions and their earned values",
+        "session": "Session / Lesson",
+        "group": "Group",
+        "date": "Date & Time",
+        "students": "Students",
+        "duration": "Duration",
+        "amount": "Amount",
+        "status": "Status",
+        "completed": "Completed",
+        "pending": "Pending",
+        "paid": "Paid",
+        "emptyTitle": "No earnings records registered yet",
+        "emptySubtitle": "Session earnings details will appear here once conducted.",
+        "searchPlaceholder": "Search by session or group name..."
       }
-    }
+    },
+    "navPayouts": "Payment Proofs",
+    "navPaymentMethods": "Payment Methods"
   },
   "teacherLive": {
     "pageTitle": "Live Sessions",
@@ -615,7 +682,16 @@
     "loadingZoomSdk": "Initializing embedded Zoom player...",
     "preferDesktopApp": "Prefer using the installed Zoom Desktop App?",
     "hostLiveHint": "You are connected as Host. You can teach, share screen, and evaluate students simultaneously.",
-    "noMeetingUrlDesc": "Please check with platform administration or verify session scheduling."
+    "noMeetingUrlDesc": "Please check with platform administration or verify session scheduling.",
+    "zakExpiredNotice": "The session is currently open (90 minutes). You can start immediately via Zoom desktop app or sign in as Host in browser:",
+    "refreshLinkFromServer": "Request New Link from Server",
+    "openInBrowser": "Open in Browser",
+    "fetchLinkNow": "Refresh Session Details",
+    "cannotJoinNow": "The session is not available to join right now",
+    "missingHostZak": "Zoom host credentials (ZAK) are not available",
+    "missingHostZakHint": "Zoom host token (ZAK) was not found. Please refresh the session link or start via Zoom app.",
+    "cannotJoinNowHint": "The permitted time for this session has not started yet, or the session has ended.",
+    "retryJoin": "Retry"
   },
   "teacherEvaluations": {
     "title": "Evaluations",
@@ -789,20 +865,21 @@
     "notFound": "Page not found",
     "unauthorized": "Unauthorized access",
     "unauthorizedTitle": "Unauthorized Access",
-    "unauthorizedMsg": "Sorry, you don't have permission to access this page",
+    "unauthorizedMsg": "You do not have permission to view this page.",
     "unauthorizedDesc": "Please log in with an account that has the appropriate permissions to view this content.",
     "unauthenticatedTitle": "Login Required",
-    "unauthenticatedMsg": "Sorry, please login first to access this page",
-    "unauthenticatedDesc": "Authentication token was not found or has expired. Please log in to identify yourself.",
+    "unauthenticatedMsg": "Please sign in to access this page.",
+    "unauthenticatedDesc": "Your session has expired or you are not signed in. Please sign in to continue.",
     "goHome": "Return Home"
   },
   "language": {
     "arabic": "Arabic",
-    "english": "English"
+    "english": "English",
+    "toggle": "Switch Language"
   },
   "programs": {
     "title": "Our Educational Programs",
-    "description": "Our programs are carefully designed to suit all levels with a modern, interactive approach that combines deep understanding and practical application.",
+    "description": "We provide specialized programs in the Holy Quran, Tajweed, Arabic language, and Islamic education, alongside support lessons in school subjects. Our programs cater to various levels, seamlessly blending concept explanation with hands-on practice aligned with each student's goals.",
     "cta": "Register Now",
     "list": {
       "integrated": {
@@ -861,6 +938,7 @@
     "nav": {
       "home": "Home",
       "teachers": "Teachers",
+      "teacherEvaluations": "Teacher Evaluations",
       "curriculums": "Curriculums",
       "dailySchedule": "Daily Schedule",
       "pricing": "Pricing",
@@ -870,8 +948,9 @@
     "footer": {
       "tagline": "Built for modern learning teams.",
       "copyright": "© 2026 Manarat Al-Ezz Academy. All rights reserved.",
-      "brand": "Manarat Al-Ezz",
-      "description": "A leading academy in the field of Quranic and educational distance learning. We strive to spread the light of revelation in every home through modern technologies and global educational standards.",
+      "brand": "Manarat Al-Ezz Academy",
+      "description": "Manart Alezz FZE, a Free Zone Establishment licensed by Sharjah Publishing City – Free Zone Authority, Government of Sharjah, United Arab Emirates. Trade License No. 4429961.01.",
+      "legalLicense": "Manart Alezz FZE, a Free Zone Establishment licensed by Sharjah Publishing City – Free Zone Authority, Government of Sharjah, United Arab Emirates. Trade License No. 4429961.01.",
       "policies": "Policies & Terms",
       "privacy": "Privacy",
       "terms": "Terms & Conditions",
@@ -883,7 +962,8 @@
       "contact": "Contact Us",
       "address": "Address",
       "phone": "Phone",
-      "email": "Email"
+      "email": "Email",
+      "followUs": "Follow Us on Social Media"
     },
     "about": {
       "title": "A modern public learning website",
@@ -934,8 +1014,8 @@
   "register": {
     "title": "Create a New Account",
     "description": "Register now to access your personalized educational dashboard.",
-    "academyName": "Manaret Al-Ezz Academy",
-    "academySubtitle": "Contemporary and spiritual educational academy",
+    "academyName": "Manarat Al-Ezz Academy",
+    "academySubtitle": "A modern educational platform inspiring excellence and Islamic values",
     "backToHome": "Back to Home",
     "accountType": "Account Type",
     "roleStudent": "Student",
@@ -969,54 +1049,56 @@
     "orRegisterWith": "Or register via",
     "googleBtn": "Register with Google",
     "haveAccount": "Already have an account?",
-    "login": "Login",
+    "login": "Sign In",
     "successMessage": "Account created successfully! Redirecting...",
     "errorMessage": "Failed to create account, please try again."
   },
   "heroSection": {
     "title": "Are you ready to start your journey of light?",
     "description": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
-    "cta": "Join now and start"
+    "cta": "Get Started Now"
   },
   "statistics": {
-    "students": "Students",
-    "teachers": "Certified Teachers",
-    "classes": "Successful Classes"
+    "title": "Manarat Al-Ezz in Numbers",
+    "students": "Students enrolled in our programs",
+    "teachers": "Teachers in our educational team",
+    "classes": "Educational classes provided"
   },
   "premiumParents": {
-    "title": "Why do parents choose us?",
-    "description": "We offer an integrated experience with smart and professional educational services to monitor the educational process with clarity and transparency.",
+    "title": "Why Do Families Choose Manarat Al-Ezz Academy?",
+    "description": "We provide one-on-one online lessons with specialized educators, and allow parents to effortlessly track their children's progress through the dedicated Parents Portal.",
     "cards": {
       "tracking": {
-        "title": "Precise Tracking",
-        "description": "A comprehensive dashboard for parents providing a complete view of the student's level and progress in memorization and lessons moment by moment."
+        "title": "Student Progress Tracking",
+        "description": "The Parents Portal allows families to monitor the student's academic level and track their progress in lessons and Quran memorization."
       },
       "certified": {
-        "title": "Certified Teachers",
-        "description": "An elite of distinguished teachers holding high ijazahs in Quran and qualified certificates in education and teaching."
+        "title": "Specialized Educators",
+        "description": "Lessons are delivered by educators qualified in their respective fields, with our Quran department featuring teachers holding authentic Quranic Ijazahs. Every educator tailors their teaching and practice methodology to the student's level and learning goals."
       },
       "live": {
-        "title": "Live Sessions",
-        "description": "Live interactive sessions ensuring focus and continuous follow-up between teacher and student with the latest technologies."
+        "title": "Live & Interactive Sessions",
+        "description": "Students learn through one-on-one live online sessions, actively participating, asking questions, and receiving immediate feedback from their teacher. Educators adapt explanations and practice to match each student's proficiency level and learning pace."
       }
     }
   },
   "journey": {
     "badge": "Simple Steps",
-    "title": "Start your journey in 3 steps",
-    "description": "Simply access quality education",
+    "title": "How to start learning with us?",
+    "description": "We accompany you step by step throughout your learning journey with us.",
+    "cta": "Register Now",
     "steps": {
       "register": {
-        "title": "Register your account",
-        "description": "Create your profile and set your educational goals, a fast and secure registration process ensuring your data privacy."
+        "title": "Register with the Academy",
+        "description": "Complete your registration on the website to get started."
       },
       "choose": {
-        "title": "Choose your teacher",
-        "description": "Browse lists of specialized teachers, review their ratings and experiences, and choose who suits your learning style."
+        "title": "We Coordinate Your First Session",
+        "description": "Our academy team contacts you to understand the student's needs, recommend a specialized teacher, and agree on a convenient schedule."
       },
       "start": {
-        "title": "Start your live session",
-        "description": "Embark on your learning journey through our advanced virtual classrooms, direct interaction, motivating environment, and tangible results."
+        "title": "Start Learning",
+        "description": "Attend your live one-on-one session online at the agreed time."
       }
     }
   },
@@ -1210,68 +1292,68 @@
     "coreValues": {
       "title": "Our Core Values",
       "v1": {
-        "title": "Scientific Integrity",
-        "desc": "Transferring knowledge with connected authenticity and rigorous methodology preserving heritage."
+        "title": "Academic Integrity",
+        "desc": "We are committed to the accuracy of what we teach, presenting knowledge clearly to suit each student's level."
       },
       "v2": {
-        "title": "Gentleness & Compassion",
-        "desc": "Teaching with love and encouragement following the noble pedagogical approach."
+        "title": "Kindness & Encouragement",
+        "desc": "We teach with patience and kindness, encouraging our students to ask questions and try until they learn with confidence."
       },
       "v3": {
-        "title": "Facilitation & Inclusiveness",
-        "desc": "Making knowledge accessible to all regardless of distance and circumstances."
+        "title": "Flexibility & Accessibility",
+        "desc": "We provide online lessons with flexible schedules, accommodating the diverse levels and needs of our students."
       }
     },
     "comprehensiveness": {
-      "mainTitle": "Comprehensive Educational Curricula",
+      "mainTitle": "School Curriculum Support",
       "coverage": {
-        "title": "Comprehensive Curriculum Coverage",
-        "subtitle": "Covering all essential subjects, focusing on lesson comprehension, exercises, and reviews to prepare students with confidence.",
+        "title": "Academic Support Aligned with the School Curriculum",
+        "subtitle": "We provide one-on-one online lessons across various subjects, including Mathematics, Science, and English. We tailor our teaching to the student's school curriculum, focusing on topics and skills that require reinforcement.",
         "lessonExplanation": {
           "title": "Lesson Explanations",
-          "desc": "Starting from fundamentals, explaining concepts simply and clearly with practical examples."
+          "desc": "We explain concepts step by step, using solved examples that help students understand the idea and apply it independently."
         },
         "exercises": {
-          "title": "Exercises & Practice",
-          "desc": "Applying knowledge through diverse exercises to reinforce skills and retain information."
+          "title": "Training & Application",
+          "desc": "We offer progressive exercises varying in difficulty, reviewing student answers together to identify mistakes and learn how to correct them."
         },
         "reviews": {
-          "title": "Periodic Reviews",
-          "desc": "Tracking progress systematically with regular reviews to boost retention and exam readiness."
+          "title": "Review & Exam Preparation",
+          "desc": "We regularly review what the student has learned, identifying topics that require further practice ahead of exams."
         }
       },
       "stages": {
-        "title": "Diverse Educational Stages",
-        "subtitle": "Covering different stages with tailored depth and methodology according to each stage's needs.",
+        "title": "Support Across Educational Stages",
+        "subtitle": "We tailor our teaching approach and exercise difficulty to match the school curriculum and student needs at every stage.",
         "primary": {
-          "title": "Primary Stage",
-          "desc": "Focusing on solid foundations and fundamental concepts and rules."
+          "title": "Primary Stage (Elementary)",
+          "desc": "We build foundational skills using relatable real-life examples and activities that help students understand and apply concepts."
         },
         "preparatory": {
-          "title": "Preparatory Stage",
-          "desc": "Deepening comprehension and applying concepts to more advanced problem-solving."
+          "title": "Preparatory Stage (Middle School)",
+          "desc": "We help students connect concepts and apply them to multi-step problem-solving, training them to clearly explain their methodology."
         },
         "secondary": {
-          "title": "Secondary Stage",
-          "desc": "Focusing on exam preparation, analytical reasoning, and critical thinking."
+          "title": "Secondary Stage (High School)",
+          "desc": "We support students in mastering advanced topics and cultivate analytical and reasoning skills through practice with questions tailored to their curriculum and exam requirements."
         }
       },
       "subjects": {
         "math": {
           "title": "Mathematics",
-          "desc": "Focusing on core concepts and operations with interactive and accessible problem-solving."
+          "desc": "We explain mathematical concepts step by step, from basic arithmetic operations to topics such as algebra and geometry, tailored to grade level and curriculum. Students practice selecting the appropriate problem-solving strategy and verifying their answers."
         },
         "science": {
           "title": "Science",
-          "desc": "Connecting theory and experiments to nurture scientific inquiry and understanding of nature."
+          "desc": "We connect scientific concepts to real-world phenomena observed in everyday life. Through simplified examples and hands-on experiments, students practice interpreting results and drawing evidence-based conclusions."
         },
         "languages": {
           "title": "Languages",
-          "desc": "Developing reading, writing, and speaking skills with focus on comprehension and communication."
+          "desc": "We cultivate listening, speaking, reading, and writing skills through activities tailored to each student's proficiency level and goals. Students practice text comprehension, expressing their ideas clearly, and communicating with confidence in academic and daily life."
         },
         "social": {
           "title": "Social Studies",
-          "desc": "Connecting history, geography, and citizenship to build a holistic worldview and cultural appreciation."
+          "desc": "We integrate history, geography, and civics to help students understand their community and the wider world. Students learn to read maps, analyze historical sources, and appreciate the role of heritage in shaping cultural identity."
         }
       }
     },
@@ -1303,7 +1385,7 @@
     "quran": {
       "sidebar": {
         "title": "About the Holy Quran Curriculum",
-        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, considering individual differences with a focus on fundamental Tajweed rules."
+        "desc": "An integrated curriculum combining proper recitation, perfect memorization, and understanding the meanings of the verses. We adopt a gradual methodology, accommodating individual learning styles with a focus on fundamental Tajweed rules."
       },
       "feat1": {
         "title": "Accredited Certificate",
@@ -1345,7 +1427,7 @@
         "desc": "To measure skills development"
       },
       "feat2": {
-        "title": "Practical Practice",
+        "title": "Hands-on Application",
         "desc": "Through interactive activities"
       },
       "btn": "View Curriculum",
@@ -1355,13 +1437,13 @@
         "level": "Beginner Level"
       },
       "u2": {
-        "title": "Expression Skills",
+        "title": "Composition and Expression Skills",
         "desc": "Developing the student's ability to express their thoughts clearly and smoothly.",
         "level": "First Stage"
       },
       "u3": {
         "title": "Literature and Rhetoric",
-        "desc": "Tasting the aesthetics of the Arabic language through studying literary texts.",
+        "desc": "Appreciating the literary beauty and stylistic richness of the Arabic language through classical and modern texts.",
         "level": "Advanced Level"
       },
       "u4": {
@@ -1396,7 +1478,7 @@
       },
       "u3": {
         "title": "Prophet's Biography",
-        "desc": "Stations from the life of the Prophet ﷺ and extracting lessons from them.",
+        "desc": "Key milestones from the life of the Prophet ﷺ and practical lessons for daily life.",
         "level": "Advanced Level"
       },
       "u4": {
@@ -1408,18 +1490,18 @@
   },
   "about": {
     "hero": {
-      "badge": "Complete educational academy",
+      "badge": "Online Learning Academy",
       "title1": "Where the light of knowledge",
       "title2": "meets the purity of the soul",
       "subtitle": "Manarat Al-Ezz is not just an academy, it is a journey into the depths of knowledge, designed to be a digital haven combining the authenticity of heritage and the modernity of technology."
     },
     "vision": {
       "title": "Our Vision",
-      "desc": "Providing excellent Quranic and Arabic education accessible to everyone, everywhere. We believe that knowledge is a shared right and the beauty of our language and religion must reach every heart clearly and easily."
+      "desc": "To be a trusted benchmark for online learning, making it easy for learners around the world to master the recitation of the Holy Quran, use the Arabic language with confidence, and understand and practice the teachings of Islam in their daily lives."
     },
     "mission": {
       "title": "Our Mission",
-      "desc": "Empowering Muslims around the world to learn their language and religion through modern educational technologies and specialized teachers, while preserving the Islamic role model and character."
+      "desc": "We offer online educational programs in the recitation, memorization, and Tajweed of the Holy Quran, Arabic for native and non-native speakers, and Islamic education. These programs are delivered by specialized educators who cater to each learner's level and goals, actively tracking their progress with personalized guidance and constructive feedback to advance their skills."
     },
     "features": {
       "title": "Why Do Parents Choose Us?",
@@ -1429,11 +1511,11 @@
       },
       "f2": {
         "title": "Modern Technology",
-        "desc": "We utilize the latest remote education technologies to make lessons interactive and enjoyable, suiting today's technology-thirsty generation."
+        "desc": "We utilize the latest remote education technologies to make lessons interactive and enjoyable, tailored for today's tech-savvy generation."
       },
       "f3": {
         "title": "Safe Environment",
-        "desc": "We provide a safe digital haven for your children, where teachers are selected after rigorous tests ensuring their scientific competence and educational integrity."
+        "desc": "We provide a safe digital haven for your children, where teachers are selected after rigorous tests ensuring their academic excellence and pedagogical integrity."
       },
       "f4": {
         "title": "Academic Excellence",
@@ -1442,19 +1524,19 @@
     },
     "values": {
       "title": "Our Values",
-      "mainTitle": "Manarat Al-Ezz Core Values",
-      "mainDesc": "Manarat Al-Ezz Academy derives its principles from the teachings of our true religion, to be a solid foundation upon which we rely in all the educational and upbringing services we offer.",
+      "mainTitle": "Our Core Values",
+      "mainDesc": "Manarat Al-Ezz Academy derives its principles from the teachings of our true religion, serving as a solid foundation upon which we rely in all the educational and upbringing services we offer.",
       "v1": {
-        "title": "Scientific Integrity",
-        "desc": "Transmitting knowledge with a continuous chain of transmission and a solid methodology that preserves authenticity."
+        "title": "Academic Integrity",
+        "desc": "We are committed to the accuracy of what we teach, presenting knowledge clearly to suit each student's level."
       },
       "v2": {
-        "title": "Gentleness and Kindness",
-        "desc": "Teaching with love and encouragement according to the honorable Prophetic approach."
+        "title": "Kindness & Encouragement",
+        "desc": "We teach with patience and kindness, encouraging our students to ask questions and try until they learn with confidence."
       },
       "v3": {
-        "title": "Inclusiveness",
-        "desc": "Providing content that meets all the needs of the individual in their religion and worldly life."
+        "title": "Flexibility & Accessibility",
+        "desc": "We provide online lessons with flexible schedules, accommodating the diverse levels and needs of our students."
       }
     }
   },
@@ -1526,7 +1608,8 @@
       "profile": "Profile",
       "complaints": "Reports & Complaints",
       "website": "Website",
-      "settings": "Settings"
+      "settings": "Settings",
+      "subscriptions": "Payment & Subscriptions"
     },
     "header": {
       "title": "Manarat Al-Ezz Academy",
@@ -1811,6 +1894,10 @@
       "switchChild": "Switch Child",
       "studentIdLabel": "Student ID",
       "evaluationsCount": "{{count}} evaluations",
+      "evaluationsCountLabel": "Total Evaluations",
+      "evaluationUnit": "evaluations",
+      "sessionUnit": "session",
+      "groupsUnit": "groups",
       "groupsTitle": "Enrolled Study Groups & Classes",
       "noGroups": "No enrolled study groups currently",
       "balanceCardTitle": "Sessions Balance & Subscription Details",
@@ -2038,7 +2125,19 @@
         "pending": "Pending",
         "completionRate": "Completion Rate"
       },
-      "submissionStatus": "Submission Status"
+      "submissionStatus": "Submission Status",
+      "studentAnswer": "Student's Answer",
+      "noAnswerProvided": "No written answer provided.",
+      "correctAnswer": "Correct Answer",
+      "incorrectAnswer": "Incorrect Answer",
+      "textAnswerLabel": "Text Answer:",
+      "uploadedAttachments": "Submitted Solution Attachments:",
+      "openFile": "View / Download",
+      "teacherAttachmentsSection": "Homework Attachments (from Teacher):",
+      "studentAttachmentsSection": "Student Submission Attachments (uploaded by student):",
+      "attachedFile": "Attachment",
+      "documentFile": "Attached Homework File",
+      "mediaFile": "Audio / Video File"
     },
     "childDetails": {
       "evaluateTeachers": "Evaluate Teachers",
@@ -2168,8 +2267,9 @@
       "liveSession": "Live Session",
       "recordedSessions": "Recorded Sessions",
       "teachers": "Teachers",
+      "teacherEvaluations": "Teacher Evaluations",
       "assignments": "Assignments",
-      "excuses": "Children Excuses",
+      "excuses": "Absence Requests",
       "grades": "Grades",
       "attendance": "Attendance",
       "achievements": "Achievements",
@@ -2395,7 +2495,72 @@
       "dueDateLabel": "Due Date:",
       "submittedDateLabel": "Submitted:",
       "overdueDays": "5 days overdue",
-      "empty": "No assignments in this section"
+      "empty": "No assignments in this section",
+      "evaluated": "Evaluated",
+      "notEvaluated": "Not Evaluated",
+      "pendingEvaluationNotice": "Awaiting teacher's grade",
+      "filterAll": "All",
+      "filterEvaluated": "Evaluated",
+      "filterNotEvaluated": "Not Evaluated",
+      "submittedStatus": "Submitted",
+      "pendingEvaluationTitle": "Assignment Awaiting Teacher Evaluation",
+      "pendingEvaluationDesc": "This assignment has been submitted successfully and is currently under review by the teacher. Grades and notes will appear here once evaluation is complete.",
+      "evaluatedBannerDesc": "Your solution has been evaluated by the teacher. You can review your grade and notes below.",
+      "videoRecordings": "Assignment Videos & Media",
+      "submittedLate": "Submitted Late",
+      "viewDetails": "View Details",
+      "backToAssignments": "Back to Assignments",
+      "assignmentDetails": "Assignment Details",
+      "teacher": "Teacher",
+      "group": "Group",
+      "subject": "Subject",
+      "deadline": "Deadline",
+      "submittedAt": "Submitted Date",
+      "status": "Status",
+      "evaluation": "Evaluation Status",
+      "description": "Description & Instructions",
+      "attachedFiles": "Attached Files & Materials",
+      "noAttachedFiles": "No attached files for this assignment",
+      "downloadFile": "Download File",
+      "listenAudio": "Listen to Audio",
+      "viewFile": "View File",
+      "questions": "Assignment Questions",
+      "noQuestions": "No specific questions for this assignment",
+      "question": "Question",
+      "points": "point",
+      "pointsCount": "points",
+      "selectOption": "Select the correct answer:",
+      "typeYourAnswer": "Type your detailed answer here...",
+      "studentSubmission": "Assignment Solution & Submission",
+      "submissionNotes": "Student Notes or Written Answer",
+      "submissionNotesPlaceholder": "Add any notes or written solution for the teacher here...",
+      "uploadSolutionFile": "Upload Solution File (PDF, Document, Image)",
+      "dragAndDrop": "Drag and drop file here, or click to browse from device",
+      "maxFileSize": "Maximum file size 25MB",
+      "removeFile": "Remove File",
+      "submitNow": "Submit Assignment Now",
+      "submitting": "Submitting...",
+      "submittedSuccessfully": "Assignment submitted successfully!",
+      "submitFailed": "Failed to submit assignment, please try again",
+      "validationError": "Please answer the questions, write a solution, or attach a file",
+      "submittedBannerTitle": "This assignment has been submitted",
+      "submittedBannerDesc": "Your solution has been submitted and is awaiting teacher review and evaluation",
+      "yourAnswer": "Your Submitted Answer",
+      "yourFile": "Submitted File",
+      "teacherEvaluation": "Teacher Evaluation & Feedback",
+      "grade": "Earned Grade",
+      "outOf": "out of",
+      "teacherFeedback": "Teacher Feedback",
+      "noFeedbackYet": "Teacher has not added feedback yet",
+      "loadError": "Failed to load assignment details",
+      "retry": "Retry",
+      "submissionClosed": "The deadline for this assignment has passed and submission is closed",
+      "submissionClosedBtn": "Submission Closed",
+      "correctAnswer": "Correct Answer",
+      "incorrectAnswer": "Incorrect Answer",
+      "studentSubmissionTitle": "Submitted Assignment Solution",
+      "textAnswerLabel": "Text Answer:",
+      "submittedAttachments": "Submitted Attachments:"
     },
     "teachers": {
       "title": "Teachers List",
@@ -2771,6 +2936,45 @@
     "teacherMaryam": "T. Maryam Al-Ali"
   },
   "adminDashboard": {
+    "teacherEvaluations": {
+      "badge": "Parent Evaluations",
+      "pageTitle": "Teacher Evaluations",
+      "pageSubtitle": "Review and track parent evaluations and feedback on teachers' performance",
+      "allTeachers": "All Teachers",
+      "filterByTeacher": "Filter by Teacher",
+      "searchPlaceholder": "Search by teacher, parent, or notes...",
+      "totalEvaluations": "Total Evaluations",
+      "averageRating": "Overall Average Rating",
+      "fiveStarRatings": "5-Star Ratings",
+      "evaluatedTeachers": "Evaluated Teachers",
+      "allRatings": "All Ratings",
+      "parentLabel": "Parent",
+      "studentLabel": "Student",
+      "teacherLabel": "Teacher",
+      "notesLabel": "Evaluation Notes",
+      "noNotes": "No notes provided with this evaluation",
+      "noEvaluationsFound": "No evaluations recorded yet",
+      "noEvaluationsFilter": "No evaluations match the selected filter criteria",
+      "resetFilter": "Reset Filter",
+      "refresh": "Refresh",
+      "starsCount": "{{count}} Stars",
+      "ratingLevelExcellent": "Excellent",
+      "ratingLevelVeryGood": "Very Good",
+      "ratingLevelGood": "Good",
+      "ratingLevelAcceptable": "Acceptable",
+      "ratingLevelPoor": "Poor",
+      "ratingDistribution": "Rating Distribution",
+      "distributionHelp": "Click any star rating to filter results",
+      "weekStartLabel": "Evaluation Week",
+      "evaluationDateLabel": "Evaluation Date",
+      "parentPhoneLabel": "Phone Number",
+      "parentEmailLabel": "Email Address",
+      "whatsappChat": "WhatsApp Chat",
+      "directCall": "Phone Call",
+      "teacherId": "Teacher ID",
+      "parentBadge": "Parent",
+      "pageIndicator": "Page {{current}} of {{total}}"
+    },
     "header": {
       "title": "Manarat Al-Ezz",
       "subtitle": "Admin Panel"
@@ -2894,6 +3098,7 @@
       "home": "Overview",
       "managers": "Managers",
       "teachers": "Teachers",
+      "teacherEvaluations": "Teacher Evaluations",
       "students": "Students",
       "studentLevels": "Student Levels",
       "parents": "Parents",
@@ -2902,6 +3107,7 @@
       "mainWebsite": "Main Website",
       "website": "Website Settings",
       "sessions": "Sessions",
+      "trialSessions": "Trial Sessions",
       "studySchedule": "Study Schedule",
       "packages": "Packages & Pricing",
       "payments": "Payments",
@@ -2949,7 +3155,7 @@
       "totalInPlatform": "Total {{count}} supervisors in the platform",
       "searchPlaceholder": "Search...",
       "name": "Supervisor Name",
-      "email": "Remaining Sessions",
+      "email": "Email Address",
       "role": "Permissions",
       "phone": "Phone Number",
       "status": "Status",
@@ -3386,8 +3592,8 @@
       "imageHint": "Click to upload package image",
       "packageNameAr": "Package Name (AR)",
       "packageNameArPlaceholder": "e.g. Gold Package",
-      "packageNameEn": "Package Name",
-      "packageNameEnPlaceholder": "Package Name",
+      "packageNameEn": "Package Name (EN)",
+      "packageNameEnPlaceholder": "e.g. Gold Package",
       "price": "Price",
       "pricePlaceholder": "1500",
       "currency": "Currency",
@@ -3398,15 +3604,15 @@
       "allCountries": "All Countries (General)",
       "color": "Package Color",
       "descriptionAr": "Description (AR)",
-      "descriptionArPlaceholder": "Effective description",
-      "descriptionEn": "Package Brief",
-      "descriptionEnPlaceholder": "Describe",
+      "descriptionArPlaceholder": "Enter Arabic description",
+      "descriptionEn": "Description (EN)",
+      "descriptionEnPlaceholder": "Enter English description",
       "features": "Package Features",
       "featuresAr": "Features (AR)",
-      "featuresEn": "Features",
+      "featuresEn": "Features (EN)",
       "addFeature": "Add Feature",
       "featureArPlaceholder": "Feature (AR)",
-      "featureEnPlaceholder": "Feature",
+      "featureEnPlaceholder": "Enter English feature",
       "save": "Save Package",
       "cancel": "Cancel",
       "deleteTitle": "Confirm Delete",
@@ -3424,10 +3630,10 @@
       "questionArPlaceholder": "Common question",
       "answerAr": "Answer (AR)",
       "answerArPlaceholder": "Write the answer",
-      "questionEn": "Question",
-      "questionEnPlaceholder": "Question",
-      "answerEn": "Answer",
-      "answerEnPlaceholder": "Answer",
+      "questionEn": "Question (EN)",
+      "questionEnPlaceholder": "Enter English question",
+      "answerEn": "Answer (EN)",
+      "answerEnPlaceholder": "Enter English answer",
       "add": "Add",
       "update": "Update",
       "faqColQuestion": "Question",
@@ -3653,12 +3859,12 @@
       "loadingNotes": "Loading notes...",
       "noReviewNotes": "No notes available",
       "statsTitle": "Website Statistics Settings",
-      "classesLabel": "Classes Count",
-      "classesPlaceholder": "Classes Count",
-      "teachersLabel": "Teachers Count",
-      "teachersPlaceholder": "Teachers Count",
-      "studentsLabel": "Students Count",
-      "studentsPlaceholder": "Students Count",
+      "classesLabel": "Total Sessions",
+      "classesPlaceholder": "Enter total sessions count",
+      "teachersLabel": "Total Teachers",
+      "teachersPlaceholder": "Enter total teachers count",
+      "studentsLabel": "Total Students",
+      "studentsPlaceholder": "Enter total students count",
       "addTestimonialTitle": "Add New Testimonial",
       "editTestimonialTitle": "Edit Testimonial",
       "testimonialSubtitle": "Enter parent's testimonial details",
@@ -3667,7 +3873,7 @@
       "english": "English",
       "testimonialText": "Testimonial Text",
       "personalImageRequired": "Profile Image",
-      "starsTitle": "Academic Excellence Stars (Students)",
+      "starsTitle": "Academic Excellence Stars",
       "noStars": "No excellence stars available.",
       "save": "Save Settings",
       "cancel": "Cancel Changes",
@@ -4179,12 +4385,92 @@
     "package": "Package",
     "advancedPackage": "Advanced Package",
     "sessionsCount": "Number of Sessions",
+    "studentSessionsCount": "Sessions per Student",
     "sessionsPerMonth": "24 sessions / month",
     "operationType": "Operation Type",
     "subscriptionRenewal": "Subscription Renewal",
     "amount": "Amount",
+    "discount": "Discount",
+    "priceAfterDiscount": "Price after Discount",
     "tax": "Tax",
     "total": "Total",
-    "currency": "EGP"
+    "currency": "EGP",
+    "completePayment": "Complete Payment",
+    "completingPayment": "Processing Payment...",
+    "maxChildrenAllowed": "Maximum children allowed:",
+    "studentsCountUnit": "children",
+    "maxAllowedHint": "Max:",
+    "maxAllowedStudents": "Maximum allowed:",
+    "maxStudentsReached": "The maximum allowed students for this package is {{count}} students",
+    "selectStudentsFamilyDynamic": "Select children (1 to {{count}} students)",
+    "packageBasePrice": "Price",
+    "studentsCovered": "Beneficiary Students",
+    "subscriptionDate": "Subscription Date"
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode",
+    "toggle": "Toggle Theme"
+  },
+  "trialSessionLanding": {
+    "badge": "Free Trial Session",
+    "title": "Book your free trial session",
+    "titleEn": "Book your free trial session",
+    "subtitle": "Begin your child's learning journey with specialized expert educators in a safe, interactive 1-on-1 environment.",
+    "aboutSectionTitle": "About Us",
+    "aboutSectionSubtitle": "من نحن",
+    "aboutBriefLine1": "Manarat Al-Ezz is not just an academy, but a journey into knowledge designed to be a digital sanctuary combining authentic heritage with modern technology.",
+    "aboutBriefLine2": "We accompany your children step by step on their educational path with dedicated teachers who cater to each student's level and goals.",
+    "perks": {
+      "oneOnOne": "Free Live Session",
+      "certifiedTeachers": "Certified Expert Teachers",
+      "freeNoCommitment": "Completely Free - No Obligation"
+    },
+    "form": {
+      "title": "Request Your Free Trial Session",
+      "subtitle": "Fill in the details below and our team will coordinate the most convenient time for you",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "e.g. John Smith",
+      "email": "Email Address",
+      "emailPlaceholder": "example@email.com",
+      "country": "Country",
+      "selectCountry": "-- Select Country --",
+      "phone": "Phone Number",
+      "phonePlaceholder": "50 123 4567",
+      "curriculum": "Curriculum to Try",
+      "selectCurriculum": "-- Select Curriculum --",
+      "studentAge": "Student Age",
+      "selectAge": "-- Select Student Age --",
+      "yearsOld": "years old",
+      "preferredDay": "Preferred Day",
+      "selectDay": "-- Select Preferred Day --",
+      "preferredTime": "Preferred Time",
+      "selectTime": "-- Select Preferred Time Slot --",
+      "notes": "Additional Notes (Optional)",
+      "notesPlaceholder": "Any details regarding student's level or specific requirements...",
+      "submit": "Confirm Free Trial Session Booking",
+      "submitting": "Submitting booking request...",
+      "successTitle": "Request Submitted Successfully!",
+      "successMessage": "Thank you for choosing Manarat Al-Ezz Academy. Our team will contact you via WhatsApp or phone to coordinate your trial session.",
+      "errors": {
+        "nameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "countryRequired": "Please select a country",
+        "phoneRequired": "Phone number is required",
+        "curriculumRequired": "Please select a curriculum",
+        "ageRequired": "Please enter student age",
+        "dayRequired": "Please select a preferred day",
+        "timeRequired": "Please select a preferred time"
+      },
+      "agePlaceholder": "e.g. 8"
+    },
+    "testimonials": {
+      "badge": "Real Experiences",
+      "title": "Parents Testimonials",
+      "subtitle": "What parents say about their educational journey with Manarat Al-Ezz Academy"
+    },
+    "contactSupportTitle": "Have questions before booking?",
+    "contactSupportSubtitle": "Our team is always here to assist and answer your questions via the following channels"
   }
 }

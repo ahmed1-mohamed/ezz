@@ -13,7 +13,6 @@ export default function StudentLevelForm({
 }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   return (
     <form
       onSubmit={onSubmit}
@@ -24,7 +23,6 @@ export default function StudentLevelForm({
           ? (isRtl ? 'تعديل المستوى الدراسي' : 'Edit Academic Level')
           : (isRtl ? 'إضافة مستوى دراسي جديد' : 'Add New Academic Level')}
       </h3>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-start">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
@@ -35,7 +33,7 @@ export default function StudentLevelForm({
             required
             value={levelNameAr}
             onChange={(e) => setLevelNameAr(e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder={isRtl ? 'مثال: المستوى الأول' : 'e.g. Level One'}
           />
         </div>
@@ -48,12 +46,11 @@ export default function StudentLevelForm({
             required
             value={levelNameEn}
             onChange={(e) => setLevelNameEn(e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-400"
             placeholder={isRtl ? 'Level One :مثال' : 'e.g. Level One'}
           />
         </div>
       </div>
-
       <div className="flex justify-end gap-3 pt-2">
         <button
           type="button"

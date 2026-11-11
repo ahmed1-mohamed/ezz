@@ -4,13 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi.js';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi.js';
 import { fetchCountries, getCountryName } from '@/shared/utils/countryUtils.js';
+import { setCookie } from '@/shared/utils/cookieUtils.js';
+import api from '@/shared/services/api/axiosConfig.js';
 import { triggerGoogleAuth } from '@/shared/services/googleAuthService.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import Spinner from '@/shared/components/Spinner.jsx';
 import LanguageAppearancePanel from '@/shared/components/LanguageAppearancePanel.jsx';
 import StudentProfileHeader from './components/StudentProfileHeader.jsx';
-import StudentCoreStatsGrid from './components/StudentCoreStatsGrid.jsx';
 import StudentSessionBalanceCard from './components/StudentSessionBalanceCard.jsx';
 import StudentSubscriptionCard from './components/StudentSubscriptionCard.jsx';
 import StudentParentCard from './components/StudentParentCard.jsx';
@@ -25,13 +27,6 @@ function calculateAge(birthDate) {
   const diffMs = Date.now() - dob.getTime();
   const ageDate = new Date(diffMs);
   return Math.abs(ageDate.getUTCFullYear() - 1970);
-}
-
-function resolveName(nameField, isRtl) {
-  if (typeof nameField === 'object' && nameField !== null) {
-    return (isRtl ? nameField.ar || nameField.en : nameField.en || nameField.ar) || '';
-  }
-  return String(nameField || '');
 }
 
 function parseCountryDialCodeAndPhone(rawPhone, countryList = []) {
@@ -55,6 +50,51 @@ function parseCountryDialCodeAndPhone(rawPhone, countryList = []) {
   return { dialCode: '+966', phoneVal: cleaned.replace(/^0+/, '') };
 }
 
+function resolveStudentCountry(rawCountry, dialCode, countriesList = []) {
+  if (!Array.isArray(countriesList) || countriesList.length === 0) return '';
+  if (typeof rawCountry === 'object' && rawCountry !== null) {
+    const objId = rawCountry.id || rawCountry._id;
+    if (objId) {
+      const match = countriesList.find((c) => (c.id || c._id) === objId);
+      if (match) return match.id || match._id;
+    }
+    const objName = rawCountry.name || rawCountry.nameAr || rawCountry.nameEn || '';
+    if (objName) {
+      const match = countriesList.find((c) => {
+        const cn = (c.name || '').trim();
+        const ce = (c.nameEn || '').trim().toLowerCase();
+        const cf = (c.flag || '').trim();
+        return (cn && (objName.includes(cn) || cn.includes(objName))) ||
+          (ce && (objName.toLowerCase().includes(ce) || ce.includes(objName.toLowerCase()))) ||
+          (cf && objName.includes(cf));
+      });
+      if (match) return match.id || match._id;
+    }
+  }
+  const cleanStr = String(rawCountry || '').trim();
+  if (cleanStr) {
+    const directMatch = countriesList.find((c) => (c.id || c._id) === cleanStr);
+    if (directMatch) return directMatch.id || directMatch._id;
+    const codeMatch = countriesList.find((c) => (c.code || '').toUpperCase() === cleanStr.toUpperCase());
+    if (codeMatch) return codeMatch.id || codeMatch._id;
+    const nameMatch = countriesList.find((c) => {
+      const cn = (c.name || '').trim();
+      const ce = (c.nameEn || '').trim().toLowerCase();
+      const cf = (c.flag || '').trim();
+      return (cn && (cleanStr.includes(cn) || cn.includes(cleanStr))) ||
+        (ce && (cleanStr.toLowerCase().includes(ce) || ce.includes(cleanStr.toLowerCase()))) ||
+        (cf && cleanStr.includes(cf));
+    });
+    if (nameMatch) return nameMatch.id || nameMatch._id;
+  }
+  if (dialCode) {
+    const cleanDial = String(dialCode).trim();
+    const dialMatch = countriesList.find((c) => (c.dialCode || c.phoneCode || c.code) === cleanDial);
+    if (dialMatch) return dialMatch.id || dialMatch._id;
+  }
+  return '';
+}
+
 export default function StudentProfile() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
@@ -62,6 +102,7 @@ export default function StudentProfile() {
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [statsData, setStatsData] = useState(null);
+  const [currencyInfo, setCurrencyInfo] = useState({ symbol: '$', exchangeRate: 1 });
   const [countriesList, setCountriesList] = useState([]);
   const [isGoogleLinked, setIsGoogleLinked] = useState(false);
   const [isLinkingGoogle, setIsLinkingGoogle] = useState(false);
@@ -80,10 +121,11 @@ export default function StudentProfile() {
     async function loadData() {
       try {
         setLoading(true);
-        const [profRes, statsRes, countriesRes] = await Promise.allSettled([
+        const [profRes, statsRes, countriesRes, currencyRes] = await Promise.allSettled([
           profileApi.fetchProfile(),
           studentPortalApi.fetchDashboardStatistics(),
           fetchCountries(),
+          currenciesApi.fetchExchangeRate(),
         ]);
         let activeProfile = user || {};
         if (profRes.status === 'fulfilled' && profRes.value?.success) {
@@ -97,6 +139,10 @@ export default function StudentProfile() {
         if (statsRes.status === 'fulfilled') {
           setStatsData(statsRes.value);
         }
+        if (currencyRes.status === 'fulfilled') {
+          const parsed = parseExchangeRateData(currencyRes.value);
+          setCurrencyInfo(parsed);
+        }
         const loadedCountries = countriesRes.status === 'fulfilled' ? countriesRes.value : [];
         setCountriesList(loadedCountries);
         const nameAr = typeof activeProfile.name === 'object' && activeProfile.name !== null
@@ -108,12 +154,17 @@ export default function StudentProfile() {
         const parsed = parseCountryDialCodeAndPhone(activeProfile.phone, loadedCountries);
         const rawDob = activeProfile.birthDate || activeProfile.dateOfBirth || '';
         const formattedDob = rawDob ? String(rawDob).slice(0, 10) : '';
+        const resolvedCountryId = resolveStudentCountry(
+          activeProfile.country || activeProfile.countryAr || activeProfile.countryEn || activeProfile.countryCode,
+          parsed.dialCode,
+          loadedCountries
+        );
         setFormData({
           name: nameAr,
           nameEn: nameEn,
           phone: parsed.phoneVal,
           countryDialCode: parsed.dialCode,
-          country: activeProfile.country || (loadedCountries[0]?.id || ''),
+          country: resolvedCountryId,
           birthDate: formattedDob,
           imageFile: null,
         });
@@ -134,8 +185,17 @@ export default function StudentProfile() {
   const countryName = useMemo(() => {
     const cIdOrName = formData.country || p.country;
     if (!cIdOrName) return '';
-    const match = countriesList.find((c) => (c.id || c._id || c.name || c.code) === cIdOrName);
-    return match ? getCountryName(match, isRtl) : cIdOrName;
+    const match = countriesList.find((c) =>
+      (c.id || c._id) === cIdOrName ||
+      c.name === cIdOrName ||
+      c.nameEn === cIdOrName ||
+      (c.code && c.code.toUpperCase() === String(cIdOrName).toUpperCase())
+    );
+    if (match) {
+      const name = getCountryName(match, isRtl);
+      return match.flag ? `${match.flag} ${name}` : name;
+    }
+    return typeof cIdOrName === 'object' ? getCountryName(cIdOrName, isRtl) : String(cIdOrName);
   }, [formData.country, p.country, countriesList, isRtl]);
   const birthDateFormatted = useMemo(() => {
     const raw = formData.birthDate || p.birthDate || p.dateOfBirth;
@@ -148,32 +208,13 @@ export default function StudentProfile() {
       day: 'numeric',
     });
   }, [formData.birthDate, p.birthDate, p.dateOfBirth, isRtl]);
-  const joinDateFormatted = useMemo(() => {
-    if (!p.createdAt) return '-';
-    const d = new Date(p.createdAt);
-    if (Number.isNaN(d.getTime())) return '-';
-    return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }, [p.createdAt, isRtl]);
   const academicLevel = useMemo(() => {
     return p.level || p.grade || p.studentLevel || t('teacherCurricula.intermediate', 'متوسط');
   }, [p.level, p.grade, p.studentLevel, t]);
-  const attendanceRate = useMemo(() => {
-    if (statsData?.attendanceRate !== undefined) return `${statsData.attendanceRate}%`;
-    if (p.attendanceRate !== undefined) return `${p.attendanceRate}%`;
-    return '94%';
-  }, [statsData?.attendanceRate, p.attendanceRate]);
-  const averageRating = useMemo(() => {
-    if (statsData?.averageRating) return Number(statsData.averageRating).toFixed(1);
-    if (p.averageRating) return Number(p.averageRating).toFixed(1);
-    return '4.9';
-  }, [statsData?.averageRating, p.averageRating]);
-  const totalEvaluations = useMemo(() => {
-    return statsData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
-  }, [statsData?.totalEvaluations, p.evaluationsCount, p.totalReviews]);
+  const attendanceRate = statsData?.attendanceRate !== undefined ? `${statsData.attendanceRate}%` : p.attendanceRate !== undefined ? `${p.attendanceRate}%` : '94%';
+  const averageRating = statsData?.averageRating ? Number(statsData.averageRating).toFixed(1) : p.averageRating ? Number(p.averageRating).toFixed(1) : '4.9';
+  console.log(statsData);
+  const totalEvaluations = profileData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
   const sessionBalanceData = useMemo(() => {
     if (p.sessionsBalance || p.sessionBalance) {
       return p.sessionsBalance || p.sessionBalance;
@@ -318,6 +359,38 @@ export default function StudentProfile() {
         confirmPassword,
       });
       if (res?.success) {
+        const resData = res.data?.data || res.data;
+        const newAccessToken =
+          resData?.token ||
+          resData?.accessToken ||
+          resData?.access_token ||
+          res.data?.token ||
+          res.data?.accessToken ||
+          res.data?.access_token;
+        const newRefreshToken =
+          resData?.refreshToken ||
+          resData?.refresh_token ||
+          res.data?.refreshToken ||
+          res.data?.refresh_token;
+        if (newAccessToken) {
+          setCookie('access_token', newAccessToken, 7);
+          try {
+            localStorage.setItem('access_token', newAccessToken);
+          } catch (e) {
+            void e;
+          }
+          if (api?.defaults?.headers?.common) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          }
+        }
+        if (newRefreshToken) {
+          setCookie('refresh_token', newRefreshToken, 7);
+          try {
+            localStorage.setItem('refresh_token', newRefreshToken);
+          } catch (e) {
+            void e;
+          }
+        }
         showSuccessToast(t('studentDashboard.profile.passwordUpdatedSuccess', 'تم تحديث كلمة المرور بنجاح'));
         if (clearFields) clearFields();
       } else {
@@ -349,18 +422,15 @@ export default function StudentProfile() {
           age={age}
           countryName={countryName}
           birthDateFormatted={birthDateFormatted}
-          joinDateFormatted={joinDateFormatted}
-          onImageChange={handleImageChange}
-        />
-        <StudentCoreStatsGrid
           attendanceRate={attendanceRate}
           averageRating={averageRating}
           totalEvaluations={totalEvaluations}
           academicLevel={academicLevel}
+          onImageChange={handleImageChange}
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <StudentSessionBalanceCard sessionBalance={sessionBalanceData} />
-          <StudentSubscriptionCard subscription={subscriptionData} />
+          <StudentSubscriptionCard subscription={subscriptionData} currencyInfo={currencyInfo} />
         </div>
         <StudentParentCard parent={parentData} />
         <StudentEditProfileForm

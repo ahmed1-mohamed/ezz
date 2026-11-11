@@ -12,7 +12,6 @@ export default function TeacherPersonalInfoCard({
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [fetchedCountries, setFetchedCountries] = useState([])
-
   useEffect(() => {
     let isMounted = true
     if (!countries || countries.length === 0) {
@@ -28,9 +27,7 @@ export default function TeacherPersonalInfoCard({
       isMounted = false
     }
   }, [countries])
-
   const sourceCountries = countries && countries.length > 0 ? countries : fetchedCountries
-
   const activeCountries = useMemo(() => {
     const rawList = sourceCountries.map(c => {
       const dialCode = c.dialCode || c.phoneCode || (typeof c.code === 'string' && c.code.startsWith('+') ? c.code : '') || ''
@@ -45,10 +42,8 @@ export default function TeacherPersonalInfoCard({
     })
     return sortCountries(rawList, isRtl)
   }, [sourceCountries, isRtl])
-
   const rawPhone = (formData.phone || '').trim()
   const [userSelectedCountry, setUserSelectedCountry] = useState(null)
-
   const { parsedCountry, parsedPhone } = useMemo(() => {
     if (!rawPhone) return { parsedCountry: null, parsedPhone: '' }
     if (rawPhone.startsWith('+')) {
@@ -81,31 +76,25 @@ export default function TeacherPersonalInfoCard({
     }
     return { parsedCountry: null, parsedPhone: rawPhone }
   }, [rawPhone, activeCountries])
-
   const selectedCountry = useMemo(() => {
     if (userSelectedCountry) return userSelectedCountry
     if (activeCountries.length === 0) return null
     const byCountryId = formData.country ? activeCountries.find(c => c.id === formData.country) : null
     if (parsedCountry) {
-      // Several countries share a dial code (e.g. +1); prefer the teacher's saved country when it matches.
       return byCountryId && byCountryId.code === parsedCountry.code ? byCountryId : parsedCountry
     }
     return byCountryId || activeCountries.find(c => c.code === DEFAULT_DIAL_CODE) || activeCountries[0]
   }, [userSelectedCountry, parsedCountry, activeCountries, formData.country])
-
   const onChangeRef = useRef(onChange)
   useEffect(() => {
     onChangeRef.current = onChange
   })
-
   useEffect(() => {
     if (activeCountries.length > 0 && !formData.country && selectedCountry?.id) {
       onChangeRef.current('country', selectedCountry.id)
     }
   }, [activeCountries, formData.country, selectedCountry])
-
   const phoneNumberOnly = parsedPhone
-
   const handlePhoneNumChange = (value) => {
     const cleanVal = value.replace(/[^\d]/g, '')
     if (selectedCountry?.code) {
@@ -114,20 +103,17 @@ export default function TeacherPersonalInfoCard({
       onChange('phone', cleanVal)
     }
   }
-
   const selectCountryCode = (country) => {
     setUserSelectedCountry(country)
     setIsDropdownOpen(false)
     onChange('country', country.id)
     onChange('phone', phoneNumberOnly ? `${country.code}${phoneNumberOnly}` : '')
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <h2 className="text-xl font-bold text-slate-800 dark:text-white">
         {isRtl ? 'البيانات الشخصية' : 'Personal Information'}
       </h2>
-
       <div className="flex flex-col items-center justify-center pt-1 pb-4">
         <label className="relative cursor-pointer group flex flex-col items-center justify-center w-44 h-44 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-[#005953] bg-[#f8faf9] dark:bg-slate-950/20 transition-all overflow-hidden">
           {formData.profileImage || formData.image ? (
@@ -167,7 +153,6 @@ export default function TeacherPersonalInfoCard({
           {isRtl ? 'صورة شخصية' : 'Profile Picture'}
         </span>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -178,12 +163,11 @@ export default function TeacherPersonalInfoCard({
             required
             value={formData.name || ''}
             onChange={(e) => onChange('name', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder={isRtl ? 'نورة أحمد' : 'Nora Ahmed'}
             dir="rtl"
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم بالإنجليزية' : 'Name in English'}
@@ -192,13 +176,12 @@ export default function TeacherPersonalInfoCard({
             type="text"
             value={formData.nameEn || ''}
             onChange={(e) => onChange('nameEn', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder="Nora ahmed"
             dir="ltr"
           />
         </div>
       </div>
-
       <div className={`grid grid-cols-1 ${!isEdit ? 'md:grid-cols-2' : ''} gap-5`}>
         {!isEdit && (
           <div>
@@ -210,13 +193,12 @@ export default function TeacherPersonalInfoCard({
               required
               value={formData.email || ''}
               onChange={(e) => onChange('email', e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
               placeholder="Nora_ahmed@yahoo.com"
               dir="ltr"
             />
           </div>
         )}
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'رقم الهاتف' : 'Phone Number'}
@@ -232,7 +214,6 @@ export default function TeacherPersonalInfoCard({
                 <span className="text-xs">{selectedCountry?.code || ''}</span>
                 <span className="text-base">{selectedCountry?.flag || '🌍'}</span>
               </button>
-
               {isDropdownOpen && (
                 <div className={`absolute ${isRtl ? 'right-0' : 'left-0'} mt-2 z-30 w-52 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 max-h-60 overflow-y-auto animate-fadeIn`}>
                   {activeCountries.map((country, idx) => (
@@ -252,13 +233,12 @@ export default function TeacherPersonalInfoCard({
                 </div>
               )}
             </div>
-
             <input
               type="tel"
               required
               value={phoneNumberOnly}
               onChange={(e) => handlePhoneNumChange(e.target.value)}
-              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 text-start"
+              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 text-start"
               placeholder="501234567"
             />
           </div>

@@ -112,14 +112,14 @@ function extractSubmitterInfo(full, isRtl = true) {
     full.type === 'delay'
   ) {
     roleKey = 'teacher'
-  } else if (Boolean(full.parent || full.parentName || full.parentId)) {
+  } else if (full.parent || full.parentName || full.parentId) {
     roleKey = 'parent'
-  } else if (Boolean(full.teacher || full.teacherName || full.teacherId)) {
+  } else if (full.teacher || full.teacherName || full.teacherId) {
     roleKey = 'teacher'
-  } else if (Boolean(full.student || full.studentName || full.studentId)) {
+  } else if (full.student || full.studentName || full.studentId) {
     roleKey = 'student'
   }
-  let name = ''
+  let name;
   if (roleKey === 'parent') {
     name =
       extractSafeString(full.parent?.name, isRtl) ||

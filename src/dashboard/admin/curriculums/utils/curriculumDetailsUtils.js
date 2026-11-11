@@ -1,3 +1,4 @@
+import { buildApiAssetUrl, isApiAssetUrl } from '@/shared/config/apiConfig.js'
 import {
   FileText,
   Image as ImageIcon,
@@ -11,8 +12,7 @@ import {
 export const buildFullFileUrl = (url) => {
   if (!url) return ''
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-  const baseUrl = 'https://manaret-ezz.dramcode.top/'
-  return `${baseUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+  return buildApiAssetUrl(url)
 }
 
 export const getFileMeta = (file, isRtl = false) => {
@@ -20,13 +20,10 @@ export const getFileMeta = (file, isRtl = false) => {
   const fileUrl = typeof file === 'string'
     ? file
     : (file?.url || file?.file || file?.link || file?.path || file?.src || file?.fileUrl || '')
-
   const cleanPath = (fileUrl.split('?')[0].split('#')[0] || '').trim()
   const ext = (cleanPath.split('.').pop() || '').toLowerCase()
-
   const isExplicitLink = rawType === 'link' || rawType === 'url'
   const isExplicitFile = rawType === 'file' || rawType === 'document' || rawType === 'pdf' || rawType === 'image' || rawType === 'video' || rawType === 'audio'
-
   const isPdf = ext === 'pdf'
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)
   const isVideo = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'wmv', 'flv', 'm4v'].includes(ext)
@@ -34,7 +31,6 @@ export const getFileMeta = (file, isRtl = false) => {
   const isAudio = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)
   const isDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'csv'].includes(ext)
   const hasKnownFileExt = isPdf || isImage || isVideo || isArchive || isAudio || isDoc
-
   let isLink = false
   if (isExplicitLink) {
     isLink = true
@@ -42,10 +38,9 @@ export const getFileMeta = (file, isRtl = false) => {
     isLink = false
   } else if (Boolean(file?.link) && !file?.file && !file?.url) {
     isLink = true
-  } else if (typeof file === 'string' && file.startsWith('http') && !file.includes('manaret-ezz.dramcode.top') && !hasKnownFileExt) {
+  } else if (typeof file === 'string' && file.startsWith('http') && !isApiAssetUrl(file) && !hasKnownFileExt) {
     isLink = true
   }
-
   if (isLink) {
     const fullUrl = fileUrl ? (fileUrl.startsWith('http://') || fileUrl.startsWith('https://') ? fileUrl : `https://${fileUrl}`) : ''
     return {
@@ -56,9 +51,7 @@ export const getFileMeta = (file, isRtl = false) => {
       fullUrl
     }
   }
-
   const fullUrl = buildFullFileUrl(fileUrl)
-
   if (isPdf) {
     return { icon: FileText, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/30', type: isRtl ? 'ملف PDF' : 'PDF', isLink: false, isImage: false, fullUrl }
   }
@@ -77,7 +70,6 @@ export const getFileMeta = (file, isRtl = false) => {
   if (isDoc) {
     return { icon: FileText, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: isRtl ? 'مستند' : 'Document', isLink: false, fullUrl }
   }
-
   return { icon: FileIcon, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', type: isRtl ? 'ملف' : 'File', isLink: false, fullUrl }
 }
 

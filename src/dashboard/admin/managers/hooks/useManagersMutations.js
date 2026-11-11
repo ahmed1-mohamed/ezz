@@ -4,7 +4,6 @@ import { showSuccessToast } from '@/shared/utils/sweetAlert';
 
 export function useManagersMutations(isRtl) {
   const queryClient = useQueryClient();
-
   const updateMutation = useMutation({
     mutationFn: ({ id, adminData }) => managersApi.updateSupervisor(id, adminData),
     onSuccess: () => {
@@ -12,7 +11,6 @@ export function useManagersMutations(isRtl) {
       showSuccessToast(isRtl ? 'تم تحديث بيانات المشرف بنجاح!' : 'Supervisor updated successfully!', isRtl);
     }
   });
-
   const createMutation = useMutation({
     mutationFn: (supervisorData) => managersApi.createSupervisor(supervisorData),
     onSuccess: () => {
@@ -20,7 +18,6 @@ export function useManagersMutations(isRtl) {
       showSuccessToast(isRtl ? 'تم إضافة المشرف بنجاح!' : 'Supervisor added successfully!', isRtl);
     }
   });
-
   const deleteMutation = useMutation({
     mutationFn: (id) => managersApi.deleteSupervisor(id),
     onSuccess: () => {
@@ -28,7 +25,6 @@ export function useManagersMutations(isRtl) {
       showSuccessToast(isRtl ? 'تم حذف المشرف بنجاح!' : 'Supervisor deleted successfully!', isRtl);
     }
   });
-
   const toggleStatusMutation = useMutation({
     mutationFn: ({ userId }) => managersApi.toggleActiveUser(userId),
     onSuccess: (res) => {
@@ -37,7 +33,6 @@ export function useManagersMutations(isRtl) {
       showSuccessToast(isRtl ? `تم ${statusText} حساب المشرف بنجاح!` : `Supervisor account ${statusText} successfully!`, isRtl);
     }
   });
-
   return {
     updateMutation,
     createMutation,

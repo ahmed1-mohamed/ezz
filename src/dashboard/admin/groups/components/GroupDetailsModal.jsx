@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2, ArrowRightLeft } from 'lucide-react'
+import { Users, UserPlus, X, GraduationCap, Calendar, Loader2, UserCheck, Trash2, ArrowRightLeft, CalendarPlus } from 'lucide-react'
 import { studentsApi } from '@/shared/services/api/studentsApi'
 import StudentSelect from './fields/StudentSelect'
 import StatusBadge from './StatusBadge'
 import TransferStudentModal from './TransferStudentModal'
+import CreateSessionModal from '@/dashboard/admin/sessions/components/CreateSessionModal'
 import { getLocalizedValue } from '../utils/groupUtils'
 
 export default function GroupDetailsModal({
@@ -24,9 +25,9 @@ export default function GroupDetailsModal({
   const [availableStudents, setAvailableStudents] = useState([])
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [studentToTransfer, setStudentToTransfer] = useState(null)
+  const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [isLoadingStudents, setIsLoadingStudents] = useState(false)
-
   const extractStudentName = useCallback((obj) => {
     if (!obj) return ''
     if (typeof obj === 'string') return obj
@@ -42,19 +43,16 @@ export default function GroupDetailsModal({
     }
     return ''
   }, [isRtl])
-
   const normalizedStudentsList = useMemo(() => {
     const rawList = Array.isArray(group?.students) ? group.students : []
     return rawList.map((raw, idx) => {
       const rawId = typeof raw === 'string'
         ? raw
         : (raw?.student_id || raw?.studentId || raw?.student?._id || raw?.student?.id || raw?.id || raw?._id || (typeof raw?.student === 'string' ? raw.student : ''))
-
       const matched = availableStudents.find((s) => {
         const sId = String(s.student_id || s.studentId || s.id || s._id || s.user_id || '')
         return sId && sId === String(rawId)
       })
-
       const actualStudentId = String(
         raw?.student_id ||
         raw?.student?.student_id ||
@@ -69,18 +67,15 @@ export default function GroupDetailsModal({
         raw?._id ||
         `std_${idx}`
       )
-
       let rawName = ''
       let email = ''
       let avatar = ''
       let joinDate = ''
-
       if (matched) {
         rawName = extractStudentName(matched)
         email = matched.email || matched.user?.email || ''
         avatar = matched.avatar || matched.profileImage || matched.image || ''
       }
-
       if (!rawName && raw && typeof raw === 'object') {
         rawName = extractStudentName(raw.student) ||
           extractStudentName(raw.user) ||
@@ -88,9 +83,7 @@ export default function GroupDetailsModal({
         email = raw.email || raw.student?.email || raw.user?.email || email
         avatar = raw.avatar || raw.profileImage || raw.student?.avatar || raw.student?.profileImage || avatar
       }
-
       const displayName = rawName || (actualStudentId ? `${t('adminDashboard.groups.student', 'طالب')} (${String(actualStudentId).slice(-4)})` : t('adminDashboard.groups.student', 'طالب'))
-
       if (raw && typeof raw === 'object') {
         if (raw.createdAt) {
           try {
@@ -108,7 +101,6 @@ export default function GroupDetailsModal({
           }
         }
       }
-
       return {
         id: actualStudentId,
         _id: actualStudentId,
@@ -120,9 +112,7 @@ export default function GroupDetailsModal({
       }
     })
   }, [group, availableStudents, isRtl, t, extractStudentName])
-
   const count = group.currentStudentsCount ?? normalizedStudentsList.length
-
   const getDayName = (rawDay) => {
     if (!rawDay) return ''
     const key = rawDay.toString().trim().toLowerCase()
@@ -137,7 +127,6 @@ export default function GroupDetailsModal({
     }
     return map[key] || rawDay
   }
-
   useEffect(() => {
     let active = true
     const load = async () => {
@@ -163,9 +152,7 @@ export default function GroupDetailsModal({
     load()
     return () => { active = false }
   }, [])
-
   const existingIds = useMemo(() => normalizedStudentsList.map((s) => s.id || s._id), [normalizedStudentsList])
-
   const handleAddClick = async () => {
     if (!selectedStudent || !onAddStudent) return
     setIsAdding(true)
@@ -176,13 +163,13 @@ export default function GroupDetailsModal({
       setIsAdding(false)
     }
   }
-
+  if (typeof document === 'undefined') return null
   return createPortal(
     <div
-      className="fixed inset-0 z-[9990] flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
       <div
         className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-3xl min-h-[500px] max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -207,7 +194,6 @@ export default function GroupDetailsModal({
               />
             </div>
           </div>
-
           <div className="flex items-center gap-2 shrink-0">
             {onOpenAddStudents && (
               <button
@@ -221,6 +207,15 @@ export default function GroupDetailsModal({
               </button>
             )}
             <button
+              type="button"
+              onClick={() => setIsCreateSessionOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#005953]/10 dark:bg-emerald-950/40 hover:bg-[#005953]/20 text-[#005953] dark:text-emerald-400 transition-all border border-[#005953]/20 dark:border-emerald-800 cursor-pointer"
+              title={t('adminDashboard.sessions.createSessionBtn', 'إضافة حصة')}
+            >
+              <CalendarPlus size={14} />
+              <span className="hidden sm:inline">{t('adminDashboard.sessions.createSessionBtn', 'إضافة حصة')}</span>
+            </button>
+            <button
               onClick={onClose}
               className="p-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
@@ -228,7 +223,6 @@ export default function GroupDetailsModal({
             </button>
           </div>
         </div>
-
          <div className="px-5 py-3 bg-amber-50/50 dark:bg-amber-950/20 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
@@ -253,7 +247,6 @@ export default function GroupDetailsModal({
             </button>
           )}
         </div>
-
          <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <Calendar size={15} className="text-brand-600 dark:text-brand-400 shrink-0" />
@@ -279,7 +272,6 @@ export default function GroupDetailsModal({
             </button>
           )}
         </div>
-
          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 space-y-2 shrink-0">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 text-start">
             {t('adminDashboard.groups.addStudentToGroup', 'إضافة طالب إلى المجموعة')}
@@ -307,7 +299,6 @@ export default function GroupDetailsModal({
             </button>
           </div>
         </div>
-
         <div className="p-5 space-y-3 overflow-y-auto flex-1">
           {normalizedStudentsList.length === 0 ? (
             <p className="text-center text-slate-400 text-sm py-8">
@@ -358,7 +349,6 @@ export default function GroupDetailsModal({
             ))
           )}
         </div>
-
         {studentToTransfer && (
           <TransferStudentModal
             student={studentToTransfer}
@@ -367,12 +357,20 @@ export default function GroupDetailsModal({
             onClose={() => setStudentToTransfer(null)}
             onConfirm={async (targetGroupId) => {
               if (onTransferStudent) {
-                await onTransferStudent(group.id || group._id, studentToTransfer.studentId || studentToTransfer.id, targetGroupId)
+                await onTransferStudent(group.id || group._id, studentToTransfer.studentId || studentToTransfer.student_id || studentToTransfer.id || studentToTransfer._id, targetGroupId)
               }
               setStudentToTransfer(null)
             }}
             isRtl={isRtl}
             t={t}
+          />
+        )}
+        {isCreateSessionOpen && (
+          <CreateSessionModal
+            isOpen={isCreateSessionOpen}
+            onClose={() => setIsCreateSessionOpen(false)}
+            preselectedGroup={group}
+            isRtl={isRtl}
           />
         )}
       </div>

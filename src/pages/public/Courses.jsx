@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -12,13 +13,13 @@ const getImageUrl = (imagePath) => {
         return imagePath;
     }
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+    return buildApiAssetUrl(cleanPath);
 };
 
 export default React.memo(function Courses() {
     const { t, i18n } = useTranslation();
-    const isRtl = i18n.language?.startsWith('ar') ?? true;
-
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar';
+    const isRtl = currentLang === 'ar';
     const {
         data: curriculaData,
         isLoading,
@@ -33,7 +34,6 @@ export default React.memo(function Courses() {
         },
         staleTime: 5 * 60 * 1000,
     });
-
     const coursesList = useMemo(() => {
         if (!Array.isArray(curriculaData)) return [];
         return curriculaData.map((prog, index) => {
@@ -45,7 +45,6 @@ export default React.memo(function Courses() {
                 : prog.description || '';
             const imgSrc = prog.image ? getImageUrl(prog.image) : '';
             const levelsCount = Array.isArray(prog.levels) ? prog.levels.length : 0;
-
             return {
                 id: prog.id || prog._id || index,
                 title,
@@ -55,9 +54,7 @@ export default React.memo(function Courses() {
             };
         });
     }, [curriculaData, isRtl]);
-
     const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
-
     return (
         <div className="space-y-6 sm:space-y-8 lg:space-y-10 min-h-screen pt-12 sm:pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <motion.section
@@ -77,7 +74,6 @@ export default React.memo(function Courses() {
                     {t('publicCourses.description', 'اكتشف مناهجنا القرآنية واللغوية والتربوية المعتمدة المصممة لجميع المستويات والأعمار')}
                 </p>
             </motion.section>
-
             {isLoading ? (
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -85,7 +81,7 @@ export default React.memo(function Courses() {
                     ))}
                 </div>
             ) : isError ? (
-                <div className="rounded-3xl border border-red-200 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900/40 p-8 text-center space-y-3">
+                <div className="rounded-3xl border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 bg-white dark:bg-slate-900 p-8 text-center space-y-3 shadow-xs">
                     <p className="text-red-600 dark:text-red-400 font-bold">
                         {t('common.errorLoading', 'حدث خطأ أثناء تحميل البرامج')}
                     </p>
@@ -115,11 +111,11 @@ export default React.memo(function Courses() {
                         >
                             <div>
                                 {course.image ? (
-                                    <div className="w-full h-44 rounded-2xl overflow-hidden mb-5 bg-slate-100 dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
+                                    <div className="w-full h-48 rounded-2xl overflow-hidden mb-5 bg-gradient-to-b from-slate-50 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-800/90 border border-slate-100 dark:border-slate-800 flex items-center justify-center p-3">
                                         <img
                                             src={course.image}
                                             alt={course.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 select-none"
                                             loading="lazy"
                                         />
                                     </div>
@@ -128,7 +124,6 @@ export default React.memo(function Courses() {
                                         <BookOpen className="w-7 h-7" />
                                     </div>
                                 )}
-
                                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                                     {course.levelsCount > 0 && (
                                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-[#E0F2F1] text-[#00796B] dark:bg-[#004D40]/30 dark:text-[#4DB6AC]">
@@ -137,27 +132,23 @@ export default React.memo(function Courses() {
                                         </span>
                                     )}
                                 </div>
-
                                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-[#00695C] dark:group-hover:text-emerald-400 transition-colors">
                                     {course.title}
                                 </h2>
-
                                 <p className="mt-3 text-sm sm:text-base leading-6 text-slate-600 dark:text-slate-300 font-medium line-clamp-3">
                                     {course.desc}
                                 </p>
                             </div>
-
                             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                                 <Link
-                                    to="/curriculums"
+                                    to={`/${currentLang}/curriculums`}
                                     className="inline-flex items-center gap-2 text-sm font-bold text-[#00695C] dark:text-emerald-400 hover:underline cursor-pointer"
                                 >
                                     <span>{t('publicCourses.learnMore', 'تفاصيل البرنامج')}</span>
                                     <ArrowIcon className="w-4 h-4" />
                                 </Link>
-
                                 <Link
-                                    to="/pricing"
+                                    to={`/${currentLang}/pricing`}
                                     className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
                                 >
                                     {t('publicCourses.enrollNow', 'سجل الآن')}
@@ -167,7 +158,6 @@ export default React.memo(function Courses() {
                     ))}
                 </div>
             )}
-
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -185,7 +175,7 @@ export default React.memo(function Courses() {
                         </p>
                     </div>
                     <Link
-                        to="/contact"
+                        to={`/${currentLang}/contact`}
                         className="inline-flex items-center justify-center bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap cursor-pointer text-center"
                     >
                         {t('publicCourses.ctaButton', 'تواصل مع مستشار تعليمي')}

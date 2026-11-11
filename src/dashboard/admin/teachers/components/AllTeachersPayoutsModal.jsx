@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -6,16 +6,12 @@ import {
   History,
   Coins,
   Search,
-  ExternalLink,
   Eye,
-  Calendar,
-  Building2,
   ChevronLeft,
   ChevronRight,
   RotateCcw,
   Receipt,
-  GraduationCap,
-} from 'lucide-react'
+  } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import ProofImageModal from '@/dashboard/teacher/earnings/components/ProofImageModal'
@@ -36,40 +32,33 @@ export default function AllTeachersPayoutsModal({
   const [searchVal, setSearchVal] = useState('')
   const [previewImage, setPreviewImage] = useState(null)
   const [previewTitle, setPreviewTitle] = useState('')
-
-  // GET /api/v1/teachers/private/payouts
   const { data: res, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['all-teachers-payouts', page, searchVal],
     queryFn: () => teachersApi.fetchAllTeachersPayouts({ page, limit: 15, search: searchVal.trim() || undefined }),
     enabled: Boolean(isOpen),
     staleTime: 60 * 1000,
   })
-
-  if (!isOpen) return null
-
+  if (!isOpen || typeof document === 'undefined') return null
   const payoutsList = res?.data || []
   const statistics = res?.statistics || {}
   const pagination = res?.pagination || { currentPage: 1, totalPages: 1, totalItems: 0 }
-
   const handleOpenProof = (url, title) => {
     if (!url) return
     setPreviewImage(url)
     setPreviewTitle(title || 'إيصال التحويل المالي')
   }
-
   return createPortal(
     <div
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] animate-scaleUp"
       >
-        {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-teal-50 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center font-bold">
@@ -84,7 +73,6 @@ export default function AllTeachersPayoutsModal({
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -103,8 +91,6 @@ export default function AllTeachersPayoutsModal({
             </button>
           </div>
         </div>
-
-        {/* Filter & Mini Stats Bar */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 space-y-4 shrink-0">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between">
@@ -120,7 +106,6 @@ export default function AllTeachersPayoutsModal({
                 <Coins size={20} />
               </div>
             </div>
-
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-bold text-slate-400 block">
@@ -135,8 +120,6 @@ export default function AllTeachersPayoutsModal({
               </div>
             </div>
           </div>
-
-          {/* Search Box */}
           <div className="relative">
             <Search className={`absolute ${isRtl ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 text-slate-400`} size={16} />
             <input
@@ -151,8 +134,6 @@ export default function AllTeachersPayoutsModal({
             />
           </div>
         </div>
-
-        {/* Body Content / Table */}
         <div className="p-6 overflow-y-auto flex-1">
           {isLoading ? (
             <div className="py-20 flex justify-center items-center">
@@ -189,9 +170,7 @@ export default function AllTeachersPayoutsModal({
                       method.walletNumber ||
                       method.type ||
                       'حوالة'
-
                     const tName = payout.teacher?.name || 'معلم'
-
                     return (
                       <tr
                         key={payout.id || payout._id || idx}
@@ -256,8 +235,6 @@ export default function AllTeachersPayoutsModal({
               </table>
             </div>
           )}
-
-          {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
               <span className="text-xs text-slate-400 font-medium">
@@ -284,8 +261,6 @@ export default function AllTeachersPayoutsModal({
             </div>
           )}
         </div>
-
-        {/* Proof Image Fullscreen Lightbox Modal */}
         <ProofImageModal
           isOpen={Boolean(previewImage)}
           onClose={() => {

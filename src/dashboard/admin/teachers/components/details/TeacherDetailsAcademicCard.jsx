@@ -5,7 +5,6 @@ import { Trash2 } from 'lucide-react'
 export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAchievement }) {
   const { t, i18n } = useTranslation()
   const isRtlResolved = isRtl !== undefined ? isRtl : i18n.language.startsWith('ar')
-
   const specialization = useMemo(() => {
     if (Array.isArray(teacher?.specializations) && teacher.specializations.length > 0) {
       const names = teacher.specializations.map((spec) => {
@@ -24,15 +23,11 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
     }
     return teacher?.subject || '-'
   }, [teacher, isRtlResolved])
-
   const years = Number(teacher?.yearsOfExperience ?? teacher?.experienceYears ?? 0)
-
   const degreeAr = teacher?.degreeAr || (typeof teacher?.degree === 'object' ? teacher?.degree?.ar : (typeof teacher?.degree === 'string' ? teacher?.degree : '')) || teacher?.qualification || '-'
   const degreeEn = teacher?.degreeEn || (typeof teacher?.degree === 'object' ? teacher?.degree?.en : '') || '-'
-
   const bioAr = teacher?.bioAr || (typeof teacher?.bio === 'object' ? teacher?.bio?.ar : (typeof teacher?.bio === 'string' ? teacher?.bio : '')) || teacher?.aboutAr || '-'
   const bioEn = teacher?.bioEn || (typeof teacher?.bio === 'object' ? teacher?.bio?.en : '') || '-'
-
   const achievements = useMemo(() => {
     const raw = teacher?.achievements
     if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
@@ -64,14 +59,11 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
     }
     return []
   }, [teacher])
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <h2 className="text-xl font-bold text-slate-800 dark:text-white">
         {t('adminDashboard.teachers.academicInfo', isRtlResolved ? 'البيانات الأكاديمية' : 'Academic Information')}
       </h2>
-
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -81,7 +73,6 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
             {specialization}
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {t('adminDashboard.teachers.yearsOfExperience', isRtlResolved ? 'سنوات الخبرة' : 'Years of Experience')}
@@ -91,8 +82,6 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
           </div>
         </div>
       </div>
-
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -102,7 +91,6 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
             {degreeAr}
           </div>
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {t('adminDashboard.teachers.qualificationEn', isRtlResolved ? 'المؤهل (بالإنجليزية)' : 'Qualification (English)')}
@@ -112,8 +100,6 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
           </div>
         </div>
       </div>
-
-      
       <div>
         <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.teachers.bioAr', isRtlResolved ? 'نبذة عن المعلم (بالعربية)' : 'About the Teacher (Arabic)')}
@@ -122,8 +108,6 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
           {bioAr}
         </div>
       </div>
-
-      
       <div>
         <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.teachers.bioEn', isRtlResolved ? 'نبذة عن المعلم (بالإنجليزية)' : 'Brief About Teacher (English)')}
@@ -132,8 +116,6 @@ export default function TeacherDetailsAcademicCard({ teacher, isRtl, onDeleteAch
           {bioEn}
         </div>
       </div>
-
-      
       <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-xs mt-2">
         <div className="bg-[#005953] px-6 py-3 text-start flex items-center justify-between">
           <span className="text-xs font-bold text-white">

@@ -5,10 +5,8 @@ import { Calendar } from 'lucide-react';
 export default React.memo(function TeacherDashboardHeader({ teacherName }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -38,15 +36,12 @@ export default React.memo(function TeacherDashboardHeader({ teacherName }) {
         setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      {/* Right in RTL: Title & Greeting Subtitle */}
       <div className="text-start">
         <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
           {t('teacherDashboard.title', 'لوحة التحكم')}
@@ -55,17 +50,12 @@ export default React.memo(function TeacherDashboardHeader({ teacherName }) {
           {t('teacherDashboard.welcome', { name: teacherName, defaultValue: `مرحباً بك، ${teacherName}` })}
         </p>
       </div>
-
-      {/* Left in RTL: ticking time and Gregorian date */}
       <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-        {/* Ticking Time Pill (ISO Format HH:mm:ss) */}
         {currentTimeStr && (
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
         )}
-
-        {/* Gregorian date */}
         {currentDateStr && (
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />

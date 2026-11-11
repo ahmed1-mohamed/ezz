@@ -31,9 +31,7 @@ export default function CurriculumLevelCard({
           ? (isRtl ? level.name?.ar : level.name?.en) || level.name?.ar
           : level.name)
       : `مستوى ${levelIndex + 1}`
-
   const units = typeof level === 'object' ? level.units || [] : []
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden transition-all text-start">
       <div
@@ -53,7 +51,6 @@ export default function CurriculumLevelCard({
             </p>
           </div>
         </div>
-
         <div className="flex items-center gap-2.5 ms-auto">
           <div
             className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-1 border border-slate-100 dark:border-slate-700/60"
@@ -76,7 +73,6 @@ export default function CurriculumLevelCard({
               <Trash2 size={15} />
             </button>
           </div>
-
           <div className="w-9 h-9 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-[#00594C] transition-colors">
             <ChevronDown
               size={18}
@@ -85,7 +81,6 @@ export default function CurriculumLevelCard({
           </div>
         </div>
       </div>
-
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
@@ -114,7 +109,6 @@ export default function CurriculumLevelCard({
                   expandedUnits[unitId] || (rawUnitId && expandedUnits[rawUnitId])
                 )
                 const files = typeof unit === 'object' ? unit.files || [] : []
-
                 return (
                   <div
                     key={unitId}
@@ -137,7 +131,6 @@ export default function CurriculumLevelCard({
                           </span>
                         </div>
                       </div>
-
                       <div className="flex items-center gap-2 ms-auto">
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <button
@@ -167,7 +160,6 @@ export default function CurriculumLevelCard({
                         </div>
                       </div>
                     </div>
-
                     <AnimatePresence initial={false}>
                       {isUnitExpanded && (
                         <motion.div
@@ -210,7 +202,6 @@ export default function CurriculumLevelCard({
                                 : 'No resources in this unit'}
                             </div>
                           )}
-
                           <button
                             type="button"
                             onClick={() => onAddFile(level, unit)}
@@ -228,7 +219,6 @@ export default function CurriculumLevelCard({
                 )
               })
             )}
-
             <button
               type="button"
               onClick={() => onAddUnit(rawLevelId || levelId)}

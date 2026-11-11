@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Clock, AlertCircle, FileText, ChevronDown, User, GraduationCap, Users, Calendar, Award, MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Clock, FileText, ChevronDown, User, GraduationCap, Users, Calendar, Award, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { parentApi } from '@/shared/services/api/parentApi';
@@ -74,7 +74,7 @@ export default function ParentAssignments() {
     try {
       const params = { page, limit: 10 };
       if (studentId && studentId !== 'all') {
-        params.studentId = studentId;
+        params.student = studentId;
       }
       const res = await parentApi.fetchHomeworkList(filter, params);
       const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
@@ -97,7 +97,9 @@ export default function ParentAssignments() {
     }
   }, []);
   useEffect(() => {
-    loadHomework(activeFilter, selectedStudent, currentPage);
+    Promise.resolve().then(() => {
+      loadHomework(activeFilter, selectedStudent, currentPage);
+    });
   }, [loadHomework, activeFilter, selectedStudent, currentPage]);
   const handleFilterChange = useCallback((filterId) => {
     setActiveFilter(filterId);

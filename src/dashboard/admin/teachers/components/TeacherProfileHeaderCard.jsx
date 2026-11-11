@@ -13,28 +13,21 @@ export default function TeacherProfileHeaderCard({
     }
     return String(formData.name)
   }, [formData?.name, isRtl])
-
   const avatarLetter = useMemo(() => {
     const trimmed = displayName.trim()
     return trimmed ? trimmed.charAt(0) : 'ف'
   }, [displayName])
-
   const isSuspended = formData.status !== 'Active'
-
   return (
     <div className="space-y-6">
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
-
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start">
             <div className="w-16 h-16 rounded-2xl bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 flex items-center justify-center text-2xl font-black">
               {avatarLetter}
             </div>
-
             <div className="space-y-1.5">
-              <h2 className="text-xl font-bold text-slate-850 dark:text-white">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                 {displayName}
               </h2>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
@@ -53,7 +46,6 @@ export default function TeacherProfileHeaderCard({
               </div>
             </div>
           </div>
-
           <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold ${isSuspended
             ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
             : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
@@ -63,11 +55,8 @@ export default function TeacherProfileHeaderCard({
               ? t('adminDashboard.teachers.suspended', 'غير نشط')
               : t('adminDashboard.teachers.active', 'نشط')}
           </span>
-
         </div>
-
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <Award size={18} />
@@ -80,7 +69,6 @@ export default function TeacherProfileHeaderCard({
               <Star size={11} fill="currentColor" className="text-amber-500" />
             </p>
           </div>
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <BookOpen size={18} />
@@ -92,7 +80,6 @@ export default function TeacherProfileHeaderCard({
               {formData.totalSessions}
             </p>
           </div>
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <DollarSign size={18} />
@@ -104,7 +91,6 @@ export default function TeacherProfileHeaderCard({
               {formData.dueEarnings} $
             </p>
           </div>
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <DollarSign size={18} />
@@ -116,7 +102,6 @@ export default function TeacherProfileHeaderCard({
               {formData.totalEarnings} $
             </p>
           </div>
-
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/25 border border-slate-100/50 dark:border-slate-850/60 rounded-2xl flex flex-col items-center text-center justify-center">
             <div className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-800 mb-2">
               <Users size={18} />
@@ -128,11 +113,8 @@ export default function TeacherProfileHeaderCard({
               {formData.groupsCount}
             </p>
           </div>
-
         </div>
-
       </div>
-
     </div>
   )
 }

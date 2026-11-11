@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -11,27 +12,25 @@ const getImageUrl = (imagePath) => {
         return imagePath;
     }
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+    return buildApiAssetUrl(cleanPath);
 };
 
 export default React.memo(function EducationalPrograms({ curricula: propCurricula }) {
     const { t, i18n } = useTranslation();
-    const isRtl = i18n.language === 'ar';
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar';
+    const isRtl = currentLang === 'ar';
     const reduxCurricula = useSelector((state) => state.landing?.landingData?.curricula);
     const rawCurricula = propCurricula || reduxCurricula;
     const hasDynamicData = Array.isArray(rawCurricula) && rawCurricula.length > 0;
-
     const sliderRef = useRef(null);
     const isDraggingRef = useRef(false);
     const startXRef = useRef(0);
     const startScrollLeftRef = useRef(0);
     const hasMovedRef = useRef(false);
-
     const [isDragging, setIsDragging] = useState(false);
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(true);
     const [scrollProgress, setScrollProgress] = useState(0);
-
     const programsList = useMemo(() => {
         if (hasDynamicData) {
             return rawCurricula.map((item, index) => {
@@ -43,22 +42,24 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     ? (isRtl ? prog.description.ar || prog.description.en : prog.description.en || prog.description.ar)
                     : prog.description || '';
                 const imgSrc = prog.image ? getImageUrl(prog.image) : '';
-
                 const badge = prog.language?.name
                     || (prog.levels && prog.levels.length > 0
                         ? (isRtl ? `${prog.levels.length} مستويات` : `${prog.levels.length} Levels`)
                         : (isRtl ? 'برنامج معتمد' : 'Accredited'));
-
-                const tags = Array.isArray(prog.benefitsAfterGraduation) && prog.benefitsAfterGraduation.length > 0
-                    ? prog.benefitsAfterGraduation
-                    : (Array.isArray(prog.levels) ? prog.levels.map((l) => l.name) : []);
-
-                const features = Array.isArray(prog.features) && prog.features.length > 0
+                const candidateTags = Array.isArray(prog.levels) && prog.levels.length > 0
+                    ? prog.levels.map((l) => (typeof l === 'object' ? l.name : l)).filter(Boolean)
+                    : (Array.isArray(prog.tags) ? prog.tags : []);
+                const tags = candidateTags
+                    .map((t) => (typeof t === 'string' ? t.trim() : ''))
+                    .filter((t) => t.length > 0 && t.length <= 25);
+                const candidateFeatures = Array.isArray(prog.features) && prog.features.length > 0
                     ? prog.features
                     : (Array.isArray(prog.benefitsAfterGraduation) && prog.benefitsAfterGraduation.length > 0
                         ? prog.benefitsAfterGraduation
                         : []);
-
+                const features = candidateFeatures
+                    .map((f) => (typeof f === 'string' ? f.trim() : (typeof f === 'object' ? (isRtl ? f.ar || f.en : f.en || f.ar) : '')))
+                    .filter(Boolean);
                 return {
                     id: prog.id || prog._id || index,
                     title,
@@ -70,7 +71,6 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                 };
             });
         }
-
         const defaultKeys = ['integrated', 'arabic', 'quran'];
         return defaultKeys.map((key, index) => {
             const base = `programs.list.${key}`;
@@ -85,54 +85,45 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
             };
         });
     }, [hasDynamicData, rawCurricula, isRtl, t]);
-
     const checkScrollState = useCallback(() => {
         const el = sliderRef.current;
         if (!el) return;
         const { scrollLeft, scrollWidth, clientWidth } = el;
         const maxScroll = scrollWidth - clientWidth;
-
         if (maxScroll <= 5) {
             setCanScrollPrev(false);
             setCanScrollNext(false);
             setScrollProgress(100);
             return;
         }
-
         const current = Math.abs(scrollLeft);
         setCanScrollPrev(current > 8);
         setCanScrollNext(current < maxScroll - 8);
         const pct = Math.min(100, Math.max(0, (current / maxScroll) * 100));
         setScrollProgress(pct);
     }, []);
-
     useEffect(() => {
         const el = sliderRef.current;
         if (!el) return;
-
         checkScrollState();
         el.addEventListener('scroll', checkScrollState, { passive: true });
         window.addEventListener('resize', checkScrollState);
-
         return () => {
             el.removeEventListener('scroll', checkScrollState);
             window.removeEventListener('resize', checkScrollState);
         };
     }, [checkScrollState, programsList.length]);
-
     const scroll = useCallback((direction) => {
         const el = sliderRef.current;
         if (!el) return;
         const card = el.querySelector('article');
         const step = card ? card.offsetWidth + 24 : 360;
         const delta = direction === 'next' ? step : -step;
-
         el.scrollBy({
             left: isRtl ? -delta : delta,
             behavior: 'smooth'
         });
     }, [isRtl]);
-
     const handleMouseDown = (e) => {
         if (!sliderRef.current) return;
         isDraggingRef.current = true;
@@ -141,7 +132,6 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
         startScrollLeftRef.current = sliderRef.current.scrollLeft;
         setIsDragging(true);
     };
-
     const handleMouseMove = (e) => {
         if (!isDraggingRef.current || !sliderRef.current) return;
         const x = e.pageX - sliderRef.current.offsetLeft;
@@ -151,29 +141,25 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
         }
         sliderRef.current.scrollLeft = startScrollLeftRef.current - walk;
     };
-
     const handleMouseUpOrLeave = () => {
         isDraggingRef.current = false;
         setIsDragging(false);
     };
-
     const handleCardClick = (e) => {
         if (hasMovedRef.current) {
             e.preventDefault();
             e.stopPropagation();
         }
     };
-
     const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
     const NextIcon = isRtl ? ChevronLeft : ChevronRight;
-
     return (
         <section
+            id="educational-programs"
             className="relative bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-20 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
         >
             <div className="absolute top-[-120px] start-[-120px] h-[400px] w-[400px] rounded-full bg-[#0F7A6C]/10 dark:bg-[#0F7A6C]/20 blur-[120px]" />
             <div className="absolute bottom-[-120px] end-[-120px] h-[400px] w-[400px] rounded-full bg-[#D4AF37]/10 dark:bg-[#D4AF37]/20 blur-[120px]" />
-
             <div className="relative mx-auto max-w-7xl">
                 <motion.div
                     initial={{ opacity: 0, y: 25 }}
@@ -186,14 +172,11 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F7A6C] dark:text-emerald-400">
                             {t('programs.title', 'برامجنا التعليمية')}
                         </h2>
-
                         <div className="mx-auto mt-4 h-1 w-24 sm:w-32 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
-
                         <p className="mt-5 sm:mt-6 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-7 sm:leading-8">
-                            {t('programs.description', 'نقدم مجموعة متنوعة من البرامج التعليمية المتميزة لتلبية احتياجات جميع أبنائنا.')}
+                            {t('programs.description', 'نقدّم برامج في القرآن الكريم والتجويد، واللغة العربية، والتربية الإسلامية، إلى جانب دروس في المواد المدرسية. تناسب برامجنا مستويات مختلفة، وتجمع بين شرح المفاهيم والتدريب على تطبيقها، بما يتوافق مع أهداف كل طالب.')}
                         </p>
                     </div>
-
                     <div className="flex items-center justify-center md:justify-end gap-3 mt-6 md:mt-0 md:absolute md:bottom-0 md:end-0">
                         <button
                             type="button"
@@ -223,7 +206,6 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                         </button>
                     </div>
                 </motion.div>
-
                 <div className="relative group/slider">
                     <button
                         type="button"
@@ -236,7 +218,6 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     >
                         <PrevIcon className="w-6 h-6" />
                     </button>
-
                     <button
                         type="button"
                         onClick={() => scroll('next')}
@@ -248,7 +229,6 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                     >
                         <NextIcon className="w-6 h-6" />
                     </button>
-
                     <div
                         ref={sliderRef}
                         onMouseDown={handleMouseDown}
@@ -290,48 +270,42 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                                 <span className="text-base font-bold text-white tracking-wide">{prog.title}</span>
                                             </div>
                                         )}
-
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
-
                                         {prog.badge && (
                                             <span className="absolute top-4 start-4 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-md px-3.5 py-1 text-xs sm:text-sm font-bold text-[#0F7A6C] dark:text-emerald-400 shadow-md border border-white/60 dark:border-slate-700">
                                                 {prog.badge}
                                             </span>
                                         )}
                                     </div>
-
                                     <div className="p-5 sm:p-6 flex flex-col flex-1 text-center">
                                         <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-[#0F7A6C] dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
                                             {prog.title}
                                         </h3>
-
                                         {prog.desc && (
                                             <p className="mt-3 text-slate-600 dark:text-slate-300 leading-relaxed text-xs sm:text-sm line-clamp-3">
                                                 {prog.desc}
                                             </p>
                                         )}
-
                                         {prog.tags.length > 0 && (
-                                            <div className="mt-4 flex flex-wrap gap-2">
+                                            <div className="mt-4 flex flex-wrap gap-2 justify-center">
                                                 {prog.tags.slice(0, 4).map((tag, i) => (
                                                     <span
                                                         key={i}
-                                                        className="rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-750 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-[#0F7A6C] dark:hover:border-emerald-400 hover:text-[#0F7A6C] dark:hover:text-emerald-400 transition-colors truncate max-w-[200px]"
+                                                        className="rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-750 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-[#0F7A6C] dark:hover:border-emerald-400 hover:text-[#0F7A6C] dark:hover:text-emerald-400 transition-colors truncate max-w-full"
                                                     >
                                                         {tag}
                                                     </span>
                                                 ))}
                                             </div>
                                         )}
-
                                         {prog.features.length > 0 && (
-                                            <div className="mt-5 space-y-2.5">
+                                            <div className="mt-5 space-y-3 w-full text-start">
                                                 {prog.features.slice(0, 4).map((feature, i) => (
-                                                    <div key={i} className="flex items-center gap-3">
-                                                        <div className="h-5 w-5 rounded-full bg-[#0F7A6C] flex items-center justify-center shadow-sm shrink-0">
+                                                    <div key={i} className="flex items-start gap-2.5 sm:gap-3 text-start">
+                                                        <div className="h-5 w-5 rounded-full bg-[#0F7A6C] flex items-center justify-center shadow-xs shrink-0 mt-0.5">
                                                             <Check className="h-3 w-3 text-white" />
                                                         </div>
-                                                        <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 line-clamp-1 font-medium">
+                                                        <span className="flex-1 min-w-0 text-start text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium break-words">
                                                             {feature}
                                                         </span>
                                                     </div>
@@ -340,19 +314,18 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                                         )}
                                     </div>
                                 </div>
-
-                                <div className="p-5 sm:p-6 pt-0 mt-auto">
+                                <div className="p-5 sm:p-6 pt-3 mt-auto">
                                     <Link
-                                        to="/curriculums"
+                                        to={`/${currentLang}/curriculums`}
                                         onClick={handleCardClick}
                                         className="block w-full"
                                     >
                                         <button
                                             type="button"
-                                            aria-label={`${t('programs.cta', 'استكشف البرنامج')} - ${prog.title}`}
-                                            className="w-full relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-3 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                                            aria-label={`${t('programs.cta', isRtl ? 'سجل الآن' : 'Enroll Now')} - ${prog.title}`}
+                                            className="w-full relative overflow-hidden rounded-2xl bg-[#0F7A6C] py-3.5 font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:bg-[#005F54] hover:shadow-lg active:scale-[0.98] cursor-pointer"
                                         >
-                                            {t('programs.cta', 'استكشف البرنامج')}
+                                            {t('programs.cta', isRtl ? 'سجل الآن' : 'Enroll Now')}
                                         </button>
                                     </Link>
                                 </div>
@@ -360,7 +333,6 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                         ))}
                     </div>
                 </div>
-
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <div className="w-28 sm:w-36 h-2 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -373,10 +345,9 @@ export default React.memo(function EducationalPrograms({ curricula: propCurricul
                             {programsList.length} {isRtl ? 'مناهج دراسية' : 'Curricula'}
                         </span>
                     </div>
-
                     <div className="flex items-center gap-3">
                         <Link
-                            to="/curriculums"
+                            to={`/${currentLang}/curriculums`}
                             className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0F7A6C] dark:text-emerald-400 hover:text-[#005F54] dark:hover:text-emerald-300 transition-colors"
                         >
                             <span>{isRtl ? 'عرض جميع المناهج' : 'View All Curricula'}</span>

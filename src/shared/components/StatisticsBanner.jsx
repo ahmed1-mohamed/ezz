@@ -6,11 +6,9 @@ import { motion, useInView, animate } from 'framer-motion'
 const Counter = ({ target, locale }) => {
     const nodeRef = useRef()
     const isInView = useInView(nodeRef, { once: true, margin: "-50px" })
-
     useEffect(() => {
         const node = nodeRef.current
         if (!node || !isInView) return
-
         const controls = animate(0, target, {
             duration: 2,
             ease: "easeOut",
@@ -18,25 +16,27 @@ const Counter = ({ target, locale }) => {
                 node.textContent = Math.floor(value).toLocaleString(locale)
             },
         })
-
         return () => controls.stop()
     }, [target, locale, isInView])
-
     return <h2 ref={nodeRef} className="stat-number text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-[#D3A900] leading-none">0</h2>
 }
 
 export default React.memo(function StatisticsBanner({ data }) {
     const { t, i18n } = useTranslation()
     const locale = i18n.language === 'ar' ? 'ar-EG' : 'en-US'
-
     const statistics = [
-        { number: data?.students ?? 1250, label: t('statistics.students', 'طالب مسجل') },
-        { number: data?.teachers ?? 85, label: t('statistics.teachers', 'معلم معتمد') },
-        { number: data?.classes ?? 320, label: t('statistics.classes', 'حصة تعليمية') },
+        { number: data?.students ?? 535, label: t('statistics.students', 'طالبًا وطالبةً التحقوا ببرامجنا') },
+        { number: data?.teachers ?? 15, label: t('statistics.teachers', 'معلّمًا ومعلّمةً ضمن فريقنا التعليمي') },
+        { number: data?.classes ?? 250, label: t('statistics.classes', 'حصةً تعليميةً قدّمناها') },
     ]
-
     return (
         <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-8xl mx-auto">
+            <div className="text-center mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-4xl font-black text-[#0F7A6C] dark:text-emerald-400">
+                    {t('statistics.title', 'منارة العز بالأرقام')}
+                </h2>
+                <div className="mx-auto mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-[#0F7A6C] to-[#D4AF37]" />
+            </div>
             <motion.section
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -47,7 +47,6 @@ export default React.memo(function StatisticsBanner({ data }) {
                 <div className="absolute top-0 start-0 w-[300px] h-[300px] bg-white/10 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
                 <div className="absolute bottom-0 end-0 w-[200px] h-[200px] bg-[#D4AF37]/20 rounded-full blur-[60px] translate-x-1/3 translate-y-1/3" />
                 <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 mix-blend-overlay pointer-events-none" />
-
                 <div className="relative z-10 h-full flex items-center justify-center px-6 sm:px-10 lg:px-12 py-8 sm:py-10">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-8xl w-full mx-auto divide-y sm:divide-y-0 sm:divide-x rtl:divide-x-reverse divide-white/10">
                         {statistics.map((stat, index) => (

@@ -4,6 +4,7 @@ import { showErrorToast } from '@/shared/utils/sweetAlert'
 import TeacherProfileHeaderCard from './TeacherProfileHeaderCard'
 import TeacherPersonalInfoCard from './TeacherPersonalInfoCard'
 import TeacherAcademicInfoCard from './TeacherAcademicInfoCard'
+import TeacherWebsiteSettingsCard from './TeacherWebsiteSettingsCard'
 import TeacherAvailabilityCard from './TeacherAvailabilityCard'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
@@ -92,7 +93,6 @@ const getInitialFormData = (teacher) => ({
   nameEn: getInitialNameEn(teacher),
   email: teacher?.email || '',
   phone: teacher?.phone || '',
-  // detail endpoints return the country as "<flag> <name>"; it is resolved to an ID once countries load
   country: '',
   countryLabel: teacher?.country || '',
   hourlyRate: '',
@@ -102,7 +102,9 @@ const getInitialFormData = (teacher) => ({
   aboutAr: getInitialBioAr(teacher),
   aboutEn: getInitialBioEn(teacher),
   bio: { ar: getInitialBioAr(teacher), en: getInitialBioEn(teacher) },
-  showOnWebsite: Boolean(teacher?.showOnWebsite),
+  showOnWebsite: teacher ? Boolean(teacher.showOnWebsite) : true,
+  totalStudents: teacher?.totalStudents ?? teacher?.studentsCount ?? '',
+  totalLessons: teacher?.totalLessons ?? teacher?.totalSessions ?? '',
   specializations: (teacher?.specializations || []).map(s => typeof s === 'object' ? (s.id || s._id) : s).filter(Boolean),
   achievements: normalizeAchievements(teacher?.achievements),
   availability: Array.isArray(teacher?.availability) ? teacher.availability : [],
@@ -122,18 +124,14 @@ export default function AddEditTeacherScreen({
   onCancel
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
-
   const [apiCountries, setApiCountries] = useState([])
   const [apiCurricula, setApiCurricula] = useState([])
-
   const [formData, setFormData] = useState(() => getInitialFormData(teacher))
-
   const [prevTeacher, setPrevTeacher] = useState(teacher)
   if (prevTeacher !== teacher) {
     setPrevTeacher(teacher)
     setFormData(getInitialFormData(teacher))
   }
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -141,13 +139,11 @@ export default function AddEditTeacherScreen({
           landingApi.fetchCountries().catch(() => []),
           adminCurriculaApi.fetchCurricula().catch(() => [])
         ])
-
         const rawCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes?.data || [])
         const fetchedCountries = normalizeCountries(rawCountries)
         if (fetchedCountries.length > 0) {
           setApiCountries(sortCountries(fetchedCountries, isRtl))
         }
-
         const rawCurricula = curriculaRes?.data || (Array.isArray(curriculaRes) ? curriculaRes : [])
         if (Array.isArray(rawCurricula)) {
           setApiCurricula(rawCurricula)
@@ -158,35 +154,29 @@ export default function AddEditTeacherScreen({
     }
     loadData()
   }, [teacher, isRtl])
-
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: typeof value === 'function' ? value(prev[key]) : value }))
   }
-
   useEffect(() => {
     if (!formData.country && formData.countryLabel && apiCountries.length > 0) {
       const countryId = resolveCountryIdFromLabel(apiCountries, formData.countryLabel)
       if (countryId) setFormData((prev) => ({ ...prev, country: countryId }))
     }
   }, [apiCountries, formData.country, formData.countryLabel])
-
   const handleSubmit = (e) => {
     e.preventDefault()
     const fail = (ar, en) => showErrorToast(isRtl ? ar : en, isRtl)
-
     const nameAr = String(formData.name || '').trim()
     const nameEn = String(formData.nameEn || '').trim()
     if (nameAr.length < 2 || nameEn.length < 2) return fail('الرجاء إدخال الاسم بالعربية والإنجليزية', 'Please enter the Arabic and English names')
     if (!teacher && !/^\S+@\S+\.\S+$/.test(String(formData.email || '').trim())) return fail('الرجاء إدخال بريد إلكتروني صالح', 'Please enter a valid email')
     if (!/^\+\d{7,15}$/.test(String(formData.phone || '').replace(/\s+/g, ''))) return fail('الرجاء إدخال رقم هاتف صحيح مع مفتاح الدولة', 'Please enter a valid phone number with country code')
     if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
-
     if (!teacher) {
       if (formData.hourlyRate === '' || Number(formData.hourlyRate) < 0) return fail('الرجاء إدخال سعر الساعة', 'Please enter the hourly rate')
       if (String(formData.password || '').length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
       if (formData.password !== formData.confirmPassword) return fail('كلمتا المرور غير متطابقتين!', 'Passwords do not match!')
     }
-
     onSave({
       name: { ar: nameAr, en: nameEn },
       phone: String(formData.phone).replace(/\s+/g, ''),
@@ -197,6 +187,8 @@ export default function AddEditTeacherScreen({
       yearsOfExperience: Math.max(0, Number(formData.yearsOfExperience) || 0),
       achievements: formData.achievements,
       showOnWebsite: Boolean(formData.showOnWebsite),
+      totalStudents: formData.totalStudents === '' ? 0 : Math.max(0, Number(formData.totalStudents) || 0),
+      totalLessons: formData.totalLessons === '' ? 0 : Math.max(0, Number(formData.totalLessons) || 0),
       availability: formData.availability,
       profileImageFile: formData.profileImageFile,
       ...(teacher
@@ -209,7 +201,6 @@ export default function AddEditTeacherScreen({
           }),
     })
   }
-
   return (
     <form onSubmit={handleSubmit} className="max-w-7xl mx-auto space-y-6 pb-12 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -234,7 +225,6 @@ export default function AddEditTeacherScreen({
             </h1>
           </div>
         </div>
-
         <button
           type="button"
           onClick={onCancel}
@@ -243,7 +233,6 @@ export default function AddEditTeacherScreen({
           {t('adminDashboard.teachers.addModal.cancel', 'إلغاء')}
         </button>
       </div>
-
       {teacher && (
         <TeacherProfileHeaderCard
           teacher={teacher}
@@ -252,7 +241,6 @@ export default function AddEditTeacherScreen({
           t={t}
         />
       )}
-
        <div className="space-y-6">
          <TeacherPersonalInfoCard
           formData={formData}
@@ -261,7 +249,6 @@ export default function AddEditTeacherScreen({
           countries={apiCountries}
           isEdit={!!teacher}
         />
-
          <TeacherAcademicInfoCard
           formData={formData}
           onChange={handleFieldChange}
@@ -269,13 +256,16 @@ export default function AddEditTeacherScreen({
           curricula={apiCurricula}
           isEdit={!!teacher}
         />
-
+        <TeacherWebsiteSettingsCard
+          formData={formData}
+          onChange={handleFieldChange}
+          isRtl={isRtl}
+        />
         <TeacherAvailabilityCard
           formData={formData}
           onChange={handleFieldChange}
           isRtl={isRtl}
         />
-
         {!teacher && (
           <TeacherSecurityCard
             formData={formData}
@@ -284,7 +274,6 @@ export default function AddEditTeacherScreen({
           />
         )}
       </div>
-
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
         <button
           type="submit"

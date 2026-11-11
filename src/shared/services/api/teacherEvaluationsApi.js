@@ -11,7 +11,6 @@ export const teacherEvaluationsApi = {
         : Array.isArray(resData)
         ? resData
         : [];
-
       return {
         success: true,
         data: list,
@@ -96,7 +95,6 @@ export const teacherEvaluationsApi = {
         : Array.isArray(resData)
         ? resData
         : [];
-
       return {
         success: true,
         statistics: resData.statistics || {
@@ -211,6 +209,48 @@ export const teacherEvaluationsApi = {
       return {
         success: false,
         data: [],
+        error,
+      };
+    }
+  },
+
+  fetchAdminEvaluationsForTeacher: async (params = {}) => {
+    try {
+      const response = await api.get('/api/v1/teacher/admin-evaluations', {
+        params,
+        skipLang: true,
+      });
+      const resData = response.data || {};
+      const rawList = Array.isArray(resData?.data)
+        ? resData.data
+        : Array.isArray(resData)
+        ? resData
+        : [];
+      const list = rawList.map((it) => {
+        const g = it.grade || it.rating || 'good';
+        return {
+          ...it,
+          grade: g,
+          rating: g,
+        };
+      });
+      return {
+        success: true,
+        data: list,
+        pagination: resData.pagination || {
+          currentPage: params.page || 1,
+          limit: params.limit || 20,
+          numberOfPages: 1,
+          totalCount: list.length,
+        },
+        statistics: resData.statistics || null,
+      };
+    } catch (error) {
+      console.warn('API fetchAdminEvaluationsForTeacher failed:', error);
+      return {
+        success: false,
+        data: [],
+        pagination: { currentPage: 1, limit: 20, numberOfPages: 1, totalCount: 0 },
         error,
       };
     }

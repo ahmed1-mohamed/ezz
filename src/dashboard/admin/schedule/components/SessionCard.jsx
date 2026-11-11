@@ -36,7 +36,6 @@ const STATUS_FALLBACKS = {
 export default function SessionCard({ session }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const teacherName = useMemo(() => {
     return (
       getLocalizedText(session.teacher?.name, isRtl) ||
@@ -45,7 +44,6 @@ export default function SessionCard({ session }) {
       ''
     )
   }, [session.teacher, isRtl])
-
   const groupName = useMemo(() => {
     return (
       getLocalizedText(session.group?.name, isRtl) ||
@@ -54,21 +52,17 @@ export default function SessionCard({ session }) {
       ''
     )
   }, [session.group, isRtl])
-
   const localizedTime = useMemo(() => formatTimeRange(session, isRtl), [session, isRtl])
-
   const localizedStatus = useMemo(() => {
     if (!session.status || session.status === 'scheduled') return null
     const fallback = STATUS_FALLBACKS[session.status]?.[isRtl ? 'ar' : 'en'] || session.statusText || session.status
     return t(`adminDashboard.schedule.status.${session.status}`, fallback)
   }, [session.status, session.statusText, isRtl, t])
-
   return (
     <div className="group relative rounded-2xl bg-gradient-to-br from-[#0f7a6c] to-[#0c6156] text-white p-3 text-xs space-y-1.5 shadow-sm shadow-[#0f7a6c]/20 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
       <p className="font-bold text-[13px] leading-snug line-clamp-2" title={groupName}>
         {groupName}
       </p>
-
       {teacherName && (
         <div className="flex items-center gap-1.5 min-w-0 opacity-95">
           <User size={12} className="shrink-0 opacity-80" />
@@ -77,14 +71,12 @@ export default function SessionCard({ session }) {
           </span>
         </div>
       )}
-
       {localizedTime && (
         <div className="flex items-center gap-1.5 opacity-90">
           <Clock size={12} className="shrink-0" />
           <span className="truncate text-[11px]" dir="auto">{localizedTime}</span>
         </div>
       )}
-
       {localizedStatus && (
         <span className="inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold">
           {localizedStatus}

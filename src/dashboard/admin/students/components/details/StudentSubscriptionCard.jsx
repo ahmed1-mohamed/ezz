@@ -16,13 +16,11 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
     ? (rawBalance.remaining !== undefined ? Number(rawBalance.remaining) : Math.max(0, total - used))
     : Number(rawBalance || 0)
   const manualAdded = isObj ? Number(rawBalance.manualAddedThisMonth || 0) : 0
-
   const sub = student?.lastSubscription || null
   const subName = sub
     ? (typeof sub.name === 'object' && sub.name !== null ? (isRtl ? sub.name.ar || sub.name.en : sub.name.en || sub.name.ar) : sub.name)
     : null
   const isExpired = sub?.expiresAt ? new Date(sub.expiresAt) < new Date() : false
-
   const subscriptionRows = sub
     ? [
         { label: isRtl ? 'الباقة' : 'Package', value: subName || '-' },
@@ -32,7 +30,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
         { label: isRtl ? 'تاريخ الانتهاء' : 'Expires At', value: formatDate(sub.expiresAt, isRtl) }
       ]
     : []
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
       <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -41,7 +38,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
           {isRtl ? 'ملخص رصيد الحصص' : 'Sessions Balance Summary'}
         </h3>
       </div>
-
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
         <div className="p-4 bg-[#f3f7f6] dark:bg-slate-950/30 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 text-start space-y-1">
           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 block">
@@ -51,7 +47,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
             {remaining} {isRtl ? 'حصة' : 'Sessions'}
           </span>
         </div>
-
         <div className="p-4 bg-[#f3f7f6] dark:bg-slate-950/30 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 text-start space-y-1">
           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 block">
             {isRtl ? 'الحصص المستخدمة' : 'Used Sessions'}
@@ -60,7 +55,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
             {used} {isRtl ? 'حصة' : 'Sessions'}
           </span>
         </div>
-
         <div className="p-4 bg-[#f3f7f6] dark:bg-slate-950/30 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 text-start space-y-1 col-span-2 sm:col-span-1">
           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 block">
             {isRtl ? 'إجمالي الحصص' : 'Total Sessions'}
@@ -70,7 +64,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
           </span>
         </div>
       </div>
-
       {manualAdded > 0 && (
         <div className="flex items-center gap-2 p-3 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100/60 dark:border-amber-900/30 rounded-2xl text-xs font-semibold text-amber-700 dark:text-amber-400">
           <PlusCircle size={16} className="shrink-0 text-amber-600" />
@@ -81,7 +74,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
           </span>
         </div>
       )}
-
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-slate-800 dark:text-white">
@@ -99,7 +91,6 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
             </span>
           )}
         </div>
-
         {sub ? (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {subscriptionRows.map((row) => (

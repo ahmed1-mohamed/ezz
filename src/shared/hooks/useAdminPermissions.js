@@ -8,7 +8,6 @@ import { expandPermissionKeys } from '@/shared/utils/permissionUtils'
 export function extractPermissionKeys(source) {
   const set = new Set()
   if (!source) return set
-
   const addIfKey = (k) => {
     if (typeof k === 'string') {
       const trimmed = k.trim()
@@ -17,7 +16,6 @@ export function extractPermissionKeys(source) {
       }
     }
   }
-
   if (Array.isArray(source)) {
     source.forEach(item => {
       if (typeof item === 'string') {
@@ -33,17 +31,13 @@ export function extractPermissionKeys(source) {
     })
     return expandPermissionKeys(set)
   }
-
   if (typeof source !== 'object') return set
-
   if (Array.isArray(source.keys)) {
     source.keys.forEach(addIfKey)
   }
-
   if (Array.isArray(source.actions)) {
     source.actions.forEach(a => addIfKey(typeof a === 'object' ? (a.key || a.action) : a))
   }
-
   if (source.permissions) {
     if (Array.isArray(source.permissions)) {
       source.permissions.forEach(p => {
@@ -66,13 +60,11 @@ export function extractPermissionKeys(source) {
       })
     }
   }
-
   return expandPermissionKeys(set)
 }
 
 export function useAdminPermissions() {
   const { user } = useAuth()
-
   const normalizedRole = String(user?.role || '').toLowerCase()
   const isSuperAdmin = normalizedRole === 'super_admin' || normalizedRole === 'superadmin'
   const isPathAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/dashboard/admin')
@@ -83,7 +75,6 @@ export function useAdminPermissions() {
     normalizedRole === 'staff' ||
     isPathAdmin
   )
-
   const initialKeys = useMemo(() => {
     if (isSuperAdmin) return new Set(['*'])
     const directSet = new Set()
@@ -93,18 +84,15 @@ export function useAdminPermissions() {
     fromPerm.forEach(k => directSet.add(k))
     return directSet
   }, [isSuperAdmin, user?.permissions, user?.permission])
-
   const userPermissionId = user?.permissionId ||
     user?.permission?.id ||
     user?.permission?._id ||
     (typeof user?.permission === 'string' && user.permission.length === 24 ? user.permission : null)
-
   const { data: fetchedKeys = [], isLoading } = useQuery({
     queryKey: ['admin-current-permissions', user?.id, userPermissionId],
     queryFn: async () => {
       try {
         let permId = userPermissionId
-
         let profileData = null
         try {
           const profileRes = await profileApi.fetchProfile()
@@ -112,18 +100,15 @@ export function useAdminPermissions() {
         } catch (err) {
           console.warn('Profile fetch failed in permissions hook:', err)
         }
-
         const profilePermKeys = extractPermissionKeys(profileData?.permissions || profileData?.permission)
         if (profilePermKeys.size > 0) {
           return Array.from(profilePermKeys)
         }
-
         permId = permId ||
           profileData?.permissionId ||
           profileData?.permission?.id ||
           profileData?.permission?._id ||
           (typeof profileData?.permission === 'string' ? profileData.permission : null)
-
         if (permId) {
           try {
             const singleRes = await managersApi.fetchPermissionById(permId)
@@ -135,7 +120,6 @@ export function useAdminPermissions() {
           } catch (err) {
             console.warn('fetchPermissionById failed, trying all permissions list:', err)
           }
-
           const allPermsRes = await managersApi.fetchPermissions()
           const rawData = allPermsRes?.data || allPermsRes || [];
           const list = Array.isArray(rawData) ? rawData : (Array.isArray(rawData?.data) ? rawData.data : []);
@@ -157,17 +141,14 @@ export function useAdminPermissions() {
       } catch (err) {
         console.error('Failed to resolve admin permissions in hook:', err)
       }
-
       if (initialKeys.size > 0) {
         return Array.from(initialKeys)
       }
-
       return []
     },
     enabled: isAdmin && !isSuperAdmin && (!!user?.id || isPathAdmin),
     staleTime: 5 * 60 * 1000,
   })
-
   const permissionsSet = useMemo(() => {
     if (isSuperAdmin) return new Set(['*'])
     const combined = new Set(initialKeys)
@@ -176,28 +157,24 @@ export function useAdminPermissions() {
     }
     return combined
   }, [isSuperAdmin, initialKeys, fetchedKeys])
-
   const hasPermission = useCallback((permissionKey) => {
     if (isSuperAdmin) return true
     if (!permissionKey) return true
     if (permissionsSet.has('*')) return true
     return permissionsSet.has(permissionKey)
   }, [isSuperAdmin, permissionsSet])
-
   const hasAnyPermission = useCallback((permissionKeys = []) => {
     if (isSuperAdmin) return true
     if (!permissionKeys || permissionKeys.length === 0) return true
     if (permissionsSet.has('*')) return true
     return permissionKeys.some(k => permissionsSet.has(k))
   }, [isSuperAdmin, permissionsSet])
-
   const hasAllPermissions = useCallback((permissionKeys = []) => {
     if (isSuperAdmin) return true
     if (!permissionKeys || permissionKeys.length === 0) return true
     if (permissionsSet.has('*')) return true
     return permissionKeys.every(k => permissionsSet.has(k))
   }, [isSuperAdmin, permissionsSet])
-
   return {
     isSuperAdmin,
     isAdmin,

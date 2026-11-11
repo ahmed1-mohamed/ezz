@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -23,10 +23,8 @@ export default function CreateHomework() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -60,29 +58,23 @@ export default function CreateHomework() {
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState('');
-
   const [activeTab, setActiveTab] = useState('video');
-
   const [mediaFile, setMediaFile] = useState(null);
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState('');
   const [documentFile, setDocumentFile] = useState(null);
   const [questions, setQuestions] = useState([]);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const videoInputRef = useRef(null);
   const documentInputRef = useRef(null);
-
   const { data: activeGroupsRes } = useQuery({
     queryKey: ['teacher-active-groups-homework'],
     queryFn: () => teacherHomeworkApi.fetchActiveGroups(),
     staleTime: 5 * 60 * 1000,
   });
-
   const activeGroups = useMemo(() => {
     const list = activeGroupsRes?.data;
     if (Array.isArray(list) && list.length > 0) {
@@ -93,7 +85,6 @@ export default function CreateHomework() {
     }
     return [];
   }, [activeGroupsRes, isRtl]);
-
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -109,7 +100,6 @@ export default function CreateHomework() {
       setMediaPreviewUrl('');
     }
   };
-
   const handleRemoveVideo = () => {
     setMediaFile(null);
     if (mediaPreviewUrl) {
@@ -120,7 +110,6 @@ export default function CreateHomework() {
       videoInputRef.current.value = '';
     }
   };
-
   const handleDocumentChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -130,14 +119,12 @@ export default function CreateHomework() {
     }
     setDocumentFile(file);
   };
-
   const handleRemoveDocument = () => {
     setDocumentFile(null);
     if (documentInputRef.current) {
       documentInputRef.current.value = '';
     }
   };
-
   const handlePublishHomework = async () => {
     if (!title.trim()) {
       toast.error('يرجى كتابة عنوان الواجب');
@@ -157,7 +144,8 @@ export default function CreateHomework() {
     }
     for (let index = 0; index < questions.length; index++) {
       const q = questions[index];
-      if (!q.question || !q.question.trim()) {
+      const qText = (q.questionText || q.question || '').trim();
+      if (!qText) {
         toast.error(t('teacherHomework.errQuestionTextRequired', 'يرجى كتابة نص السؤال رقم {{number}}', { number: index + 1 }));
         return;
       }
@@ -172,19 +160,19 @@ export default function CreateHomework() {
     setIsSubmitting(true);
     try {
       const cleanQuestions = questions.map((q) => {
-        const item = {
+        const qText = (q.questionText || q.question || '').trim();
+        const pts = Math.max(0, Number(q.points) >= 0 ? Number(q.points) : 5);
+        const correctIdx = q.type === 'multiple_choice' ? (Number(q.correctOptionIndex) >= 0 ? Number(q.correctOptionIndex) : 0) : 0;
+        const validOptions = q.type === 'multiple_choice'
+          ? (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0)
+          : [];
+        return {
           type: q.type || 'multiple_choice',
-          question: q.question.trim(),
-          points: Number(q.points) || 5,
+          questionText: qText,
+          points: pts,
+          options: validOptions,
+          correctOptionIndex: correctIdx,
         };
-        if (q.type === 'multiple_choice') {
-          item.options = (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0);
-          item.correctOptionIndex = Number(q.correctOptionIndex) || 0;
-        } else {
-          // essay type — backend requires options as empty array
-          item.options = [];
-        }
-        return item;
       });
       let payload;
       if (mediaFile || documentFile) {
@@ -202,15 +190,14 @@ export default function CreateHomework() {
         if (cleanQuestions.length > 0) {
           cleanQuestions.forEach((q, idx) => {
             payload.append(`questions[${idx}][type]`, q.type);
-            payload.append(`questions[${idx}][question]`, q.question);
+            payload.append(`questions[${idx}][questionText]`, q.questionText);
             payload.append(`questions[${idx}][points]`, String(q.points));
             if (q.type === 'multiple_choice') {
-              q.options.forEach((opt, oIdx) => {
+              (q.options || []).forEach((opt, oIdx) => {
                 payload.append(`questions[${idx}][options][${oIdx}]`, opt);
               });
               payload.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
             } else {
-              // essay type — send empty options array marker so backend parses it as array
               payload.append(`questions[${idx}][options][]`, '');
             }
           });
@@ -221,16 +208,14 @@ export default function CreateHomework() {
           description: description.trim(),
           deadline,
           group: selectedGroupId,
+          questions: cleanQuestions,
         };
-        if (cleanQuestions.length > 0) {
-          payload.questions = cleanQuestions;
-        }
       }
       const res = await teacherHomeworkApi.createHomework(payload);
       setIsSubmitting(false);
       if (res.success) {
         toast.success(t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'));
-        navigate('/dashboard/teacher/assignments/submissions');
+        navigate('/dashboard/teacher/homework/submissions');
       } else {
         const errorMsg = Array.isArray(res.message) ? res.message.join(' - ') : res.message;
         toast.error(errorMsg || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));
@@ -240,7 +225,6 @@ export default function CreateHomework() {
       toast.error(t('teacherHomework.uploadError', 'حدث خطأ أثناء رفع ونشر الواجب'));
     }
   };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -252,24 +236,20 @@ export default function CreateHomework() {
             {t('teacherHomework.createSubtitle', 'أضف واجباً للطلاب بعد الجلسة')}
           </p>
         </div>
-
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
-
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />
             <span>{currentDateStr}</span>
           </div>
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start">
         <h3 className="text-sm font-black text-slate-800 dark:text-white">
           {t('teacherHomework.summaryTitle', 'ملخص الواجب')}
         </h3>
-
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 border-b border-slate-50 dark:border-slate-800/80 pb-2.5">
             <div className="flex items-center gap-2">
@@ -280,7 +260,6 @@ export default function CreateHomework() {
               {mediaFile ? mediaFile.name : t('teacherHomework.notAttached', 'لم يتم الإرفاق')}
             </span>
           </div>
-
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 border-b border-slate-50 dark:border-slate-800 pb-2.5">
             <div className="flex items-center gap-2">
               <CheckCircle2
@@ -293,7 +272,6 @@ export default function CreateHomework() {
               {questions.length > 0 ? t('teacherHomework.questionsAdded', { count: questions.length, defaultValue: `${questions.length} سؤال مضاف` }) : '0 أسئلة'}
             </span>
           </div>
-
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2">
               <FileText size={16} className="text-slate-400" />
@@ -307,12 +285,10 @@ export default function CreateHomework() {
           </div>
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
         <h3 className="text-sm font-black text-slate-800 dark:text-white">
           {t('teacherHomework.attachmentsAndContent', 'معلومات الواجب')}
         </h3>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
             {t('teacherHomework.homeworkTitle', 'عنوان الواجب')}
@@ -326,7 +302,6 @@ export default function CreateHomework() {
             className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all"
           />
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
             {t('teacherHomework.homeworkDesc', 'وصف الواجب')}
@@ -339,7 +314,6 @@ export default function CreateHomework() {
             className="w-full bg-[#f8faf9] dark:bg-slate-800/80 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/80 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
           />
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -355,7 +329,6 @@ export default function CreateHomework() {
               />
             </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
               {t('teacherHomework.studyGroup', 'المجموعة (النشطة فقط)')}
@@ -383,7 +356,6 @@ export default function CreateHomework() {
           </div>
         </div>
       </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="flex items-center justify-end border-b border-slate-100 dark:border-slate-800 px-6 pt-3 gap-6">
           <button
@@ -400,7 +372,6 @@ export default function CreateHomework() {
               <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
             )}
           </button>
-
           <button
             type="button"
             onClick={() => setActiveTab('quiz')}
@@ -415,7 +386,6 @@ export default function CreateHomework() {
               <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00594C] dark:bg-emerald-400" />
             )}
           </button>
-
           <button
             type="button"
             onClick={() => setActiveTab('video')}
@@ -431,7 +401,6 @@ export default function CreateHomework() {
             )}
           </button>
         </div>
-
         <div className="p-6 sm:p-8">
           {activeTab === 'video' && (
             <div className="space-y-4">
@@ -442,7 +411,6 @@ export default function CreateHomework() {
                 onChange={handleVideoChange}
                 className="hidden"
               />
-
               {!mediaFile ? (
                 <div
                   onClick={() => videoInputRef.current?.click()}
@@ -476,7 +444,6 @@ export default function CreateHomework() {
                         </span>
                       </div>
                     </div>
-
                     <button
                       type="button"
                       onClick={handleRemoveVideo}
@@ -486,7 +453,6 @@ export default function CreateHomework() {
                       <Trash2 size={18} />
                     </button>
                   </div>
-
                   {mediaPreviewUrl && (
                     <div className="rounded-2xl overflow-hidden bg-black/90 max-w-xl mx-auto">
                       <video src={mediaPreviewUrl} controls className="w-full max-h-64 object-contain" />
@@ -496,11 +462,9 @@ export default function CreateHomework() {
               )}
             </div>
           )}
-
           {activeTab === 'quiz' && (
             <QuestionBuilder questions={questions} onChange={setQuestions} />
           )}
-
           {activeTab === 'documents' && (
             <div className="space-y-4">
               <input
@@ -510,7 +474,6 @@ export default function CreateHomework() {
                 onChange={handleDocumentChange}
                 className="hidden"
               />
-
               {!documentFile ? (
                 <div
                   onClick={() => documentInputRef.current?.click()}
@@ -543,7 +506,6 @@ export default function CreateHomework() {
                       </span>
                     </div>
                   </div>
-
                   <button
                     type="button"
                     onClick={handleRemoveDocument}
@@ -558,7 +520,6 @@ export default function CreateHomework() {
           )}
         </div>
       </div>
-
       <div className="flex justify-end pt-2">
         <button
           type="button"

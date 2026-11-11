@@ -15,16 +15,13 @@ export default function AdminEditStudent() {
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
   const [isSaving, setIsSaving] = useState(false)
-
   const { data: student, isLoading, isError, refetch } = useQuery({
     queryKey: ['student-edit', id],
     queryFn: () => studentsApi.fetchStudentForEdit(id),
     enabled: Boolean(id),
     staleTime: 30 * 1000,
   })
-
   const backToDetails = () => navigate(`/dashboard/admin/students/${id}`)
-
   const handleSave = async (formData) => {
     setIsSaving(true)
     try {
@@ -43,7 +40,6 @@ export default function AdminEditStudent() {
       setIsSaving(false)
     }
   }
-
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -51,7 +47,6 @@ export default function AdminEditStudent() {
       </div>
     )
   }
-
   if (isError || !student) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -77,7 +72,6 @@ export default function AdminEditStudent() {
       </div>
     )
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <AddEditStudentScreen

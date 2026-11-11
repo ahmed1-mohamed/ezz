@@ -41,7 +41,6 @@ export default function TeacherPasswordCard({
             </button>
           </div>
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacherProfilePage.newPassword', 'كلمة المرور الجديدة')}
@@ -64,7 +63,6 @@ export default function TeacherPasswordCard({
             </button>
           </div>
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('teacherProfilePage.confirmPassword', 'تأكيد كلمة المرور الجديدة')}
@@ -90,7 +88,6 @@ export default function TeacherPasswordCard({
           </div>
         </div>
       </div>
-
       <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 max-w-xl text-start space-y-2">
         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
           {t('teacherProfilePage.passwordRequirements', 'شروط كلمة المرور القوية:')}
@@ -101,7 +98,6 @@ export default function TeacherPasswordCard({
           <li>{t('teacherProfilePage.req3', 'تجنب استخدام بيانات شخصية يسهل تخمينها.')}</li>
         </ul>
       </div>
-
       <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
         <button
           type="submit"

@@ -3,7 +3,6 @@ import { Users, Video, Award } from 'lucide-react'
 
 export default function TeacherStats({ stats = {}, t }) {
     const safeStats = stats || {};
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -13,7 +12,6 @@ export default function TeacherStats({ stats = {}, t }) {
             <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-8">
                 {t('teacherProfile.statsTitle', 'أرقام وإحصائيات')}
             </h2>
-
             <div className="space-y-4">
                 <div className="flex justify-between items-center text-white border-b border-white/10 pb-4">
                     <div className="flex items-center gap-3">
@@ -24,7 +22,6 @@ export default function TeacherStats({ stats = {}, t }) {
                     </div>
                     <span className="font-bold text-xl" dir="ltr">{safeStats.studentsCount || '0'}</span>
                 </div>
-
                 <div className="flex justify-between items-center text-white border-b border-white/10 pb-4">
                     <div className="flex items-center gap-3">
                         <div className="bg-white/10 p-2 rounded-lg">
@@ -34,7 +31,6 @@ export default function TeacherStats({ stats = {}, t }) {
                     </div>
                     <span className="font-bold text-xl" dir="ltr">{safeStats.sessionsCount || '0'}</span>
                 </div>
-
                 <div className="flex justify-between items-center text-white">
                     <div className="flex items-center gap-3">
                         <div className="bg-white/10 p-2 rounded-lg">

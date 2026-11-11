@@ -5,8 +5,6 @@ import {
   Star,
   Calendar,
   Clock,
-  User,
-  MessageSquare,
   HelpCircle,
   RotateCcw,
   ChevronLeft,
@@ -112,7 +110,6 @@ export default function EvaluationsHistoryList() {
   }, [historyResponse, currentPage, evaluationsList.length]);
   return (
     <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Header Info */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center shrink-0">
@@ -141,7 +138,6 @@ export default function EvaluationsHistoryList() {
           </button>
         </div>
       </div>
-      {/* Main List */}
       {isLoading ? (
         <div className="space-y-3.5">
           {[1, 2, 3].map((sk) => (
@@ -158,7 +154,7 @@ export default function EvaluationsHistoryList() {
           ))}
         </div>
       ) : isError ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm space-y-4">
+        <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 rounded-3xl p-12 text-center shadow-sm space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center mx-auto">
             <HelpCircle className="w-7 h-7" />
           </div>
@@ -250,7 +246,6 @@ export default function EvaluationsHistoryList() {
               </div>
             );
           })}
-          {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-4">
               <button

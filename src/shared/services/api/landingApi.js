@@ -48,6 +48,16 @@ export const landingApi = {
     }
   },
 
+  submitWebsiteTrialSession: async (sessionData) => {
+    try {
+      const response = await api.post('/api/v1/trial-sessions/website/public', sessionData);
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting website trial session:', error);
+      throw error;
+    }
+  },
+
   fetchCountries: async (params) => {
     const hasNoCustomParams = !params || Object.keys(params).length === 0;
     if (cachedLandingCountries && hasNoCustomParams) {

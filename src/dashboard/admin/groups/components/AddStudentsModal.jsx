@@ -8,12 +8,10 @@ import StudentSelect from './fields/StudentSelect'
 export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
   const { t, i18n } = useTranslation()
   const isRtlResolved = isRtl !== undefined ? isRtl : i18n.language.startsWith('ar')
-
   const [allStudents, setAllStudents] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
-
   useEffect(() => {
     let active = true
     const load = async () => {
@@ -36,11 +34,9 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
       active = false
     }
   }, [])
-
   const existingStudentIds = useMemo(() => {
     return (group?.students || []).map((s) => s.id || s._id)
   }, [group])
-
   const getStudentName = (s) => {
     if (!s) return ''
     if (typeof s.name === 'object' && s.name !== null) {
@@ -48,7 +44,6 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
     }
     return s.name || ''
   }
-
   const handleAdd = async () => {
     if (!selectedStudent) return
     setIsSubmitting(true)
@@ -58,19 +53,17 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
       setIsSubmitting(false)
     }
   }
-
   const selectedStudentName = selectedStudent ? getStudentName(selectedStudent) : ''
-
+  if (typeof document === 'undefined') return null
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
       dir={isRtlResolved ? 'rtl' : 'ltr'}
     >
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onCancel}
       />
-
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden min-h-[480px] animate-fadeIn flex flex-col">
          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -93,14 +86,12 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
             <X size={18} />
           </button>
         </div>
-
          <div className="p-6 space-y-5">
            <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 text-start">
               {t('adminDashboard.groups.selectStudentDropdownLabel', 'اختر طالباً من القائمة')}
               <span className="text-red-500 ms-1">*</span>
             </label>
-
             {isLoading ? (
               <div className="flex items-center justify-center py-6 gap-2 text-slate-400 text-xs">
                 <Loader2 size={16} className="animate-spin text-brand-500" />
@@ -117,7 +108,6 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
               />
             )}
           </div>
-
            {selectedStudent && (
             <div className="p-4 bg-brand-50/50 dark:bg-brand-900/10 border border-brand-200 dark:border-brand-800/40 rounded-2xl animate-fadeIn space-y-3">
               <div className="flex items-center justify-between">
@@ -144,7 +134,6 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
                   <X size={16} />
                 </button>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-brand-200/50 dark:border-brand-800/30 text-xs text-slate-600 dark:text-slate-300">
                 {selectedStudent.email && (
                   <div className="flex items-center gap-2 truncate">
@@ -161,7 +150,6 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
               </div>
             </div>
           )}
-
           {!selectedStudent && !isLoading && (
             <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center">
               <p className="text-xs text-slate-400">
@@ -170,7 +158,6 @@ export default function AddStudentsModal({ group, isRtl, onAdd, onCancel }) {
             </div>
           )}
         </div>
-
          <div className="flex items-center gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
           <button
             onClick={handleAdd}

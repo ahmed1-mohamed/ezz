@@ -12,14 +12,11 @@ export default function TeacherAcademicInfoCard({
 }) {
   const [newAchAr, setNewAchAr] = useState('')
   const [newAchEn, setNewAchEn] = useState('')
-
   const handleAddAchievement = (e) => {
     e?.preventDefault?.()
     if (!newAchAr.trim() && !newAchEn.trim()) return
-
     const arText = newAchAr.trim() || newAchEn.trim()
     const enText = newAchEn.trim() || newAchAr.trim()
-
     const currentList = Array.isArray(formData.achievements)
       ? formData.achievements
       : (typeof formData.achievements === 'object' && formData.achievements !== null
@@ -34,17 +31,14 @@ export default function TeacherAcademicInfoCard({
             return list
           })()
         : [])
-
     const updated = [
       ...currentList,
       { ar: arText, en: enText }
     ]
-
     onChange('achievements', updated)
     setNewAchAr('')
     setNewAchEn('')
   }
-
   const handleRemoveAchievement = (index) => {
     const currentList = Array.isArray(formData.achievements)
       ? formData.achievements
@@ -60,11 +54,9 @@ export default function TeacherAcademicInfoCard({
             return list
           })()
         : [])
-
     const updated = currentList.filter((_, i) => i !== index)
     onChange('achievements', updated)
   }
-
   const achievementsList = Array.isArray(formData.achievements)
     ? formData.achievements.map(item => {
         if (typeof item === 'object' && item !== null) {
@@ -87,28 +79,22 @@ export default function TeacherAcademicInfoCard({
           return list
         })()
       : [])
-
-  // Curricula taught (sent as specializations: string[] of curriculum IDs)
   const selectedSpecIds = (Array.isArray(formData.specializations) ? formData.specializations : [])
     .map(getCurriculumId)
     .filter(Boolean)
-
   const toggleCurriculum = (curriculumId) => {
     onChange('specializations', (prev = []) => {
       const ids = prev.map(getCurriculumId).filter(Boolean)
       return ids.includes(curriculumId) ? ids.filter((id) => id !== curriculumId) : [...ids, curriculumId]
     })
   }
-
   const bioArValue = formData.aboutAr ?? (typeof formData.bio === 'object' ? formData.bio?.ar : formData.bio) ?? ''
   const bioEnValue = formData.aboutEn ?? (typeof formData.bio === 'object' ? formData.bio?.en : '') ?? ''
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-6 text-start">
       <h2 className="text-xl font-bold text-slate-800 dark:text-white">
         {isRtl ? 'البيانات الأكاديمية' : 'Academic Information'}
       </h2>
-
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400">
@@ -148,7 +134,6 @@ export default function TeacherAcademicInfoCard({
           </div>
         )}
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -159,11 +144,10 @@ export default function TeacherAcademicInfoCard({
             min="0"
             value={formData.yearsOfExperience ?? ''}
             onChange={(e) => onChange('yearsOfExperience', e.target.value === '' ? '' : Number(e.target.value))}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder={isRtl ? 'عدد سنوات الخبرة' : 'Years of experience'}
           />
         </div>
-
         {!isEdit && (
           <div>
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -176,7 +160,7 @@ export default function TeacherAcademicInfoCard({
                 step="0.01"
                 value={formData.hourlyRate ?? ''}
                 onChange={(e) => onChange('hourlyRate', e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+                className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 pe-10 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
                 placeholder={isRtl ? 'سعر الساعة بالدولار' : 'Hourly rate in USD'}
                 dir="ltr"
               />
@@ -185,7 +169,6 @@ export default function TeacherAcademicInfoCard({
           </div>
         )}
       </div>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -199,12 +182,11 @@ export default function TeacherAcademicInfoCard({
               onChange('degree', e.target.value)
               onChange('qualification', e.target.value)
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder={isRtl ? 'مثال: ليسانس لغة عربية - جامعة عين شمس' : 'e.g. BA in Arabic'}
             dir="rtl"
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'المؤهل العلمي (بالإنجليزية)' : 'Qualification (English)'}
@@ -216,14 +198,12 @@ export default function TeacherAcademicInfoCard({
               onChange('degreeEn', e.target.value)
               onChange('qualificationEn', e.target.value)
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
             placeholder="e.g. BA in Arabic - Ain Shams University"
             dir="ltr"
           />
         </div>
       </div>
-
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -239,12 +219,11 @@ export default function TeacherAcademicInfoCard({
                 en: bioEnValue
               })
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
             placeholder={isRtl ? 'نبذة مختصرة عن خبرات المعلم ومؤهلاته بالعربية...' : 'Brief summary of teacher experience in Arabic...'}
             dir="rtl"
           />
         </div>
-
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'نبذة عن المعلم (بالإنجليزية)' : 'About Teacher (English)'}
@@ -259,19 +238,16 @@ export default function TeacherAcademicInfoCard({
                 en: e.target.value
               })
             }}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400 resize-none leading-relaxed"
             placeholder="Brief summary of teacher experience and credentials in English..."
             dir="ltr"
           />
         </div>
       </div>
-
-      
       <div className="space-y-4">
         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
           {isRtl ? 'الإجازات والشهادات (باللغتين)' : 'Certificates & Ijazat (Bilingual)'}
         </label>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
@@ -287,12 +263,11 @@ export default function TeacherAcademicInfoCard({
                   handleAddAchievement(e)
                 }
               }}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
               placeholder={isRtl ? 'مثال: إجازة في قراءة عاصم بروايتي حفص وشعبة' : 'e.g. Ijazah in Asim recitation'}
               dir="rtl"
             />
           </div>
-
           <div>
             <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
               {isRtl ? 'الإجازة أو الشهادة (بالإنجليزية)' : 'Certificate / Ijazah (English)'}
@@ -307,13 +282,12 @@ export default function TeacherAcademicInfoCard({
                   handleAddAchievement(e)
                 }
               }}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-medium placeholder:text-slate-400"
               placeholder="e.g. Certified Quran Teacher with Ijazah"
               dir="ltr"
             />
           </div>
         </div>
-
         <div className="flex justify-start">
           <button
             type="button"
@@ -323,7 +297,6 @@ export default function TeacherAcademicInfoCard({
             {isRtl ? 'إضافة' : 'Add'}
           </button>
         </div>
-
         <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-xs mt-2">
           <div className="bg-[#005953] px-6 py-2.5 flex items-center justify-between text-start">
             <span className="text-xs font-bold text-white">
@@ -333,7 +306,6 @@ export default function TeacherAcademicInfoCard({
               {isRtl ? '(باللغتين العربية والإنجليزية)' : '(Arabic & English)'}
             </span>
           </div>
-
           <div className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-start">
             {achievementsList.length === 0 ? (
               <div className="px-6 py-6 text-xs text-slate-400 text-center">

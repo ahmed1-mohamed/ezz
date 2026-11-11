@@ -10,14 +10,11 @@ export default function EvaluationHistoryList({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   if (!evaluationsList || evaluationsList.length === 0) {
     return null;
   }
-
   const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start">
       <div className="flex items-center justify-between">
@@ -30,7 +27,6 @@ export default function EvaluationHistoryList({
           })}
         </span>
       </div>
-
       <div className="space-y-3">
         {paginatedEvaluations.map((evalItem) => (
           <div
@@ -51,7 +47,6 @@ export default function EvaluationHistoryList({
                   </span>
                 )}
               </div>
-
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className="inline-flex items-center gap-1 font-bold text-[#00594C] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg">
                   <span className="font-semibold text-slate-500 dark:text-slate-400">{t('teacherEvaluations.group', 'المجموعة')}:</span> {evalItem.groupName}
@@ -60,7 +55,6 @@ export default function EvaluationHistoryList({
                   <span className="font-semibold text-slate-500 dark:text-slate-400">{t('teacherEvaluations.session', 'الحصة')}:</span> {evalItem.sessionName}
                 </span>
               </div>
-
               {evalItem.notes && (
                 <div className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800">
                   <span className="font-bold text-slate-500 dark:text-slate-400 me-1">{t('teacherEvaluations.notesLabel', 'ملاحظة المعلم:')}</span>
@@ -68,7 +62,6 @@ export default function EvaluationHistoryList({
                 </div>
               )}
             </div>
-
             <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/40 shrink-0 self-start md:self-center">
               <div className="flex items-center gap-0.5" dir="ltr">
                 {[1, 2, 3, 4, 5].map((s) => (
@@ -90,7 +83,6 @@ export default function EvaluationHistoryList({
           </div>
         ))}
       </div>
-
       <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 text-xs gap-3">
         <span className="text-slate-500 dark:text-slate-400 font-semibold">
           {t('teacherEvaluations.showingPage', 'عرض صفحة {{current}} من {{total}}', {
@@ -108,7 +100,6 @@ export default function EvaluationHistoryList({
           >
             <PrevIcon size={16} />
           </button>
-
           <div className="flex items-center gap-1">
             {Array.from({ length: totalEvalPages }, (_, i) => {
               const pNum = i + 1;
@@ -128,7 +119,6 @@ export default function EvaluationHistoryList({
               );
             })}
           </div>
-
           <button
             type="button"
             onClick={() => onPageChange(Math.min(totalEvalPages, evalPage + 1))}

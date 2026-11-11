@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +10,6 @@ import {
   Clock,
   Globe,
   Star,
-  AlertCircle,
   ArrowRight,
   ArrowLeft,
   User,
@@ -19,6 +18,8 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
+import { getApiErrorText } from '@/shared/utils/errorHandler.js';
+import TabErrorState from '@/shared/components/TabErrorState.jsx';
 
 function formatTime(val) {
   if (!val) return '—';
@@ -34,13 +35,80 @@ function formatTime(val) {
   return String(val);
 }
 
+function StudentCard({ student, idx, isRtl, t }) {
+  const [hasImageError, setHasImageError] = useState(false);
+  const attended = student.attendanceRate?.attendedSessions ?? 0;
+  const completed = student.attendanceRate?.completedGroupSessions ?? 0;
+  const attendancePercent =
+    completed > 0 ? Math.min(100, Math.round((attended / completed) * 100)) : 0;
+  const studentName =
+    typeof student.name === 'object' && student.name !== null
+      ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
+      : (student.name || 'طالب');
+  const showImage = Boolean(student.image && !hasImageError);
+  return (
+    <div
+      key={student.student_id || idx}
+      className="p-5 rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-soft hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+    >
+      <div className="flex items-center gap-3">
+        {showImage ? (
+          <img
+            src={student.image}
+            alt={studentName}
+            className="w-9 h-9 rounded-full object-cover border border-emerald-500/30 shadow-xs shrink-0"
+            onError={() => setHasImageError(true)}
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+            {studentName ? studentName.charAt(0) : <User size={14} />}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+            {studentName}
+          </h4>
+        </div>
+        {student.averageRating !== undefined && student.averageRating !== null && (
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 shrink-0">
+            <Star size={13} className="fill-amber-400 text-amber-400" />
+            <span className="text-xs font-bold">
+              {Number(student.averageRating).toFixed(1)}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-600 dark:text-slate-400">
+            {t('teacher.attendanceRate', 'معدل الحضور')}:
+          </span>
+          <span className="font-bold text-slate-900 dark:text-white">
+            {attended} من {completed} حصة ({attendancePercent}%)
+          </span>
+        </div>
+        <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              attendancePercent >= 80
+                ? 'bg-emerald-500'
+                : attendancePercent >= 50
+                ? 'bg-amber-500'
+                : 'bg-rose-500'
+            }`}
+            style={{ width: `${attendancePercent}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TeacherGroupDetails() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [activeTab, setActiveTab] = useState('students');
-
   const {
     data: responseData,
     isLoading,
@@ -53,11 +121,9 @@ export default function TeacherGroupDetails() {
     enabled: Boolean(id),
     staleTime: 60 * 1000,
   });
-
   const group = responseData?.data?.group || responseData?.data || (responseData?.id ? responseData : null);
   const studentsList = group?.students || [];
   const sessionsList = group?.sessionsHistory || [];
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'نشطة':
@@ -101,7 +167,6 @@ export default function TeacherGroupDetails() {
         );
     }
   };
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="space-y-6">
@@ -113,7 +178,6 @@ export default function TeacherGroupDetails() {
             {isRtl ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
             <span>{t('teacher.backToGroups', 'الرجوع للمجموعات')}</span>
           </Link>
-
           <button
             onClick={() => refetch()}
             disabled={isFetching}
@@ -123,7 +187,6 @@ export default function TeacherGroupDetails() {
             {t('common.refresh', 'تحديث')}
           </button>
         </div>
-
         {isLoading ? (
           <div className="space-y-6 animate-pulse">
             <div className="h-48 rounded-3xl bg-slate-200 dark:bg-slate-800" />
@@ -131,20 +194,19 @@ export default function TeacherGroupDetails() {
             <div className="h-64 rounded-3xl bg-slate-200 dark:bg-slate-800" />
           </div>
         ) : error || !group ? (
-          <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-red-200 bg-red-50/50 text-center dark:border-red-900/40 dark:bg-red-950/20">
-            <AlertCircle size={44} className="text-red-500 mb-3" />
-            <h3 className="text-lg font-bold text-red-900 dark:text-red-200">
-              {t('common.errorLoading', 'حدث خطأ أثناء تحميل تفاصيل المجموعة')}
-            </h3>
-            <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-              {error?.message || 'لم نتمكن من العثور على المجموعة المطلوبة.'}
-            </p>
-            <Link
-              to="/dashboard/teacher/groups"
-              className="mt-4 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all cursor-pointer"
-            >
-              {t('teacher.backToGroups', 'الرجوع للمجموعات')}
-            </Link>
+          <div className="space-y-4">
+            <TabErrorState
+              title={t('common.errorLoading', 'حدث خطأ أثناء تحميل تفاصيل المجموعة')}
+              message={getApiErrorText(error, 'لم نتمكن من العثور على المجموعة المطلوبة.')}
+            />
+            <div className="text-center">
+              <Link
+                to="/dashboard/teacher/groups"
+                className="inline-flex px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+              >
+                {t('teacher.backToGroups', 'الرجوع للمجموعات')}
+              </Link>
+            </div>
           </div>
         ) : (
           <>
@@ -172,7 +234,6 @@ export default function TeacherGroupDetails() {
                     {group.name}
                   </h1>
                 </div>
-
                 <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/60 dark:bg-emerald-950/30 dark:border-emerald-900/40 shrink-0">
                   <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                     {t('teacher.capacity', 'السعة الحالية')}
@@ -183,7 +244,6 @@ export default function TeacherGroupDetails() {
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {group.curriculum && (
                   <div className="flex items-center gap-3">
@@ -200,7 +260,6 @@ export default function TeacherGroupDetails() {
                     </div>
                   </div>
                 )}
-
                 {group.level && (
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 shrink-0">
@@ -216,7 +275,6 @@ export default function TeacherGroupDetails() {
                     </div>
                   </div>
                 )}
-
                 {group.language && (
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400 shrink-0">
@@ -232,7 +290,6 @@ export default function TeacherGroupDetails() {
                     </div>
                   </div>
                 )}
-
                 {(group.startDate || group.endDate) && (
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 shrink-0">
@@ -249,7 +306,6 @@ export default function TeacherGroupDetails() {
                   </div>
                 )}
               </div>
-
               {group.weeklySchedule?.length > 0 && (
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
                   <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -273,7 +329,6 @@ export default function TeacherGroupDetails() {
                 </div>
               )}
             </div>
-
             <div className="space-y-4">
               <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 w-fit">
                 <button
@@ -297,7 +352,6 @@ export default function TeacherGroupDetails() {
                     {studentsList.length}
                   </span>
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setActiveTab('sessions')}
@@ -320,7 +374,6 @@ export default function TeacherGroupDetails() {
                   </span>
                 </button>
               </div>
-
               {activeTab === 'students' && (
                 <div className="space-y-4">
                   {studentsList.length === 0 ? (
@@ -337,84 +390,19 @@ export default function TeacherGroupDetails() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {studentsList.map((student, idx) => {
-                        const attended = student.attendanceRate?.attendedSessions ?? 0;
-                        const completed = student.attendanceRate?.completedGroupSessions ?? 0;
-                        const attendancePercent =
-                          completed > 0 ? Math.min(100, Math.round((attended / completed) * 100)) : 0;
-
-                        const studentName =
-                          typeof student.name === 'object' && student.name !== null
-                            ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
-                            : (student.name || 'طالب');
-
-                        return (
-                          <div
-                            key={student.student_id || idx}
-                            className="p-5 rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-soft hover:shadow-md transition-all flex flex-col justify-between space-y-4"
-                          >
-                            <div className="flex items-center gap-3">
-                              {student.image ? (
-                                <img
-                                  src={student.image}
-                                  alt={studentName}
-                                  className="w-13 h-13 rounded-2xl object-cover border-2 border-emerald-500/20 shadow-xs shrink-0"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
-                                  {studentName ? studentName.charAt(0) : <User size={20} />}
-                                </div>
-                              )}
-
-                              <div className="min-w-0 flex-1">
-                                <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
-                                  {studentName}
-                                </h4>
-                              </div>
-
-                              {student.averageRating !== undefined && student.averageRating !== null && (
-                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 shrink-0">
-                                  <Star size={14} className="fill-amber-400 text-amber-400" />
-                                  <span className="text-xs font-bold">
-                                    {Number(student.averageRating).toFixed(1)}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="font-semibold text-slate-600 dark:text-slate-400">
-                                  {t('teacher.attendanceRate', 'معدل الحضور')}:
-                                </span>
-                                <span className="font-bold text-slate-900 dark:text-white">
-                                  {attended} من {completed} حصة ({attendancePercent}%)
-                                </span>
-                              </div>
-                              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-500 ${
-                                    attendancePercent >= 80
-                                      ? 'bg-emerald-500'
-                                      : attendancePercent >= 50
-                                      ? 'bg-amber-500'
-                                      : 'bg-rose-500'
-                                  }`}
-                                  style={{ width: `${attendancePercent}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {studentsList.map((student, idx) => (
+                        <StudentCard
+                          key={student.student_id || idx}
+                          student={student}
+                          idx={idx}
+                          isRtl={isRtl}
+                          t={t}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
               )}
-
               {activeTab === 'sessions' && (
                 <div className="space-y-4">
                   {sessionsList.length === 0 ? (

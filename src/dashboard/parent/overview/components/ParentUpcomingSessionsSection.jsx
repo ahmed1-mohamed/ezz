@@ -79,7 +79,7 @@ export default React.memo(function ParentUpcomingSessionsSection({
       toast.success(isRtl ? 'تم تسجيل الاعتذار عن الحصة بنجاح' : 'Session cancellation submitted');
     }
   };
-  const handleJoinLive = (session) => {
+  const handleJoinLive = () => {
     toast.success(isRtl ? 'جاري الانتقال للبث المباشر...' : 'Connecting to live stream...');
   };
   if (isLoading) {

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Gift,
@@ -8,8 +8,9 @@ import {
   Smile,
   Sparkles,
 } from 'lucide-react'
-import EmojiPicker, { Theme } from 'emoji-picker-react'
 import { formatRewardIcon } from '@/shared/services/api/adminRewardsApi'
+
+const LazyEmojiPicker = lazy(() => import('emoji-picker-react'))
 
 const POPULAR_REWARD_EMOJIS = [
   '⭐',
@@ -47,7 +48,6 @@ const COLOR_PRESETS = [
 export default function RewardForm({ onSave, onCancel, editingReward, isSaving = false }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
-
   const [nameAr, setNameAr] = useState('')
   const [nameEn, setNameEn] = useState('')
   const [descriptionAr, setDescriptionAr] = useState('')
@@ -55,9 +55,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
   const [icon, setIcon] = useState('⭐')
   const [backgroundColor, setBackgroundColor] = useState('#4CAF50')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-
   const emojiPickerRef = useRef(null)
-
   useEffect(() => {
     function handleClickOutside(event) {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
@@ -71,7 +69,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showEmojiPicker])
-
   useEffect(() => {
     if (editingReward) {
       const initialNameAr = typeof editingReward.name === 'object' && editingReward.name !== null
@@ -80,23 +77,18 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
       const initialNameEn = typeof editingReward.name === 'object' && editingReward.name !== null
         ? (editingReward.name.en || editingReward.name.ar || '')
         : String(editingReward.nameEn || editingReward.name || '')
-
       setNameAr(initialNameAr)
       setNameEn(initialNameEn)
-
       const rawIcon = editingReward.icon || editingReward.emoji || editingReward.badge || '⭐'
       setIcon(formatRewardIcon(rawIcon))
-
       const rawBg = editingReward.backgroundColor || editingReward.bgColor || editingReward.color || '#4CAF50'
       setBackgroundColor(rawBg)
-
       const initialDescAr = typeof editingReward.description === 'object' && editingReward.description !== null
         ? (editingReward.description.ar || editingReward.description.en || '')
         : String(editingReward.description || editingReward.desc || '')
       const initialDescEn = typeof editingReward.description === 'object' && editingReward.description !== null
         ? (editingReward.description.en || editingReward.description.ar || '')
         : String(editingReward.descriptionEn || editingReward.description || '')
-
       setDescriptionAr(initialDescAr)
       setDescriptionEn(initialDescEn)
     } else {
@@ -108,23 +100,19 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
       setBackgroundColor('#4CAF50')
     }
   }, [editingReward])
-
   const handleEmojiClick = (emojiData) => {
     if (emojiData?.emoji) {
       setIcon(emojiData.emoji)
       setShowEmojiPicker(false)
     }
   }
-
   const handleSubmit = (e) => {
     e.preventDefault()
     const finalNameAr = nameAr.trim() || nameEn.trim()
     const finalNameEn = nameEn.trim() || nameAr.trim()
     if (!finalNameAr) return
-
     const finalDescAr = descriptionAr.trim() || descriptionEn.trim()
     const finalDescEn = descriptionEn.trim() || descriptionAr.trim()
-
     onSave({
       name: {
         ar: finalNameAr,
@@ -142,10 +130,8 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
       descriptionEn: finalDescEn,
     })
   }
-
   const previewDisplayName = isRtl ? (nameAr || nameEn) : (nameEn || nameAr)
   const previewDisplayDesc = isRtl ? (descriptionAr || descriptionEn) : (descriptionEn || descriptionAr)
-
   return (
     <div
       className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 mx-auto text-start relative max-h-[90vh] overflow-y-auto"
@@ -177,7 +163,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
           <X size={20} />
         </button>
       </div>
-
       <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-4 border border-slate-200/60 dark:border-slate-800 space-y-2">
         <span className="text-[11px] font-bold text-slate-400 block">
           {t('teacher.previewLabel', 'معاينة حية للمكافأة:')}
@@ -204,7 +189,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
           </span>
         </div>
       </div>
-
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -221,7 +205,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all"
             />
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               <span>{isRtl ? 'اسم المكافأة (إنجليزي)' : 'Reward Name (English)'}</span> <span className="text-rose-500">*</span>
@@ -237,7 +220,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
             />
           </div>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -253,7 +235,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
             />
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               <span>{isRtl ? 'الوصف (إنجليزي)' : 'Description (English)'}</span> <span className="text-rose-500">*</span>
@@ -269,7 +250,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
             />
           </div>
         </div>
-
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -288,12 +268,10 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               </span>
             </button>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 rounded-2xl border-2 border-dashed border-[#00594C]/30 bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-3xl shadow-2xs shrink-0">
               <span>{icon || '⭐'}</span>
             </div>
-
             <div className="flex-1 flex gap-2">
               <input
                 type="text"
@@ -303,7 +281,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
                 placeholder={isRtl ? 'اختر أو اكتب إيموجي' : 'Select or type emoji'}
                 className="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C]"
               />
-
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker((prev) => !prev)}
@@ -314,7 +291,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               </button>
             </div>
           </div>
-
           <div className="space-y-1.5 pt-1">
             <span className="text-[11px] font-semibold text-slate-400 block">
               {isRtl ? 'أو اختر مباشرة من الإيموجيات الشائعة للمكافآت:' : 'Or choose directly from popular reward emojis:'}
@@ -336,7 +312,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               ))}
             </div>
           </div>
-
           {showEmojiPicker && (
             <div
               ref={emojiPickerRef}
@@ -354,20 +329,25 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
                   {isRtl ? 'إغلاق ✕' : 'Close ✕'}
                 </button>
               </div>
-              <div className="flex justify-center max-w-full overflow-hidden">
-                <EmojiPicker
-                  onEmojiClick={handleEmojiClick}
-                  theme={Theme.AUTO}
-                  searchPlaceholder={isRtl ? 'ابحث عن إيموجي...' : 'Search emoji...'}
-                  previewConfig={{ showPreview: false }}
-                  width="100%"
-                  height={350}
-                />
+              <div className="flex justify-center max-w-full overflow-hidden min-h-[350px]">
+                <Suspense fallback={
+                  <div className="h-[350px] w-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#00594C]" />
+                  </div>
+                }>
+                  <LazyEmojiPicker
+                    onEmojiClick={handleEmojiClick}
+                    theme="auto"
+                    searchPlaceholder={isRtl ? 'ابحث عن إيموجي...' : 'Search emoji...'}
+                    previewConfig={{ showPreview: false }}
+                    width="100%"
+                    height={350}
+                  />
+                </Suspense>
               </div>
             </div>
           )}
         </div>
-
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -384,7 +364,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               />
             </div>
           </div>
-
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {COLOR_PRESETS.map((color) => {
               const isSelected = backgroundColor.toLowerCase() === color.hex.toLowerCase()
@@ -412,7 +391,6 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
             })}
           </div>
         </div>
-
         <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"

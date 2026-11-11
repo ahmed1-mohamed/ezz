@@ -14,13 +14,11 @@ export default function AdminStudents() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const navigate = useNavigate()
-
   const queryClient = useQueryClient()
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 400)
-
   const { data: fetchRes, isLoading } = useQuery({
     queryKey: ['adminStudents', statusFilter, currentPage, debouncedSearch],
     queryFn: () => studentsApi.fetchStudents({
@@ -31,35 +29,28 @@ export default function AdminStudents() {
     }),
     staleTime: 3 * 60 * 1000
   })
-
   const rawList = fetchRes?.data || (Array.isArray(fetchRes) ? fetchRes : [])
   const students = Array.isArray(rawList) ? rawList : []
-
   const pagination = fetchRes?.pagination || {}
   const totalPages = Number(pagination.numberOfPages || 1)
   const totalCount = Number(pagination.totalCount || pagination.total || students.length)
-
   const statistics = fetchRes?.statistics || {
     total: students.length,
     active: students.filter((s) => s.active === true || String(s.active) === 'true').length,
     stopped: students.filter((s) => s.active === false || String(s.active) === 'false').length
   }
-
   const handleStatusFilterChange = (newStatus) => {
     setStatusFilter(newStatus)
     setCurrentPage(1)
   }
-
   const handleDeleteStudent = async (student) => {
     if (!student) return
     const id = student.student_id || student._id || student.id
     const studentName = typeof student.name === 'string'
       ? student.name
       : (student.name?.ar || student.name?.en || 'الطالب')
-
     const isConfirmed = await showDeleteConfirm(isRtl, studentName)
     if (!isConfirmed) return
-
     try {
       await studentsApi.deleteStudent(id)
       await queryClient.invalidateQueries({ queryKey: ['adminStudents'] })
@@ -69,7 +60,6 @@ export default function AdminStudents() {
       console.error('Failed to delete student:', err)
     }
   }
-
   return (
     <div className="space-y-8 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && (
@@ -77,7 +67,6 @@ export default function AdminStudents() {
           <Spinner />
         </div>
       )}
-
       <div className="text-start">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
           {t('adminDashboard.students.title', 'إدارة الطلاب')}
@@ -86,7 +75,6 @@ export default function AdminStudents() {
           {t('adminDashboard.students.subtitle', 'منارة العز أكاديمي · لوحة الإدارة')}
         </p>
       </div>
-
       <StudentsList
         students={students}
         statistics={statistics}

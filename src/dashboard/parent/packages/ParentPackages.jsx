@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import useDebounce from '@/shared/hooks/useDebounce';
 import {
   Layers,
   Search,
@@ -15,8 +16,10 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
+import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi.js';
 import ParentPackageCard from './components/ParentPackageCard.jsx';
 import ParentPackageDetailsModal from './components/ParentPackageDetailsModal.jsx';
+import ParentPackageNavTabs from './components/ParentPackageNavTabs.jsx';
 
 const TYPE_FILTERS = [
   { id: 'all', labelKey: 'parentPackages.allTypes', defaultLabel: 'الكل' },
@@ -30,6 +33,7 @@ export default function ParentPackages() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [selectedType, setSelectedType] = useState('all');
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [activeModalPackage, setActiveModalPackage] = useState(null);
@@ -42,8 +46,11 @@ export default function ParentPackages() {
     if (selectedType !== 'all') {
       params.type = selectedType;
     }
+    if (debouncedSearch.trim()) {
+      params.search = debouncedSearch.trim();
+    }
     return params;
-  }, [currentPage, selectedType]);
+  }, [currentPage, selectedType, debouncedSearch]);
   const {
     data: packagesResponse,
     isLoading,
@@ -53,6 +60,14 @@ export default function ParentPackages() {
     queryKey: ['parent-packages-list', queryParams],
     queryFn: () => parentPackagesApi.fetchPackages(queryParams),
   });
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: () => currenciesApi.fetchExchangeRate(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const currencyInfo = useMemo(() => {
+    return parseExchangeRateData(exchangeRateRes);
+  }, [exchangeRateRes]);
   const rawPackagesList = useMemo(() => {
     if (!packagesResponse) return [];
     if (Array.isArray(packagesResponse.data)) return packagesResponse.data;
@@ -94,17 +109,8 @@ export default function ParentPackages() {
     if (selectedCountry !== 'all') {
       result = result.filter((pkg) => pkg?.country?.id === selectedCountry);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter((pkg) => {
-        const nameMatch = String(pkg?.name || '').toLowerCase().includes(q);
-        const langMatch = String(pkg?.language || '').toLowerCase().includes(q);
-        const featMatch = Array.isArray(pkg?.features) && pkg.features.some((f) => String(f).toLowerCase().includes(q));
-        return nameMatch || langMatch || featMatch;
-      });
-    }
     return result;
-  }, [rawPackagesList, selectedType, selectedCountry, searchQuery]);
+  }, [rawPackagesList, selectedType, selectedCountry]);
   const statsOverview = useMemo(() => {
     const total = rawPackagesList.length;
     const individual = rawPackagesList.filter(
@@ -125,7 +131,7 @@ export default function ParentPackages() {
   };
   const handleSubscribe = (packageItem) => {
     navigate('/dashboard/parent/checkout', {
-      state: { package: packageItem },
+      state: { package: packageItem, currencyInfo },
     });
   };
   const handleResetFilters = () => {
@@ -136,7 +142,9 @@ export default function ParentPackages() {
   };
   return (
     <div className="p-4 sm:p-8 space-y-8 max-w-7xl mx-auto transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Page Header */}
+      <div className="flex justify-start">
+        <ParentPackageNavTabs />
+      </div>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
@@ -166,7 +174,12 @@ export default function ParentPackages() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate('/dashboard/parent/checkout')}
+              onClick={() => {
+                const targetPkg = filteredPackages[0] || rawPackagesList[0] || null;
+                navigate('/dashboard/parent/checkout', {
+                  state: targetPkg ? { package: targetPkg } : undefined,
+                });
+              }}
               className="px-5 py-3 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-extrabold shadow-md shadow-[#0f7a6c]/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.01]"
             >
               <CreditCard className="w-4 h-4" />
@@ -174,7 +187,6 @@ export default function ParentPackages() {
             </button>
           </div>
         </div>
-        {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs">
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-[#0f7a6c] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs border border-slate-200/60 dark:border-slate-700">
@@ -211,20 +223,20 @@ export default function ParentPackages() {
           </div>
         </div>
       </div>
-      {/* Search and Filters Bar */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder={t('parentPackages.searchPlaceholder', 'بحث باسم الباقة أو المزايا...')}
             className="w-full ps-10 pe-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30 focus:border-[#0f7a6c]"
           />
         </div>
-        {/* Filter Pills */}
         <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
             {TYPE_FILTERS.map((filter) => {
@@ -271,7 +283,6 @@ export default function ParentPackages() {
           )}
         </div>
       </div>
-      {/* Main Content Area */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((sk) => (
@@ -296,7 +307,7 @@ export default function ParentPackages() {
           ))}
         </div>
       ) : isError ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm space-y-4">
+        <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 rounded-3xl p-12 text-center shadow-sm space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center mx-auto">
             <HelpCircle className="w-7 h-7" />
           </div>
@@ -346,12 +357,12 @@ export default function ParentPackages() {
               <ParentPackageCard
                 key={pkg.id || pkg._id}
                 packageItem={pkg}
+                currencyInfo={currencyInfo}
                 onViewDetails={handleOpenDetails}
                 onSubscribe={handleSubscribe}
               />
             ))}
           </div>
-          {/* Pagination Controls */}
           {paginationInfo.pages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-6">
               <button
@@ -377,10 +388,10 @@ export default function ParentPackages() {
           )}
         </>
       )}
-      {/* Package Details Modal */}
       <ParentPackageDetailsModal
         isOpen={isDetailsOpen}
         packageItem={activeModalPackage}
+        currencyInfo={currencyInfo}
         onClose={handleCloseDetails}
         onSubscribe={handleSubscribe}
       />

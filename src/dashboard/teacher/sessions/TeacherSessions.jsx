@@ -9,8 +9,6 @@ import TeacherSessionsFilterBar from './components/TeacherSessionsFilterBar.jsx'
 import TeacherSessionsTable from './components/TeacherSessionsTable.jsx';
 import TeacherSessionsEmptyState from './components/TeacherSessionsEmptyState.jsx';
 
-// Formats an ISO timestamp (or an "HH:mm" string) as HH:mm. ISO dates contain "-" too,
-// so they must be parsed before treating "-" as a range separator.
 function formatTimeDisplay(timeStr) {
   if (!timeStr) return '-';
   const str = String(timeStr).trim();
@@ -33,7 +31,6 @@ function formatDateDisplay(value, isRtl) {
   return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// Session status may come back as a key ("completed") or translated text ("مكتملة")
 const STATUS_KEYS = {
   scheduled: 'scheduled', 'مجدولة': 'scheduled', 'مجدول': 'scheduled',
   rescheduled: 'rescheduled', 'معاد جدولتها': 'rescheduled', 'معاد جدولته': 'rescheduled', 'أعيدت جدولتها': 'rescheduled',
@@ -61,16 +58,13 @@ function getStudentsCount(item) {
 export default function TeacherSessions() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -100,12 +94,10 @@ export default function TeacherSessions() {
         setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -113,7 +105,6 @@ export default function TeacherSessions() {
     }, 350);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
   const {
     data: responseData,
     isLoading,
@@ -128,7 +119,6 @@ export default function TeacherSessions() {
         search: debouncedSearch,
       }),
   });
-
   const sessionsList = useMemo(() => {
     const list = responseData?.data || (Array.isArray(responseData) ? responseData : []);
     if (Array.isArray(list) && list.length > 0) {
@@ -151,7 +141,6 @@ export default function TeacherSessions() {
     }
     return [];
   }, [responseData, t, isRtl]);
-
   const filteredSessions = useMemo(() => {
     return sessionsList.filter((s) => {
       const st = s.status;
@@ -159,7 +148,6 @@ export default function TeacherSessions() {
       if (activeTab === 'live' && st !== 'live') return false;
       if (activeTab === 'completed' && st !== 'completed') return false;
       if (activeTab === 'cancelled' && st !== 'cancelled') return false;
-
       if (debouncedSearch.trim()) {
         const q = debouncedSearch.toLowerCase().trim();
         const matchTitle = s.title?.toLowerCase().includes(q);
@@ -169,16 +157,13 @@ export default function TeacherSessions() {
       return true;
     });
   }, [sessionsList, activeTab, debouncedSearch]);
-
   const serverTotalPages =
     responseData?.pagination?.numberOfPages ||
     responseData?.pagination?.totalPages ||
     responseData?.totalPages ||
     responseData?.meta?.totalPages ||
     (responseData?.total ? Math.ceil(responseData.total / itemsPerPage) : 0);
-
   const totalPages = Math.max(1, serverTotalPages || Math.ceil(filteredSessions.length / itemsPerPage));
-
   const displaySessions = useMemo(() => {
     if (serverTotalPages && serverTotalPages > 1) {
       return filteredSessions;
@@ -186,7 +171,6 @@ export default function TeacherSessions() {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredSessions.slice(start, start + itemsPerPage);
   }, [filteredSessions, currentPage, itemsPerPage, serverTotalPages]);
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherSessionsHeader
@@ -195,7 +179,6 @@ export default function TeacherSessions() {
         isFetching={isFetching}
         onRefetch={refetch}
       />
-
       <TeacherSessionsFilterBar
         activeTab={activeTab}
         onTabChange={(tab) => {
@@ -205,7 +188,6 @@ export default function TeacherSessions() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-
       {isLoading ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -217,7 +199,6 @@ export default function TeacherSessions() {
       ) : (
         <div className="space-y-4">
           <TeacherSessionsTable sessions={displaySessions} />
-
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between pt-4 text-xs gap-3">
               <span className="text-slate-500 dark:text-slate-400 font-semibold">
@@ -226,7 +207,6 @@ export default function TeacherSessions() {
                   totalPages,
                 })}
               </span>
-
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -237,7 +217,6 @@ export default function TeacherSessions() {
                 >
                   {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                 </button>
-
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     const pageNum = i + 1;
@@ -258,7 +237,6 @@ export default function TeacherSessions() {
                     );
                   })}
                 </div>
-
                 <button
                   type="button"
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}

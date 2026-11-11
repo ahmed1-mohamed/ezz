@@ -1,35 +1,31 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Star, MapPin } from 'lucide-react'
 import { getTeacherImageUrl } from './teachersUtils'
 
 const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
   const navigate = useNavigate()
-
+  const { i18n } = useTranslation()
+  const currentLang = i18n.language === 'en' ? 'en' : 'ar'
   const rawImg = teacher.image || teacher.avatar || teacher.photo
   const [hasError, setHasError] = useState(false)
   const [prevImg, setPrevImg] = useState(rawImg)
-
   if (prevImg !== rawImg) {
     setPrevImg(rawImg)
     setHasError(false)
   }
-
   const imgSrc = hasError ? null : getTeacherImageUrl(rawImg)
-
   const teacherId = teacher.teacher_id || teacher.id || teacher.user_id
-
   const handleProfileNavigation = () => {
     if (teacherId) {
-      navigate(`/teachers/${teacherId}`)
+      navigate(`/${currentLang}/teachers/${teacherId}`)
     }
   }
-
   const ratingDisplay = teacher.rating && Number(teacher.rating) > 0
     ? Number(teacher.rating).toFixed(1)
     : '5.0'
-
   const countryName = useMemo(() => {
     if (!teacher.country) return null
     if (typeof teacher.country === 'object' && teacher.country !== null) {
@@ -38,7 +34,6 @@ const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
     const str = String(teacher.country).trim()
     return str || null
   }, [teacher.country])
-
   const specializations = useMemo(() => {
     const list = []
     if (Array.isArray(teacher.specializations)) {
@@ -51,9 +46,7 @@ const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
     }
     return list.slice(0, 2)
   }, [teacher.specializations, teacher.subject])
-
   const teacherInitial = teacher.name ? teacher.name.trim().charAt(0) : 'م'
-
   return (
     <motion.article
       layout="position"
@@ -89,7 +82,6 @@ const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
           </div>
         )}
       </div>
-
       <div className="space-y-5 p-6 text-start flex-1 flex flex-col justify-between">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-2">
@@ -105,13 +97,11 @@ const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
                 {teacher.degree || teacher.title || t('teacher.jobTitle', 'معلم معتمد')}
               </p>
             </div>
-
             <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 shrink-0 mt-0.5 bg-[#F9F5E8] dark:bg-amber-950/40 px-2.5 py-1 rounded-full border border-[#9B7B16]/20 dark:border-amber-900/40">
               <Star className="h-3.5 w-3.5 fill-[#9B7B16] dark:fill-amber-400 text-[#9B7B16] dark:text-amber-400" />
               <span className="text-xs font-bold">{ratingDisplay}</span>
             </div>
           </div>
-
           <div className="flex flex-wrap justify-start gap-1.5 pt-1">
             {countryName && (
               <span className="rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/40 px-3 py-1 text-xs font-semibold text-[#8B6B15] dark:text-amber-400 flex items-center gap-1">
@@ -136,7 +126,6 @@ const TeacherCard = React.memo(function TeacherCard({ teacher, t, index = 0 }) {
             ))}
           </div>
         </div>
-
         <button
           onClick={handleProfileNavigation}
           className="w-full rounded-2xl bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 py-3.5 text-[16px] font-bold text-white transition-all duration-300 ease-out hover:shadow-lg active:scale-95 hover:-translate-y-0.5 cursor-pointer"

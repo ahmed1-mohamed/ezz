@@ -7,7 +7,6 @@ export default function ChangeTeacherPanel({ session, onConfirm, onCancel, teach
   const [selectedTeacherId, setSelectedTeacherId] = useState(session.teacherId || null)
   const [reason, setReason] = useState('')
   const safeTeachers = Array.isArray(teachers) ? teachers : []
-
   return (
     <div className="bg-[#f3f7f6] dark:bg-slate-900/60 rounded-2xl p-4 space-y-3 border border-amber-100 dark:border-amber-900/30 mt-2 mx-2">
       <p className="text-sm font-bold text-slate-700 dark:text-slate-200 text-start">

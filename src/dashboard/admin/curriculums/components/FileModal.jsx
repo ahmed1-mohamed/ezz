@@ -7,7 +7,6 @@ import { toast } from 'react-hot-toast'
 export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editingFile = null }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const [resourceType, setResourceType] = useState('file')
   const [nameAr, setNameAr] = useState('')
   const [nameEn, setNameEn] = useState('')
@@ -16,7 +15,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
   const [showToStudents, setShowToStudents] = useState(true)
   const [showToTeachers, setShowToTeachers] = useState(true)
   const fileInputRef = useRef(null)
-
   const [prevOpen, setPrevOpen] = useState(isOpen)
   if (prevOpen !== isOpen) {
     setPrevOpen(isOpen)
@@ -40,9 +38,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
       }
     }
   }
-
-  if (!isOpen) return null
-
+  if (!isOpen || typeof document === 'undefined') return null
   const formatUrl = (rawUrl) => {
     let trimmed = (rawUrl || '').trim()
     if (!trimmed) return ''
@@ -51,7 +47,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
     }
     return trimmed
   }
-
   const handleSubmit = (e) => {
     e.preventDefault()
     const cleanNameAr = nameAr.trim() || nameEn.trim()
@@ -105,13 +100,11 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
       })
     }
   }
-
   const modalTitle = editingFile
     ? (isRtl ? 'تعديل محتوى / مصدر الوحدة' : 'Edit Unit Resource')
     : (isRtl ? 'إضافة محتوى / مصادر للوحدة' : 'Add Unit Content / Resource')
-
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto flex flex-col border border-slate-100 dark:border-slate-800" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="p-5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm z-10">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">
@@ -125,7 +118,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
             <X size={20} />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-6 space-y-5 text-start">
           <div className="flex bg-slate-100 dark:bg-slate-800/60 p-1 rounded-2xl gap-1">
             <button
@@ -145,7 +137,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               {isRtl ? 'رابط خارجي' : 'External Link'}
             </button>
           </div>
-
           {resourceType === 'file' ? (
             <>
               <div
@@ -195,7 +186,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
                       setUrl(formatUrl(e.target.value))
                     }
                   }}
-                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm font-mono"
+                  className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm font-mono"
                   placeholder="https://drive.google.com/... or https://..."
                   dir="ltr"
                 />
@@ -205,7 +196,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               </p>
             </div>
           )}
-
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'عنوان المحتوى (عربي)' : 'Title (Arabic)'} <span className="text-red-500">*</span>
@@ -215,11 +205,10 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               required
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'مثال: كتاب الشرح أو رابط المحاضرة' : 'e.g. Explanation Book or Lecture Link'}
             />
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'عنوان المحتوى (إنجليزي)' : 'Title (English)'}
@@ -228,12 +217,10 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               type="text"
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c]/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'e.g. Explanation Book' : 'e.g. Explanation Book'}
             />
           </div>
-
-          {/* Visibility Flags Section */}
           <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-3">
             <div className="flex items-center gap-2">
               <Eye size={16} className="text-[#0f7a6c] dark:text-emerald-400" />
@@ -241,9 +228,7 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
                 {isRtl ? 'صلاحيات ظهور الملف' : 'File Visibility Permissions'}
               </span>
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
-              {/* Show to Students */}
               <label
                 className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
                   showToStudents
@@ -275,8 +260,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
                   className="w-4 h-4 accent-[#0f7a6c] rounded cursor-pointer ms-2 shrink-0"
                 />
               </label>
-
-              {/* Show to Teachers */}
               <label
                 className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
                   showToTeachers
@@ -310,7 +293,6 @@ export default function FileModal({ isOpen, onClose, isSaving, onSubmit, editing
               </label>
             </div>
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

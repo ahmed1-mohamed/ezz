@@ -1,6 +1,6 @@
 import { Upload, ChevronDown } from 'lucide-react'
-import { useState, useMemo } from 'react'
-import { sortCountries, sortCountryCodes, getCountryName } from '@/shared/utils/countryUtils'
+import { useState, useMemo, useEffect } from 'react'
+import { sortCountries, sortCountryCodes, getCountryName, searchCountriesBackend, toDialCodeOptions } from '@/shared/utils/countryUtils'
 
 export default function ParentPersonalInfo({
   formData,
@@ -22,31 +22,61 @@ export default function ParentPersonalInfo({
 }) {
   const [phoneSearch, setPhoneSearch] = useState('')
   const [countrySearch, setCountrySearch] = useState('')
-
+  const [backendPhoneCodes, setBackendPhoneCodes] = useState(null)
+  const [backendCountries, setBackendCountries] = useState(null)
+  useEffect(() => {
+    const trimmed = phoneSearch.trim()
+    if (!trimmed) {
+      setBackendPhoneCodes(null)
+      return
+    }
+    let active = true
+    const timer = setTimeout(async () => {
+      try {
+        const list = await searchCountriesBackend(trimmed)
+        if (active) setBackendPhoneCodes(toDialCodeOptions(list))
+      } catch (err) {
+        if (active) setBackendPhoneCodes([])
+      }
+    }, 300)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [phoneSearch])
+  useEffect(() => {
+    const trimmed = countrySearch.trim()
+    if (!trimmed) {
+      setBackendCountries(null)
+      return
+    }
+    let active = true
+    const timer = setTimeout(async () => {
+      try {
+        const list = await searchCountriesBackend(trimmed)
+        if (active) setBackendCountries(list)
+      } catch (err) {
+        if (active) setBackendCountries([])
+      }
+    }, 300)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [countrySearch])
   const filteredPhoneCodes = useMemo(() => {
-    const list = (dynamicCountryCodes || []).filter(c =>
-      c.name?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
-      c.nameEn?.toLowerCase().includes(phoneSearch.toLowerCase()) ||
-      c.code?.includes(phoneSearch) ||
-      c.dialCode?.includes(phoneSearch)
-    )
+    const list = backendPhoneCodes !== null ? backendPhoneCodes : dynamicCountryCodes
     return sortCountryCodes(list, isRtl)
-  }, [dynamicCountryCodes, phoneSearch, isRtl])
-
+  }, [backendPhoneCodes, dynamicCountryCodes, isRtl])
   const filteredCountries = useMemo(() => {
-    const list = (countries || []).filter(c =>
-      c.name?.toLowerCase().includes(countrySearch.toLowerCase()) ||
-      c.nameEn?.toLowerCase().includes(countrySearch.toLowerCase())
-    )
+    const list = backendCountries !== null ? backendCountries : countries
     return sortCountries(list, isRtl)
-  }, [countries, countrySearch, isRtl])
-
+  }, [backendCountries, countries, isRtl])
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
       <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3 text-start">
         {isRtl ? 'البيانات الشخصية' : 'Personal Details'}
       </h3>
-
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
           <div className="h-20 w-20 rounded-full bg-brand-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
@@ -70,7 +100,6 @@ export default function ParentPersonalInfo({
         </p>
         <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageSelect} />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
@@ -82,7 +111,7 @@ export default function ParentPersonalInfo({
             onChange={(e) => handleChange('nameEn', e.target.value)}
             placeholder="Khaled Al-Mansour"
             dir="ltr"
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
           />
         </div>
         <div>
@@ -95,11 +124,10 @@ export default function ParentPersonalInfo({
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder={isRtl ? 'خالد المنصور' : 'Khaled Al-Mansour'}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 text-start"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405 text-start"
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
@@ -110,7 +138,7 @@ export default function ParentPersonalInfo({
               <button
                 type="button"
                 onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
-                className="h-12 flex items-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
+                className="h-12 flex items-center gap-1.5 px-3 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent rounded-2xl text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
               >
                 <span>{selectedCountryCode?.flag || '🌍'}</span>
                 <span className="text-xs">{(selectedCountryCode?.dialCode || selectedCountryCode?.code) ? `(${selectedCountryCode.dialCode || selectedCountryCode.code})` : ''}</span>
@@ -150,7 +178,7 @@ export default function ParentPersonalInfo({
               value={phoneVal}
               onChange={(e) => setPhoneVal(e.target.value)}
               placeholder="501234567"
-              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
+              className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
             />
           </div>
         </div>
@@ -164,11 +192,10 @@ export default function ParentPersonalInfo({
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="khalid@email.com"
             dir="ltr"
-            className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-105 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm placeholder-slate-405"
           />
         </div>
       </div>
-
       <div className="relative">
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 text-start">
           {isRtl ? 'البلد *' : 'Country *'}
@@ -176,7 +203,7 @@ export default function ParentPersonalInfo({
         <button
           type="button"
           onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-          className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-955 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-105 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
+          className="w-full flex items-center justify-between bg-[#f3f7f6] dark:bg-slate-950 border border-transparent rounded-2xl py-3 px-4 text-sm text-slate-800 dark:text-slate-100 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
         >
           <ChevronDown size={16} className="text-slate-400" />
           <span>
@@ -214,7 +241,6 @@ export default function ParentPersonalInfo({
           </div>
         )}
       </div>
-
     </div>
   )
 }

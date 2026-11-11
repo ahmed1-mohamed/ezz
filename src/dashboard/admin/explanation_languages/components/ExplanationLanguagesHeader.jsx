@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 function ExplanationLanguagesHeader({ showForm, onToggleForm }) {
     const { i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     return (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3 text-start">
@@ -21,7 +20,6 @@ function ExplanationLanguagesHeader({ showForm, onToggleForm }) {
                     </p>
                 </div>
             </div>
-
             <button
                 type="button"
                 onClick={onToggleForm}

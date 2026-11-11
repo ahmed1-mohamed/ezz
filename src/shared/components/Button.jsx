@@ -5,7 +5,6 @@ export default React.memo(function Button({ children, type = 'button', variant =
         secondary: 'bg-white dark:bg-slate-900 border-2 border-brand-600 text-brand-600 dark:text-emerald-400 shadow-sm hover:bg-brand-50 dark:hover:bg-slate-800 hover:shadow-md focus:ring-brand-500/50',
         ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800',
     }
-
     return (
         <button
             type={type}

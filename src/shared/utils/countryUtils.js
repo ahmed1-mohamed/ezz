@@ -7,7 +7,6 @@ export const normalizeCountry = (country) => {
   const dialCode = country.dialCode || country.phoneCode || (typeof country.code === 'string' && country.code.startsWith('+') ? country.code : '') || ''
   const name = typeof country.name === 'string' ? country.name : (country.name?.ar || country.nameAr || '')
   const nameEn = country.nameEn || (typeof country.name === 'object' ? country.name?.en : '') || (typeof country.name === 'string' ? country.name : '')
-
   return {
     ...country,
     id,
@@ -41,17 +40,15 @@ export const fetchCountries = async (params = {}) => {
   if (cachedCountriesList && hasNoCustomParams) {
     return cachedCountriesList
   }
-
   if (inFlightCountriesPromise) {
     return inFlightCountriesPromise
   }
-
   inFlightCountriesPromise = (async () => {
     try {
       const res = await api.get('/api/v1/countries', { params })
       const raw = res?.data?.data || (Array.isArray(res?.data) ? res.data : [])
       const normalized = normalizeCountries(raw)
-      if (normalized.length > 0) {
+      if (normalized.length > 0 && hasNoCustomParams) {
         cachedCountriesList = normalized
       }
       return normalized
@@ -62,8 +59,43 @@ export const fetchCountries = async (params = {}) => {
       inFlightCountriesPromise = null
     }
   })()
-
   return inFlightCountriesPromise
+}
+
+export const searchCountriesBackend = async (query = '') => {
+  const trimmed = String(query || '').trim()
+  if (!trimmed) {
+    return fetchCountries()
+  }
+  const isDigitsOrPlus = /^[\d\s+]+$/.test(trimmed)
+  const cleanNum = trimmed.replace(/\s+/g, '')
+  const phoneCodeParam = cleanNum.startsWith('+') ? cleanNum : `+${cleanNum}`
+  const promises = []
+  if (isDigitsOrPlus) {
+    promises.push(
+      api.get('/api/v1/countries', { params: { phoneCode: phoneCodeParam } })
+        .then((res) => res?.data?.data || (Array.isArray(res?.data) ? res.data : []))
+        .catch(() => [])
+    )
+  }
+  if (!isDigitsOrPlus || trimmed.length >= 2) {
+    promises.push(
+      api.get('/api/v1/countries', { params: { search: trimmed } })
+        .then((res) => res?.data?.data || (Array.isArray(res?.data) ? res.data : []))
+        .catch(() => [])
+    )
+  }
+  const responses = await Promise.all(promises)
+  const seen = new Set()
+  const combined = []
+  responses.flat().forEach((c) => {
+    const id = c.id || c._id
+    if (id && !seen.has(id)) {
+      seen.add(id)
+      combined.push(c)
+    }
+  })
+  return normalizeCountries(combined)
 }
 
 
@@ -102,7 +134,6 @@ export const sortCountryCodes = (countryCodes = [], isRtl = true) => {
 }
 export const DEFAULT_DIAL_CODE = '+971'
 
-// Detail endpoints return the country as "<flag> <localized name>"; map it back to the country ID.
 export const resolveCountryIdFromLabel = (countries = [], ...labels) => {
   const values = labels.filter(Boolean).map(String)
   if (values.length === 0) return ''
@@ -114,7 +145,6 @@ export const resolveCountryIdFromLabel = (countries = [], ...labels) => {
   return byName?.id || ''
 }
 
-// Splits "+971501234567" into the matching dial-code entry and the local number (longest prefix wins).
 export const splitPhoneNumber = (phone, codes = []) => {
   const clean = String(phone || '').replace(/\s+/g, '')
   if (!clean) return { code: null, number: '' }
@@ -122,7 +152,6 @@ export const splitPhoneNumber = (phone, codes = []) => {
   return match ? { code: match, number: clean.slice(match.code.length) } : { code: null, number: clean }
 }
 
-// Joins a dial code and local number into the international format the API validates (+<code><number>).
 export const joinPhoneNumber = (dialCode, number) => {
   const local = String(number || '').replace(/\D/g, '').replace(/^0+/, '')
   return dialCode && local ? `${dialCode}${local}` : ''

@@ -3,7 +3,6 @@ import { BookOpen, Calendar, User, Layers } from 'lucide-react'
 export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) {
   const rawGroups = student?.groups || student?.Groups || []
   const groups = Array.isArray(rawGroups) ? rawGroups : (rawGroups ? [rawGroups] : [])
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -19,14 +18,13 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
         {onOpenChangeGroup && (
           <button
             type="button"
-            onClick={onOpenChangeGroup}
+            onClick={() => onOpenChangeGroup(null)}
             className="px-3.5 py-1.5 bg-[#005953]/10 hover:bg-[#005953]/20 text-[#005953] dark:text-emerald-400 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/25 text-xs font-bold rounded-xl transition-all cursor-pointer hover:scale-102"
           >
             {isRtl ? 'تغيير المجموعة' : 'Change Group'}
           </button>
         )}
       </div>
-
       {groups.length === 0 ? (
         <div className="p-8 text-center bg-slate-50/50 dark:bg-slate-950/20 rounded-3xl border border-slate-100/60 dark:border-slate-800/40 space-y-2">
           <Layers size={32} className="mx-auto text-slate-300 dark:text-slate-600" />
@@ -46,19 +44,15 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
               : (typeof grp.name === 'object' && grp.name !== null
                   ? (grp.name.ar || grp.name.en || '')
                   : (grp.name || grp.title || `مجموعة ${idx + 1}`))
-
             const teacherName = typeof grp.teacher === 'object' && grp.teacher !== null
               ? (grp.teacher.name?.ar || grp.teacher.name?.en || grp.teacher.name || '')
               : (grp.teacherName || grp.teacher || '')
-
             const levelName = typeof grp.level === 'object' && grp.level !== null
               ? (grp.level.name?.ar || grp.level.name?.en || grp.level.name || '')
               : (grp.level || '')
-
             const studentsCount = grp.studentsCount || (Array.isArray(grp.students) ? grp.students.length : null)
             const maxStudents = grp.maxStudents || grp.capacity || null
             const schedule = grp.schedule || grp.days || grp.time || ''
-
             return (
               <div
                 key={groupId}
@@ -86,13 +80,23 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                       </p>
                     )}
                   </div>
-
-                  <span className="inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5 animate-pulse" />
-                    {isRtl ? 'نشط' : 'Active'}
-                  </span>
+                  <div className="flex items-center gap-2 self-start sm:self-center">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5 animate-pulse" />
+                      {isRtl ? 'نشط' : 'Active'}
+                    </span>
+                    {onOpenChangeGroup && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenChangeGroup(groupId)}
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-600 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-[11px] font-bold rounded-xl transition-all cursor-pointer hover:border-[#005953]"
+                        title={isRtl ? 'نقل الطالب من هذه المجموعة' : 'Transfer student from this group'}
+                      >
+                        {isRtl ? 'نقل من المجموعة' : 'Transfer'}
+                      </button>
+                    )}
+                  </div>
                 </div>
-
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-start">
                   {studentsCount !== null && (
                     <div>
@@ -104,7 +108,6 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                       </span>
                     </div>
                   )}
-
                   <div>
                     <span className="block text-xs font-bold text-slate-400 dark:text-slate-500">
                       {isRtl ? 'النوع' : 'Type'}
@@ -113,7 +116,6 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                       {grp.type || (isRtl ? 'مجموعة تعليمية' : 'Educational Group')}
                     </span>
                   </div>
-
                   <div>
                     <span className="block text-xs font-bold text-slate-400 dark:text-slate-500">
                       {isRtl ? 'اللغة' : 'Language'}
@@ -123,7 +125,6 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                     </span>
                   </div>
                 </div>
-
                 {schedule && (
                   <div className="flex items-center gap-2 p-3 bg-slate-100/50 dark:bg-slate-900 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400">
                     <Calendar size={14} className="text-brand-500" />

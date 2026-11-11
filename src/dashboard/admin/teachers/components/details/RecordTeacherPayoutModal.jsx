@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
   X,
   Upload,
   Coins,
-  CreditCard,
-  Building2,
   Send,
-  Calendar,
-  FileText,
   AlertCircle,
-  CheckCircle2,
-  Image as ImageIcon,
-  Loader2,
+  Image as Loader2,
   Trash2,
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
@@ -36,13 +30,10 @@ export default function RecordTeacherPayoutModal({
   const [proofPreviewUrl, setProofPreviewUrl] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-
   const teacherId = teacher?.id || teacher?.teacher_id || teacher?._id
   const teacherName = typeof teacher?.name === 'object' && teacher?.name !== null
     ? (isRtl ? teacher.name.ar || teacher.name.en : teacher.name.en || teacher.name.ar)
     : (teacher?.name || 'المعلم')
-
-  // Set default method when opening
   useEffect(() => {
     if (isOpen) {
       const defaultMethod = paymentMethods.find((m) => m.isDefault) || paymentMethods[0]
@@ -58,8 +49,6 @@ export default function RecordTeacherPayoutModal({
       setErrorMessage('')
     }
   }, [isOpen, paymentMethods])
-
-  // Prevent background scroll
   useEffect(() => {
     if (!isOpen) return
     const original = document.body.style.overflow
@@ -68,9 +57,7 @@ export default function RecordTeacherPayoutModal({
       document.body.style.overflow = original
     }
   }, [isOpen])
-
   if (!isOpen) return null
-
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -82,7 +69,6 @@ export default function RecordTeacherPayoutModal({
     const preview = URL.createObjectURL(file)
     setProofPreviewUrl(preview)
   }
-
   const handleRemoveFile = () => {
     setProofImageFile(null)
     if (proofPreviewUrl) {
@@ -90,40 +76,35 @@ export default function RecordTeacherPayoutModal({
       setProofPreviewUrl('')
     }
   }
-
   const handleSetFullDue = () => {
     if (Number(dueEarnings) > 0) {
       setAmount(String(dueEarnings))
     }
   }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErrorMessage('')
-
     const numAmount = Number(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
       setErrorMessage(isRtl ? 'يرجى إدخال مبلغ تحويل صحيح أكبر من صفر' : 'Please enter a valid amount greater than 0')
       return
     }
-
-    if (!methodId) {
-      setErrorMessage(isRtl ? 'يرجى اختيار طريقة دفع لتحويل المبلغ' : 'Please select a payment method')
-      return
-    }
-
     setIsSubmitting(true)
     try {
       const fd = new FormData()
       fd.append('amount', String(numAmount))
-      fd.append('methodId', methodId)
-      if (referenceNumber.trim()) fd.append('referenceNumber', referenceNumber.trim())
-      if (paidAt) fd.append('paidAt', paidAt)
-      if (notes.trim()) fd.append('notes', notes.trim())
-      if (proofImageFile) {
+      if (methodId && String(methodId).trim()) {
+        fd.append('paymentMethodId', String(methodId).trim())
+      }
+      if (referenceNumber && referenceNumber.trim()) {
+        fd.append('referenceNumber', referenceNumber.trim())
+      }
+      if (notes && notes.trim()) {
+        fd.append('notes', notes.trim())
+      }
+      if (proofImageFile instanceof File) {
         fd.append('proofImage', proofImageFile)
       }
-
       await teachersApi.createTeacherPayout(teacherId, fd)
       toast.success(
         isRtl
@@ -142,20 +123,18 @@ export default function RecordTeacherPayoutModal({
       setIsSubmitting(false)
     }
   }
-
   return createPortal(
     <div
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) onClose()
       }}
-      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col my-auto animate-scaleUp"
       >
-        {/* Modal Header */}
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
@@ -179,10 +158,7 @@ export default function RecordTeacherPayoutModal({
             <X size={20} />
           </button>
         </div>
-
-        {/* Modal Body / Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
-          {/* Due Balance Alert Strip */}
           <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/40 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <Coins size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
@@ -210,15 +186,12 @@ export default function RecordTeacherPayoutModal({
               )}
             </div>
           </div>
-
           {errorMessage && (
             <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2">
               <AlertCircle size={16} className="shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
-
-          {/* Payment Method Selector */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               طريقة استلام المعلم <span className="text-rose-500">*</span>
@@ -254,8 +227,6 @@ export default function RecordTeacherPayoutModal({
               </select>
             )}
           </div>
-
-          {/* Amount & Reference Number Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
@@ -277,7 +248,6 @@ export default function RecordTeacherPayoutModal({
                 </span>
               </div>
             </div>
-
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                 رقم الحوالة / المرجع
@@ -291,8 +261,6 @@ export default function RecordTeacherPayoutModal({
               />
             </div>
           </div>
-
-          {/* Date of Payout */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               تاريخ التحويل
@@ -304,8 +272,6 @@ export default function RecordTeacherPayoutModal({
               className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             />
           </div>
-
-          {/* Proof Image Upload */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               صورة إثبات التحويل / الإيصال البنكي
@@ -354,8 +320,6 @@ export default function RecordTeacherPayoutModal({
               </label>
             )}
           </div>
-
-          {/* Notes */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               ملاحظات أو بيان التحويل
@@ -368,8 +332,6 @@ export default function RecordTeacherPayoutModal({
               className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"
             />
           </div>
-
-          {/* Modal Actions */}
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
             <button
               type="button"
@@ -379,7 +341,6 @@ export default function RecordTeacherPayoutModal({
             >
               إلغاء
             </button>
-
             <button
               type="submit"
               disabled={isSubmitting || paymentMethods.length === 0}

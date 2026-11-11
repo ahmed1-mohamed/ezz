@@ -12,19 +12,15 @@ export default function PasswordSettingsPanel({ itemVariants }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
     const { user } = useAuth();
-
     const [passwordData, setPasswordData] = useState({
         current: '',
         new: '',
         confirm: ''
     });
-
     const [savingPassword, setSavingPassword] = useState(false);
-
     const handlePasswordChange = (e) => {
         setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
     };
-
     const handleUpdatePassword = async () => {
         if (!passwordData.current) {
             showErrorToast(isRtl ? 'كلمة المرور الحالية مطلوبة' : 'Current password is required');
@@ -42,9 +38,7 @@ export default function PasswordSettingsPanel({ itemVariants }) {
             showErrorToast(isRtl ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match');
             return;
         }
-
         setSavingPassword(true);
-
         const userId = user?.id || user?._id || user?.user_id;
         const payload = {
             currentPassword: passwordData.current,
@@ -52,9 +46,7 @@ export default function PasswordSettingsPanel({ itemVariants }) {
             confirmPassword: passwordData.confirm,
             userId,
         };
-
         const res = await profileApi.changePassword(payload);
-
         if (res?.success) {
             const resData = res.data?.data || res.data;
             const newAccessToken =
@@ -64,13 +56,11 @@ export default function PasswordSettingsPanel({ itemVariants }) {
                 res.data?.token ||
                 res.data?.accessToken ||
                 res.data?.access_token;
-
             const newRefreshToken =
                 resData?.refreshToken ||
                 resData?.refresh_token ||
                 res.data?.refreshToken ||
                 res.data?.refresh_token;
-
             if (newAccessToken) {
                 setCookie('access_token', newAccessToken, 7);
                 api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
@@ -78,7 +68,6 @@ export default function PasswordSettingsPanel({ itemVariants }) {
             if (newRefreshToken) {
                 setCookie('refresh_token', newRefreshToken, 7);
             }
-
             showSuccessToast(isRtl ? 'تم تحديث كلمة المرور بنجاح' : 'Password updated successfully');
             setPasswordData({ current: '', new: '', confirm: '' });
         } else {
@@ -86,11 +75,9 @@ export default function PasswordSettingsPanel({ itemVariants }) {
         }
         setSavingPassword(false);
     };
-
     return (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 text-start">{t('parentSettings.security')}</h2>
-
             <div className="space-y-4 mb-6">
                 <div className="flex flex-col items-start w-full">
                     <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.currentPassword')}</label>
@@ -104,7 +91,6 @@ export default function PasswordSettingsPanel({ itemVariants }) {
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/50 transition-shadow text-sm text-start"
                     />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col items-start w-full order-1 md:order-2">
                         <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start">{t('parentSettings.confirmPassword')}</label>
@@ -132,7 +118,6 @@ export default function PasswordSettingsPanel({ itemVariants }) {
                     </div>
                 </div>
             </div>
-
             <div className="flex justify-start">
                 <button
                     onClick={handleUpdatePassword}

@@ -15,13 +15,11 @@ export default function Teachers() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language === 'ar'
   const gridRef = useRef(null)
-
   const [searchInput, setSearchInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
   const [selectedCountry, setSelectedCountry] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-
   const {
     data: teachersResponse,
     isLoading,
@@ -36,25 +34,20 @@ export default function Teachers() {
     }),
     placeholderData: (previousData) => previousData,
   })
-
   const { data: rawCountries = [] } = useQuery({
     queryKey: ['countries', i18n.language],
     queryFn: () => fetchCountries({ sort: 'name' }),
     staleTime: 1000 * 60 * 10,
   })
-
   const countriesList = useMemo(() => {
     return sortCountries(rawCountries, isRtl)
   }, [rawCountries, isRtl])
-
   const rawTeachers = useMemo(() => {
     return Array.isArray(teachersResponse?.data) ? teachersResponse.data : []
   }, [teachersResponse])
-
   const availableSubjects = useMemo(() => {
     return extractTeacherSubjects(rawTeachers)
   }, [rawTeachers])
-
   const filteredTeachers = useMemo(() => {
     return rawTeachers.filter((teacher) => {
       if (selectedSubject) {
@@ -72,20 +65,16 @@ export default function Teachers() {
       return true
     })
   }, [rawTeachers, selectedSubject, selectedCountry, countriesList])
-
   const totalPages = Math.max(1, Math.ceil(filteredTeachers.length / ITEMS_PER_PAGE))
-
   const paginatedTeachers = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE
     return filteredTeachers.slice(start, start + ITEMS_PER_PAGE)
   }, [filteredTeachers, currentPage])
-
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault()
     setSearchTerm(searchInput.trim())
     setCurrentPage(1)
   }
-
   const handleResetFilters = () => {
     setSearchInput('')
     setSearchTerm('')
@@ -93,7 +82,6 @@ export default function Teachers() {
     setSelectedCountry('')
     setCurrentPage(1)
   }
-
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
       setCurrentPage(newPage)
@@ -102,14 +90,11 @@ export default function Teachers() {
       }
     }
   }
-
   const hasActiveFilters = Boolean(searchTerm || selectedSubject || selectedCountry)
-
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
       <div className="pt-8 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto space-y-16">
         <TeachersHero isRtl={isRtl} />
-
         <TeachersFilterBar
           searchInput={searchInput}
           onSearchInputChange={setSearchInput}
@@ -129,7 +114,6 @@ export default function Teachers() {
           isRtl={isRtl}
           onResetFilters={handleResetFilters}
         />
-
         <section ref={gridRef}>
           <TeachersGrid
             isError={isError}
@@ -142,7 +126,6 @@ export default function Teachers() {
             t={t}
           />
         </section>
-
         <TeachersPagination
           currentPage={currentPage}
           totalPages={totalPages}

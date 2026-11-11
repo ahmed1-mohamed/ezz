@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   TrendingUp,
   Coins,
@@ -6,38 +5,30 @@ import {
   GraduationCap,
   Landmark,
   Tag,
-  DollarSign,
-  ArrowUpRight,
   ShieldCheck,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-function formatCurrency(val, currency = 'USD') {
+function formatCurrency(val) {
   const num = Number(val || 0)
   const formatted = num.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })
-  if (currency === 'USD' || currency === '$') return `${formatted} $`
-  if (currency === 'SAR') return `${formatted} ر.س`
-  return `${formatted} ${currency}`
+  return `${formatted} $`
 }
 
 export default function EarningsStats({ stats, platform, currency = 'USD', mode = 'monthly' }) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language?.startsWith('ar') ?? true
-
-  // Support both new `platform` object and legacy `stats` object
-  const p = platform || stats?.platform || {}
+  const p = platform || stats?.platform || stats || {}
   const curr = currency || p.currency || stats?.currency || 'USD'
-
-  const grossCollected = p.grossCollected ?? stats?.totalRevenue ?? 0
-  const netProfit = p.netProfit ?? stats?.netProfit ?? 0
-  const revenueAfterFees = p.revenueAfterPaymentFees ?? stats?.platformEarnings ?? (grossCollected - (p.paymentFeesAmount ?? 0))
-  const teacherEarnings = p.teacherEarnings ?? stats?.teacherPayments ?? 0
-  const paymentFees = p.paymentFeesAmount ?? 0
-  const couponDiscount = p.couponDiscountAmount ?? 0
-
+  const grossCollected = p.grossCollected ?? p.totalRevenue ?? p.totalCollected ?? p.grossRevenue ?? stats?.totalRevenue ?? 0
+  const netProfit = p.netProfit ?? p.netRevenue ?? p.profit ?? stats?.netProfit ?? 0
+  const paymentFees = p.paymentFeesAmount ?? p.paymentFees ?? 0
+  const revenueAfterFees = p.revenueAfterPaymentFees ?? p.netAfterFees ?? stats?.platformEarnings ?? (grossCollected - paymentFees)
+  const teacherEarnings = p.teacherEarnings ?? p.teacherPayments ?? p.teachersTotalEarnings ?? stats?.teacherPayments ?? 0
+  const couponDiscount = p.couponDiscountAmount ?? p.couponDiscount ?? p.discounts ?? 0
   const items = [
     {
       title: t('adminDashboard.earnings.netProfit', 'صافي ربح المنصة'),
@@ -95,7 +86,6 @@ export default function EarningsStats({ stats, platform, currency = 'USD', mode 
       borderColor: 'border-purple-100 dark:border-purple-900/40',
     },
   ]
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" dir={isRtl ? 'rtl' : 'ltr'}>
       {items.map((item, idx) => (
@@ -120,7 +110,6 @@ export default function EarningsStats({ stats, platform, currency = 'USD', mode 
               <item.icon size={22} className={item.iconColor} />
             </div>
           </div>
-
           <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-baseline justify-between">
             <h3 className={`text-2xl sm:text-3xl font-black ${item.iconColor}`}>
               {item.value}

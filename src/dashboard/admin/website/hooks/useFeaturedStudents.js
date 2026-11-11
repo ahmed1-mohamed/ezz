@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
@@ -10,15 +11,13 @@ const buildImageUrl = (url) => {
     return url;
   }
   const cleanPath = url.startsWith('/') ? url.slice(1) : url;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 export const parseStudentReview = (item) => {
   if (!item) return null;
-
   const sRef = (item.student && typeof item.student === 'object') ? item.student : {};
   const userRef = (sRef.user && typeof sRef.user === 'object') ? sRef.user : {};
-
   let nameAr = '';
   let nameEn = '';
   const rawName = item.name || sRef.name || item.studentName || sRef.studentName;
@@ -29,7 +28,6 @@ export const parseStudentReview = (item) => {
     nameAr = rawName;
     nameEn = item.nameEn || sRef.nameEn || rawName;
   }
-
   const rawImage =
     item.image ||
     item.imageUrl ||
@@ -41,9 +39,7 @@ export const parseStudentReview = (item) => {
     userRef.photoUrl ||
     userRef.avatar ||
     '';
-
   const finalImage = buildImageUrl(rawImage);
-
   const resolvedStudentId =
     sRef.id ||
     sRef._id ||
@@ -54,19 +50,16 @@ export const parseStudentReview = (item) => {
     item.id ||
     item._id ||
     '';
-
   const review = item.review || '';
   const parts = review.split(' | ');
   const agePart = parts.find(p => p.startsWith('Age:')) || '';
   const levelPart = parts.find(p => p.startsWith('Level:')) || '';
   const groupPart = parts.find(p => p.startsWith('Group:')) || '';
   const parentPart = parts.find(p => p.startsWith('Parent:')) || '';
-
   const ageVal = parseInt(agePart.substring(agePart.indexOf(':') + 1).trim(), 10) || sRef.age || 10;
   const levelVal = levelPart.substring(levelPart.indexOf(':') + 1).trim() || sRef.level || 'متوسط';
   const groupVal = groupPart.substring(groupPart.indexOf(':') + 1).trim() || sRef.groupName || 'مجموعة القرآن أ';
   const parentVal = parentPart.substring(parentPart.indexOf(':') + 1).trim() || sRef.parentName || '';
-
   return {
     id: item.id || item._id,
     _id: item._id || item.id,
@@ -96,7 +89,6 @@ const serializeStudentReview = (star) => {
 
 export default function useFeaturedStudents(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
-
   const [stars, setStars] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -104,7 +96,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
   const [systemStudents, setSystemStudents] = useState([]);
   const [loading, setLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
-
   const loadData = useCallback(async () => {
     if (!enabled) {
       setLoading(false);
@@ -116,12 +107,10 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
         landingApi.fetchFeaturedStudents().catch(() => []),
         landingApi.fetchSystemStudents().catch(() => [])
       ]);
-
       const featData = featRes?.data || featRes;
       const featList = Array.isArray(featData) ? featData : (Array.isArray(featData?.data) ? featData.data : []);
       const parsedStars = featList.map(parseStudentReview).filter(Boolean);
       setStars(parsedStars);
-
       const sysData = sysRes?.data || sysRes;
       const sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
       setSystemStudents(sysList);
@@ -131,7 +120,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       setLoading(false);
     }
   }, [enabled]);
-
   const [prevEnabled, setPrevEnabled] = useState(enabled);
   if (prevEnabled !== enabled) {
     setPrevEnabled(enabled);
@@ -139,7 +127,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       setLoading(false);
     }
   }
-
   useEffect(() => {
     if (enabled) {
       let isMounted = true;
@@ -151,7 +138,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       };
     }
   }, [loadData, enabled]);
-
   const handleOpenAddModal = async () => {
     try {
       const sysRes = await landingApi.fetchSystemStudents().catch(() => []);
@@ -161,7 +147,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
     } catch (e) {
       console.warn(e);
     }
-
     setCurrentStar({
       id: null,
       studentId: '',
@@ -179,7 +164,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
     });
     setIsModalOpen(true);
   };
-
   const handleOpenEditModal = async (star) => {
     const resolvedStudentId =
       star.studentId ||
@@ -189,9 +173,7 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       (typeof star.student === 'string' ? star.student : '') ||
       star.id ||
       '';
-
     let studentId = String(resolvedStudentId);
-
     if (!studentId && systemStudents.length > 0) {
       const matched = systemStudents.find(s => {
         const studentName = typeof s.name === 'object' ? (s.name.ar || s.name.en) : s.name;
@@ -201,7 +183,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
         studentId = String(matched.student_id || matched.id || matched._id || '');
       }
     }
-
     let extraData = {};
     if (studentId) {
       try {
@@ -222,25 +203,20 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
         console.warn('Failed to fetch raw student by id:', err);
       }
     }
-
     setCurrentStar({ ...star, studentId, ...extraData });
     setIsModalOpen(true);
   };
-
   const handleOpenViewModal = (star) => {
     setCurrentStar({ ...star });
     setIsViewModalOpen(true);
   };
-
   const handleDeleteStar = async (star) => {
     const studentNameStr = typeof star.name === 'string'
       ? star.name
       : (star.name?.ar || star.name?.en || 'طالب متميز');
-
     const isRtl = i18n.language.startsWith('ar');
     const isConfirmed = await showDeleteConfirm(isRtl, studentNameStr);
     if (!isConfirmed) return;
-
     try {
       const id = star.id || star._id;
       await landingApi.deleteFeaturedStudent(id);
@@ -251,28 +227,23 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       showNotification(t('adminDashboard.website.studentDeleteError', 'فشل حذف الطالب'), 'error');
     }
   };
-
   const handleSaveModal = async (e) => {
     e.preventDefault();
     if (!currentStar.studentId) {
       showNotification(t('adminDashboard.website.selectStudentError', 'يرجى اختيار طالب من القائمة'), 'error');
       return;
     }
-
     setIsSaving(true);
     try {
       const getAllStudentIds = (s) => [
         s.id, s._id, s.student_id, s.user_id,
         s.student?.id, s.student?._id, s.studentId
       ].filter(Boolean).map(String);
-
       const systemS = systemStudents.find(s =>
         getAllStudentIds(s).includes(String(currentStar.studentId))
       );
-
       const sNameAr = systemS ? (typeof systemS.name === 'object' ? systemS.name.ar : systemS.name) : '';
       const sNameEn = systemS ? (typeof systemS.name === 'object' ? systemS.name.en : (systemS.nameEn || systemS.name)) : '';
-
       const finalNameAr = currentStar.name?.trim() || sNameAr || 'طالب متميز';
       const finalNameEn = currentStar.nameEn?.trim() || sNameEn || finalNameAr;
       const finalAge = currentStar.age ? Number(currentStar.age) : (systemS?.age || 10);
@@ -280,22 +251,18 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       const finalGroupName = currentStar.groupName?.trim() || systemS?.groupName || 'مجموعة القرآن أ';
       const finalParentName = currentStar.parentName?.trim() || systemS?.parentName || '';
       const finalImage = currentStar.image || systemS?.image || systemS?.user?.photoUrl || '';
-
       const serializedReview = serializeStudentReview({
         age: finalAge,
         level: finalLevel,
         groupName: finalGroupName,
         parentName: finalParentName
       });
-
       const featuredPayload = {
         student: currentStar.studentId
       };
-
       if (currentStar.id === null) {
         const response = await landingApi.addFeaturedStudent(featuredPayload);
         const added = response?.data || response;
-
         const newStar = {
           ...added,
           id: added?.id || added?._id,
@@ -313,14 +280,12 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
         const parsed = parseStudentReview(newStar);
         setStars((prev) => [...prev, parsed]);
         showNotification(t('adminDashboard.website.studentAdded', 'تمت إضافة الطالب بنجاح!'));
-
         try {
           const formData = new FormData();
           if (currentStar.imageFile) formData.append('image', currentStar.imageFile);
           if (currentStar.name) formData.append('name[ar]', currentStar.name);
           if (currentStar.nameEn) formData.append('name[en]', currentStar.nameEn);
           if (currentStar.phone) formData.append('phone', currentStar.phone);
-
           await studentsApi.updateStudent(currentStar.studentId, formData);
         } catch (e) {
           console.warn('Failed to update system student data:', e);
@@ -328,7 +293,6 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       } else {
         const response = await landingApi.updateFeaturedStudent(currentStar.id, featuredPayload);
         const added = response?.data || response;
-
         const updatedStar = {
           ...added,
           id: currentStar.id,
@@ -348,14 +312,12 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
           prev.map((s) => (s.id === currentStar.id ? parsed : s))
         );
         showNotification(t('adminDashboard.website.studentUpdated', 'تم تحديث بيانات الطالب بنجاح!'));
-
         try {
           const formData = new FormData();
           if (currentStar.imageFile) formData.append('image', currentStar.imageFile);
           if (currentStar.name) formData.append('name[ar]', currentStar.name);
           if (currentStar.nameEn) formData.append('name[en]', currentStar.nameEn);
           if (currentStar.phone) formData.append('phone', currentStar.phone);
-
           await studentsApi.updateStudent(currentStar.studentId, formData);
         } catch (e) {
           console.warn('Failed to update system student data:', e);
@@ -374,17 +336,14 @@ export default function useFeaturedStudents(showNotification, enabled = true) {
       setIsSaving(false);
     }
   };
-
   const handleSaveStarsList = () => {
     localStorage.setItem('website_stars', JSON.stringify(stars));
     showNotification(t('adminDashboard.website.starsListSaved', 'تمت مزامنة وحفظ قائمة نجوم التميز بنجاح!'));
   };
-
   const handleCancelStarsList = async () => {
     await loadData();
     showNotification(t('adminDashboard.website.changesReverted', 'تم إلغاء التغييرات وإعادة تحميل البيانات من الخادم'), 'info');
   };
-
   return {
     stars,
     isModalOpen,

@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { landingApi } from '@/shared/services/api/landingApi';
@@ -10,15 +11,13 @@ const buildImageUrl = (url) => {
     return url;
   }
   const cleanPath = url.startsWith('/') ? url.slice(1) : url;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 export const mapEliteTeacher = (item) => {
   if (!item) return null;
-
   const tRef = (item.teacher && typeof item.teacher === 'object') ? item.teacher : {};
   const userRef = (tRef.user && typeof tRef.user === 'object') ? tRef.user : {};
-
   let nameAr = '';
   let nameEn = '';
   const rawName = item.name || tRef.name || item.teacherName || tRef.teacherName;
@@ -29,7 +28,6 @@ export const mapEliteTeacher = (item) => {
     nameAr = rawName;
     nameEn = item.nameEn || tRef.nameEn || rawName;
   }
-
   const rawImage =
     item.image ||
     item.imageUrl ||
@@ -41,9 +39,7 @@ export const mapEliteTeacher = (item) => {
     userRef.photoUrl ||
     userRef.avatar ||
     '';
-
   const finalImage = buildImageUrl(rawImage);
-
   const resolvedTeacherId =
     tRef.id ||
     tRef._id ||
@@ -55,7 +51,6 @@ export const mapEliteTeacher = (item) => {
     item.id ||
     item._id ||
     '';
-
   return {
     id: item.id || item._id,
     _id: item._id || item.id,
@@ -78,14 +73,12 @@ export const collectAllTeacherIds = (obj) => {
   if (!obj) return new Set();
   const ids = new Set();
   const add = (v) => { if (v !== undefined && v !== null && String(v).trim()) ids.add(String(v).trim()); };
-
   add(obj.id);
   add(obj._id);
   add(obj.teacher_id);
   add(obj.teacherId);
   add(obj.user_id);
   add(obj.userId);
-
   if (obj.teacher && typeof obj.teacher === 'object') {
     add(obj.teacher.id);
     add(obj.teacher._id);
@@ -96,19 +89,16 @@ export const collectAllTeacherIds = (obj) => {
   } else if (typeof obj.teacher === 'string') {
     add(obj.teacher);
   }
-
   if (obj.user && typeof obj.user === 'object') {
     add(obj.user.id);
     add(obj.user._id);
   }
-
   return ids;
 };
 
 export default function useEliteTeachers(showNotification, enabled = true) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [eliteTeachers, setEliteTeachers] = useState([]);
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
@@ -124,7 +114,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
   const [systemTeachers, setSystemTeachers] = useState([]);
   const [loading, setLoading] = useState(enabled);
   const [isSaving, setIsSaving] = useState(false);
-
   const loadData = useCallback(async () => {
     if (!enabled) {
       setLoading(false);
@@ -136,12 +125,10 @@ export default function useEliteTeachers(showNotification, enabled = true) {
         landingApi.fetchEliteTeachers().catch(() => []),
         landingApi.fetchSystemTeachers().catch(() => teachersApi.fetchTeachers({ limit: 100 }).catch(() => []))
       ]);
-
       const eliteData = eliteRes?.data || eliteRes;
       const eliteList = Array.isArray(eliteData) ? eliteData : (Array.isArray(eliteData?.data) ? eliteData.data : []);
       const mappedList = eliteList.map(mapEliteTeacher).filter(Boolean);
       setEliteTeachers(mappedList);
-
       let sysData = sysRes?.data || sysRes;
       let sysList = Array.isArray(sysData) ? sysData : (Array.isArray(sysData?.data) ? sysData.data : []);
       if (sysList.length === 0) {
@@ -156,7 +143,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       setLoading(false);
     }
   }, [enabled]);
-
   const [prevEnabled, setPrevEnabled] = useState(enabled);
   if (prevEnabled !== enabled) {
     setPrevEnabled(enabled);
@@ -164,7 +150,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       setLoading(false);
     }
   }
-
   useEffect(() => {
     if (enabled) {
       let isMounted = true;
@@ -176,7 +161,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       };
     }
   }, [loadData, enabled]);
-
   const handleOpenAddTeacher = async () => {
     try {
       let sysRes = await landingApi.fetchSystemTeachers().catch(() => []);
@@ -191,7 +175,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
     } catch (e) {
       console.warn(e);
     }
-
     setCurrentTeacher({
       id: null,
       teacherId: '',
@@ -201,7 +184,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
     });
     setIsTeacherFormOpen(true);
   };
-
   const handleOpenEditTeacher = async (teacher) => {
     const resolvedTeacherId =
       teacher.teacherId ||
@@ -211,9 +193,7 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       (typeof teacher.teacher === 'string' ? teacher.teacher : '') ||
       teacher.id ||
       '';
-
     let finalTeacherId = String(resolvedTeacherId);
-
     if (!finalTeacherId && systemTeachers.length > 0) {
       const matched = systemTeachers.find(st => {
         const sysName = typeof st.name === 'object' ? (st.name.ar || st.name.en) : st.name;
@@ -223,7 +203,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
         finalTeacherId = String(matched.id || matched._id || matched.teacher_id || '');
       }
     }
-
     let extraData = {};
     if (finalTeacherId) {
       try {
@@ -244,7 +223,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
         console.warn('Failed to fetch raw teacher by id:', err);
       }
     }
-
     setCurrentTeacher({
       ...teacher,
       teacherId: finalTeacherId,
@@ -253,7 +231,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
     });
     setIsTeacherFormOpen(true);
   };
-
   const handleShowTeacherNotes = async (id) => {
     setIsTeacherLoading(true);
     setIsTeacherModalOpen(true);
@@ -270,15 +247,12 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       setIsTeacherLoading(false);
     }
   };
-
   const handleDeleteTeacher = async (teacher) => {
     const teacherNameStr = typeof teacher.name === 'string'
       ? teacher.name
       : (teacher.name?.ar || teacher.name?.en || 'معلم متميز');
-
     const isConfirmed = await showDeleteConfirm(isRtl, teacherNameStr);
     if (!isConfirmed) return;
-
     try {
       const id = teacher.id || teacher._id;
       await landingApi.deleteEliteTeacher(id);
@@ -289,33 +263,27 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       showNotification(t('adminDashboard.website.teacherDeleteError', 'فشل حذف المعلم'), 'error');
     }
   };
-
   const handleSaveTeacherSubmit = async (e) => {
     e.preventDefault();
     if (!currentTeacher.teacherId) {
       showNotification(t('adminDashboard.website.selectTeacherError', 'يرجى اختيار معلم من القائمة'), 'error');
       return;
     }
-
     const elitePayload = {
       teacher: currentTeacher.teacherId
     };
-
     setIsSaving(true);
     try {
       if (currentTeacher.id === null) {
         const response = await landingApi.addEliteTeacher(elitePayload);
         const added = response?.data || response;
-
         const systemT = systemTeachers.find(t => {
           const ids = collectAllTeacherIds(t);
           return ids.has(String(currentTeacher.teacherId));
         });
-
         const resolvedName = systemT
           ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name)
           : currentTeacher.name;
-
         const newTeacher = {
           ...added,
           id: added?.id || added?._id,
@@ -345,16 +313,12 @@ export default function useEliteTeachers(showNotification, enabled = true) {
             console.warn('Failed to update system teacher details:', patchErr);
           }
         }
-
         await landingApi.updateEliteTeacher(currentTeacher.id, elitePayload);
-
         const systemT = systemTeachers.find(t => {
           const ids = collectAllTeacherIds(t);
           return ids.has(String(currentTeacher.teacherId));
         });
-
         const resolvedName = currentTeacher.name || (systemT ? (typeof systemT.name === 'object' ? (isRtl ? systemT.name.ar : systemT.name.en) : systemT.name) : 'معلم متميز');
-
         const updatedTeacher = {
           ...currentTeacher,
           id: currentTeacher.id,
@@ -387,7 +351,6 @@ export default function useEliteTeachers(showNotification, enabled = true) {
       setIsSaving(false);
     }
   };
-
   return {
     eliteTeachers,
     isTeacherModalOpen,

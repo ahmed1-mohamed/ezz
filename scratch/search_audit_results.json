@@ -1,0 +1,392 @@
+[
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\assignments\\hooks\\useAssignments.js",
+    "lineNum": 12,
+    "code": "const [searchValue, setSearchValue] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\coupons\\components\\StudentSelectionModal.jsx",
+    "lineNum": 115,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\coupons\\hooks\\useCoupons.js",
+    "lineNum": 10,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\curriculums\\AdminCurriculums.jsx",
+    "lineNum": 22,
+    "code": "const [searchInput, setSearchInput] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\earnings\\components\\AdminPayoutsSection.jsx",
+    "lineNum": 60,
+    "code": "const [searchTerm, setSearchTerm] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\earnings\\components\\TeacherEarningsList.jsx",
+    "lineNum": 26,
+    "code": "const [searchTerm, setSearchTerm] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\groups\\AdminGroups.jsx",
+    "lineNum": 35,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\groups\\AdminPrivateGroups.jsx",
+    "lineNum": 48,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\groups\\components\\fields\\StudentSelect.jsx",
+    "lineNum": 15,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\groups\\components\\fields\\TeacherSelect.jsx",
+    "lineNum": 23,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\managers\\components\\EditSupervisorScreen.jsx",
+    "lineNum": 84,
+    "code": "const [searchResults, setSearchResults] = useState(null)"
+  },
+  {
+    "type": "SEARCH_INPUT",
+    "file": "src\\dashboard\\admin\\managers\\components\\EditSupervisorScreen.jsx",
+    "lineNum": 301,
+    "code": "type=\"search\""
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\managers\\components\\IdentityInfoCard.jsx",
+    "lineNum": 17,
+    "code": "const [searchResults, setSearchResults] = useState(null)"
+  },
+  {
+    "type": "SEARCH_INPUT",
+    "file": "src\\dashboard\\admin\\managers\\components\\IdentityInfoCard.jsx",
+    "lineNum": 200,
+    "code": "type=\"search\""
+  },
+  {
+    "type": "SEARCH_INPUT",
+    "file": "src\\dashboard\\admin\\managers\\components\\ManagersList.jsx",
+    "lineNum": 168,
+    "code": "type=\"search\""
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\managers\\components\\roles\\PermissionsMatrix.jsx",
+    "lineNum": 56,
+    "code": "const activeCount = moduleKeys.filter((k) => activeKeys.includes(k)).length"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\managers\\components\\RolesPermissionsScreen.jsx",
+    "lineNum": 115,
+    "code": "? prev.filter(k => ![key, ...(aliases || [])].includes(k))"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\managers\\components\\RolesPermissionsScreen.jsx",
+    "lineNum": 123,
+    "code": "return prev.filter((k) => !moduleKeys.includes(k))"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\managers\\hooks\\useManagers.js",
+    "lineNum": 9,
+    "code": "const [searchVal, setSearchVal] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\messages\\AdminMessages.jsx",
+    "lineNum": 21,
+    "code": "const [searchInput, setSearchInput] = useState('')"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\packages\\components\\FamilyTiersField.jsx",
+    "lineNum": 47,
+    "code": ".filter((n) => n === Number(tier.membersCount) || !usedCounts.includes(n))"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\parents\\AdminParents.jsx",
+    "lineNum": 24,
+    "code": "const [searchTerm, setSearchTerm] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\parents\\components\\details\\AddChildModal.jsx",
+    "lineNum": 15,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\payments\\AdminPayments.jsx",
+    "lineNum": 27,
+    "code": "const [searchValue, setSearchValue] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\sessions\\AdminSessions.jsx",
+    "lineNum": 26,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\students\\AdminStudents.jsx",
+    "lineNum": 20,
+    "code": "const [searchTerm, setSearchTerm] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\students\\components\\ChangeGroupModal.jsx",
+    "lineNum": 18,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\teachers\\AdminTeacherEvaluations.jsx",
+    "lineNum": 144,
+    "code": "const [searchQuery, setSearchQuery] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\teachers\\AdminTeachers.jsx",
+    "lineNum": 26,
+    "code": "const [searchVal, setSearchVal] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\teachers\\components\\AllTeachersPayoutsModal.jsx",
+    "lineNum": 32,
+    "code": "const [searchVal, setSearchVal] = useState('')"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\teachers\\components\\TeacherAcademicInfoCard.jsx",
+    "lineNum": 88,
+    "code": "return ids.includes(curriculumId) ? ids.filter((id) => id !== curriculumId) : [...ids, curriculumId]"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\trial_sessions\\AdminTrialSessions.jsx",
+    "lineNum": 27,
+    "code": "const [searchValue, setSearchValue] = useState('')"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\website\\components\\StudentStarModal.jsx",
+    "lineNum": 42,
+    "code": "return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase()).join(' ');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\website\\components\\StudentStarModal.jsx",
+    "lineNum": 59,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\admin\\website\\components\\TeacherFormModal.jsx",
+    "lineNum": 18,
+    "code": "return [name.ar, name.en].filter(Boolean).map(n => n.trim().toLowerCase()).join(' ');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\admin\\website\\components\\TeacherFormModal.jsx",
+    "lineNum": 35,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\parent\\overview\\ParentAssignments.jsx",
+    "lineNum": 118,
+    "code": "submitted: list.filter(item => item.submissionStatus?.includes('تم التسليم')).length,"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\parent\\overview\\ParentAssignments.jsx",
+    "lineNum": 119,
+    "code": "evaluated: list.filter(item => item.evaluationStatus?.includes('تم التقييم')).length,"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\parent\\overview\\ParentAssignments.jsx",
+    "lineNum": 120,
+    "code": "overdue: list.filter(item => item.submissionStatus?.includes('متأخر') || item.submissionStatus?.includes('overdue')).length"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\parent\\packages\\ParentPackages.jsx",
+    "lineNum": 34,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\parent\\packages\\ParentSubscriptions.jsx",
+    "lineNum": 88,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\parent\\schedules\\ParentExcuses.jsx",
+    "lineNum": 226,
+    "code": "const excusedCount = list.filter(item => item.excuse?.status?.includes('معذور') || item.excuse?.status === 'excused').length;"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\parent\\students\\ParentChildrenList.jsx",
+    "lineNum": 22,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\parent\\students\\ParentRatings.jsx",
+    "lineNum": 105,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\student\\courses\\StudentMaterials.jsx",
+    "lineNum": 28,
+    "code": "const [searchTerm, setSearchTerm] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\student\\overview\\StudentTeachers.jsx",
+    "lineNum": 154,
+    "code": "const [searchTerm, setSearchTerm] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\teacher\\complaints\\TeacherComplaints.jsx",
+    "lineNum": 107,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\teacher\\curricula\\TeacherCurricula.jsx",
+    "lineNum": 145,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\curricula\\TeacherCurricula.jsx",
+    "lineNum": 259,
+    "code": "const books = allResources.filter((r) => bookTypes.some((k) => String(r.type || '').toLowerCase().includes(k))).length || 6;"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\curricula\\TeacherCurricula.jsx",
+    "lineNum": 260,
+    "code": "const references = allResources.filter((r) => refTypes.some((k) => String(r.type || '').toLowerCase().includes(k))).length || 4;"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\curricula\\TeacherCurricula.jsx",
+    "lineNum": 284,
+    "code": "list = list.filter((c) => String(c.level || '').toLowerCase().includes(selectedLevel.toLowerCase()));"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\curricula\\TeacherCurricula.jsx",
+    "lineNum": 313,
+    "code": "return list.filter((r) => bookTypes.some((k) => String(r.type || '').toLowerCase().includes(k)));"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\curricula\\TeacherCurricula.jsx",
+    "lineNum": 316,
+    "code": "return list.filter((r) => refTypes.some((k) => String(r.type || '').toLowerCase().includes(k)));"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\teacher\\earnings\\components\\TeacherEarningsTable.jsx",
+    "lineNum": 43,
+    "code": "const [searchTerm, setSearchTerm] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\teacher\\groups\\TeacherGroups.jsx",
+    "lineNum": 61,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\teacher\\homework\\HomeworkSubmissions.jsx",
+    "lineNum": 60,
+    "code": "const [searchTerm, setSearchTerm] = useState('');"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\live\\components\\AfterSessionTab.jsx",
+    "lineNum": 204,
+    "code": "return mapped.filter((stu) => pendingStudentIds.includes(stu.id));"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\dashboard\\teacher\\live\\components\\AfterSessionTab.jsx",
+    "lineNum": 209,
+    "code": "return studentsNeedingEval.filter((stu) => !completedStudentIds.includes(stu.id));"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\dashboard\\teacher\\sessions\\TeacherSessions.jsx",
+    "lineNum": 62,
+    "code": "const [searchQuery, setSearchQuery] = useState('');"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\pages\\public\\Teachers.jsx",
+    "lineNum": 18,
+    "code": "const [searchInput, setSearchInput] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\pages\\public\\Teachers.jsx",
+    "lineNum": 19,
+    "code": "const [searchTerm, setSearchTerm] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\shared\\components\\CountryPhoneInput.jsx",
+    "lineNum": 22,
+    "code": "const [searchTerm, setSearchTerm] = useState('')"
+  },
+  {
+    "type": "SEARCH_STATE",
+    "file": "src\\shared\\components\\CountryPhoneInput.jsx",
+    "lineNum": 23,
+    "code": "const [searchResults, setSearchResults] = useState(null)"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\shared\\services\\api\\complaintsApi.js",
+    "lineNum": 25,
+    "code": "const resolvedCount = filtered.filter((i) => i.status === 'resolved' || i.status === 'accepted' || (i.status && (i.status.includes('محلول') || i.status.includes('مقبول')))).length"
+  },
+  {
+    "type": "CLIENT_FILTER_POTENTIAL",
+    "file": "src\\shared\\services\\api\\complaintsApi.js",
+    "lineNum": 26,
+    "code": "const rejectedCount = filtered.filter((i) => i.status === 'rejected' || (i.status && i.status.includes('مرفوض'))).length"
+  }
+]

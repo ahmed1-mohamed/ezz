@@ -33,15 +33,12 @@ export default function StudentsList({
   const [localSearch, setLocalSearch] = useState('')
   const currentSearchVal = onSearchChange ? searchVal : localSearch
   const itemsPerPage = 10
-
   const filteredStudents = students
-
   const effectiveTotalPages = totalPages && totalPages > 0 ? totalPages : 1
   const isPaginationDimmed = effectiveTotalPages <= 1
   const effectiveTotalCount = totalCount > 0 ? totalCount : filteredStudents.length
   const startIdx = effectiveTotalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
   const endIdx = effectiveTotalCount > 0 ? Math.min(currentPage * itemsPerPage, effectiveTotalCount) : 0
-
   return (
     <div className="space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -68,7 +65,6 @@ export default function StudentsList({
             <Users size={24} />
           </div>
         </div>
-
          <div
           onClick={() => onStatusChange && onStatusChange('active')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border transition-all cursor-pointer shadow-soft hover:-translate-y-1 ${
@@ -92,7 +88,6 @@ export default function StudentsList({
             <CheckCircle2 size={24} />
           </div>
         </div>
-
          <div
           onClick={() => onStatusChange && onStatusChange('stopped')}
           className={`flex items-center justify-between p-6 bg-white dark:bg-slate-900 rounded-3xl border transition-all cursor-pointer shadow-soft hover:-translate-y-1 ${
@@ -117,7 +112,6 @@ export default function StudentsList({
           </div>
         </div>
       </div>
-
        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft">
         <div className="flex flex-wrap items-center gap-4">
           <button
@@ -127,12 +121,10 @@ export default function StudentsList({
             <Plus size={18} />
             <span>{t('adminDashboard.students.addStudent', 'إضافة طالب')}</span>
           </button>
-
           <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
             {t('adminDashboard.students.registeredList', 'قائمة الطلاب المسجلين في المنصة')}
           </span>
         </div>
-
         <div className="relative w-full md:w-80">
           <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-400`}>
             <Search size={18} />
@@ -150,13 +142,12 @@ export default function StudentsList({
               }
               onPageChange(1)
             }}
-            className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${
+            className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${
               isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'
             } outline-none transition-all text-sm placeholder-slate-400`}
           />
         </div>
       </div>
-
        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 overflow-hidden shadow-soft">
         <div className="overflow-x-auto">
           <table className="w-full text-start border-collapse">
@@ -186,37 +177,31 @@ export default function StudentsList({
                     : (student.name?.ar || student.name?.en || '-')
                   const initial = (displayName === '-' ? '?' : displayName).trim().charAt(0)
                   const imgUrl = student.image || student.profileImage
-
                   const rawLevel = student.studentLevel?.name || student.levelName || student.level || ''
                   const levelName = typeof rawLevel === 'object' && rawLevel !== null
                     ? (rawLevel.ar || rawLevel.en || '')
                     : String(rawLevel || '')
-
                   const rawParent = student.parent?.name || student.parentName || '-'
                   const parentName = typeof rawParent === 'object' && rawParent !== null
                     ? (rawParent.ar || rawParent.en || '-')
                     : String(rawParent || '-')
                   const parentPhone = student.parent?.phone || student.parentPhone || ''
-
                   const rawBalance = student.sessionsBalance ?? student.remainingSessions ?? 0
                   const balance = typeof rawBalance === 'object' && rawBalance !== null
                     ? (rawBalance.remaining !== undefined
                         ? Number(rawBalance.remaining)
                         : Math.max(0, Number(rawBalance.total ?? 0) - Number(rawBalance.used ?? 0)))
                     : Number(rawBalance || 0)
-
                   const rawCountry = student.country || '-'
                   const countryDisplay = typeof rawCountry === 'object' && rawCountry !== null
                     ? (rawCountry.name?.ar || rawCountry.name?.en || rawCountry.name || rawCountry.code || '-')
                     : String(rawCountry || '-')
-
                   const rating = student.averageRating !== undefined && student.averageRating !== null
                     ? Number(student.averageRating).toFixed(1)
                     : null
                   const attendance = student.attendanceRate !== undefined && student.attendanceRate !== null
                     ? `${Number(student.attendanceRate).toFixed(0)}%`
                     : null
-
                   const isActive = student.active === true || String(student.active) === 'true'
                   const statusBadgeClass = isActive
                     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-955/15 dark:text-emerald-400'
@@ -225,7 +210,6 @@ export default function StudentsList({
                   const statusText = isActive
                     ? t('adminDashboard.students.status.active', 'نشط')
                     : t('adminDashboard.students.status.inactive', 'متوقف')
-
                   return (
                     <tr
                       key={studentId || `student-${index}`}
@@ -255,7 +239,6 @@ export default function StudentsList({
                           </div>
                         </div>
                       </td>
-
                        <td className="py-4.5 px-6 text-start">
                         <div className="space-y-0.5">
                           <span className="font-bold text-xs text-slate-700 dark:text-slate-200 block">
@@ -268,7 +251,6 @@ export default function StudentsList({
                           )}
                         </div>
                       </td>
-
                        <td className="py-4.5 px-6 text-center">
                         <span className={`inline-block px-3 py-1 rounded-xl text-xs font-extrabold ${
                           balance > 0
@@ -278,7 +260,6 @@ export default function StudentsList({
                           {balance} {isRtl ? 'حصة' : 'sessions'}
                         </span>
                       </td>
-
                        <td className="py-4.5 px-6 text-center">
                         <div className="flex items-center justify-center gap-3">
                           {rating && (
@@ -297,7 +278,6 @@ export default function StudentsList({
                           )}
                         </div>
                       </td>
-
                        <td className="py-4.5 px-6 text-start">
                         <div className="space-y-1">
                           <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 block">
@@ -310,14 +290,12 @@ export default function StudentsList({
                           )}
                         </div>
                       </td>
-
                        <td className="py-4.5 px-6">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${statusBadgeClass}`}>
                           <span className={`w-1.5 h-1.5 rounded-full me-1.5 ${statusDotClass}`} />
                           {statusText}
                         </span>
                       </td>
-
                        <td className="py-4.5 px-6">
                         <div className="flex items-center justify-center gap-1.5">
                            <button
@@ -328,7 +306,6 @@ export default function StudentsList({
                           >
                             <Eye size={16} />
                           </button>
-
                            <button
                             type="button"
                             onClick={() => onDelete(student)}
@@ -346,7 +323,6 @@ export default function StudentsList({
             </tbody>
           </table>
         </div>
-
          <div
           className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-3xl transition-opacity duration-300 ${
             isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''
@@ -375,7 +351,6 @@ export default function StudentsList({
               </>
             )}
           </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -385,11 +360,9 @@ export default function StudentsList({
             >
               {isRtl ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronLeft size={16} aria-hidden="true" />}
             </button>
-
             <span className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[80px] text-center">
               {currentPage} / {effectiveTotalPages}
             </span>
-
             <button
               type="button"
               onClick={() => onPageChange(Math.min(currentPage + 1, effectiveTotalPages))}

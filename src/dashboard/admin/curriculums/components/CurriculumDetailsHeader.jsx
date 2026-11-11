@@ -30,7 +30,6 @@ export default function CurriculumDetailsHeader({
           </h1>
         </div>
       </div>
-
       <div className="flex items-center gap-3 self-end md:self-auto flex-wrap">
         <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/70 px-4 py-2.5 rounded-2xl border border-slate-200/70 dark:border-slate-700/60 shadow-xs">
           <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -86,7 +85,6 @@ export default function CurriculumDetailsHeader({
               : 'Hidden'}
           </span>
         </div>
-
         {onEditCurriculum && (
           <button
             type="button"
@@ -97,7 +95,6 @@ export default function CurriculumDetailsHeader({
             <span>{isRtl ? 'تعديل المنهج' : 'Edit Curriculum'}</span>
           </button>
         )}
-
         <button
           type="button"
           onClick={onAddLevel}

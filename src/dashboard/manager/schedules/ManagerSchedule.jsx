@@ -5,7 +5,6 @@ import { roleNavigation } from '@/shared/constants/navigation.js'
 
 export default function ManagerSchedule() {
   const { t } = useTranslation()
-
   return (
     <DashboardLayout title={t('dashboard.schedule')} role={t('auth.manager')} links={roleNavigation.Manager}>
       <SchedulePage role={t('auth.manager')} />

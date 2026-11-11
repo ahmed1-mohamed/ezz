@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, KeyRound, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
@@ -15,29 +16,22 @@ export default function ChangeTeacherPasswordModal({
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  if (!isOpen || !teacher) return null
-
+  if (!isOpen || !teacher || typeof document === 'undefined') return null
   const userId = teacher.user_id
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (!password) {
       toast.error(isRtl ? 'يرجى إدخال كلمة المرور الجديدة' : 'Please enter new password')
       return
     }
-
     if (password.length < 6) {
       toast.error(isRtl ? 'كلمة المرور يجب أن لا تقل عن 6 أحرف' : 'Password must be at least 6 characters')
       return
     }
-
     if (password !== confirmPassword) {
       toast.error(isRtl ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match')
       return
     }
-
     try {
       setIsSubmitting(true)
       await teachersApi.changeTeacherPassword(userId, { password, confirmPassword })
@@ -57,10 +51,9 @@ export default function ChangeTeacherPasswordModal({
       setIsSubmitting(false)
     }
   }
-
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in"
       dir={isRtl ? 'rtl' : 'ltr'}
       onClick={onClose}
     >
@@ -90,7 +83,6 @@ export default function ChangeTeacherPasswordModal({
             <X size={18} />
           </button>
         </div>
-
          <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -103,7 +95,7 @@ export default function ChangeTeacherPasswordModal({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
               />
               <button
                 type="button"
@@ -114,7 +106,6 @@ export default function ChangeTeacherPasswordModal({
               </button>
             </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
               {isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
@@ -126,7 +117,7 @@ export default function ChangeTeacherPasswordModal({
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 text-slate-900 dark:text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#005953] transition-all"
               />
               <button
                 type="button"
@@ -137,13 +128,11 @@ export default function ChangeTeacherPasswordModal({
               </button>
             </div>
           </div>
-
           <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
             {isRtl
               ? 'يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل.'
               : 'Password must be at least 6 characters.'}
           </p>
-
            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
@@ -173,6 +162,7 @@ export default function ChangeTeacherPasswordModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -1,4 +1,41 @@
 import api from './axiosConfig';
+import { setCookie } from '@/shared/utils/cookieUtils';
+
+function syncAuthTokens(rawResponse) {
+  if (!rawResponse) return;
+  const resData = rawResponse.data?.data || rawResponse.data || rawResponse;
+  const newAccessToken =
+    resData?.token ||
+    resData?.accessToken ||
+    resData?.access_token ||
+    rawResponse?.token ||
+    rawResponse?.accessToken ||
+    rawResponse?.access_token;
+  const newRefreshToken =
+    resData?.refreshToken ||
+    resData?.refresh_token ||
+    rawResponse?.refreshToken ||
+    rawResponse?.refresh_token;
+  if (newAccessToken) {
+    setCookie('access_token', newAccessToken, 7);
+    try {
+      localStorage.setItem('access_token', newAccessToken);
+    } catch (e) {
+      void e;
+    }
+    if (api?.defaults?.headers?.common) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+    }
+  }
+  if (newRefreshToken) {
+    setCookie('refresh_token', newRefreshToken, 7);
+    try {
+      localStorage.setItem('refresh_token', newRefreshToken);
+    } catch (e) {
+      void e;
+    }
+  }
+}
 
 export const profileApi = {
   fetchProfile: async () => {
@@ -17,22 +54,18 @@ export const profileApi = {
       const formData = new FormData();
       const arName = (data.nameAr || data['name[ar]'] || (typeof data.name === 'object' ? data.name?.ar : data.name) || '').trim();
       const enName = (data.nameEn || data['name[en]'] || (typeof data.name === 'object' ? data.name?.en : '') || '').trim();
-
       if (arName) {
         formData.append('name[ar]', arName);
       }
       if (enName) {
         formData.append('name[en]', enName);
       }
-
-      // PATCH /profile accepts only name, phone, country and image
       if (data.phone) formData.append('phone', String(data.phone).replace(/\s+/g, ''));
       if (data.country) formData.append('country', data.country);
       if (data.birthDate) formData.append('birthDate', data.birthDate);
       if (data.dateOfBirth) formData.append('dateOfBirth', data.dateOfBirth);
       const imageFile = data.image instanceof File ? data.image : (data.imageFile instanceof File ? data.imageFile : null);
       if (imageFile) formData.append('image', imageFile);
-
       const response = await api.patch('/api/v1/profile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -59,17 +92,18 @@ export const profileApi = {
       if (data.currentPassword || data.current) {
         cleanData.currentPassword = data.currentPassword || data.current;
       }
-
       try {
         const response = await api.patch('/api/v1/profile/change-password', cleanData, {
           skipGlobalErrorToast: true,
         });
+        syncAuthTokens(response.data);
         return { success: true, data: response.data };
       } catch (err) {
         if (err.response?.status === 404 && data.userId) {
           const resUser = await api.patch(`/api/v1/users/${data.userId}/change-password`, cleanData, {
             skipGlobalErrorToast: true,
           });
+          syncAuthTokens(resUser.data);
           return { success: true, data: resUser.data };
         }
         throw err;
@@ -89,17 +123,18 @@ export const profileApi = {
         password: data.password || data.newPassword || data.new,
         confirmPassword: data.confirmPassword || data.confirm || data.password,
       };
-
       try {
         const response = await api.patch('/api/v1/profile/create-password', cleanData, {
           skipGlobalErrorToast: true,
         });
+        syncAuthTokens(response.data);
         return { success: true, data: response.data };
       } catch (err) {
         if (err.response?.status === 404 && data.userId) {
           const resUser = await api.patch(`/api/v1/users/${data.userId}/change-password`, cleanData, {
             skipGlobalErrorToast: true,
           });
+          syncAuthTokens(resUser.data);
           return { success: true, data: resUser.data };
         }
         throw err;

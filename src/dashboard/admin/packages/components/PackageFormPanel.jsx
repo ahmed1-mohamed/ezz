@@ -21,18 +21,15 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const p = (key) => t(`adminDashboard.packages.${key}`)
-
   const sortedCountries = useMemo(() => {
     return sortCountries(countries, isRtl)
   }, [countries, isRtl])
-
   const [form, setForm] = useState(EMPTY_PACKAGE)
   const [saving, setSaving] = useState(false)
   const [removingDiscount, setRemovingDiscount] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [imageFile, setImageFile] = useState(null)
   const [prevSyncKey, setPrevSyncKey] = useState({ isOpen, editingPackage })
-
   if (prevSyncKey.isOpen !== isOpen || prevSyncKey.editingPackage !== editingPackage) {
     setPrevSyncKey({ isOpen, editingPackage })
     if (isOpen) {
@@ -40,7 +37,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
         const validLanguage = explanationLanguages.some(l => l.id === editingPackage.sessions_language)
           ? editingPackage.sessions_language
           : (explanationLanguages?.[0]?.id || '')
-
         setForm({
           ...EMPTY_PACKAGE,
           ...editingPackage,
@@ -68,7 +64,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
       }
     }
   }
-
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -77,65 +72,52 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
     reader.onload = (ev) => setImagePreview(ev.target.result)
     reader.readAsDataURL(file)
   }
-
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
-
   const setFeature = (index, value) => {
     const updated = [...form.features]
     updated[index] = value
     setField('features', updated)
   }
-
   const setFeatureEn = (index, value) => {
     const updated = [...form.features_en]
     updated[index] = value
     setField('features_en', updated)
   }
-
   const addFeature = () => {
     setField('features', [...form.features, ''])
     setField('features_en', [...form.features_en, ''])
   }
-
   const removeFeature = (index) => {
     setField('features', form.features.filter((_, i) => i !== index))
     setField('features_en', form.features_en.filter((_, i) => i !== index))
   }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     const rawFeatures = form.features
       .map(f => typeof f === 'string' ? f.trim() : '')
       .filter(f => f.length > 0)
-
     const rawFeaturesEn = form.features_en
       .map(f => typeof f === 'string' ? f.trim() : '')
       .filter(f => f.length > 0)
-
     if (rawFeatures.length === 0) {
       toast.error(isRtl ? 'يجب إضافة ميزة واحدة على الأقل للباقة' : 'At least one feature is required')
       return
     }
-
     const hasShortAr = rawFeatures.some(f => f.length < 3)
     if (hasShortAr) {
       toast.error(isRtl ? 'يجب أن لا يقل طول نص كل ميزة عن 3 أحرف' : 'Each feature must be at least 3 characters')
       return
     }
-
     if (!form.country) {
       toast.error(isRtl ? 'الرجاء اختيار الدولة' : 'Please select a country')
       return
     }
-
     const price = Number(form.price)
     const hasDiscount = form.type !== 'family' && form.priceAfterDiscount !== '' && form.priceAfterDiscount !== null
     if (hasDiscount && (Number(form.priceAfterDiscount) < 0 || Number(form.priceAfterDiscount) >= price)) {
       toast.error(isRtl ? 'السعر بعد الخصم يجب أن يكون أقل من السعر الأصلي' : 'Discounted price must be lower than the original price')
       return
     }
-
     if (form.type === 'family') {
       const maxMembers = Number(form.maxMembers)
       const invalidTier = form.familyTiers.find((tier) =>
@@ -150,12 +132,10 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
         return
       }
     }
-
     const finalFeaturesEn = rawFeatures.map((feat, idx) => {
       const enVal = rawFeaturesEn[idx]
       return (enVal && enVal.trim().length >= 3) ? enVal.trim() : feat
     })
-
     setSaving(true)
     const cleaned = {
       ...form,
@@ -170,7 +150,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
     await onSave(cleaned)
     setSaving(false)
   }
-
   const handleRemoveDiscount = async () => {
     setRemovingDiscount(true)
     try {
@@ -180,22 +159,20 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
       setRemovingDiscount(false)
     }
   }
-
   const discountPreview = form.price && form.priceAfterDiscount !== '' && Number(form.priceAfterDiscount) < Number(form.price)
     ? Math.round((1 - Number(form.priceAfterDiscount) / Number(form.price)) * 10000) / 100
     : null
   const isFamily = form.type === 'family'
-
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5" dir={isRtl ? 'rtl' : 'ltr'}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -216,7 +193,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                 <X size={18} />
               </button>
             </div>
-
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
               <PackageImageUpload
                 imagePreview={imagePreview}
@@ -225,7 +201,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                 hint={p('imageHint')}
                 packageName={form.name || form.name_en}
               />
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="name" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('packageNameAr')}</label>
@@ -253,7 +228,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                   />
                 </div>
               </div>
-
               <div>
                 <span className="block text-xs font-medium text-slate-500 mb-1.5 text-start">
                   {isRtl ? 'نوع الباقة' : 'Package type'}
@@ -281,7 +255,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                   })}
                 </div>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label htmlFor="price" className="block text-xs font-medium text-slate-500 mb-1.5 text-start">{p('price')}</label>
@@ -330,7 +303,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                   />
                 </div>
               </div>
-
               {!isFamily && (
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -368,7 +340,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                   </div>
                 </div>
               )}
-
               {isFamily && (
                 <div className="space-y-4 p-4 rounded-2xl border border-[#0f7a6c]/15 bg-[#0f7a6c]/[0.03]">
                   <div>
@@ -404,7 +375,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                   />
                 </div>
               )}
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <SelectField
                   id="country"
@@ -431,7 +401,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                   placeholder={p('language')}
                 />
               </div>
-
               <div id="features" tabIndex={-1} className="outline-none">
                 <PackageFeaturesField
                   features={form.features}
@@ -443,7 +412,6 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                 />
               </div>
             </form>
-
             <div className="px-6 py-4 border-t border-slate-100/60 dark:border-slate-800/60 flex gap-3 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
               <button
                 type="button"

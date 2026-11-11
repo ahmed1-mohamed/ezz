@@ -9,6 +9,7 @@ import {
   Book,
   Award,
   Heart,
+  Star,
   Layers,
   Globe,
   Calendar,
@@ -28,6 +29,7 @@ import {
   LogOut,
   Languages,
   Settings,
+  CalendarCheck,
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
@@ -36,6 +38,7 @@ const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
   { path: '/dashboard/admin/managers', icon: Users, transKey: 'managers', permission: 'users.read' },
   { path: '/dashboard/admin/teachers', icon: GraduationCap, transKey: 'teachers', permission: 'teachers.read' },
+  { path: '/dashboard/admin/teacher-evaluations', icon: Star, transKey: 'teacherEvaluations', permissions: ['teacher_evaluations.read', 'teachers.read'] },
   { path: '/dashboard/admin/students', icon: Book, transKey: 'students', permission: 'students.read' },
   { path: '/dashboard/admin/student-levels', icon: Award, transKey: 'studentLevels', permission: 'student_levels.read' },
   { path: '/dashboard/admin/parents', icon: Heart, transKey: 'parents', permission: 'parents.read' },
@@ -54,6 +57,7 @@ const NAV_ITEMS = [
     ],
   },
   { path: '/dashboard/admin/sessions', icon: Calendar, transKey: 'sessions', permission: 'sessions.read' },
+  { path: '/dashboard/admin/trial-sessions', icon: CalendarCheck, transKey: 'trialSessions', permission: 'trial_sessions.read' },
   { path: '/dashboard/admin/schedule', icon: Clock, transKey: 'studySchedule', permission: 'timetable.read' },
   {
     path: '/dashboard/admin/packages',
@@ -106,11 +110,11 @@ const NavItem = memo(function NavItem({ item, t, onClose, isCollapsed }) {
           ? 'bg-[#0f7a6c] text-white font-semibold shadow-md shadow-[#0f7a6c]/10'
           : `text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-[#0f7a6c] dark:hover:text-emerald-400 ${isCollapsed ? '' : 'hover:ps-5'}`}
       `}
-      title={isCollapsed ? t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '') : undefined}
+      title={isCollapsed ? (item.transKey === 'mainWebsite' ? t('common.mainWebsite', 'الموقع الرئيسي') : t(`adminDashboard.nav.${item.transKey}`)) : undefined}
     >
       <item.icon size={18} className={`${isCollapsed ? '' : 'me-3'} transition-transform group-hover:scale-110 shrink-0`} aria-hidden="true" />
       {!isCollapsed && (
-        <span className="text-sm whitespace-nowrap">{t(`adminDashboard.nav.${item.transKey}`, item.transKey === 'mainWebsite' ? 'الموقع الرئيسي' : '')}</span>
+        <span className="text-sm whitespace-nowrap">{item.transKey === 'mainWebsite' ? t('common.mainWebsite', 'الموقع الرئيسي') : t(`adminDashboard.nav.${item.transKey}`)}</span>
       )}
     </NavLink>
   )
@@ -123,18 +127,14 @@ export default memo(function AdminLayout() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
-
   const handleLogout = useCallback(() => {
     logout()
     navigate('/login')
   }, [logout, navigate])
-
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
   const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), [])
   const toggleSidebar = useCallback(() => setIsSidebarCollapsed(prev => !prev), [])
-
   const { isSuperAdmin, hasPermission, hasAnyPermission } = useAdminPermissions()
-
   const accessibleNavItems = useMemo(() => {
     if (isSuperAdmin) return NAV_ITEMS
     return NAV_ITEMS.filter((item) => {
@@ -145,17 +145,18 @@ export default memo(function AdminLayout() {
       return true
     })
   }, [isSuperAdmin, hasPermission, hasAnyPermission])
-
   const resolvedName = useMemo(() => getDisplayName(user, isRtl), [user, isRtl])
   const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
+  const userAvatar = useMemo(() => {
+    const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo
+    return typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null
+  }, [user])
   const displayRole = useMemo(
     () => user?.role === 'super_admin' ? t('adminDashboard.adminRole', 'مشرف عام') : t('auth.admin', 'مسؤول'),
     [user?.role, t]
   )
-
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
           <button
@@ -166,7 +167,6 @@ export default memo(function AdminLayout() {
           >
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0" aria-hidden="true">
               <BookMarked size={18} />
@@ -178,36 +178,36 @@ export default memo(function AdminLayout() {
             </div>
           </div>
         </div>
-
-        <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
-          <div className="text-end">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[100px] sm:max-w-[140px]">
-              {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
-            </h4>
-            <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium line-clamp-1">
-              {displayRole}
-            </p>
-          </div>
-          <div
-            className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
-          >
-            {(() => {
-              const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-              const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-              return cleanImg ? (
-                <img
-                  src={cleanImg}
-                  alt={resolvedName || 'User profile'}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                userInitial
-              );
-            })()}
-          </div>
-        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link to="/dashboard/admin/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
+            <div className="text-end">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-[90px] sm:max-w-[140px]">
+                {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+              </h4>
+              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium line-clamp-1">
+                {displayRole}
+              </p>
+            </div>
+            <div
+              className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
+            >
+              {(() => {
+                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
+                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
+                return cleanImg ? (
+                  <img
+                    src={cleanImg}
+                    alt={resolvedName || 'User profile'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userInitial
+                );
+              })()}
+            </div>
+          </Link>
+        </div>
       </header>
-
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -220,13 +220,12 @@ export default memo(function AdminLayout() {
           />
         )}
       </AnimatePresence>
-
       <aside className={`
-        fixed lg:sticky top-0 h-screen z-40
+        fixed lg:sticky top-0 start-0 h-screen z-40
         ${isSidebarCollapsed ? 'w-60 lg:w-20' : 'w-60'} bg-white dark:bg-slate-950 border-e border-slate-200 dark:border-slate-800
         transition-[width,transform] duration-300 ease-in-out
         flex flex-col shrink-0 overflow-hidden
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:!translate-x-0'}
+        ${isMobileMenuOpen ? 'translate-x-0' : (isRtl ? 'translate-x-full lg:translate-x-0' : '-translate-x-full lg:translate-x-0')}
       `}
         aria-label={t('adminDashboard.nav.sidebar', 'قائمة الإدارة')}
       >
@@ -271,29 +270,61 @@ export default memo(function AdminLayout() {
             </svg>
           </button>
         </div>
-
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin" aria-label={t('adminDashboard.nav.main', 'التنقل الرئيسي')}>
           {accessibleNavItems.map((item) => (
             <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} isCollapsed={isSidebarCollapsed} />
           ))}
         </nav>
-
-        <div className={`p-4 border-t border-slate-100 dark:border-slate-900 shrink-0 ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
+        <div className={`p-4 border-t border-slate-100 dark:border-slate-800 shrink-0 space-y-3 bg-white dark:bg-slate-950 ${isSidebarCollapsed ? 'flex flex-col items-center' : ''}`}>
+          {isSidebarCollapsed ? (
+            <Link
+              to="/dashboard/admin/settings"
+              onClick={closeMobileMenu}
+              className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden hover:scale-105 transition-transform"
+              title={resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+            >
+              {userAvatar ? (
+                <img src={userAvatar} alt={resolvedName || 'User profile'} className="w-full h-full object-cover" />
+              ) : (
+                userInitial
+              )}
+            </Link>
+          ) : (
+            <Link
+              to="/dashboard/admin/settings"
+              onClick={closeMobileMenu}
+              className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-colors group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden">
+                {userAvatar ? (
+                  <img src={userAvatar} alt={resolvedName || 'User profile'} className="w-full h-full object-cover" />
+                ) : (
+                  userInitial
+                )}
+              </div>
+              <div className="min-w-0 flex-1 text-start truncate">
+                <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#0f7a6c] dark:group-hover:text-emerald-400 transition-colors">
+                  {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
+                </p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                  {displayRole}
+                </p>
+              </div>
+            </Link>
+          )}
           <button
+            type="button"
             onClick={handleLogout}
-            className={`flex items-center justify-center ${isSidebarCollapsed ? 'w-11 h-11 p-0' : 'w-full px-4 py-2.5'} bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-xl transition-all font-medium group`}
-            title={isSidebarCollapsed ? t('dashboard.logout', 'تسجيل الخروج') : undefined}
+            className={`w-full flex items-center justify-center gap-2 ${isSidebarCollapsed ? 'w-11 h-11 p-0' : 'py-2.5 px-4'} rounded-2xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-2xs hover:shadow-sm cursor-pointer group`}
+            title={isSidebarCollapsed ? t('common.logout', 'تسجيل الخروج') : undefined}
           >
-            <LogOut size={18} className={`${isSidebarCollapsed ? '' : 'me-2'} transition-transform group-hover:-translate-x-1 shrink-0`} aria-hidden="true" />
-            {!isSidebarCollapsed && <span className="text-sm whitespace-nowrap">{t('dashboard.logout', 'تسجيل الخروج')}</span>}
+            <LogOut size={16} className="transition-transform group-hover:-translate-x-1 shrink-0" aria-hidden="true" />
+            {!isSidebarCollapsed && <span className="whitespace-nowrap">{t('common.logout', 'تسجيل الخروج')}</span>}
           </button>
         </div>
       </aside>
-
       <div className="flex-1 flex flex-col min-w-0">
-
         <header className="hidden lg:flex h-20 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-900 items-center justify-between px-8 sticky top-0 z-20 shrink-0">
-
           <div className="text-start">
             <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
               {t('adminDashboard.panelTitle', 'لوحة التحكم الرئيسية')}
@@ -302,38 +333,7 @@ export default memo(function AdminLayout() {
               {t('adminDashboard.panelSubtitle', 'منارة العز أكاديمي - لوحة الإدارة')}
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="text-end hidden xl:block">
-              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                {resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
-              </h4>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                {displayRole}
-              </p>
-            </div>
-            <div
-              className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden"
-              aria-label={resolvedName || 'المستخدم'}
-            >
-              {(() => {
-                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-                return cleanImg ? (
-                  <img
-                    src={cleanImg}
-                    alt={resolvedName || 'User profile'}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  userInitial
-                );
-              })()}
-            </div>
-          </div>
-
         </header>
-
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
           <Suspense
             fallback={
@@ -345,9 +345,7 @@ export default memo(function AdminLayout() {
             <Outlet />
           </Suspense>
         </main>
-
       </div>
-
     </div>
   )
 })

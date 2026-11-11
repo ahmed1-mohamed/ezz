@@ -3,9 +3,7 @@ import { Trophy, Award } from 'lucide-react'
 export default function StudentAchievementsCard({ student, isRtl, t }) {
   const rawRewards = student?.rewards || student?.Rewards || []
   const rewards = Array.isArray(rawRewards) ? rawRewards : (rawRewards ? [rawRewards] : [])
-
   const displayList = rewards.length > 0 ? rewards : []
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
@@ -19,7 +17,6 @@ export default function StudentAchievementsCard({ student, isRtl, t }) {
           {displayList.length}
         </span>
       </div>
-
       {displayList.length === 0 ? (
         <div className="p-8 text-center bg-slate-50/50 dark:bg-slate-950/20 rounded-3xl border border-slate-100/60 dark:border-slate-800/40 space-y-2">
           <Award size={32} className="mx-auto text-slate-300 dark:text-slate-600" />
@@ -38,15 +35,12 @@ export default function StudentAchievementsCard({ student, isRtl, t }) {
               : (typeof reward.title === 'object' && reward.title !== null
                   ? (reward.title.ar || reward.title.en)
                   : (reward.title || reward.name?.ar || reward.name?.en || reward.name || `شارة ${index + 1}`))
-
             const rewardDesc = typeof reward === 'object' && reward !== null
               ? (reward.description?.ar || reward.description?.en || reward.description || reward.desc || '')
               : ''
-
             const rewardImg = typeof reward === 'object' && (reward.image || reward.iconUrl || reward.badge)
             const rewardEmoji = typeof reward === 'object' && (reward.emoji || reward.icon)
             const points = typeof reward === 'object' && reward.points ? reward.points : null
-
             return (
               <div
                 key={reward.id || reward._id || index}

@@ -30,6 +30,14 @@ export const PERMISSIONS_LIST: Record<string, PermissionGroupDefinition> = {
     ],
   },
 
+  teacherEvaluations: {
+    name: { ar: 'تقييمات المعلمين بواسطة الإدارة', en: 'Admin Teacher Evaluations' },
+    actions: [
+      { key: 'teacher_evaluations.read', label: { ar: 'عرض تقييمات الإدارة للمعلمين', en: 'View Admin Teacher Evaluations' } },
+      { key: 'teacher_evaluations.create', label: { ar: 'إضافة تقييم إداري لمعلم', en: 'Create Admin Teacher Evaluation' } },
+    ],
+  },
+
   parents: {
     name: { ar: 'إدارة أولياء الأمور', en: 'Parents Management' },
     actions: [
@@ -102,6 +110,14 @@ export const PERMISSIONS_LIST: Record<string, PermissionGroupDefinition> = {
       { key: 'sessions.cancel', label: { ar: 'إلغاء حصة دراسية', en: 'Cancel Session' } },
       { key: 'sessions.manage_attendance', label: { ar: 'إدارة كشف الحضور والغياب', en: 'Manage Session Attendance' } },
       { key: 'sessions.update_topic', label: { ar: 'تحديث عنوان وموضوع الحصة', en: 'Update Session Topic' } },
+    ],
+  },
+
+  trialSessions: {
+    name: { ar: 'إدارة الحصص التجريبية', en: 'Trial Sessions Management' },
+    actions: [
+      { key: 'trial_sessions.read', label: { ar: 'عرض طلبات الحصص التجريبية', en: 'View Trial Session Requests' } },
+      { key: 'trial_sessions.assign', label: { ar: 'تسكين وإدارة الحصص التجريبية للطلاب', en: 'Assign & Manage Student Trial Sessions' } },
     ],
   },
 
@@ -267,3 +283,5 @@ export const PERMISSIONS_LIST: Record<string, PermissionGroupDefinition> = {
     ],
   },
 };
+
+export default PERMISSIONS_LIST;

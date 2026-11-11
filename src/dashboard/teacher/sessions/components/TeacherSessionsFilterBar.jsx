@@ -10,7 +10,6 @@ export default React.memo(function TeacherSessionsFilterBar({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const tabs = [
     { key: 'all', label: t('teacherSessions.all', 'الكل') },
     { key: 'scheduled', label: t('teacherSessions.scheduled', 'مجدولة') },
@@ -18,7 +17,6 @@ export default React.memo(function TeacherSessionsFilterBar({
     { key: 'completed', label: t('teacherSessions.completed', 'مكتملة') },
     { key: 'cancelled', label: t('teacherSessions.cancelled', 'ملغاة') },
   ];
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
@@ -36,7 +34,6 @@ export default React.memo(function TeacherSessionsFilterBar({
           </button>
         ))}
       </div>
-
       <div className="relative w-full md:w-72">
         <Search
           size={16}

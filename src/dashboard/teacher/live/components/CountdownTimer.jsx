@@ -10,7 +10,6 @@ const DAY_IN_MS = HOUR_IN_MS * 24;
 export default function CountdownTimer({ targetDateTime, onTimeReached }) {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(targetDateTime));
-
   function calculateTimeLeft(target) {
     if (!target) return { totalMs: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
     const targetMs = new Date(target).getTime();
@@ -23,7 +22,6 @@ export default function CountdownTimer({ targetDateTime, onTimeReached }) {
     const seconds = Math.floor((diffMs % MINUTE_IN_MS) / SECOND_IN_MS);
     return { totalMs: diffMs, days, hours, minutes, seconds };
   }
-
   useEffect(() => {
     const timerInterval = setInterval(() => {
       const remaining = calculateTimeLeft(targetDateTime);
@@ -34,7 +32,6 @@ export default function CountdownTimer({ targetDateTime, onTimeReached }) {
     }, SECOND_IN_MS);
     return () => clearInterval(timerInterval);
   }, [targetDateTime, onTimeReached]);
-
   if (timeLeft.totalMs <= 0) {
     return (
       <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 font-bold text-sm">
@@ -43,7 +40,6 @@ export default function CountdownTimer({ targetDateTime, onTimeReached }) {
       </div>
     );
   }
-
   return (
     <div className="flex flex-col items-center sm:items-start gap-1.5">
       <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">

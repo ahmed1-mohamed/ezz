@@ -43,7 +43,6 @@ export default function TeachersFilterBar({
             </button>
           </div>
         </div>
-
         <div className="w-full md:w-64 space-y-2 text-start">
           <label htmlFor="subject-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
             {t('teacher.subjectLabel', 'التخصص / المادة')}
@@ -55,11 +54,11 @@ export default function TeachersFilterBar({
               onChange={(e) => onSelectSubject(e.target.value)}
               className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
             >
-              <option value="" className="dark:bg-slate-850">
+              <option value="" className="dark:bg-slate-900">
                 {t('teacher.allSubjects', 'جميع التخصصات')}
               </option>
               {availableSubjects.map((subj) => (
-                <option key={subj} value={subj} className="dark:bg-slate-850">
+                <option key={subj} value={subj} className="dark:bg-slate-900">
                   {subj}
                 </option>
               ))}
@@ -67,7 +66,6 @@ export default function TeachersFilterBar({
             <BookOpen className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
           </div>
         </div>
-
         <div className="w-full md:w-64 space-y-2 text-start">
           <label htmlFor="country-select" className="block text-sm font-bold text-[#00695C] dark:text-emerald-400 mx-1">
             {t('teacher.countryLabel', 'الدولة')}
@@ -79,13 +77,13 @@ export default function TeachersFilterBar({
               onChange={(e) => onSelectCountry(e.target.value)}
               className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-base rounded-2xl focus:ring-[#00695C] dark:focus:ring-emerald-500 focus:border-[#00695C] dark:focus:border-emerald-500 block p-4 appearance-none cursor-pointer pe-10 shadow-sm"
             >
-              <option value="" className="dark:bg-slate-850">
+              <option value="" className="dark:bg-slate-900">
                 {t('teacher.allCountries', 'جميع الدول')}
               </option>
               {countriesList.map((country) => {
                 const countryIdentifier = country.id || country._id || country.code
                 return (
-                  <option key={countryIdentifier} value={countryIdentifier} className="dark:bg-slate-850">
+                  <option key={countryIdentifier} value={countryIdentifier} className="dark:bg-slate-900">
                     {country.flag ? `${country.flag} ` : ''}{getCountryName(country, isRtl)}
                   </option>
                 )
@@ -94,7 +92,6 @@ export default function TeachersFilterBar({
             <Award className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
           </div>
         </div>
-
         <button
           type="button"
           onClick={onResetFilters}

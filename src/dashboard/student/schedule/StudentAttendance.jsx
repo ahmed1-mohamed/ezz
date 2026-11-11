@@ -23,11 +23,9 @@ export default function StudentAttendance() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const ArrowPrev = isRtl ? ChevronRight : ChevronLeft;
   const ArrowNext = isRtl ? ChevronLeft : ChevronRight;
-
   const [loading, setLoading] = useState(true);
   const [attendancePayload, setAttendancePayload] = useState(null);
   const [page, setPage] = useState(1);
-
   const fetchAttendance = async (currentPage) => {
     try {
       setLoading(true);
@@ -40,11 +38,9 @@ export default function StudentAttendance() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchAttendance(page);
   }, [page]);
-
   const stats = attendancePayload?.statistics || {};
   const records = Array.isArray(attendancePayload?.data)
     ? attendancePayload.data
@@ -55,13 +51,11 @@ export default function StudentAttendance() {
     totalItems: records.length,
     limit: 10,
   };
-
   const totalPages = Math.max(1, pagination.totalPages || 1);
   const totalItems = pagination.totalItems ?? records.length;
   const limit = pagination.limit || 10;
   const startIndex = totalItems > 0 ? (page - 1) * limit + 1 : 0;
   const endIndex = totalItems > 0 ? Math.min(page * limit, totalItems) : 0;
-
   const getAttendanceStatusBadge = (statusStr) => {
     const s = String(statusStr || '').trim().toLowerCase();
     if (s.includes('حاضر') || s === 'present' || s === 'attended') {
@@ -98,7 +92,6 @@ export default function StudentAttendance() {
       icon: HelpCircle,
     };
   };
-
   const statCards = [
     {
       value: `${stats.attendanceRate ?? 0}%`,
@@ -137,7 +130,6 @@ export default function StudentAttendance() {
       textCls: 'text-slate-800 dark:text-slate-200',
     },
   ];
-
   return (
     <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
@@ -145,7 +137,6 @@ export default function StudentAttendance() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-7xl mx-auto space-y-6"
       >
-        {/* Header */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-start">
             <div className="w-14 h-14 bg-[#00695C]/10 text-[#00695C] dark:bg-emerald-950/40 dark:text-emerald-400 rounded-2xl flex items-center justify-center shrink-0">
@@ -161,8 +152,6 @@ export default function StudentAttendance() {
             </div>
           </div>
         </div>
-
-        {/* Statistics Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {statCards.map((item, idx) => (
             <div
@@ -178,8 +167,6 @@ export default function StudentAttendance() {
             </div>
           ))}
         </div>
-
-        {/* Detailed Attendance Log */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xs border border-slate-100 dark:border-slate-700 overflow-hidden">
           <div className="p-6 border-b border-slate-100 dark:border-slate-700/60 text-start flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
@@ -189,7 +176,6 @@ export default function StudentAttendance() {
               {totalItems} {isRtl ? 'حصة' : 'sessions'}
             </span>
           </div>
-
           {loading ? (
             <div className="flex h-64 items-center justify-center">
               <Spinner />
@@ -206,9 +192,7 @@ export default function StudentAttendance() {
                 const teacherName = typeof r.teacher === 'object' && r.teacher !== null
                   ? (isRtl ? r.teacher.ar || r.teacher.en : r.teacher.en || r.teacher.ar) || r.teacher.name || ''
                   : String(r.teacher || '');
-
                 const excuse = r.attendance?.excuse;
-
                 return (
                   <div
                     key={r.id || r._id || index}
@@ -228,7 +212,6 @@ export default function StudentAttendance() {
                           </span>
                         )}
                       </div>
-
                       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                         {r.group && (
                           <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
@@ -254,7 +237,6 @@ export default function StudentAttendance() {
                           </span>
                         )}
                       </div>
-
                       {excuse?.reason && (
                         <div className="p-3 bg-purple-50/80 dark:bg-purple-950/30 rounded-2xl border border-purple-100 dark:border-purple-800/40 text-xs text-purple-900 dark:text-purple-300 flex items-start gap-2 mt-2">
                           <ShieldCheck size={16} className="text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
@@ -264,14 +246,12 @@ export default function StudentAttendance() {
                           </div>
                         </div>
                       )}
-
                       {r.attendance?.notes && (
                         <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">
                           {r.attendance.notes}
                         </p>
                       )}
                     </div>
-
                     <div className="self-start md:self-auto shrink-0">
                       <span className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold ${badge.cls}`}>
                         <BadgeIcon size={14} />
@@ -283,8 +263,6 @@ export default function StudentAttendance() {
               })}
             </div>
           )}
-
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="p-5 border-t border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs sm:text-sm font-semibold text-slate-400 dark:text-slate-500">
@@ -294,7 +272,6 @@ export default function StudentAttendance() {
                   <>Showing <span className="text-slate-700 dark:text-slate-200 font-bold">{startIndex}</span> - <span className="text-slate-700 dark:text-slate-200 font-bold">{endIndex}</span> of <span className="text-slate-700 dark:text-slate-200 font-bold">{totalItems}</span> sessions</>
                 )}
               </p>
-
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -305,7 +282,6 @@ export default function StudentAttendance() {
                 >
                   <ArrowPrev size={16} />
                 </button>
-
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((pNum) => pNum === 1 || pNum === totalPages || Math.abs(pNum - page) <= 1)
@@ -313,7 +289,6 @@ export default function StudentAttendance() {
                       const prevNum = arr[index - 1];
                       const showEllipsis = prevNum && pNum - prevNum > 1;
                       const isActive = page === pNum;
-
                       return (
                         <div key={pNum} className="flex items-center gap-1">
                           {showEllipsis && (
@@ -334,7 +309,6 @@ export default function StudentAttendance() {
                       );
                     })}
                 </div>
-
                 <button
                   type="button"
                   disabled={page >= totalPages}

@@ -1,20 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Calendar,
   ChevronLeft,
   ChevronRight,
   Clock,
   User,
-  Video,
-  ExternalLink,
-  AlertCircle
+  Video
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 export default function StudentSchedule() {
   const { t, i18n } = useTranslation();
@@ -74,7 +71,6 @@ export default function StudentSchedule() {
     const todayStr = new Date().toISOString().split('T')[0];
     return days.some((d) => d.date === todayStr);
   }, [currentDateParam, weekInfo.isCurrentWeek, days]);
-
   const monthYearLabel = useMemo(() => {
     const refDate = selectedDay?.date || weekInfo.startDate || weekInfo.currentWeekDate;
     if (!refDate) return isRtl ? 'الجدول الأسبوعي' : 'Weekly Schedule';
@@ -202,7 +198,6 @@ export default function StudentSchedule() {
         transition={{ duration: 0.4 }}
         className="max-w-7xl mx-auto space-y-6"
       >
-        {/* Card 1: Top Header Banner */}
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="text-start space-y-1">
             <h1 className="text-2xl sm:text-3xl font-black text-[#1E293B] dark:text-white">
@@ -216,9 +211,7 @@ export default function StudentSchedule() {
             <Calendar size={28} />
           </div>
         </section>
-        {/* Card 2: Week Navigation & Days Selector */}
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
-          {/* Month/Year Title & Arrow Navigators */}
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -259,7 +252,6 @@ export default function StudentSchedule() {
               {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </button>
           </div>
-          {/* 7 Days Row */}
           {days.length > 0 && (
             <div className="grid grid-cols-7 gap-2 sm:gap-3">
               {days.map((dayItem, index) => {
@@ -288,7 +280,6 @@ export default function StudentSchedule() {
                     <span className="text-base sm:text-xl font-bold mt-1">
                       {dayNum}
                     </span>
-                    {/* Dot indicator for sessions */}
                     <div className="h-2 flex items-center justify-center mt-2">
                       {hasSessions ? (
                         <span
@@ -308,9 +299,7 @@ export default function StudentSchedule() {
             </div>
           )}
         </section>
-        {/* Card 3: Selected Day Sessions Details */}
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">
-          {/* Day Title */}
           <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
             <h3 className="text-lg sm:text-xl font-extrabold text-[#1E293B] dark:text-white text-start">
               {formatDayHeading(selectedDay)}
@@ -334,7 +323,6 @@ export default function StudentSchedule() {
             </div>
           ) : (
             <div>
-              {/* Table Column Headers (Desktop/Tablet) */}
               <div className="hidden md:grid grid-cols-12 items-center text-xs font-bold text-slate-500 dark:text-slate-400 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="col-span-3 text-start">
                   {t('studentDashboard.schedule.time', 'الوقت')}
@@ -352,7 +340,6 @@ export default function StudentSchedule() {
                   {t('studentDashboard.schedule.action', 'الإجراء')}
                 </div>
               </div>
-              {/* Sessions Rows */}
               <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {sessions.map((session) => {
                   const groupName = typeof session.group === 'object'
@@ -371,16 +358,13 @@ export default function StudentSchedule() {
                       animate={{ opacity: 1, y: 0 }}
                       className="py-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors rounded-2xl px-2"
                     >
-                      {/* Desktop Table View */}
                       <div className="hidden md:grid grid-cols-12 items-center gap-2">
-                        {/* 1. Time */}
                         <div className="col-span-3 text-start">
                           <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
                             <Clock size={16} className="text-[#00594C] dark:text-emerald-400 shrink-0" />
                             <span>{session.timeRange || (session.durationMinutes ? `${session.durationMinutes} دقيقة` : '-')}</span>
                           </div>
                         </div>
-                        {/* 2. Subject / Group */}
                         <div className="col-span-4 text-start">
                           <div className="space-y-0.5">
                             <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
@@ -393,7 +377,6 @@ export default function StudentSchedule() {
                             )}
                           </div>
                         </div>
-                        {/* 3. Teacher */}
                         <div className="col-span-2 text-start">
                           <div className="flex items-center gap-2 min-w-0">
                             {teacherImage ? (
@@ -413,18 +396,15 @@ export default function StudentSchedule() {
                             </span>
                           </div>
                         </div>
-                        {/* 4. Status */}
                         <div className="col-span-2 text-center">
                           <div className="flex justify-center">
                             {renderStatusBadge(session)}
                           </div>
                         </div>
-                        {/* 5. Action */}
                         <div className="col-span-1 text-end flex justify-end">
                           {renderActionButton(session)}
                         </div>
                       </div>
-                      {/* Mobile Card View */}
                       <div className="md:hidden space-y-3 text-start">
                         <div className="flex items-start justify-between gap-2">
                           <div className="space-y-1">

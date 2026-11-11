@@ -1,11 +1,10 @@
-﻿import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import { User, ShieldCheck, BookOpen, Palette } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { profileApi } from '@/shared/services/api/profileApi.js';
+import { teachersApi } from '@/shared/services/api/teachersApi.js';
 import { landingApi } from '@/shared/services/api/landingApi.js';
-import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import { normalizeCountries, sortCountries, resolveCountryIdFromLabel, DEFAULT_DIAL_CODE } from '@/shared/utils/countryUtils.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 import { setCookie } from '@/shared/utils/cookieUtils.js';
@@ -21,24 +20,20 @@ export default function TeacherProfile() {
   const { user, updateUser } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-
   const fileInputRef = useRef(null);
-
   const [activeTab, setActiveTab] = useState('personal');
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
-
   const handleReload = () => {
     setLoadingProfile(true);
     setReloadTrigger((prev) => prev + 1);
   };
-
   const [apiCountries, setApiCountries] = useState([]);
   const [selectedDialCode, setSelectedDialCode] = useState(DEFAULT_DIAL_CODE);
   const [phoneWithoutCode, setPhoneWithoutCode] = useState('');
-
+  const [teacherAvailability, setTeacherAvailability] = useState([]);
   const [profileForm, setProfileForm] = useState({
     nameAr: '',
     nameEn: '',
@@ -52,20 +47,16 @@ export default function TeacherProfile() {
     avatar: '',
     imageFile: null,
   });
-
   const [passwordForm, setPasswordForm] = useState({
     current: '',
     newPassword: '',
     confirmPassword: '',
   });
-
   const [showCurrentPass, setShowCurrentPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
-
   const [currentTimeStr, setCurrentTimeStr] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -95,29 +86,10 @@ export default function TeacherProfile() {
         setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
       }
     };
-
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, [isRtl]);
-
-  const { data: statsRes } = useQuery({
-    queryKey: ['teacher-profile-stats'],
-    queryFn: () => dashboardApi.fetchTeacherStatistics(),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const stats = useMemo(() => {
-    const raw = statsRes?.data || {};
-    return {
-      activeGroups: raw.groupsCount ?? raw.activeGroupsCount ?? 0,
-      totalSessions: raw.completedSessionsCount ?? raw.sessionsCount ?? 0,
-      totalStudents: raw.studentsCount ?? raw.totalStudentsCount ?? 0,
-      totalEarnings: raw.totalEarnings ?? raw.earnings ?? 0,
-      rating: raw.averageRating ?? raw.rating ?? 0,
-    };
-  }, [statsRes]);
-
   useEffect(() => {
     let isMounted = true;
     const loadProfileData = async () => {
@@ -126,37 +98,29 @@ export default function TeacherProfile() {
           profileApi.fetchProfile(),
           landingApi.fetchCountries().catch(() => []),
         ]);
-
         const rawCountries = Array.isArray(cRes) ? cRes : (cRes?.data || []);
         const normalized = normalizeCountries(rawCountries);
         const sorted = sortCountries(normalized, isRtl);
         if (isMounted) {
           setApiCountries(sorted);
         }
-
         if (pRes?.success && pRes.data && isMounted) {
           const d = pRes.data;
           const nameObj = typeof d.name === 'object' && d.name !== null ? d.name : {};
           const parsedNameAr = nameObj.ar || (typeof d.name === 'string' ? d.name : '') || '';
           const parsedNameEn = nameObj.en || '';
-
           const bioObj = typeof d.bio === 'object' && d.bio !== null ? d.bio : {};
           const parsedBioAr = bioObj.ar || (typeof d.bio === 'string' ? d.bio : '') || d.about || '';
           const parsedBioEn = bioObj.en || '';
-
-          // GET /profile returns the country as "<flag> <name>"; map it to the ID the update expects
           const mappedCountry = typeof d.country === 'object' && d.country !== null
             ? (d.country.id || d.country._id || '')
             : resolveCountryIdFromLabel(normalized, d.country);
-
           const rawPhone = String(d.phone || '');
           let dial = DEFAULT_DIAL_CODE;
           let num = rawPhone;
-
           const phoneCountries = [...sorted]
             .filter((c) => c.dialCode || c.phoneCode)
             .sort((a, b) => (b.dialCode || b.phoneCode || '').length - (a.dialCode || a.phoneCode || '').length);
-
           for (const c of phoneCountries) {
             const code = c.dialCode || c.phoneCode;
             if (rawPhone.startsWith(code)) {
@@ -165,10 +129,8 @@ export default function TeacherProfile() {
               break;
             }
           }
-
           setSelectedDialCode(dial);
           setPhoneWithoutCode(num);
-
           setProfileForm({
             nameAr: parsedNameAr,
             nameEn: parsedNameEn,
@@ -182,6 +144,27 @@ export default function TeacherProfile() {
             avatar: d.image || d.photo || d.photoUrl || user?.image || '',
             imageFile: null,
           });
+          let resolvedAvailability = Array.isArray(d.availability)
+            ? d.availability
+            : (Array.isArray(d.schedule)
+                ? d.schedule
+                : (Array.isArray(d.workingHours)
+                    ? d.workingHours
+                    : (Array.isArray(d.teacher?.availability) ? d.teacher.availability : [])));
+          const teacherIdentifier = d.teacherId || d.teacher_id || d.id || d._id || user?.teacher_id || user?.id;
+          if ((!resolvedAvailability || resolvedAvailability.length === 0) && teacherIdentifier) {
+            try {
+              const tRes = await teachersApi.fetchTeacherById(teacherIdentifier).catch(() => null);
+              if (Array.isArray(tRes?.data?.availability) && tRes.data.availability.length > 0) {
+                resolvedAvailability = tRes.data.availability;
+              }
+            } catch {
+              // Ignore fallback errors
+            }
+          }
+          if (isMounted) {
+            setTeacherAvailability(resolvedAvailability || []);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -194,15 +177,12 @@ export default function TeacherProfile() {
         }
       }
     };
-
     loadProfileData();
     return () => { isMounted = false; };
   }, [isRtl, user, reloadTrigger, t]);
-
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
-
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -214,31 +194,25 @@ export default function TeacherProfile() {
       }));
     }
   };
-
   const handleSaveProfile = async (e) => {
     e?.preventDefault();
     if (!profileForm.nameAr.trim() && !profileForm.nameEn.trim()) {
       showErrorToast(t('teacherProfilePage.fillRequired', 'يرجى إدخال اسم المعلم'));
       return;
     }
-
     setSavingProfile(true);
     try {
       const localPhone = phoneWithoutCode.trim().replace(/^0+/, '');
       const fullPhone = localPhone ? `${selectedDialCode}${localPhone}` : '';
-
-      // PATCH /profile accepts name, phone, country and image only
       const payload = {
         nameAr: profileForm.nameAr.trim(),
         nameEn: profileForm.nameEn.trim(),
         country: profileForm.country,
         phone: fullPhone,
       };
-
       if (profileForm.imageFile) {
         payload.image = profileForm.imageFile;
       }
-
       const res = await profileApi.updateProfile(payload);
       if (res?.success) {
         showSuccessToast(t('teacherProfilePage.profileUpdated', 'تم حفظ بيانات الملف الشخصي بنجاح'));
@@ -259,7 +233,6 @@ export default function TeacherProfile() {
       setSavingProfile(false);
     }
   };
-
   const handleSavePassword = async (e) => {
     e?.preventDefault();
     if (!passwordForm.newPassword) {
@@ -274,11 +247,9 @@ export default function TeacherProfile() {
       showErrorToast(t('teacherProfilePage.passwordMismatch', 'كلمتا المرور غير متطابقتين'));
       return;
     }
-
     setSavingPassword(true);
     try {
       let res;
-
       if (passwordForm.current) {
         res = await profileApi.changePassword({
           currentPassword: passwordForm.current,
@@ -291,7 +262,6 @@ export default function TeacherProfile() {
           confirmPassword: passwordForm.confirmPassword,
         });
       }
-
       if (res?.success) {
         const resData = res.data?.data || res.data;
         const newAccessToken =
@@ -300,12 +270,10 @@ export default function TeacherProfile() {
           resData?.access_token ||
           res.data?.token ||
           res.data?.accessToken;
-
         if (newAccessToken) {
           setCookie('access_token', newAccessToken, 7);
           api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         }
-
         showSuccessToast(t('teacherProfilePage.passwordUpdated', 'تم تحديث كلمة المرور بنجاح'));
         setPasswordForm({ current: '', newPassword: '', confirmPassword: '' });
       } else {
@@ -318,7 +286,6 @@ export default function TeacherProfile() {
       setSavingPassword(false);
     }
   };
-
   const displayName = useMemo(() => {
     const resolveStr = (val) => {
       if (!val) return '';
@@ -331,18 +298,15 @@ export default function TeacherProfile() {
     }
     return resolveStr(profileForm.nameEn) || resolveStr(profileForm.nameAr) || resolveStr(user?.name) || t('common.teacher', 'Teacher');
   }, [isRtl, profileForm.nameAr, profileForm.nameEn, user?.name, t]);
-
   const initialLetter = useMemo(() => {
     return displayName.replace(/^أ\.\s*/, '').trim().charAt(0) || 'م';
   }, [displayName]);
-
   const tabs = useMemo(() => [
     { key: 'personal', label: t('teacherProfilePage.personalInfo', 'البيانات الشخصية'), icon: User },
     { key: 'security', label: t('teacherProfilePage.security', 'الأمان وكلمة المرور'), icon: ShieldCheck },
-    { key: 'teaching', label: t('teacherProfilePage.stats', 'المعلومات التعليمية والنبذة'), icon: BookOpen },
+    { key: 'teaching', label: t('teacherProfilePage.stats', 'إحصائيات التدريس'), icon: BookOpen },
     { key: 'display', label: t('parentSettings.languageDisplay', 'اللغة والعرض'), icon: Palette },
   ], [t]);
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherProfileHeader
@@ -360,12 +324,10 @@ export default function TeacherProfile() {
         email={profileForm.email}
         phoneWithoutCode={phoneWithoutCode}
         selectedDialCode={selectedDialCode}
-        stats={stats}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         tabs={tabs}
       />
-
       {loadingProfile ? (
         <div className="h-80 bg-white dark:bg-slate-900 rounded-3xl animate-pulse border border-slate-100 dark:border-slate-800" />
       ) : activeTab === 'personal' ? (
@@ -403,6 +365,7 @@ export default function TeacherProfile() {
           t={t}
           profileForm={profileForm}
           isRtl={isRtl}
+          availability={teacherAvailability}
         />
       )}
     </div>

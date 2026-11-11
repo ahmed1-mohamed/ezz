@@ -10,7 +10,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
   const studentsCount = group.currentStudentsCount ?? group.students?.length ?? 0
   const maxStudents = group.maxStudents || 0
   const scheduleList = group.weeklySchedule || group.schedule || []
-
   const getDayName = (rawDay) => {
     if (!rawDay) return ''
     const key = rawDay.toString().trim().toLowerCase()
@@ -25,7 +24,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
     }
     return map[key] || rawDay
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 flex flex-col justify-between gap-4 hover:shadow-md transition-all group">
       <div>
@@ -75,7 +73,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
             />
           </div>
         </div>
-
         <div className="text-start space-y-1">
           <h3 className="text-sm font-bold text-slate-800 dark:text-white truncate" title={getLocalizedValue(group.name, isRtl)}>
             {getLocalizedValue(group.name, isRtl)}
@@ -87,7 +84,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
           )}
         </div>
       </div>
-
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div
           onClick={() => onChangeTeacher && onChangeTeacher(group)}
@@ -111,7 +107,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
           <span className="text-[11px] text-slate-400 dark:text-slate-500">{t('adminDashboard.groups.students', 'الطلاب')}</span>
         </div>
       </div>
-
       {scheduleList.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap gap-1.5 justify-start items-center">
@@ -148,7 +143,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
           </div>
         </div>
       )}
-
       {scheduleList.length === 0 && onEditSchedule && (
         <button
           type="button"
@@ -162,7 +156,6 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
           <span>{t('adminDashboard.groups.setSchedule', 'تحديد جدول الحصص')}</span>
         </button>
       )}
-
       <button
         onClick={() => onViewStudents(group)}
         className="w-full flex items-center justify-center gap-2 py-2 rounded-2xl border border-dashed border-brand-300 dark:border-brand-700 text-brand-600 dark:text-brand-400 text-xs font-semibold hover:bg-brand-50 dark:hover:bg-brand-900/10 transition-all cursor-pointer"

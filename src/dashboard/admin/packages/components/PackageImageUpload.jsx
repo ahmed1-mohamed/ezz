@@ -8,7 +8,6 @@ export default function PackageImageUpload({
   packageName = '',
 }) {
   const firstLetter = packageName?.trim()?.charAt(0)?.toUpperCase() || ''
-
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-start">

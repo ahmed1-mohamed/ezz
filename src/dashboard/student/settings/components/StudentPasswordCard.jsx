@@ -52,7 +52,7 @@ export default React.memo(function StudentPasswordCard({
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold"
+            className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold"
             placeholder="••••••••"
           />
         </div>
@@ -66,7 +66,7 @@ export default React.memo(function StudentPasswordCard({
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold"
+              className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold"
               placeholder="••••••••"
             />
           </div>
@@ -79,7 +79,7 @@ export default React.memo(function StudentPasswordCard({
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold"
+              className="w-full bg-[#f8faf9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005953] focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm font-semibold"
               placeholder="••••••••"
             />
           </div>

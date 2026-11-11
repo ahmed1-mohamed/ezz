@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, Star, Plus, CheckCircle2, Clock, XCircle, AlertCircle, Paperclip, Send, X, FileText, ChevronDown } from 'lucide-react';
+import { MessageSquare, Star, Plus, CheckCircle2, Clock, XCircle, Paperclip, Send, X, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { parentApi } from '@/shared/services/api/parentApi';
@@ -21,18 +22,15 @@ export default function ParentComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [formValues, setFormValues] = useState({
     type: 'suggestion',
     title: '',
     details: '',
     attachments: []
   });
-
   const getStatusInfo = (status) => {
     const raw = String(status || '').toLowerCase().trim();
     if (raw === 'resolved' || raw === 'accepted' || raw === 'مقبول' || raw === 'تم الحل') {
@@ -58,16 +56,11 @@ export default function ParentComplaints() {
       color: 'amber'
     };
   };
-
   const loadComplaints = useCallback(async (tab = 'all') => {
     setIsLoading(true);
     try {
       const res = await parentApi.fetchComplaints(tab);
-      if (res?.success && Array.isArray(res.data)) {
-        setComplaints(res.data);
-      } else {
-        setComplaints([]);
-      }
+      setComplaints(res?.success && Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Failed to load complaints:', err);
       setComplaints([]);
@@ -75,14 +68,33 @@ export default function ParentComplaints() {
       setIsLoading(false);
     }
   }, []);
-
   useEffect(() => {
-    loadComplaints(activeTab);
-  }, [loadComplaints, activeTab]);
-
+    let isMounted = true;
+    async function fetchList() {
+      setIsLoading(true);
+      try {
+        const res = await parentApi.fetchComplaints(activeTab);
+        if (isMounted) {
+          setComplaints(res?.success && Array.isArray(res.data) ? res.data : []);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to load complaints:', err);
+          setComplaints([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchList();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab]);
   const handleOpenDetails = async (item) => {
     setSelectedComplaint(item);
-    setIsLoadingDetails(true);
     try {
       const res = await parentApi.fetchComplaintById(item.id);
       if (res?.success && res.data) {
@@ -90,11 +102,8 @@ export default function ParentComplaints() {
       }
     } catch (err) {
       console.error('Failed to fetch complaint details:', err);
-    } finally {
-      setIsLoadingDetails(false);
     }
   };
-
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
     setFormValues((prev) => ({
@@ -102,14 +111,12 @@ export default function ParentComplaints() {
       attachments: [...prev.attachments, ...files]
     }));
   };
-
   const handleRemoveAttachment = (index) => {
     setFormValues((prev) => ({
       ...prev,
       attachments: prev.attachments.filter((_, i) => i !== index)
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formValues.title.trim()) {
@@ -138,13 +145,10 @@ export default function ParentComplaints() {
       setIsSubmitting(false);
     }
   };
-
   const filteredComplaints = complaints.filter((item) => {
-    if (typeFilter !== 'all' && item.type !== typeFilter) return false;
     if (activeTab === 'pending' && (item.status === 'resolved' || item.status === 'accepted' || item.status === 'rejected')) return false;
     return true;
   });
-
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     try {
@@ -158,7 +162,6 @@ export default function ParentComplaints() {
       return dateStr;
     }
   };
-
   return (
     <motion.div
       variants={containerVariants}
@@ -174,7 +177,6 @@ export default function ParentComplaints() {
             {t('parentDashboard.complaints.subtitle', 'نسعد باستقبال ملاحظاتكم ومقترحاتكم لتحسين تجربتكم وتجربة أبنائكم')}
           </p>
         </div>
-
         <button
           onClick={() => setIsFormOpen(!isFormOpen)}
           className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm shadow-sm transition-all active:scale-95 ${
@@ -187,7 +189,6 @@ export default function ParentComplaints() {
           <span>{isFormOpen ? (isRtl ? 'إغلاق النموذج' : 'Close Form') : (isRtl ? 'تقديم طلب جديد' : 'New Submission')}</span>
         </button>
       </motion.div>
-
       <AnimatePresence>
         {isFormOpen && (
           <motion.div
@@ -206,7 +207,6 @@ export default function ParentComplaints() {
                   {isRtl ? 'سيتم مراجعة طلبكم والرد خلال 24 ساعة' : 'Reviewed within 24 hours'}
                 </span>
               </div>
-
               <div>
                 <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
                   {isRtl ? 'نوع الطلب' : 'Submission Type'}
@@ -228,7 +228,6 @@ export default function ParentComplaints() {
                       <p className="text-xs text-slate-400">{isRtl ? 'فكرة أو تحسين ترغب في إضافته' : 'Idea or enhancement'}</p>
                     </div>
                   </div>
-
                   <div
                     onClick={() => setFormValues((prev) => ({ ...prev, type: 'complaint' }))}
                     className={`flex items-center gap-3 p-4 rounded-2xl cursor-pointer border-2 transition-all ${
@@ -247,7 +246,6 @@ export default function ParentComplaints() {
                   </div>
                 </div>
               </div>
-
               <div>
                 <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
                   {isRtl ? 'عنوان الطلب' : 'Title'} <span className="text-rose-500">*</span>
@@ -265,7 +263,6 @@ export default function ParentComplaints() {
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 text-sm font-medium text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#0f7a6c]/40 transition-all placeholder:text-slate-400"
                 />
               </div>
-
               <div>
                 <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
                   {isRtl ? 'التفاصيل والشرح' : 'Details'} <span className="text-rose-500">*</span>
@@ -279,7 +276,6 @@ export default function ParentComplaints() {
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 text-sm font-medium text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#0f7a6c]/40 transition-all placeholder:text-slate-400 resize-none"
                 />
               </div>
-
               <div>
                 <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
                   {isRtl ? 'المرفقات (اختياري)' : 'Attachments (optional)'}
@@ -290,7 +286,6 @@ export default function ParentComplaints() {
                     <span>{isRtl ? 'إرفاق ملف أو صورة' : 'Attach file'}</span>
                     <input type="file" multiple onChange={handleFileChange} className="hidden" />
                   </label>
-
                   {formValues.attachments.map((file, idx) => (
                     <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       <FileText className="w-3.5 h-3.5 text-[#0f7a6c]" />
@@ -302,7 +297,6 @@ export default function ParentComplaints() {
                   ))}
                 </div>
               </div>
-
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <button
                   type="button"
@@ -311,7 +305,6 @@ export default function ParentComplaints() {
                 >
                   {isRtl ? 'إلغاء' : 'Cancel'}
                 </button>
-
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -329,7 +322,6 @@ export default function ParentComplaints() {
           </motion.div>
         )}
       </AnimatePresence>
-
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
           <button
@@ -342,7 +334,6 @@ export default function ParentComplaints() {
           >
             {isRtl ? 'جميع الطلبات' : 'All Requests'}
           </button>
-
           <button
             onClick={() => setActiveTab('pending')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
@@ -353,7 +344,6 @@ export default function ParentComplaints() {
           >
             {isRtl ? 'قيد المراجعة' : 'Pending'}
           </button>
-
           <button
             onClick={() => setActiveTab('resolved')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
@@ -364,7 +354,6 @@ export default function ParentComplaints() {
           >
             {isRtl ? 'تم الحل / المقبولة' : 'Resolved'}
           </button>
-
           <button
             onClick={() => setActiveTab('rejected')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
@@ -376,21 +365,7 @@ export default function ParentComplaints() {
             {isRtl ? 'المرفوضة' : 'Rejected'}
           </button>
         </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-slate-400 font-medium">{isRtl ? 'النوع:' : 'Type:'}</span>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
-          >
-            <option value="all">{isRtl ? 'الكل' : 'All'}</option>
-            <option value="suggestion">{isRtl ? 'اقتراح' : 'Suggestion'}</option>
-            <option value="complaint">{isRtl ? 'شكوى' : 'Complaint'}</option>
-          </select>
-        </div>
       </div>
-
       {isLoading ? (
         <div className="flex justify-center items-center py-24">
           <div className="w-9 h-9 rounded-full border-3 border-[#0f7a6c] border-t-transparent animate-spin" />
@@ -425,7 +400,6 @@ export default function ParentComplaints() {
                   }`}>
                     {isSuggestion ? <Star className="w-6 h-6 fill-current" /> : <MessageSquare className="w-6 h-6" />}
                   </div>
-
                   <div className="space-y-1.5 flex-1 text-start">
                     <div className="flex items-center gap-2.5 flex-wrap">
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold ${
@@ -435,25 +409,20 @@ export default function ParentComplaints() {
                       }`}>
                         {isSuggestion ? (isRtl ? 'اقتراح' : 'Suggestion') : (isRtl ? 'شكوى' : 'Complaint')}
                       </span>
-
                       <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${statusInfo.badgeClass}`}>
                         <statusInfo.icon className="w-3.5 h-3.5" />
                         <span>{statusInfo.label}</span>
                       </span>
-
                       <span className="text-xs text-slate-400 font-medium">
                         {formatDate(item.createdAt)}
                       </span>
                     </div>
-
                     <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
                       {item.title}
                     </h3>
-
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
                       {item.details}
                     </p>
-
                     {item.response && (
                       <div className="mt-3 p-3 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-2xl border border-emerald-100 dark:border-emerald-900/30">
                         <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 block mb-1">
@@ -466,7 +435,6 @@ export default function ParentComplaints() {
                     )}
                   </div>
                 </div>
-
                 <div className="shrink-0 flex items-center justify-end w-full md:w-auto">
                   <button
                     onClick={() => handleOpenDetails(item)}
@@ -480,10 +448,10 @@ export default function ParentComplaints() {
           })}
         </div>
       )}
-
-      <AnimatePresence>
-        {selectedComplaint && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {selectedComplaint && (
+            <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -510,7 +478,6 @@ export default function ParentComplaints() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               <div>
                 <span className="text-xs text-slate-400 font-semibold block mb-1">
                   {formatDate(selectedComplaint.createdAt)}
@@ -519,7 +486,6 @@ export default function ParentComplaints() {
                   {selectedComplaint.title}
                 </h2>
               </div>
-
               <div className="bg-slate-50 dark:bg-slate-900/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">
                   {isRtl ? 'تفاصيل الطلب:' : 'Details:'}
@@ -528,7 +494,6 @@ export default function ParentComplaints() {
                   {selectedComplaint.details}
                 </p>
               </div>
-
               {Array.isArray(selectedComplaint.attachments) && selectedComplaint.attachments.length > 0 && (
                 <div>
                   <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">
@@ -550,7 +515,6 @@ export default function ParentComplaints() {
                   </div>
                 </div>
               )}
-
               {selectedComplaint.response && (
                 <div className="bg-emerald-50 dark:bg-emerald-950/40 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/40 space-y-1">
                   <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-sm">
@@ -562,7 +526,6 @@ export default function ParentComplaints() {
                   </p>
                 </div>
               )}
-
               <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
                 <button
                   onClick={() => setSelectedComplaint(null)}
@@ -574,7 +537,9 @@ export default function ParentComplaints() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </motion.div>
   );
 }

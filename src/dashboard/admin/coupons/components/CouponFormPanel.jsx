@@ -19,27 +19,21 @@ const resolveStudentName = (name) =>
 function CouponFormPanel({ isOpen, onClose, onSave }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const [form, setForm] = useState(EMPTY_COUPON);
     const [saving, setSaving] = useState(false);
     const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-
     const wasOpenRef = useRef(false);
-
     useEffect(() => {
         if (isOpen && !wasOpenRef.current) {
             setForm(EMPTY_COUPON);
         }
         wasOpenRef.current = isOpen;
     }, [isOpen]);
-
     const setField = (key, value) =>
         setForm((prev) => ({ ...prev, [key]: value }));
-
     const handleRemoveStudent = () => {
         setField('students', []);
     };
-
     const handleAddStudents = (selectedStudents) => {
         if (selectedStudents.length === 0) return;
         const s = selectedStudents[0];
@@ -52,7 +46,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
         setField('students', [mappedStudent]);
         setIsStudentModalOpen(false);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -67,14 +60,13 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
         await onSave(payload);
         setSaving(false);
     };
-
     return (
         <>
             {createPortal(
                 <AnimatePresence>
                 {isOpen && (
                     <div
-                        className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                        className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
                         dir={isRtl ? 'rtl' : 'ltr'}
                     >
                         <motion.div
@@ -82,7 +74,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={onClose}
-                            className="absolute inset-0 bg-slate-955/40 dark:bg-black/60 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -103,7 +95,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                     <X size={20} />
                                 </button>
                             </div>
-
                             <form
                                 id="coupon-form"
                                 onSubmit={handleSubmit}
@@ -122,10 +113,9 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                         value={form.code}
                                         onChange={(e) => setField('code', e.target.value)}
                                         placeholder={t('adminDashboard.coupons.codePlaceholder', 'مثال: RAMADAN50')}
-                                        className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-850 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
+                                        className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                     />
                                 </div>
-
                                 <div>
                                     <label
                                         htmlFor="coupon-discount"
@@ -145,14 +135,13 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                 setField('discountPercentage', e.target.value)
                                             }
                                             placeholder="20"
-                                            className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-855 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
+                                            className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-slate-400 transition-all"
                                         />
                                         <div className="absolute inset-y-0 end-0 flex items-center pe-4 pointer-events-none text-slate-450 font-medium">
                                             %
                                         </div>
                                     </div>
                                 </div>
-
                                 <div>
                                     <label
                                         htmlFor="coupon-expiry"
@@ -172,11 +161,10 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                             onChange={(e) =>
                                                 setField('expirationDate', e.target.value)
                                             }
-                                            className="w-full bg-[#f8fafc] dark:bg-slate-850 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-855 dark:text-slate-100 rounded-xl ps-11 pe-4 py-3 text-sm outline-none transition-all"
+                                            className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-transparent focus:border-[#0f7a6c] focus:ring-1 focus:ring-[#0f7a6c] text-slate-800 dark:text-slate-100 rounded-xl ps-11 pe-4 py-3 text-sm outline-none transition-all"
                                         />
                                     </div>
                                 </div>
-
                                 <div className="space-y-4 pt-2">
                                     <button
                                         type="button"
@@ -187,7 +175,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                             ? t('adminDashboard.coupons.addStudentBtn', 'إضافة طالب للكوبون')
                                             : t('adminDashboard.coupons.changeStudentBtn', 'تغيير الطالب')}
                                     </button>
-
                                     {form.students.length > 0 && (
                                         <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                                             <table className="w-full text-sm text-center">
@@ -245,7 +232,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                     )}
                                 </div>
                             </form>
-
                             <div className="px-8 py-5 border-t border-slate-100/60 dark:border-slate-800/60 flex gap-4 shrink-0 bg-white dark:bg-slate-900 justify-end">
                                 <button
                                     type="button"
@@ -270,7 +256,6 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                 </AnimatePresence>,
                 document.body
             )}
-
             <StudentSelectionModal
                 isOpen={isStudentModalOpen}
                 onClose={() => setIsStudentModalOpen(false)}

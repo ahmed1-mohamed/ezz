@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Video, Calendar, Clock, Users, User, PlayCircle, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Video, Calendar, Clock, Users, User, PlayCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { checkCanJoinSession, showSessionJoinAlert } from '@/shared/utils/sessionTiming.js';
 
 const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = SECOND_IN_MS * 60;
@@ -47,15 +46,7 @@ export default React.memo(function StudentBeforeSessionView({
     }, SECOND_IN_MS);
     return () => clearInterval(timerInterval);
   }, [targetDateStr]);
-  const joinCheck = useMemo(() => {
-    return checkCanJoinSession(session);
-  }, [session]);
   const handleJoinClick = () => {
-    const check = checkCanJoinSession(session);
-    if (!check.canJoin) {
-      showSessionJoinAlert(check.message, isRtl);
-      return;
-    }
     onJoinSession(session);
   };
   if (!session) {
@@ -208,12 +199,6 @@ export default React.memo(function StudentBeforeSessionView({
             </div>
           </div>
         )}
-        {!isLive && !joinCheck.canJoin && joinCheck.isTooEarly && (
-          <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/70 text-amber-800 dark:text-amber-200 text-xs sm:text-sm font-semibold">
-            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
-            <span>{joinCheck.message}</span>
-          </div>
-        )}
         {isLive && (
           <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-3 text-xs font-bold text-emerald-800 dark:text-emerald-300">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
@@ -225,11 +210,7 @@ export default React.memo(function StudentBeforeSessionView({
             type="button"
             onClick={handleJoinClick}
             disabled={isJoining}
-            className={`w-full py-4 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 ${
-              !joinCheck.canJoin && joinCheck.isTooEarly
-                ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-slate-700/20'
-                : 'bg-[#00594C] hover:bg-[#00483d] active:scale-[0.99] text-white'
-            }`}
+            className="w-full py-4 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 bg-[#00594C] hover:bg-[#00483d] active:scale-[0.99] text-white"
           >
             <PlayCircle size={20} />
             <span>

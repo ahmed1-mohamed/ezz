@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Lock, BookOpen, ArrowRight, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
 import { setCookie, getCookie, deleteCookie } from '@/shared/utils/cookieUtils.js'
+import { useAuth } from '@/shared/context/useAuth.jsx'
 
 export default function ResetPassword() {
+    const { theme, toggleTheme } = useAuth()
     const { t, i18n } = useTranslation()
     const isRtl = i18n.language === 'ar'
+    const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
     const location = useLocation()
     const [searchParams] = useSearchParams()
-
     const initialToken = location.state?.token || searchParams.get('token') || searchParams.get('resetToken') || sessionStorage.getItem('reset_token') || getCookie('access_token') || ''
-
     const [step, setStep] = useState(1)
     const [resetCode, setResetCode] = useState('')
     const [password, setPassword] = useState('')
@@ -22,16 +24,15 @@ export default function ResetPassword() {
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
     const [token, setToken] = useState(initialToken)
-
     const handleVerifyCode = async (e) => {
         e.preventDefault()
         setErrors({})
-
         if (!resetCode.trim()) {
-            setErrors({ resetCode: t('resetPassword.codeRequired', 'رمز التحقق مطلوب.') })
+            const reqMsg = t('resetPassword.codeRequired', 'رمز التحقق مطلوب.')
+            setErrors({ resetCode: reqMsg })
+            toast.error(reqMsg)
             return
         }
-
         try {
             setLoading(true)
             const currentToken = token || sessionStorage.getItem('reset_token') || getCookie('access_token') || ''
@@ -39,47 +40,41 @@ export default function ResetPassword() {
                 resetCode: resetCode.trim()
             }
             const config = currentToken ? { headers: { Authorization: `Bearer ${currentToken}` } } : {}
-
             const verifyRes = await api.post('/api/v1/auth/verify-code', payload, config)
             const tempToken = verifyRes.data?.token || verifyRes.data?.accessToken || verifyRes.data?.data?.token || verifyRes.data?.resetToken || verifyRes.data?.data?.resetToken || currentToken
-
             if (tempToken) {
                 setToken(tempToken)
                 sessionStorage.setItem('reset_token', tempToken)
                 setCookie('access_token', tempToken)
                 api.defaults.headers.common['Authorization'] = `Bearer ${tempToken}`
             }
-
             setStep(2)
         } catch (err) {
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
             setErrors({ submit: msg })
+            toast.error(msg)
         } finally {
             setLoading(false)
         }
     }
-
     const handleResetPassword = async (e) => {
         e.preventDefault()
         setErrors({})
-
         const nextErrors = {}
         if (!password) {
             nextErrors.password = t('resetPassword.passwordRequired', 'كلمة المرور مطلوبة.')
         } else if (password.length < 6) {
             nextErrors.password = t('resetPassword.passwordShort', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.')
         }
-
         if (password !== confirmPassword) {
             nextErrors.confirmPassword = t('resetPassword.passwordMismatch', 'كلمتا المرور غير متطابقتين.')
         }
-
         if (Object.keys(nextErrors).length > 0) {
             setErrors(nextErrors)
+            toast.error(Object.values(nextErrors)[0])
             return
         }
-
         try {
             setLoading(true)
             const currentToken = token || sessionStorage.getItem('reset_token') || getCookie('access_token') || ''
@@ -88,34 +83,44 @@ export default function ResetPassword() {
                 confirmPassword: confirmPassword
             }
             const config = currentToken ? { headers: { Authorization: `Bearer ${currentToken}` } } : {}
-
             await api.patch('/api/v1/auth/reset-password', payload, config)
             sessionStorage.removeItem('reset_token')
             deleteCookie('access_token')
             setStep(3)
+            toast.success(t('resetPassword.successToast', 'تم تغيير كلمة المرور بنجاح!'))
         } catch (err) {
             const data = err.response?.data
             const msg = (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) || err.message || t('resetPassword.error', 'حدث خطأ ما. حاول مرة أخرى.')
             setErrors({ submit: msg })
+            toast.error(msg)
         } finally {
             setLoading(false)
         }
     }
-
     return (
-        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col relative font-sans">
-            <div className="absolute top-6 start-6 z-10">
-                <Link to="/login" className="flex items-center gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/50 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-4 py-2 rounded-full shadow-sm border border-transparent dark:border-slate-800">
-                    <ArrowIcon className="w-5 h-5" />
+        <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 transition-colors duration-300 flex flex-col font-sans">
+            <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 shrink-0">
+                <Link
+                    to="/login"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 text-[#00695C] dark:text-emerald-400 hover:text-[#004D40] dark:hover:text-emerald-300 font-bold transition-colors bg-white/70 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 px-3 sm:px-4 py-2 rounded-full shadow-xs border border-slate-200/60 dark:border-slate-800 text-xs sm:text-sm cursor-pointer"
+                >
+                    <ArrowIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t('forgotPassword.backToLogin', 'العودة لتسجيل الدخول')}</span>
                 </Link>
-            </div>
-
-            <div className="absolute top-6 end-6 z-10">
-                <LanguageSwitcher />
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/70 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer shadow-xs"
+                        title={isDarkMode ? t('theme.light', 'الوضع النهاري') : t('theme.dark', 'الوضع الليلي')}
+                        aria-label="Toggle theme"
+                    >
+                        {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-[#00695C]" />}
+                    </button>
+                    <LanguageSwitcher />
+                </div>
+            </header>
+            <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-8">
                 <div className="text-center mb-8">
                     <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
                         <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
@@ -124,7 +129,6 @@ export default function ResetPassword() {
                         {t('login.academyName', 'أكاديمية منارة العز')}
                     </h1>
                 </div>
-
                 <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-sm p-8 sm:p-10 border border-slate-100 dark:border-slate-800">
                     {step === 1 && (
                         <>
@@ -134,7 +138,6 @@ export default function ResetPassword() {
                             <p className="text-slate-500 dark:text-slate-400 mb-8 text-center sm:text-start text-sm leading-relaxed">
                                 {t('resetPassword.verifyCodeSubtitle', 'يرجى إدخال رمز التحقق الذي تم إرساله إلى بريدك الإلكتروني.')}
                             </p>
-
                             <form onSubmit={handleVerifyCode} className="space-y-5" noValidate>
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
@@ -155,9 +158,7 @@ export default function ResetPassword() {
                                     </div>
                                     {errors.resetCode && <p className="text-xs text-red-500 px-1">{errors.resetCode}</p>}
                                 </div>
-
                                 {errors.submit && <p className="text-xs text-red-500 px-1">{errors.submit}</p>}
-
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -168,7 +169,6 @@ export default function ResetPassword() {
                             </form>
                         </>
                     )}
-
                     {step === 2 && (
                         <>
                             <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2 text-center sm:text-start">
@@ -177,7 +177,6 @@ export default function ResetPassword() {
                             <p className="text-slate-500 dark:text-slate-400 mb-8 text-center sm:text-start text-sm leading-relaxed">
                                 {t('resetPassword.subtitle', 'يرجى إدخال كلمة المرور الجديدة الخاصة بك وتأكيدها.')}
                             </p>
-
                             <form onSubmit={handleResetPassword} className="space-y-5" noValidate>
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
@@ -197,7 +196,6 @@ export default function ResetPassword() {
                                     </div>
                                     {errors.password && <p className="text-xs text-red-500 px-1">{errors.password}</p>}
                                 </div>
-
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 px-1">
                                         {t('resetPassword.confirmPassword', 'تأكيد كلمة المرور')}
@@ -216,9 +214,7 @@ export default function ResetPassword() {
                                     </div>
                                     {errors.confirmPassword && <p className="text-xs text-red-500 px-1">{errors.confirmPassword}</p>}
                                 </div>
-
                                 {errors.submit && <p className="text-xs text-red-500 px-1">{errors.submit}</p>}
-
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -229,7 +225,6 @@ export default function ResetPassword() {
                             </form>
                         </>
                     )}
-
                     {step === 3 && (
                         <div className="text-center space-y-6">
                             <div className="bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">

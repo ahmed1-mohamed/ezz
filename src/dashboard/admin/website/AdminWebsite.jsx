@@ -19,18 +19,22 @@ import TestimonialFormModal from './components/TestimonialFormModal.jsx';
 
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { toast as hotToast } from 'react-hot-toast';
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions';
 
 export default function AdminWebsite() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const { hasPermission } = useAdminPermissions();
-
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const showNotification = (message, type = 'success') => {
     setToast({ show: true, message, type });
+    if (type === 'success') {
+      hotToast.success(message);
+    } else {
+      hotToast.error(message);
+    }
   };
-
   useEffect(() => {
     if (toast.show) {
       const timer = setTimeout(() => {
@@ -39,7 +43,6 @@ export default function AdminWebsite() {
       return () => clearTimeout(timer);
     }
   }, [toast.show]);
-
   const canViewStats = hasPermission('statistics.read');
   const canUpdateStats = hasPermission('statistics.update');
   const canViewStars = hasPermission('featured_students.read');
@@ -55,16 +58,13 @@ export default function AdminWebsite() {
   const canViewContact = hasPermission('contact_us.read');
   const canUpdateContact = hasPermission('contact_us.update');
   const hasAnyWebsiteSection = canViewStats || canViewStars || canViewTeachers || canViewTestimonials || canViewContact;
-
   const { stats, isLoading: isStatsLoading, isSaving: isSavingStats, handleStatChange, handleSaveStats, handleCancelStats } = useWebsiteStats(showNotification, canViewStats);
-  
   const {
     stars, isModalOpen, setIsModalOpen, isViewModalOpen, setIsViewModalOpen,
     currentStar, setCurrentStar, systemStudents, isSaving: isSavingStar,
     handleOpenAddModal, handleOpenEditModal, handleOpenViewModal,
     handleDeleteStar, handleSaveModal, handleSaveStarsList, handleCancelStarsList
   } = useFeaturedStudents(showNotification, canViewStars);
-
   const {
     eliteTeachers, isTeacherModalOpen, setIsTeacherModalOpen, selectedTeacher,
     isTeacherLoading, isTeacherFormOpen, setIsTeacherFormOpen, currentTeacher,
@@ -72,15 +72,12 @@ export default function AdminWebsite() {
     handleOpenAddTeacher, handleOpenEditTeacher,
     handleShowTeacherNotes, handleDeleteTeacher, handleSaveTeacherSubmit
   } = useEliteTeachers(showNotification, canViewTeachers);
-
   const {
     testimonials, isTestimonialModalOpen, setIsTestimonialModalOpen, currentTestimonial,
     setCurrentTestimonial, isSaving: isSavingTestimonial, handleOpenAddTestimonial, handleOpenEditTestimonial,
     handleDeleteTestimonial, handleSaveTestimonialSubmit
   } = useTestimonials(showNotification, canViewTestimonials);
-
   const { contactInfo, isLoading: isContactLoading, isSaving: isSavingContact, handleSaveContactInfo, handleCancelContactInfo } = useContactInfo(showNotification, canViewContact);
-
   if (!hasAnyWebsiteSection) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
@@ -90,7 +87,6 @@ export default function AdminWebsite() {
       </div>
     );
   }
-
   return (
     <div className="space-y-6 lg:space-y-8" dir={isRtl ? 'rtl' : 'ltr'}>
       {canViewStats && (
@@ -104,7 +100,6 @@ export default function AdminWebsite() {
           handleCancelStats={handleCancelStats}
         />
       )}
-
       {canViewStars && (
         <ExcellenceStarsSection
           stars={stars}
@@ -116,7 +111,6 @@ export default function AdminWebsite() {
           handleSaveStarsList={handleSaveStarsList}
         />
       )}
-
       {canViewTeachers && (
         <EliteTeachersSection
           teachers={eliteTeachers}
@@ -126,7 +120,6 @@ export default function AdminWebsite() {
           handleShowTeacherNotes={handleShowTeacherNotes}
         />
       )}
-
       {canViewTestimonials && (
         <ParentTestimonialsSection
           testimonials={testimonials}
@@ -135,7 +128,6 @@ export default function AdminWebsite() {
           handleDeleteTestimonial={canDeleteTestimonial ? handleDeleteTestimonial : null}
         />
       )}
-
       {isModalOpen && currentStar && canViewStars && (
         <StudentStarModal
           isOpen={isModalOpen}
@@ -148,7 +140,6 @@ export default function AdminWebsite() {
           isSaving={isSavingStar}
         />
       )}
-
       {isTeacherFormOpen && currentTeacher && canViewTeachers && (
         <TeacherFormModal
           isOpen={isTeacherFormOpen}
@@ -161,20 +152,17 @@ export default function AdminWebsite() {
           isSaving={isSavingTeacher}
         />
       )}
-
       <StarViewModal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
         currentStar={currentStar}
       />
-
       <TeacherViewModal
         isOpen={isTeacherModalOpen}
         onClose={() => setIsTeacherModalOpen(false)}
         teacher={selectedTeacher}
         isLoading={isTeacherLoading}
       />
-
       <TestimonialFormModal
         isOpen={isTestimonialModalOpen}
         onClose={() => setIsTestimonialModalOpen(false)}
@@ -183,7 +171,6 @@ export default function AdminWebsite() {
         onSubmit={handleSaveTestimonialSubmit}
         isSaving={isSavingTestimonial}
       />
-
       {canViewContact && (
         <ContactUsForm
           contactInfo={contactInfo}
@@ -196,19 +183,19 @@ export default function AdminWebsite() {
       )}
       <AnimatePresence>
         {toast.show && (
-          <div className="fixed top-5 right-5 z-[9999]">
+          <div className="fixed top-5 end-5 z-[9999]">
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border text-white font-semibold ${toast.type === 'success'
-                ? 'bg-emerald-600 border-emerald-500'
+              className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border font-bold bg-white dark:bg-slate-900 ${toast.type === 'success'
+                ? 'border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#0f7a6c] text-[#0f7a6c] dark:text-emerald-400'
                 : toast.type === 'info'
-                  ? 'bg-blue-600 border-blue-500'
-                  : 'bg-red-600 border-red-500'
+                  ? 'border-blue-200 dark:border-blue-800 border-s-4 border-s-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
                 }`}
             >
-              {toast.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+              {toast.type === 'success' ? <CheckCircle2 size={20} className="text-[#0f7a6c] dark:text-emerald-400 shrink-0" /> : <AlertCircle size={20} className="text-red-500 shrink-0" />}
               <span className="text-sm sm:text-base">{toast.message}</span>
             </motion.div>
           </div>

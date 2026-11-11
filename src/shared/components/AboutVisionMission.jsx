@@ -5,7 +5,6 @@ import { Eye, Target } from 'lucide-react'
 
 export default React.memo(function AboutVisionMission() {
     const { t } = useTranslation()
-
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
@@ -23,12 +22,11 @@ export default React.memo(function AboutVisionMission() {
                         <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400">
                             {t('about.vision.title', 'رؤيتنا')}
                         </h3>
-                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-sm mx-auto">
-                            {t('about.vision.desc', 'توفير تعليم قرآني وعربي متميز ومتاح للجميع في كل مكان، نؤمن بأن العلم حق مشاع، وأن جمال لغتنا وديننا يجب أن يصل لكل قلب بوضوح ويسر.')}
+                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-md mx-auto">
+                            {t('about.vision.desc', 'أن نكون مرجعًا موثوقًا للتعلّم عبر الإنترنت، نُيسّر للمتعلّمين حول العالم إتقان تلاوة القرآن الكريم، واستخدام اللغة العربية بثقة، وفهم تعاليم الإسلام والعمل بها في حياتهم اليومية.')}
                         </p>
                     </div>
                 </motion.div>
-
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -43,12 +41,11 @@ export default React.memo(function AboutVisionMission() {
                         <h3 className="text-2xl font-bold text-[#00695C] dark:text-emerald-400">
                             {t('about.mission.title', 'رسالتنا')}
                         </h3>
-                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-sm mx-auto">
-                            {t('about.mission.desc', 'تمكين المسلمين حول العالم من تعلم لغتهم ودينهم من خلال تقنيات التعليم الحديثة والمعلمين المتخصصين، مع الحفاظ على القدوة والسمت الإسلامي.')}
+                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-md mx-auto">
+                            {t('about.mission.desc', 'نقدّم برامج تعليمية عبر الإنترنت في تلاوة القرآن الكريم وحفظه وتجويده، وفي اللغة العربية للناطقين بها وبغيرها، والتربية الإسلامية. ويُقدّم هذه البرامج معلّمون متخصّصون، يراعون مستوى كل متعلّم وأهدافه، ويتابعون تقدّمه بتوجيه فردي وملاحظات تساعده على تطوير مهاراته.')}
                         </p>
                     </div>
                 </motion.div>
-
             </div>
         </section>
     )

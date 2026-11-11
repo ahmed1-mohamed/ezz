@@ -38,7 +38,6 @@ function StudentInfoRow({ icon: Icon, label, value, isLtr = false }) {
 function StudentCard({ student, isSelected, onToggle, t }) {
     const studentName = resolveStudentName(student.name);
     const studentImage = student.image || student.profileImage || student.avatar;
-
     return (
         <div
             onClick={() => onToggle(student)}
@@ -73,7 +72,6 @@ function StudentCard({ student, isSelected, onToggle, t }) {
                     {studentName}
                 </div>
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-start">
                 {student.age && (
                     <StudentInfoRow
@@ -112,12 +110,10 @@ function StudentCard({ student, isSelected, onToggle, t }) {
 function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = [] }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
-
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStudents, setSelectedStudents] = useState([]);
-
     const fetchStudents = useCallback(async (query = '', isInitial = false) => {
         if (isInitial) setLoading(true);
         try {
@@ -126,7 +122,6 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
             if (Array.isArray(res)) studentList = res;
             else if (Array.isArray(res?.data)) studentList = res.data;
             else if (Array.isArray(res?.data?.data)) studentList = res.data.data;
-
             const available = studentList.filter(
                 (s) => !alreadySelectedIds.includes(getStudentId(s))
             );
@@ -137,7 +132,6 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
             if (isInitial) setLoading(false);
         }
     }, [alreadySelectedIds]);
-
     const [prevOpen, setPrevOpen] = useState(isOpen);
     if (prevOpen !== isOpen) {
         setPrevOpen(isOpen);
@@ -146,14 +140,12 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
             setSearchQuery('');
         }
     }
-
     useEffect(() => {
         if (!isOpen) return;
         Promise.resolve().then(() => {
             fetchStudents('', true);
         });
     }, [isOpen, fetchStudents]);
-
     const toggleStudent = (student) => {
         const studentId = getStudentId(student);
         setSelectedStudents((prev) =>
@@ -162,17 +154,15 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                 : [student]
         );
     };
-
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         fetchStudents(searchQuery, false);
     };
-
     return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5"
                     dir={isRtl ? 'rtl' : 'ltr'}
                 >
                     <motion.div
@@ -180,7 +170,7 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -211,13 +201,11 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                 </button>
                             </form>
                         </div>
-
                         <div className="flex-1 overflow-y-auto p-6 pt-2">
                             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6 min-h-[400px]">
-                                <h3 className="text-slate-855 dark:text-white font-bold mb-6 text-start">
+                                <h3 className="text-slate-800 dark:text-white font-bold mb-6 text-start">
                                     {t('adminDashboard.coupons.availableStudents', 'الطلاب المتاحون')} ({students.length})
                                 </h3>
-
                                 {loading ? (
                                     <div className="flex justify-center items-center h-40">
                                         <Spinner />
@@ -247,7 +235,6 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                 )}
                             </div>
                         </div>
-
                         <div className="p-6 border-t border-slate-200 dark:border-slate-800/60 flex items-center gap-4 shrink-0 bg-[#f8fafc] dark:bg-slate-900 justify-between">
                             <button
                                 type="button"

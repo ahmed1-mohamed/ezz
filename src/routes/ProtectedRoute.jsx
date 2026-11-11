@@ -7,18 +7,14 @@ export default function ProtectedRoute() {
     const { user, logout } = useAuth()
     const location = useLocation()
     const token = getCookie('access_token')
-
     const hasUserButNoToken = !!(user && !token)
-
     useEffect(() => {
         if (hasUserButNoToken) {
             logout()
         }
     }, [hasUserButNoToken, logout])
-
     if (!user || !token) {
         return <Navigate to="/login" state={{ from: location }} replace />
     }
-
     return <Outlet />
 }

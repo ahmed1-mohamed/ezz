@@ -3,8 +3,17 @@ import { initReactI18next } from "react-i18next";
 import enTranslation from "./locales/en/translation.json";
 import arTranslation from "./locales/ar/translation.json";
 
-const storedLang = localStorage.getItem("appLanguage") || "ar";
-const initialLanguage = storedLang;
+function getInitialLanguage() {
+  if (typeof window !== "undefined" && window.location && window.location.pathname) {
+    const match = window.location.pathname.match(/^\/(ar|en)(\/|$)/);
+    if (match) {
+      return match[1];
+    }
+  }
+  return localStorage.getItem("appLanguage") || "ar";
+}
+
+const initialLanguage = getInitialLanguage();
 
 function setDocumentDirection(language) {
   if (typeof document !== "undefined") {

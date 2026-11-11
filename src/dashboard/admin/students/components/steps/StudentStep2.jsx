@@ -18,7 +18,7 @@ export default function StudentStep2({
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
             <div>
-              <h3 className="text-base font-bold text-slate-855 dark:text-white">
+              <h3 className="text-base font-bold text-slate-800 dark:text-white">
                 {isRtl ? 'الأمان وكلمة المرور' : 'Security & Password'}
               </h3>
             </div>
@@ -33,7 +33,7 @@ export default function StudentStep2({
                 required
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
-                className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+                className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                 placeholder="************************"
               />
             </div>
@@ -46,18 +46,16 @@ export default function StudentStep2({
                 required
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+                className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
                 placeholder="************************"
               />
             </div>
           </div>
-
         </div>
       )}
-
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
-          <h3 className="text-base font-bold text-slate-855 dark:text-white">
+          <h3 className="text-base font-bold text-slate-800 dark:text-white">
             {isRtl ? 'ربط ولي الأمر *' : 'Link Parent *'}
           </h3>
           {selectedParentName && (
@@ -66,7 +64,6 @@ export default function StudentStep2({
             </span>
           )}
         </div>
-
         <div className="relative w-full">
           <div className={`absolute inset-y-0 ${isRtl ? 'left-3' : 'right-3'} flex items-center pointer-events-none text-slate-400`}>
             <Search size={16} />
@@ -76,12 +73,11 @@ export default function StudentStep2({
             placeholder={isRtl ? 'ابحث عن ولي الأمر بالاسم، البريد، أو الهاتف...' : 'Search by name, email or phone...'}
             value={parentSearch}
             onChange={(e) => setParentSearch(e.target.value)}
-            className={`w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/30 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 ${
+            className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 ${
               isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'
             } outline-none transition-all text-sm`}
           />
         </div>
-
         <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
           {filteredParents.length === 0 ? (
             <div className="p-6 text-center text-slate-400 dark:text-slate-500 font-bold text-xs">
@@ -97,7 +93,7 @@ export default function StudentStep2({
                   onClick={() => handleParentSelect(pid, parent.name)}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-[#005953] bg-emerald-50/20 dark:bg-slate-955/40 ring-1 ring-[#005953]'
+                      ? 'border-[#005953] bg-emerald-50/20 dark:bg-slate-950/40 ring-1 ring-[#005953]'
                       : 'border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                   }`}
                 >
@@ -120,7 +116,6 @@ export default function StudentStep2({
                       </p>
                     </div>
                   </div>
-
                   {isSelected && (
                     <div className="p-1 bg-[#005953] text-white rounded-full">
                       <Check size={14} />

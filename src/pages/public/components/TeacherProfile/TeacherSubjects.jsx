@@ -26,7 +26,6 @@ export default function TeacherSubjects({ subjects = [], t }) {
                 )
         }
     }
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -36,7 +35,6 @@ export default function TeacherSubjects({ subjects = [], t }) {
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-6">
                 {t('teacherProfile.subjectsTitle', 'المواد التي أدرسها')}
             </h2>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {list.map((subject) => (
                     <div key={subject.id} className="bg-[#EEF2F0]/80 dark:bg-slate-800/70 rounded-2xl p-6 flex flex-col items-center text-center space-y-4 hover:-translate-y-1 transition-transform border border-transparent dark:border-slate-700/50">

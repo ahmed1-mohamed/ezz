@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import api from './axiosConfig';
 
 export const getImageUrl = (imagePath) => {
@@ -6,7 +7,7 @@ export const getImageUrl = (imagePath) => {
     return imagePath;
   }
   const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-  return `https://manaret-ezz.dramcode.top/${cleanPath}`;
+  return buildApiAssetUrl(cleanPath);
 };
 
 const toBilingual = (value, enFallback = '') => {
@@ -42,9 +43,11 @@ const buildTeacherPayload = (data = {}, { isCreate }) => {
   }
   if (data.showOnWebsite !== undefined) payload.showOnWebsite = Boolean(data.showOnWebsite);
   if (data.availability !== undefined) payload.availability = toAvailabilityPayload(data.availability);
-  ['totalLessons', 'totalStudents', 'totalGroups'].forEach((key) => {
-    if (data[key] !== undefined) payload[key] = Math.max(0, Number(data[key]) || 0);
-  });
+  const studentsVal = data.totalStudents !== undefined ? data.totalStudents : data.studentsCount;
+  if (studentsVal !== undefined && studentsVal !== '') payload.totalStudents = Math.max(0, Number(studentsVal) || 0);
+  const lessonsVal = data.totalLessons !== undefined ? data.totalLessons : (data.totalSessions !== undefined ? data.totalSessions : data.sessionsCount);
+  if (lessonsVal !== undefined && lessonsVal !== '') payload.totalLessons = Math.max(0, Number(lessonsVal) || 0);
+  if (data.totalGroups !== undefined && data.totalGroups !== '') payload.totalGroups = Math.max(0, Number(data.totalGroups) || 0);
   if (isCreate) {
     payload.email = data.email;
     payload.password = data.password;
@@ -56,9 +59,7 @@ const buildTeacherPayload = (data = {}, { isCreate }) => {
 
 export const mapTeacherData = (item) => {
   if (!item) return null;
-
   const id = item.teacher_id || item._id || item.id || item.user_id;
-
   const rawName = item.name;
   const nameAr = typeof rawName === 'object' && rawName !== null
     ? (rawName.ar || rawName.en || '')
@@ -67,7 +68,6 @@ export const mapTeacherData = (item) => {
     ? (rawName.en || '')
     : (typeof item.nameEn === 'string' ? item.nameEn : '');
   const displayName = nameAr || nameEn || 'بدون اسم';
-
   const totalLessons = Number(item.totalLessons ?? item.totalSessions ?? 0);
   const totalGroups = Number(item.totalGroups ?? item.groupsCount ?? (Array.isArray(item.groups) ? item.groups.length : 0));
   const totalStudents = Number(item.totalStudents ?? item.studentsCount ?? 0);
@@ -77,7 +77,6 @@ export const mapTeacherData = (item) => {
   const rating = Number(item.rating ?? 0);
   const hourlyRate = Number(item.hourlyRate ?? 0);
   const yearsOfExperience = Number(item.yearsOfExperience ?? item.experienceYears ?? 0);
-
   const rawDegree = item.degree || item.qualification;
   const degreeAr = typeof rawDegree === 'object' && rawDegree !== null
     ? (rawDegree.ar || '')
@@ -85,7 +84,6 @@ export const mapTeacherData = (item) => {
   const degreeEn = typeof rawDegree === 'object' && rawDegree !== null
     ? (rawDegree.en || '')
     : (typeof item.degreeEn === 'string' ? item.degreeEn : (item.qualificationEn || ''));
-
   const rawBio = item.bio || item.aboutAr;
   const bioAr = typeof rawBio === 'object' && rawBio !== null
     ? (rawBio.ar || '')
@@ -93,7 +91,6 @@ export const mapTeacherData = (item) => {
   const bioEn = typeof rawBio === 'object' && rawBio !== null
     ? (rawBio.en || '')
     : (typeof item.aboutEn === 'string' ? item.aboutEn : (item.bioEn || ''));
-
   let achievements = [];
   let achievementsAr = [];
   let achievementsEn = [];
@@ -106,7 +103,6 @@ export const mapTeacherData = (item) => {
     achievementsEn = Array.isArray(item.achievements.en) ? item.achievements.en : [];
     achievements = item.achievements;
   }
-
   const certificates = Array.isArray(item.certificates)
     ? item.certificates.map((c, idx) => {
         if (!c) return null;
@@ -135,11 +131,9 @@ export const mapTeacherData = (item) => {
         };
       }).filter(Boolean)
     : [];
-
   const specializations = Array.isArray(item.specializations) ? item.specializations : [];
   const groups = Array.isArray(item.groups) ? item.groups : [];
   const active = item.active !== false;
-
   const subject = specializations.length > 0
     ? specializations.map(s => {
         if (typeof s === 'object' && s !== null) {
@@ -151,12 +145,10 @@ export const mapTeacherData = (item) => {
         return String(s || '');
       }).filter(Boolean).join(' · ')
     : (degreeAr || 'معلم');
-
   const title = degreeAr.trim() || 'معلم معتمد';
   const experience = `${yearsOfExperience} سنوات خبرة`;
   const rawImage = item.image || item.imageUrl || item.avatar || '';
   const image = rawImage ? getImageUrl(rawImage) : '';
-
   const resolvedUserId = (
     (typeof item.user === 'string' && item.user) ||
     item.user?._id ||
@@ -168,7 +160,6 @@ export const mapTeacherData = (item) => {
     item.userRef ||
     ''
   );
-
   return {
     ...item,
     id,
@@ -229,45 +220,19 @@ export const teachersApi = {
         page: params.page || 1,
         limit: params.limit || 50,
       };
-
       if (params.search && typeof params.search === 'string' && params.search.trim()) {
         apiParams.search = params.search.trim();
       }
-
       if (params.country && typeof params.country === 'string' && params.country.trim()) {
         apiParams.country = params.country.trim();
       }
-
       const response = await api.get('/api/v1/teachers/public', { params: apiParams });
       const resData = response.data || {};
       const rawList = resData.data || (Array.isArray(resData) ? resData : []);
-      let items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
-
+      const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
       const limit = Number(resData.pagination?.limit || apiParams.limit || 10);
       const currentPage = Number(resData.pagination?.currentPage || apiParams.page || 1);
-      let numberOfPages = Number(resData.pagination?.numberOfPages || Math.max(1, Math.ceil(items.length / limit)));
-
-      if (apiParams.search) {
-        const query = apiParams.search.toLowerCase();
-        const matchesSearch = (t) => {
-          const nameAr = (t.name || '').toLowerCase();
-          const nameEn = (t.nameEn || '').toLowerCase();
-          const degreeVal = (typeof t.degree === 'object' ? (t.degree?.ar || t.degree?.en || '') : String(t.degree || '')).toLowerCase();
-          const countryVal = (t.country || '').toLowerCase();
-          const subjectVal = (t.subject || '').toLowerCase();
-          const specs = Array.isArray(t.specializations)
-            ? t.specializations.some((s) => (typeof s === 'object' ? s.name || '' : String(s)).toLowerCase().includes(query))
-            : false;
-          return nameAr.includes(query) || nameEn.includes(query) || degreeVal.includes(query) || countryVal.includes(query) || subjectVal.includes(query) || specs;
-        };
-
-        const allMatch = items.length === 0 || items.every(matchesSearch);
-        if (!allMatch) {
-          items = items.filter(matchesSearch);
-          numberOfPages = Math.max(1, Math.ceil(items.length / limit));
-        }
-      }
-
+      const numberOfPages = Number(resData.pagination?.numberOfPages || Math.max(1, Math.ceil(items.length / limit)));
       return {
         success: true,
         data: items,
@@ -298,7 +263,6 @@ export const teachersApi = {
     } catch (err) {
       console.warn(`Direct fetch /teachers/public/${id} failed, trying fallback:`, err);
     }
-
     try {
       const listRes = await teachersApi.fetchPublicTeachers({ limit: 100 });
       const found = listRes.data?.find(
@@ -310,7 +274,6 @@ export const teachersApi = {
     } catch (err) {
       void err;
     }
-
     try {
       const response = await api.get(`/api/v1/teachers/private/${id}`);
       const item = response.data?.data || response.data;
@@ -320,7 +283,6 @@ export const teachersApi = {
     } catch (err) {
       void err;
     }
-
     return { success: false, data: null };
   },
 
@@ -329,68 +291,31 @@ export const teachersApi = {
       const page = params.page || 1;
       const limit = params.limit || 10;
       const apiParams = { page, limit };
-
       if (params.search && typeof params.search === 'string' && params.search.trim()) {
         apiParams.search = params.search.trim();
       }
-
       let endpoint = '/api/v1/teachers/private/localized/all';
       if (params.status === 'active' || params.active === true) {
         endpoint = '/api/v1/teachers/private/localized/active';
       } else if (params.status === 'stopped' || params.active === false) {
         endpoint = '/api/v1/teachers/private/localized/stopped';
       }
-
       const response = await api.get(endpoint, { params: apiParams });
       const resData = response.data || {};
       const rawList = resData.data || (Array.isArray(resData) ? resData : []);
       let items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
-
       const pagination = resData.pagination || {
         currentPage: page,
         limit,
         numberOfPages: Math.max(1, Math.ceil(items.length / limit)),
         totalCount: items.length
       };
-
-      if (apiParams.search) {
-        const query = apiParams.search.toLowerCase();
-        const matchesSearch = (t) => {
-          const nameAr = (t.name || '').toLowerCase();
-          const nameEn = (t.nameEn || '').toLowerCase();
-          const email = (t.email || '').toLowerCase();
-          const phone = (t.phone || '').toLowerCase();
-          const subject = (t.subject || '').toLowerCase();
-          const degree = (t.degree || '').toLowerCase();
-          const bio = (t.bio || '').toLowerCase();
-          const specs = Array.isArray(t.specializations)
-            ? t.specializations.some((s) => (typeof s === 'object' ? s.name || '' : String(s)).toLowerCase().includes(query))
-            : false;
-          return (
-            nameAr.includes(query) ||
-            nameEn.includes(query) ||
-            email.includes(query) ||
-            phone.includes(query) ||
-            subject.includes(query) ||
-            degree.includes(query) ||
-            bio.includes(query) ||
-            specs
-          );
-        };
-
-        const allMatch = items.length === 0 || items.every(matchesSearch);
-        if (!allMatch) {
-          items = items.filter(matchesSearch);
-        }
-      }
-
       const totalCount = pagination.totalCount ?? resData.statistics?.total ?? items.length;
       const statistics = resData.statistics || {
         total: totalCount,
         active: items.filter((t) => t.active).length,
         stopped: items.filter((t) => !t.active).length
       };
-
       return {
         success: true,
         data: items,
@@ -472,8 +397,6 @@ export const teachersApi = {
     }
   },
 
-  // POST /teachers/private is JSON-only (numeric/boolean fields fail multipart validation),
-  // so the image is uploaded afterwards with a multipart PATCH containing only `image`.
   createTeacher: async (teacherData) => {
     const payload = buildTeacherPayload(teacherData, { isCreate: true });
     const response = await api.post('/api/v1/teachers/private', payload);
@@ -485,9 +408,6 @@ export const teachersApi = {
     return { success: true, data: mapTeacherData(item) };
   },
 
-  // PATCH /teachers/private/:id accepts: name, phone, country, bio, degree, specializations[], yearsOfExperience,
-  // achievements, showOnWebsite, availability[], totalLessons, totalStudents, totalGroups (+ image via multipart).
-  // Email and hourlyRate are not editable here (hourly rate has its own endpoint).
   updateTeacher: async (id, teacherData) => {
     const payload = buildTeacherPayload(teacherData, { isCreate: false });
     let item = null;
@@ -510,7 +430,6 @@ export const teachersApi = {
     return response.data?.data || response.data;
   },
 
-  // PATCH /teachers/private/:id/hourly-rate { hourlyRate: number >= 0 }
   updateTeacherHourlyRate: async (id, hourlyRate) => {
     const response = await api.patch(`/api/v1/teachers/private/${id}/hourly-rate`, {
       hourlyRate: Math.max(0, Number(hourlyRate) || 0)
@@ -523,28 +442,23 @@ export const teachersApi = {
       const isFormData = certData instanceof FormData;
       let body = certData;
       let headers = {};
-
       if (!isFormData) {
         const fd = new FormData();
         const fileObj = certData?.file;
         if (fileObj instanceof File) {
           fd.append('file', fileObj);
         }
-
         const nameAr = typeof certData?.name === 'object' && certData?.name !== null
           ? (certData.name.ar || '')
           : (certData?.nameAr || (typeof certData?.name === 'string' ? certData.name : ''));
         const nameEn = typeof certData?.name === 'object' && certData?.name !== null
           ? (certData.name.en || '')
           : (certData?.nameEn || '');
-
         if (nameAr) fd.append('name[ar]', nameAr);
         if (nameEn) fd.append('name[en]', nameEn);
-
         body = fd;
         headers = { 'Content-Type': 'multipart/form-data' };
       }
-
       const response = await api.post(`/api/v1/teachers/private/${id}/certificates`, body, { headers });
       return response.data;
     } catch (error) {
@@ -558,28 +472,23 @@ export const teachersApi = {
       const isFormData = certData instanceof FormData;
       let body = certData;
       let headers = {};
-
       if (!isFormData) {
         const fd = new FormData();
         const fileObj = certData?.file;
         if (fileObj instanceof File) {
           fd.append('file', fileObj);
         }
-
         const nameAr = typeof certData?.name === 'object' && certData?.name !== null
           ? (certData.name.ar || '')
           : (certData?.nameAr || (typeof certData?.name === 'string' ? certData.name : ''));
         const nameEn = typeof certData?.name === 'object' && certData?.name !== null
           ? (certData.name.en || '')
           : (certData?.nameEn || '');
-
         if (nameAr) fd.append('name[ar]', nameAr);
         if (nameEn) fd.append('name[en]', nameEn);
-
         body = fd;
         headers = { 'Content-Type': 'multipart/form-data' };
       }
-
       const response = await api.patch(`/api/v1/teachers/private/${id}/certificates/${certificateId}`, body, { headers });
       return response.data;
     } catch (error) {
@@ -598,13 +507,11 @@ export const teachersApi = {
     }
   },
 
-  // PATCH /users/:userId/change-password { password, confirmPassword } — userId is the teacher's user_id
   changeTeacherPassword: async (userId, { password, confirmPassword }) => {
     const response = await api.patch(`/api/v1/users/${userId}/change-password`, { password, confirmPassword });
     return response.data;
   },
 
-  // PATCH /users/:userId/toggle-active
   toggleTeacherStatus: async (teacher) => {
     if (!teacher?.user_id) throw new Error('Missing teacher user_id');
     const res = await api.patch(`/api/v1/users/${teacher.user_id}/toggle-active`);
@@ -631,7 +538,6 @@ export const teachersApi = {
     }
   },
 
-  // GET /api/v1/teachers/private/:id/payment-methods (Admin - عرض طرق دفع معلم + رصيده)
   fetchTeacherPaymentMethods: async (id) => {
     try {
       const response = await api.get(`/api/v1/teachers/private/${id}/payment-methods`);
@@ -642,35 +548,55 @@ export const teachersApi = {
     }
   },
 
-  // POST /api/v1/teachers/private/:id/payouts (Admin - تسجيل تحويل مالي يدوي لمعلم مع إثبات الدفع)
   createTeacherPayout: async (id, payoutData) => {
     try {
-      let body = payoutData;
-      let headers = {};
-
+      let body;
       if (payoutData instanceof FormData) {
         body = payoutData;
-        headers = { 'Content-Type': 'multipart/form-data' };
+        if (body.has('methodId')) {
+          const mVal = body.get('methodId');
+          if (!body.has('paymentMethodId') && mVal) {
+            body.append('paymentMethodId', String(mVal));
+          }
+          body.delete('methodId');
+        }
+        body.delete('paidAt');
+        body.delete('method');
+        body.delete('id');
+        body.delete('teacherId');
+        if (body.has('paymentMethodId') && !body.get('paymentMethodId')) {
+          body.delete('paymentMethodId');
+        }
+        if (body.has('referenceNumber') && !body.get('referenceNumber')) {
+          body.delete('referenceNumber');
+        }
+        if (body.has('notes') && !body.get('notes')) {
+          body.delete('notes');
+        }
+        if (body.has('proofImage') && !(body.get('proofImage') instanceof File)) {
+          body.delete('proofImage');
+        }
       } else if (payoutData && typeof payoutData === 'object') {
         const fd = new FormData();
-        if (payoutData.amount !== undefined) fd.append('amount', String(payoutData.amount));
-        const methodId = payoutData.methodId || payoutData.paymentMethodId || payoutData.paymentMethod;
-        if (methodId) fd.append('methodId', methodId);
-        if (payoutData.referenceNumber) fd.append('referenceNumber', String(payoutData.referenceNumber).trim());
-        if (payoutData.notes) fd.append('notes', String(payoutData.notes).trim());
-        if (payoutData.paidAt) fd.append('paidAt', payoutData.paidAt);
-
+        if (payoutData.amount !== undefined && payoutData.amount !== '') {
+          fd.append('amount', String(payoutData.amount));
+        }
+        const methodVal = payoutData.paymentMethodId || payoutData.methodId;
+        if (methodVal && String(methodVal).trim()) {
+          fd.append('paymentMethodId', String(methodVal).trim());
+        }
+        if (payoutData.referenceNumber && String(payoutData.referenceNumber).trim()) {
+          fd.append('referenceNumber', String(payoutData.referenceNumber).trim());
+        }
+        if (payoutData.notes && String(payoutData.notes).trim()) {
+          fd.append('notes', String(payoutData.notes).trim());
+        }
         if (payoutData.proofImage instanceof File) {
           fd.append('proofImage', payoutData.proofImage);
-        } else if (payoutData.proofImage && typeof payoutData.proofImage === 'string') {
-          fd.append('proofImage', payoutData.proofImage);
         }
-
         body = fd;
-        headers = { 'Content-Type': 'multipart/form-data' };
       }
-
-      const response = await api.post(`/api/v1/teachers/private/${id}/payouts`, body, { headers });
+      const response = await api.post(`/api/v1/teachers/private/${id}/payouts`, body);
       return response.data;
     } catch (error) {
       console.error('API createTeacherPayout failed:', error);
@@ -678,7 +604,6 @@ export const teachersApi = {
     }
   },
 
-  // GET /api/v1/teachers/private/:id/payouts (Admin - سجل التحويلات المالية لمعلم محدد)
   fetchTeacherPayouts: async (id, params = {}) => {
     try {
       const response = await api.get(`/api/v1/teachers/private/${id}/payouts`, { params });
@@ -689,7 +614,6 @@ export const teachersApi = {
     }
   },
 
-  // GET /api/v1/teachers/private/payouts (Admin - سجل التحويلات المالية لكل المعلمين)
   fetchAllTeachersPayouts: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/teachers/private/payouts', { params });
@@ -697,6 +621,35 @@ export const teachersApi = {
     } catch (error) {
       console.error('API fetchAllTeachersPayouts failed:', error);
       throw error;
+    }
+  },
+
+  fetchTeacherEvaluations: async (params = {}) => {
+    try {
+      const apiParams = {};
+      if (params.page) apiParams.page = params.page;
+      if (params.limit) apiParams.limit = params.limit;
+      if (params.teacherId) apiParams.teacherId = params.teacherId;
+      if (params.rating && params.rating !== 'all') apiParams.rating = params.rating;
+      if (params.search && typeof params.search === 'string' && params.search.trim()) {
+        apiParams.search = params.search.trim();
+      }
+      const response = await api.get('/api/v1/teachers/private/evaluations', { params: apiParams });
+      return {
+        success: true,
+        data: response.data?.data || response.data,
+        pagination: response.data?.pagination || null,
+        statistics: response.data?.statistics || null,
+      };
+    } catch (error) {
+      console.error('API fetchTeacherEvaluations failed:', error);
+      return {
+        success: false,
+        data: [],
+        pagination: null,
+        statistics: null,
+        error,
+      };
     }
   }
 };

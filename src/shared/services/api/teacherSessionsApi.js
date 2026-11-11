@@ -40,7 +40,6 @@ export const teacherSessionsApi = {
     }
   },
 
-  // GET /teacher/sessions/scheduled?group={groupId} — scheduled and rescheduled sessions of a group
   fetchScheduledSessions: async (groupId) => {
     const response = await api.get('/api/v1/teacher/sessions/scheduled', {
       params: { group: groupId, limit: 100 },
@@ -56,7 +55,6 @@ export const teacherSessionsApi = {
     return response.data?.data || response.data;
   },
 
-  // GET /api/v1/teacher/sessions/next?offset={offset}
   fetchNextSessionWithOffset: async (offset = 0) => {
     const response = await api.get('/api/v1/teacher/sessions/next', {
       params: { offset },
@@ -65,15 +63,99 @@ export const teacherSessionsApi = {
     return response.data?.data ?? response.data ?? null;
   },
 
-  // GET /api/v1/teacher/sessions/{id}/join
   fetchSessionJoinData: async (sessionId) => {
-    const response = await api.get(`/api/v1/teacher/sessions/${sessionId}/join`, {
-      skipLang: true,
-    });
-    return response.data?.data ?? response.data ?? null;
+    let raw;
+    try {
+      const response = await api.get(`/api/v1/teacher/sessions/${sessionId}/join`, {
+        skipLang: true,
+      });
+      raw = response.data?.data ?? response.data ?? null;
+    } catch (err) {
+      if (err.response?.status === 403 || err.response?.status === 400) {
+        throw err;
+      }
+      try {
+        const detailRes = await api.get(`/api/v1/teacher/sessions/${sessionId}`, {
+          skipLang: true,
+        });
+        raw = detailRes.data?.data ?? detailRes.data ?? null;
+      } catch {
+        throw err;
+      }
+    }
+    if (!raw) return null;
+    const startUrl =
+      raw.startUrl ||
+      raw.start_url ||
+      raw.zoomStartUrl ||
+      raw.zoom_start_url ||
+      raw.zoom?.start_url ||
+      raw.zoom?.startUrl ||
+      raw.meetingUrl ||
+      null;
+    const joinUrl =
+      raw.joinUrl ||
+      raw.join_url ||
+      raw.zoomJoinUrl ||
+      raw.zoom_join_url ||
+      raw.zoom?.join_url ||
+      raw.zoom?.joinUrl ||
+      raw.meetingUrl ||
+      null;
+    const meetingId =
+      raw.meetingId ||
+      raw.meetingNumber ||
+      raw.meeting_id ||
+      raw.zoom?.id ||
+      raw.zoom?.meetingId ||
+      null;
+    const passcode =
+      raw.passcode ||
+      raw.password ||
+      raw.zoom?.password ||
+      null;
+    const zak =
+      raw.zak ||
+      raw.zakToken ||
+      raw.zak_token ||
+      raw.zoom?.zak ||
+      null;
+    const sdkSignature =
+      raw.sdkSignature ||
+      raw.signature ||
+      raw.sdk_signature ||
+      raw.zoom?.signature ||
+      null;
+    const sdkKey =
+      raw.sdkKey ||
+      raw.sdk_key ||
+      raw.zoom?.sdkKey ||
+      null;
+    const effectiveStartUrl = (() => {
+      if (!startUrl || !zak) return startUrl;
+      try {
+        const parsed = new URL(startUrl);
+        parsed.searchParams.set('zak', zak);
+        return parsed.toString();
+      } catch {
+        return startUrl;
+      }
+    })();
+    return {
+      ...raw,
+      startUrl: effectiveStartUrl,
+      joinUrl,
+      meetingId,
+      passcode,
+      zak,
+      sdkSignature,
+      sdkKey,
+      role: raw.role !== undefined ? Number(raw.role) : 1,
+      canJoinNow: raw.canJoinNow !== undefined ? Boolean(raw.canJoinNow) : true,
+      duration: raw.duration || raw.durationMinutes || 90,
+    };
   },
 
-  // GET /api/v1/teacher/sessions/completed/pending-evaluations?offset={offset}
   fetchCompletedPendingEvaluations: async (offset = 0) => {
     const response = await api.get('/api/v1/teacher/sessions/completed/pending-evaluations', {
       params: { offset },

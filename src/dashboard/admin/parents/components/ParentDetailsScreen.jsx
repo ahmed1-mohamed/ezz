@@ -22,7 +22,6 @@ import ParentOverviewBanner from './details/ParentOverviewBanner'
 import ParentPersonalInfoSection from './details/ParentPersonalInfoSection'
 import ParentSecuritySection from './details/ParentSecuritySection'
 import ParentChildrenSection from './details/ParentChildrenSection'
-import ParentDetailsActions from './details/ParentDetailsActions'
 
 export default function ParentDetailsScreen({
   parent,
@@ -34,17 +33,14 @@ export default function ParentDetailsScreen({
 }) {
   const navigate = useNavigate()
   const parentId = parent.parent_id || parent.id
-
   const [isSuspending, setIsSuspending] = useState(false)
   const [isSavingPersonal, setIsSavingPersonal] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
-
   const [countriesList, setCountriesList] = useState([])
   const [countryCodesList, setCountryCodesList] = useState([])
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [selectedCountryCode, setSelectedCountryCode] = useState(null)
   const [phoneVal, setPhoneVal] = useState('')
-
   const [formData, setFormData] = useState({
     name: parent?.name?.ar || '',
     nameEn: parent?.name?.en || '',
@@ -53,8 +49,6 @@ export default function ParentDetailsScreen({
     profileImage: parent?.image || null,
     profileImageFile: null,
   })
-
-  // The API has no per-parent children endpoint, so children are the students whose parent matches.
   const { data: childrenList = [], refetch: refetchChildren } = useQuery({
     queryKey: ['parent-children', parentId],
     queryFn: async () => {
@@ -65,7 +59,6 @@ export default function ParentDetailsScreen({
     enabled: Boolean(parentId),
     staleTime: 60 * 1000,
   })
-
   useEffect(() => {
     let isMounted = true
     fetchCountries().then((list) => {
@@ -74,11 +67,9 @@ export default function ParentDetailsScreen({
       const codes = sortCountryCodes(toDialCodeOptions(normalized), isRtl)
       setCountriesList(sortCountries(normalized, isRtl))
       setCountryCodesList(codes)
-
       const { code, number } = splitPhoneNumber(parent?.phone, codes)
       setPhoneVal(number)
       setSelectedCountryCode(code || codes.find((c) => c.code === DEFAULT_DIAL_CODE) || null)
-
       const countryId = resolveCountryIdFromLabel(normalized, parent?.country)
       if (countryId) setFormData((prev) => ({ ...prev, country: countryId }))
     })
@@ -86,11 +77,9 @@ export default function ParentDetailsScreen({
       isMounted = false
     }
   }, [parent, isRtl])
-
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
-
   const handleImageChange = (file) => {
     if (file.size > 5 * 1024 * 1024) {
       toast.error(isRtl ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image must be 5MB or less')
@@ -98,7 +87,6 @@ export default function ParentDetailsScreen({
     }
     setFormData((prev) => ({ ...prev, profileImage: URL.createObjectURL(file), profileImageFile: file }))
   }
-
   const handleSavePersonalInfo = async () => {
     const nameAr = formData.name.trim()
     const nameEn = formData.nameEn.trim()
@@ -119,7 +107,6 @@ export default function ParentDetailsScreen({
       toast.error(isRtl ? 'الرجاء اختيار الدولة' : 'Please select a country')
       return
     }
-
     setIsSavingPersonal(true)
     try {
       await onSave({
@@ -130,13 +117,10 @@ export default function ParentDetailsScreen({
         imageFile: formData.profileImageFile,
       })
       setFormData((prev) => ({ ...prev, profileImageFile: null }))
-    } catch {
-      // error toast is shown by the caller
-    } finally {
+    } catch (err) { void err; } finally {
       setIsSavingPersonal(false)
     }
   }
-
   const handleUpdatePassword = async ({ newPassword, confirmPassword }, resetForm) => {
     if (!newPassword || !confirmPassword) {
       toast.error(isRtl ? 'الرجاء إدخال كلمة المرور الجديدة وتأكيدها' : 'Please enter and confirm new password')
@@ -154,7 +138,6 @@ export default function ParentDetailsScreen({
       toast.error(isRtl ? 'تعذر تحديد معرّف المستخدم' : 'Could not resolve user ID')
       return
     }
-
     setIsUpdatingPassword(true)
     try {
       await adminParentsApi.changeParentPassword(parent.user_id, { password: newPassword, confirmPassword })
@@ -167,17 +150,14 @@ export default function ParentDetailsScreen({
       setIsUpdatingPassword(false)
     }
   }
-
   const handleAddChildToParent = async (student) => {
     await studentsApi.updateStudent(student.student_id, { parent: parentId })
     await refetchChildren()
     if (onChildrenChanged) onChildrenChanged()
   }
-
   const handleViewChildDetails = (child) => {
     navigate(`/dashboard/admin/students/${child.id}`)
   }
-
   const handleToggleSuspend = async () => {
     setIsSuspending(true)
     try {
@@ -186,14 +166,12 @@ export default function ParentDetailsScreen({
       setIsSuspending(false)
     }
   }
-
   const displayName = (isRtl ? parent?.name?.ar || parent?.name?.en : parent?.name?.en || parent?.name?.ar) || '-'
   const isSuspended = parent.active === false
   const totalRemaining = childrenList.reduce((sum, child) => {
     const balance = child.sessionsBalance || {}
     return sum + Math.max(0, Number(balance.total || 0) - Number(balance.used || 0))
   }, 0)
-
   return (
     <div className="space-y-6 pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       <ParentDetailsHeader
@@ -202,20 +180,20 @@ export default function ParentDetailsScreen({
         isSaving={isSavingPersonal}
         onSave={handleSavePersonalInfo}
         onCancel={onCancel}
+        isSuspended={isSuspended}
+        isSuspending={isSuspending}
+        onToggleSuspend={handleToggleSuspend}
       />
-
       <ParentStatsRow
         totalChildren={childrenList.length}
         remainingSessions={totalRemaining}
         isRtl={isRtl}
       />
-
       <ParentOverviewBanner
         parent={parent}
         isRtl={isRtl}
         childrenCount={childrenList.length}
       />
-
       <ParentPersonalInfoSection
         formData={formData}
         handleChange={handleFieldChange}
@@ -230,25 +208,16 @@ export default function ParentDetailsScreen({
         setPhoneVal={setPhoneVal}
         onImageChange={handleImageChange}
       />
-
       <ParentSecuritySection
         isRtl={isRtl}
         onUpdatePassword={handleUpdatePassword}
         isUpdatingPassword={isUpdatingPassword}
       />
-
       <ParentChildrenSection
         childrenList={childrenList}
         isRtl={isRtl}
         onAddChild={handleAddChildToParent}
         onViewChildDetails={handleViewChildDetails}
-      />
-
-      <ParentDetailsActions
-        isRtl={isRtl}
-        isSuspended={isSuspended}
-        isSuspending={isSuspending}
-        onToggleSuspend={handleToggleSuspend}
       />
     </div>
   )

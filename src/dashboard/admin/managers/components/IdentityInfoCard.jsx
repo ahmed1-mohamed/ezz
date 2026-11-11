@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo } from 'react'
-import { Camera, Image as ImageIcon } from 'lucide-react'
-import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
+import { useState, useRef, useMemo, useEffect } from 'react'
+import { Camera, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { sortCountries, getCountryName, searchCountriesBackend } from '@/shared/utils/countryUtils'
 
 export default function IdentityInfoCard({
   formData,
@@ -14,22 +14,42 @@ export default function IdentityInfoCard({
   const [photoPreview, setPhotoPreview] = useState(formData.photoUrl || null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
-
+  const [searchResults, setSearchResults] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
   const sortedCountries = useMemo(() => {
     return sortCountries(countries, isRtl)
   }, [countries, isRtl])
-
-  const filteredCountries = useMemo(() => {
-    if (!countrySearch.trim()) return sortedCountries;
-    const query = countrySearch.toLowerCase().replace(/\+/g, '').trim();
-    return sortedCountries.filter(c => {
-      const cName = getCountryName(c, isRtl).toLowerCase();
-      const cCode = (c.code || '').toLowerCase();
-      const cPhone = String(c.dialCode || c.phoneCode || '').replace(/\+/g, '').trim();
-      return cName.includes(query) || cPhone.includes(query) || cCode.includes(query);
-    });
-  }, [sortedCountries, countrySearch, isRtl])
-
+  useEffect(() => {
+    if (!countrySearch.trim()) {
+      setSearchResults(null)
+      setIsSearching(false)
+      return
+    }
+    setIsSearching(true)
+    let isCancelled = false
+    const timer = setTimeout(() => {
+      searchCountriesBackend(countrySearch)
+        .then((res) => {
+          if (!isCancelled) {
+            setSearchResults(res)
+            setIsSearching(false)
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setIsSearching(false)
+          }
+        })
+    }, 250)
+    return () => {
+      isCancelled = true
+      clearTimeout(timer)
+    }
+  }, [countrySearch])
+  const displayedCountries = useMemo(() => {
+    const list = searchResults !== null ? searchResults : sortedCountries
+    return sortCountries(list, isRtl)
+  }, [searchResults, sortedCountries, isRtl])
   const selectedPhoneCountry = useMemo(() => {
     const pfxNorm = String(formData.phonePrefix || '').replace(/\+/g, '').trim()
     if (!pfxNorm) return null
@@ -39,11 +59,9 @@ export default function IdentityInfoCard({
     })
     return found || (formData.phonePrefix ? { phoneCode: formData.phonePrefix, dialCode: formData.phonePrefix, flag: '🌐' } : null)
   }, [sortedCountries, formData.phonePrefix])
-
   const handlePhotoClick = () => {
     fileInputRef.current?.click()
   }
-
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -52,22 +70,23 @@ export default function IdentityInfoCard({
       onPhotoChange(file, previewUrl)
     }
   }
-
   const selectCountryCode = (country) => {
     setIsDropdownOpen(false)
     setCountrySearch('')
+    setSearchResults(null)
     const pfx = String(country.dialCode || country.phoneCode || country.code || '');
     const prefixWithPlus = pfx.startsWith('+') ? pfx : `+${pfx}`;
     onChange('phonePrefix', prefixWithPlus)
+    const countryId = country.id || country._id
+    if (!formData.countryId && countryId) {
+      onChange('countryId', countryId)
+    }
   }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
-
       <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.identityTitle', '1- معلومات الهوية')}</span>
       </h3>
-
       <div className="flex flex-col items-center justify-center space-y-3">
         <input
           type="file"
@@ -77,7 +96,6 @@ export default function IdentityInfoCard({
           className="hidden"
           aria-label={t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
         />
-
         <button
           type="button"
           aria-label={t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
@@ -108,9 +126,7 @@ export default function IdentityInfoCard({
           {t('adminDashboard.managers.addSupervisorScreen.photoLabel', 'صورة شخصية')}
         </span>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
         <div>
           <label htmlFor="nameEnInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة الإنجليزية' : 'Full Name (English)'}
@@ -121,11 +137,10 @@ export default function IdentityInfoCard({
             required
             value={formData.nameEn || ''}
             onChange={(e) => onChange('nameEn', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
             dir="ltr"
           />
         </div>
-
         <div>
           <label htmlFor="nameArInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
             {isRtl ? 'الاسم باللغة العربية' : 'Full Name (Arabic)'}
@@ -136,12 +151,10 @@ export default function IdentityInfoCard({
             required
             value={formData.name || ''}
             onChange={(e) => onChange('name', e.target.value)}
-            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
         </div>
-
       </div>
-
       <div>
         <label htmlFor="emailInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.email', 'عنوان البريد الإلكتروني')}
@@ -152,17 +165,15 @@ export default function IdentityInfoCard({
           required
           value={formData.email || ''}
           onChange={(e) => onChange('email', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           dir="ltr"
         />
       </div>
-
       <div>
         <label htmlFor="phoneInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {t('adminDashboard.managers.addSupervisorScreen.phone', 'رقم الهاتف')}
         </label>
         <div className="flex gap-3" dir="ltr">
-
           <div className="relative shrink-0">
             <button
               type="button"
@@ -178,10 +189,9 @@ export default function IdentityInfoCard({
               <span aria-hidden="true">{selectedPhoneCountry?.flag || '🌐'}</span>
               <span aria-hidden="true">{(selectedPhoneCountry?.dialCode || selectedPhoneCountry?.phoneCode) ? `(${selectedPhoneCountry.dialCode || selectedPhoneCountry.phoneCode})` : (formData.phonePrefix ? `(${formData.phonePrefix})` : '')}</span>
             </button>
-
             {isDropdownOpen && (
-              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-955 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
-                <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-955 z-10">
+              <div role="listbox" className="absolute left-0 mt-2 z-20 w-56 bg-white dark:bg-slate-950 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-855 py-2 max-h-60 overflow-y-auto animate-fadeIn">
+                <div className="px-3 pb-2 pt-1 border-b border-slate-100 dark:border-slate-800/60 sticky top-0 bg-white dark:bg-slate-950 z-10">
                   <label htmlFor="countrySearchInput" className="sr-only">
                     {isRtl ? 'بحث...' : 'Search...'}
                   </label>
@@ -194,36 +204,44 @@ export default function IdentityInfoCard({
                     className="w-full px-2.5 py-1.5 bg-[#f3f7f6] dark:bg-slate-900 text-xs rounded-xl outline-none text-slate-800 dark:text-slate-200 border border-transparent focus:border-brand-500"
                   />
                 </div>
-                {filteredCountries.map((country) => (
-                  <button
-                    key={country.id || country._id}
-                    type="button"
-                    onClick={() => selectCountryCode(country)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold cursor-pointer"
-                  >
-                    <span>{getCountryName(country, isRtl)}</span>
-                    <span className="flex items-center gap-2">
-                      <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
-                      <span className="text-lg">{country.flag}</span>
-                    </span>
-                  </button>
-                ))}
+                {isSearching ? (
+                  <div className="flex items-center justify-center py-4 text-slate-400 gap-2 text-xs">
+                    <Loader2 className="w-4 h-4 animate-spin text-brand-500" />
+                    <span>{isRtl ? 'جاري البحث في قاعدة البيانات...' : 'Searching database...'}</span>
+                  </div>
+                ) : displayedCountries.length === 0 ? (
+                  <div className="text-center py-4 text-xs font-semibold text-slate-400 dark:text-slate-500">
+                    {isRtl ? 'لا توجد نتائج مطابقة' : 'No matching results'}
+                  </div>
+                ) : (
+                  displayedCountries.map((country) => (
+                    <button
+                      key={country.id || country._id}
+                      type="button"
+                      onClick={() => selectCountryCode(country)}
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#f9fbfb] dark:hover:bg-slate-900 transition-colors text-slate-700 dark:text-slate-300 border-b last:border-b-0 border-slate-50 dark:border-slate-800/60 font-semibold cursor-pointer"
+                    >
+                      <span>{getCountryName(country, isRtl)}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-slate-400 dark:text-slate-500 font-medium" dir="ltr">{country.dialCode || country.phoneCode}</span>
+                        <span className="text-lg">{country.flag}</span>
+                      </span>
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>
-
           <input
             id="phoneInput"
             type="tel"
             required
             value={formData.phone || ''}
             onChange={(e) => onChange('phone', e.target.value)}
-            className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
+            className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm"
           />
-
         </div>
       </div>
-
       <div>
         <label htmlFor="countrySelectInput" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
           {isRtl ? 'الدولة' : 'Country'}
@@ -233,7 +251,7 @@ export default function IdentityInfoCard({
           required
           value={formData.countryId || ''}
           onChange={(e) => onChange('countryId', e.target.value)}
-          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white text-slate-855 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
+          className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 outline-none transition-all text-sm cursor-pointer text-start"
         >
           <option value="" disabled>{isRtl ? 'اختر الدولة' : 'Select Country'}</option>
           {sortedCountries.map((country) => (
@@ -243,7 +261,6 @@ export default function IdentityInfoCard({
           ))}
         </select>
       </div>
-
     </div>
   )
 }

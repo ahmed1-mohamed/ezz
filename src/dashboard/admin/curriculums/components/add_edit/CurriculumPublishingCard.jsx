@@ -21,7 +21,6 @@ export default function CurriculumPublishingCard({
             </p>
           </div>
         </div>
-
         <span
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
             showOnWebsite
@@ -33,7 +32,6 @@ export default function CurriculumPublishingCard({
           <span>{showOnWebsite ? (isRtl ? 'ظاهر للزوار' : 'Published') : (isRtl ? 'مخفي حالياً' : 'Hidden')}</span>
         </span>
       </div>
-
       <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-bold text-slate-800 dark:text-white">
@@ -45,7 +43,6 @@ export default function CurriculumPublishingCard({
               : 'When enabled, public visitors and students can browse and enroll'}
           </p>
         </div>
-
         <button
           type="button"
           onClick={onToggleWebsiteVisibility}

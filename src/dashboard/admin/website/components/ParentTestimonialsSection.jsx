@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
@@ -10,11 +11,10 @@ export default function ParentTestimonialsSection({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-8 mt-6 lg:mt-8">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-        <h2 className="text-xl font-bold text-slate-850 dark:text-slate-100">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           {t('adminDashboard.website.parentTestimonialsTitle', isRtl ? 'آراء أولياء الأمور' : 'Parents Testimonials')}
         </h2>
         {handleOpenAddTestimonial && (
@@ -27,7 +27,6 @@ export default function ParentTestimonialsSection({
           </Button>
         )}
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {testimonials.length === 0 ? (
           <div className="col-span-full py-12 text-center text-slate-400 dark:text-slate-500">
@@ -38,18 +37,15 @@ export default function ParentTestimonialsSection({
             const parentNameStr = typeof testimonial.parentName === 'object' && testimonial.parentName !== null
               ? (isRtl ? testimonial.parentName.ar || testimonial.parentName.en : testimonial.parentName.en || testimonial.parentName.ar)
               : testimonial.parentName || '';
-              
             const reviewStr = typeof testimonial.review === 'object' && testimonial.review !== null
               ? (isRtl ? testimonial.review.ar || testimonial.review.en : testimonial.review.en || testimonial.review.ar)
               : testimonial.review || '';
-
             const userLetter = parentNameStr ? parentNameStr.trim().charAt(0) : 'و';
             const imageUrl = testimonial.image && (testimonial.image.startsWith('http') || testimonial.image.startsWith('data:'))
               ? testimonial.image
               : testimonial.image
-                ? `https://manaret-ezz.dramcode.top/${testimonial.image}`
+                ? buildApiAssetUrl(testimonial.image)
                 : null;
-
             return (
               <div
                 key={testimonial.id || testimonial._id}
@@ -76,14 +72,12 @@ export default function ParentTestimonialsSection({
                     </p>
                   </div>
                 </div>
-
                 <div className="flex-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl mb-6 relative">
                   <span className="absolute -top-2 right-4 text-3xl text-slate-200 dark:text-slate-700/50 font-serif leading-none">"</span>
                   <p className="text-sm text-slate-600 dark:text-slate-400 italic line-clamp-4 relative z-10">
                     {reviewStr}
                   </p>
                 </div>
-
                 {(handleOpenEditTestimonial || handleDeleteTestimonial) && (
                   <div className="flex items-center justify-end gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
                     {handleOpenEditTestimonial && (

@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { MessageSquare, Search, X, ChevronRight, ChevronLeft } from 'lucide-react'
 import { messagesApi } from '@/shared/services/api/messagesApi'
 import { showDeleteConfirm } from '@/shared/utils/sweetAlert'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
+import TabErrorState from '@/shared/components/TabErrorState'
 import MessagesStats from './components/MessagesStats'
 import MessageCard from './components/MessageCard'
 
@@ -17,32 +19,26 @@ export default function AdminMessages() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
-
   const [activeTab, setActiveTab] = useState('all')
   const [searchInput, setSearchInput] = useState('')
   const [appliedSearch, setAppliedSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const limit = 20
-
   const handleSelectTab = (tabId) => {
     setActiveTab(tabId)
     setCurrentPage(1)
   }
-
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault()
     setAppliedSearch(searchInput.trim())
     setCurrentPage(1)
   }
-
   const handleClearSearch = () => {
     setSearchInput('')
     setAppliedSearch('')
     setCurrentPage(1)
   }
-
   const fetcher = TAB_FETCHERS[activeTab] || TAB_FETCHERS.all
-
   const {
     data: rawTabData,
     isLoading: isTabLoading,
@@ -55,15 +51,12 @@ export default function AdminMessages() {
     staleTime: 5 * 60 * 1000,
     keepPreviousData: true,
   })
-
   const { data: statsData } = useQuery({
     queryKey: ['registrationRequestsStats', i18n.language],
     queryFn: () => messagesApi.fetchMessageStats(),
     staleTime: 5 * 60 * 1000,
   })
-
   const statistics = rawTabData?.statistics || rawTabData?.data?.statistics || statsData || null
-
   const rawList = useMemo(() => {
     if (Array.isArray(rawTabData?.data)) return rawTabData.data
     if (Array.isArray(rawTabData)) return rawTabData
@@ -71,7 +64,6 @@ export default function AdminMessages() {
     if (Array.isArray(rawTabData?.data?.messages)) return rawTabData.data.messages
     return []
   }, [rawTabData])
-
   const filteredMessages = useMemo(() => {
     if (!appliedSearch) return rawList
     const query = appliedSearch.toLowerCase().trim()
@@ -90,25 +82,18 @@ export default function AdminMessages() {
       )
     })
   }, [rawList, appliedSearch])
-
   const paginationMeta = rawTabData?.pagination || rawTabData?.data?.pagination || rawTabData?.meta || null
   const totalPages = paginationMeta?.numberOfPages ?? paginationMeta?.pages ?? paginationMeta?.totalPages ?? 1
-  
   const getTabTotal = () => {
     if (activeTab === 'read') return statistics?.readMessages ?? statistics?.read
     if (activeTab === 'unread') return statistics?.unreadMessages ?? statistics?.unread
     return statistics?.totalMessages ?? statistics?.total
   }
-
   const totalItems = paginationMeta?.total ?? paginationMeta?.totalItems ?? paginationMeta?.totalMessages ?? getTabTotal() ?? filteredMessages.length
-
   const displayedMessages = filteredMessages
-
   const isPaginationDimmed = totalPages <= 1
-
   const indexOfFirstItem = totalItems > 0 ? (currentPage - 1) * limit + 1 : 0
   const indexOfLastItem = totalItems > 0 ? Math.min(currentPage * limit, totalItems) : 0
-
   const deleteMutation = useMutation({
     mutationFn: messagesApi.deleteMessage,
     onSuccess: () => {
@@ -116,13 +101,11 @@ export default function AdminMessages() {
       queryClient.invalidateQueries({ queryKey: ['registrationRequestsStats'] })
     }
   })
-
   const handleDelete = async (message) => {
     const isConfirmed = await showDeleteConfirm(isRtl, message.title || message.name);
     if (!isConfirmed) return;
     deleteMutation.mutate(message.id || message._id)
   }
-
   const handleViewDetails = async (id) => {
     try {
       await messagesApi.fetchMessageById(id)
@@ -132,12 +115,11 @@ export default function AdminMessages() {
       console.error('Failed to mark message as read:', err)
     }
   }
-
-  const errorMessage = isTabError ? (tabError?.response?.data?.message || tabError?.message || t('adminDashboard.messages.errorLoading', 'حدث خطأ أثناء تحميل الرسائل')) : null
-
+  const errorMessage = isTabError
+    ? getApiErrorText(tabError, t('adminDashboard.messages.errorLoading', 'حدث خطأ أثناء تحميل الرسائل'))
+    : null
   return (
     <div className="space-y-6 sm:space-y-8 animate-fadeIn p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
-
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3">
@@ -152,13 +134,14 @@ export default function AdminMessages() {
           </p>
         </div>
       </div>
-
       {errorMessage && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
-          {errorMessage}
-        </div>
+        <TabErrorState
+          message={errorMessage}
+          compact
+          onRetry={() => queryClient.invalidateQueries({ queryKey: ['registrationRequestsTab'] })}
+          isRtl={isRtl}
+        />
       )}
-
       <MessagesStats
         statistics={statistics}
         activeTab={activeTab}
@@ -167,7 +150,6 @@ export default function AdminMessages() {
         isLoading={isTabLoading}
         t={t}
       />
-
       <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-soft">
         <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
@@ -190,7 +172,6 @@ export default function AdminMessages() {
               </button>
             )}
           </div>
-
           <button
             type="submit"
             className="w-full sm:w-auto px-6 py-3 bg-[#005953] hover:bg-[#004742] text-white rounded-2xl text-sm font-bold transition-all shadow-md shadow-[#005953]/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
@@ -200,7 +181,6 @@ export default function AdminMessages() {
           </button>
         </form>
       </div>
-
       <div className="space-y-4 sm:space-y-6">
         {isTabLoading ? (
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-12 text-center space-y-4 shadow-soft">
@@ -239,7 +219,6 @@ export default function AdminMessages() {
           ))
         )}
       </div>
-
        <div
         className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-soft mt-6 transition-opacity duration-300 ${isPaginationDimmed ? 'opacity-40 pointer-events-none select-none' : ''}`}
       >
@@ -266,7 +245,6 @@ export default function AdminMessages() {
             </>
           )}
         </div>
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -276,11 +254,9 @@ export default function AdminMessages() {
           >
             {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
-
           <span className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 min-w-[72px] text-center">
             {currentPage} / {totalPages}
           </span>
-
           <button
             type="button"
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
@@ -291,7 +267,6 @@ export default function AdminMessages() {
           </button>
         </div>
       </div>
-
     </div>
   )
 }

@@ -5,7 +5,6 @@ import Spinner from '@/shared/components/Spinner'
 export default function PermissionRoute({ permission, permissions, superAdminOnly = false, children }) {
   const { isSuperAdmin, hasPermission, hasAnyPermission, isLoading } = useAdminPermissions()
   const location = useLocation()
-
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -13,25 +12,20 @@ export default function PermissionRoute({ permission, permissions, superAdminOnl
       </div>
     )
   }
-
   if (isSuperAdmin) {
     return children
   }
-
   if (superAdminOnly) {
     return <Navigate to="/dashboard/admin" state={{ from: location }} replace />
   }
-
   let isAllowed = true
   if (permission) {
     isAllowed = hasPermission(permission)
   } else if (permissions && permissions.length > 0) {
     isAllowed = hasAnyPermission(permissions)
   }
-
   if (!isAllowed) {
     return <Navigate to="/dashboard/admin" state={{ from: location }} replace />
   }
-
   return children
 }

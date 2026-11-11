@@ -25,7 +25,7 @@ export default function ParentSecurity({
               value={formData.confirmPassword}
               onChange={(e) => handleChange('confirmPassword', e.target.value)}
               placeholder="••••••••••••••••••••"
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 pr-11 outline-none transition-all text-sm placeholder-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 pr-11 outline-none transition-all text-sm placeholder-slate-400"
             />
             <button
               type="button"
@@ -46,7 +46,7 @@ export default function ParentSecurity({
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
               placeholder="••••••••••••••••••••"
-              className="w-full bg-[#f3f7f6] dark:bg-slate-955 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 pr-11 outline-none transition-all text-sm placeholder-slate-400"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 pr-11 outline-none transition-all text-sm placeholder-slate-400"
             />
             <button
               type="button"

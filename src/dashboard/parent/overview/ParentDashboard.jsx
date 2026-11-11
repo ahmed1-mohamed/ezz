@@ -26,7 +26,7 @@ const itemVariants = {
 };
 
 export default function ParentDashboard() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [dashboardData, setDashboardData] = useState({
     statistics: null,

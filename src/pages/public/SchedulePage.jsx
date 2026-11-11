@@ -11,13 +11,11 @@ import ScheduleEmptyState from './components/Schedule/ScheduleEmptyState.jsx';
 export default function SchedulePage() {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language?.startsWith('ar') ?? true;
-
     const [timetableData, setTimetableData] = useState({ week: {}, days: [] });
     const [loading, setLoading] = useState(true);
     const [activeDayIndex, setActiveDayIndex] = useState(0);
     const [statusFilter, setStatusFilter] = useState('all');
     const [copiedSessionId, setCopiedSessionId] = useState(null);
-
     useEffect(() => {
         let isMounted = true;
         const loadTimetable = async () => {
@@ -34,7 +32,6 @@ export default function SchedulePage() {
                         title: data.title,
                         subtitle: data.subtitle,
                     });
-
                     const todayIdx = days.findIndex((d) => d.isToday);
                     if (todayIdx !== -1) {
                         setActiveDayIndex(todayIdx);
@@ -49,20 +46,16 @@ export default function SchedulePage() {
                 if (isMounted) setLoading(false);
             }
         };
-
         loadTimetable();
         return () => {
             isMounted = false;
         };
     }, [i18n.language]);
-
     const days = useMemo(() => timetableData?.days || [], [timetableData]);
-
     const activeDay = useMemo(() => {
         if (!days || days.length === 0) return null;
         return days[activeDayIndex] || days[0];
     }, [days, activeDayIndex]);
-
     const getLocalizedDay = useCallback((dayItem) => {
         if (!dayItem) return '';
         const raw = (dayItem.day || dayItem.rawDay || '').toString().trim().toLowerCase();
@@ -92,7 +85,6 @@ export default function SchedulePage() {
         }
         return dayItem.dayName || dayItem.day || '';
     }, [t]);
-
     const formatSessionTime = useCallback((session) => {
         if (session.timeRange) return session.timeRange;
         if (!session.startTime) return '';
@@ -118,7 +110,6 @@ export default function SchedulePage() {
             return `${session.startTime} - ${session.endTime || ''}`;
         }
     }, [isRtl]);
-
     const activeDaySessions = useMemo(() => {
         if (!activeDay || !Array.isArray(activeDay.sessions)) return [];
         return activeDay.sessions.filter((s) => {
@@ -135,14 +126,12 @@ export default function SchedulePage() {
             return s.status === statusFilter;
         });
     }, [activeDay, statusFilter]);
-
     const handleCopyZoom = useCallback((url, id) => {
         if (!url) return;
         navigator.clipboard.writeText(url);
         setCopiedSessionId(id);
         setTimeout(() => setCopiedSessionId(null), 2500);
     }, []);
-
     return (
         <div className="w-full min-h-[calc(100vh-4rem)] bg-[#EEF2F0]/80 dark:bg-slate-950 transition-colors duration-300 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
@@ -150,9 +139,6 @@ export default function SchedulePage() {
                     title={timetableData.title}
                     subtitle={timetableData.subtitle}
                 />
-
-
-
                 {loading ? (
                     <div className="space-y-4">
                         <div className="flex justify-center gap-3 overflow-x-auto pb-2">
@@ -179,7 +165,6 @@ export default function SchedulePage() {
                             onSelectDay={setActiveDayIndex}
                             getLocalizedDay={getLocalizedDay}
                         />
-
                         {activeDay && (
                             <div className="flex items-center justify-between px-2 border-b border-slate-200/60 dark:border-slate-800 pb-3">
                                 <div className="flex items-center gap-2.5 text-slate-800 dark:text-white font-bold text-lg sm:text-xl">
@@ -198,7 +183,6 @@ export default function SchedulePage() {
                                 </span>
                             </div>
                         )}
-
                         {activeDaySessions.length > 0 ? (
                             <div className="space-y-5">
                                 {activeDaySessions.map((session, idx) => (
@@ -220,7 +204,6 @@ export default function SchedulePage() {
                         )}
                     </>
                 )}
-
                 <div className="pt-8">
                     <CTASection />
                 </div>

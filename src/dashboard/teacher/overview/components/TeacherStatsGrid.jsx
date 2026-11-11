@@ -19,7 +19,6 @@ export default React.memo(function TeacherStatsGrid({
   dueEarnings,
 }) {
   const { t } = useTranslation();
-
   const statCards = [
     {
       id: 'students',
@@ -64,13 +63,11 @@ export default React.memo(function TeacherStatsGrid({
       iconBg: 'bg-[#fff1f2] text-[#ef4444] dark:bg-rose-950/60 dark:text-rose-400',
     },
   ];
-
   return (
     <section className="space-y-3">
       <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 text-start">
         {t('teacherDashboard.overview', 'نظرة عامة')}
       </h2>
-
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         {statCards.map((card) => {
           const Icon = card.icon;
@@ -89,11 +86,9 @@ export default React.memo(function TeacherStatsGrid({
                   <TrendingUp size={14} />
                 </div>
               </div>
-
               <div className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">
                 {card.value}
               </div>
-
               <div className="text-[11px] sm:text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1 truncate">
                 {card.label}
               </div>

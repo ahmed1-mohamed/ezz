@@ -2,33 +2,31 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Check, Heart, Globe } from 'lucide-react'
-import coreValuesImage from '@/images/about/core-values.svg'
+import coreValuesImage from '@/images/about/core-values.webp'
 
 export default React.memo(function AboutCoreValues() {
     const { t, i18n } = useTranslation()
     const isRtl = i18n?.language?.startsWith('ar') ?? true
-
     const values = useMemo(() => [
         {
             title: t('curriculum.coreValues.v1.title', t('about.values.v1.title', 'الأمانة العلمية')),
-            desc: t('curriculum.coreValues.v1.desc', 'نقل المعرفة بسند متصل ومنهجية رصينة تحفظ الأصالة.'),
+            desc: t('curriculum.coreValues.v1.desc', 'نحرص على دقّة ما نعلّمه، ونقدّم المعرفة بأسلوب واضح يناسب مستوى كل طالب.'),
             icon: <Check className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.1
         },
         {
-            title: t('curriculum.coreValues.v2.title', t('about.values.v2.title', 'الرفق واللين')),
-            desc: t('curriculum.coreValues.v2.desc', 'التعليم بالحب والتشجيع وفق المنهج التربوي الكريم.'),
+            title: t('curriculum.coreValues.v2.title', t('about.values.v2.title', 'الرفق والتشجيع')),
+            desc: t('curriculum.coreValues.v2.desc', 'نُعلّم بصبر ورفق، ونشجّع طلابنا على السؤال والمحاولة حتى يتعلّموا بثقة.'),
             icon: <Heart className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.2
         },
         {
-            title: t('curriculum.coreValues.v3.title', t('about.values.v3.title', 'التيسير والشمول')),
-            desc: t('curriculum.coreValues.v3.desc', 'جعل المعرفة متاحة للجميع مهما كانت المسافات والظروف.'),
+            title: t('curriculum.coreValues.v3.title', t('about.values.v3.title', 'المرونة وإتاحة التعلّم')),
+            desc: t('curriculum.coreValues.v3.desc', 'نقدّم دروسًا عبر الإنترنت بمواعيد مرنة، ونراعي اختلاف مستويات طلابنا واحتياجاتهم.'),
             icon: <Globe className="w-5 h-5 text-[#00695C] dark:text-emerald-400" />,
             delay: 0.3
         }
     ], [t])
-
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-12">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -51,7 +49,6 @@ export default React.memo(function AboutCoreValues() {
                         />
                     </div>
                 </motion.div>
-
                 <motion.div
                     initial={{ opacity: 0, x: isRtl ? 20 : 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -62,7 +59,6 @@ export default React.memo(function AboutCoreValues() {
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 text-start">
                         {t('curriculum.coreValues.title', t('about.values.mainTitle', 'قيمنا الجوهرية'))}
                     </h2>
-
                     <div className="space-y-8">
                         {values.map((item, index) => (
                             <motion.div

@@ -8,11 +8,9 @@ export default function ParentOverviewBanner({
   const displayName = typeof parent?.name === 'object'
     ? (isRtl ? parent.name?.ar || parent.name?.en : parent.name?.en || parent.name?.ar)
     : (parent?.name || '-')
-
   const initialLetter = displayName && displayName !== '-' ? displayName.trim().charAt(0) : '?'
   const isActive = parent?.active !== false
   const imageSrc = parent?.profileImage || parent?.image || null
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800/80 shadow-soft">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
@@ -24,7 +22,6 @@ export default function ParentOverviewBanner({
               <span>{initialLetter}</span>
             )}
           </div>
-
           <div className="flex-1 text-start">
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">
@@ -41,7 +38,6 @@ export default function ParentOverviewBanner({
                 <span>{isActive ? (isRtl ? 'فعال' : 'Active') : (isRtl ? 'موقوف' : 'Suspended')}</span>
               </span>
             </div>
-
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <div className="flex items-center gap-2 bg-[#f3f7f6] dark:bg-slate-950/60 rounded-2xl px-3.5 py-2 border border-slate-100 dark:border-slate-800/60">
                 <Users size={16} className="text-[#00594C] shrink-0" />
@@ -52,7 +48,6 @@ export default function ParentOverviewBanner({
                   {childrenCount}
                 </span>
               </div>
-
               <div className="flex items-center gap-2 bg-[#f3f7f6] dark:bg-slate-950/60 rounded-2xl px-3.5 py-2 border border-slate-100 dark:border-slate-800/60">
                 <Phone size={16} className="text-[#00594C] shrink-0" />
                 <span className="text-xs text-slate-400 font-medium">
@@ -62,7 +57,6 @@ export default function ParentOverviewBanner({
                   {parent?.phone || '-'}
                 </span>
               </div>
-
               <div className="flex items-center gap-2 bg-[#f3f7f6] dark:bg-slate-950/60 rounded-2xl px-3.5 py-2 border border-slate-100 dark:border-slate-800/60">
                 <Mail size={16} className="text-[#00594C] shrink-0" />
                 <span className="text-xs text-slate-400 font-medium">

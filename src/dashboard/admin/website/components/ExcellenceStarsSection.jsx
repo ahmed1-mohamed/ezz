@@ -9,7 +9,6 @@ export default function ExcellenceStarsSection({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 lg:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -26,7 +25,6 @@ export default function ExcellenceStarsSection({
           </Button>
         )}
       </div>
-
       <div className="overflow-x-auto w-full pb-2">
         <div className="min-w-[700px] lg:min-w-full">
           <div className="space-y-4">
@@ -37,7 +35,6 @@ export default function ExcellenceStarsSection({
             ) : (
               stars.map((star) => {
                 const userLetter = star.name ? star.name.trim().charAt(0) : 'أ';
-
                 return (
                   <div
                     key={star.id || star._id}
@@ -57,7 +54,6 @@ export default function ExcellenceStarsSection({
                         </h4>
                       </div>
                     </div>
-
                     {handleDeleteStar && (
                       <div className="flex items-center gap-1">
                         <button
@@ -76,7 +72,6 @@ export default function ExcellenceStarsSection({
           </div>
         </div>
       </div>
-
     </div>
   );
 }

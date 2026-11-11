@@ -43,49 +43,40 @@ export default function AddEditCurriculumScreen({
   onCancel
 }) {
   const isEdit = Boolean(curriculum)
-
   const { data: languagesResponse } = useQuery({
     queryKey: ['admin-explanation-languages'],
     queryFn: () => explanationLanguagesApi.fetchLanguages(),
   })
   const languages = languagesResponse?.data || []
-
   const { data: levelsResponse } = useQuery({
     queryKey: ['admin-student-levels'],
     queryFn: () => adminLevelsApi.fetchLevels(),
   })
   const studentLevels = levelsResponse?.data || levelsResponse || []
-
   const initialArName = typeof curriculum?.name === 'object'
     ? (curriculum.name?.ar || curriculum.name?.en || '')
     : (curriculum?.name || '')
   const initialEnName = typeof curriculum?.name === 'object'
     ? (curriculum.name?.en || curriculum.name?.ar || '')
     : (curriculum?.name || '')
-
   const initialArDesc = typeof curriculum?.description === 'object'
     ? (curriculum.description?.ar || curriculum.description?.en || '')
     : (curriculum?.description || '')
   const initialEnDesc = typeof curriculum?.description === 'object'
     ? (curriculum.description?.en || curriculum.description?.ar || '')
     : (curriculum?.description || '')
-
   const initialFeaturesAr = extractList(curriculum?.features, 'ar')
   const initialFeaturesEn = extractList(curriculum?.features, 'en')
-
   const initialBenefitsAr = extractList(curriculum?.benefitsAfterGraduation, 'ar')
   const initialBenefitsEn = extractList(curriculum?.benefitsAfterGraduation, 'en')
-
   const resolvedLangId = curriculum?.language?._id ||
     curriculum?.language?.id ||
     curriculum?.explanationLanguage?._id ||
     curriculum?.explanationLanguage?.id ||
     (typeof curriculum?.language === 'string' ? curriculum.language : '')
-
   const resolvedLevelId = curriculum?.studentLevel?._id ||
     curriculum?.studentLevel?.id ||
     (typeof curriculum?.studentLevel === 'string' ? curriculum.studentLevel : '')
-
   const [nameAr, setNameAr] = useState(initialArName)
   const [nameEn, setNameEn] = useState(initialEnName)
   const [descriptionAr, setDescriptionAr] = useState(initialArDesc)
@@ -94,25 +85,21 @@ export default function AddEditCurriculumScreen({
   const [previewImage, setPreviewImage] = useState(curriculum?.image || null)
   const [languageId, setLanguageId] = useState(resolvedLangId || '')
   const [studentLevelId, setStudentLevelId] = useState(resolvedLevelId || '')
-
   const [featuresAr, setFeaturesAr] = useState(
     initialFeaturesAr.length > 0 ? initialFeaturesAr : (initialFeaturesEn.length > 0 ? initialFeaturesEn : [''])
   )
   const [featuresEn, setFeaturesEn] = useState(
     initialFeaturesEn.length > 0 ? initialFeaturesEn : (initialFeaturesAr.length > 0 ? initialFeaturesAr : [''])
   )
-
   const [benefitsAr, setBenefitsAr] = useState(
     initialBenefitsAr.length > 0 ? initialBenefitsAr : (initialBenefitsEn.length > 0 ? initialBenefitsEn : [''])
   )
   const [benefitsEn, setBenefitsEn] = useState(
     initialBenefitsEn.length > 0 ? initialBenefitsEn : (initialBenefitsAr.length > 0 ? initialBenefitsAr : [''])
   )
-
   const [showOnWebsite, setShowOnWebsite] = useState(
     curriculum ? Boolean(curriculum.showOnWebsite) : true
   )
-
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -120,12 +107,10 @@ export default function AddEditCurriculumScreen({
       setPreviewImage(URL.createObjectURL(file))
     }
   }
-
   const handleImageRemove = () => {
     setImage(null)
     setPreviewImage(null)
   }
-
   const handleDynamicChange = (setter) => (index, value) => {
     setter(prev => {
       const next = [...prev]
@@ -133,49 +118,37 @@ export default function AddEditCurriculumScreen({
       return next
     })
   }
-
   const handleDynamicAdd = (setter) => () => {
     setter(prev => [...prev, ''])
   }
-
   const handleDynamicRemove = (setter) => (index) => {
     setter(prev => prev.filter((_, i) => i !== index))
   }
-
   const handleSubmit = (e) => {
     if (e) e.preventDefault()
-
     if (!nameAr.trim() && !nameEn.trim()) {
       toast.error(isRtl ? 'يرجى إدخال اسم المنهج' : 'Please enter curriculum name')
       return
     }
-
     const finalNameAr = nameAr.trim() || nameEn.trim()
     const finalNameEn = nameEn.trim() || nameAr.trim()
-
     const cleanFeaturesAr = featuresAr.map(f => f.trim()).filter(Boolean)
     const cleanFeaturesEn = featuresEn.map(f => f.trim()).filter(Boolean)
     const cleanBenefitsAr = benefitsAr.map(b => b.trim()).filter(Boolean)
     const cleanBenefitsEn = benefitsEn.map(b => b.trim()).filter(Boolean)
-
     if (cleanFeaturesAr.length === 0 && cleanFeaturesEn.length === 0) {
       toast.error(isRtl ? 'يجب أن تحتوي المميزات على عنصر واحد على الأقل' : 'Features must have at least one item')
       return
     }
-
     if (cleanBenefitsAr.length === 0 && cleanBenefitsEn.length === 0) {
       toast.error(isRtl ? 'يجب أن تحتوي الإستفادة على عنصر واحد على الأقل' : 'Graduation benefits must have at least one item')
       return
     }
-
     const finalFeaturesAr = cleanFeaturesAr.length > 0 ? cleanFeaturesAr : cleanFeaturesEn
     const finalFeaturesEn = cleanFeaturesEn.length > 0 ? cleanFeaturesEn : cleanFeaturesAr
-
     const finalBenefitsAr = cleanBenefitsAr.length > 0 ? cleanBenefitsAr : cleanBenefitsEn
     const finalBenefitsEn = cleanBenefitsEn.length > 0 ? cleanBenefitsEn : cleanBenefitsAr
-
     const hasNewImageFile = image instanceof File
-
     if (hasNewImageFile) {
       const formData = new FormData()
       formData.append('name[ar]', finalNameAr)
@@ -209,9 +182,7 @@ export default function AddEditCurriculumScreen({
       onSave(jsonPayload)
     }
   }
-
   const currentDisplayName = isRtl ? (nameAr || nameEn) : (nameEn || nameAr)
-
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <AddEditCurriculumHeader
@@ -222,7 +193,6 @@ export default function AddEditCurriculumScreen({
         onCancel={onCancel}
         onSubmit={handleSubmit}
       />
-
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-4 space-y-6">
@@ -232,14 +202,12 @@ export default function AddEditCurriculumScreen({
               onImageRemove={handleImageRemove}
               isRtl={isRtl}
             />
-
             <CurriculumPublishingCard
               showOnWebsite={showOnWebsite}
               onToggleWebsiteVisibility={() => setShowOnWebsite(prev => !prev)}
               isRtl={isRtl}
             />
           </div>
-
           <div className="lg:col-span-8 space-y-6">
             <CurriculumBasicInfoCard
               nameAr={nameAr}
@@ -258,7 +226,6 @@ export default function AddEditCurriculumScreen({
               studentLevels={studentLevels}
               isRtl={isRtl}
             />
-
             <CurriculumFeaturesCard
               featuresAr={featuresAr}
               featuresEn={featuresEn}
@@ -270,7 +237,6 @@ export default function AddEditCurriculumScreen({
               onRemoveFeatureEn={handleDynamicRemove(setFeaturesEn)}
               isRtl={isRtl}
             />
-
             <CurriculumBenefitsCard
               benefitsAr={benefitsAr}
               benefitsEn={benefitsEn}
@@ -284,7 +250,6 @@ export default function AddEditCurriculumScreen({
             />
           </div>
         </div>
-
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-end gap-3.5">
           <button
             type="button"
@@ -295,7 +260,6 @@ export default function AddEditCurriculumScreen({
             <X size={16} />
             <span>{isRtl ? 'إلغاء والعودة' : 'Cancel & Return'}</span>
           </button>
-
           <button
             type="submit"
             disabled={isSaving}

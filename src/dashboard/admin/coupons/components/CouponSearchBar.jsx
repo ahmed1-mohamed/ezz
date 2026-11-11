@@ -5,12 +5,10 @@ import { useTranslation } from 'react-i18next';
 function CouponSearchBar({ value, onSearch }) {
     const { t } = useTranslation();
     const [localValue, setLocalValue] = useState(value);
-
     const handleSubmit = (e) => {
         e.preventDefault();
         onSearch(localValue);
     };
-
     return (
         <form onSubmit={handleSubmit} className="flex gap-2 w-full sm:w-auto items-center">
             <div className="relative w-full sm:w-72">

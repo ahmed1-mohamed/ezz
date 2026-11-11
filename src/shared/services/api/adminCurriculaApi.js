@@ -153,7 +153,6 @@ export const adminCurriculaApi = {
     try {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
-
       const response = await api.delete(`/api/v1/curricula/private/${cId}/levels/${lId}`);
       return response.data || response;
     } catch (error) {
@@ -166,14 +165,12 @@ export const adminCurriculaApi = {
     try {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
-
       const body = {
         name: {
           ar: payload.name?.ar || (typeof payload.name === 'string' ? payload.name : ''),
           en: payload.name?.en || (typeof payload.name === 'string' ? payload.name : (payload.name?.ar || ''))
         }
       };
-
       const response = await api.post(`/api/v1/curricula/private/${cId}/levels/${lId}/units`, body, {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -189,14 +186,12 @@ export const adminCurriculaApi = {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
       const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
-
       const body = {
         name: {
           ar: payload.name?.ar || (typeof payload.name === 'string' ? payload.name : ''),
           en: payload.name?.en || (typeof payload.name === 'string' ? payload.name : (payload.name?.ar || ''))
         }
       };
-
       const response = await api.patch(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}`, body, {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -212,7 +207,6 @@ export const adminCurriculaApi = {
       const cId = typeof curriculumId === 'object' ? (curriculumId._id || curriculumId.id) : curriculumId;
       const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
       const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
-
       const response = await api.delete(`/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}`);
       return response.data || response;
     } catch (error) {
@@ -226,7 +220,6 @@ export const adminCurriculaApi = {
     const lId = typeof levelId === 'object' ? (levelId._id || levelId.id || levelId.levelId) : levelId;
     const uId = typeof unitId === 'object' ? (unitId._id || unitId.id || unitId.unitId) : unitId;
     const endpoint = `/api/v1/curricula/private/${cId}/levels/${lId}/units/${uId}/files`;
-
     try {
       const isFormData = payload instanceof FormData;
       const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
@@ -243,7 +236,6 @@ export const adminCurriculaApi = {
           const showToTeachersRaw = payload.get('showToTeachers');
           const showToStudents = showToStudentsRaw !== null ? (showToStudentsRaw === 'true' || showToStudentsRaw === true) : true;
           const showToTeachers = showToTeachersRaw !== null ? (showToTeachersRaw === 'true' || showToTeachersRaw === true) : true;
-
           if (type === 'link' && linkUrl) {
             const jsonBody = {
               type: 'link',
@@ -257,7 +249,6 @@ export const adminCurriculaApi = {
             });
             return jsonRes.data;
           }
-
           const errMsg = String(error?.response?.data?.message || '');
           if (errMsg.includes('boolean')) {
             payload.delete('showToStudents');
@@ -295,7 +286,6 @@ export const adminCurriculaApi = {
       } catch (fallbackErr) {
         console.warn('API addFile fallback attempt also failed:', fallbackErr);
       }
-
       console.error('API addFile failed:', error);
       throw error;
     }

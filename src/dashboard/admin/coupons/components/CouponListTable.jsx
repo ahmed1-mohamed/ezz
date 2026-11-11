@@ -29,14 +29,12 @@ function CouponListTable({ coupons, onDelete, onView }) {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language.startsWith('ar');
     const [copiedId, setCopiedId] = useState(null);
-
     const handleCopy = (e, code, id) => {
         e.stopPropagation();
         navigator.clipboard.writeText(code);
         setCopiedId(id);
         setTimeout(() => setCopiedId(null), 2000);
     };
-
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-center text-slate-500 dark:text-slate-400">
@@ -71,7 +69,6 @@ function CouponListTable({ coupons, onDelete, onView }) {
                         const studentName = getStudentName(coupon.student, isRtl);
                         const studentAvatar = getStudentAvatar(coupon.student);
                         const initials = studentName.trim().charAt(0) || 'ط';
-
                         return (
                             <motion.tr
                                 initial={{ opacity: 0 }}

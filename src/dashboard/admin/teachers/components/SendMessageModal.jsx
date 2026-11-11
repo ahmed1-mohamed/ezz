@@ -22,16 +22,13 @@ export default function SendMessageModal({
   const [phone, setPhone] = useState(teacher?.phone || '')
   const [message, setMessage] = useState('')
   const [prevTeacher, setPrevTeacher] = useState(teacher)
-
   if (teacher !== prevTeacher) {
     setPrevTeacher(teacher)
     setTeacherName(resolveTeacherName(teacher, isRtl))
     setEmail(teacher?.email || '')
     setPhone(teacher?.phone || '')
   }
-
-  if (!isOpen) return null
-
+  if (!isOpen || typeof document === 'undefined') return null
   const handleSend = (e) => {
     e.preventDefault()
     if (!message.trim()) {
@@ -42,14 +39,10 @@ export default function SendMessageModal({
     setMessage('')
     onClose()
   }
-
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div className="absolute inset-0 cursor-default" onClick={onClose} />
-
       <div className="relative w-full max-w-2xl bg-[#3a3a3a] dark:bg-slate-950 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-4 text-start">
-
         <div className="flex items-center justify-between text-white pb-2">
           <h3 className="text-lg font-bold">
             {isRtl ? 'ارسال رساله للمعلم' : 'Send Message to Teacher'}
@@ -62,9 +55,7 @@ export default function SendMessageModal({
             <X size={20} />
           </button>
         </div>
-
         <form onSubmit={handleSend} className="bg-white dark:bg-slate-900 rounded-2xl p-6 space-y-6">
-
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'أسم المعلم' : 'Teacher Name'}
@@ -77,9 +68,7 @@ export default function SendMessageModal({
               placeholder={isRtl ? 'اسم المعلم' : 'Teacher name'}
             />
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                 {isRtl ? 'البريد الإلكتروني' : 'Email Address'}
@@ -93,7 +82,6 @@ export default function SendMessageModal({
                 dir="ltr"
               />
             </div>
-
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                 {isRtl ? 'رقم الهاتف' : 'Phone Number'}
@@ -107,9 +95,7 @@ export default function SendMessageModal({
                 dir="ltr"
               />
             </div>
-
           </div>
-
           <div>
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
               {isRtl ? 'الرسالة' : 'Message'}
@@ -118,12 +104,11 @@ export default function SendMessageModal({
               rows={5}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white text-slate-850 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm resize-none leading-relaxed"
+              className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm resize-none leading-relaxed"
               placeholder={isRtl ? 'اكتب الرسالة .............' : 'Write your message here...'}
               required
             />
           </div>
-
           <div>
             <button
               type="submit"
@@ -132,11 +117,8 @@ export default function SendMessageModal({
               {isRtl ? 'إرسال' : 'Send'}
             </button>
           </div>
-
         </form>
-
       </div>
-
     </div>,
     document.body
   )

@@ -17,13 +17,11 @@ export default function EvaluationSelectionCard({
 }) {
   const { t } = useTranslation();
   const isSessionsLoading = isLoadingSessions ?? isLoadingGroupDetails ?? false;
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
       <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-white">
         {t('teacherEvaluations.selectGroupAndSession', 'اختر المجموعة و الحصة')}
       </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
@@ -54,7 +52,6 @@ export default function EvaluationSelectionCard({
             />
           </div>
         </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
             {t('teacherEvaluations.session', 'الحصة')}
@@ -85,12 +82,10 @@ export default function EvaluationSelectionCard({
           </div>
         </div>
       </div>
-
       <div className="space-y-2.5 pt-1">
         <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
           {t('teacherEvaluations.selectStudent', 'اختر الطالب للتقييم')}
         </label>
-
         {studentsList.length === 0 ? (
           <div className="p-6 text-center text-slate-400 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
             <Users size={24} className="mx-auto mb-1 text-slate-300 dark:text-slate-600" />

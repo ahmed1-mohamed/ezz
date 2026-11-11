@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import {
   X,
   Calendar,
@@ -12,16 +13,12 @@ import {
   Clock3,
   XCircle,
   MessageSquare,
-  Download,
-  FileText,
-  FileImage,
-  FileVideo,
 } from 'lucide-react';
 
 function formatDate(isoString, isRtl) {
   if (!isoString) return '—';
   const d = new Date(isoString);
-  if (isNaN(d.getTime())) return isoString;
+  if (isNaN(d.getTime())) return String(isoString);
   return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
     year: 'numeric',
     month: 'long',
@@ -46,39 +43,74 @@ function formatTime(val) {
   return String(val);
 }
 
-function extractFileName(urlOrAtt, fallbackIndex) {
-  const raw = typeof urlOrAtt === 'string' ? urlOrAtt : (urlOrAtt?.url || urlOrAtt?.name || '');
-  if (!raw) return `مرفق ${fallbackIndex + 1}`;
-  try {
-    const segments = raw.split('/').filter(Boolean);
-    const last = segments[segments.length - 1] || '';
-    const decoded = decodeURIComponent(last.split('?')[0]);
-    return decoded || `مرفق ${fallbackIndex + 1}`;
-  } catch {
-    return `مرفق ${fallbackIndex + 1}`;
+function extractReplyDate(item) {
+  if (!item) return null;
+  const rawStatus = (item.status || '').toLowerCase();
+  const isResolvedOrRejected =
+    rawStatus === 'resolved' ||
+    rawStatus === 'rejected' ||
+    rawStatus === 'accepted' ||
+    rawStatus.includes('محلول') ||
+    rawStatus.includes('مقبول') ||
+    rawStatus.includes('تم الحل') ||
+    rawStatus.includes('مرفوض');
+  const directDate =
+    item.resolvedAt ||
+    item.resolved_at ||
+    item.rejectedAt ||
+    item.rejected_at ||
+    item.respondedAt ||
+    item.responded_at ||
+    item.handledAt ||
+    item.handled_at ||
+    item.repliedAt ||
+    item.replied_at ||
+    item.answeredAt ||
+    item.closedAt ||
+    item.responseDate ||
+    item.response_date ||
+    item.replyDate ||
+    item.reply_date ||
+    item.actionDate ||
+    item.action_date ||
+    item.adminResponseDate ||
+    item.response?.createdAt ||
+    item.response?.updatedAt ||
+    item.response?.date ||
+    item.reply?.createdAt ||
+    item.reply?.updatedAt ||
+    item.reply?.date ||
+    item.decisionDate ||
+    item.dateResolved ||
+    item.dateRejected;
+  if (directDate) return directDate;
+  if (isResolvedOrRejected) {
+    return item.updatedAt || item.updated_at || item.createdAt || item.created_at || null;
   }
-}
-
-function getFileIcon(urlOrAtt) {
-  const raw = typeof urlOrAtt === 'string' ? urlOrAtt : (urlOrAtt?.url || urlOrAtt?.name || '');
-  const ext = (raw.split('.').pop() || '').toLowerCase().split('?')[0];
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'].includes(ext)) return FileImage;
-  if (['mp4', 'mov', 'webm', 'avi', 'mkv'].includes(ext)) return FileVideo;
-  return FileText;
+  return null;
 }
 
 export default function TeacherComplaintDetailsModal({ item, onClose }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
-  if (!item) return null;
-
+  if (!item || typeof document === 'undefined') return null;
   const isReschedule =
     item.type === 'reschedule_request' ||
     item.type === 'reschedule' ||
     item.type === 'postpone';
   const isSuggestion = item.type === 'suggestion';
-
+  const itemStatus = (item.status || '').toLowerCase();
+  const isResolved =
+    itemStatus === 'resolved' ||
+    itemStatus === 'accepted' ||
+    itemStatus.includes('محلول') ||
+    itemStatus.includes('مقبول') ||
+    itemStatus.includes('تم الحل') ||
+    itemStatus.includes('مكتمل');
+  const isRejected =
+    itemStatus === 'rejected' ||
+    itemStatus.includes('مرفوض');
+  const replyDate = extractReplyDate(item);
   const getTypeMeta = () => {
     if (isReschedule) {
       return {
@@ -103,47 +135,40 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
       bg: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/40',
     };
   };
-
   const getStatusMeta = () => {
-    switch (item.status) {
-      case 'resolved':
-      case 'محلولة':
-      case 'تم الحل':
-        return {
-          label: t('teacher.statusResolved', 'محلولة'),
-          icon: CheckCircle2,
-          color: 'text-emerald-700 dark:text-emerald-300',
-          bg: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-900/40',
-        };
-      case 'rejected':
-      case 'مرفوضة':
-        return {
-          label: t('teacher.statusRejected', 'مرفوضة'),
-          icon: XCircle,
-          color: 'text-rose-700 dark:text-rose-300',
-          bg: 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200/60 dark:border-rose-900/40',
-        };
-      default:
-        return {
-          label: t('teacher.statusPending', 'قيد المراجعة'),
-          icon: Clock3,
-          color: 'text-amber-700 dark:text-amber-300',
-          bg: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200/60 dark:border-amber-900/40',
-        };
+    if (isResolved) {
+      return {
+        label: t('teacher.statusResolved', 'محلولة'),
+        icon: CheckCircle2,
+        color: 'text-emerald-700 dark:text-emerald-300',
+        bg: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-900/40',
+      };
     }
+    if (isRejected) {
+      return {
+        label: t('teacher.statusRejected', 'مرفوضة'),
+        icon: XCircle,
+        color: 'text-rose-700 dark:text-rose-300',
+        bg: 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200/60 dark:border-rose-900/40',
+      };
+    }
+    return {
+      label: t('teacher.statusPending', 'قيد المراجعة'),
+      icon: Clock3,
+      color: 'text-amber-700 dark:text-amber-300',
+      bg: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200/60 dark:border-amber-900/40',
+    };
   };
-
   const typeMeta = getTypeMeta();
   const statusMeta = getStatusMeta();
   const TypeIcon = typeMeta.icon;
   const StatusIcon = statusMeta.icon;
-
   const groupInfo = item.group;
   const sessionInfo = item.session;
   const attachments = Array.isArray(item.attachments) ? item.attachments : [];
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+  const adminReplyText = item.notes || item.response || item.adminResponse || item.reply;
+  return createPortal(
+    <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
         className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200"
         dir={isRtl ? 'rtl' : 'ltr'}
@@ -168,7 +193,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               </h3>
             </div>
           </div>
-
           <button
             onClick={onClose}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -176,20 +200,32 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             <X size={20} />
           </button>
         </div>
-
         <div className="p-6 overflow-y-auto space-y-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               {item.title}
             </h2>
-            {item.createdAt && (
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <Calendar size={13} />
-                <span>{formatDate(item.createdAt, isRtl)}</span>
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 pt-1">
+              {item.createdAt && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={13} className="text-slate-400" />
+                  <span>{isRtl ? 'تاريخ تقديم الطلب:' : 'Submitted:'}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{formatDate(item.createdAt, isRtl)}</span>
+                </div>
+              )}
+              {(isResolved || isRejected) && replyDate && (
+                <div className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-full border ${
+                  isResolved
+                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/50'
+                    : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border-rose-200/80 dark:border-rose-800/50'
+                }`}>
+                  <Clock3 size={13} />
+                  <span>{isRtl ? 'تاريخ الرد على الطلب:' : 'Response date:'}</span>
+                  <span dir="ltr">{formatDate(replyDate, isRtl)}</span>
+                </div>
+              )}
+            </div>
           </div>
-
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 space-y-2">
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
               {t('teacher.complaintDetails', 'التفاصيل')}:
@@ -198,14 +234,12 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               {item.details || '—'}
             </p>
           </div>
-
           {isReschedule && (
             <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 space-y-3">
               <div className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                 <CalendarClock size={15} />
                 <span>{t('teacher.rescheduleDetails', 'بيانات إعادة الجدولة')}:</span>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {groupInfo && (
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-200/50 dark:border-amber-900/30">
@@ -218,7 +252,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                     </div>
                   </div>
                 )}
-
                 {sessionInfo && (
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-200/50 dark:border-amber-900/30">
                     <Calendar size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
@@ -231,7 +264,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
                   </div>
                 )}
               </div>
-
               <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 space-y-1 text-xs">
                 <div className="font-bold text-amber-900 dark:text-amber-200">
                   {t('teacher.proposedSchedule', 'الموعد الجديد المقترح')}:
@@ -253,19 +285,48 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
               </div>
             </div>
           )}
-
-          {item.notes && (
-            <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-900/40 space-y-2">
-              <div className="text-xs font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5">
-                <MessageSquare size={14} />
-                <span>{t('teacher.adminNotes', 'ملاحظات الإدارة والرد')}:</span>
+          {(adminReplyText || isResolved || isRejected) && (
+            <div className={`p-4 rounded-2xl border space-y-2.5 ${
+              isRejected
+                ? 'bg-rose-50/70 dark:bg-rose-950/20 border-rose-200/70 dark:border-rose-900/40'
+                : isResolved
+                ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900/40'
+                : 'bg-indigo-50/70 dark:bg-indigo-950/20 border-indigo-200/70 dark:border-indigo-900/40'
+            }`}>
+              <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
+                <span className={`font-bold flex items-center gap-1.5 ${
+                  isRejected
+                    ? 'text-rose-800 dark:text-rose-300'
+                    : isResolved
+                    ? 'text-emerald-800 dark:text-emerald-300'
+                    : 'text-indigo-800 dark:text-indigo-300'
+                }`}>
+                  <MessageSquare size={14} />
+                  <span>{t('teacher.adminNotes', 'ملاحظات الإدارة والرد')}:</span>
+                </span>
+                {replyDate && (
+                  <span className="inline-flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300 text-[11px]">
+                    <Clock3 size={12} className={isResolved ? 'text-emerald-600' : isRejected ? 'text-rose-600' : 'text-indigo-600'} />
+                    <span>{isRtl ? 'تاريخ الرد على الطلب:' : 'Response Date:'}</span>
+                    <span dir="ltr" className="font-bold">{formatDate(replyDate, isRtl)}</span>
+                  </span>
+                )}
               </div>
-              <p className="text-sm font-medium text-indigo-950 dark:text-indigo-200">
-                {item.notes}
-              </p>
+              {adminReplyText ? (
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {adminReplyText}
+                </p>
+              ) : isResolved ? (
+                <p className="text-xs text-emerald-800 dark:text-emerald-300 italic font-medium">
+                  {isRtl ? 'تمت الموافقة على الطلب وحله بواسطة الإدارة.' : 'Request has been approved and resolved by admin.'}
+                </p>
+              ) : (
+                <p className="text-xs text-rose-800 dark:text-rose-300 italic font-medium">
+                  {isRtl ? 'تم رفض الطلب بواسطة الإدارة.' : 'Request has been rejected by admin.'}
+                </p>
+              )}
             </div>
           )}
-
           {attachments.length > 0 && (
             <div className="space-y-2">
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
@@ -292,7 +353,6 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
             </div>
           )}
         </div>
-
         <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button
             onClick={onClose}
@@ -302,6 +362,7 @@ export default function TeacherComplaintDetailsModal({ item, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

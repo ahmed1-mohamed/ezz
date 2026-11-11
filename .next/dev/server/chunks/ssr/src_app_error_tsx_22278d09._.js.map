@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/New%20folder/dashboard-v2/src/app/error.tsx"],"sourcesContent":["\"use client\";\n\nimport { useLanguage } from \"@/contexts/LanguageContext\";\n\nexport default function ErrorPage() {\n  const { t } = useLanguage();\n\n  return (\n    <div className=\"flex min-h-[90vh] flex-col items-center justify-center mx-auto max-w-container px-4 md:px-banner-padding mt-24 mb-20 text-center relative overflow-hidden\">\n      <div className=\"relative z-10 mx-auto\">\n        <h1 className=\"text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight max-w-2xl\">\n          {t(\"errorPage.title\")}\n        </h1>\n\n        <p className=\"text-gray-700 text-xl mb-12 max-w-xl mx-auto leading-relaxed\">\n          {t(\"errorPage.description\")}\n        </p>\n\n        <p className=\"text-gray-500 text-sm mt-8\">{t(\"errorPage.contactSupport\")}</p>\n      </div>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAEA;AAFA;;;AAIe,SAAS;IACtB,MAAM,EAAE,CAAC,EAAE,GAAG,IAAA,kJAAW;IAEzB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;8BACb,8OAAC;oBAAG,WAAU;8BACX,EAAE;;;;;;8BAGL,8OAAC;oBAAE,WAAU;8BACV,EAAE;;;;;;8BAGL,8OAAC;oBAAE,WAAU;8BAA8B,EAAE;;;;;;;;;;;;;;;;;AAIrD"}}]
-}

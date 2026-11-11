@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, Search, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
+import { studentsApi } from '@/shared/services/api/studentsApi';
 
 const studentSchema = z.object({
   studentId: z.string().min(1, 'يجب اختيار طالب من القائمة')
@@ -13,14 +14,12 @@ const collectAllStudentIds = (obj) => {
   if (!obj) return new Set();
   const ids = new Set();
   const add = (v) => { if (v !== undefined && v !== null && String(v).trim()) ids.add(String(v).trim()); };
-
   add(obj.id);
   add(obj._id);
   add(obj.student_id);
   add(obj.studentId);
   add(obj.user_id);
   add(obj.userId);
-
   if (obj.student && typeof obj.student === 'object') {
     add(obj.student.id);
     add(obj.student._id);
@@ -29,12 +28,10 @@ const collectAllStudentIds = (obj) => {
   } else if (typeof obj.student === 'string') {
     add(obj.student);
   }
-
   if (obj.user && typeof obj.user === 'object') {
     add(obj.user.id);
     add(obj.user._id);
   }
-
   return ids;
 };
 
@@ -59,13 +56,39 @@ export default function StudentStarModal({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-
   const [searchQuery, setSearchQuery] = useState('');
+  const [backendStudents, setBackendStudents] = useState(null);
+  const [isSearchingStudents, setIsSearchingStudents] = useState(false);
   const [errors, setErrors] = useState({});
   const [showStudentSearch, setShowStudentSearch] = useState(false);
-
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      setBackendStudents(null);
+      setIsSearchingStudents(false);
+      return;
+    }
+    let active = true;
+    setIsSearchingStudents(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await studentsApi.fetchStudents({ search: trimmed, limit: 50 });
+        if (!active) return;
+        const list = res?.data || (Array.isArray(res) ? res : []);
+        setBackendStudents(Array.isArray(list) ? list : []);
+      } catch (err) {
+        console.warn('Backend student search in StudentStarModal failed:', err);
+        if (active) setBackendStudents([]);
+      } finally {
+        if (active) setIsSearchingStudents(false);
+      }
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
   const isAdd = !currentStar?.id;
-
   const originalStudentName = useMemo(() => {
     if (!currentStar?.studentId) return { ar: currentStar?.name || '', en: currentStar?.nameEn || '' };
     const sysS = systemStudents.find(s => {
@@ -79,44 +102,28 @@ export default function StudentStarModal({
     }
     return { ar: currentStar?.name || '', en: currentStar?.nameEn || '' };
   }, [currentStar, systemStudents]);
-
-  if (!isOpen || !currentStar) return null;
-
-  const filteredStudents = systemStudents.filter((sysS) => {
+  const pool = backendStudents !== null ? backendStudents : systemStudents;
+  const filteredStudents = pool.filter((sysS) => {
     const sysIds = collectAllStudentIds(sysS);
     const sysEmail = (sysS.email || sysS.user?.email || '').trim().toLowerCase();
     const sysName = normalizeName(sysS.name);
-
     const isMatchedInStars = stars.some(star => {
       if (!isAdd && (star.id === currentStar.id || star._id === currentStar.id)) {
         return false;
       }
-
       const starIds = collectAllStudentIds(star);
       for (const id of sysIds) {
         if (starIds.has(id)) return true;
       }
-
       const starEmail = (star.email || star.student?.email || '').trim().toLowerCase();
       if (sysEmail && starEmail && sysEmail === starEmail) return true;
-
       const starName = normalizeName(star.name || star.nameEn || star.student?.name);
       if (sysName && starName && sysName === starName) return true;
-
       return false;
     });
-
-    if (isMatchedInStars) return false;
-
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return true;
-
-    const nameStr = typeof sysS.name === 'object'
-      ? ((sysS.name?.ar || '') + ' ' + (sysS.name?.en || '')).toLowerCase()
-      : (sysS.name || '').toLowerCase();
-    return nameStr.includes(query) || sysEmail.includes(query);
+    return !isMatchedInStars;
   });
-
+  if (!isOpen || !currentStar || typeof document === 'undefined') return null;
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const result = studentSchema.safeParse(currentStar);
@@ -131,20 +138,18 @@ export default function StudentStarModal({
     setErrors({});
     onSubmit(e);
   };
-
   return createPortal(
     <AnimatePresence>
-      <div key="student-modal-backdrop" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div key="student-modal-wrapper" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ position: 'fixed', inset: 0 }}>
+      <div key="student-modal-backdrop" className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div key="student-modal-wrapper" className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
+          className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col pointer-events-auto"
         >
           <div className="h-1.5 w-full shrink-0 bg-gradient-to-r from-[#0f7a6c] via-[#14b8a6] to-[#0f7a6c]" />
-
           <div className="p-5 sm:p-8 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -167,7 +172,6 @@ export default function StudentStarModal({
                 <X size={18} />
               </button>
             </div>
-
             <form onSubmit={handleFormSubmit} className="space-y-6 text-start">
                {currentStar.studentId ? (
                 <div className="p-4 bg-[#e9f6f3]/60 dark:bg-[#0f7a6c]/10 border border-[#0f7a6c]/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -212,7 +216,6 @@ export default function StudentStarModal({
                       </h5>
                     </div>
                   </div>
-
                   {isAdd && (
                     <button
                       type="button"
@@ -226,7 +229,6 @@ export default function StudentStarModal({
                   )}
                 </div>
               ) : null}
-
                {isAdd && (showStudentSearch || !currentStar.studentId) && (
                 <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4 animate-fadeIn">
                   <div className="relative">
@@ -241,12 +243,10 @@ export default function StudentStarModal({
                       className="w-full ps-11 pe-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-[#0f7a6c] outline-none text-slate-800 dark:text-slate-200 text-sm transition-all"
                     />
                   </div>
-
                   <div>
                     <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2.5">
                       {t('adminDashboard.website.availableStudents', 'الطلاب المتاحون')} ({filteredStudents.length})
                     </h4>
-
                     <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                       {filteredStudents.length === 0 ? (
                         <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs font-medium">
@@ -261,7 +261,6 @@ export default function StudentStarModal({
                             : sItem.name;
                           const initial = studentNameStr?.trim()?.charAt(0) || 'ط';
                           const studentPhoto = sItem.image || sItem.avatar || sItem.user?.photoUrl || '';
-
                           return (
                             <div
                               key={studentIdVal}
@@ -298,7 +297,6 @@ export default function StudentStarModal({
                                   {initial}
                                 </div>
                               )}
-
                               <div className="flex-1 min-w-0">
                                 <h5 className="font-bold text-slate-800 dark:text-slate-100 text-xs">
                                   {studentNameStr}
@@ -307,7 +305,6 @@ export default function StudentStarModal({
                                   {sItem.email || sItem.user?.email || ''}
                                 </p>
                               </div>
-
                               {isSelected && (
                                 <div className="w-4 h-4 rounded-full bg-[#0f7a6c] flex items-center justify-center shrink-0">
                                   <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -323,9 +320,7 @@ export default function StudentStarModal({
                   </div>
                 </div>
               )}
-
               {errors.studentId && <p className="text-xs text-red-500 font-medium text-center">{errors.studentId}</p>}
-
               <div className="flex flex-col sm:flex-row justify-start gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="submit"

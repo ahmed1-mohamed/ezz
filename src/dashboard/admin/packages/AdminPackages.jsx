@@ -19,23 +19,19 @@ export default function AdminPackages() {
     const isRtl = i18n.language.startsWith('ar')
     const { hasPermission, isSuperAdmin } = useAdminPermissions()
     const p = (key) => t(`adminDashboard.packages.${key}`)
-
     const [packages, setPackages] = useState([])
     const [faqs, setFaqs] = useState([])
     const [explanationLanguages, setExplanationLanguages] = useState([])
     const [countries, setCountries] = useState([])
     const [isLoading, setIsLoading] = useState(true)
-
     const [pkgPanelOpen, setPkgPanelOpen] = useState(false)
     const [editingPkg, setEditingPkg] = useState(null)
     const [editingFaq, setEditingFaq] = useState(null)
     const [isFaqFormOpen, setIsFaqFormOpen] = useState(false)
     const [selectedCountryFilter, setSelectedCountryFilter] = useState('all')
-
     const sortedCountries = useMemo(() => {
         return sortCountries(countries, isRtl)
     }, [countries, isRtl])
-
     const loadAll = useCallback(async () => {
         setIsLoading(true)
         try {
@@ -52,7 +48,6 @@ export default function AdminPackages() {
             setIsLoading(false)
         }
     }, [])
-
     useEffect(() => {
         let isMounted = true
         Promise.resolve().then(() => {
@@ -62,7 +57,6 @@ export default function AdminPackages() {
             isMounted = false
         }
     }, [loadAll])
-
     const handleSavePkg = async (data) => {
         let res;
         if (editingPkg) {
@@ -72,7 +66,6 @@ export default function AdminPackages() {
             res = await adminPackagesApi.createPackage(data)
             if (res?.success) setPackages((prev) => [...prev, res.data])
         }
-
         if (res?.success) {
             toast.success(isRtl ? 'تم حفظ الباقة بنجاح' : 'Package saved successfully')
             setPkgPanelOpen(false)
@@ -81,7 +74,6 @@ export default function AdminPackages() {
             toast.error(err || (isRtl ? 'حدث خطأ أثناء حفظ الباقة' : 'Failed to save package'))
         }
     }
-
     const handleRemoveDiscount = async (id) => {
         try {
             const updated = await adminPackagesApi.removePackageDiscount(id)
@@ -95,11 +87,9 @@ export default function AdminPackages() {
             return false
         }
     }
-
     const executeDelete = async (type, id, name) => {
         const isConfirmed = await showDeleteConfirm(isRtl, name);
         if (!isConfirmed) return;
-
         if (type === 'package') {
             await adminPackagesApi.deletePackage(id)
             setPackages((prev) => prev.filter((p) => p.id !== id))
@@ -108,7 +98,6 @@ export default function AdminPackages() {
             setFaqs((prev) => prev.filter((f) => f.id !== id))
         }
     }
-
     const handleSaveFaq = async (data) => {
         let res;
         if (editingFaq) {
@@ -118,7 +107,6 @@ export default function AdminPackages() {
             res = await adminPackagesApi.createFaq(data)
             if (res?.success) setFaqs((prev) => [...prev, res.data])
         }
-
         if (res?.success) {
             toast.success(isRtl ? 'تم حفظ السؤال بنجاح' : 'FAQ saved successfully')
             setEditingFaq(null)
@@ -128,15 +116,12 @@ export default function AdminPackages() {
             toast.error(err || (isRtl ? 'حدث خطأ أثناء حفظ السؤال' : 'Failed to save FAQ'))
         }
     }
-
     const handleEditPkgClick = async (pkg) => {
         const loadingToast = toast.loading(isRtl ? 'جاري تحميل بيانات الباقة...' : 'Loading package details...')
         try {
             const res = await adminPackagesApi.fetchPackageById(pkg.id)
             const pkgData = res?.data || res
-
             const langId = typeof pkgData.language === 'object' ? pkgData.language?.id || pkgData.language?._id : pkgData.language;
-
             const mappedPkg = {
                 id: pkgData.id || pkgData._id,
                 name: typeof pkgData.name === 'object' && pkgData.name !== null ? pkgData.name.ar || '' : pkgData.name || '',
@@ -154,7 +139,6 @@ export default function AdminPackages() {
                 familyTiers: Array.isArray(pkgData.familyTiers) ? pkgData.familyTiers : [],
                 priceAfterDiscount: pkgData.priceAfterDiscount ?? null,
             }
-
             setEditingPkg(mappedPkg)
             setPkgPanelOpen(true)
         } catch (error) {
@@ -164,7 +148,6 @@ export default function AdminPackages() {
             toast.dismiss(loadingToast)
         }
     }
-
     const handleEditFaqClick = async (faq) => {
         const initialFaq = {
             id: faq.id || faq._id,
@@ -201,18 +184,15 @@ export default function AdminPackages() {
             console.warn('Failed to fetch single FAQ details, retaining table data:', error);
         }
     };
-
     const canViewPackages = hasPermission('packages.read') || hasPermission('packages_faqs.read') || isSuperAdmin
     const canCreatePackage = hasPermission('packages.create') || isSuperAdmin
     const canUpdatePackage = hasPermission('packages.update') || isSuperAdmin
     const canDeletePackage = hasPermission('packages.delete') || isSuperAdmin
     const canViewSubscriptions = hasPermission('packages.subscriptions') || isSuperAdmin
-
     const canViewFaqs = hasPermission('faqs.read') || hasPermission('packages_faqs.read') || isSuperAdmin
     const canCreateFaq = hasPermission('faqs.create') || isSuperAdmin
     const canUpdateFaq = hasPermission('faqs.update') || isSuperAdmin
     const canDeleteFaq = hasPermission('faqs.delete') || isSuperAdmin
-
     const filteredPackages = useMemo(() => {
         if (!selectedCountryFilter || selectedCountryFilter === 'all') return packages;
         return packages.filter(p => {
@@ -220,7 +200,6 @@ export default function AdminPackages() {
             return String(pCountry) === String(selectedCountryFilter) || p.country === selectedCountryFilter;
         });
     }, [packages, selectedCountryFilter]);
-
     if (isLoading) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
@@ -228,7 +207,6 @@ export default function AdminPackages() {
             </div>
         )
     }
-
     if (!canViewPackages && !canViewFaqs) {
         return (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center p-8">
@@ -238,7 +216,6 @@ export default function AdminPackages() {
             </div>
         )
     }
-
     return (
         <div className="space-y-8">
             {canViewPackages && (
@@ -268,7 +245,6 @@ export default function AdminPackages() {
                             )}
                         </div>
                     </div>
-
                     <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-5 scrollbar-none">
                         <button
                             type="button"
@@ -290,10 +266,7 @@ export default function AdminPackages() {
                                 const pCountry = p.countryRaw?._id || p.countryRaw?.id || p.country;
                                 return String(pCountry) === String(cid) || p.country === cName || p.country === c.name || p.country === c.nameEn;
                             }).length;
-
-                            // Only list countries that actually have packages (the full list has ~250 entries)
                             if (count === 0 && !isSelected) return null;
-
                             return (
                                 <button
                                     key={cid || cName}
@@ -313,7 +286,6 @@ export default function AdminPackages() {
                             );
                         })}
                     </div>
-
                     {filteredPackages.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
                             <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
@@ -340,7 +312,6 @@ export default function AdminPackages() {
                     )}
                 </section>
             )}
-
             {canViewFaqs && (
                 <section>
                     <div className="flex items-center justify-between mb-5">
@@ -355,7 +326,6 @@ export default function AdminPackages() {
                             </button>
                         )}
                     </div>
-
                     <AnimatePresence initial={false}>
                         {(isFaqFormOpen || editingFaq) && (
                             <motion.div
@@ -372,7 +342,6 @@ export default function AdminPackages() {
                             </motion.div>
                         )}
                     </AnimatePresence>
-
                     <FaqTable
                         faqs={faqs}
                         onEdit={canUpdateFaq ? handleEditFaqClick : null}
@@ -383,7 +352,6 @@ export default function AdminPackages() {
                     />
                 </section>
             )}
-
             <PackageFormPanel
                 isOpen={pkgPanelOpen}
                 onClose={() => setPkgPanelOpen(false)}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Star,
@@ -21,6 +21,7 @@ import ParentPagination from '../overview/components/ParentPagination';
 import TeacherCard from './components/teacher_evaluations/TeacherCard';
 import TeacherEvaluationModal from './components/teacher_evaluations/TeacherEvaluationModal';
 import EvaluationsHistoryList from './components/teacher_evaluations/EvaluationsHistoryList';
+import useDebounce from '@/shared/hooks/useDebounce';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -102,6 +103,7 @@ export default function ParentRatings() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [activeTab, setActiveTab] = useState('teachers');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedTeacherForEval, setSelectedTeacherForEval] = useState(null);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
@@ -111,8 +113,10 @@ export default function ParentRatings() {
     isError: isErrorTeachers,
     refetch: refetchTeachers,
   } = useQuery({
-    queryKey: ['parent-children-teachers'],
-    queryFn: () => parentTeacherEvaluationsApi.fetchChildrenTeachers(),
+    queryKey: ['parent-children-teachers', debouncedSearch],
+    queryFn: () => parentTeacherEvaluationsApi.fetchChildrenTeachers({
+      search: debouncedSearch.trim() || undefined,
+    }),
   });
   const teachersList = useMemo(() => {
     if (!teachersData) return [];
@@ -133,17 +137,8 @@ export default function ParentRatings() {
     } else if (statusFilter === 'pending') {
       result = result.filter((tc) => !tc?.isEvaluatedThisWeek);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter((tc) => {
-        const nameMatch = extractSafeText(tc?.name, isRtl).toLowerCase().includes(q);
-        const specMatch = Array.isArray(tc?.specializations) && tc.specializations.some((s) => extractSafeText(s, isRtl).toLowerCase().includes(q));
-        const childMatch = Array.isArray(tc?.children) && tc.children.some((c) => extractSafeText(c?.name || c, isRtl).toLowerCase().includes(q));
-        return nameMatch || specMatch || childMatch;
-      });
-    }
     return result;
-  }, [teachersList, statusFilter, searchQuery, isRtl]);
+  }, [teachersList, statusFilter]);
   const [studentsList, setStudentsList] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState('all');
   const [currentStudentPage, setCurrentStudentPage] = useState(1);
@@ -170,76 +165,85 @@ export default function ParentRatings() {
       isMounted = false;
     };
   }, []);
-  const fetchStudentRatings = useCallback(async (studentId, page) => {
-    setIsLoadingStudents(true);
-    try {
-      const params = { page, limit: 10 };
-      if (studentId && studentId !== 'all') {
-        params.studentId = studentId;
-      }
-      const res = await parentApi.fetchStudentEvaluations(params);
-      const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
-      const evaluations = rawList.map((item, idx) => {
-        const id = item.id || item._id || `eval-${idx}`;
-        const rating = Number(item.rating ?? item.score ?? 5);
-        const notes = extractSafeText(item.notes || item.comment, isRtl);
-        const studentName = extractSafeText(item.studentData?.name || item.studentName || item.student, isRtl) || '-';
-        const studentImage = typeof item.studentData?.image === 'string' && item.studentData.image.trim() ? item.studentData.image : null;
-        const teacherName = extractSafeText(item.teacherData?.name || item.teacherName || item.teacher, isRtl) || '-';
-        const teacherImage = typeof item.teacherData?.image === 'string' && item.teacherData.image.trim() ? item.teacherData.image : null;
-        const sessionTitle = extractSafeText(item.sessionData?.title || item.subject || item.title, isRtl) || t('parent.ratings.sessionDefault', 'حصة تفاعلية');
-        const sessionDate = item.sessionData?.date || item.date || item.createdAt?.slice(0, 10) || '-';
-        const sessionStatus = item.sessionData?.status || 'completed';
-        const meta = getRatingMeta(rating, t);
-        return {
-          id,
-          rating,
-          notes,
-          studentName,
-          studentImage,
-          teacherName,
-          teacherImage,
-          sessionTitle,
-          sessionDate,
-          sessionStatus,
-          label: meta.label,
-          badgeClass: meta.badgeClass,
-        };
-      });
-      const totalCount = res?.totalEvaluations ?? evaluations.length;
-      const averageRating = res?.averageRating !== undefined
-        ? Number(res.averageRating)
-        : (evaluations.length > 0 ? evaluations.reduce((acc, e) => acc + e.rating, 0) / evaluations.length : 0);
-      const excellentCount = evaluations.filter((e) => e.rating >= 4.5).length;
-      setStudentRatingsData({
-        evaluations,
-        stats: {
-          average: averageRating,
-          count: totalCount,
-          excellent: excellentCount,
-        },
-        pagination: res?.pagination || {
-          currentPage: page,
-          limit: 10,
-          numberOfPages: Math.max(1, Math.ceil(totalCount / 10)),
-        },
-      });
-    } catch (err) {
-      console.error('Failed to fetch student evaluations', err);
-      setStudentRatingsData({
-        evaluations: [],
-        stats: { average: 0, count: 0, excellent: 0 },
-        pagination: { currentPage: 1, limit: 10, numberOfPages: 1 },
-      });
-    } finally {
-      setIsLoadingStudents(false);
-    }
-  }, [t, isRtl]);
   useEffect(() => {
-    if (activeTab === 'students') {
-      fetchStudentRatings(selectedStudent, currentStudentPage);
+    if (activeTab !== 'students') return;
+    let isMounted = true;
+    async function loadRatings() {
+      setIsLoadingStudents(true);
+      try {
+        const params = { page: currentStudentPage, limit: 10 };
+        if (selectedStudent && selectedStudent !== 'all') {
+          params.student = selectedStudent;
+        }
+        const res = await parentApi.fetchStudentEvaluations(params);
+        if (isMounted) {
+          const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
+          const evaluations = rawList.map((item, idx) => {
+            const id = item.id || item._id || `eval-${idx}`;
+            const rating = Number(item.rating ?? item.score ?? 5);
+            const notes = extractSafeText(item.notes || item.comment, isRtl);
+            const studentName = extractSafeText(item.studentData?.name || item.studentName || item.student, isRtl) || '-';
+            const studentImage = typeof item.studentData?.image === 'string' && item.studentData.image.trim() ? item.studentData.image : null;
+            const teacherName = extractSafeText(item.teacherData?.name || item.teacherName || item.teacher, isRtl) || '-';
+            const teacherImage = typeof item.teacherData?.image === 'string' && item.teacherData.image.trim() ? item.teacherData.image : null;
+            const sessionTitle = extractSafeText(item.sessionData?.title || item.subject || item.title, isRtl) || t('parent.ratings.sessionDefault', 'حصة تفاعلية');
+            const sessionDate = item.sessionData?.date || item.date || item.createdAt?.slice(0, 10) || '-';
+            const sessionStatus = item.sessionData?.status || 'completed';
+            const meta = getRatingMeta(rating, t);
+            return {
+              id,
+              rating,
+              notes,
+              studentName,
+              studentImage,
+              teacherName,
+              teacherImage,
+              sessionTitle,
+              sessionDate,
+              sessionStatus,
+              label: meta.label,
+              badgeClass: meta.badgeClass,
+            };
+          });
+          const totalCount = res?.totalEvaluations ?? evaluations.length;
+          const averageRating = res?.averageRating !== undefined
+            ? Number(res.averageRating)
+            : (evaluations.length > 0 ? evaluations.reduce((acc, e) => acc + e.rating, 0) / evaluations.length : 0);
+          const excellentCount = evaluations.filter((e) => e.rating >= 4.5).length;
+          setStudentRatingsData({
+            evaluations,
+            stats: {
+              average: averageRating,
+              count: totalCount,
+              excellent: excellentCount,
+            },
+            pagination: res?.pagination || {
+              currentPage: currentStudentPage,
+              limit: 10,
+              numberOfPages: Math.max(1, Math.ceil(totalCount / 10)),
+            },
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to fetch student evaluations', err);
+          setStudentRatingsData({
+            evaluations: [],
+            stats: { average: 0, count: 0, excellent: 0 },
+            pagination: { currentPage: 1, limit: 10, numberOfPages: 1 },
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingStudents(false);
+        }
+      }
     }
-  }, [activeTab, fetchStudentRatings, selectedStudent, currentStudentPage]);
+    loadRatings();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab, selectedStudent, currentStudentPage, t, isRtl]);
   const handleOpenEvaluateModal = (teacher) => {
     setSelectedTeacherForEval(teacher);
     setIsEvalModalOpen(true);
@@ -267,7 +271,6 @@ export default function ParentRatings() {
       className="p-2 md:p-8 max-w-7xl mx-auto space-y-6 font-sans min-h-screen relative transition-colors"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      {/* Top Header Card */}
       <motion.div
         variants={itemVariants}
         className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-4 shadow-sm border border-slate-200 dark:border-slate-800"
@@ -300,7 +303,6 @@ export default function ParentRatings() {
               </p>
             </div>
           </div>
-          {/* Navigation Tabs Switcher */}
           <div className="flex items-center gap-1 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 self-start lg:self-center">
             <button
               type="button"
@@ -347,7 +349,6 @@ export default function ParentRatings() {
             </button>
           </div>
         </div>
-        {/* Tab 1 Stats Banner */}
         {activeTab === 'teachers' && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs">
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
@@ -392,10 +393,8 @@ export default function ParentRatings() {
           </div>
         )}
       </motion.div>
-      {/* TAB 1: Teachers List & Weekly Evaluation */}
       {activeTab === 'teachers' && (
         <div className="space-y-6">
-          {/* Search and Status Filters */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative w-full md:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
@@ -458,7 +457,6 @@ export default function ParentRatings() {
               )}
             </div>
           </div>
-          {/* Teachers Cards Grid */}
           {isLoadingTeachers ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((sk) => (
@@ -479,7 +477,7 @@ export default function ParentRatings() {
               ))}
             </div>
           ) : isErrorTeachers ? (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm space-y-4">
+            <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 rounded-3xl p-12 text-center shadow-sm space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center mx-auto">
                 <HelpCircle className="w-7 h-7" />
               </div>
@@ -525,9 +523,7 @@ export default function ParentRatings() {
           )}
         </div>
       )}
-      {/* TAB 2: Evaluations History */}
       {activeTab === 'history' && <EvaluationsHistoryList />}
-      {/* TAB 3: Students Evaluations Given By Teachers */}
       {activeTab === 'students' && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -636,7 +632,6 @@ export default function ParentRatings() {
           )}
         </div>
       )}
-      {/* Teacher Evaluation Modal */}
       <TeacherEvaluationModal
         isOpen={isEvalModalOpen}
         teacher={selectedTeacherForEval}

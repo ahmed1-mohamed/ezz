@@ -30,9 +30,7 @@ function renderIcon(icon) {
 
 export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
   const { t } = useTranslation();
-
   const [activeFilter, setActiveFilter] = useState('all');
-
   const {
     data: suggestedRes,
     isLoading,
@@ -43,7 +41,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
     queryFn: () => teacherRewardsApi.fetchSuggestedRewards(activeFilter),
     staleTime: 60 * 1000,
   });
-
   const stats = useMemo(() => {
     if (suggestedRes?.stats) {
       return suggestedRes.stats;
@@ -56,7 +53,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
       rejected: all.filter((s) => s.status === 'rejected').length,
     };
   }, [suggestedRes]);
-
   const suggestionsList = useMemo(() => {
     const apiList = suggestedRes?.data;
     if (Array.isArray(apiList)) {
@@ -64,7 +60,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
     }
     return [];
   }, [suggestedRes]);
-
   const statCards = [
     {
       id: 'all',
@@ -103,7 +98,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
       activeBorder: 'border-rose-500 ring-2 ring-rose-500/25 bg-rose-50/60 dark:bg-rose-950/20',
     },
   ];
-
   const renderStatusBadge = (status) => {
     switch (status) {
       case 'accepted':
@@ -130,7 +124,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
         );
     }
   };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800">
@@ -143,7 +136,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
             {t('teacher.suggestedRewardsSubtitle', 'تابع حالات مكافآتك المقترحة (قيد المراجعة، مقبولة، مرفوضة) أو اقترح مكافأة جديدة')}
           </p>
         </div>
-
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <button
             type="button"
@@ -153,7 +145,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
           >
             <RefreshCw size={17} className={isFetching ? 'animate-spin' : ''} />
           </button>
-
           <button
             type="button"
             onClick={onOpenSuggestModal}
@@ -164,12 +155,10 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
           </button>
         </div>
       </div>
-
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => {
           const Icon = card.icon;
           const isActive = activeFilter === card.id;
-
           return (
             <button
               key={card.id}
@@ -198,7 +187,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
           );
         })}
       </div>
-
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {[
           { key: 'all', label: t('teacher.allSuggestions', 'جميع الاقتراحات'), count: stats.total },
@@ -229,7 +217,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
           </button>
         ))}
       </div>
-
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.from({ length: 3 }).map((_, idx) => (
@@ -275,7 +262,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
               typeof item.description === 'object'
                 ? item.description?.ar || item.description?.en
                 : item.description;
-
             return (
               <div
                 key={itemId}
@@ -288,16 +274,13 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-
                   <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-900 shadow-md flex items-center justify-center relative z-10">
                     {renderIcon(item.icon)}
                   </div>
-
                   <div className="absolute top-3 end-3 z-10">
                     {renderStatusBadge(item.status)}
                   </div>
                 </div>
-
                 <div className="space-y-2 text-start flex-1">
                   <h3 className="text-base font-black text-slate-800 dark:text-white leading-snug">
                     {rewardName || t('teacher.rewardsTitle', 'مكافأة مقترحة')}
@@ -306,7 +289,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
                     {rewardDesc || ''}
                   </p>
                 </div>
-
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-semibold text-slate-400">
                   <span className="flex items-center gap-1.5">
                     {item.status === 'accepted' ? (
@@ -323,7 +305,6 @@ export default function TeacherSuggestedRewardsTab({ onOpenSuggestModal }) {
                       </span>
                     )}
                   </span>
-
                   {item.teacher?.name && (
                     <span className="text-slate-400 font-medium text-[10px]">
                       {t('teacher.suggestedBy', 'المقترح:')} {item.teacher.name}

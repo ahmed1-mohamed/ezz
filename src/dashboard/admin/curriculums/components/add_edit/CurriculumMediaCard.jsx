@@ -8,7 +8,6 @@ export default function CurriculumMediaCard({
   isRtl = true
 }) {
   const fileInputRef = useRef(null)
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xs space-y-5 text-start">
       <div className="flex items-center justify-between">
@@ -26,7 +25,6 @@ export default function CurriculumMediaCard({
           </div>
         </div>
       </div>
-
       <div
         onClick={() => fileInputRef.current?.click()}
         className={`relative w-full rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden group flex flex-col items-center justify-center min-h-[220px] ${
@@ -65,7 +63,6 @@ export default function CurriculumMediaCard({
           </div>
         )}
       </div>
-
       <input
         ref={fileInputRef}
         type="file"
@@ -73,7 +70,6 @@ export default function CurriculumMediaCard({
         onChange={onImageChange}
         className="hidden"
       />
-
       {previewImage && (
         <div className="flex items-center justify-between pt-1">
           <button

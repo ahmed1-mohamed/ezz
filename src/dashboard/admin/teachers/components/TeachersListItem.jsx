@@ -13,10 +13,8 @@ export default function TeachersListItem({
   const teacherDisplayName = typeof teacher?.name === 'object' && teacher?.name !== null
     ? ((isRtl ? teacher.name.ar : teacher.name.en) || teacher.name.ar || teacher.name.en || '')
     : String(teacher?.name || teacher?.displayName || '')
-
   const initial = teacherDisplayName.trim().charAt(0) || 'م'
   const isSuspended = !teacher.active
-
   return (
     <div
       onClick={() => onSelectTeacher(teacher.id)}
@@ -55,13 +53,11 @@ export default function TeachersListItem({
               </span>
             )}
           </div>
-
           <div className="space-y-1 text-start flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-extrabold text-slate-800 dark:text-white text-sm sm:text-base truncate max-w-[180px] sm:max-w-xs">
                 {teacherDisplayName}
               </span>
-
               <span
                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
                   isSuspended
@@ -74,18 +70,15 @@ export default function TeachersListItem({
                   ? (isRtl ? 'موقوف' : 'Stopped')
                   : (isRtl ? 'نشط' : 'Active')}
               </span>
-
               {teacher.profitPercentage > 0 && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 shrink-0">
                   {teacher.profitPercentage}% {isRtl ? 'ربح' : 'profit'}
                 </span>
               )}
             </div>
-
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
               {teacher.degree || teacher.subject || (isRtl ? 'معلم معتمد' : 'Certified Teacher')}
             </p>
-
              {teacher.specializations && teacher.specializations.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {teacher.specializations.slice(0, 3).map((spec) => (
@@ -106,7 +99,6 @@ export default function TeachersListItem({
             )}
           </div>
         </div>
-
          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800/80">
            <div className="flex items-center justify-around gap-2.5 sm:gap-3.5 bg-slate-50/80 dark:bg-slate-950/50 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-800/80 shrink-0">
             <div className="text-center px-1">
@@ -146,7 +138,6 @@ export default function TeachersListItem({
               </p>
             </div>
           </div>
-
            <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
@@ -164,7 +155,6 @@ export default function TeachersListItem({
             >
               <Eye size={16} />
             </button>
-
             {onToggleStatus && (
               <button
                 type="button"
@@ -183,7 +173,6 @@ export default function TeachersListItem({
                 {isSuspended ? <CheckCircle2 size={16} /> : <Ban size={16} />}
               </button>
             )}
-
             {onDelete && (
               <button
                 type="button"

@@ -16,7 +16,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
     const { user, updateUser } = useAuth();
     const normalizedRole = String(user?.role || '').toLowerCase();
     const isSuperAdmin = normalizedRole === 'super_admin' || normalizedRole === 'superadmin';
-
     const [profileData, setProfileData] = useState({
         email: user?.email || '',
         nameAr: user?.nameAr || (typeof user?.name === 'object' ? (user?.name?.ar || '') : (user?.name || '')),
@@ -25,21 +24,17 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         avatar: user?.image || user?.photoUrl || user?.photo || '',
         isGoogleLinked: Boolean(user?.isGoogleLinked || user?.googleId),
     });
-
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [savingProfile, setSavingProfile] = useState(false);
     const [linkingGoogle, setLinkingGoogle] = useState(false);
     const [apiCountries, setApiCountries] = useState([]);
-
     const [selectedCountryCode, setSelectedCountryCode] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [phoneVal, setPhoneVal] = useState('');
-
     const onProfileLoadedRef = useRef(onProfileLoaded);
     useEffect(() => {
         onProfileLoadedRef.current = onProfileLoaded;
     });
-
     useEffect(() => {
         const loadProfile = async () => {
             setLoadingProfile(true);
@@ -47,16 +42,13 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 profileApi.fetchProfile(),
                 landingApi.fetchCountries().catch(() => [])
             ]);
-
             const rawCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes?.data || []);
             const fetchedCountries = normalizeCountries(rawCountries);
             setApiCountries(sortCountries(fetchedCountries, isRtl));
-
             if (res?.success && res.data) {
                 const nameData = res.data.name;
                 const parsedNameAr = res.data.nameAr || (typeof nameData === 'object' ? (nameData?.ar || '') : (typeof nameData === 'string' ? nameData : ''));
                 const parsedNameEn = res.data.nameEn || (typeof nameData === 'object' ? (nameData?.en || '') : '');
-
                 let mappedCountry = '';
                 if (res.data.country) {
                     const sCountryId = res.data.country?._id || res.data.country?.id || res.data.country;
@@ -73,7 +65,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         mappedCountry = sCountryId || '';
                     }
                 }
-
                 setProfileData(prev => ({
                     ...prev,
                     email: res.data.email || '',
@@ -83,15 +74,12 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     avatar: res.data.image || res.data.photoUrl || res.data.photo || prev.avatar,
                     isGoogleLinked: Boolean(res.data.isGoogleLinked || res.data.googleId || res.data.provider === 'google' || user?.isGoogleLinked || user?.googleId),
                 }));
-
                 const phoneData = res.data.phone || '';
-
                 const phoneCountries = [...fetchedCountries]
                     .filter(c => c.dialCode || c.phoneCode)
                     .sort((a, b) => (b.dialCode || b.phoneCode).length - (a.dialCode || a.phoneCode).length);
                 let matchedPrefix = '';
                 let matchedCountry = null;
-
                 for (const c of phoneCountries) {
                     const code = c.dialCode || c.phoneCode;
                     if (phoneData.startsWith(code)) {
@@ -100,23 +88,19 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                         break;
                     }
                 }
-
                 let phoneValueOnly = phoneData;
                 if (phoneData.includes(' ')) {
                     phoneValueOnly = phoneData.split(' ').slice(1).join(' ');
                 } else if (matchedCountry) {
                     phoneValueOnly = phoneData.substring(matchedPrefix.length).trim();
                 }
-
                 setPhoneVal(phoneValueOnly);
-
                 if (matchedCountry) {
                     setSelectedCountryCode({ code: matchedCountry.dialCode || matchedCountry.phoneCode, flag: matchedCountry.flag, name: matchedCountry.name, nameEn: matchedCountry.nameEn });
                 } else if (fetchedCountries.length > 0) {
                     const first = fetchedCountries[0];
                     setSelectedCountryCode({ code: first.dialCode || first.phoneCode, flag: first.flag, name: first.name, nameEn: first.nameEn });
                 }
-
                 if (onProfileLoadedRef.current) {
                     onProfileLoadedRef.current({ phone: phoneData, country: mappedCountry, permission: res.data.permission, permissions: res.data.permissions, permissionId: res.data.permissionId || res.data.permission?.id || res.data.permission?._id, role: res.data.role });
                 }
@@ -124,13 +108,11 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             setLoadingProfile(false);
         };
         loadProfile();
-    }, [isRtl]);
-
+    }, [isRtl, user?.googleId, user?.isGoogleLinked]);
     const handleProfileChange = (e) => {
         const val = e.target.value;
         setProfileData({ ...profileData, [e.target.name]: val });
     };
-
     const handleToggleGoogleLink = async () => {
         try {
             setLinkingGoogle(true);
@@ -158,26 +140,21 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             setLinkingGoogle(false);
         }
     };
-
     const handleSaveProfile = async () => {
         setSavingProfile(true);
         const ar = profileData.nameAr?.trim() || '';
         const en = profileData.nameEn?.trim() || '';
-
         if (!ar) {
             showErrorToast(isRtl ? 'يرجى إدخال الاسم باللغة العربية' : 'Please enter Arabic name');
             setSavingProfile(false);
             return;
         }
-
         if (!en) {
             showErrorToast(isRtl ? 'يرجى إدخال الاسم باللغة الإنجليزية' : 'Please enter English name');
             setSavingProfile(false);
             return;
         }
-
         setProfileData(prev => ({ ...prev, nameAr: ar, nameEn: en }));
-
         const fullPhone = phoneVal ? `${selectedCountryCode?.code || ''} ${phoneVal.trim()}`.trim() : '';
         const payload = {
             nameAr: ar,
@@ -189,19 +166,15 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                 en
             }
         };
-        
         if (profileData.country) {
             payload.country = profileData.country;
         }
-        
         if (fullPhone) {
             payload.phone = fullPhone;
         }
-        
         if (profileData.imageFile) {
             payload.image = profileData.imageFile;
         }
-
         const res = await profileApi.updateProfile(payload);
         if (res?.success) {
             showSuccessToast(isRtl ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
@@ -220,15 +193,12 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         }
         setSavingProfile(false);
     };
-
     const activeName = isRtl ? (profileData.nameAr || profileData.nameEn) : (profileData.nameEn || profileData.nameAr);
     const userInitial = activeName ? activeName.trim().charAt(0) : 'أ';
     const fileInputRef = useRef(null);
-
     const handlePhotoClick = () => {
         fileInputRef.current?.click();
     };
-
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -240,7 +210,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             }));
         }
     };
-
     if (loadingProfile) {
         return (
             <div className="flex h-[40vh] items-center justify-center bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
@@ -248,11 +217,9 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             </div>
         );
     }
-
     return (
         <motion.div variants={itemVariants} className="bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-8 text-start">{t('parentSettings.profile')}</h2>
-
             <div className="flex flex-col md:flex-row items-center justify-start gap-6 mb-8">
                 <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shrink-0 relative overflow-hidden shadow-sm">
                     {profileData.avatar ? (
@@ -285,7 +252,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     )}
                 </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="flex flex-col items-start w-full">
                     <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 text-start flex items-center gap-1">
@@ -399,7 +365,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                                         .filter(c => c.normCode)
                                         .sort((a, b) => b.normCode.length - a.normCode.length)
                                         .find(c => normalizedInput.startsWith(c.normCode));
-
                                     if (matched) {
                                         setSelectedCountryCode({ code: matched.dial, flag: matched.flag, name: matched.name, nameEn: matched.nameEn });
                                         let remaining = val.substring(1).substring(matched.normCode.length).trim();
@@ -415,7 +380,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     </div>
                 </div>
             </div>
-
             <div className="mt-8">
                 <label className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-3 block text-start">
                     {isRtl ? 'الحسابات المرتبطة' : 'Linked Accounts'}
@@ -443,7 +407,6 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
                     </button>
                 </div>
             </div>
-
             <div className="flex justify-start mt-8">
                 <button
                     onClick={handleSaveProfile}

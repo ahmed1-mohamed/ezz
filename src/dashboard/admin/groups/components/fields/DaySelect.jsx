@@ -3,7 +3,6 @@ import { ChevronDown } from 'lucide-react'
 
 export default function DaySelect({ value, onChange, options = [] }) {
   const [open, setOpen] = useState(false)
-
   const displayLabel = (() => {
     if (!value) return ''
     const found = options.find((opt) => {
@@ -17,7 +16,6 @@ export default function DaySelect({ value, onChange, options = [] }) {
     }
     return value
   })()
-
   return (
     <div className="relative">
       <button
@@ -34,7 +32,6 @@ export default function DaySelect({ value, onChange, options = [] }) {
             const optVal = typeof opt === 'object' && opt !== null ? opt.value : opt
             const optLabel = typeof opt === 'object' && opt !== null ? (opt.label || opt.value) : opt
             const isSelected = value === optVal
-
             return (
               <button
                 key={optVal || idx}

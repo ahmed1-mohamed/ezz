@@ -16,21 +16,18 @@ export default function AdminStudentDetails() {
   const isRtl = i18n.language.startsWith('ar')
   const queryClient = useQueryClient()
   const [isTogglingStatus, setIsTogglingStatus] = useState(false)
-
   const { data: student, isLoading, isError, refetch } = useQuery({
     queryKey: ['student-details', id, i18n.language],
     queryFn: () => studentsApi.fetchStudentById(id),
     enabled: Boolean(id),
     staleTime: 60 * 1000
   })
-
   const refreshStudent = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['student-details', id] }),
       queryClient.invalidateQueries({ queryKey: ['adminStudents'] })
     ])
   }
-
   const handleToggleStatus = async (target) => {
     const newActive = !(target.active === true || String(target.active) === 'true')
     setIsTogglingStatus(true)
@@ -49,7 +46,6 @@ export default function AdminStudentDetails() {
       setIsTogglingStatus(false)
     }
   }
-
   const handleAddSessions = async (studentId, count, reason) => {
     try {
       await studentsApi.addSessions(studentId || id, count, reason)
@@ -65,14 +61,13 @@ export default function AdminStudentDetails() {
       throw err
     }
   }
-
-  // Moves the student out of their current group (transfer) or adds them to a group if they have none.
   const handleChangeGroup = async (currentGroupId, targetGroupId) => {
     try {
+      const studentId = student?.student_id || student?.id || student?._id || id
       if (currentGroupId) {
-        await adminGroupsApi.transferStudent(currentGroupId, { student: id, targetGroup: targetGroupId })
+        await adminGroupsApi.transferStudent(currentGroupId, { student: studentId, targetGroup: targetGroupId })
       } else {
-        await adminGroupsApi.addStudentToGroup(targetGroupId, id)
+        await adminGroupsApi.addStudentToGroup(targetGroupId, studentId)
       }
       await refreshStudent()
       toast.success(isRtl ? 'تم تغيير المجموعة بنجاح' : 'Group changed successfully')
@@ -82,7 +77,6 @@ export default function AdminStudentDetails() {
       throw err
     }
   }
-
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -90,7 +84,6 @@ export default function AdminStudentDetails() {
       </div>
     )
   }
-
   if (isError || !student) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -119,7 +112,6 @@ export default function AdminStudentDetails() {
       </div>
     )
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <StudentDetailsScreen

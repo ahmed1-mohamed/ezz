@@ -22,22 +22,30 @@ export const complaintsApi = {
       let filtered = [...allItems]
       const totalCount = filtered.length
       const pendingCount = filtered.filter((i) => i.status === 'pending').length
-      const resolvedCount = filtered.filter((i) => i.status === 'resolved').length
-      const rejectedCount = filtered.filter((i) => i.status === 'rejected').length
-
+      const resolvedCount = filtered.filter((i) => i.status === 'resolved' || i.status === 'accepted' || (i.status && (i.status.includes('محلول') || i.status.includes('مقبول')))).length
+      const rejectedCount = filtered.filter((i) => i.status === 'rejected' || (i.status && i.status.includes('مرفوض'))).length
       if (status && status !== 'all') {
-        filtered = filtered.filter((i) => i.status === status)
+        filtered = filtered.filter((i) => {
+          const s = (i.status || '').toLowerCase()
+          if (status === 'resolved') {
+            return s === 'resolved' || s === 'accepted' || s.includes('محلول') || s.includes('مقبول') || s.includes('تم الحل')
+          }
+          if (status === 'rejected') {
+            return s === 'rejected' || s.includes('مرفوض')
+          }
+          if (status === 'pending') {
+            return s === 'pending' || s.includes('انتظار') || s.includes('مراجعة') || s.includes('معلقة')
+          }
+          return s === status.toLowerCase()
+        })
       }
-
       if (type && type !== 'all') {
         filtered = filtered.filter((i) => matchesType(i.type, type))
       }
-
       const pageNum = Number(page || 1)
       const limitNum = Number(limit || 10)
       const startIndex = (pageNum - 1) * limitNum
       const paginatedItems = filtered.slice(startIndex, startIndex + limitNum)
-
       return {
         data: paginatedItems,
         pagination: {
@@ -54,78 +62,49 @@ export const complaintsApi = {
         },
       }
     }
-
-     const urlsToTry = []
-    if (status && status !== 'all') {
-      urlsToTry.push(`${BASE_URL}/${status}`)
-    }
-    urlsToTry.push(BASE_URL)
-
-    for (const url of urlsToTry) {
-      try {
-        const isSubpath = url !== BASE_URL
-        const queryParams = cleanParams({
-          ...(!isSubpath && status && status !== 'all' ? { status } : {}),
-          ...(type && type !== 'all' ? { type } : {}),
-          page,
-          limit,
-          ...otherParams,
-        })
-
-        const response = await api.get(url, {
-          params: queryParams,
-          skipLang: true,
-        })
-
-        const resData = response.data
-        const items = Array.isArray(resData?.data)
-          ? resData.data
-          : Array.isArray(resData)
-          ? resData
-          : []
-
-        if (type && type !== 'all') {
-          const typeFiltered = items.filter((i) => matchesType(i.type, type))
-          return {
-            ...resData,
-            data: typeFiltered,
-            pagination: resData.pagination
-              ? { ...resData.pagination, totalCount: typeFiltered.length }
-              : undefined,
-          }
-        }
-
-        return resData
-      } catch (err) {
-         if (err.response?.status === 400 || err.response?.status === 404) {
-          continue
-        }
-        throw err
+    const queryParams = cleanParams({
+      ...(type && type !== 'all' ? { type } : {}),
+      page: status && status !== 'all' ? undefined : page,
+      limit: status && status !== 'all' ? 100 : limit,
+      ...otherParams,
+    })
+    try {
+      const response = await api.get(BASE_URL, {
+        params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        skipLang: true,
+      })
+      const resData = response.data
+      const items = Array.isArray(resData?.data)
+        ? resData.data
+        : Array.isArray(resData)
+        ? resData
+        : []
+      if (status && status !== 'all') {
+        return applyInMemoryFilters(items, resData?.statistics)
       }
-    }
-
-     try {
+      if (type && type !== 'all') {
+        const typeFiltered = items.filter((i) => matchesType(i.type, type))
+        return {
+          ...resData,
+          data: typeFiltered,
+          pagination: resData.pagination
+            ? { ...resData.pagination, totalCount: typeFiltered.length }
+            : undefined,
+        }
+      }
+      return resData
+    } catch {
       const fallbackResponse = await api.get(BASE_URL, {
         params: { limit: 200 },
         skipLang: true,
       })
-
       const resData = fallbackResponse.data
       const allItems = Array.isArray(resData?.data)
         ? resData.data
         : Array.isArray(resData)
         ? resData
         : []
-
       return applyInMemoryFilters(allItems, resData?.statistics)
-    } catch {
-       const simpleRes = await api.get(BASE_URL, { skipLang: true })
-      const items = Array.isArray(simpleRes.data?.data)
-        ? simpleRes.data.data
-        : Array.isArray(simpleRes.data)
-        ? simpleRes.data
-        : []
-      return applyInMemoryFilters(items, simpleRes.data?.statistics)
     }
   },
 

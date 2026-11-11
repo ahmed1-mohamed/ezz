@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import { MessageSquareWarning, ChevronRight, ChevronLeft } from 'lucide-react'
 import { complaintsApi } from '@/shared/services/api/complaintsApi'
 import { showDeleteConfirm, showNotesPrompt, showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
+import { getApiErrorText } from '@/shared/utils/errorHandler'
+import TabErrorState from '@/shared/components/TabErrorState'
 import ComplaintsStats from './components/ComplaintsStats'
 import ComplaintsTypeFilter from './components/ComplaintsTypeFilter'
 import ComplaintCard from './components/ComplaintCard'
@@ -76,7 +78,7 @@ export default function AdminComplaints() {
     queryClient.invalidateQueries({ queryKey: ['complaintsStats'] })
     queryClient.invalidateQueries({ queryKey: ['complaintDetails'] })
   }
-  const getErrorText = (err, fallback) => err?.response?.data?.message || fallback
+  const getErrorText = (err, fallback) => getApiErrorText(err, fallback)
   const deleteMutation = useMutation({
     mutationFn: complaintsApi.deleteComplaint,
     onSuccess: () => {
@@ -169,9 +171,12 @@ export default function AdminComplaints() {
         </p>
       </div>
       {errorMessage && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-bold border border-rose-200 dark:border-rose-900/50">
-          {errorMessage}
-        </div>
+        <TabErrorState
+          message={errorMessage}
+          compact
+          onRetry={refreshData}
+          isRtl={isRtl}
+        />
       )}
       <ComplaintsStats
         statistics={statistics}

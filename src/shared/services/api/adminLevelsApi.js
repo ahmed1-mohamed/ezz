@@ -9,7 +9,7 @@ export const adminLevelsApi = {
       try {
         const rawRes = await api.get('/api/v1/student-levels/private', { params });
         return rawRes.data;
-      } catch (err2) {
+      } catch {
         try {
           const fallbackRes = await api.get('/api/v1/student-levels', { params });
           return fallbackRes.data;

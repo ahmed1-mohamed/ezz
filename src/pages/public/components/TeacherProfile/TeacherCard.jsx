@@ -1,7 +1,10 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/shared/context/useAuth.jsx'
 
 const getImageUrl = (imagePath) => {
     if (!imagePath || typeof imagePath !== 'string' || !imagePath.trim()) return null
@@ -10,21 +13,34 @@ const getImageUrl = (imagePath) => {
         return trimmed
     }
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed
-    return `https://manaret-ezz.dramcode.top/${cleanPath}`
+    return buildApiAssetUrl(cleanPath)
 }
 
 export default function TeacherCard({ teacher, t, isRtl }) {
     const navigate = useNavigate()
+    const { i18n } = useTranslation()
+    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
+    const { user, isAuthenticated } = useAuth()
     const [hasImgError, setHasImgError] = useState(false)
     const [prevImg, setPrevImg] = useState(teacher?.image)
-
     if (prevImg !== teacher?.image) {
         setPrevImg(teacher?.image)
         setHasImgError(false)
     }
-
     const imgUrl = hasImgError ? null : getImageUrl(teacher?.image)
     const teacherInitial = teacher?.name ? teacher.name.trim().charAt(0) : 'م'
+
+    const handleBookTrial = () => {
+        const teacherId = teacher?.id || teacher?._id
+        const targetUrl = '/dashboard/parent/students?action=trial' + (teacherId ? `&teacherId=${teacherId}` : '')
+        if (!isAuthenticated) {
+            navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`)
+        } else if (user?.role?.toLowerCase() === 'parent') {
+            navigate(targetUrl)
+        } else {
+            navigate(`/${currentLang}`)
+        }
+    }
 
     return (
         <motion.div
@@ -51,20 +67,17 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                     </div>
                 )}
             </div>
-
             <h1 className="text-2xl sm:text-[28px] font-extrabold text-[#00695C] dark:text-emerald-400 text-center mb-1">
                 {teacher?.name}
             </h1>
             <p className="text-slate-600 dark:text-slate-300 font-semibold text-center mb-6 text-sm sm:text-base">
                 {teacher?.title}
             </p>
-
             <div className="flex items-center gap-4 mb-8 w-full">
                 <div className="flex items-center gap-1 text-[#9B7B16] dark:text-amber-400 font-bold">
                     <span className="text-lg">{teacher?.rating || '5.0'}</span>
                     <Star className="w-5 h-5 fill-[#9B7B16] dark:fill-amber-400" />
                 </div>
-
                 <div className="flex-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
                     {(teacher?.tags || []).map((tag, i) => (
                         <span key={i} className="whitespace-nowrap bg-[#F2F2F2] dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-full text-sm font-bold">
@@ -73,16 +86,15 @@ export default function TeacherCard({ teacher, t, isRtl }) {
                     ))}
                 </div>
             </div>
-
             <div className="w-full space-y-3">
                 <button
-                    onClick={() => navigate('/contact')}
+                    onClick={handleBookTrial}
                     className="w-full bg-[#00695C] hover:bg-[#004D40] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-md active:scale-95 text-lg cursor-pointer"
                 >
                     {t('teacherProfile.bookTrial', 'احجز حصة تجريبية')}
                 </button>
                 <button
-                    onClick={() => navigate('/pricing')}
+                    onClick={() => navigate(`/${currentLang}/pricing`)}
                     className="w-full bg-black hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 text-lg cursor-pointer"
                 >
                     {t('teacherProfile.subscribeNow', 'اشترك الآن')}

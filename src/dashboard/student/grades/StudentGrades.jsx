@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Award, User, Calendar, BookOpen, ChevronLeft, ChevronRight, MessageSquareQuote } from 'lucide-react';
+import { Star, Award, Calendar, ChevronLeft, ChevronRight, MessageSquareQuote } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
@@ -25,14 +25,11 @@ export default function StudentGrades() {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const ArrowPrev = isRtl ? ChevronRight : ChevronLeft;
   const ArrowNext = isRtl ? ChevronLeft : ChevronRight;
-
   const [loading, setLoading] = useState(true);
   const [evaluations, setEvaluations] = useState([]);
   const [rawPagination, setRawPagination] = useState({});
   const [page, setPage] = useState(1);
-
   const limit = 10;
-
   const fetchEvaluations = async (currentPage) => {
     try {
       setLoading(true);
@@ -40,7 +37,6 @@ export default function StudentGrades() {
       const payload = res?.data?.data ? res.data : (res || {});
       const items = Array.isArray(payload.data) ? payload.data : (Array.isArray(payload) ? payload : (Array.isArray(res?.data) ? res.data : []));
       setEvaluations(items);
-
       const pag = payload.pagination || res?.pagination || {};
       setRawPagination(pag);
     } catch (err) {
@@ -49,23 +45,18 @@ export default function StudentGrades() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchEvaluations(page);
   }, [page]);
-
   const totalItems = rawPagination.totalItems ?? rawPagination.totalCount ?? rawPagination.total ?? evaluations.length;
   const totalPages = Math.max(1, rawPagination.totalPages ?? rawPagination.numberOfPages ?? rawPagination.pages ?? Math.ceil(totalItems / limit));
-
   const avgRating = useMemo(() => {
     if (!evaluations.length) return '5.0';
     const sum = evaluations.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0);
     return (sum / evaluations.length).toFixed(1);
   }, [evaluations]);
-
   const startIndex = totalItems > 0 ? (page - 1) * limit + 1 : 0;
   const endIndex = totalItems > 0 ? Math.min(page * limit, totalItems) : 0;
-
   return (
     <div className="min-h-screen bg-[#f3f7f6] dark:bg-slate-900 p-4 sm:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
@@ -73,7 +64,6 @@ export default function StudentGrades() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-7xl mx-auto space-y-6"
       >
-        {/* Header */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-start">
             <div className="w-14 h-14 bg-amber-50 dark:bg-amber-950/40 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
@@ -88,7 +78,6 @@ export default function StudentGrades() {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-center shadow-xs">
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">{t('studentDashboard.evaluations.avgRating', 'متوسط التقييم')}</p>
@@ -103,8 +92,6 @@ export default function StudentGrades() {
             </div>
           </div>
         </div>
-
-        {/* Content */}
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <Spinner />
@@ -128,7 +115,6 @@ export default function StudentGrades() {
                     day: 'numeric',
                   })
                 : (item.date || session.date || '-');
-
               return (
                 <motion.div
                   key={item.id || item._id || idx}
@@ -164,7 +150,6 @@ export default function StudentGrades() {
                         )}
                       </div>
                     </div>
-
                     <div className="flex items-center gap-3 self-end sm:self-auto">
                       <StarDisplay rating={item.rating} />
                       <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-800" dir="ltr">
@@ -173,7 +158,6 @@ export default function StudentGrades() {
                       </div>
                     </div>
                   </div>
-
                   {item.notes && (
                     <div className="bg-slate-50 dark:bg-slate-900/60 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 flex items-start gap-3">
                       <MessageSquareQuote size={20} className="text-[#00695C] dark:text-emerald-400 shrink-0 mt-0.5" />
@@ -185,8 +169,6 @@ export default function StudentGrades() {
                 </motion.div>
               );
             })}
-
-            {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
                 <p className="text-xs sm:text-sm font-semibold text-slate-400 dark:text-slate-500">
@@ -196,7 +178,6 @@ export default function StudentGrades() {
                     <>Showing <span className="text-slate-700 dark:text-slate-200 font-bold">{startIndex}</span> - <span className="text-slate-700 dark:text-slate-200 font-bold">{endIndex}</span> of <span className="text-slate-700 dark:text-slate-200 font-bold">{totalItems}</span> evaluations</>
                   )}
                 </p>
-
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -207,7 +188,6 @@ export default function StudentGrades() {
                   >
                     <ArrowPrev size={16} />
                   </button>
-
                   <div className="flex items-center gap-1">
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                       .filter((pNum) => pNum === 1 || pNum === totalPages || Math.abs(pNum - page) <= 1)
@@ -215,7 +195,6 @@ export default function StudentGrades() {
                         const prevNum = arr[index - 1];
                         const showEllipsis = prevNum && pNum - prevNum > 1;
                         const isActive = page === pNum;
-
                         return (
                           <div key={pNum} className="flex items-center gap-1">
                             {showEllipsis && (
@@ -236,7 +215,6 @@ export default function StudentGrades() {
                         );
                       })}
                   </div>
-
                   <button
                     type="button"
                     disabled={page >= totalPages}

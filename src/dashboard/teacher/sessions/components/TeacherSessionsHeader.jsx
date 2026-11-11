@@ -9,7 +9,6 @@ export default React.memo(function TeacherSessionsHeader({
   onRefetch,
 }) {
   const { t } = useTranslation();
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex items-center gap-3.5 text-start">
@@ -25,7 +24,6 @@ export default React.memo(function TeacherSessionsHeader({
           </p>
         </div>
       </div>
-
       <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
         <button
           onClick={onRefetch}
@@ -35,13 +33,11 @@ export default React.memo(function TeacherSessionsHeader({
         >
           <RotateCcw size={16} className={isFetching ? 'animate-spin' : ''} />
         </button>
-
         {currentTimeStr && (
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>
         )}
-
         {currentDateStr && (
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
             <Calendar size={14} className="text-slate-400" />

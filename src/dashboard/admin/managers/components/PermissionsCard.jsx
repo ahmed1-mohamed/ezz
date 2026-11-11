@@ -13,7 +13,6 @@ export default function PermissionsCard({
       <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <span>{t('adminDashboard.managers.addSupervisorScreen.permissionsTitle', 'الأدوار (الأذونات)')}</span>
       </h2>
-
       <div className="space-y-3">
         {permissionsList.map((perm) => {
           const isActive = selectedPermissionId === perm.id
@@ -47,7 +46,6 @@ export default function PermissionsCard({
           </p>
         )}
       </div>
-
       <div className="pt-2 text-center">
         <button
           type="button"

@@ -1,3 +1,4 @@
+import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -11,18 +12,16 @@ export default function TeacherViewModal({
   isLoading
 }) {
   const { t } = useTranslation();
-
-  if (!isOpen) return null;
-
+  if (!isOpen || typeof document === 'undefined') return null;
   return createPortal(
     <AnimatePresence>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50" style={{ position: 'fixed', inset: 0 }} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0 }}>
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl p-8"
+          className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl p-8 pointer-events-auto"
         >
           <button
             type="button"
@@ -31,11 +30,9 @@ export default function TeacherViewModal({
           >
             <X size={18} />
           </button>
-
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-150 mb-6 text-start border-b border-slate-100 dark:border-slate-800 pb-3">
             {t('adminDashboard.website.eliteTeacherNotes', 'ملاحظات المعلم المتميز')}
           </h3>
-
           {isLoading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3">
               <div className="w-8 h-8 rounded-full border-4 border-slate-200 border-t-[#0f7a6c] animate-spin" />
@@ -45,7 +42,7 @@ export default function TeacherViewModal({
             <div className="text-center space-y-6">
               {teacher.image ? (
                 <img
-                  src={teacher.image.startsWith('http') || teacher.image.startsWith('data:') ? teacher.image : `https://manaret-ezz.dramcode.top/${teacher.image}`}
+                  src={teacher.image.startsWith('http') || teacher.image.startsWith('data:') ? teacher.image : buildApiAssetUrl(teacher.image)}
                   alt={teacher.name}
                   className="w-20 h-20 rounded-full object-cover shadow-md mx-auto border-2 border-white"
                 />
@@ -54,13 +51,11 @@ export default function TeacherViewModal({
                   {teacher.name ? teacher?.name?.trim().charAt(0) : 'ف'}
                 </div>
               )}
-
               <div>
                 <h4 className="text-lg font-bold text-slate-800 dark:text-slate-250">
                   {teacher.name}
                 </h4>
               </div>
-
               <div className="text-start bg-slate-50 dark:bg-slate-950/40 p-6 rounded-2xl border border-slate-100/60 dark:border-slate-800/50">
                 <p className="text-sm text-slate-600 dark:text-slate-305 leading-7 whitespace-pre-line font-medium text-start">
                   {teacher.review || t('adminDashboard.website.noReviewNotes', 'لا توجد ملاحظات مكتوبة')}
@@ -72,7 +67,6 @@ export default function TeacherViewModal({
               {t('common.errorLoading', 'خطأ في تحميل البيانات')}
             </div>
           )}
-
           <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex justify-start">
             <Button
               onClick={onClose}

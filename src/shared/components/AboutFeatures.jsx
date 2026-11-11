@@ -6,19 +6,15 @@ import imagesrc from '../../images/students/1.webp'
 
 export default React.memo(function AboutFeatures() {
     const { t } = useTranslation()
-
     return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-
             <div className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] dark:text-white inline-block relative">
                     {t('about.features.title', 'لماذا يختارنا الأهالي ؟')}
                     <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-1.5 bg-[#735C00] dark:bg-amber-500 rounded-full"></span>
                 </h2>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -46,7 +42,6 @@ export default React.memo(function AboutFeatures() {
                         />
                     </div>
                 </motion.div>
-
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -66,7 +61,6 @@ export default React.memo(function AboutFeatures() {
                         </p>
                     </div>
                 </motion.div>
-
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -93,7 +87,6 @@ export default React.memo(function AboutFeatures() {
                             {t('about.features.f4.desc', 'تعتمد أكاديميتنا على مناهج تم اختيارها بعناية من كبار العلماء والتربويين، لضمان توازن دقيق بين الحفظ والفهم، وبين القواعد والتطبيق العملي، مما يخلق بيئة تعليمية متكاملة.')}
                         </p>
                     </div>
-
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

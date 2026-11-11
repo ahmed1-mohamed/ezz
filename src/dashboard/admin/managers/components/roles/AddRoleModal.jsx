@@ -16,10 +16,8 @@ export default function AddRoleModal({
   isPending
 }) {
   const modalRef = useRef(null)
-
   useEffect(() => {
     if (!isOpen) return
-
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose()
@@ -30,7 +28,6 @@ export default function AddRoleModal({
         )
         const firstElement = focusableElements[0]
         const lastElement = focusableElements[focusableElements.length - 1]
-
         if (e.shiftKey) {
           if (document.activeElement === firstElement) {
             lastElement.focus()
@@ -44,24 +41,20 @@ export default function AddRoleModal({
         }
       }
     }
-
     document.addEventListener('keydown', handleKeyDown)
     setTimeout(() => {
       const firstInput = modalRef.current?.querySelector('input')
       if (firstInput) firstInput.focus()
     }, 100)
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, onClose])
-
-  if (!isOpen) return null;
-
+  if (!isOpen || typeof document === 'undefined') return null;
   return createPortal(
     <>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/60 animate-fadeIn" style={{ position: 'fixed', inset: 0 }} onClick={onClose} />
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="fixed inset-0 w-screen h-screen min-h-screen z-[99999] flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <div 
           ref={modalRef}
           role="dialog"
@@ -82,7 +75,6 @@ export default function AddRoleModal({
             <X size={18} aria-hidden="true" />
           </button>
         </div>
-
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div>
             <label htmlFor="roleNameArInput" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-start">
@@ -94,7 +86,7 @@ export default function AddRoleModal({
               required
               value={newRoleNameAr}
               onChange={(e) => setNewRoleNameAr(e.target.value)}
-              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'مثال: مشرف معلمين' : 'e.g., Teachers Supervisor'}
               dir={isRtl ? 'rtl' : 'ltr'}
             />
@@ -109,12 +101,11 @@ export default function AddRoleModal({
               required
               value={newRoleNameEn}
               onChange={(e) => setNewRoleNameEn(e.target.value)}
-              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
+              className="w-full bg-[#f8fafc] dark:bg-slate-950 border border-transparent focus:border-[#0f7a6c] focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl py-3 px-4 outline-none transition-all text-sm"
               placeholder={isRtl ? 'مثال: Teachers Supervisor' : 'e.g., Teachers Supervisor'}
               dir="ltr"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"

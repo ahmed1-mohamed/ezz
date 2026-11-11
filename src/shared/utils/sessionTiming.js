@@ -61,12 +61,12 @@ export function parseSessionDateTime(dateVal, timeVal) {
   return isNaN(result.getTime()) ? null : result;
 }
 
-export function checkCanJoinSession(session, currentTime = Date.now()) {
+export function checkCanJoinSession(session) {
   if (!session) {
     return {
       canJoin: false,
       reason: 'no_session',
-      message: SESSION_JOIN_RESTRICTION_MSG_AR,
+      message: 'لا توجد حصة محددة',
     };
   }
   const status = String(session.status || session.rawStatus || '').toLowerCase();
@@ -84,56 +84,9 @@ export function checkCanJoinSession(session, currentTime = Date.now()) {
       message: 'الحصة مكتملة بالفعل',
     };
   }
-  const startDate = parseSessionDateTime(
-    session.date || session.scheduledDate,
-    session.startTime || session.time
-  );
-  if (!startDate) {
-    if (session.canJoinNow || status === 'live' || status === 'in_progress') {
-      return { canJoin: true };
-    }
-    return {
-      canJoin: false,
-      reason: 'invalid_date',
-      message: SESSION_JOIN_RESTRICTION_MSG_AR,
-    };
-  }
-  let endDate = parseSessionDateTime(
-    session.date || session.scheduledDate,
-    session.endTime
-  );
-  if (!endDate) {
-    const durationMinutes = Number(
-      session.durationMinutes || session.durationTime || session.duration || 60
-    );
-    endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
-  }
-  const windowStartMs = startDate.getTime() - EARLY_JOIN_WINDOW_MINUTES * 60 * 1000;
-  const windowEndMs = endDate.getTime() + LATE_JOIN_WINDOW_MINUTES * 60 * 1000;
-  if (currentTime < windowStartMs) {
-    return {
-      canJoin: false,
-      isTooEarly: true,
-      reason: 'too_early',
-      message: SESSION_JOIN_RESTRICTION_MSG_AR,
-      windowStart: new Date(windowStartMs),
-      windowEnd: new Date(windowEndMs),
-    };
-  }
-  if (currentTime > windowEndMs) {
-    return {
-      canJoin: false,
-      isExpired: true,
-      reason: 'expired',
-      message: 'انتهت فترة السماح بالانضمام لهذه الحصة (30 دقيقة بعد انتهائها)',
-      windowStart: new Date(windowStartMs),
-      windowEnd: new Date(windowEndMs),
-    };
-  }
   return {
     canJoin: true,
-    windowStart: new Date(windowStartMs),
-    windowEnd: new Date(windowEndMs),
+    isLive: status === 'live' || status === 'in_progress' || Boolean(session.canJoinNow),
   };
 }
 

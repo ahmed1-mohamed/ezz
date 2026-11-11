@@ -26,12 +26,10 @@ export default function RolesPermissionsScreen({
 }) {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft
   const queryClient = useQueryClient()
-
   const initialPermissionId = useMemo(() => {
     if (!adminSupervisor) return null
     return adminSupervisor.permissionId || adminSupervisor.permission?._id || adminSupervisor.permission?.id || (adminSupervisor.permission && typeof adminSupervisor.permission === 'object' ? (adminSupervisor.permission._id || adminSupervisor.permission.id) : adminSupervisor.permission) || null
   }, [adminSupervisor])
-
   const [userSelectedId, setUserSelectedId] = useState(null)
   const selectedPermissionId = useMemo(() => {
     if (userSelectedId) return userSelectedId
@@ -39,10 +37,8 @@ export default function RolesPermissionsScreen({
     return permissionsList[0]?.id || permissionsList[0]?._id || null
   }, [userSelectedId, isAdminAssignment, initialPermissionId, permissionsList])
   const setSelectedPermissionId = setUserSelectedId
-
   const [prevSelectedId, setPrevSelectedId] = useState(null)
   const [activeKeys, setActiveKeys] = useState([])
-
   if (prevSelectedId !== selectedPermissionId) {
     setPrevSelectedId(selectedPermissionId)
     const selected = permissionsList.find(p => (p.id || p._id) === selectedPermissionId)
@@ -58,11 +54,9 @@ export default function RolesPermissionsScreen({
       setActiveKeys([])
     }
   }
-
   const [isAddRoleModalOpen, setIsAddRoleModalOpen] = useState(false)
   const [newRoleNameAr, setNewRoleNameAr] = useState('')
   const [newRoleNameEn, setNewRoleNameEn] = useState('')
-
   const createMutation = useMutation({
     mutationFn: managersApi.createPermission,
     onSuccess: (data) => {
@@ -75,7 +69,6 @@ export default function RolesPermissionsScreen({
       }
     }
   })
-
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }) => managersApi.updatePermission(id, payload),
     onError: (err) => {
@@ -101,7 +94,6 @@ export default function RolesPermissionsScreen({
       showSuccessToast(isRtl ? 'تم الحفظ بنجاح!' : 'Saved successfully!', isRtl)
     }
   })
-
   const deleteRoleMutation = useMutation({
     mutationFn: (id) => managersApi.deletePermission(id),
     onSuccess: () => {
@@ -114,11 +106,9 @@ export default function RolesPermissionsScreen({
       }
     }
   })
-
   const selectedPermission = useMemo(() =>
     permissionsList.find(p => p.id === selectedPermissionId)
     , [selectedPermissionId, permissionsList])
-
   const handleToggleKey = (key, aliases = []) => {
     setActiveKeys(prev =>
       [key, ...(aliases || [])].some(k => prev.includes(k))
@@ -126,34 +116,33 @@ export default function RolesPermissionsScreen({
         : [...prev, key]
     )
   }
-
-  // The matrix toggles UI keys (e.g. READ_TEACHERS); the API only stores real action keys
-  // (e.g. teachers.read) and silently drops unknown ones, so expand to the backend keys before saving.
-  const handleSave = () => {
-    if (!selectedPermissionId) return
-
-    const keys = new Set(activeKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k)))
-    SYSTEM_PERMISSIONS.forEach((module) => {
-      module.actions.forEach((action) => {
-        const actionKeys = [action.key, ...(action.aliases || [])]
-        if (actionKeys.some((k) => activeKeys.includes(k))) {
-          actionKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k)).forEach((k) => keys.add(k))
-        } else {
-          actionKeys.forEach((k) => keys.delete(k))
-        }
-      })
-    })
-
-    updateMutation.mutate({
-      id: selectedPermissionId,
-      payload: { keys: [...keys] }
+  const handleToggleModule = (moduleKeys = []) => {
+    const isAllActive = moduleKeys.every((k) => activeKeys.includes(k))
+    setActiveKeys((prev) => {
+      if (isAllActive) {
+        return prev.filter((k) => !moduleKeys.includes(k))
+      }
+      return [...new Set([...prev, ...moduleKeys])]
     })
   }
-
+  const handleToggleAll = (selectAll = true) => {
+    if (selectAll) {
+      setActiveKeys([...BACKEND_PERMISSION_KEYS])
+    } else {
+      setActiveKeys([])
+    }
+  }
+  const handleSave = () => {
+    if (!selectedPermissionId) return
+    const keys = activeKeys.filter((k) => BACKEND_PERMISSION_KEYS.has(k))
+    updateMutation.mutate({
+      id: selectedPermissionId,
+      payload: { keys }
+    })
+  }
   const handleCreateRole = (e) => {
     e.preventDefault()
     if (!newRoleNameAr.trim() || !newRoleNameEn.trim()) return
-
     createMutation.mutate({
       name: {
         ar: newRoleNameAr.trim(),
@@ -162,11 +151,9 @@ export default function RolesPermissionsScreen({
       keys: []
     })
   }
-
   const previewStats = useMemo(() => {
     let granted = 0
     let totalOptions = 0
-
     SYSTEM_PERMISSIONS.forEach(m => {
       m.actions.forEach(act => {
         totalOptions++
@@ -175,24 +162,19 @@ export default function RolesPermissionsScreen({
         }
       })
     })
-
     const denied = Math.max(0, totalOptions - granted)
     const accessLevel = totalOptions > 0 ? Math.round((granted / totalOptions) * 100) : 0
-
     return { granted, denied, accessLevel }
   }, [activeKeys])
-
   const selectedRoleName = selectedPermission
     ? (typeof selectedPermission.name === 'object' ? (isRtl ? selectedPermission.name.ar || selectedPermission.name.en : selectedPermission.name.en || selectedPermission.name.ar) : selectedPermission.name)
     : ''
-
   const supervisorName = adminSupervisor ? (typeof adminSupervisor.name === 'object' ? (isRtl ? adminSupervisor.name.ar || adminSupervisor.name.en : adminSupervisor.name.en || adminSupervisor.name.ar) : adminSupervisor.name) : '';
   const pageTitle = isAdminAssignment
     ? (isRtl ? `صلاحيات المشرف: ${supervisorName}` : `Permissions for supervisor: ${supervisorName}`)
     : (selectedPermission
       ? t('adminDashboard.managers.permissionsScreen.title', { roleName: selectedRoleName }, `أذونات ${selectedRoleName}`)
       : t('adminDashboard.managers.permissionsScreen.rolesTitle', 'الأدوار'));
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -219,7 +201,6 @@ export default function RolesPermissionsScreen({
             </p>
           </div>
         </div>
-
         <button
           type="button"
           onClick={onCancel}
@@ -228,7 +209,6 @@ export default function RolesPermissionsScreen({
           {t('adminDashboard.managers.permissionsScreen.backToList', 'العودة لقائمة المشرفين')}
         </button>
       </div>
-
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         <RoleList
           permissionsList={permissionsList}
@@ -241,7 +221,6 @@ export default function RolesPermissionsScreen({
           onDeleteRole={(id) => deleteRoleMutation.mutate(id)}
           isDeletingRole={deleteRoleMutation.isPending}
         />
-
         <PermissionsMatrix
           SYSTEM_PERMISSIONS={SYSTEM_PERMISSIONS}
           isRtl={isRtl}
@@ -249,6 +228,8 @@ export default function RolesPermissionsScreen({
           isAdminAssignment={isAdminAssignment}
           activeKeys={activeKeys}
           handleToggleKey={handleToggleKey}
+          handleToggleModule={handleToggleModule}
+          handleToggleAll={handleToggleAll}
           previewStats={previewStats}
           selectedPermissionId={selectedPermissionId}
           updateMutation={updateMutation}
@@ -259,7 +240,6 @@ export default function RolesPermissionsScreen({
           onDeleteAdminRole={onDeleteAdminRole}
         />
       </div>
-
       <AddRoleModal
         isOpen={isAddRoleModalOpen}
         onClose={() => setIsAddRoleModalOpen(false)}

@@ -11,11 +11,9 @@ export default function AdminAddGroup() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
   const [isSaving, setIsSaving] = useState(false)
-
   const isPrivateGroup = location.pathname.includes('private-groups')
   const backPath = isPrivateGroup ? '/dashboard/admin/private-groups' : '/dashboard/admin/groups'
   const initialGroup = isPrivateGroup ? { type: 'private' } : null
-
   const handleSave = async (formData) => {
     setIsSaving(true)
     try {
@@ -30,7 +28,6 @@ export default function AdminAddGroup() {
       setIsSaving(false)
     }
   }
-
   return (
     <div className="p-1 md:p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <AddEditGroupScreen

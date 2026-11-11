@@ -15,9 +15,7 @@ export default function EvaluationFormCard({
   canSubmit,
 }) {
   const { t } = useTranslation();
-
   const studentDisplayName = currentSelectedStudent?.name || t('teacherEvaluations.defaultStudent', 'الطالب');
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-7 text-start">
       <div className="flex items-center justify-between gap-4">
@@ -26,12 +24,10 @@ export default function EvaluationFormCard({
         >
           {levelInfo.label}
         </span>
-
         <h3 className="text-base sm:text-lg font-black text-slate-800 dark:text-white">
           {t('teacherEvaluations.evaluationForStudent', 'تقييم {{name}}', { name: studentDisplayName })}
         </h3>
       </div>
-
       <div className="space-y-3">
         <div className="text-start">
           <span className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 block mb-1">
@@ -46,26 +42,22 @@ export default function EvaluationFormCard({
             </span>
           </div>
         </div>
-
         <div className="w-full h-4 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
           <div
             className="h-full bg-[#00594C] rounded-full transition-all duration-500 ease-out"
             style={{ width: `${studentAveragePercentage}%` }}
           />
         </div>
-
         <div className="flex items-center justify-between text-xs text-slate-400 font-semibold px-1">
           <span>{t('teacherEvaluations.fiveStars', '5 نجوم (100%)')}</span>
           <span>{t('teacherEvaluations.halfStars', '2.5 نجمة (50%)')}</span>
           <span>{t('teacherEvaluations.zero', '0')}</span>
         </div>
       </div>
-
       <div className="space-y-4 pt-2">
         <h4 className="text-sm sm:text-base font-black text-slate-800 dark:text-white">
           {t('teacherEvaluations.ratingScaleTitle', 'تقييم الطالب في الحصة (من 1 إلى 5 نجوم)')}
         </h4>
-
         <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2" dir="ltr">
             {[1, 2, 3, 4, 5].map((starNum) => {
@@ -90,7 +82,6 @@ export default function EvaluationFormCard({
               );
             })}
           </div>
-
           <div className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-1.5">
             <span>{t('teacherEvaluations.selectedRating', 'التقييم المحدد:')}</span>
             <span className="text-[#00594C] dark:text-emerald-400 text-base font-black">
@@ -99,7 +90,6 @@ export default function EvaluationFormCard({
           </div>
         </div>
       </div>
-
       <div className="space-y-2 pt-2">
         <label className="block text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
           {t('teacherEvaluations.teacherNotes', 'ملاحظة وتوجيهات المعلم للطالب')}
@@ -115,7 +105,6 @@ export default function EvaluationFormCard({
           className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00594C] transition resize-none"
         />
       </div>
-
       <button
         type="button"
         onClick={onSave}
