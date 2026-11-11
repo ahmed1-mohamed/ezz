@@ -1,5 +1,5 @@
 import { useMemo, memo } from 'react'
-import { Sparkles, HeartHandshake, GraduationCap, Award, ShieldCheck } from 'lucide-react'
+import { Sparkles, HeartHandshake, GraduationCap, Award, ShieldCheck, Percent } from 'lucide-react'
 import logoImg from '@/images/programs/NewLogo.webp'
 
 export default memo(function TrialSessionHero({ t, isRtl }) {
@@ -13,6 +13,11 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
       icon: Award,
       title: t('trialSessionLanding.perks.certifiedTeachers', isRtl ? 'معلمون ومعلمات معتمدون' : 'Certified Teachers'),
       desc: isRtl ? 'نخبة من خريجي الأزهر والجامعات الإسلامية المتخصصة' : 'Top graduates from Al-Azhar and Islamic universities',
+    },
+    {
+      icon: Percent,
+      title: t('trialSessionLanding.perks.discount', isRtl ? 'خصم 20% للشهر الأول' : '20% First Month Discount'),
+      desc: t('trialSessionLanding.perks.discountDesc', isRtl ? 'خصم فوري 20% على اشتراك الشهر الأول عند التسجيل بعد الحصة التجريبية' : 'Instant 20% discount on first month enrollment when subscribing after the trial session'),
     },
     {
       icon: ShieldCheck,
@@ -37,11 +42,23 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
             <Sparkles size={16} className="text-amber-300 animate-pulse" />
             <span>{t('trialSessionLanding.badge', isRtl ? 'حصة تجريبية مجانية' : 'Free Trial Session')}</span>
           </div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-300/40 text-xs sm:text-sm font-black text-amber-300 shadow-sm animate-pulse">
+            <Percent size={15} className="text-amber-300" />
+            <span>{t('trialSessionLanding.discountBadge', isRtl ? 'خصم 20% على الشهر الأول' : '20% Off First Month')}</span>
+          </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight sm:leading-snug text-amber-300">
             {t('trialSessionLanding.title', isRtl ? 'احجز حصتك التجريبية المجانية' : 'Book your free trial session')}
           </h1>
+          <p className="text-sm sm:text-base md:text-lg font-bold text-emerald-50/95 max-w-2xl mx-auto leading-relaxed">
+            {t(
+              'trialSessionLanding.discountSubtitle',
+              isRtl
+                ? 'احجز حصتك التجريبية المجانية اليوم واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية!'
+                : 'Book your free trial session today and get 20% off your first month for all educational programs!'
+            )}
+          </p>
         </div>
         <div className="pt-4 border-t border-white/15 max-w-2xl mx-auto space-y-2 text-emerald-50/90 text-sm sm:text-base leading-relaxed">
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-extrabold text-amber-300/90">
@@ -61,7 +78,7 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
             )}
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 text-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-4 text-start">
           {perksList.map((perk) => {
             const IconComp = perk.icon
             return (
@@ -84,4 +101,3 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
     </section>
   )
 })
-

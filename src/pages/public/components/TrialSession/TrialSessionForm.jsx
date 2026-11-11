@@ -53,6 +53,24 @@ export default memo(function TrialSessionForm({
             </p>
           </div>
         </div>
+        <div className="mt-6 p-4 sm:p-4.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-amber-500/10 dark:from-amber-950/30 dark:via-emerald-950/30 dark:to-amber-950/30 border border-amber-300/60 dark:border-amber-700/50 flex items-center gap-3.5 text-start shadow-xs">
+          <div className="w-11 h-11 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+            %20
+          </div>
+          <div className="space-y-0.5 flex-1 min-w-0">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+              {t('trialSessionLanding.form.discountOfferTitle', isRtl ? 'عرض خاص: خصم 20% على الشهر الأول' : 'Special Offer: 20% Off First Month')}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+              {t(
+                'trialSessionLanding.form.discountOfferDesc',
+                isRtl
+                  ? 'بمجرد حجز الحصة التجريبية، يحصل الطالب تلقائياً على خصم 20% على اشتراك الشهر الأول في أي برنامج تعليمي.'
+                  : 'Upon booking your trial session, the student automatically receives a 20% discount on the first month subscription for any program.'
+              )}
+            </p>
+          </div>
+        </div>
         <AnimatePresence>
           {isSuccess && (
             <motion.div

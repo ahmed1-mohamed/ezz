@@ -93,6 +93,16 @@ function createPageHtml(template, lang, routePath, title, description) {
     }
   })
 
+  if (routePath === 'contact') {
+    const contactConversionSnippet = [
+      '<!-- Event snippet for Contact conversion page -->',
+      '<script>',
+      "  gtag('event', 'conversion', {'send_to': 'AW-18468535293/GyPDCNTqjpcdEP33veZE'});",
+      '</script>',
+    ].join('\n  ')
+    html = html.replace('</head>', '  ' + contactConversionSnippet + '\n  </head>')
+  }
+
   return html
 }
 

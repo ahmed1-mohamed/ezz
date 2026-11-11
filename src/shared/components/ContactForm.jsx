@@ -10,6 +10,7 @@ import ContactInfoCards from './ContactInfoCards.jsx'
 import CountryPhoneInput from './CountryPhoneInput.jsx'
 
 import { sanitizeErrorMessage, canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
+import { trackContactConversion } from '@/shared/utils/analytics.js'
 
 export default function ContactForm() {
     const { t } = useTranslation()
@@ -29,6 +30,7 @@ export default function ContactForm() {
     }, [dispatch])
     useEffect(() => {
         if (messageSubmitStatus === 'success') {
+            trackContactConversion()
             const successMsg = t('contact.toast.success', 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.')
             hotToast.success(successMsg)
             setTimeout(() => {

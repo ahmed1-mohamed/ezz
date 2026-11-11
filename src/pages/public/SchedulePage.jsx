@@ -205,7 +205,7 @@ export default function SchedulePage() {
                     </>
                 )}
                 <div className="pt-8">
-                    <CTASection />
+                    <CTASection to="trial-session" />
                 </div>
             </div>
         </div>

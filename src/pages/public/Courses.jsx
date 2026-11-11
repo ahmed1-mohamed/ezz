@@ -74,6 +74,34 @@ export default React.memo(function Courses() {
                     {t('publicCourses.description', 'اكتشف مناهجنا القرآنية واللغوية والتربوية المعتمدة المصممة لجميع المستويات والأعمار')}
                 </p>
             </motion.section>
+            <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="rounded-3xl border border-amber-300/70 bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-amber-500/10 dark:from-amber-950/20 dark:via-emerald-950/20 dark:to-amber-950/20 dark:border-amber-700/50 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4"
+            >
+                <div className="flex items-center gap-3.5 text-start">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-base shrink-0 shadow-xs">
+                        %20
+                    </div>
+                    <div>
+                        <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                            {t('publicCourses.trialOfferTitle', 'احجز حصة تجريبية مجانية واحصل على خصم 20%')}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-0.5">
+                            {t('publicCourses.trialOfferDesc', 'جرّب المنصة وطريقة الشرح مجاناً مع معلم معتمد، واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية.')}
+                        </p>
+                    </div>
+                </div>
+                <Link
+                    to={`/${currentLang}/trial-session`}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#00695C] hover:bg-[#005247] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>{t('publicCourses.bookTrialWithDiscount', 'احجز حصتك التجريبية الآن')}</span>
+                    <ArrowIcon className="w-4 h-4" />
+                </Link>
+            </motion.div>
             {isLoading ? (
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
