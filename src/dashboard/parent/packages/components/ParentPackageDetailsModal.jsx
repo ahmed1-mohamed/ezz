@@ -20,7 +20,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
-import { resolvePackagePrice } from '@/shared/services/api/currenciesApi';
+import { resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
 
 function resolveModalIcon(iconName) {
   const norm = String(iconName || '').toLowerCase().trim();
@@ -81,7 +81,13 @@ export default function ParentPackageDetailsModal({
   const rate = Number(currencyInfo?.exchangeRate || packageItem?.exchangeRate) > 0
     ? Number(currencyInfo?.exchangeRate || packageItem?.exchangeRate)
     : 1;
-  const currencySymbol = currencyInfo?.symbol || packageItem?.currency || t('parentPackages.currency', 'ج.م');
+  const rawCurrency = activeData?.currency || packageItem?.currency || activeData?.priceCurrency || packageItem?.priceCurrency;
+  const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
+  const currencySymbol = packageCurrencySymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const effectiveCurrencyInfo = {
+    ...currencyInfo,
+    symbol: currencySymbol,
+  };
   const featuresList = Array.isArray(activeData?.features) ? activeData.features : [];
   const familyTiers = Array.isArray(activeData?.familyTiers) ? activeData.familyTiers : null;
   const rawBasePrice = Number(activeData?.price ?? 0);
@@ -123,8 +129,8 @@ export default function ParentPackageDetailsModal({
     usdFinal = Math.max(0, rawBasePrice - Number(activeData.discountAmount));
     discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
   }
-  const convertedFinal = resolvePackagePrice(usdFinal, currencyInfo, activeData);
-  const convertedOriginal = resolvePackagePrice(usdOriginal, currencyInfo, activeData);
+  const convertedFinal = resolvePackagePrice(usdFinal, effectiveCurrencyInfo, activeData);
+  const convertedOriginal = resolvePackagePrice(usdOriginal, effectiveCurrencyInfo, activeData);
   const maxFamilyMembers = Number(
     activeData?.maxMembers ??
     activeData?.maxStudents ??
@@ -138,7 +144,8 @@ export default function ParentPackageDetailsModal({
     maxMembers: maxFamilyMembers,
     convertedPrice: convertedFinal,
     convertedOriginalPrice: convertedOriginal,
-    currency: currencySymbol,
+    currency: rawCurrency || currencySymbol,
+    currencySymbol,
     exchangeRate: rate,
   };
   return createPortal(
@@ -200,15 +207,29 @@ export default function ParentPackageDetailsModal({
                 {t('parentPackages.subscriptionFee', 'قيمة الاشتراك الشهري')}
               </span>
               <div className="flex items-baseline gap-2 mt-0.5 flex-wrap">
-                <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400">
-                  {formatPriceString(convertedFinal)}
-                </span>
-                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                  {currencySymbol} / {t('parentPackages.monthly', 'شهرياً')}
-                </span>
+                {currencySymbol === '$' ? (
+                  <>
+                    <span className="text-xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">$</span>
+                    <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
+                      {formatPriceString(convertedFinal)}
+                    </span>
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                      / {t('parentPackages.monthly', 'شهرياً')}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-3xl font-black text-[#0f7a6c] dark:text-emerald-400 font-mono">
+                      {formatPriceString(convertedFinal)}
+                    </span>
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                      {currencySymbol} / {t('parentPackages.monthly', 'شهرياً')}
+                    </span>
+                  </>
+                )}
                 {hasDiscount && (
-                  <span className="line-through text-slate-400 text-sm font-semibold ms-1">
-                    {formatPriceString(convertedOriginal)} {currencySymbol}
+                  <span className="line-through text-slate-400 text-sm font-semibold ms-1 font-mono">
+                    {currencySymbol === '$' ? `$${formatPriceString(convertedOriginal)}` : `${formatPriceString(convertedOriginal)} ${currencySymbol}`}
                   </span>
                 )}
                 {hasDiscount && discountPercent > 0 && (
@@ -262,7 +283,7 @@ export default function ParentPackageDetailsModal({
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {familyTiers.map((tier, idx) => {
-                  const tierPrice = resolvePackagePrice(tier.price, currencyInfo, activeData);
+                  const tierPrice = resolvePackagePrice(tier.price, effectiveCurrencyInfo, activeData);
                   return (
                     <div
                       key={idx}
@@ -271,8 +292,8 @@ export default function ParentPackageDetailsModal({
                       <span className="font-bold text-slate-800 dark:text-slate-200">
                         {tier.membersCount || tier.members || idx + 2} {t('parentPackages.studentsCountUnit', 'أبناء')}
                       </span>
-                      <span className="font-black text-amber-700 dark:text-amber-400">
-                        {formatPriceString(tierPrice)} {currencySymbol}
+                      <span className="font-black text-amber-700 dark:text-amber-400 font-mono">
+                        {currencySymbol === '$' ? `$${formatPriceString(tierPrice)}` : `${formatPriceString(tierPrice)} ${currencySymbol}`}
                       </span>
                     </div>
                   );

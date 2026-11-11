@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   CheckCircle2,
@@ -8,7 +8,7 @@ import {
   Info,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, resolvePackagePrice } from '@/shared/services/api/currenciesApi';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 
 function formatCurrency(amount, currency = 'ج.م') {
@@ -31,6 +31,7 @@ export default function ParentPaymentStatus() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const { data: exchangeRateRes } = useQuery({
@@ -48,14 +49,19 @@ export default function ParentPaymentStatus() {
   const storedSubId = localStorage.getItem('last_checkout_sub_id') || '';
   const subscriptionId = querySubId || storedSubId || sessionId || '';
 
+  const pathnameLower = (location.pathname || '').toLowerCase();
+  const isPathSuccess = pathnameLower.includes('success');
+  const isPathCancel = pathnameLower.includes('cancel') || pathnameLower.includes('failed');
+
   const paymentParam = (searchParams.get('payment') || '').toLowerCase();
-  const explicitStatus = (searchParams.get('status') || searchParams.get('state') || searchParams.get('preview') || paymentParam || '').toLowerCase();
+  const rawExplicitStatus = (searchParams.get('status') || searchParams.get('state') || searchParams.get('preview') || paymentParam || '').toLowerCase();
+  const explicitStatus = rawExplicitStatus || (isPathSuccess ? 'success' : (isPathCancel ? 'failed' : ''));
 
   const [statusState, setStatusState] = useState(() => {
     if (explicitStatus === 'success' || explicitStatus === 'paid') return 'success';
     if (explicitStatus === 'verifying' || explicitStatus === 'loading') return 'verifying';
     if (explicitStatus === 'failed' || explicitStatus === 'cancelled' || explicitStatus === 'canceled') return 'failed';
-    return subscriptionId ? 'verifying' : 'failed';
+    return subscriptionId ? 'verifying' : (isPathSuccess ? 'success' : 'failed');
   });
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
@@ -220,13 +226,15 @@ export default function ParentPaymentStatus() {
   } else if (total > 0 && price > 0 && Math.abs((price + tax - discount) - total) > 1) {
     price = Math.max(0, total - tax + discount);
   }
-  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0 && total < 150;
+  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0;
   if (isUsdScale) {
-    price = Math.round(price * currencyRate);
-    tax = Number((tax * currencyRate).toFixed(2));
-    total = Math.round(total * currencyRate);
+    const convertedTotal = resolvePackagePrice(total, currencyInfo, sub.package ?? sub);
+    const convRatio = total > 0 ? convertedTotal / total : 1;
+    price = Math.round(price * convRatio);
+    tax = Number((tax * convRatio).toFixed(2));
+    total = convertedTotal;
     if (discount > 0) {
-      discount = Math.round(discount * currencyRate);
+      discount = Math.round(discount * convRatio);
     }
   }
   const sessionsCount = Number(

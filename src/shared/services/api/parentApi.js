@@ -306,6 +306,7 @@ export const parentApi = {
       return {
         success: true,
         data: list,
+        statistics: payload?.statistics || null,
         pagination: payload?.pagination || {
           currentPage: Number(cleanParams.page || 1),
           limit: Number(cleanParams.limit || 20),
@@ -316,6 +317,7 @@ export const parentApi = {
       return {
         success: false,
         data: [],
+        statistics: null,
         pagination: {
           currentPage: Number(cleanParams.page || 1),
           limit: Number(cleanParams.limit || 20),
@@ -602,19 +604,14 @@ export const parentApi = {
   },
   fetchStudentEligibleSessions: async (studentId) => {
     if (!studentId) return { success: true, data: [] };
-    const cleanParams = { studentId, status: 'scheduled,rescheduled' };
-    try {
-      const response = await api.get('/api/v1/parent/timetable', {
-        params: cleanParams,
-        skipGlobalErrorToast: true
-      });
-      const payload = response.data?.data || response.data;
-      const allSessions = [];
+
+    function extractSessions(payload) {
+      const result = [];
       if (Array.isArray(payload?.days)) {
         payload.days.forEach((d) => {
           if (Array.isArray(d?.sessions)) {
             d.sessions.forEach((s) => {
-              allSessions.push({
+              result.push({
                 ...s,
                 group: extractSessionGroupName(s) || s.group || '',
                 day: s.day || d.day || '',
@@ -625,28 +622,39 @@ export const parentApi = {
           }
         });
       } else if (Array.isArray(payload?.sessions)) {
-        payload.sessions.forEach((s) => {
-          allSessions.push({
-            ...s,
-            group: extractSessionGroupName(s) || s.group || ''
-          });
-        });
+        payload.sessions.forEach((s) => result.push({ ...s, group: extractSessionGroupName(s) || s.group || '' }));
       } else if (Array.isArray(payload)) {
-        payload.forEach((s) => {
-          allSessions.push({
-            ...s,
-            group: extractSessionGroupName(s) || s.group || ''
-          });
-        });
+        payload.forEach((s) => result.push({ ...s, group: extractSessionGroupName(s) || s.group || '' }));
       }
-      const eligible = allSessions.filter((s) => {
-        const st = String(s.status || '').toLowerCase();
-        return st === 'scheduled' || st === 'rescheduled' || st.includes('مجدول') || st.includes('قادم');
+      return result;
+    }
+
+    try {
+      const [scheduledRes, rescheduledRes] = await Promise.allSettled([
+        api.get('/api/v1/parent/timetable', { params: { studentId, status: 'scheduled' }, skipGlobalErrorToast: true }),
+        api.get('/api/v1/parent/timetable', { params: { studentId, status: 'rescheduled' }, skipGlobalErrorToast: true })
+      ]);
+
+      const scheduledSessions = scheduledRes.status === 'fulfilled'
+        ? extractSessions(scheduledRes.value?.data?.data || scheduledRes.value?.data)
+        : [];
+      const rescheduledSessions = rescheduledRes.status === 'fulfilled'
+        ? extractSessions(rescheduledRes.value?.data?.data || rescheduledRes.value?.data)
+        : [];
+
+      const seen = new Set();
+      const combined = [...scheduledSessions, ...rescheduledSessions].filter((s) => {
+        const id = s.id || s._id;
+        if (!id || seen.has(id)) return false;
+        seen.add(id);
+        return true;
       });
-      if (eligible.length > 0) {
-        return { success: true, data: eligible };
+
+      if (combined.length > 0) {
+        return { success: true, data: combined };
       }
     } catch (err) { void err; }
+
     try {
       const dashRes = await parentApi.fetchDashboard();
       const upSessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];

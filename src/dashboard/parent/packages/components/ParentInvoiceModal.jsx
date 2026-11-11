@@ -16,16 +16,17 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
 import Spinner from '@/shared/components/Spinner';
 
-function formatCurrency(amount, currency = 'ج.م') {
+function formatCurrency(amount, currency = '$') {
   const num = Number(amount || 0);
   const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  if (currency === '$') {
+  const sym = resolveCurrencySymbol(currency) || currency || '$';
+  if (sym === '$') {
     return `$${formattedNum}`;
   }
-  return `${formattedNum} ${currency}`;
+  return `${formattedNum} ${sym}`;
 }
 
 function formatDate(dateVal, isRtl = true) {
@@ -97,7 +98,7 @@ export default function ParentInvoiceModal({
   const currencyInfo = useMemo(() => {
     if (propCurrencyInfo) return propCurrencyInfo;
     if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: 'ج.م', exchangeRate: 1 };
+    return { symbol: '$', exchangeRate: 1 };
   }, [propCurrencyInfo, exchangeRateRes]);
   const { data: detailsRes, isLoading } = useQuery({
     queryKey: ['parentSubscriptionDetails', subscriptionId],
@@ -137,7 +138,9 @@ export default function ParentInvoiceModal({
     return t('parentPackages.student', 'الابن');
   })();
   const currencyRate = Number(currencyInfo?.exchangeRate || 1);
-  const currency = currencyInfo?.symbol || (sub.currency && sub.currency !== 'USD' && sub.currency !== '$' ? sub.currency : 'ج.م');
+  const rawCurrency = sub.currency || sub.package?.currency || sub.paymentCurrency;
+  const resolvedSymbol = resolveCurrencySymbol(rawCurrency);
+  const currency = resolvedSymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
   const rawTax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
   const explicitTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
   const explicitDiscount = Number(
@@ -186,13 +189,15 @@ export default function ParentInvoiceModal({
   } else if (priceAfterDiscount > 0 && discount <= 0 && amount > priceAfterDiscount) {
     discount = amount - priceAfterDiscount;
   }
-  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0 && total < 150;
+  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0;
   if (isUsdScale) {
-    amount = Math.round(amount * currencyRate);
-    tax = Number((tax * currencyRate).toFixed(2));
-    total = Math.round(total * currencyRate);
-    if (discount > 0) discount = Math.round(discount * currencyRate);
-    if (priceAfterDiscount > 0) priceAfterDiscount = Math.round(priceAfterDiscount * currencyRate);
+    const convertedTotal = resolvePackagePrice(total, currencyInfo, sub.package ?? sub);
+    const convRatio = total > 0 ? convertedTotal / total : 1;
+    amount = Math.round(amount * convRatio);
+    tax = Number((tax * convRatio).toFixed(2));
+    total = convertedTotal;
+    if (discount > 0) discount = Math.round(discount * convRatio);
+    if (priceAfterDiscount > 0) priceAfterDiscount = Math.round(priceAfterDiscount * convRatio);
   }
   const sessionsCount = Number(
     sub.sessionsPerStudent ??

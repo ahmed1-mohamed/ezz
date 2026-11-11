@@ -19,7 +19,7 @@ import {
   Users,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 import Spinner from '@/shared/components/Spinner';
@@ -32,13 +32,14 @@ const STATUS_FILTERS = [
   { id: 'cancelled', labelKey: 'parentPackages.filters.cancelled', defaultLabel: 'ملغية' },
 ];
 
-function formatCurrency(amount, currency = 'ج.م') {
+function formatCurrency(amount, currency = '$') {
   const num = Number(amount || 0);
   const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  if (currency === '$') {
+  const sym = resolveCurrencySymbol(currency) || currency || '$';
+  if (sym === '$') {
     return `$${formattedNum}`;
   }
-  return `${formattedNum} ${currency}`;
+  return `${formattedNum} ${sym}`;
 }
 
 function formatDate(dateVal, isRtl = true) {
@@ -113,10 +114,10 @@ export default function ParentSubscriptions() {
   });
   const currencyInfo = useMemo(() => {
     if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: 'ج.م', exchangeRate: 1 };
+    return { symbol: '$', exchangeRate: 1 };
   }, [exchangeRateRes]);
   const currencyRate = Number(currencyInfo?.exchangeRate || 1);
-  const targetCurrency = currencyInfo?.symbol || 'ج.م';
+  const targetCurrency = currencyInfo?.symbol || '$';
   const {
     data: subscriptionsRes,
     isLoading,
@@ -258,9 +259,14 @@ export default function ParentSubscriptions() {
             const isPending = String(item.status || '').toLowerCase() === 'pending';
             const orderNum = item.orderNumber || item.subscriptionNumber || (item.id ? `RN-${String(item.id).slice(-8).toUpperCase()}` : '-');
             const packageName = item.package?.name || item.packageName || t('parentPackages.package', 'الباقة');
+            const rawCurrency = item.currency || item.package?.currency || item.paymentCurrency;
+            const itemCurrencySymbol = resolveCurrencySymbol(rawCurrency) || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+            const effectiveItemCurrencyInfo = {
+              ...currencyInfo,
+              symbol: itemCurrencySymbol,
+            };
             const rawTotal = Number(item.total || item.finalAmount || item.amount || 0);
-            const isUsdScale = currencyRate > 1 && targetCurrency !== '$' && targetCurrency !== 'USD' && rawTotal > 0 && rawTotal < 150;
-            const total = isUsdScale ? Math.round(rawTotal * currencyRate) : rawTotal;
+            const total = resolvePackagePrice(rawTotal, effectiveItemCurrencyInfo, item.package ?? item);
             const studentNames = (() => {
               if (Array.isArray(item.students) && item.students.length > 0) {
                 return item.students.map((st) => (typeof st.name === 'object' ? st.name.ar || st.name.en : st.name || st.studentName)).filter(Boolean).join('، ');
@@ -311,7 +317,7 @@ export default function ParentSubscriptions() {
                       {t('parentPackages.total', 'الإجمالي')}
                     </span>
                     <span className="text-base sm:text-lg font-black font-mono text-[#0f7a6c] dark:text-emerald-400">
-                      {formatCurrency(total, targetCurrency)}
+                      {formatCurrency(total, itemCurrencySymbol)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">

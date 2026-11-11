@@ -12,18 +12,32 @@ export const currenciesApi = {
   }
 };
 
+export function resolveCurrencySymbol(currency) {
+  if (!currency) return null;
+  const c = String(currency).trim().toUpperCase();
+  if (c === 'USD' || c === '$') return '$';
+  if (c === 'EGP' || c === 'ج.م' || c === 'LE' || c === 'L.E') return 'ج.م';
+  if (c === 'SAR' || c === 'ر.س' || c === 'SR') return 'ر.س';
+  if (c === 'AED' || c === 'د.إ') return 'د.إ';
+  if (c === 'KWD' || c === 'د.ك') return 'د.ك';
+  if (c === 'EUR' || c === '€') return '€';
+  if (c === 'GBP' || c === '£') return '£';
+  return String(currency).trim();
+}
+
 export function parseExchangeRateData(res) {
   if (!res) {
     return { symbol: '$', exchangeRate: 1 };
   }
   const data = res.data?.data || res.data || res;
-  const symbol = data.symbol || data.currencySymbol || data.currency || '$';
+  const rawSymbol = data.symbol || data.currencySymbol || data.currency || '$';
+  const symbol = resolveCurrencySymbol(rawSymbol) || '$';
   const rawRate = data.exchangeRate ?? data.rate ?? 1;
   const exchangeRate = typeof rawRate === 'number' && rawRate > 0
     ? rawRate
     : (Number(rawRate) > 0 ? Number(rawRate) : 1);
   return {
-    symbol: typeof symbol === 'string' && symbol.trim() ? symbol.trim() : '$',
+    symbol,
     exchangeRate,
   };
 }
@@ -32,16 +46,60 @@ export function resolvePackagePrice(rawPrice, currencyInfo, packageItem = null) 
   const num = Number(rawPrice ?? 0);
   if (isNaN(num) || num <= 0) return 0;
   const rate = Number(currencyInfo?.exchangeRate || 1);
-  const pkgCurrency = String(packageItem?.currency || '').toUpperCase().trim();
+  const targetSymbol = String(currencyInfo?.symbol || '').toUpperCase().trim();
+
+  // Determine the source currency of this item
+  const pkgCurrency = String(
+    packageItem?.currency ||
+    packageItem?.package?.currency ||
+    packageItem?.priceCurrency ||
+    ''
+  ).toUpperCase().trim();
+
+  const isExplicitUSD = pkgCurrency === 'USD' || pkgCurrency === '$';
   const isExplicitLocal = pkgCurrency === 'EGP' || pkgCurrency === 'ج.م';
+  const isTargetUSD = targetSymbol === '$' || targetSymbol === 'USD';
+  const isTargetLocal = targetSymbol === 'EGP' || targetSymbol === 'ج.م';
+
+  // If source and target are the same, return as-is
+  if (isExplicitLocal && isTargetLocal) {
+    return Math.round(num);
+  }
+  if (isExplicitUSD && isTargetUSD) {
+    return Math.round(num);
+  }
+
+  // If rate <= 1 (no meaningful conversion), return as-is
+  if (rate <= 1) {
+    return Math.round(num);
+  }
+
+  // If explicitly USD and target is local currency → convert
+  if (isExplicitUSD && isTargetLocal) {
+    return Math.round(num * rate);
+  }
+
+  // If explicitly local and target is USD → convert down
+  if (isExplicitLocal && isTargetUSD && rate > 0) {
+    return Math.round(num / rate);
+  }
+
+  // Heuristic fallback: if no currency field on item, check country/name for Egypt context
   const isEgypt = Boolean(
     packageItem?.country?.code === 'EG' ||
     String(packageItem?.country?.name || '').includes('مصر') ||
-    String(packageItem?.name || '').includes('مصر')
+    String(packageItem?.name || '').includes('مصر') ||
+    String(packageItem?.package?.name || '').includes('مصر')
   );
-  if (isExplicitLocal || (isEgypt && currencyInfo?.symbol === 'ج.م') || num >= 150 || rate <= 1) {
-    return Math.round(num);
+
+  // If country is Egypt AND target is EGP, the price may already be in EGP (large numbers)
+  if (isEgypt && (targetSymbol === 'ج.م' || targetSymbol === 'EGP')) {
+    // Large Egyptian prices (> 500 EGP) are likely already in EGP
+    if (num > 500) return Math.round(num);
+    return Math.round(num * rate);
   }
+
+  // Default: price is in USD, convert to target
   return Math.round(num * rate);
 }
 

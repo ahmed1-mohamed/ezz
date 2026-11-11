@@ -121,11 +121,12 @@ export default function StudentProfile() {
     async function loadData() {
       try {
         setLoading(true);
-        const [profRes, statsRes, countriesRes, currencyRes] = await Promise.allSettled([
+        const [profRes, statsRes, countriesRes, currencyRes, evalRes] = await Promise.allSettled([
           profileApi.fetchProfile(),
           studentPortalApi.fetchDashboardStatistics(),
           fetchCountries(),
           currenciesApi.fetchExchangeRate(),
+          studentPortalApi.fetchEvaluations({ limit: 1 }),
         ]);
         let activeProfile = user || {};
         if (profRes.status === 'fulfilled' && profRes.value?.success) {
@@ -137,7 +138,29 @@ export default function StudentProfile() {
           setIsGoogleLinked(Boolean(user?.isGoogleLinked || user?.googleId || user?.provider === 'google'));
         }
         if (statsRes.status === 'fulfilled') {
-          setStatsData(statsRes.value);
+          const statsValue = statsRes.value || {};
+          // Merge evaluations total count into statsData if not already present
+          if (evalRes.status === 'fulfilled' && !statsValue.totalEvaluations) {
+            const evalData = evalRes.value;
+            const evalTotal =
+              evalData?.pagination?.total ??
+              evalData?.pagination?.totalItems ??
+              evalData?.total ??
+              evalData?.data?.length ??
+              null;
+            if (evalTotal !== null) statsValue.totalEvaluations = evalTotal;
+          }
+          setStatsData(statsValue);
+        } else if (evalRes.status === 'fulfilled') {
+          // Stats failed but evaluations succeeded — still extract count
+          const evalData = evalRes.value;
+          const evalTotal =
+            evalData?.pagination?.total ??
+            evalData?.pagination?.totalItems ??
+            evalData?.total ??
+            evalData?.data?.length ??
+            null;
+          if (evalTotal !== null) setStatsData({ totalEvaluations: evalTotal });
         }
         if (currencyRes.status === 'fulfilled') {
           const parsed = parseExchangeRateData(currencyRes.value);
@@ -213,7 +236,7 @@ export default function StudentProfile() {
   }, [p.level, p.grade, p.studentLevel, t]);
   const attendanceRate = statsData?.attendanceRate !== undefined ? `${statsData.attendanceRate}%` : p.attendanceRate !== undefined ? `${p.attendanceRate}%` : '94%';
   const averageRating = statsData?.averageRating ? Number(statsData.averageRating).toFixed(1) : p.averageRating ? Number(p.averageRating).toFixed(1) : '4.9';
-  const totalEvaluations = statsData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
+  const totalEvaluations = profileData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? p.ratingsCount ?? 0;
   const sessionBalanceData = useMemo(() => {
     if (p.sessionsBalance || p.sessionBalance) {
       return p.sessionsBalance || p.sessionBalance;

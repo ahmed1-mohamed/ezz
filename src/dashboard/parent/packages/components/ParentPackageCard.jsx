@@ -17,7 +17,7 @@ import {
   ChevronRight,
   Info,
 } from 'lucide-react';
-import { resolvePackagePrice } from '@/shared/services/api/currenciesApi';
+import { resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
 
 function resolvePackageIcon(iconName) {
   const norm = String(iconName || '').toLowerCase().trim();
@@ -53,7 +53,13 @@ const ParentPackageCard = memo(function ParentPackageCard({
   const countryName = packageItem?.country?.name || '';
   const countryFlag = packageItem?.country?.flag || '';
   const rate = Number(currencyInfo?.exchangeRate) > 0 ? Number(currencyInfo.exchangeRate) : 1;
-  const currencySymbol = currencyInfo?.symbol || t('parentPackages.currency', 'ج.م');
+  const rawCurrency = packageItem?.currency || packageItem?.priceCurrency;
+  const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
+  const currencySymbol = packageCurrencySymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const effectiveCurrencyInfo = {
+    ...currencyInfo,
+    symbol: currencySymbol,
+  };
   const sessionsCount = packageItem?.sessionsCount || 8;
   const sessionDuration = packageItem?.sessionDuration || 60;
   const featuresList = Array.isArray(packageItem?.features) ? packageItem.features : [];
@@ -98,8 +104,8 @@ const ParentPackageCard = memo(function ParentPackageCard({
     usdFinal = Math.max(0, rawBasePrice - Number(packageItem.discountAmount));
     discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
   }
-  const convertedFinal = resolvePackagePrice(usdFinal, currencyInfo, packageItem);
-  const convertedOriginal = resolvePackagePrice(usdOriginal, currencyInfo, packageItem);
+  const convertedFinal = resolvePackagePrice(usdFinal, effectiveCurrencyInfo, packageItem);
+  const convertedOriginal = resolvePackagePrice(usdOriginal, effectiveCurrencyInfo, packageItem);
   const maxFamilyMembers = Number(
     packageItem?.maxMembers ??
     packageItem?.maxStudents ??
@@ -113,7 +119,8 @@ const ParentPackageCard = memo(function ParentPackageCard({
     maxMembers: maxFamilyMembers,
     convertedPrice: convertedFinal,
     convertedOriginalPrice: convertedOriginal,
-    currency: currencySymbol,
+    currency: rawCurrency || currencySymbol,
+    currencySymbol,
     exchangeRate: rate,
   };
   return (
@@ -167,15 +174,26 @@ const ParentPackageCard = memo(function ParentPackageCard({
             {t('parentPackages.subscriptionFee', 'قيمة الاشتراك')}
           </span>
           <div className="flex items-baseline gap-1.5 mt-0.5 flex-wrap">
-            <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              {formatPriceNumber(convertedFinal)}
-            </span>
-            <span className="text-xs font-bold text-[#0f7a6c] dark:text-emerald-400">
-              {currencySymbol}
-            </span>
+            {currencySymbol === '$' ? (
+              <>
+                <span className="text-xl font-bold text-[#0f7a6c] dark:text-emerald-400 font-mono">$</span>
+                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
+                  {formatPriceNumber(convertedFinal)}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
+                  {formatPriceNumber(convertedFinal)}
+                </span>
+                <span className="text-xs font-bold text-[#0f7a6c] dark:text-emerald-400">
+                  {currencySymbol}
+                </span>
+              </>
+            )}
             {hasDiscount && (
-              <span className="line-through text-slate-400 text-xs font-semibold ms-1">
-                {formatPriceNumber(convertedOriginal)} {currencySymbol}
+              <span className="line-through text-slate-400 text-xs font-semibold ms-1 font-mono">
+                {currencySymbol === '$' ? `$${formatPriceNumber(convertedOriginal)}` : `${formatPriceNumber(convertedOriginal)} ${currencySymbol}`}
               </span>
             )}
             {hasDiscount && discountPercent > 0 && (

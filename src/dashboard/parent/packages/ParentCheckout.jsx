@@ -18,12 +18,17 @@ import {
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { parentApi } from '@/shared/services/api/parentApi';
-import { currenciesApi, parseExchangeRateData, resolvePackagePrice } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
-function formatCurrency(amount, currency = 'ج.م') {
+function formatCurrency(amount, currency = '$') {
   const num = Number(amount || 0);
-  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currency}`;
+  const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  const sym = resolveCurrencySymbol(currency) || currency || '$';
+  if (sym === '$') {
+    return `$${formattedNum}`;
+  }
+  return `${formattedNum} ${sym}`;
 }
 
 export default function ParentCheckout() {
@@ -73,15 +78,21 @@ export default function ParentCheckout() {
   const currencyInfo = useMemo(() => {
     if (initialCurrencyInfo) return initialCurrencyInfo;
     if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: 'ج.م', exchangeRate: 1 };
+    return { symbol: '$', exchangeRate: 1 };
   }, [initialCurrencyInfo, exchangeRateRes]);
   const selectedPackage = selectedPackageOverride || initialPackage || fetchedPackage || (availablePackagesList.length > 0 ? availablePackagesList[0] : null);
-  const currencySymbol = currencyInfo?.symbol || 'ج.م';
+  const rawCurrency = previewData?.currency || selectedPackage?.currency || selectedPackage?.priceCurrency;
+  const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
+  const currencySymbol = packageCurrencySymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const effectiveCurrencyInfo = useMemo(() => ({
+    ...currencyInfo,
+    symbol: currencySymbol,
+  }), [currencyInfo, currencySymbol]);
   const packageDisplayPrice = useMemo(() => {
     if (!selectedPackage) return 0;
     const rawPrice = Number(selectedPackage.price ?? 0);
-    return resolvePackagePrice(rawPrice, currencyInfo, selectedPackage);
-  }, [selectedPackage, currencyInfo]);
+    return resolvePackagePrice(rawPrice, effectiveCurrencyInfo, selectedPackage);
+  }, [selectedPackage, effectiveCurrencyInfo]);
   const isPackageLoading = (!initialPackage && Boolean(packageIdParam) && isSinglePackageLoading) || (!initialPackage && !packageIdParam && isAllPackagesLoading);
 
   const {
@@ -257,7 +268,7 @@ export default function ParentCheckout() {
         (t) => Number(t?.membersCount ?? t?.members ?? 0) === count
       );
       if (matchedTier && Number(matchedTier.price) > 0) {
-        tierPrice = resolvePackagePrice(matchedTier.price, currencyInfo, selectedPackage);
+        tierPrice = resolvePackagePrice(matchedTier.price, effectiveCurrencyInfo, selectedPackage);
       }
     }
     const subtotal = tierPrice !== null ? tierPrice : (basePrice * (isFamilyPackage ? count : 1));
@@ -270,10 +281,11 @@ export default function ParentCheckout() {
       total,
       currency,
     };
-  }, [packageDisplayPrice, effectiveStudentIds.length, isFamilyPackage, selectedPackage, currencyInfo, currencySymbol]);
+  }, [packageDisplayPrice, effectiveStudentIds.length, isFamilyPackage, selectedPackage, effectiveCurrencyInfo, currencySymbol]);
 
   const summary = useMemo(() => {
-    if (!previewData) return fallbackFinancials;
+    const effectiveCurrency = resolveCurrencySymbol(previewData?.currency) || resolveCurrencySymbol(selectedPackage?.currency) || currencySymbol;
+    if (!previewData) return { ...fallbackFinancials, currency: effectiveCurrency };
     const rawSubtotal = Number(
       previewData.subtotalAmount ??
       previewData.baseAmount ??
@@ -284,15 +296,14 @@ export default function ParentCheckout() {
     const rawDiscount = Number(previewData.discountAmount ?? previewData.discount ?? 0);
     const rawTax = Number(previewData.taxAmount ?? previewData.tax ?? previewData.vat ?? fallbackFinancials.tax);
     const rawTotal = Number(previewData.finalAmount ?? previewData.total ?? fallbackFinancials.total);
-    const rate = Number(currencyInfo?.exchangeRate || 1);
-    const isUsdScale = rate > 1 && rawSubtotal > 0 && rawSubtotal < 150 && fallbackFinancials.subtotal >= 150;
-    const subtotal = isUsdScale ? Math.round(rawSubtotal * rate) : rawSubtotal;
-    const discount = isUsdScale ? Math.round(rawDiscount * rate) : rawDiscount;
-    const tax = isUsdScale ? Number((rawTax * rate).toFixed(2)) : rawTax;
-    const total = isUsdScale ? Math.round(rawTotal * rate) : rawTotal;
-    const currency = currencySymbol;
-    return { subtotal, discount, tax, total, currency };
-  }, [previewData, fallbackFinancials, currencyInfo, currencySymbol]);
+    return {
+      subtotal: rawSubtotal,
+      discount: rawDiscount,
+      tax: rawTax,
+      total: rawTotal,
+      currency: effectiveCurrency,
+    };
+  }, [previewData, fallbackFinancials, selectedPackage, currencySymbol]);
 
   if (isPackageLoading) {
     return (

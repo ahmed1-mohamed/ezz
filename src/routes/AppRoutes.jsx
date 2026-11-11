@@ -171,9 +171,21 @@ export default function AppRoutes() {
                         <Route path="/contact" element={<Navigate to="/ar/contact" replace />} />
                         <Route path="/trial-session" element={<Navigate to="/ar/trial-session" replace />} />
                         <Route path="/trial" element={<Navigate to="/ar/trial-session" replace />} />
-                        <Route path="/checkout/status" element={<Navigate to="/ar/checkout/status" replace />} />
-                        <Route path="/payment/status" element={<Navigate to="/ar/payment/status" replace />} />
-                        <Route path="/payment/success" element={<Navigate to="/ar/payment/success" replace />} />
+
+                        {/* Unified Public Payment Routes without language prefix (for Stripe redirects & unified callbacks) */}
+                        <Route
+                            element={
+                                <AnimatedPage>
+                                    <PublicLayout />
+                                </AnimatedPage>
+                            }
+                        >
+                            <Route path="/payment/status" element={<ParentPaymentStatus />} />
+                            <Route path="/payment/success" element={<ParentPaymentStatus />} />
+                            <Route path="/payment/cancel" element={<ParentPaymentStatus />} />
+                            <Route path="/payment/failed" element={<ParentPaymentStatus />} />
+                            <Route path="/checkout/status" element={<ParentPaymentStatus />} />
+                        </Route>
 
                         {/* Localized Public Routes (/ar/... and /en/...) */}
                         <Route
@@ -198,6 +210,8 @@ export default function AppRoutes() {
                             <Route path="checkout/status" element={<ParentPaymentStatus />} />
                             <Route path="payment/status" element={<ParentPaymentStatus />} />
                             <Route path="payment/success" element={<ParentPaymentStatus />} />
+                            <Route path="payment/cancel" element={<ParentPaymentStatus />} />
+                            <Route path="payment/failed" element={<ParentPaymentStatus />} />
                         </Route>
                         <Route
                             path="/login"

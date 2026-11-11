@@ -8,8 +8,8 @@ export const SEO_CONFIG = {
       en: 'Manarat Al-Ezz Educational Platform | Leading Quran & Arabic Academy',
     },
     description: {
-      ar: 'منصة منارة العز التعليمية لإدارة وتسهيل تعليم القرآن الكريم واللغة العربية والمواد الإسلامية للطلاب وأولياء الأمور والمعلمين بكفاءة وجودة عالية.',
-      en: 'Manarat Al-Ezz Platform for learning the Holy Quran, Arabic language, and Islamic studies with certified educators.',
+      ar: 'حصص أونلاين مباشرة مع معلمين متخصصين لتحفيظ القرآن وتعليم اللغة العربية، وشرح جميع المواد الدراسية لطلاب المدارس الدولية. احجز حصتك التجريبية الآن.',
+      en: 'Live online classes with qualified teachers: Quran, Tajweed, Arabic, and tutoring in all subjects for international school students. Book a free trial lesson.',
     },
   },
   about: {

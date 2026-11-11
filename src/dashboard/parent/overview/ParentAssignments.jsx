@@ -52,6 +52,7 @@ export default function ParentAssignments() {
   const [currentPage, setCurrentPage] = useState(1);
   const [homeworkData, setHomeworkData] = useState({
     list: [],
+    statistics: null,
     pagination: { currentPage: 1, limit: 20, numberOfPages: 1 }
   });
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function ParentAssignments() {
       const rawList = res?.success && Array.isArray(res.data) ? res.data : [];
       setHomeworkData({
         list: rawList,
+        statistics: res?.statistics || null,
         pagination: res?.pagination || {
           currentPage: page,
           limit: 10,
@@ -90,6 +92,7 @@ export default function ParentAssignments() {
       console.error('Failed to load homework list', err);
       setHomeworkData({
         list: [],
+        statistics: null,
         pagination: { currentPage: 1, limit: 10, numberOfPages: 1 }
       });
     } finally {
@@ -114,14 +117,30 @@ export default function ParentAssignments() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
   const stats = useMemo(() => {
+    const api = homeworkData.statistics;
+    if (api) {
+      return {
+        total: api.total ?? 0,
+        submitted: (api.submitted ?? 0) + (api.submitted_late ?? 0),
+        evaluated: api.evaluated ?? 0,
+        overdue: api.overdue ?? 0,
+        pending: api.pending ?? 0,
+        submittedLate: api.submitted_late ?? 0,
+        notEvaluated: api.not_evaluated ?? 0
+      };
+    }
+    // fallback: count from current page list
     const list = homeworkData.list || [];
     return {
       total: list.length,
       submitted: list.filter(item => item.submissionStatus?.includes('تم التسليم')).length,
       evaluated: list.filter(item => item.evaluationStatus?.includes('تم التقييم')).length,
-      overdue: list.filter(item => item.submissionStatus?.includes('متأخر') || item.submissionStatus?.includes('overdue')).length
+      overdue: list.filter(item => item.submissionStatus?.includes('متأخر') || item.submissionStatus?.includes('overdue')).length,
+      pending: list.filter(item => item.submissionStatus?.includes('انتظار')).length,
+      submittedLate: 0,
+      notEvaluated: 0
     };
-  }, [homeworkData.list]);
+  }, [homeworkData.statistics, homeworkData.list]);
   return (
     <motion.div
       variants={containerVariants}

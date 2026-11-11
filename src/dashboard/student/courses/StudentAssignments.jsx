@@ -1,58 +1,51 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
-  User,
   Clock,
-  Star,
   CheckCircle,
   FileText,
+  AlertCircle,
+  Star,
+  ClipboardList,
+  Send,
+  RefreshCcw,
+  Search,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentPortalApi } from '@/shared/services/api/studentPortalApi';
 import Spinner from '@/shared/components/Spinner';
 
-const TABS_CONFIG = [
-  { key: 'ongoing', labelAr: 'الجارية', labelEn: 'Ongoing', defaultCount: 3 },
-  { key: 'completed', labelAr: 'المكتملة', labelEn: 'Completed', defaultCount: 3 },
-  { key: 'overdue', labelAr: 'المتأخرة', labelEn: 'Overdue', defaultCount: 1 },
-];
+/* ─── helpers ─────────────────────────────────────────────── */
 
-function resolveEvaluationStatus(item, isRtl) {
-  const raw = item?.evaluationStatus || item?.submission?.evaluationStatus || item?.evalStatus;
-  if (typeof raw === 'string' && raw.trim()) {
-    const clean = raw.trim().toLowerCase();
-    if (clean === 'evaluated' || clean.includes('تم التقييم') || clean.includes('مقيم') || clean === 'done') {
-      return { isEvaluated: true, label: isRtl ? 'تم التقييم' : 'Evaluated' };
-    }
-    if (clean === 'not_evaluated' || clean.includes('لم يتم التقييم') || clean.includes('غير مقيم') || clean === 'pending') {
-      return { isEvaluated: false, label: isRtl ? 'لم يتم التقييم' : 'Not Evaluated' };
-    }
-    return { isEvaluated: Boolean(item?.grade || item?.submission?.grade), label: raw.trim() };
+function resolveSubmissionStatus(item) {
+  const raw = (item?.submissionStatus || item?.status || '').toString().toLowerCase();
+  if (raw.includes('فات') || raw.includes('overdue')) return 'overdue';
+  if (raw.includes('متأخر') || raw.includes('late')) return 'submitted_late';
+  if (raw.includes('تم التسليم') || raw.includes('submitted') || raw === 'completed') return 'submitted';
+  return 'pending';
+}
+
+function resolveEvaluationStatus(item) {
+  const raw = (item?.evaluationStatus || item?.evalStatus || '').toString().trim();
+  const low = raw.toLowerCase();
+  // Check "not evaluated" FIRST to avoid substring match with "evaluated"
+  if (low === 'not_evaluated' || low.includes('لم يتم') || low.includes('غير مقيم') || low === 'pending') {
+    return { isEvaluated: false, label: 'لم يتم التقييم' };
   }
-  if (typeof item?.evaluated === 'boolean') {
-    return {
-      isEvaluated: item.evaluated,
-      label: item.evaluated ? (isRtl ? 'تم التقييم' : 'Evaluated') : (isRtl ? 'لم يتم التقييم' : 'Not Evaluated'),
-    };
+  if (low === 'evaluated' || low.includes('تم التقييم') || low.includes('مقيم') || low === 'done') {
+    return { isEvaluated: true, label: 'تم التقييم' };
   }
+  // Fallback: rely on grade
   if (item?.grade !== null && item?.grade !== undefined && item?.grade !== '') {
-    return { isEvaluated: true, label: isRtl ? 'تم التقييم' : 'Evaluated' };
+    return { isEvaluated: true, label: 'تم التقييم' };
   }
-  return { isEvaluated: false, label: isRtl ? 'لم يتم التقييم' : 'Not Evaluated' };
+  return { isEvaluated: false, label: 'لم يتم التقييم' };
 }
 
-function isHomeworkSubmittedLate(item) {
-  const rawStatus = (item?.status || item?.rawStatus || item?.submission?.status || '').toString().toLowerCase();
-  return rawStatus === 'submitted_late' ||
-    Boolean(item?.isSubmittedLate) ||
-    Boolean(item?.isLate) ||
-    Boolean(item?.submittedLate) ||
-    rawStatus.includes('late');
-}
-
-function formatHomeworkDate(dateStr, isRtl) {
+function formatDate(dateStr, isRtl) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return String(dateStr);
@@ -63,464 +56,490 @@ function formatHomeworkDate(dateStr, isRtl) {
   });
 }
 
-const MOCK_ASSIGNMENTS = {
-  ongoing: [
-    {
-      id: 1,
-      title: 'واجب أحكام النون الساكنة والتنوين',
-      titleEn: 'Noon Sakinah & Tanween Rules Homework',
-      subject: 'القرآن الكريم',
-      subjectEn: 'Holy Quran',
-      teacher: 'الشيخ أحمد السيد',
-      teacherEn: 'Sheikh Ahmed Al-Sayed',
-      sessionName: 'حصة التجويد - سورة البقرة',
-      sessionNameEn: 'Tajweed Session - Surah Al-Baqarah',
-      dueDate: '17 أبريل 2026',
-      dueDateEn: '17 April 2026',
-      status: 'pending',
-      rawStatus: 'pending',
-      statusLabelAr: 'قيد التنفيذ',
-      statusLabelEn: 'In Progress',
-      description: 'حل تدريبات كتاب أحكام التلاوة ص 45 وتطبيق أحكام الإظهار والإدغام على الآيات المقررة مع تسجيل مقطع صوتي قصير.',
-      fileUrl: null,
-    },
-    {
-      id: 2,
-      title: 'حفظ الآيات (1-15) من سورة مريم',
-      titleEn: 'Memorize Verses (1-15) from Surah Maryam',
-      subject: 'القرآن الكريم',
-      subjectEn: 'Holy Quran',
-      teacher: 'الشيخ أحمد السيد',
-      teacherEn: 'Sheikh Ahmed Al-Sayed',
-      sessionName: 'حصة الحفظ والمراجعة',
-      sessionNameEn: 'Memorization & Review Session',
-      dueDate: '20 أبريل 2026',
-      dueDateEn: '20 April 2026',
-      status: 'pending',
-      rawStatus: 'pending',
-      statusLabelAr: 'قيد التنفيذ',
-      statusLabelEn: 'In Progress',
-      description: 'حفظ الآيات حفظاً متقناً مع تطبيق أحكام المد ومراعاة مخارج الحروف.',
-      fileUrl: null,
-    },
-    {
-      id: 3,
-      title: 'إعراب قصيدة نهج البردة',
-      titleEn: 'Parsing of Nahj Al-Burdah Poem',
-      subject: 'اللغة العربية',
-      subjectEn: 'Arabic Language',
-      teacher: 'الدكتور محمد الأمين',
-      teacherEn: 'Dr. Mohammed Al-Amin',
-      sessionName: 'حصة النحو والصرف',
-      sessionNameEn: 'Grammar & Morphology Session',
-      dueDate: '22 أبريل 2026',
-      dueDateEn: '22 April 2026',
-      status: 'pending',
-      rawStatus: 'pending',
-      statusLabelAr: 'قيد التنفيذ',
-      statusLabelEn: 'In Progress',
-      description: 'إعراب الأبيات الخمسة الأولى إعراباً كاملاً مفصلاً وتسليمه ملف PDF أو صورة واضحة.',
-      fileUrl: null,
-    },
-  ],
-  completed: [
-    {
-      id: 4,
-      title: 'واجب أحكام النون الساكنة والتنوين',
-      titleEn: 'Noon Sakinah & Tanween Rules Homework',
-      subject: 'القرآن الكريم',
-      subjectEn: 'Holy Quran',
-      teacher: 'الشيخ أحمد السيد',
-      teacherEn: 'Sheikh Ahmed Al-Sayed',
-      sessionName: 'حصة التجويد - سورة البقرة',
-      sessionNameEn: 'Tajweed Session - Surah Al-Baqarah',
-      submissionDate: '17 أبريل 2026',
-      submissionDateEn: '17 April 2026',
-      status: 'submitted',
-      rawStatus: 'submitted',
-      isSubmittedLate: false,
-      statusLabelAr: 'مكتملة',
-      statusLabelEn: 'Completed',
-      evaluationStatus: 'تم التقييم',
-      grade: '9/10',
-      feedback: 'أحسنت يا بطل، إجابات متميزة مع مراعاة مراجعة حكم الإخفاء في السؤال الثالث.',
-      description: 'حل تدريبات كتاب أحكام التلاوة ص 45 وتطبيق أحكام الإظهار والإدغام.',
-      fileUrl: null,
-    },
-    {
-      id: 5,
-      title: 'تسميع سورة الكهف كاملة',
-      titleEn: 'Recitation of Surah Al-Kahf',
-      subject: 'القرآن الكريم',
-      subjectEn: 'Holy Quran',
-      teacher: 'الشيخ أحمد السيد',
-      teacherEn: 'Sheikh Ahmed Al-Sayed',
-      sessionName: 'حصة التلاوة والتسميع',
-      sessionNameEn: 'Recitation Session',
-      submissionDate: '14 أبريل 2026',
-      submissionDateEn: '14 April 2026',
-      status: 'submitted_late',
-      rawStatus: 'submitted_late',
-      isSubmittedLate: true,
-      statusLabelAr: 'متسلم متأخر',
-      statusLabelEn: 'Submitted Late',
-      evaluationStatus: 'تم التقييم',
-      grade: '10/10',
-      feedback: 'ما شاء الله تبارك الله، تلاوة متقنة وصوت رائع.',
-      description: 'تسميع السورة مع مراعاة أحكام الوقف والابتداء.',
-      fileUrl: null,
-    },
-    {
-      id: 6,
-      title: 'مراجعة تدريبات علم البديع',
-      titleEn: 'Review of Rhetorical Devices Exercises',
-      subject: 'اللغة العربية',
-      subjectEn: 'Arabic Language',
-      teacher: 'الدكتور محمد الأمين',
-      teacherEn: 'Dr. Mohammed Al-Amin',
-      sessionName: 'حصة البلاغة',
-      sessionNameEn: 'Rhetoric Session',
-      submissionDate: '10 أبريل 2026',
-      submissionDateEn: '10 April 2026',
-      status: 'submitted',
-      rawStatus: 'submitted',
-      isSubmittedLate: false,
-      statusLabelAr: 'مكتملة',
-      statusLabelEn: 'Completed',
-      evaluationStatus: 'لم يتم التقييم',
-      grade: null,
-      feedback: null,
-      description: 'استخراج المحسنات البديعية من النص الشعري.',
-      fileUrl: null,
-    },
-  ],
-  overdue: [
-    {
-      id: 7,
-      title: 'واجب أحكام النون الساكنة والتنوين',
-      titleEn: 'Noon Sakinah & Tanween Rules Homework',
-      subject: 'القرآن الكريم',
-      subjectEn: 'Holy Quran',
-      teacher: 'الشيخ أحمد السيد',
-      teacherEn: 'Sheikh Ahmed Al-Sayed',
-      sessionName: 'حصة التجويد - سورة البقرة',
-      sessionNameEn: 'Tajweed Session - Surah Al-Baqarah',
-      dueDate: '17 أبريل 2026',
-      dueDateEn: '17 April 2026',
-      lateTextAr: 'متأخر 5 أيام',
-      lateTextEn: '5 days overdue',
-      status: 'overdue',
-      rawStatus: 'overdue',
-      statusLabelAr: 'متأخر',
-      statusLabelEn: 'Overdue',
-      description: 'يرجى سرعة تسليم هذا الواجب لتفادي خصم درجات التأخير من التقييم النهائي.',
-      fileUrl: null,
-    },
-  ],
+function normaliseItem(item, submissionKey, isRtl) {
+  const submStatus = resolveSubmissionStatus({ ...item, status: submissionKey });
+  const evalInfo = resolveEvaluationStatus(item);
+  return {
+    id: item.id || item._id,
+    title: item.homework || item.title || item.name || (isRtl ? 'واجب' : 'Homework'),
+    group: item.group || item.sessionName || '-',
+    submissionStatus: submStatus,
+    submissionStatusLabel: item.submissionStatus || '',
+    evaluationStatus: evalInfo,
+    grade: item.grade ?? null,
+    teacherNotes: item.teacherNotes || null,
+    submittedAt: item.submittedAt || null,
+    submittedAtFormatted: formatDate(item.submittedAt, isRtl),
+    deadline: item.deadline || null,
+    deadlineFormatted: formatDate(item.deadline, isRtl),
+    media: item.media || null,
+    document: item.document || null,
+    // pass through raw for details page
+    _raw: item,
+  };
+}
+
+/* ─── tabs config ─────────────────────────────────────────── */
+// key → matches the state key in tabData
+const TABS = [
+  { key: 'pending',        labelAr: 'في الانتظار',      labelEn: 'Pending',         statKey: 'pending',        color: 'amber' },
+  { key: 'submitted',      labelAr: 'تم التسليم',        labelEn: 'Submitted',       statKey: 'submitted',      color: 'emerald' },
+  { key: 'submitted_late', labelAr: 'تسليم متأخر',       labelEn: 'Submitted Late',  statKey: 'submitted_late', color: 'orange' },
+  { key: 'overdue',        labelAr: 'فات الموعد',        labelEn: 'Overdue',         statKey: 'overdue',        color: 'rose' },
+];
+
+const TAB_API = {
+  pending:        (p) => studentPortalApi.fetchPendingHomework(p),
+  submitted:      (p) => studentPortalApi.fetchSubmittedHomework(p),
+  submitted_late: (p) => studentPortalApi.fetchSubmittedLateHomework(p),
+  overdue:        (p) => studentPortalApi.fetchOverdueHomework(p),
 };
 
+const TAB_COLORS = {
+  amber:   { active: 'bg-amber-500 text-white', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+  emerald: { active: 'bg-emerald-600 text-white', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
+  orange:  { active: 'bg-orange-500 text-white', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
+  rose:    { active: 'bg-rose-600 text-white', badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
+};
+
+/* ─── KPI card data ───────────────────────────────────────── */
+function buildKpiCards(stats, t) {
+  return [
+    {
+      key: 'total',
+      label: t('studentDashboard.assignments.kpiTotal', 'إجمالي الواجبات'),
+      value: stats?.total ?? '-',
+      color: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+      textColor: 'text-slate-700 dark:text-slate-200',
+      icon: ClipboardList,
+      iconColor: 'text-slate-500 dark:text-slate-400',
+      tab: null,
+    },
+    {
+      key: 'pending',
+      label: t('studentDashboard.assignments.kpiPending', 'في الانتظار'),
+      value: stats?.pending ?? '-',
+      color: 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/50',
+      textColor: 'text-amber-700 dark:text-amber-300',
+      icon: Clock,
+      iconColor: 'text-amber-500 dark:text-amber-400',
+      tab: 'pending',
+    },
+    {
+      key: 'submitted',
+      label: t('studentDashboard.assignments.kpiSubmitted', 'تم التسليم'),
+      value: stats?.submitted ?? '-',
+      color: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50',
+      textColor: 'text-emerald-700 dark:text-emerald-300',
+      icon: CheckCircle,
+      iconColor: 'text-emerald-500 dark:text-emerald-400',
+      tab: 'submitted',
+    },
+    {
+      key: 'submitted_late',
+      label: t('studentDashboard.assignments.kpiLate', 'تسليم متأخر'),
+      value: stats?.submitted_late ?? '-',
+      color: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800/50',
+      textColor: 'text-orange-700 dark:text-orange-300',
+      icon: AlertCircle,
+      iconColor: 'text-orange-500 dark:text-orange-400',
+      tab: 'submitted_late',
+    },
+    {
+      key: 'evaluated',
+      label: t('studentDashboard.assignments.kpiEvaluated', 'تم التقييم'),
+      value: stats?.evaluated ?? '-',
+      color: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/50',
+      textColor: 'text-purple-700 dark:text-purple-300',
+      icon: Star,
+      iconColor: 'text-purple-500 dark:text-purple-400',
+      tab: null,
+    },
+    {
+      key: 'overdue',
+      label: t('studentDashboard.assignments.kpiOverdue', 'فات الموعد'),
+      value: stats?.overdue ?? '-',
+      color: 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/50',
+      textColor: 'text-rose-700 dark:text-rose-300',
+      icon: AlertCircle,
+      iconColor: 'text-rose-500 dark:text-rose-400',
+      tab: 'overdue',
+    },
+  ];
+}
+
+/* ─── component ───────────────────────────────────────────── */
 export default function StudentAssignments() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language.startsWith('ar');
-  const [activeTab, setActiveTab] = useState('ongoing');
-  const [assignmentsByTab, setAssignmentsByTab] = useState(MOCK_ASSIGNMENTS);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    let isMounted = true;
-    async function loadHomeworkData() {
-      setIsLoading(true);
-      try {
-        const [pendingRes, submittedRes, submittedLateRes, overdueRes] = await Promise.allSettled([
-          studentPortalApi.fetchPendingHomework(),
-          studentPortalApi.fetchSubmittedHomework(),
-          studentPortalApi.fetchSubmittedLateHomework(),
-          studentPortalApi.fetchOverdueHomework(),
-        ]);
-        if (!isMounted) return;
-        const formatApiItems = (result, defaultList, statusKey) => {
-          if (result.status === 'fulfilled') {
-            const raw = result.value?.data || result.value;
-            if (Array.isArray(raw) && raw.length > 0) {
-              return raw.map((item, index) => {
-                const rawStatus = (item.status || item.submission?.status || statusKey || '').toString().toLowerCase();
-                const isLate = statusKey === 'submitted_late' || rawStatus === 'submitted_late' || Boolean(item.isLate) || Boolean(item.submittedLate);
-                const isOverdue = statusKey === 'overdue' || rawStatus === 'overdue';
-                const isCompleted = statusKey === 'completed' || statusKey === 'submitted_late' || rawStatus === 'submitted' || rawStatus === 'submitted_late';
-                const rawEval = item.evaluationStatus || item.submission?.evaluationStatus || item.evalStatus;
-                let evalLabel = '';
-                if (typeof rawEval === 'string' && rawEval.trim()) {
-                  const clean = rawEval.trim().toLowerCase();
-                  if (clean === 'evaluated' || clean.includes('تم التقييم') || clean.includes('مقيم') || clean === 'done') {
-                    evalLabel = 'تم التقييم';
-                  } else if (clean === 'not_evaluated' || clean.includes('لم يتم التقييم') || clean.includes('غير مقيم') || clean === 'pending') {
-                    evalLabel = 'لم يتم التقييم';
-                  } else {
-                    evalLabel = rawEval.trim();
-                  }
-                } else if (typeof item.evaluated === 'boolean') {
-                  evalLabel = item.evaluated ? 'تم التقييم' : 'لم يتم التقييم';
-                } else if (item.grade !== null && item.grade !== undefined && item.grade !== '') {
-                  evalLabel = 'تم التقييم';
-                } else if (isCompleted) {
-                  evalLabel = 'لم يتم التقييم';
-                }
-                const dueFormatted = item.formattedDueDate || formatHomeworkDate(item.dueDate || item.deadline, isRtl) || (isRtl ? '17 أبريل 2026' : '17 April 2026');
-                const submittedFormatted = formatHomeworkDate(item.submittedAt || item.submission?.submittedAt, isRtl) || (isRtl ? '17 أبريل 2026' : '17 April 2026');
-                return {
-                  id: item.id || item._id || index + 1,
-                  title: item.title || (isRtl ? item.titleAr : item.titleEn) || item.name || 'واجب مدرسي',
-                  titleEn: item.titleEn || item.title || 'Homework',
-                  subject: item.group?.subject || item.subject || 'القرآن الكريم',
-                  subjectEn: item.group?.subjectEn || item.subjectEn || 'Holy Quran',
-                  teacher: item.teacher?.name || item.teacherName || 'الشيخ أحمد السيد',
-                  teacherEn: item.teacher?.name || item.teacherName || 'Sheikh Ahmed Al-Sayed',
-                  sessionName: item.group?.name || 'حصة التجويد - سورة البقرة',
-                  sessionNameEn: item.group?.name || 'Tajweed Session - Surah Al-Baqarah',
-                  dueDate: dueFormatted,
-                  dueDateEn: dueFormatted,
-                  submissionDate: submittedFormatted,
-                  submissionDateEn: submittedFormatted,
-                  lateTextAr: item.lateDays ? `متأخر ${item.lateDays} أيام` : 'متأخر 5 أيام',
-                  lateTextEn: item.lateDays ? `${item.lateDays} days overdue` : '5 days overdue',
-                  status: isCompleted ? (isLate ? 'submitted_late' : 'completed') : (isOverdue ? 'overdue' : 'pending'),
-                  rawStatus: rawStatus || statusKey,
-                  isSubmittedLate: isLate,
-                  evaluationStatus: evalLabel,
-                  statusLabelAr: isCompleted ? (isLate ? 'متسلم متأخر' : 'مكتملة') : (isOverdue ? 'متأخر' : 'قيد التنفيذ'),
-                  statusLabelEn: isCompleted ? (isLate ? 'Submitted Late' : 'Completed') : (isOverdue ? 'Overdue' : 'In Progress'),
-                  grade: item.grade || item.submission?.grade || null,
-                  feedback: item.feedback || item.submission?.feedback || null,
-                  description: item.description || item.desc || '',
-                  fileUrl: item.fileUrl || null,
-                };
-              });
-            }
-          }
-          return defaultList;
-        };
-        const pendingItems = formatApiItems(pendingRes, MOCK_ASSIGNMENTS.ongoing, 'pending');
-        const submittedItems = formatApiItems(submittedRes, [], 'completed');
-        const submittedLateItems = formatApiItems(submittedLateRes, [], 'submitted_late');
-        const combinedCompleted = [...submittedItems];
-        submittedLateItems.forEach((lateItem) => {
-          if (!combinedCompleted.some((c) => String(c.id) === String(lateItem.id))) {
-            combinedCompleted.push(lateItem);
-          }
-        });
-        const overdueItems = formatApiItems(overdueRes, MOCK_ASSIGNMENTS.overdue, 'overdue');
-        if (!isMounted) return;
-        setAssignmentsByTab({
-          ongoing: pendingItems,
-          completed: combinedCompleted.length > 0 ? combinedCompleted : MOCK_ASSIGNMENTS.completed,
-          overdue: overdueItems,
-        });
-      } catch {
-        if (!isMounted) return;
-        setAssignmentsByTab(MOCK_ASSIGNMENTS);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
+
+  const [activeTab, setActiveTab] = useState('pending');
+  const [statistics, setStatistics] = useState(null);
+  const [tabData, setTabData] = useState({ pending: null, submitted: null, submitted_late: null, overdue: null });
+  const [tabLoading, setTabLoading] = useState({ pending: false, submitted: false, submitted_late: false, overdue: false });
+  const [search, setSearch] = useState('');
+
+  // Track which tabs have been fetched so we don't re-fetch
+  const loadedRef = useRef(new Set());
+
+  const loadTab = useCallback(async (tabKey, force = false) => {
+    if (!force && loadedRef.current.has(tabKey)) return;
+    setTabLoading((prev) => ({ ...prev, [tabKey]: true }));
+    try {
+      const res = await TAB_API[tabKey]();
+      const raw = res?.data || res;
+      const stats = res?.statistics || null;
+      // Statistics come from every endpoint — save on first successful load
+      if (stats && !statistics) setStatistics(stats);
+      if (stats) setStatistics(stats); // always overwrite to get latest
+      const items = Array.isArray(raw) ? raw.map((it) => normaliseItem(it, tabKey, isRtl)) : [];
+      setTabData((prev) => ({ ...prev, [tabKey]: items }));
+      loadedRef.current.add(tabKey);
+    } catch {
+      setTabData((prev) => ({ ...prev, [tabKey]: [] }));
+      loadedRef.current.add(tabKey);
+    } finally {
+      setTabLoading((prev) => ({ ...prev, [tabKey]: false }));
     }
-    loadHomeworkData();
-    return () => {
-      isMounted = false;
-    };
-  }, [isRtl]);
+  }, [isRtl, statistics]);
+
+  // On mount: load only the pending tab
+  useEffect(() => {
+    loadTab('pending');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When switching tabs, lazy-load if not yet fetched
   function handleTabChange(tabKey) {
     setActiveTab(tabKey);
+    setSearch('');
+    loadTab(tabKey);
   }
+
+  function handleRefresh() {
+    loadedRef.current.delete(activeTab);
+    loadTab(activeTab, true);
+  }
+
   function handleOpenDetails(item) {
-    navigate(`/dashboard/student/assignments/${item.id}`, { state: { homework: item } });
+    navigate(`/dashboard/student/assignments/${item.id}`, {
+      state: { homework: item._raw || item },
+    });
   }
-  const currentList = assignmentsByTab[activeTab] || [];
-  const ongoingCount = assignmentsByTab.ongoing?.length ?? 3;
-  const completedCount = assignmentsByTab.completed?.length ?? 3;
-  const overdueCount = assignmentsByTab.overdue?.length ?? 1;
-  const getTabCount = (tabKey) => {
-    if (tabKey === 'ongoing') return ongoingCount;
-    if (tabKey === 'completed') return completedCount;
-    return overdueCount;
-  };
+
+  const currentItems = tabData[activeTab] ?? null;
+  const isLoading = tabLoading[activeTab];
+
+  const filteredItems = currentItems && search.trim()
+    ? currentItems.filter((it) =>
+        it.title.includes(search) ||
+        it.group.includes(search) ||
+        (it.deadlineFormatted && it.deadlineFormatted.includes(search))
+      )
+    : currentItems;
+
+  const kpiCards = buildKpiCards(statistics, t);
+
+  /* ─── render ──────────────────────────────────────────── */
   return (
-    <>
-      <div className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 p-4 sm:p-6 lg:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className="max-w-6xl mx-auto space-y-5">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:px-8 sm:py-6 border border-slate-100 dark:border-slate-800 shadow-sm">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              {t('studentDashboard.assignments.title', 'الواجبات')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 mt-1 font-medium">
-              {t('studentDashboard.assignments.subtitle', 'تابع واجباتك وقم بتسليمها في الوقت المحدد')}
-            </p>
-          </div>
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="grid grid-cols-3 gap-2 sm:gap-4">
-              {TABS_CONFIG.map((tab) => {
-                const isSelected = activeTab === tab.key;
-                const count = getTabCount(tab.key);
-                const tabLabel = tab.key === 'ongoing'
-                  ? t('studentDashboard.assignments.ongoing', 'الجارية')
-                  : tab.key === 'completed'
-                  ? t('studentDashboard.assignments.completedTab', 'المكتملة')
-                  : t('studentDashboard.assignments.overdueTab', 'المتأخرة');
-                const isOverdueTab = tab.key === 'overdue';
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => handleTabChange(tab.key)}
-                    className={`py-3 sm:py-3.5 px-2 sm:px-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs sm:text-sm transition-all cursor-pointer ${
-                      isSelected
-                        ? isOverdueTab
-                          ? 'bg-[#EB3D3D] text-white shadow-sm'
-                          : 'bg-[#00594C] text-white shadow-sm'
-                        : 'bg-[#E8EEEC] dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#dfe7e5]'
-                    }`}
-                  >
-                    <span>{tabLabel}</span>
+    <div
+      className="min-h-screen bg-[#EEF4F2] dark:bg-slate-950 p-4 sm:p-6 lg:p-8 font-sans transition-colors"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
+      <div className="max-w-6xl mx-auto space-y-5">
+
+        {/* ── Header ── */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl px-6 py-5 sm:px-8 border border-slate-100 dark:border-slate-800 shadow-xs">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+            {t('studentDashboard.assignments.title', 'الواجبات')}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 mt-1 font-medium">
+            {t('studentDashboard.assignments.subtitle', 'تابع واجباتك وقم بتسليمها في الوقت المحدد')}
+          </p>
+        </div>
+
+        {/* ── KPI Stats ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {kpiCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <motion.button
+                key={card.key}
+                type="button"
+                onClick={() => card.tab && handleTabChange(card.tab)}
+                whileHover={card.tab ? { scale: 1.03 } : {}}
+                whileTap={card.tab ? { scale: 0.97 } : {}}
+                className={`${card.color} border rounded-2xl p-4 text-start space-y-2 transition-all ${card.tab ? 'cursor-pointer hover:shadow-sm' : 'cursor-default'}`}
+              >
+                <div className="flex items-center justify-between">
+                  <Icon size={18} className={card.iconColor} />
+                </div>
+                <p className={`text-2xl font-black ${card.textColor}`}>
+                  {card.value}
+                </p>
+                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-tight">
+                  {card.label}
+                </p>
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {/* ── Tabs ── */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 border border-slate-100 dark:border-slate-800 shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {TABS.map((tab) => {
+              const isSelected = activeTab === tab.key;
+              const count = statistics?.[tab.statKey] ?? (tabData[tab.key]?.length ?? null);
+              const colors = TAB_COLORS[tab.color];
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => handleTabChange(tab.key)}
+                  className={`py-3 px-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+                    isSelected
+                      ? colors.active + ' shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  <span className="truncate">{isRtl ? tab.labelAr : tab.labelEn}</span>
+                  {count !== null && (
                     <span
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                        isSelected
-                          ? 'bg-white/20 text-white'
-                          : 'bg-white/80 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                      className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                        isSelected ? 'bg-white/25 text-white' : colors.badge
                       }`}
                     >
                       {count}
                     </span>
-                  </button>
-                );
-              })}
-            </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
-          {isLoading ? (
-            <div className="flex h-64 items-center justify-center">
-              <Spinner />
-            </div>
-          ) : currentList.length === 0 ? (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-800 space-y-3">
-              <FileText size={36} className="text-slate-300 dark:text-slate-600 mx-auto" />
-              <h3 className="text-base font-bold text-slate-700 dark:text-slate-200">
-                {t('studentDashboard.assignments.empty', 'لا توجد واجبات في هذا القسم')}
-              </h3>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {currentList.map((item) => {
-                const title = isRtl ? item.title : (item.titleEn || item.title);
-                const teacher = isRtl ? item.teacher : (item.teacherEn || item.teacher);
-                const subject = isRtl ? item.subject : (item.subjectEn || item.subject);
-                const sessionName = isRtl ? item.sessionName : (item.sessionNameEn || item.sessionName);
-                const isOverdue = item.status === 'overdue' || item.rawStatus === 'overdue';
-                const isCompleted = item.status === 'completed' || item.status === 'submitted' || item.status === 'submitted_late' || item.rawStatus === 'submitted' || item.rawStatus === 'submitted_late';
-                const isOngoing = !isCompleted && !isOverdue;
-                const isLateSubmitted = isHomeworkSubmittedLate(item);
-                const evalInfo = resolveEvaluationStatus(item, isRtl);
-                const statusBadgeLabel = isCompleted
-                  ? (isLateSubmitted ? (isRtl ? 'متسلم متأخر' : 'Submitted Late') : t('studentDashboard.assignments.completed', 'مكتملة'))
+        </div>
+
+        {/* ── Search + Refresh ── */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search size={15} className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('studentDashboard.assignments.search', 'بحث في الواجبات...')}
+              className={`w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-2.5 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#00594C] dark:focus:border-emerald-500 transition ${isRtl ? 'pr-9 pl-4' : 'pl-9 pr-4'}`}
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 ${isRtl ? 'left-3' : 'right-3'}`}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-50"
+            title={t('studentDashboard.assignments.refresh', 'تحديث')}
+          >
+            <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+        </div>
+
+        {/* ── Content ── */}
+        {isLoading ? (
+          <div className="flex h-56 items-center justify-center">
+            <Spinner size="lg" />
+          </div>
+        ) : !filteredItems || filteredItems.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-800 space-y-3">
+            <FileText size={36} className="text-slate-300 dark:text-slate-600 mx-auto" />
+            <h3 className="text-base font-bold text-slate-700 dark:text-slate-200">
+              {search
+                ? t('studentDashboard.assignments.noResults', 'لا توجد نتائج مطابقة')
+                : t('studentDashboard.assignments.empty', 'لا توجد واجبات في هذا القسم')}
+            </h3>
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-4"
+            >
+              {filteredItems.map((item) => {
+                const isSubmitted = item.submissionStatus === 'submitted';
+                const isLate = item.submissionStatus === 'submitted_late';
+                const isOverdue = item.submissionStatus === 'overdue';
+                const isPending = item.submissionStatus === 'pending';
+                const isSubmittedAny = isSubmitted || isLate;
+                const evalInfo = item.evaluationStatus;
+
+                /* submission status badge */
+                const submBadge = isLate
+                  ? { label: isRtl ? 'تم التسليم متأخراً' : 'Submitted Late', cls: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' }
+                  : isSubmitted
+                  ? { label: isRtl ? 'تم التسليم' : 'Submitted', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' }
                   : isOverdue
-                  ? t('studentDashboard.assignments.overdue', 'متأخر')
-                  : t('studentDashboard.assignments.inProgress', 'قيد التنفيذ');
+                  ? { label: isRtl ? 'فات الموعد' : 'Overdue', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' }
+                  : { label: isRtl ? 'في الانتظار' : 'Pending', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' };
+
+                /* action button */
+                const btnLabel = isSubmittedAny
+                  ? t('studentDashboard.assignments.viewDetails', 'عرض التفاصيل')
+                  : isOverdue
+                  ? t('studentDashboard.assignments.submitLate', 'تسليم متأخر')
+                  : t('studentDashboard.assignments.viewSubmit', 'عرض التفاصيل والتسليم');
+
+                const btnCls = isOverdue
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                  : isSubmittedAny
+                  ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+                  : 'bg-[#00594C] hover:bg-[#004742] text-white';
+
                 return (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-5 text-start"
+                    className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-xs space-y-4 text-start"
                   >
+                    {/* Top row */}
                     <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
-                          {title}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                          {item.title}
                         </h3>
-                        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                          <span className="bg-[#E3EFFC] text-[#2563EB] text-xs font-bold px-3 py-0.5 rounded-full">
-                            {subject}
-                          </span>
-                          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                            <User size={14} className="text-slate-400 shrink-0" />
-                            <span>{teacher}</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">
-                          {sessionName}
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                          {item.group}
                         </p>
-                        <div className="flex items-center gap-3 text-xs mt-1.5 text-slate-400 dark:text-slate-500 flex-wrap">
-                          {isOverdue && item.lateTextAr && (
-                            <span className="text-[#EF4444] font-bold flex items-center gap-1">
-                              <Clock size={13} className="shrink-0" />
-                              <span>{isRtl ? item.lateTextAr : item.lateTextEn}</span>
+                        {/* dates */}
+                        <div className="flex items-center gap-4 flex-wrap pt-0.5">
+                          {item.deadlineFormatted && (
+                            <span className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+                              <Calendar size={12} className="shrink-0" />
+                              <span>
+                                {t('studentDashboard.assignments.dueDateLabel', 'الموعد:')} {item.deadlineFormatted}
+                              </span>
                             </span>
                           )}
-                          <span className="flex items-center gap-1">
-                            <Calendar size={13} className="shrink-0" />
-                            <span>
-                              {isCompleted
-                                ? `${t('studentDashboard.assignments.submittedDateLabel', 'تم التسليم :')} ${isRtl ? item.submissionDate : item.submissionDateEn}`
-                                : `${t('studentDashboard.assignments.dueDateLabel', 'تاريخ التسليم :')} ${isRtl ? item.dueDate : item.dueDateEn}`}
+                          {item.submittedAtFormatted && (
+                            <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                              <CheckCircle size={12} className="shrink-0" />
+                              <span>
+                                {t('studentDashboard.assignments.submittedDateLabel', 'تاريخ التسليم:')} {item.submittedAtFormatted}
+                              </span>
                             </span>
-                          </span>
+                          )}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end shrink-0 gap-2">
-                        <div className="flex items-center gap-2 flex-wrap justify-end">
+
+                      {/* Badges column */}
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        {/* Submission status badge */}
+                        <span className={`text-[11px] font-bold px-3 py-1 rounded-full ${submBadge.cls}`}>
+                          {submBadge.label}
+                        </span>
+
+                        {/* Evaluation badge — shown when submitted (any) */}
+                        {isSubmittedAny && (
                           <span
-                            className={`text-xs font-bold px-4 py-1.5 rounded-full ${
-                              isCompleted
-                                ? isLateSubmitted
-                                  ? 'bg-[#FEF3C7] text-[#D97706]'
-                                  : 'bg-[#D1FAE5] text-[#059669]'
-                                : isOverdue
-                                ? 'bg-[#FEE2E2] text-[#EF4444]'
-                                : 'bg-[#FEF3C7] text-[#D97706]'
+                            className={`text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${
+                              evalInfo.isEvaluated
+                                ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50'
+                                : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                             }`}
                           >
-                            {statusBadgeLabel}
+                            <Star
+                              size={11}
+                              className={evalInfo.isEvaluated ? 'fill-purple-500 text-purple-500' : 'text-slate-400'}
+                            />
+                            <span>{evalInfo.label}</span>
                           </span>
-                          {isCompleted && (
-                            <span
-                              className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${
-                                evalInfo.isEvaluated
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50'
-                                  : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                              }`}
-                            >
-                              <CheckCircle size={12} className={evalInfo.isEvaluated ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'} />
-                              <span>{evalInfo.label}</span>
-                            </span>
-                          )}
-                        </div>
-                        {isCompleted && evalInfo.isEvaluated && item.grade && (
-                          <div className="flex items-center gap-1 mt-1 text-sm font-bold text-slate-800 dark:text-slate-100">
-                            <span className="font-mono">{item.grade}</span>
-                            <Star size={16} className="fill-[#F59E0B] text-[#F59E0B]" />
-                          </div>
+                        )}
+
+                        {/* Grade — shown when evaluated */}
+                        {isSubmittedAny && evalInfo.isEvaluated && item.grade !== null && (
+                          <span className="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                            <Star size={14} className="fill-amber-400 text-amber-400" />
+                            {item.grade}
+                          </span>
                         )}
                       </div>
                     </div>
-                    <div className="pt-2">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenDetails(item)}
-                        className={`w-full py-3.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer ${
-                          isOngoing
-                            ? 'bg-[#00594C] hover:bg-[#004742] text-white'
-                            : isOverdue
-                            ? 'bg-[#EB3D3D] hover:bg-[#DC2626] text-white'
-                            : 'bg-[#F1F5F9] dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
-                        }`}
-                      >
-                        {isCompleted ? t('studentDashboard.assignments.viewDetails', 'عرض التفاصيل') : t('studentDashboard.assignments.viewSubmit', 'عرض التفاصيل والتسليم')}
-                      </button>
-                    </div>
+
+                    {/* Teacher notes (shown when evaluated) */}
+                    {isSubmittedAny && evalInfo.isEvaluated && item.teacherNotes && (
+                      <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl px-4 py-3">
+                        <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                          &ldquo;{item.teacherNotes}&rdquo;
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Attachments */}
+                    {(item.media || item.document) && (
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {item.document && (
+                          <a
+                            href={item.document}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-bold text-[#00594C] dark:text-emerald-400 hover:underline"
+                          >
+                            <FileText size={13} />
+                            {t('studentDashboard.assignments.downloadDocument', 'تحميل الملف')}
+                          </a>
+                        )}
+                        {item.media && (
+                          <a
+                            href={item.media}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-bold text-[#00594C] dark:text-emerald-400 hover:underline"
+                          >
+                            <FileText size={13} />
+                            {t('studentDashboard.assignments.viewMedia', 'عرض المرفق')}
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Overdue notice */}
+                    {isOverdue && (
+                      <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl px-4 py-2.5">
+                        <AlertCircle size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                        <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                          {t('studentDashboard.assignments.overdueNotice', 'يمكنك تسليم هذا الواجب والسيصل إلى المعلم كـ (تسليم متأخر)')}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Action button */}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDetails(item)}
+                      className={`w-full py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 ${btnCls}`}
+                    >
+                      {isOverdue && <Send size={15} className="rotate-180" />}
+                      {btnLabel}
+                    </button>
                   </motion.div>
                 );
               })}
-            </div>
-          )}
-        </div>
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
-    </>
+    </div>
   );
 }

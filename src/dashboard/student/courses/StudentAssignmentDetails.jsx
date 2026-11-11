@@ -487,7 +487,9 @@ export default function StudentAssignmentDetails() {
   const [homework, setHomework] = useState(() => resolveHomeworkDetails(location.state?.homework, id, isRtl));
   const [selectedAnswers, setSelectedAnswers] = useState(() => homework?.initialAnswers || {});
   const [submissionNotes, setSubmissionNotes] = useState(() => homework?.initialTextAnswer || '');
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const MAX_FILES = 5;
+  const MAX_FILE_SIZE_MB = 25;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState(null);
   useEffect(() => {
@@ -549,8 +551,8 @@ export default function StudentAssignmentDetails() {
     }
     if (isOverdue) {
       return {
-        label: t('studentDashboard.assignments.overdue', 'متأخر'),
-        badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800',
+        label: t('studentDashboard.assignments.overdueCanSubmit', 'فات الموعد • يمكن التسليم'),
+        badgeClass: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
       };
     }
     return {
@@ -580,19 +582,24 @@ export default function StudentAssignmentDetails() {
     }));
   }
   function handleFileChange(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (file.size > 25 * 1024 * 1024) {
-      showErrorToast(t('studentDashboard.assignments.maxFileSize', 'الحد الأقصى لحجم الملف 25 ميجابايت'));
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+    if (selectedFiles.length + files.length > MAX_FILES) {
+      showErrorToast(`الحد الأقصى للملفات المرفقة هو ${MAX_FILES} ملفات`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
-    setSelectedFile(file);
-  }
-  function handleRemoveFile() {
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    const oversized = files.find((f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024);
+    if (oversized) {
+      showErrorToast(`الحد الأقصى لحجم الملف ${MAX_FILE_SIZE_MB} ميجابايت`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
     }
+    setSelectedFiles((prev) => [...prev, ...files].slice(0, MAX_FILES));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+  function handleRemoveFile(index) {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   }
   function togglePlayAudio(audioId) {
     if (playingAudioId === audioId) {
@@ -607,73 +614,65 @@ export default function StudentAssignmentDetails() {
       showErrorToast(t('studentDashboard.assignments.submissionClosed', 'انتهى الموعد النهائي لتسليم هذا الواجب ولم يعد متاحاً للتسليم'));
       return;
     }
-    const hasAnyAnswer = Object.values(selectedAnswers).some((ans) => ans !== undefined && ans !== null && String(ans).trim() !== '');
+    const hasAnyAnswer = Object.values(selectedAnswers).some(
+      (ans) => ans !== undefined && ans !== null && String(ans).trim() !== '',
+    );
     const hasNotes = Boolean(submissionNotes.trim());
-    const hasFile = Boolean(selectedFile);
-    if (!hasAnyAnswer && !hasNotes && !hasFile) {
+    const hasFiles = selectedFiles.length > 0;
+    if (!hasAnyAnswer && !hasNotes && !hasFiles) {
       showErrorToast(t('studentDashboard.assignments.validationError', 'يرجى الإجابة على الأسئلة أو كتابة الحل أو إرفاق ملف للواجب'));
       return;
     }
     setIsSubmitting(true);
     try {
-      const formattedAnswers = Object.entries(selectedAnswers).map(([qId, value]) => {
-        const targetQ = (homework.questions || []).find((q) => String(q.id) === String(qId));
-        if (targetQ && targetQ.type === 'multiple_choice') {
-          const optIdx = Number(value);
-          const optText = Array.isArray(targetQ.options) ? targetQ.options[optIdx] : '';
-          return {
-            questionId: qId,
-            selectedOptionIndex: optIdx,
-            selectedOption: optIdx,
-            answer: optText || String(value),
-            answerText: null,
-          };
-        }
-        return {
-          questionId: qId,
-          selectedOptionIndex: null,
-          selectedOption: null,
-          answerText: String(value),
-          textAnswer: String(value),
-          answer: String(value),
-        };
-      });
-      const formData = new FormData();
-      if (submissionNotes.trim()) {
-        formData.append('textAnswer', submissionNotes.trim());
-        formData.append('text', submissionNotes.trim());
-        formData.append('notes', submissionNotes.trim());
-      }
-      if (selectedFile) {
-        formData.append('file', selectedFile);
-        formData.append('attachment', selectedFile);
-        formData.append('document', selectedFile);
-      }
-      if (formattedAnswers.length > 0) {
-        formData.append('answers', JSON.stringify(formattedAnswers));
-      }
+      // Build answers array in the exact format the backend expects:
+      // MCQ  → { questionId, selectedOptionIndex: Number }
+      // Text → { questionId, answerText: String }
+      const formattedAnswers = Object.entries(selectedAnswers)
+        .filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== '')
+        .map(([qId, value]) => {
+          const targetQ = (homework.questions || []).find((q) => String(q.id) === String(qId));
+          if (targetQ && targetQ.type === 'multiple_choice') {
+            return { questionId: qId, selectedOptionIndex: Number(value) };
+          }
+          return { questionId: qId, answerText: String(value) };
+        });
+
       const submitId = homework.id || id;
-      if (submitId && typeof submitId === 'string' && submitId.length > 10) {
+      if (!submitId || typeof submitId !== 'string' || submitId.length <= 10) return;
+
+      if (hasFiles) {
+        // Multipart/form-data when files are present
+        const formData = new FormData();
+        if (submissionNotes.trim()) formData.append('textAnswer', submissionNotes.trim());
+        if (formattedAnswers.length > 0) formData.append('answers', JSON.stringify(formattedAnswers));
+        selectedFiles.forEach((file) => formData.append('attachments', file));
         await studentPortalApi.submitHomework(submitId, formData);
+      } else {
+        // Plain JSON when no files
+        const payload = {};
+        if (submissionNotes.trim()) payload.textAnswer = submissionNotes.trim();
+        if (formattedAnswers.length > 0) payload.answers = formattedAnswers;
+        await studentPortalApi.submitHomework(submitId, payload);
       }
+
       showSuccessToast(t('studentDashboard.assignments.submittedSuccessfully', 'تم تسليم الواجب بنجاح!'));
       setHomework((prev) => ({
         ...prev,
         isCompleted: true,
         canSubmit: false,
         status: isOverdue ? 'submitted_late' : 'completed',
-        submissionStatus: isOverdue ? 'متسلم متأخر' : 'تم التسليم',
+        submissionStatus: isOverdue ? 'تم التسليم متأخراً' : 'تم التسليم',
         isSubmittedLate: isOverdue,
         evaluationStatus: 'not_evaluated',
         isEvaluated: false,
         submissionDate: isRtl ? 'اليوم' : 'Today',
         initialTextAnswer: submissionNotes.trim(),
-        submittedFile: selectedFile ? {
-          name: selectedFile.name,
-          size: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
-          url: URL.createObjectURL(selectedFile),
-        } : (isRtl ? { name: 'حل_الواجب_المسلم.pdf', size: '1.0 MB', url: '#' } : { name: 'submitted_solution.pdf', size: '1.0 MB', url: '#' }),
+        submittedFile: selectedFiles.length > 0
+          ? { name: selectedFiles[0].name, size: `${(selectedFiles[0].size / (1024 * 1024)).toFixed(1)} MB`, url: URL.createObjectURL(selectedFiles[0]) }
+          : null,
       }));
+      setSelectedFiles([]);
     } catch (error) {
       const message = error.response?.data?.message || error.message || t('studentDashboard.assignments.submitFailed', 'فشل تسليم الواجب، يرجى المحاولة مرة أخرى');
       showErrorToast(Array.isArray(message) ? message.join(' - ') : message);
@@ -1244,6 +1243,15 @@ export default function StudentAssignmentDetails() {
                 transition={{ duration: 0.25, delay: 0.2 }}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start"
               >
+                {/* Overdue late-submission notice */}
+                {isOverdue && (
+                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-center gap-3">
+                    <AlertCircle size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                      {t('studentDashboard.assignments.overdueNotice', 'يمكنك تسليم هذا الواجب الآن وسيصل إلى المعلم كـ (تسليم متأخر).')}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2.5">
                   <Upload size={20} className="text-[#00594C] dark:text-emerald-400" />
                   <div>
@@ -1269,41 +1277,59 @@ export default function StudentAssignmentDetails() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                      {t('studentDashboard.assignments.uploadSolutionFile', 'رفع ملف الحل (PDF، مستند، صورة)')}
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {t('studentDashboard.assignments.uploadSolutionFile', 'المرفقات (بحد أقصى 5 ملفات)')}
+                      </label>
+                      {selectedFiles.length > 0 && (
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                          {selectedFiles.length} / {MAX_FILES}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="file"
                       ref={fileInputRef}
                       onChange={handleFileChange}
+                      multiple
                       accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.mp3,.zip"
                       className="hidden"
                     />
-                    {selectedFile ? (
-                      <div className="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-[#00594C] dark:text-emerald-300 flex items-center justify-center shrink-0">
-                            <File size={20} />
+                    {/* Selected files list */}
+                    {selectedFiles.length > 0 && (
+                      <div className="space-y-2">
+                        {selectedFiles.map((file, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-3 flex items-center justify-between gap-3"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-[#00594C] dark:text-emerald-300 flex items-center justify-center shrink-0">
+                                <File size={18} />
+                              </div>
+                              <div className="min-w-0 text-start">
+                                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                                  {file.name}
+                                </span>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                                  {(file.size / (1024 * 1024)).toFixed(2)} MB
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(idx)}
+                              className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-100/60 dark:hover:bg-rose-950/40 transition cursor-pointer shrink-0"
+                              title={t('studentDashboard.assignments.removeFile', 'حذف الملف')}
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
-                          <div className="min-w-0 text-start">
-                            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 block truncate">
-                              {selectedFile.name}
-                            </span>
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                              {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleRemoveFile}
-                          className="p-2 rounded-xl text-rose-500 hover:bg-rose-100/60 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                          title={t('studentDashboard.assignments.removeFile', 'حذف الملف')}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        ))}
                       </div>
-                    ) : (
+                    )}
+                    {/* Drop zone — only show when under the limit */}
+                    {selectedFiles.length < MAX_FILES && (
                       <div
                         onClick={() => fileInputRef.current?.click()}
                         className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-[#00594C] dark:hover:border-emerald-500 p-6 sm:p-8 text-center space-y-2 bg-slate-50/40 dark:bg-slate-800/30 transition cursor-pointer"
@@ -1312,10 +1338,12 @@ export default function StudentAssignmentDetails() {
                           <Upload size={22} />
                         </div>
                         <div className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                          {t('studentDashboard.assignments.dragAndDrop', 'انقر لاختيار ملف الحل أو اسحبه وأفلته هنا')}
+                          {selectedFiles.length === 0
+                            ? t('studentDashboard.assignments.dragAndDrop', 'انقر لإرفاق الملفات أو اسحبها هنا')
+                            : t('studentDashboard.assignments.addAnotherFile', 'إضافة ملف آخر')}
                         </div>
                         <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                          {t('studentDashboard.assignments.maxFileSize', 'الحد الأقصى لحجم الملف 25 ميجابايت (PDF, DOCX, JPG, PNG, MP3)')}
+                          {t('studentDashboard.assignments.maxFileSize', 'PDF, DOCX, JPG, PNG, MP3 • حد أقصى 25MB لكل ملف')}
                         </p>
                       </div>
                     )}
