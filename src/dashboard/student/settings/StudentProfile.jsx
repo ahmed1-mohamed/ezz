@@ -213,8 +213,7 @@ export default function StudentProfile() {
   }, [p.level, p.grade, p.studentLevel, t]);
   const attendanceRate = statsData?.attendanceRate !== undefined ? `${statsData.attendanceRate}%` : p.attendanceRate !== undefined ? `${p.attendanceRate}%` : '94%';
   const averageRating = statsData?.averageRating ? Number(statsData.averageRating).toFixed(1) : p.averageRating ? Number(p.averageRating).toFixed(1) : '4.9';
-  console.log(statsData);
-  const totalEvaluations = profileData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
+  const totalEvaluations = statsData?.totalEvaluations ?? p.evaluationsCount ?? p.totalReviews ?? 80;
   const sessionBalanceData = useMemo(() => {
     if (p.sessionsBalance || p.sessionBalance) {
       return p.sessionsBalance || p.sessionBalance;
