@@ -16,23 +16,50 @@ export default function QuestionBuilder({ questions = [], onChange }) {
   const canAddMore = questions.length < 20;
   const handleAddQuestion = (type = 'multiple_choice') => {
     if (!canAddMore) return;
+    const isMcq = type === 'multiple_choice';
     const newQ = {
       id: `q_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      type,
+      type: isMcq ? 'multiple_choice' : 'essay',
       questionText: '',
       points: 5,
-      options: type === 'multiple_choice' ? ['', '', '', ''] : [],
-      correctOptionIndex: 0,
+      options: isMcq ? ['', '', '', ''] : [],
+      ...(isMcq ? { correctOptionIndex: 0 } : {}),
     };
     const nextList = [...questions, newQ];
     onChange(nextList);
     setActiveQuestionId(newQ.id);
+  };
+  const handleChangeQuestionType = (qId, nextType) => {
+    const isMcq = nextType === 'multiple_choice';
+    const nextList = questions.map((q) => {
+      if (q.id === qId) {
+        if (isMcq) {
+          return {
+            ...q,
+            type: 'multiple_choice',
+            options: Array.isArray(q.options) && q.options.length >= 2 ? q.options : ['', '', '', ''],
+            correctOptionIndex: Number(q.correctOptionIndex) >= 0 ? Number(q.correctOptionIndex) : 0,
+          };
+        }
+        const updated = { ...q, type: 'essay', options: [] };
+        delete updated.correctOptionIndex;
+        return updated;
+      }
+      return q;
+    });
+    onChange(nextList);
   };
   const handleUpdateQuestion = (id, field, value) => {
     const nextList = questions.map((q) => {
       if (q.id === id) {
         if (field === 'question' || field === 'questionText') {
           return { ...q, questionText: value };
+        }
+        if (field === 'correctOptionIndex') {
+          return { ...q, correctOptionIndex: Math.max(0, Number(value) || 0) };
+        }
+        if (field === 'points') {
+          return { ...q, points: Math.max(1, Number(value) || 1) };
         }
         return { ...q, [field]: value };
       }
@@ -201,12 +228,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                     <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                       <button
                         type="button"
-                        onClick={() => {
-                          handleUpdateQuestion(currentQ.id, 'type', 'multiple_choice');
-                          if (!currentQ.options || currentQ.options.length === 0) {
-                            handleUpdateQuestion(currentQ.id, 'options', ['', '', '', '']);
-                          }
-                        }}
+                        onClick={() => handleChangeQuestionType(currentQ.id, 'multiple_choice')}
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                           currentQ.type === 'multiple_choice'
                             ? 'bg-white dark:bg-slate-900 text-[#00594C] dark:text-emerald-400 shadow-2xs'
@@ -217,7 +239,7 @@ export default function QuestionBuilder({ questions = [], onChange }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleUpdateQuestion(currentQ.id, 'type', 'essay')}
+                        onClick={() => handleChangeQuestionType(currentQ.id, 'essay')}
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                           currentQ.type === 'essay'
                             ? 'bg-white dark:bg-slate-900 text-[#00594C] dark:text-emerald-400 shadow-2xs'

@@ -180,24 +180,6 @@ export default function SubmissionDetailsView({
     typeof liveData.group === 'object'
       ? liveData.group?.name || 'مجموعة دراسية'
       : liveData.group || 'مجموعة دراسية';
-  const rawEval = (
-    liveData.rawEvaluationStatus ||
-    liveData.evaluationStatus ||
-    submission?.rawEvaluationStatus ||
-    submission?.evaluationStatus ||
-    liveData.submission?.evaluationStatus ||
-    ''
-  ).toString().toLowerCase().trim();
-  const isEvaluated = Boolean(
-    rawEval === 'evaluated' ||
-    rawEval === 'graded' ||
-    rawEval === 'completed' ||
-    rawEval.includes('تم التقييم') ||
-    liveData.isEvaluated ||
-    submission?.isEvaluated ||
-    (liveData.grade !== null && liveData.grade !== undefined && liveData.grade !== '') ||
-    (submission?.grade !== null && submission?.grade !== undefined && submission?.grade !== '')
-  );
   const rawStatus = (() => {
     const st = (
       liveData.submissionStatus ||
@@ -210,13 +192,22 @@ export default function SubmissionDetailsView({
       liveData.submission?.status ||
       ''
     ).toString().toLowerCase().trim();
+    const subDate = liveData.submittedAt || liveData.submission?.submittedAt || submission?.submittedAt;
+    const deadlineDate = liveData.deadline || liveData.dueDate || liveData.homework?.deadline || liveData.homework?.dueDate || submission?.deadline || submission?.dueDate;
+    const isDateLate = Boolean(
+      subDate && deadlineDate &&
+      !isNaN(new Date(subDate).getTime()) &&
+      !isNaN(new Date(deadlineDate).getTime()) &&
+      new Date(subDate).getTime() > new Date(deadlineDate).getTime()
+    );
     const isLate = Boolean(
       liveData.isLate ||
       liveData.submittedLate ||
       submission?.isLate ||
       submission?.submittedLate ||
       st.includes('late') ||
-      st.includes('متأخر')
+      st.includes('متأخر') ||
+      isDateLate
     );
     if (st === 'submitted_late' || st === 'submitted-late' || (st === 'submitted' && isLate)) {
       return 'submitted_late';
@@ -229,6 +220,72 @@ export default function SubmissionDetailsView({
     }
     return st || 'pending';
   })();
+
+  const isSubmissionTurnedIn = rawStatus === 'submitted' || rawStatus === 'submitted_late';
+
+  const isEvaluated = Boolean(
+    isSubmissionTurnedIn &&
+    liveData.isEvaluated !== false &&
+    submission?.isEvaluated !== false &&
+    liveData.evaluated !== false &&
+    submission?.evaluated !== false &&
+    (() => {
+      const explicitEval =
+        liveData.isEvaluated ??
+        liveData.evaluated ??
+        submission?.isEvaluated ??
+        submission?.evaluated ??
+        liveData.submission?.isEvaluated ??
+        null;
+
+      if (explicitEval === true) return true;
+      if (explicitEval === false) return false;
+
+      const rawEval = (
+        liveData.evaluationStatus ||
+        liveData.rawEvaluationStatus ||
+        submission?.evaluationStatus ||
+        submission?.rawEvaluationStatus ||
+        liveData.submission?.evaluationStatus ||
+        ''
+      ).toString().toLowerCase().trim();
+
+      if (
+        rawEval === 'not_evaluated' ||
+        rawEval === 'not-evaluated' ||
+        rawEval === 'unevaluated' ||
+        rawEval.includes('غير مقيم') ||
+        rawEval.includes('لم يتم') ||
+        rawEval === 'pending' ||
+        rawEval === 'waiting'
+      ) {
+        return false;
+      }
+
+      if (
+        rawEval === 'evaluated' ||
+        rawEval === 'graded' ||
+        rawEval === 'تم التقييم' ||
+        rawEval === 'مقيم' ||
+        rawEval === 'done' ||
+        Boolean(liveData.evaluatedAt || submission?.evaluatedAt)
+      ) {
+        return true;
+      }
+
+      const hasGrade =
+        (liveData.grade !== null && liveData.grade !== undefined && liveData.grade !== '') ||
+        (submission?.grade !== null && submission?.grade !== undefined && submission?.grade !== '');
+
+      const hasNotes = Boolean(liveData.teacherNotes || submission?.teacherNotes);
+
+      if (hasGrade && hasNotes && Number(liveData.grade ?? submission?.grade) > 0) {
+        return true;
+      }
+
+      return false;
+    })()
+  );
   const formattedSubmissionTime = useMemo(() => {
     const rawDate =
       liveData.submittedAt ||
@@ -238,9 +295,8 @@ export default function SubmissionDetailsView({
       submission?.submissionDate ||
       liveData.date ||
       submission?.date ||
-      liveData.createdAt ||
-      submission?.createdAt ||
-      submission?.timeText ||
+      (rawStatus !== 'overdue' && rawStatus !== 'pending' ? (liveData.createdAt || submission?.createdAt) : null) ||
+      (rawStatus !== 'overdue' && rawStatus !== 'pending' ? submission?.timeText : null) ||
       null;
     if (!rawDate) {
       if (rawStatus === 'pending') {
@@ -455,10 +511,14 @@ export default function SubmissionDetailsView({
   const [userTeacherNotes, setUserTeacherNotes] = useState(null);
   const grade = userGrade !== null
     ? userGrade
-    : (liveData.grade !== null && liveData.grade !== undefined
+    : (isEvaluated && liveData.grade !== null && liveData.grade !== undefined && liveData.grade !== ''
         ? String(liveData.grade)
-        : (submission?.grade !== null && submission?.grade !== undefined ? String(submission.grade) : ''));
-  const teacherNotes = userTeacherNotes !== null ? userTeacherNotes : (liveData.teacherNotes || submission?.teacherNotes || '');
+        : (isEvaluated && submission?.grade !== null && submission?.grade !== undefined && submission?.grade !== ''
+            ? String(submission.grade)
+            : ''));
+  const teacherNotes = userTeacherNotes !== null
+    ? userTeacherNotes
+    : (isEvaluated ? (liveData.teacherNotes || submission?.teacherNotes || '') : '');
   const setGrade = setUserGrade;
   const setTeacherNotes = setUserTeacherNotes;
   const [isSubmitting, setIsSubmitting] = useState(false);

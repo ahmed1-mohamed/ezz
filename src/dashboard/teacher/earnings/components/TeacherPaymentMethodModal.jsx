@@ -14,6 +14,7 @@ import {
   Loader2,
   ShieldAlert,
 } from 'lucide-react';
+import { hasRealProofImage } from '@/shared/utils/paymentMethodUtils';
 
 const METHOD_TYPES = [
   { id: 'bank_transfer', labelKey: 'teacher.earnings.methods.types.bank_transfer', defaultLabel: 'حساب بنكي', icon: Building2 },
@@ -147,7 +148,7 @@ function TeacherPaymentMethodDialogContent({
   const isEdit = Boolean(initialData?.id);
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState(() => getInitialFormState(initialData));
-  const [previewUrl, setPreviewUrl] = useState(() => (typeof initialData?.verificationImage === 'string' ? initialData.verificationImage : ''));
+  const [previewUrl, setPreviewUrl] = useState(() => (typeof initialData?.verificationImage === 'string' && hasRealProofImage(initialData.verificationImage) ? initialData.verificationImage : ''));
   const [errorMsg, setErrorMsg] = useState('');
   const handleTypeChange = (newType) => {
     setFormData((prev) => ({ ...prev, type: newType }));

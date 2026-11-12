@@ -38,14 +38,13 @@ export const adminTrialSessionsApi = {
 
   assignSession: async (id, payload = {}) => {
     try {
-      const groupId = payload.groupId || payload.group
-      const sessionId = payload.sessionId || payload.session
+      const rawGroupId = payload.groupId || payload.group
+      const rawSessionId = payload.sessionId || payload.session
+      const groupId = typeof rawGroupId === 'object' && rawGroupId !== null ? (rawGroupId.id || rawGroupId._id) : rawGroupId
+      const sessionId = typeof rawSessionId === 'object' && rawSessionId !== null ? (rawSessionId.id || rawSessionId._id) : rawSessionId
       const body = {
-        groupId,
-        group: groupId,
-        sessionId,
-        session: sessionId,
-        ...payload,
+        groupId: String(groupId || '').trim(),
+        sessionId: String(sessionId || '').trim(),
       }
       const response = await api.patch(`/api/v1/trial-sessions/private/${id}/assign-session`, body)
       return response.data
@@ -102,17 +101,10 @@ export const adminTrialSessionsApi = {
 
   updateWebsiteTrialSession: async (id, data = {}) => {
     try {
-      const payload = {
-        status: data.status,
-      }
-      if (data.studentId) {
-        payload.studentId = data.studentId
-      }
-      const noteVal = (data.notes || data.note || data.adminNotes || '').trim()
-      if (noteVal) {
-        payload.notes = noteVal
-        payload.note = noteVal
-      }
+      const rawStatus = typeof data === 'string' ? data : (data?.status || '')
+      const normalizedStatus = String(rawStatus).toLowerCase().trim()
+      const status = normalizedStatus === 'rejected' ? 'rejected' : 'accepted'
+      const payload = { status }
       const response = await api.patch(`/api/v1/trial-sessions/website/private/${id}`, payload)
       return response.data
     } catch (error) {

@@ -53,14 +53,7 @@ const ParentPackageCard = memo(function ParentPackageCard({
   const countryName = packageItem?.country?.name || '';
   const countryFlag = packageItem?.country?.flag || '';
   const rate = Number(currencyInfo?.exchangeRate) > 0 ? Number(currencyInfo.exchangeRate) : 1;
-  const rawCurrency = packageItem?.currency || packageItem?.priceCurrency;
-  const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || '$';
-  const effectiveCurrencyInfo = {
-    ...currencyInfo,
-    symbol: currencySymbol,
-    exchangeRate: 1,
-  };
+  const currencySymbol = currencyInfo?.symbol || '$';
   const sessionsCount = packageItem?.sessionsCount || 8;
   const sessionDuration = packageItem?.sessionDuration || 60;
   const featuresList = Array.isArray(packageItem?.features) ? packageItem.features : [];
@@ -105,8 +98,8 @@ const ParentPackageCard = memo(function ParentPackageCard({
     usdFinal = Math.max(0, rawBasePrice - Number(packageItem.discountAmount));
     discountPercent = Math.round(((usdOriginal - usdFinal) / usdOriginal) * 100);
   }
-  const convertedFinal = resolvePackagePrice(usdFinal, effectiveCurrencyInfo, packageItem);
-  const convertedOriginal = resolvePackagePrice(usdOriginal, effectiveCurrencyInfo, packageItem);
+  const convertedFinal = resolvePackagePrice(usdFinal, currencyInfo, packageItem);
+  const convertedOriginal = resolvePackagePrice(usdOriginal, currencyInfo, packageItem);
   const maxFamilyMembers = Number(
     packageItem?.maxMembers ??
     packageItem?.maxStudents ??
@@ -120,7 +113,7 @@ const ParentPackageCard = memo(function ParentPackageCard({
     maxMembers: maxFamilyMembers,
     convertedPrice: convertedFinal,
     convertedOriginalPrice: convertedOriginal,
-    currency: rawCurrency || currencySymbol,
+    currency: currencySymbol,
     currencySymbol,
     exchangeRate: rate,
   };

@@ -16,7 +16,8 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
-import { currenciesApi, parseExchangeRateData } from '@/shared/services/api/currenciesApi.js';
+import { currenciesApi, parseExchangeRateData, resolveUserCurrencyInfo } from '@/shared/services/api/currenciesApi.js';
+import { useAuth } from '@/shared/context/useAuth';
 import ParentPackageCard from './components/ParentPackageCard.jsx';
 import ParentPackageDetailsModal from './components/ParentPackageDetailsModal.jsx';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs.jsx';
@@ -60,10 +61,31 @@ export default function ParentPackages() {
     queryKey: ['parent-packages-list', queryParams],
     queryFn: () => parentPackagesApi.fetchPackages(queryParams),
   });
-  const currencyInfo = useMemo(() => ({
-    symbol: '$',
-    exchangeRate: 1,
-  }), []);
+  const { user } = useAuth();
+  const { data: exchangeRateRes } = useQuery({
+    queryKey: ['currenciesExchangeRate'],
+    queryFn: currenciesApi.fetchExchangeRate,
+    staleTime: 1000 * 60 * 10,
+  });
+  const currencyInfo = useMemo(() => {
+    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
+    let stored = null;
+    try {
+      const saved = localStorage.getItem('user_currency_info');
+      if (saved) stored = JSON.parse(saved);
+    } catch (e) {
+      void e;
+    }
+    const resolved = resolveUserCurrencyInfo({ user, storedInfo: stored, apiResult: parsedApi });
+    if (resolved?.symbol && resolved.symbol !== '$') {
+      try {
+        localStorage.setItem('user_currency_info', JSON.stringify(resolved));
+      } catch (e) {
+        void e;
+      }
+    }
+    return resolved;
+  }, [exchangeRateRes, user]);
   const rawPackagesList = useMemo(() => {
     if (!packagesResponse) return [];
     if (Array.isArray(packagesResponse.data)) return packagesResponse.data;
@@ -173,7 +195,7 @@ export default function ParentPackages() {
               onClick={() => {
                 const targetPkg = filteredPackages[0] || rawPackagesList[0] || null;
                 navigate('/dashboard/parent/checkout', {
-                  state: targetPkg ? { package: targetPkg } : undefined,
+                  state: targetPkg ? { package: targetPkg, currencyInfo } : { currencyInfo },
                 });
               }}
               className="px-5 py-3 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-extrabold shadow-md shadow-[#0f7a6c]/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.01]"

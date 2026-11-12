@@ -1,6 +1,6 @@
 import {
   Eye,
-  UserCheck,
+  Check,
   Ban,
   Clock,
   CheckCircle2,
@@ -66,7 +66,7 @@ export default function WebsiteTrialSessionsTable({
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
           <CheckCircle2 size={13} />
-          <span>{isRtl ? 'مقبول وتم الربط' : 'Accepted'}</span>
+          <span>{isRtl ? 'مقبول' : 'Accepted'}</span>
         </span>
       )
     }
@@ -226,9 +226,9 @@ export default function WebsiteTrialSessionsTable({
                           type="button"
                           onClick={() => onAccept(item)}
                           className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer border border-emerald-200/60 dark:border-emerald-800/40"
-                          title={isRtl ? 'قبول وربط طالب' : 'Accept & Link Student'}
+                          title={isRtl ? 'قبول الطلب' : 'Accept Request'}
                         >
-                          <UserCheck size={15} />
+                          <Check size={15} />
                         </button>
                       )}
                       {isPending && onReject && (

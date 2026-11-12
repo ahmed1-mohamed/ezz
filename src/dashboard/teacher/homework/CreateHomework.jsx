@@ -161,18 +161,33 @@ export default function CreateHomework() {
     try {
       const cleanQuestions = questions.map((q) => {
         const qText = (q.questionText || q.question || '').trim();
-        const pts = Math.max(0, Number(q.points) >= 0 ? Number(q.points) : 5);
-        const correctIdx = q.type === 'multiple_choice' ? (Number(q.correctOptionIndex) >= 0 ? Number(q.correctOptionIndex) : 0) : 0;
-        const validOptions = q.type === 'multiple_choice'
+        const pts = Math.max(1, Number(q.points) >= 1 ? Number(q.points) : 5);
+        const isMcq = q.type === 'multiple_choice';
+        const validOptions = isMcq
           ? (q.options || []).map((opt) => String(opt ?? '').trim()).filter((opt) => opt.length > 0)
           : [];
-        return {
-          type: q.type || 'multiple_choice',
+        let correctIdx = 0;
+        if (isMcq) {
+          const rawIdx = q.correctOptionIndex !== undefined && q.correctOptionIndex !== null
+            ? Number(q.correctOptionIndex)
+            : 0;
+          correctIdx = Math.max(0, Math.min(validOptions.length - 1, isNaN(rawIdx) ? 0 : rawIdx));
+        }
+        const item = {
+          type: isMcq ? 'multiple_choice' : 'essay',
+          question: qText,
           questionText: qText,
+          title: qText,
           points: pts,
+          score: pts,
+          grade: pts,
+          degree: pts,
           options: validOptions,
-          correctOptionIndex: correctIdx,
         };
+        if (isMcq) {
+          item.correctOptionIndex = correctIdx;
+        }
+        return item;
       });
       let payload;
       if (mediaFile || documentFile) {
@@ -188,19 +203,7 @@ export default function CreateHomework() {
           payload.append('document', documentFile);
         }
         if (cleanQuestions.length > 0) {
-          cleanQuestions.forEach((q, idx) => {
-            payload.append(`questions[${idx}][type]`, q.type);
-            payload.append(`questions[${idx}][questionText]`, q.questionText);
-            payload.append(`questions[${idx}][points]`, String(q.points));
-            if (q.type === 'multiple_choice') {
-              (q.options || []).forEach((opt, oIdx) => {
-                payload.append(`questions[${idx}][options][${oIdx}]`, opt);
-              });
-              payload.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
-            } else {
-              payload.append(`questions[${idx}][options][]`, '');
-            }
-          });
+          payload.append('questions', JSON.stringify(cleanQuestions));
         }
       } else {
         payload = {

@@ -113,4 +113,20 @@ export function formatPaymentMethodInfo(method, isRtl = true) {
   };
 }
 
+export function hasRealProofImage(url) {
+  if (!url || typeof url !== 'string') return false;
+  const lower = url.toLowerCase().trim();
+  if (
+    !lower ||
+    lower === 'null' ||
+    lower === 'undefined' ||
+    lower.includes('placeholder') ||
+    lower.includes('optional_verification') ||
+    lower.includes('no-proof')
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export default formatPaymentMethodInfo;

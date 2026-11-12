@@ -1,10 +1,30 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Copy, Check } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { normalizeCountries } from '@/shared/utils/countryUtils'
 
 export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }) {
+  const [isCopied, setIsCopied] = useState(false)
+  const rawTeacherId = String(
+    teacher?.teacher_id ||
+    teacher?._id ||
+    teacher?.id ||
+    teacher?.teacherId ||
+    teacher?.user_id ||
+    ''
+  ).trim()
+  const teacherCode = rawTeacherId.length >= 8 ? rawTeacherId.slice(-8) : rawTeacherId
+
+  const handleCopyCode = (e) => {
+    e?.stopPropagation()
+    if (!teacherCode) return
+    navigator.clipboard?.writeText(teacherCode)
+    setIsCopied(true)
+    toast.success(isRtl ? 'تم نسخ كود المعلم' : 'Teacher code copied')
+    setTimeout(() => setIsCopied(false), 2000)
+  }
   const nameAr = teacher?.nameAr || (typeof teacher?.name === 'object' ? teacher?.name?.ar : teacher?.name) || '-'
   const nameEn = teacher?.nameEn || (typeof teacher?.name === 'object' ? teacher?.name?.en : '') || '-'
   const email = teacher?.email || '-'
@@ -143,24 +163,46 @@ export default function TeacherDetailsPersonalInfoCard({ teacher, isRtl = true }
           </div>
         </div>
       </div>
-      <div>
-        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-          {isRtl ? 'رقم الهاتف' : 'Phone Number'}
-        </label>
-        <div className="flex gap-2.5" dir="ltr">
-          <div className="h-12 flex items-center justify-center gap-2 px-3.5 bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 shrink-0 border border-slate-100/50 dark:border-slate-800/40 shadow-xs min-w-[70px]">
-            {isLoadingCountries && (!phoneCode && !flag) ? (
-              <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-            ) : (
-              <>
-                {flag && <span className="text-lg leading-none">{flag}</span>}
-                {phoneCode && <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200">{phoneCode}</span>}
-                {!flag && !phoneCode && <span className="text-xs font-mono text-slate-400">-</span>}
-              </>
-            )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'رقم الهاتف' : 'Phone Number'}
+          </label>
+          <div className="flex gap-2.5" dir="ltr">
+            <div className="h-12 flex items-center justify-center gap-2 px-3.5 bg-[#f3f7f6] dark:bg-slate-950 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 shrink-0 border border-slate-100/50 dark:border-slate-800/40 shadow-xs min-w-[70px]">
+              {isLoadingCountries && (!phoneCode && !flag) ? (
+                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+              ) : (
+                <>
+                  {flag && <span className="text-lg leading-none">{flag}</span>}
+                  {phoneCode && <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200">{phoneCode}</span>}
+                  {!flag && !phoneCode && <span className="text-xs font-mono text-slate-400">-</span>}
+                </>
+              )}
+            </div>
+            <div className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 text-sm font-medium flex items-center font-mono">
+              {localNumber}
+            </div>
           </div>
-          <div className="flex-1 bg-[#f3f7f6] dark:bg-slate-950 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 text-sm font-medium flex items-center font-mono">
-            {localNumber}
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'كود المعلم' : 'Teacher Code'}
+          </label>
+          <div className="w-full bg-[#f3f7f6] dark:bg-slate-950 text-slate-800 dark:text-slate-100 rounded-2xl py-3 px-4 text-sm font-bold font-mono border border-transparent flex items-center justify-between min-h-[48px]" dir="ltr">
+            <span className="text-[#005953] dark:text-emerald-400 tracking-wider">
+              {teacherCode ? `#${teacherCode}` : '-'}
+            </span>
+            {teacherCode && (
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-[#005953] dark:hover:text-emerald-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                title={isRtl ? 'نسخ كود المعلم' : 'Copy teacher code'}
+              >
+                {isCopied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+              </button>
+            )}
           </div>
         </div>
       </div>

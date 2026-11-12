@@ -244,7 +244,6 @@ export default function AdminAddTeacherEvaluationModal({
           specialty: selectedTeacher?.specialization || selectedTeacher?.subject || '',
         },
         group: selectedGroupId,
-        groupId: selectedGroupId,
         groupData: {
           id: selectedGroupId,
           name: groupName,

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Wallet, CreditCard } from 'lucide-react';
+import { Receipt, CreditCard } from 'lucide-react';
 
 export default function TeacherFinanceNavTabs() {
   const { t } = useTranslation();
@@ -10,10 +10,10 @@ export default function TeacherFinanceNavTabs() {
   const isMethods = currentPath.endsWith('/payment-methods');
   const tabs = [
     {
-      id: 'earnings',
+      id: 'payouts',
       path: '/dashboard/teacher/earnings',
-      label: t('teacher.earnings.tabs.earningsAndPayouts', 'الأرباح وإثباتات الدفع'),
-      icon: Wallet,
+      label: t('teacher.earnings.tabs.payouts', 'إثباتات الدفع'),
+      icon: Receipt,
       isActive: isEarnings,
     },
     {

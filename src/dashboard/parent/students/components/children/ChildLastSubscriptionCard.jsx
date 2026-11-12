@@ -5,7 +5,7 @@ import {
   Calendar,
   Layers,
 } from 'lucide-react';
-import { formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
+import { useCurrency, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
 
 function formatDate(dateStr, isRtl) {
   if (!dateStr) return '-';
@@ -28,16 +28,24 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const { currencyInfo, convertPrice } = useCurrency();
+
   if (!lastSubscription || typeof lastSubscription !== 'object') {
     return null;
   }
   const packageName = lastSubscription.name || t('parent.packages.defaultPackage', 'باقة دراسية');
-  const price = lastSubscription.price !== undefined ? Number(lastSubscription.price) : null;
+  const rawPrice = lastSubscription.price !== undefined
+    ? Number(lastSubscription.price)
+    : (lastSubscription.total !== undefined
+      ? Number(lastSubscription.total)
+      : (lastSubscription.amount !== undefined ? Number(lastSubscription.amount) : null));
+  const convertedPrice = rawPrice !== null ? convertPrice(rawPrice) : null;
   const sessionsCount = Number(lastSubscription.sessionsCount || 0);
   const subscribedAtFormatted = formatDate(lastSubscription.subscribedAt, isRtl);
-  const formattedPrice = price !== null
-    ? formatCurrencyDisplay(price, lastSubscription.currency || '$', isRtl)
+  const formattedPrice = convertedPrice !== null
+    ? formatCurrencyDisplay(convertedPrice, currencyInfo.symbol, isRtl)
     : null;
+
   return (
     <div
       className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-5"
@@ -67,7 +75,7 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {price !== null && (
+        {convertedPrice !== null && (
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
             <span className="text-slate-400 text-xs font-semibold block mb-1">
               {t('parent.packages.priceLabel', 'قيمة الاشتراك')}
@@ -105,4 +113,3 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
     </div>
   );
 }
-

@@ -42,31 +42,31 @@ function formatDate(dateVal, isRtl = true) {
   }
 }
 
-function getStatusBadge(status, t) {
+function getStatusBadge(status, t, isRtl = true) {
   const s = String(status || '').toLowerCase();
   if (s === 'paid' || s === 'active' || s === 'completed') {
     return {
-      label: t('parentPackages.statusPaid', 'مدفوع ومفعل'),
+      label: t('parentPackages.statusPaid', isRtl ? 'مدفوع ومفعل' : 'Paid in Full'),
       bg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/40',
       icon: CheckCircle2,
     };
   }
   if (s === 'pending') {
     return {
-      label: t('parentPackages.statusPending', 'في انتظار الدفع'),
+      label: t('parentPackages.statusPending', isRtl ? 'في انتظار الدفع' : 'Pending Payment'),
       bg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/40',
       icon: Clock,
     };
   }
   if (s === 'cancelled' || s === 'canceled') {
     return {
-      label: t('parentPackages.statusCancelled', 'ملغي'),
+      label: t('parentPackages.statusCancelled', isRtl ? 'ملغي' : 'Cancelled'),
       bg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40',
       icon: XCircle,
     };
   }
   return {
-    label: t('parentPackages.statusExpired', 'منتهي'),
+    label: t('parentPackages.statusExpired', isRtl ? 'منتهي' : 'Expired'),
     bg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
     icon: AlertTriangle,
   };
@@ -120,7 +120,7 @@ export default function ParentInvoiceModal({
     return sub.package || {};
   }, [pkgDetails, sub.package]);
   if (!isOpen || typeof document === 'undefined') return null;
-  const statusInfo = getStatusBadge(sub.status, t);
+  const statusInfo = getStatusBadge(sub.status, t, isRtl);
   const StatusIcon = statusInfo.icon;
   const orderNumber = sub.orderNumber || sub.subscriptionNumber || sub.invoiceNumber || (subscriptionId ? `RN-${String(subscriptionId).slice(-8).toUpperCase()}` : '-');
   const transactionRef = sub.transactionRef || sub.referenceNumber || sub.stripePaymentIntentId || sub.paymentId || (subscriptionId ? `TX-${String(subscriptionId).slice(-8).toUpperCase()}` : '-');
@@ -129,18 +129,16 @@ export default function ParentInvoiceModal({
   const packageType = resolvedPackage?.type || sub.package?.type || (Array.isArray(sub.students) && sub.students.length > 1 ? 'family' : 'individual');
   const studentNames = (() => {
     if (Array.isArray(sub.students) && sub.students.length > 0) {
-      return sub.students.map((st) => (typeof st.name === 'object' ? st.name.ar || st.name.en : st.name || st.studentName)).filter(Boolean).join('، ');
+      return sub.students.map((st) => (typeof st.name === 'object' ? (isRtl ? st.name.ar || st.name.en : st.name.en || st.name.ar) : st.name || st.studentName)).filter(Boolean).join(isRtl ? '، ' : ', ');
     }
     if (sub.student?.name) {
       return typeof sub.student.name === 'object' ? sub.student.name.ar || sub.student.name.en : sub.student.name;
     }
     if (sub.studentName) return sub.studentName;
-    return t('parentPackages.student', 'الابن');
+    return t('parentPackages.student', isRtl ? 'الابن' : 'Student');
   })();
   const currencyRate = Number(currencyInfo?.exchangeRate || 1);
-  const rawCurrency = sub.currency || sub.package?.currency || sub.paymentCurrency;
-  const resolvedSymbol = resolveCurrencySymbol(rawCurrency);
-  const currency = resolvedSymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const currency = currencyInfo?.symbol || '$';
   const rawTax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
   const explicitTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
   const explicitDiscount = Number(
@@ -189,15 +187,13 @@ export default function ParentInvoiceModal({
   } else if (priceAfterDiscount > 0 && discount <= 0 && amount > priceAfterDiscount) {
     discount = amount - priceAfterDiscount;
   }
-  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0;
-  if (isUsdScale) {
-    const convertedTotal = resolvePackagePrice(total, currencyInfo, sub.package ?? sub);
-    const convRatio = total > 0 ? convertedTotal / total : 1;
-    amount = Math.round(amount * convRatio);
-    tax = Number((tax * convRatio).toFixed(2));
-    total = convertedTotal;
-    if (discount > 0) discount = Math.round(discount * convRatio);
-    if (priceAfterDiscount > 0) priceAfterDiscount = Math.round(priceAfterDiscount * convRatio);
+  const shouldConvert = currencyRate > 0 && currencyRate !== 1 && total > 0;
+  if (shouldConvert) {
+    total = Math.round(total * currencyRate);
+    amount = Math.round(amount * currencyRate);
+    tax = Number((tax * currencyRate).toFixed(2));
+    if (discount > 0) discount = Math.round(discount * currencyRate);
+    if (priceAfterDiscount > 0) priceAfterDiscount = Math.round(priceAfterDiscount * currencyRate);
   }
   const sessionsCount = Number(
     sub.sessionsPerStudent ??
@@ -228,7 +224,7 @@ export default function ParentInvoiceModal({
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-black text-slate-800 dark:text-white">
-                {t('parentPackages.invoiceTitle', 'تفاصيل فاتورة الاشتراك')}
+                {t('parentPackages.invoiceTitle', isRtl ? 'تفاصيل فاتورة الاشتراك' : 'Subscription Renewal Invoice')}
               </h3>
               <p className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5" dir="ltr">
                 {orderNumber}
@@ -249,14 +245,14 @@ export default function ParentInvoiceModal({
           {isLoading && !sub.id ? (
             <div className="py-16 flex flex-col items-center justify-center gap-3">
               <Spinner size="lg" />
-              <p className="text-xs text-slate-400 font-bold">{t('common.loading', 'جاري تحميل التفاصيل...')}</p>
+              <p className="text-xs text-slate-400 font-bold">{t('common.loading', isRtl ? 'جاري تحميل التفاصيل...' : 'Loading details...')}</p>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between flex-wrap gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
-                    {t('parentPackages.invoiceStatus', 'حالة الفاتورة والاشتراك')}
+                    {t('parentPackages.invoiceStatus', isRtl ? 'حالة الفاتورة والاشتراك' : 'Invoice & Subscription Status')}
                   </span>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${statusInfo.bg}`}>
                     <StatusIcon size={14} />
@@ -265,7 +261,7 @@ export default function ParentInvoiceModal({
                 </div>
                 <div className="text-end space-y-1">
                   <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
-                    {t('parentPackages.paymentDate', 'تاريخ العملية')}
+                    {t('parentPackages.paymentDate', isRtl ? 'تاريخ العملية' : 'Transaction Date')}
                   </span>
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#0f7a6c]" />
@@ -277,23 +273,23 @@ export default function ParentInvoiceModal({
                 <div className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
                   <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
                     <Layers size={14} className="text-[#0f7a6c]" />
-                    <span>{t('parentPackages.subscriptionDetails', 'بيانات الباقة والاشتراك')}</span>
+                    <span>{t('parentPackages.subscriptionDetails', isRtl ? 'بيانات الباقة والاشتراك' : 'Package & Subscription Details')}</span>
                   </h4>
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">{t('parentPackages.package', 'الباقة')}:</span>
+                      <span className="text-slate-500">{t('parentPackages.package', isRtl ? 'الباقة' : 'Package')}:</span>
                       <span className="font-bold text-slate-800 dark:text-white">{packageName}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">{t('parentPackages.packageType', 'نوع الباقة')}:</span>
+                      <span className="text-slate-500">{t('parentPackages.packageType', isRtl ? 'نوع الباقة' : 'Package Type')}:</span>
                       <span className="font-bold text-slate-700 dark:text-slate-200">
-                        {packageType === 'family' ? t('parentPackages.familyType', 'عائلية') : t('parentPackages.individualType', 'فردية')}
+                        {packageType === 'family' ? t('parentPackages.familyType', isRtl ? 'عائلية' : 'Family') : t('parentPackages.individualType', isRtl ? 'فردية' : 'Individual')}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">{t('parentPackages.studentSessionsCount', 'عدد الحصص للطالب')}:</span>
+                      <span className="text-slate-500">{t('parentPackages.studentSessionsCount', isRtl ? 'عدد الحصص للطالب' : 'Sessions per Student')}:</span>
                       <span className="font-bold text-slate-800 dark:text-white">
-                        {sessionsCount > 0 ? `${sessionsCount} ${t('common.session', 'حصة')}` : '-'}
+                        {sessionsCount > 0 ? `${sessionsCount} ${t('common.session', isRtl ? 'حصة' : 'Sessions')}` : '-'}
                       </span>
                     </div>
                   </div>
@@ -301,22 +297,22 @@ export default function ParentInvoiceModal({
                 <div className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
                   <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
                     {packageType === 'family' ? <Users size={14} className="text-[#0f7a6c]" /> : <User size={14} className="text-[#0f7a6c]" />}
-                    <span>{t('parentPackages.subscribers', 'الطلاب المستفيدون')}</span>
+                    <span>{t('parentPackages.subscribers', isRtl ? 'الطلاب المستفيدون' : 'Subscribed Students')}</span>
                   </h4>
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">{t('parentPackages.student', 'الابن / الأبناء')}:</span>
+                      <span className="text-slate-500">{t('parentPackages.student', isRtl ? 'الابن / الأبناء' : 'Student(s)')}:</span>
                       <span className="font-bold text-slate-800 dark:text-white">{studentNames}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">{t('parentPackages.paymentMethod', 'وسيلة الدفع')}:</span>
                       <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
                         <CreditCard size={13} className="text-blue-500" />
-                        <span>Stripe (بطاقة ائتمان)</span>
+                        <span>{isRtl ? 'Stripe (بطاقة ائتمان)' : 'Stripe (Credit Card)'}</span>
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">{t('parentPackages.transactionRef', 'مرجع العملية')}:</span>
+                      <span className="text-slate-500">{t('parentPackages.transactionRef', isRtl ? 'مرجع العملية' : 'Transaction Reference')}:</span>
                       <span className="font-mono font-bold text-slate-800 dark:text-white text-[11px]" dir="ltr">
                         {transactionRef}
                       </span>
@@ -326,33 +322,33 @@ export default function ParentInvoiceModal({
               </div>
               <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2.5">
                 <h4 className="text-xs font-black text-slate-700 dark:text-slate-300">
-                  {t('parentPackages.financialSummary', 'الملخص المالي')}
+                  {t('parentPackages.financialSummary', isRtl ? 'الملخص المالي' : 'Financial Summary')}
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                    <span>{t('parentPackages.amount', 'المبلغ')}</span>
+                    <span>{t('parentPackages.amount', isRtl ? 'المبلغ' : 'Amount')}</span>
                     <span className="font-bold font-mono">{formatCurrency(amount, currency, isRtl)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                      <span>{t('parentPackages.discount', 'الخصم')}</span>
+                      <span>{t('parentPackages.discount', isRtl ? 'الخصم' : 'Discount')}</span>
                       <span className="font-bold font-mono">-{formatCurrency(discount, currency, isRtl)}</span>
                     </div>
                   )}
                   {priceAfterDiscount > 0 && (
                     <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                      <span>{t('parentPackages.priceAfterDiscount', 'السعر بعد الخصم')}</span>
+                      <span>{t('parentPackages.priceAfterDiscount', isRtl ? 'السعر بعد الخصم' : 'Price after discount')}</span>
                       <span className="font-bold font-mono">{formatCurrency(priceAfterDiscount, currency, isRtl)}</span>
                     </div>
                   )}
                   {tax > 0 && (
                     <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                      <span>{t('parentPackages.tax', 'الضريبة')}</span>
+                      <span>{t('parentPackages.tax', isRtl ? 'الضريبة' : 'Tax / VAT')}</span>
                       <span className="font-bold font-mono">+{formatCurrency(tax, currency, isRtl)}</span>
                     </div>
                   )}
                   <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between text-sm">
-                    <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.total', 'الإجمالي')}</span>
+                    <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.total', isRtl ? 'الإجمالي' : 'Total')}</span>
                     <span className="font-black font-mono text-[#0f7a6c] dark:text-emerald-400 text-base">
                       {formatCurrency(total, currency, isRtl)}
                     </span>
@@ -361,7 +357,7 @@ export default function ParentInvoiceModal({
               </div>
               <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 justify-center">
                 <ShieldCheck size={14} className="text-emerald-500" />
-                <span>{t('parentPackages.verifiedTransactionNotice', 'عملية دفع إلكترونية آمنة ومسجلة في أكاديمية منارة العز')}</span>
+                <span>{t('parentPackages.verifiedTransactionNotice', isRtl ? 'عملية دفع إلكترونية آمنة ومسجلة في أكاديمية منارة العز' : 'Verified and secure electronic transaction via official payment gateways')}</span>
               </div>
             </>
           )}
@@ -372,7 +368,7 @@ export default function ParentInvoiceModal({
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
           >
-            {t('common.close', 'إغلاق')}
+            {t('common.close', isRtl ? 'إغلاق' : 'Close')}
           </button>
         </div>
       </div>

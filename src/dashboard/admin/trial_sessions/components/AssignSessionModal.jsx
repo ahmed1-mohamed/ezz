@@ -136,9 +136,7 @@ export default function AssignSessionModal({
     try {
       await adminTrialSessionsApi.assignSession(trialId, {
         groupId: selectedGroupId,
-        group: selectedGroupId,
         sessionId: selectedSessionId,
-        session: selectedSessionId,
       })
       toast.success(isRtl ? 'تم تسكين الطالب في الحصة التجريبية بنجاح' : 'Student assigned to trial session successfully')
       onSuccess?.()

@@ -18,6 +18,7 @@ import { teachersApi } from '@/shared/services/api/teachersApi'
 import RecordTeacherPayoutModal from './RecordTeacherPayoutModal'
 import ProofImageModal from '@/dashboard/teacher/earnings/components/ProofImageModal'
 import Spinner from '@/shared/components/Spinner'
+import { hasRealProofImage } from '@/shared/utils/paymentMethodUtils'
 
 function formatVal(val, curr = '$') {
   const num = Number(val || 0)
@@ -336,7 +337,7 @@ export default function TeacherDetailsPayoutsCard({
                         )}
                       </div>
                     </div>
-                    {method.verificationImage && (
+                    {hasRealProofImage(method.verificationImage) && (
                       <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                         <span className="text-[11px] text-slate-400">إثبات ملكية الحساب:</span>
                         <button

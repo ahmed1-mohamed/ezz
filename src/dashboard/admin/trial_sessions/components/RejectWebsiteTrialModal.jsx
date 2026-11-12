@@ -20,13 +20,15 @@ export default function RejectWebsiteTrialModal({
   isRtl = true,
   onSuccess,
 }) {
-  const [notes, setNotes] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   if (!isOpen || !trialSession || typeof document === 'undefined') return null
   const trialId = trialSession.id || trialSession._id
   const applicantName = trialSession.name || trialSession.studentName || '-'
-  const applicantCurriculum = resolveText(trialSession.curriculum?.name || trialSession.curriculumName || trialSession.curriculum, isRtl)
+  const applicantCurriculum = resolveText(
+    trialSession.curriculum?.name || trialSession.curriculumName || trialSession.curriculum,
+    isRtl
+  )
   const handleConfirmReject = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -34,7 +36,6 @@ export default function RejectWebsiteTrialModal({
     try {
       await adminTrialSessionsApi.updateWebsiteTrialSession(trialId, {
         status: 'rejected',
-        notes: notes.trim() || undefined,
       })
       toast.success(isRtl ? 'تم رفض طلب الحصة التجريبية بنجاح' : 'Trial session request rejected')
       if (onSuccess) onSuccess()
@@ -70,7 +71,7 @@ export default function RejectWebsiteTrialModal({
                 {isRtl ? 'رفض طلب الحصة التجريبية' : 'Reject Trial Session'}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isRtl ? 'تأكيد رفض طلب الويب سايت' : 'Confirm rejection for this request'}
+                {isRtl ? 'تأكيد رفض طلب الحصة الوارد من الموقع' : 'Confirm rejection for this request'}
               </p>
             </div>
           </div>
@@ -78,7 +79,7 @@ export default function RejectWebsiteTrialModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-40"
           >
             <X className="w-5 h-5" />
           </button>
@@ -94,36 +95,32 @@ export default function RejectWebsiteTrialModal({
               </div>
             )}
           </div>
+          <div className="p-3.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2.5">
+            <Ban className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+            <p className="font-medium leading-relaxed">
+              {isRtl
+                ? 'هل أنت متأكد من رغبتك في رفض طلب الحصة التجريبية هذا؟ سيتم تحديث حالة الطلب إلى «مرفوض».'
+                : 'Are you sure you want to reject this trial session request? The status will be updated to "Rejected".'}
+            </p>
+          </div>
           {errorMsg && (
             <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-bold">
               {errorMsg}
             </div>
           )}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              {isRtl ? 'سبب الرفض أو الملاحظات (اختياري)' : 'Rejection Reason / Notes (Optional)'}
-            </label>
-            <textarea
-              rows={3}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={isRtl ? 'اكتب سبب الرفض لحفظه في السجل...' : 'Enter reason for rejection...'}
-              className="w-full px-3.5 py-2.5 text-xs rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all resize-none"
-            />
-          </div>
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-40"
             >
               {isRtl ? 'تراجع' : 'Cancel'}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-2"
+              className="px-5 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -144,4 +141,3 @@ export default function RejectWebsiteTrialModal({
     document.body
   )
 }
-

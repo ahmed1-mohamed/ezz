@@ -28,7 +28,10 @@ function resolveSubmissionStatus(item) {
   return 'pending';
 }
 
-function resolveEvaluationStatus(item) {
+function resolveEvaluationStatus(item, isSubmittedAny = true) {
+  if (!isSubmittedAny || item?.isEvaluated === false || item?.evaluated === false) {
+    return { isEvaluated: false, label: 'لم يتم التقييم' };
+  }
   const raw = (item?.evaluationStatus || item?.evalStatus || '').toString().trim();
   const low = raw.toLowerCase();
   // Check "not evaluated" FIRST to avoid substring match with "evaluated"
@@ -39,7 +42,7 @@ function resolveEvaluationStatus(item) {
     return { isEvaluated: true, label: 'تم التقييم' };
   }
   // Fallback: rely on grade
-  if (item?.grade !== null && item?.grade !== undefined && item?.grade !== '') {
+  if (item?.grade !== null && item?.grade !== undefined && item?.grade !== '' && Number(item?.grade) > 0 && (item?.teacherNotes || item?.feedback || item?.evaluatedAt)) {
     return { isEvaluated: true, label: 'تم التقييم' };
   }
   return { isEvaluated: false, label: 'لم يتم التقييم' };
@@ -58,7 +61,8 @@ function formatDate(dateStr, isRtl) {
 
 function normaliseItem(item, submissionKey, isRtl) {
   const submStatus = resolveSubmissionStatus({ ...item, status: submissionKey });
-  const evalInfo = resolveEvaluationStatus(item);
+  const isSubmittedAny = submStatus === 'submitted' || submStatus === 'submitted_late';
+  const evalInfo = resolveEvaluationStatus(item, isSubmittedAny);
   return {
     id: item.id || item._id,
     title: item.homework || item.title || item.name || (isRtl ? 'واجب' : 'Homework'),
@@ -66,7 +70,7 @@ function normaliseItem(item, submissionKey, isRtl) {
     submissionStatus: submStatus,
     submissionStatusLabel: item.submissionStatus || '',
     evaluationStatus: evalInfo,
-    grade: item.grade ?? null,
+    grade: evalInfo.isEvaluated && item.grade !== null && item.grade !== undefined && item.grade !== '' ? Number(item.grade) : null,
     teacherNotes: item.teacherNotes || null,
     submittedAt: item.submittedAt || null,
     submittedAtFormatted: formatDate(item.submittedAt, isRtl),

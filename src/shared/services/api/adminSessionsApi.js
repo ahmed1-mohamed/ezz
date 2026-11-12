@@ -383,7 +383,14 @@ export const adminSessionsApi = {
 
   fetchAllLocalizedSessions: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/sessions/private/localized/all', { params });
+      const queryParams = { ...params };
+      if (queryParams.groupId) {
+        if (!queryParams.group) {
+          queryParams.group = queryParams.groupId;
+        }
+        delete queryParams.groupId;
+      }
+      const response = await api.get('/api/v1/sessions/private/localized/all', { params: queryParams });
       const resData = response.data || {};
       const rawList = resData.data || resData.sessions || (Array.isArray(resData) ? resData : []);
       const items = Array.isArray(rawList) ? rawList.map(mapSessionData).filter(Boolean) : [];
@@ -396,7 +403,14 @@ export const adminSessionsApi = {
     } catch (err) {
       if (err?.response?.status === 404) {
         try {
-          const fallbackRes = await adminSessionsApi.fetchSessions({ ...params, limit: 100 });
+          const queryParams = { ...params };
+          if (queryParams.groupId) {
+            if (!queryParams.group) {
+              queryParams.group = queryParams.groupId;
+            }
+            delete queryParams.groupId;
+          }
+          const fallbackRes = await adminSessionsApi.fetchSessions({ ...queryParams, limit: 100 });
           return fallbackRes;
         } catch (fallbackErr) {
           return { success: false, data: [], error: fallbackErr };

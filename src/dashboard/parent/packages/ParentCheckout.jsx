@@ -18,12 +18,14 @@ import {
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { parentApi } from '@/shared/services/api/parentApi';
+import { useAuth } from '@/shared/context/useAuth';
 import {
   currenciesApi,
   parseExchangeRateData,
   resolvePackagePrice,
   resolveCurrencySymbol,
   formatCurrencyDisplay,
+  resolveUserCurrencyInfo,
 } from '@/shared/services/api/currenciesApi';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
@@ -37,6 +39,7 @@ export default function ParentCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
 
   const initialPackage = location.state?.package || null;
   const packageIdParam = searchParams.get('packageId') || initialPackage?.id || '';
@@ -77,13 +80,20 @@ export default function ParentCheckout() {
   });
   const currencyInfo = useMemo(() => {
     if (initialCurrencyInfo) return initialCurrencyInfo;
-    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: '$', exchangeRate: 1 };
-  }, [initialCurrencyInfo, exchangeRateRes]);
+    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
+    let stored = null;
+    try {
+      const saved = localStorage.getItem('user_currency_info');
+      if (saved) stored = JSON.parse(saved);
+    } catch (e) {
+      void e;
+    }
+    return resolveUserCurrencyInfo({ user, sub: selectedPackageOverride || initialPackage || fetchedPackage, storedInfo: stored, apiResult: parsedApi });
+  }, [initialCurrencyInfo, exchangeRateRes, user, selectedPackageOverride, initialPackage, fetchedPackage]);
   const selectedPackage = selectedPackageOverride || initialPackage || fetchedPackage || (availablePackagesList.length > 0 ? availablePackagesList[0] : null);
   const rawCurrency = selectedPackage?.currency || selectedPackage?.priceCurrency;
   const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || '$';
+  const currencySymbol = packageCurrencySymbol || (currencyInfo?.symbol !== '$' ? currencyInfo?.symbol : null) || '$';
   const effectiveCurrencyInfo = useMemo(() => ({
     symbol: currencySymbol,
     exchangeRate: 1,
@@ -242,12 +252,19 @@ export default function ParentCheckout() {
       if (subId) {
         localStorage.setItem('last_checkout_sub_id', String(subId));
       }
+      if (currencyInfo) {
+        try {
+          localStorage.setItem('user_currency_info', JSON.stringify(currencyInfo));
+        } catch (e) {
+          void e;
+        }
+      }
       const stripeUrl = result?.url || result?.sessionUrl || result?.checkoutUrl || result?.data?.url || result?.data?.sessionUrl;
       if (stripeUrl) {
         window.location.assign(stripeUrl);
       } else {
         navigate('/dashboard/parent/checkout/status', {
-          state: { subscriptionId: subId, previewData: result },
+          state: { subscriptionId: subId, previewData: result, currencyInfo },
         });
       }
     } catch (err) {

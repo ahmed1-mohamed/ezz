@@ -1,11 +1,32 @@
-import { Users, DollarSign, BookOpen, Star, Pencil } from 'lucide-react'
+import { useState } from 'react'
+import { Users, DollarSign, BookOpen, Star, Pencil, Copy, Check } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpenHourlyRateModal }) {
+  const [isCopied, setIsCopied] = useState(false)
   const isSuspended = teacher?.active === false
   const teacherRawName = typeof teacher?.name === 'object'
     ? (isRtl ? teacher?.name?.ar : teacher?.name?.en) || teacher?.name?.ar || teacher?.name?.en
     : teacher?.name
   const initial = teacherRawName?.trim()?.charAt(0) || 'م'
+  const rawTeacherId = String(
+    teacher?.teacher_id ||
+    teacher?._id ||
+    teacher?.id ||
+    teacher?.teacherId ||
+    teacher?.user_id ||
+    ''
+  ).trim()
+  const teacherCode = rawTeacherId.length >= 8 ? rawTeacherId.slice(-8) : rawTeacherId
+
+  const handleCopyCode = (e) => {
+    e?.stopPropagation()
+    if (!teacherCode) return
+    navigator.clipboard?.writeText(teacherCode)
+    setIsCopied(true)
+    toast.success(isRtl ? 'تم نسخ كود المعلم' : 'Teacher code copied')
+    setTimeout(() => setIsCopied(false), 2000)
+  }
   const totalGroups = teacher?.totalGroups ?? teacher?.groupsCount ?? 0
   const hourlyRate = teacher?.hourlyRate ?? 0
   const totalEarnings = teacher?.totalEarnings ?? 0
@@ -49,7 +70,27 @@ export default function TeacherDetailsHeaderCard({ teacher, isRtl = true, onOpen
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
               {teacherDisplayName}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+            {teacherCode && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
+                  {isRtl ? 'كود المعلم:' : 'Teacher Code:'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-mono font-bold bg-[#edf4f3] hover:bg-[#d8e9e6] dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-[#005953] dark:text-emerald-300 border border-[#005953]/15 transition-colors cursor-pointer group"
+                  title={isRtl ? 'اضغط لنسخ كود المعلم' : 'Click to copy teacher code'}
+                >
+                  <span>#{teacherCode}</span>
+                  {isCopied ? (
+                    <Check size={12} className="text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <Copy size={12} className="text-slate-400 group-hover:text-[#005953] dark:group-hover:text-emerald-300 transition-colors" />
+                  )}
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
               {subjectName}
             </p>
             <div className="flex items-center gap-1.5 mt-1.5">

@@ -75,6 +75,21 @@ export default function ParentAssignmentDetails() {
       ''
     ).trim();
   }, [submission]);
+  const isSubmissionEvaluated = useMemo(() => {
+    if (!submission) return false;
+    if (submission.isEvaluated === false || submission.evaluated === false) return false;
+    const rawEval = String(submission.evaluationStatus || '').trim().toLowerCase();
+    if (rawEval === 'not_evaluated' || rawEval === 'not-evaluated' || rawEval.includes('غير مقيم') || rawEval.includes('لم يتم') || rawEval.includes('قيد')) {
+      return false;
+    }
+    if (submission.isEvaluated === true || submission.evaluated === true || rawEval === 'evaluated' || rawEval.includes('تم التقييم') || Boolean(submission.evaluatedAt)) {
+      return true;
+    }
+    if (submission.grade !== null && submission.grade !== undefined && Number(submission.grade) > 0 && (submission.teacherNotes || submission.feedback)) {
+      return true;
+    }
+    return false;
+  }, [submission]);
   const studentAttachments = useMemo(() => {
     const rawList = [];
     const directList = (Array.isArray(submission?.attachments) && submission.attachments) ||
@@ -253,7 +268,7 @@ export default function ParentAssignmentDetails() {
                   </div>
                 </div>
               </div>
-              {submission.grade !== null && submission.grade !== undefined && (
+              {isSubmissionEvaluated && submission.grade !== null && submission.grade !== undefined && (
                 <div className="flex flex-col items-center bg-emerald-50 dark:bg-emerald-950/40 px-6 py-4 rounded-3xl border border-emerald-100 dark:border-emerald-800/40 shrink-0">
                   <div className="flex items-center gap-1.5 mb-1 text-emerald-600">
                     <Star className="w-4 h-4 fill-emerald-600" />

@@ -17,6 +17,15 @@ export default function TeacherProfileHeaderCard({
     const trimmed = displayName.trim()
     return trimmed ? trimmed.charAt(0) : 'ف'
   }, [displayName])
+  const rawTeacherId = String(
+    formData?.teacher_id ||
+    formData?._id ||
+    formData?.id ||
+    formData?.teacherId ||
+    formData?.user_id ||
+    ''
+  ).trim()
+  const teacherCode = rawTeacherId.length >= 8 ? rawTeacherId.slice(-8) : rawTeacherId
   const isSuspended = formData.status !== 'Active'
   return (
     <div className="space-y-6">
@@ -30,6 +39,16 @@ export default function TeacherProfileHeaderCard({
               <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                 {displayName}
               </h2>
+              {teacherCode && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
+                    {isRtl ? 'كود المعلم:' : 'Teacher Code:'}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-[#edf4f3] dark:bg-emerald-950/40 text-[#005953] dark:text-emerald-300 border border-[#005953]/15 tracking-wider" dir="ltr">
+                    #{teacherCode}
+                  </span>
+                </div>
+              )}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold">
                   {formData.subject}

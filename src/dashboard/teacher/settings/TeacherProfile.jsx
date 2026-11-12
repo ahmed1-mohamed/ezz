@@ -34,6 +34,7 @@ export default function TeacherProfile() {
   const [selectedDialCode, setSelectedDialCode] = useState(DEFAULT_DIAL_CODE);
   const [phoneWithoutCode, setPhoneWithoutCode] = useState('');
   const [teacherAvailability, setTeacherAvailability] = useState([]);
+  const [teacherSpecializations, setTeacherSpecializations] = useState([]);
   const [profileForm, setProfileForm] = useState({
     nameAr: '',
     nameEn: '',
@@ -44,6 +45,7 @@ export default function TeacherProfile() {
     bioEn: '',
     experience: '',
     specialization: '',
+    specializations: [],
     avatar: '',
     imageFile: null,
   });
@@ -131,6 +133,14 @@ export default function TeacherProfile() {
           }
           setSelectedDialCode(dial);
           setPhoneWithoutCode(num);
+          let resolvedSpecializations = Array.isArray(d.specializations) && d.specializations.length > 0
+            ? d.specializations
+            : (Array.isArray(d.teacher?.specializations) && d.teacher.specializations.length > 0
+                ? d.teacher.specializations
+                : (Array.isArray(d.specialization) && d.specialization.length > 0
+                    ? d.specialization
+                    : (Array.isArray(user?.specializations) && user.specializations.length > 0 ? user.specializations : [])));
+
           setProfileForm({
             nameAr: parsedNameAr,
             nameEn: parsedNameEn,
@@ -140,7 +150,10 @@ export default function TeacherProfile() {
             bioAr: parsedBioAr,
             bioEn: parsedBioEn,
             experience: d.yearsOfExperience || d.experience || '',
-            specialization: Array.isArray(d.specialization) ? d.specialization.join(', ') : (d.specialization || d.subject || ''),
+            specializations: resolvedSpecializations,
+            specialization: Array.isArray(resolvedSpecializations) && resolvedSpecializations.length > 0
+              ? resolvedSpecializations.map((s) => (typeof s === 'object' && s !== null ? (s.name?.ar || s.name?.en || s.name || s.title || '') : String(s || ''))).filter(Boolean).join(', ')
+              : (Array.isArray(d.specialization) ? d.specialization.join(', ') : (d.specialization || d.subject || '')),
             avatar: d.image || d.photo || d.photoUrl || user?.image || '',
             imageFile: null,
           });
@@ -152,11 +165,16 @@ export default function TeacherProfile() {
                     ? d.workingHours
                     : (Array.isArray(d.teacher?.availability) ? d.teacher.availability : [])));
           const teacherIdentifier = d.teacherId || d.teacher_id || d.id || d._id || user?.teacher_id || user?.id;
-          if ((!resolvedAvailability || resolvedAvailability.length === 0) && teacherIdentifier) {
+          if (teacherIdentifier && ((!resolvedAvailability || resolvedAvailability.length === 0) || resolvedSpecializations.length === 0)) {
             try {
               const tRes = await teachersApi.fetchTeacherById(teacherIdentifier).catch(() => null);
-              if (Array.isArray(tRes?.data?.availability) && tRes.data.availability.length > 0) {
-                resolvedAvailability = tRes.data.availability;
+              if (tRes?.data) {
+                if (Array.isArray(tRes.data.availability) && tRes.data.availability.length > 0) {
+                  resolvedAvailability = tRes.data.availability;
+                }
+                if (resolvedSpecializations.length === 0 && Array.isArray(tRes.data.specializations) && tRes.data.specializations.length > 0) {
+                  resolvedSpecializations = tRes.data.specializations;
+                }
               }
             } catch {
               // Ignore fallback errors
@@ -164,6 +182,7 @@ export default function TeacherProfile() {
           }
           if (isMounted) {
             setTeacherAvailability(resolvedAvailability || []);
+            setTeacherSpecializations(resolvedSpecializations || []);
           }
         }
       } catch (err) {
@@ -366,6 +385,7 @@ export default function TeacherProfile() {
           profileForm={profileForm}
           isRtl={isRtl}
           availability={teacherAvailability}
+          specializations={teacherSpecializations}
         />
       )}
     </div>

@@ -278,14 +278,17 @@ function resolveHomeworkDetails(rawItem, fallbackId, isRtl) {
     (!isRealApiData && fallback.questions ? fallback.questions : [])
   );
   const questionsList = rawQuestions.map((q, idx) => {
-    const qId = String(q.id || q._id || q.questionId || `q-${idx}`).trim();
+    const rawId = String(q._id || q.id || q.questionId || '').trim();
+    const qId = rawId || `q-${idx}`;
+    const isMcq = q.type === 'multiple_choice' || q.type === 'mcq' || q.type === 'choose' || (Array.isArray(q.options) && q.options.length > 0);
     return {
       ...q,
       id: qId,
-      _id: q._id || q.id || qId,
+      _id: rawId || q._id || qId,
+      questionId: rawId || q.questionId || qId,
       questionText: q.questionText || q.question || q.title || '',
       questionTextEn: q.questionTextEn || q.questionEn || q.questionText || q.question || '',
-      type: q.type || (Array.isArray(q.options) && q.options.length > 0 ? 'multiple_choice' : 'text'),
+      type: isMcq ? 'multiple_choice' : 'text',
       options: Array.isArray(q.options) ? q.options : [],
       optionsEn: Array.isArray(q.optionsEn) ? q.optionsEn : (Array.isArray(q.options) ? q.options : []),
       points: Number(q.points) || 5,
@@ -330,10 +333,15 @@ function resolveHomeworkDetails(rawItem, fallbackId, isRtl) {
   }
   const hasSubmittedAnswers = Object.keys(initialAnswersMap).length > 0 && Object.values(initialAnswersMap).some((v) => v !== null && v !== undefined && String(v).trim() !== '');
   const isCompleted = Boolean(itemData.submittedAt) || rawStatus === 'submitted' || rawStatus === 'completed' || rawStatus.includes('مكتمل') || rawStatus.includes('تم التسليم') || isLateSubmitted || hasSubmittedAnswers;
-  const isOverdue = !isCompleted && (rawStatus === 'overdue' || rawStatus.includes('متأخر'));
-  const rawEval = (itemData.evaluationStatus || itemData.submission?.evaluationStatus || fallback.evaluationStatus || '').toString().toLowerCase();
-  const isEvaluated = rawEval === 'evaluated' || rawEval.includes('تم التقييم') || rawEval.includes('مقيم') || (itemData.grade !== null && itemData.grade !== undefined && itemData.grade !== '');
-  const canStudentSubmit = typeof itemData.canSubmit === 'boolean' ? itemData.canSubmit : (!isCompleted && !itemData.submittedAt && !hasSubmittedAnswers);
+  const rawDeadline = itemData.deadline || itemData.dueDate || itemData.homework?.deadline || itemData.homework?.dueDate || fallback.deadline;
+  const isPastDeadline = Boolean(rawDeadline && !isNaN(new Date(rawDeadline).getTime()) && new Date(rawDeadline).getTime() < Date.now());
+  const isOverdue = !isCompleted && (rawStatus === 'overdue' || rawStatus.includes('متأخر') || isPastDeadline);
+  const rawEval = (itemData.evaluationStatus || itemData.submission?.evaluationStatus || '').toString().toLowerCase().trim();
+  const isExplicitlyUnevaluated = rawEval === 'not_evaluated' || rawEval === 'not-evaluated' || rawEval === 'unevaluated' || rawEval.includes('غير مقيم') || rawEval.includes('لم يتم') || rawEval === 'pending' || itemData.isEvaluated === false || itemData.evaluated === false;
+  const isEvaluated = Boolean(isCompleted && !isExplicitlyUnevaluated && (rawEval === 'evaluated' || rawEval === 'graded' || rawEval === 'تم التقييم' || rawEval === 'مقيم' || itemData.isEvaluated === true || itemData.evaluated === true || Boolean(itemData.evaluatedAt) || (itemData.grade !== null && itemData.grade !== undefined && itemData.grade !== '' && (itemData.teacherNotes || itemData.feedback))));
+
+
+  const canStudentSubmit = !isCompleted && !itemData.submittedAt && !hasSubmittedAnswers;
   const docsList = [];
   if (Array.isArray(itemData.attachments) && itemData.attachments.length > 0) {
     itemData.attachments.forEach((att, idx) => {
@@ -459,9 +467,9 @@ function resolveHomeworkDetails(rawItem, fallbackId, isRtl) {
     isEvaluated,
     evaluationStatus: isEvaluated ? 'evaluated' : 'not_evaluated',
     canSubmit: canStudentSubmit,
-    grade: itemData.grade ?? fallback.grade ?? null,
+    grade: isEvaluated && itemData.grade !== null && itemData.grade !== undefined && itemData.grade !== '' ? Number(itemData.grade) : null,
     maxScore: itemData.maxScore || fallback.maxScore || 100,
-    teacherNotes: itemData.teacherNotes || itemData.feedback || fallback.teacherNotes || null,
+    teacherNotes: isEvaluated ? (itemData.teacherNotes || itemData.feedback || fallback.teacherNotes || null) : null,
     description: isRtl ? (itemData.description || fallback.description) : (itemData.descriptionEn || itemData.description || fallback.descriptionEn),
     documents: docsList,
     audioRecordings: audiosList,
@@ -626,37 +634,105 @@ export default function StudentAssignmentDetails() {
     setIsSubmitting(true);
     try {
       // Build answers array in the exact format the backend expects:
-      // MCQ  → { questionId, selectedOptionIndex: Number }
-      // Text → { questionId, answerText: String }
-      const formattedAnswers = Object.entries(selectedAnswers)
-        .filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== '')
-        .map(([qId, value]) => {
-          const targetQ = (homework.questions || []).find((q) => String(q.id) === String(qId));
-          if (targetQ && targetQ.type === 'multiple_choice') {
-            return { questionId: qId, selectedOptionIndex: Number(value) };
+      // MCQ  -> { questionId: String, selectedOptionIndex: Number }
+      // Text -> { questionId: String, answerText: String }
+      const formattedAnswers = [];
+      const processedQuestionIds = new Set();
+
+      (homework.questions || []).forEach((q, idx) => {
+        const questionId = String(q._id || q.id || q.questionId || `q-${idx}`).trim();
+        const rawAnswer = selectedAnswers[q.id] ?? selectedAnswers[q._id] ?? selectedAnswers[q.questionId] ?? selectedAnswers[questionId];
+
+        if (rawAnswer === undefined || rawAnswer === null || String(rawAnswer).trim() === '') {
+          return;
+        }
+
+        const isMcq = q.type === 'multiple_choice' || q.type === 'mcq' || q.type === 'choose' || (Array.isArray(q.options) && q.options.length > 0);
+
+        if (isMcq) {
+          const optIdx = parseInt(rawAnswer, 10);
+          if (!isNaN(optIdx)) {
+            formattedAnswers.push({
+              questionId,
+              selectedOptionIndex: optIdx,
+            });
+            processedQuestionIds.add(questionId);
+            if (q.id) processedQuestionIds.add(String(q.id));
+            if (q._id) processedQuestionIds.add(String(q._id));
+            if (q.questionId) processedQuestionIds.add(String(q.questionId));
           }
-          return { questionId: qId, answerText: String(value) };
-        });
+        } else {
+          formattedAnswers.push({
+            questionId,
+            answerText: String(rawAnswer).trim(),
+          });
+          processedQuestionIds.add(questionId);
+          if (q.id) processedQuestionIds.add(String(q.id));
+          if (q._id) processedQuestionIds.add(String(q._id));
+          if (q.questionId) processedQuestionIds.add(String(q.questionId));
+        }
+      });
 
-      const submitId = homework.id || id;
-      if (!submitId || typeof submitId !== 'string' || submitId.length <= 10) return;
+      // Also process any answered questions in selectedAnswers that were not matched above
+      Object.entries(selectedAnswers).forEach(([key, val]) => {
+        if (processedQuestionIds.has(key)) return;
+        if (val === undefined || val === null || String(val).trim() === '') return;
 
-      if (hasFiles) {
-        // Multipart/form-data when files are present
-        const formData = new FormData();
-        if (submissionNotes.trim()) formData.append('textAnswer', submissionNotes.trim());
-        if (formattedAnswers.length > 0) formData.append('answers', JSON.stringify(formattedAnswers));
-        selectedFiles.forEach((file) => formData.append('attachments', file));
-        await studentPortalApi.submitHomework(submitId, formData);
-      } else {
-        // Plain JSON when no files
-        const payload = {};
-        if (submissionNotes.trim()) payload.textAnswer = submissionNotes.trim();
-        if (formattedAnswers.length > 0) payload.answers = formattedAnswers;
-        await studentPortalApi.submitHomework(submitId, payload);
+        const targetQ = (homework.questions || []).find(
+          (q) => String(q._id) === key || String(q.id) === key || String(q.questionId) === key
+        );
+        const questionId = targetQ ? String(targetQ._id || targetQ.id || targetQ.questionId || key).trim() : key;
+        if (processedQuestionIds.has(questionId)) return;
+
+        const isMcq = targetQ
+          ? (targetQ.type === 'multiple_choice' || targetQ.type === 'mcq' || targetQ.type === 'choose' || (Array.isArray(targetQ.options) && targetQ.options.length > 0))
+          : (typeof val === 'number' || (!isNaN(Number(val)) && typeof val !== 'string'));
+
+        if (isMcq) {
+          const optIdx = parseInt(val, 10);
+          if (!isNaN(optIdx)) {
+            formattedAnswers.push({
+              questionId,
+              selectedOptionIndex: optIdx,
+            });
+            processedQuestionIds.add(questionId);
+          }
+        } else {
+          formattedAnswers.push({
+            questionId,
+            answerText: String(val).trim(),
+          });
+          processedQuestionIds.add(questionId);
+        }
+      });
+
+      const payload = {
+        answers: formattedAnswers,
+      };
+
+      const trimmedNotes = submissionNotes.trim();
+      let fullTextAnswer = trimmedNotes;
+      if (selectedFiles.length > 0) {
+        const fileNames = selectedFiles.map((f) => f.name).join(', ');
+        fullTextAnswer = trimmedNotes
+          ? `${trimmedNotes}\n\n[الملفات المرفقة: ${fileNames}]`
+          : `[الملفات المرفقة: ${fileNames}]`;
       }
 
-      showSuccessToast(t('studentDashboard.assignments.submittedSuccessfully', 'تم تسليم الواجب بنجاح!'));
+      if (fullTextAnswer) {
+        payload.textAnswer = fullTextAnswer;
+      }
+
+      const submitId = homework.id || homework._id || homework.homeworkId || id;
+      if (!submitId || typeof submitId !== 'string' || submitId.length <= 10) return;
+
+      await studentPortalApi.submitHomework(submitId, payload);
+
+      showSuccessToast(
+        isOverdue
+          ? t('studentDashboard.assignments.submittedLateSuccess', 'تم تسليم الواجب بنجاح وسيصل للمعلم كـ (تسليم متأخر)!')
+          : t('studentDashboard.assignments.submittedSuccessfully', 'تم تسليم الواجب بنجاح!')
+      );
       setHomework((prev) => ({
         ...prev,
         isCompleted: true,
@@ -1362,7 +1438,7 @@ export default function StudentAssignmentDetails() {
                       ) : (
                         <>
                           <Send size={18} className={isRtl ? 'rotate-180' : ''} />
-                          <span>{t('studentDashboard.assignments.submitNow', 'تسليم الواجب الآن')}</span>
+                          <span>{isOverdue ? t('studentDashboard.assignments.submitLateNow', 'تسليم الواجب (تسليم متأخر)') : t('studentDashboard.assignments.submitNow', 'تسليم الواجب الآن')}</span>
                         </>
                       )}
                     </button>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   CheckCircle2,
@@ -8,8 +8,8 @@ import {
   Info,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData, resolvePackagePrice, resolveCurrencySymbol, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
-import ParentInvoiceModal from './components/ParentInvoiceModal';
+import { currenciesApi, parseExchangeRateData, formatCurrencyDisplay, resolveUserCurrencyInfo } from '@/shared/services/api/currenciesApi';
+import { useAuth } from '@/shared/context/useAuth';
 
 function formatCurrency(amount, currency = '$', isRtl = true) {
   return formatCurrencyDisplay(amount, currency, isRtl);
@@ -28,34 +28,55 @@ function formatDate(dateVal) {
 
 export default function ParentPaymentStatus() {
   const { t, i18n } = useTranslation();
-  const isRtl = i18n.language.startsWith('ar');
   const navigate = useNavigate();
   const location = useLocation();
+  const { lang: paramLang } = useParams();
+  const currentPath = (location.pathname || '').toLowerCase();
+  const isPathEn = currentPath.startsWith('/en/') || currentPath === '/en' || currentPath.includes('/en/checkout') || currentPath.includes('/en/payment') || paramLang === 'en';
+  const isPathAr = currentPath.startsWith('/ar/') || currentPath === '/ar' || currentPath.includes('/ar/checkout') || currentPath.includes('/ar/payment') || paramLang === 'ar';
+  useEffect(() => {
+    if (isPathEn && i18n.language !== 'en') {
+      i18n.changeLanguage('en');
+      localStorage.setItem('appLanguage', 'en');
+      document.documentElement.lang = 'en';
+      document.documentElement.dir = 'ltr';
+    } else if (isPathAr && i18n.language !== 'ar') {
+      i18n.changeLanguage('ar');
+      localStorage.setItem('appLanguage', 'ar');
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  }, [isPathEn, isPathAr, i18n]);
+  const isRtl = isPathEn ? false : (isPathAr ? true : i18n.language.startsWith('ar'));
   const [searchParams] = useSearchParams();
-
+  const { user } = useAuth();
   const { data: exchangeRateRes } = useQuery({
     queryKey: ['currenciesExchangeRate'],
     queryFn: currenciesApi.fetchExchangeRate,
     staleTime: 1000 * 60 * 10,
   });
   const currencyInfo = useMemo(() => {
-    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: '$', exchangeRate: 1 };
-  }, [exchangeRateRes]);
-
+    if (location.state?.currencyInfo) return location.state.currencyInfo;
+    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
+    let stored = null;
+    try {
+      const saved = localStorage.getItem('user_currency_info');
+      if (saved) stored = JSON.parse(saved);
+    } catch (e) {
+      void e;
+    }
+    return resolveUserCurrencyInfo({ user, sub: subscriptionData, storedInfo: stored, apiResult: parsedApi });
+  }, [location.state?.currencyInfo, exchangeRateRes, user, subscriptionData]);
   const sessionId = searchParams.get('session_id') || searchParams.get('sessionId') || '';
   const querySubId = searchParams.get('subscriptionId') || searchParams.get('id') || searchParams.get('sub_id') || '';
   const storedSubId = localStorage.getItem('last_checkout_sub_id') || '';
   const subscriptionId = querySubId || storedSubId || sessionId || '';
-
   const pathnameLower = (location.pathname || '').toLowerCase();
   const isPathSuccess = pathnameLower.includes('success');
   const isPathCancel = pathnameLower.includes('cancel') || pathnameLower.includes('failed');
-
   const paymentParam = (searchParams.get('payment') || '').toLowerCase();
   const rawExplicitStatus = (searchParams.get('status') || searchParams.get('state') || searchParams.get('preview') || paymentParam || '').toLowerCase();
   const explicitStatus = rawExplicitStatus || (isPathSuccess ? 'success' : (isPathCancel ? 'failed' : ''));
-
   const [statusState, setStatusState] = useState(() => {
     if (explicitStatus === 'success' || explicitStatus === 'paid') return 'success';
     if (explicitStatus === 'verifying' || explicitStatus === 'loading') return 'verifying';
@@ -63,10 +84,8 @@ export default function ParentPaymentStatus() {
     return subscriptionId ? 'verifying' : (isPathSuccess ? 'success' : 'failed');
   });
   const [subscriptionData, setSubscriptionData] = useState(null);
-  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const pollCountRef = useRef(0);
   const pollTimerRef = useRef(null);
-
   useEffect(() => {
     let isCancelled = false;
     const executeCheck = async () => {
@@ -152,7 +171,6 @@ export default function ParentPaymentStatus() {
       }
     };
   }, [subscriptionId, querySubId, storedSubId, explicitStatus]);
-
   const sub = useMemo(() => subscriptionData || {}, [subscriptionData]);
   const orderNumber =
     sub.orderNumber ||
@@ -170,7 +188,7 @@ export default function ParentPaymentStatus() {
         const n = typeof st === 'object' ? (st.name || st.studentName || st.student?.name) : st;
         if (typeof n === 'object' && n !== null) return isRtl ? (n.ar || n.en || '') : (n.en || n.ar || '');
         return String(n || '');
-      }).filter(Boolean).join('، ');
+      }).filter(Boolean).join(isRtl ? '، ' : ', ');
     }
     const directStudent = sub.student || sub.studentName;
     if (directStudent) {
@@ -180,7 +198,7 @@ export default function ParentPaymentStatus() {
     }
     return isRtl ? 'الطالب المستفيد' : 'Subscribed Student';
   })();
-  const studentInitial = typeof studentName === 'string' && studentName.trim() ? studentName.trim().charAt(0) : 'م';
+  const studentInitial = typeof studentName === 'string' && studentName.trim() ? studentName.trim().charAt(0) : (isRtl ? 'م' : 'S');
   const packageName = (() => {
     const raw = sub.package?.name || sub.packageName || sub.name;
     if (typeof raw === 'object' && raw !== null) return isRtl ? (raw.ar || raw.en || '') : (raw.en || raw.ar || '');
@@ -188,9 +206,7 @@ export default function ParentPaymentStatus() {
     return isRtl ? 'الباقة المعتمدة' : 'Subscribed Package';
   })();
   const currencyRate = Number(currencyInfo?.exchangeRate || 1);
-  const rawCurrency = sub.currency || sub.package?.currency || sub.paymentCurrency;
-  const resolvedSymbol = resolveCurrencySymbol(rawCurrency);
-  const currency = resolvedSymbol || resolveCurrencySymbol(currencyInfo?.symbol) || '$';
+  const currency = currencyInfo?.symbol || '$';
   const rawTotal = Number(sub.total ?? sub.finalAmount ?? sub.totalAmount ?? sub.amountPaid ?? 0);
   const rawTax = Number(sub.tax ?? sub.taxAmount ?? sub.vat ?? 0);
   const rawDiscount = Number(
@@ -227,15 +243,14 @@ export default function ParentPaymentStatus() {
   } else if (total > 0 && price > 0 && Math.abs((price + tax - discount) - total) > 1) {
     price = Math.max(0, total - tax + discount);
   }
-  const isUsdScale = currencyRate > 1 && currency !== '$' && currency !== 'USD' && total > 0;
-  if (isUsdScale) {
-    const convertedTotal = resolvePackagePrice(total, currencyInfo, sub.package ?? sub);
-    const convRatio = total > 0 ? convertedTotal / total : 1;
-    price = Math.round(price * convRatio);
-    tax = Number((tax * convRatio).toFixed(2));
-    total = convertedTotal;
+  const isAlreadyInLocalCurrency = (currency === 'ج.م' && total >= 150) || ((currency === 'ر.س' || currency === 'د.إ') && total >= 200);
+  const shouldConvert = !isAlreadyInLocalCurrency && currencyRate > 0 && currencyRate !== 1 && total > 0;
+  if (shouldConvert) {
+    price = Math.round(price * currencyRate);
+    tax = Number((tax * currencyRate).toFixed(2));
+    total = Math.round(total * currencyRate);
     if (discount > 0) {
-      discount = Math.round(discount * convRatio);
+      discount = Math.round(discount * currencyRate);
     }
   }
   const sessionsCount = Number(
@@ -257,18 +272,6 @@ export default function ParentPaymentStatus() {
   const subscriptionDate = useMemo(() => {
     return formatDate(sub.startDate || sub.startsAt || sub.paidAt || sub.paymentDate || sub.createdAt || new Date());
   }, [sub.startDate, sub.startsAt, sub.paidAt, sub.paymentDate, sub.createdAt]);
-  const resolvedSubscription = useMemo(() => ({
-    ...sub,
-    subtotal: price,
-    baseAmount: price,
-    amount: price,
-    tax,
-    total,
-    discount,
-    currency,
-    sessionsCount,
-  }), [sub, price, tax, total, discount, currency, sessionsCount]);
-
   const handleRetryPayment = () => {
     const stripeUrl = sub.stripeUrl || sub.sessionUrl || sub.url || sub.checkoutUrl;
     if (stripeUrl) {
@@ -279,17 +282,16 @@ export default function ParentPaymentStatus() {
       state: { package: sub.package || { id: sub.packageId, name: packageName, price } },
     });
   };
-
   return (
     <div className="min-h-[85vh] p-3 sm:p-6 lg:p-8 animate-fadeIn max-w-4xl mx-auto space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
       {statusState === 'verifying' && (
         <div className="space-y-6 text-start">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
-              {t('parentPackages.verifyingTitle', 'التحقق من الدفع')}
+              {t('parentPackages.verifyingTitle', isRtl ? 'التحقق من الدفع' : 'Verifying Payment')}
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500">
-              {t('parentPackages.verifyingSubtitle', 'عدت إلى منارة العز أكاديمي بعد زيارة مزود الدفع.')}
+              {t('parentPackages.verifyingSubtitle', isRtl ? 'عدت إلى منارة العز أكاديمي بعد زيارة مزود الدفع.' : 'You returned to Manarat Al-Ezz Academy after visiting the payment provider.')}
             </p>
           </div>
 
@@ -300,13 +302,13 @@ export default function ParentPaymentStatus() {
 
             <div className="max-w-md mx-auto space-y-2">
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white">
-                {t('parentPackages.verifyingHeader', 'جارٍ التحقق من الدفع')}
+                {t('parentPackages.verifyingHeader', isRtl ? 'جارٍ التحقق من الدفع' : 'Verifying Payment Status')}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                {t('parentPackages.verifyingDesc1', 'ننتظر تأكيد نتيجة الدفع من مزود الخدمة.')}
+                {t('parentPackages.verifyingDesc1', isRtl ? 'ننتظر تأكيد نتيجة الدفع من مزود الخدمة.' : 'Awaiting confirmation from the payment provider.')}
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500">
-                {t('parentPackages.verifyingDesc2', 'لم يتم تأكيد التجديد بعد. ستظهر النتيجة هنا عند وصول التأكيد.')}
+                {t('parentPackages.verifyingDesc2', isRtl ? 'لم يتم تأكيد التجديد بعد. ستظهر النتيجة هنا عند وصول التأكيد.' : 'Subscription renewal is not confirmed yet. The result will appear here once received.')}
               </p>
             </div>
 
@@ -329,12 +331,12 @@ export default function ParentPaymentStatus() {
 
             <div className="max-w-lg mx-auto p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5 text-xs text-amber-900 dark:text-amber-200 font-semibold text-start">
               <Info size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
-              <span>{t('parentPackages.verifyingAlert', 'يرجى الانتظار وعدم محاولة الدفع مرة ثانية إلى أن تظهر نتيجة العملية.')}</span>
+              <span>{t('parentPackages.verifyingAlert', isRtl ? 'يرجى الانتظار وعدم محاولة الدفع مرة ثانية إلى أن تظهر نتيجة العملية.' : 'Please wait and do not attempt to pay again until the transaction result appears.')}</span>
             </div>
 
             <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-400 dark:text-slate-500 pt-2">
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <span>{t('parentPackages.waitingProvider', 'في انتظار تأكيد مزود الدفع')}</span>
+              <span>{t('parentPackages.waitingProvider', isRtl ? 'في انتظار تأكيد مزود الدفع' : 'Awaiting payment provider confirmation')}</span>
             </div>
           </div>
         </div>
@@ -344,10 +346,10 @@ export default function ParentPaymentStatus() {
         <div className="space-y-6 text-start">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
-              {t('parentPackages.successTitle', 'تم الدفع بنجاح')}
+              {t('parentPackages.successTitle', isRtl ? 'تم الدفع بنجاح' : 'Payment Successful')}
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500">
-              {t('parentPackages.successSubtitle', 'تم استلام الدفع وتجديد اشتراك ابنك.')}
+              {t('parentPackages.successSubtitle', isRtl ? 'تم استلام الدفع وتجديد اشتراك ابنك.' : 'Payment received and your child\'s subscription has been renewed.')}
             </p>
           </div>
 
@@ -357,10 +359,10 @@ export default function ParentPaymentStatus() {
             </div>
             <div className="space-y-1 max-w-lg mx-auto">
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white">
-                {t('parentPackages.renewSuccessHeader', 'تم تجديد الاشتراك بنجاح')}
+                {t('parentPackages.renewSuccessHeader', isRtl ? 'تم تجديد الاشتراك بنجاح' : 'Subscription Renewed Successfully')}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                {t('parentPackages.renewSuccessDesc', 'يمكن لـ {{name}} متابعة رحلته التعليمية مع {{pkg}}.', {
+                {t('parentPackages.renewSuccessDesc', isRtl ? 'يمكن لـ {{name}} متابعة رحلته التعليمية مع {{pkg}}.' : '{{name}} can now continue their educational journey with {{pkg}}.', {
                   name: studentName,
                   pkg: packageName,
                 })}
@@ -371,7 +373,7 @@ export default function ParentPaymentStatus() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-soft space-y-4">
               <h3 className="text-base font-black text-slate-800 dark:text-white">
-                {t('parentPackages.operationSummary', 'ملخص العملية')}
+                {t('parentPackages.operationSummary', isRtl ? 'ملخص العملية' : 'Transaction Summary')}
               </h3>
               <div className="space-y-2.5 text-xs sm:text-sm">
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
@@ -409,24 +411,18 @@ export default function ParentPaymentStatus() {
                   <span className="font-bold font-mono text-slate-800 dark:text-white">{formatCurrency(tax, currency, isRtl)}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                  <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.totalPaid', 'الإجمالي المدفوع')}</span>
+                  <span className="font-black text-slate-800 dark:text-white">{t('parentPackages.totalPaid', isRtl ? 'الإجمالي المدفوع' : 'Total Paid')}</span>
                   <span className="font-black font-mono text-[#0f7a6c] dark:text-emerald-400 text-lg">
                     {formatCurrency(total, currency, isRtl)}
                   </span>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsInvoiceModalOpen(true)}
-                className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
-              >
-                {t('parentPackages.viewReceipt', 'عرض الإيصال')}
-              </button>
+
             </div>
 
             <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-soft space-y-4">
               <h3 className="text-base font-black text-slate-800 dark:text-white">
-                {t('parentPackages.renewedDetails', 'تفاصيل الاشتراك المجدد')}
+                {t('parentPackages.renewedDetails', isRtl ? 'تفاصيل الاشتراك المجدد' : 'Renewed Subscription Details')}
               </h3>
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                 <div className="w-10 h-10 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center font-bold text-sm shrink-0">
@@ -435,7 +431,7 @@ export default function ParentPaymentStatus() {
                 <div>
                   <h4 className="text-sm font-bold text-slate-800 dark:text-white">{studentName}</h4>
                   <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                    {t('parentPackages.studentOwnerSubtitle', 'الابن صاحب الاشتراك • القرآن الكريم')}
+                    {t('parentPackages.studentOwnerSubtitle', isRtl ? 'الابن صاحب الاشتراك • القرآن الكريم' : 'Enrolled Student • Holy Quran')}
                   </p>
                 </div>
               </div>
@@ -451,7 +447,7 @@ export default function ParentPaymentStatus() {
                 <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>{t('parentPackages.monthlySessions', 'الحصص الشهرية')}</span>
                   <span className="font-bold text-slate-800 dark:text-white font-mono">
-                    {sessionsCount} {t('parentPackages.sessionsUnit', 'حصة شهرياً')}
+                    {sessionsCount} {t('parentPackages.sessionsUnit', isRtl ? 'حصة شهرياً' : 'sessions/month')}
                   </span>
                 </div>
               </div>
@@ -460,7 +456,7 @@ export default function ParentPaymentStatus() {
 
           <div className="p-4 rounded-2xl bg-[#0f7a6c]/10 dark:bg-emerald-950/30 border border-[#0f7a6c]/20 dark:border-emerald-800/40 flex items-center gap-2.5 text-xs font-bold text-[#0f7a6c] dark:text-emerald-300">
             <Info size={16} className="shrink-0" />
-            <span>{t('parentPackages.nextStepSchedule', 'خطوتك التالية: راجع جدول ابنك لمعرفة مواعيد حصصه القادمة.')}</span>
+            <span>{t('parentPackages.nextStepSchedule', isRtl ? 'خطوتك التالية: راجع جدول ابنك لمعرفة مواعيد حصصه القادمة.' : 'Next step: Check your child\'s schedule to see upcoming class times.')}</span>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -469,14 +465,14 @@ export default function ParentPaymentStatus() {
               onClick={() => navigate('/dashboard/parent/schedule')}
               className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
             >
-              {t('parentPackages.viewChildSchedule', 'عرض جدول الابن')}
+              {t('parentPackages.viewChildSchedule', isRtl ? 'عرض جدول الابن' : 'View Student Schedule')}
             </button>
             <button
               type="button"
               onClick={() => navigate('/dashboard/parent')}
               className="w-full sm:w-auto px-8 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
             >
-              {t('parentPackages.parentDashboardBtn', 'لوحة التحكم')}
+              {t('parentPackages.parentDashboardBtn', isRtl ? 'لوحة التحكم' : 'Dashboard')}
             </button>
           </div>
         </div>
@@ -486,10 +482,10 @@ export default function ParentPaymentStatus() {
         <div className="space-y-6 text-start">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
-              {t('parentPackages.failedTitle', 'لم يكتمل الدفع')}
+              {t('parentPackages.failedTitle', isRtl ? 'لم يكتمل الدفع' : 'Payment Incomplete')}
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500">
-              {t('parentPackages.failedSubtitle', 'عدت إلى منارة العز أكاديمي دون إتمام عملية الدفع.')}
+              {t('parentPackages.failedSubtitle', isRtl ? 'عدت إلى منارة العز أكاديمي دون إتمام عملية الدفع.' : 'You returned to Manarat Al-Ezz Academy without completing the payment.')}
             </p>
           </div>
 
@@ -500,10 +496,10 @@ export default function ParentPaymentStatus() {
 
             <div className="max-w-md mx-auto space-y-2">
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white">
-                {t('parentPackages.failedHeader', 'لم يتم تجديد الاشتراك')}
+                {t('parentPackages.failedHeader', isRtl ? 'لم يتم تجديد الاشتراك' : 'Subscription Not Renewed')}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                {t('parentPackages.failedDesc', 'لم تصلنا نتيجة دفع ناجحة من مزود الدفع لهذا الطلب. يمكنك إعادة المحاولة أو العودة لملخص الطلب وتغيير الباقة.')}
+                {t('parentPackages.failedDesc', isRtl ? 'لم تصلنا نتيجة دفع ناجحة من مزود الدفع لهذا الطلب. يمكنك إعادة المحاولة أو العودة لملخص الطلب وتغيير الباقة.' : 'We have not received a successful payment result from the provider for this request. You can retry or return to order summary.')}
               </p>
             </div>
 
@@ -518,10 +514,10 @@ export default function ParentPaymentStatus() {
               </div>
               <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
                 <span>{t('parentPackages.package', 'الباقة')}</span>
-                <span className="font-bold text-slate-800 dark:text-white">{packageName} • شهر واحد</span>
+                <span className="font-bold text-slate-800 dark:text-white">{packageName} • {isRtl ? 'شهر واحد' : '1 Month'}</span>
               </div>
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-bold">
-                <span className="text-slate-700 dark:text-slate-300">{t('parentPackages.orderTotal', 'إجمالي الطلب')}</span>
+                <span className="text-slate-700 dark:text-slate-300">{t('parentPackages.orderTotal', isRtl ? 'إجمالي الطلب' : 'Order Total')}</span>
                 <span className="font-mono font-black text-[#0f7a6c] dark:text-emerald-400 text-base">
                   {formatCurrency(total, currency, isRtl)}
                 </span>
@@ -530,7 +526,7 @@ export default function ParentPaymentStatus() {
 
             <div className="max-w-lg mx-auto p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 text-start">
               <Info size={16} className="text-slate-400 shrink-0" />
-              <span>{t('parentPackages.failedNotice', 'هذه ليست حالة انتظار تأكيد. إذا ظهر خصم في حسابك، تواصل مع الدعم برقم الطلب للتحقق قبل إعادة المحاولة.')}</span>
+              <span>{t('parentPackages.failedNotice', isRtl ? 'هذه ليست حالة انتظار تأكيد. إذا ظهر خصم في حسابك، تواصل مع الدعم برقم الطلب للتحقق قبل إعادة المحاولة.' : 'This is not a pending state. If a deduction appears on your bank account, please contact support with your order number before retrying.')}</span>
             </div>
 
             <div className="max-w-lg mx-auto flex flex-col sm:flex-row items-center gap-3 pt-2">
@@ -539,7 +535,7 @@ export default function ParentPaymentStatus() {
                 onClick={handleRetryPayment}
                 className="w-full sm:flex-1 py-3.5 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6156] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
               >
-                {t('parentPackages.retryPaymentBtn', 'إعادة المحاولة • {{amount}}', {
+                {t('parentPackages.retryPaymentBtn', isRtl ? 'إعادة المحاولة • {{amount}}' : 'Retry Payment • {{amount}}', {
                   amount: formatCurrency(total, currency, isRtl),
                 })}
               </button>
@@ -548,7 +544,7 @@ export default function ParentPaymentStatus() {
                 onClick={() => navigate('/dashboard/parent/checkout', { state: { package: sub.package } })}
                 className="w-full sm:flex-1 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
               >
-                {t('parentPackages.backToSummary', 'العودة لملخص الطلب')}
+                {t('parentPackages.backToSummary', isRtl ? 'العودة لملخص الطلب' : 'Back to Order Summary')}
               </button>
             </div>
 
@@ -557,22 +553,14 @@ export default function ParentPaymentStatus() {
                 to="/dashboard/parent/packages"
                 className="text-xs font-bold text-[#0f7a6c] dark:text-emerald-400 hover:underline"
               >
-                {t('parentPackages.changePackageLink', 'تغيير الباقة')}
+                {t('parentPackages.changePackageLink', isRtl ? 'تغيير الباقة' : 'Change Package')}
               </Link>
             </div>
           </div>
         </div>
       )}
 
-      <ParentInvoiceModal
-        isOpen={isInvoiceModalOpen}
-        onClose={() => setIsInvoiceModalOpen(false)}
-        subscriptionId={subscriptionId}
-        initialData={resolvedSubscription}
-        currencyInfo={currencyInfo}
-        t={t}
-        isRtl={isRtl}
-      />
+
     </div>
   );
 }

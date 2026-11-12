@@ -292,11 +292,13 @@ export default function ParentAssignments() {
             const teacherName = item.teacher || item.teacherName || '-';
             const submissionStatus = item.submissionStatus || 'قيد الانتظار';
             const evaluationStatus = item.evaluationStatus || 'قيد التقييم';
-            const grade = item.grade !== null && item.grade !== undefined ? Number(item.grade) : null;
+            const rawGrade = item.grade !== null && item.grade !== undefined ? Number(item.grade) : null;
             const submittedDate = formatDate(item.submittedAt, isRtl);
             const deadlineDate = formatDate(item.deadline, isRtl);
             const isSubmitted = submissionStatus.includes('تم التسليم');
             const isLate = submissionStatus.includes('متأخر');
+            const isEvaluated = Boolean(isSubmitted && item.isEvaluated !== false && item.evaluated !== false && !evaluationStatus.includes('غير') && !evaluationStatus.includes('لم يتم') && !evaluationStatus.includes('قيد') && (evaluationStatus.includes('تم التقييم') || item.evaluationStatus === 'evaluated' || item.isEvaluated === true || item.evaluated === true || Boolean(item.evaluatedAt) || (rawGrade !== null && rawGrade > 0 && (item.teacherNotes || item.feedback))));
+            const grade = isEvaluated ? rawGrade : null;
             return (
               <motion.div
                 variants={itemVariants}

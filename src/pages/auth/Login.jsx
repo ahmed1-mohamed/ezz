@@ -7,9 +7,8 @@ import { useAuth } from '@/shared/context/useAuth.jsx'
 import { getRedirectPath } from '@/shared/services/authService.js'
 import { triggerGoogleAuth, loadGoogleScript } from '@/shared/services/googleAuthService.js'
 import { canShowErrorInToaster } from '@/shared/utils/errorHandler.js'
-import { toast as hotToast } from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
-import { motion, AnimatePresence } from 'framer-motion'
 
 const initialState = { email: '', password: '' }
 
@@ -19,8 +18,6 @@ export default function Login() {
     const ArrowIcon = isRtl ? ArrowRight : ArrowLeft
     const [formValues, setFormValues] = useState(initialState)
     const [errors, setErrors] = useState({})
-    const [serverError, setServerError] = useState('')
-    const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
     const [googleLoading, setGoogleLoading] = useState(false)
     const { login, loginWithGoogle, loading, theme, toggleTheme } = useAuth()
     const isDarkMode = theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -45,14 +42,6 @@ export default function Login() {
             console.warn('Google script prefetch failed:', err);
         });
     }, [])
-    useEffect(() => {
-        if (toast.show) {
-            const timer = setTimeout(() => {
-                setToast(prev => ({ ...prev, show: false }))
-            }, 4000)
-            return () => clearTimeout(timer)
-        }
-    }, [toast.show])
     const validate = () => {
         const nextErrors = {}
         if (!formValues.email) nextErrors.email = t('login.emailRequired', 'البريد الإلكتروني مطلوب.')
@@ -62,49 +51,31 @@ export default function Login() {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        setServerError('')
         if (!validate()) {
-            hotToast.error(t('login.validationError', 'يرجى إدخال البريد الإلكتروني وكلمة المرور'))
+            toast.error(t('login.validationError', 'يرجى إدخال البريد الإلكتروني وكلمة المرور'))
             return
         }
         try {
             const user = await login(formValues.email, formValues.password, true)
             const successMsg = t('login.successMessage', 'تم تسجيل الدخول بنجاح!')
-            hotToast.success(successMsg)
-            setToast({
-                show: true,
-                message: successMsg,
-                type: 'success'
-            })
+            toast.success(successMsg)
             setTimeout(() => {
                 handleNavigationAfterAuth(user)
             }, 50)
         } catch (error) {
-            setServerError(error.message)
             if (canShowErrorInToaster(error)) {
                 const errText = error.message || t('login.errorMessage', 'خطأ في البريد الإلكتروني أو كلمة المرور')
-                hotToast.error(errText)
-                setToast({
-                    show: true,
-                    message: errText,
-                    type: 'error'
-                })
+                toast.error(errText)
             }
         }
     }
     const handleGoogleLogin = async () => {
-        setServerError('')
         setGoogleLoading(true)
         try {
             const googleProfile = await triggerGoogleAuth()
             const user = await loginWithGoogle({ googleId: googleProfile.googleId })
             const successMsg = t('login.successMessage', 'تم تسجيل الدخول بنجاح!')
-            hotToast.success(successMsg)
-            setToast({
-                show: true,
-                message: successMsg,
-                type: 'success'
-            })
+            toast.success(successMsg)
             setTimeout(() => {
                 handleNavigationAfterAuth(user)
             }, 50)
@@ -114,14 +85,8 @@ export default function Login() {
             const errorMsg = isPopupClosed
                 ? (isRtl ? 'تم إلغاء تسجيل الدخول بجوجل' : 'Google sign-in was cancelled')
                 : (error.message || (isRtl ? 'فشل تسجيل الدخول بحساب جوجل' : 'Google sign-in failed'))
-            setServerError(errorMsg)
             if (canShowErrorInToaster(error)) {
-                hotToast.error(errorMsg)
-                setToast({
-                    show: true,
-                    message: errorMsg,
-                    type: 'error'
-                })
+                toast.error(errorMsg)
             }
         } finally {
             setGoogleLoading(false)
@@ -208,7 +173,6 @@ export default function Login() {
                                 {t('login.forgotPassword', 'نسيت كلمة المرور؟')}
                             </Link>
                         </div>
-                        {serverError && <p className="text-sm text-center text-red-500 mt-2">{serverError}</p>}
                         <button
                             type="submit"
                             disabled={loading || googleLoading}
@@ -261,35 +225,6 @@ export default function Login() {
                     </form>
                 </div>
             </div>
-            <AnimatePresence>
-                {toast.show && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -50, x: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, x: 50, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className={`fixed top-5 right-5 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl font-bold border bg-white dark:bg-slate-900 ${toast.type === 'success'
-                            ? 'bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-800 border-s-4 border-s-[#00695C] text-[#00695C] dark:text-emerald-400'
-                            : 'bg-white dark:bg-slate-900 border-red-200 dark:border-red-900/60 border-s-4 border-s-red-500 text-red-600 dark:text-red-400'
-                            }`}
-                    >
-                        {toast.type === 'success' ? (
-                            <span className="flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/40 rounded-full p-1.5 shrink-0 text-[#00695C] dark:text-emerald-400">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </span>
-                        ) : (
-                            <span className="flex items-center justify-center bg-red-50 dark:bg-red-950/40 rounded-full p-1.5 shrink-0 text-red-500">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                            </span>
-                        )}
-                        <span className="text-sm sm:text-base font-semibold">{toast.message}</span>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     )
 }

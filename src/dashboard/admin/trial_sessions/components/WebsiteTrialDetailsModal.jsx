@@ -11,7 +11,7 @@ import {
   MessageCircle,
   CheckCircle2,
   XCircle,
-  UserCheck,
+  Check,
   Ban,
   Loader2,
 } from 'lucide-react'
@@ -315,8 +315,8 @@ export default function WebsiteTrialDetailsModal({
                 }}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#005953] hover:bg-[#004742] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
               >
-                <UserCheck size={14} />
-                <span>{isRtl ? 'قبول وربط طالب' : 'Accept & Link'}</span>
+                <Check size={14} />
+                <span>{isRtl ? 'قبول الطلب' : 'Accept Request'}</span>
               </button>
             )}
             {isPending && onOpenReject && (

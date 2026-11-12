@@ -81,13 +81,10 @@ export default function ParentPackageDetailsModal({
   const rate = Number(currencyInfo?.exchangeRate || packageItem?.exchangeRate) > 0
     ? Number(currencyInfo?.exchangeRate || packageItem?.exchangeRate)
     : 1;
-  const rawCurrency = activeData?.currency || packageItem?.currency || activeData?.priceCurrency || packageItem?.priceCurrency;
-  const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || '$';
-  const effectiveCurrencyInfo = {
-    ...currencyInfo,
+  const currencySymbol = currencyInfo?.symbol || packageItem?.currencySymbol || '$';
+  const effectiveCurrencyInfo = currencyInfo || {
     symbol: currencySymbol,
-    exchangeRate: 1,
+    exchangeRate: rate,
   };
   const featuresList = Array.isArray(activeData?.features) ? activeData.features : [];
   const familyTiers = Array.isArray(activeData?.familyTiers) ? activeData.familyTiers : null;

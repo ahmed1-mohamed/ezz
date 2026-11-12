@@ -17,6 +17,7 @@ import {
   Eye,
   Wallet,
 } from 'lucide-react';
+import { hasRealProofImage } from '@/shared/utils/paymentMethodUtils';
 
 const getMethodIcon = (type) => {
   if (type === 'bank_transfer') return Building2;
@@ -355,7 +356,7 @@ export default function TeacherPaymentMethodsList({
                     &quot;{item.notes}&quot;
                   </p>
                 )}
-                {item.verificationImage && (
+                {hasRealProofImage(item.verificationImage) && (
                   <button
                     type="button"
                     onClick={() => onViewProof(item.verificationImage, t('teacher.earnings.methods.viewVerification', 'معاينة إثبات الحساب'))}

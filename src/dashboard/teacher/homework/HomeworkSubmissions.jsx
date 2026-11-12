@@ -10,6 +10,7 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { teacherHomeworkApi } from '@/shared/services/api/teacherHomeworkApi.js';
 import SubmissionDetailsView from './components/SubmissionDetailsView.jsx';
@@ -60,20 +61,18 @@ export default function HomeworkSubmissions() {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 350);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-  const apiStatus = useMemo(() => {
-    if (statusFilter === 'pending') return 'pending';
-    if (statusFilter === 'submitted') return 'submitted';
-    if (statusFilter === 'submitted_late') return 'submitted-late';
-    if (statusFilter === 'overdue') return 'overdue';
-    return 'all';
-  }, [statusFilter]);
-  const { data: submissionsRes, isLoading } = useQuery({
-    queryKey: ['teacher-homework-submissions', apiStatus, debouncedSearch],
-    queryFn: () => teacherHomeworkApi.fetchSubmissions(apiStatus, {
-      search: debouncedSearch.trim() || undefined,
-    }),
+
+  const {
+    data: submissionsRes,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ['teacher-homework-submissions'],
+    queryFn: () => teacherHomeworkApi.fetchSubmissions({ limit: 100 }),
     staleTime: 30 * 1000,
   });
+
   const formatSubmissionTime = useCallback((rawDate) => {
     if (!rawDate) return t('teacherHomework.notSubmitted', 'لم يتم التسليم');
     const date = new Date(rawDate);
@@ -96,72 +95,210 @@ export default function HomeworkSubmissions() {
       return date.toLocaleDateString();
     }
   }, [isRtl, t]);
-  const normalizeSubmissionStatus = (item) => {
-    const st = (
+
+  const normalizeSubmissionStatus = useCallback((item) => {
+    if (!item) return 'pending';
+    const rawStatus = (
       item.submissionStatus ||
       item.status ||
       item.rawStatus ||
+      item.state ||
       ''
-    ).toLowerCase();
-    const isLate = Boolean(item.isLate || item.submittedLate || st.includes('late'));
-    if (st === 'overdue' || st === 'late_not_submitted' || st.includes('متأخرة')) {
+    ).toString().toLowerCase().trim();
+
+    const hasSubmittedAt = Boolean(
+      item.submittedAt ||
+      item.submissionDate ||
+      item.submittedDate
+    );
+    const hasStudentWork = Boolean(
+      (Array.isArray(item.answers) && item.answers.length > 0) ||
+      (Array.isArray(item.documents) && item.documents.length > 0) ||
+      (Array.isArray(item.audioRecordings) && item.audioRecordings.length > 0) ||
+      (typeof item.textAnswer === 'string' && item.textAnswer.trim().length > 0)
+    );
+    const hasActualSubmission = hasSubmittedAt || hasStudentWork;
+
+    const deadlineDate =
+      item.deadline ||
+      item.dueDate ||
+      item.homework?.deadline ||
+      item.homework?.dueDate;
+
+    const isPastDeadline = Boolean(
+      deadlineDate &&
+      !isNaN(new Date(deadlineDate).getTime()) &&
+      Date.now() > new Date(deadlineDate).getTime()
+    );
+
+    const isSubmittedAfterDeadline = Boolean(
+      hasSubmittedAt &&
+      deadlineDate &&
+      !isNaN(new Date(item.submittedAt || item.submissionDate || item.submittedDate).getTime()) &&
+      !isNaN(new Date(deadlineDate).getTime()) &&
+      new Date(item.submittedAt || item.submissionDate || item.submittedDate).getTime() > new Date(deadlineDate).getTime()
+    );
+
+    const isExplicitlyLate = Boolean(
+      item.isLate ||
+      item.submittedLate ||
+      item.isSubmittedLate ||
+      rawStatus === 'submitted_late' ||
+      rawStatus === 'submitted-late' ||
+      rawStatus === 'late' ||
+      rawStatus.includes('تسليم متأخر') ||
+      rawStatus.includes('متسلم متأخر') ||
+      isSubmittedAfterDeadline
+    );
+
+    const isExplicitlyOverdue = Boolean(
+      item.isOverdue ||
+      rawStatus === 'overdue' ||
+      rawStatus === 'late_not_submitted' ||
+      rawStatus === 'missed' ||
+      rawStatus.includes('فات') ||
+      rawStatus.includes('متأخر عن الموعد') ||
+      (isPastDeadline && !hasActualSubmission)
+    );
+
+    if (isExplicitlyOverdue && !hasActualSubmission) {
       return 'overdue';
     }
-    if (st === 'submitted_late' || st === 'submitted-late' || (st === 'submitted' && isLate)) {
+
+    if (isExplicitlyLate || (hasActualSubmission && isPastDeadline && isSubmittedAfterDeadline)) {
       return 'submitted_late';
     }
-    if (st === 'submitted' || st === 'completed' || item.submittedAt) {
+
+    if (
+      rawStatus === 'submitted' ||
+      rawStatus === 'completed' ||
+      rawStatus.includes('تم التسليم') ||
+      hasActualSubmission
+    ) {
       return 'submitted';
     }
-    if (st === 'pending' || st === 'waiting') {
-      return 'pending';
+
+    if (isPastDeadline) {
+      return 'overdue';
     }
+
     return 'pending';
-  };
+  }, []);
+
+  const normalizeEvaluationStatus = useCallback((item, normStatus) => {
+    if (!item) return 'not_evaluated';
+
+    // 1. If not submitted by student, it CANNOT be evaluated
+    if (normStatus === 'pending' || normStatus === 'overdue') {
+      return 'not_evaluated';
+    }
+
+    // 2. Check explicit boolean flags
+    const explicitEval = item.isEvaluated ?? item.evaluated ?? null;
+    if (explicitEval === false) {
+      return 'not_evaluated';
+    }
+
+    // 3. Check evaluation status string
+    const rawEval = (
+      item.evaluationStatus ||
+      item.rawEvaluationStatus ||
+      item.evalStatus ||
+      ''
+    ).toString().toLowerCase().trim();
+
+    if (
+      rawEval === 'not_evaluated' ||
+      rawEval === 'not-evaluated' ||
+      rawEval === 'unevaluated' ||
+      rawEval.includes('غير مقيم') ||
+      rawEval.includes('لم يتم') ||
+      rawEval === 'pending' ||
+      rawEval === 'waiting'
+    ) {
+      return 'not_evaluated';
+    }
+
+    if (
+      explicitEval === true ||
+      rawEval === 'evaluated' ||
+      rawEval === 'graded' ||
+      rawEval === 'تم التقييم' ||
+      rawEval === 'مقيم' ||
+      rawEval === 'done' ||
+      Boolean(item.evaluatedAt)
+    ) {
+      return 'evaluated';
+    }
+
+    // 4. Only if grade exists and there is proof of grading (teacherNotes or feedback)
+    if (
+      item.grade !== null &&
+      item.grade !== undefined &&
+      item.grade !== '' &&
+      Number(item.grade) > 0 &&
+      (item.teacherNotes || item.feedback)
+    ) {
+      return 'evaluated';
+    }
+
+    return 'not_evaluated';
+  }, []);
+
   const rawSubmissions = useMemo(() => {
     const apiList = submissionsRes?.data;
     if (Array.isArray(apiList)) {
       return apiList.map((item, idx) => {
         const normStatus = normalizeSubmissionStatus(item);
-        const isEval =
-          item.isEvaluated ||
-          item.rawEvaluationStatus === 'evaluated' ||
-          (item.grade !== null && item.grade !== undefined);
-        const subDate = item.submittedAt || item.submissionDate || item.date || item.createdAt || null;
+        const normEval = normalizeEvaluationStatus(item, normStatus);
+        const isEval = normEval === 'evaluated';
+        const subDate = item.submittedAt || item.submissionDate || item.submittedDate || null;
+        const validGrade = isEval && item.grade !== null && item.grade !== undefined && item.grade !== ''
+          ? Number(item.grade)
+          : null;
         const hwId =
           item.homework?._id ||
           item.homework?.id ||
           (typeof item.homework === 'string' ? item.homework : null) ||
           item.homeworkId ||
           null;
+
+        const studentName =
+          typeof item.student === 'object'
+            ? item.student?.name || item.student?.fullName || item.studentName || 'طالب'
+            : item.student || item.studentName || 'طالب';
+
+        const groupName =
+          typeof item.group === 'object'
+            ? item.group?.name || item.group?.title || item.groupName || 'مجموعة دراسية'
+            : item.group || item.groupName || 'مجموعة دراسية';
+
+        const homeworkTitle =
+          typeof item.homework === 'object'
+            ? item.homework?.title || item.homework?.name || item.homeworkTitle || 'واجب مدرسي'
+            : item.homework || item.homeworkTitle || 'واجب مدرسي';
+
         return {
           id: item.id || item._id || `submission-${idx + 1}`,
           homeworkId: hwId,
-          studentName:
-            typeof item.student === 'object'
-              ? item.student?.name || 'طالب'
-              : item.student || 'طالب',
-          groupName:
-            typeof item.group === 'object'
-              ? item.group?.name || 'مجموعة دراسية'
-              : item.group || 'مجموعة دراسية',
-          homeworkTitle:
-            typeof item.homework === 'object'
-              ? item.homework?.title || 'واجب مدرسي'
-              : item.homework || 'واجب مدرسي',
+          studentName,
+          groupName,
+          homeworkTitle,
           submittedAt: subDate,
           timeText: formatSubmissionTime(subDate),
           rawStatus: normStatus,
-          rawEvaluationStatus: isEval ? 'evaluated' : 'not_evaluated',
-          grade: item.grade ?? null,
+          rawEvaluationStatus: normEval,
+          grade: validGrade,
           documents: item.documents || (item.document ? [item.document] : []),
           audioRecordings: item.audioRecordings || [],
           questions: item.questions || [],
+          originalItem: item,
         };
       });
     }
     return [];
-  }, [submissionsRes, formatSubmissionTime]);
+  }, [submissionsRes, formatSubmissionTime, normalizeSubmissionStatus, normalizeEvaluationStatus]);
+
   const activeSubmission = useMemo(() => {
     if (selectedSubmission) return selectedSubmission;
     if (paramId && rawSubmissions.length > 0) {
@@ -173,36 +310,54 @@ export default function HomeworkSubmissions() {
     }
     return null;
   }, [selectedSubmission, paramId, rawSubmissions]);
+
   const stats = useMemo(() => {
-    const apiStats = submissionsRes?.statistics || submissionsRes?.stats || submissionsRes?.data?.statistics;
+    const apiStats =
+      submissionsRes?.statistics ||
+      submissionsRes?.stats ||
+      submissionsRes?.data?.statistics ||
+      submissionsRes?.data?.stats;
+
+    let localPending = 0;
+    let localSubmitted = 0;
+    let localSubmittedLate = 0;
+    let localOverdue = 0;
+    let localEvaluated = 0;
+    let localNotEvaluated = 0;
+
+    rawSubmissions.forEach((s) => {
+      if (s.rawStatus === 'pending') localPending += 1;
+      else if (s.rawStatus === 'submitted') localSubmitted += 1;
+      else if (s.rawStatus === 'submitted_late') localSubmittedLate += 1;
+      else if (s.rawStatus === 'overdue') localOverdue += 1;
+
+      if (s.rawEvaluationStatus === 'evaluated') localEvaluated += 1;
+      else localNotEvaluated += 1;
+    });
+
     if (apiStats && typeof apiStats === 'object') {
       return {
         all: Number(apiStats.total ?? apiStats.all ?? apiStats.totalCount ?? rawSubmissions.length),
-        pending: Number(apiStats.pending ?? apiStats.waiting ?? 0),
-        submitted: Number(apiStats.submitted ?? apiStats.completed ?? 0),
-        submitted_late: Number(apiStats.submitted_late ?? apiStats.submittedLate ?? apiStats['submitted-late'] ?? 0),
-        overdue: Number(apiStats.overdue ?? apiStats.late ?? 0),
-        evaluated: Number(apiStats.evaluated ?? 0),
-        not_evaluated: Number(apiStats.not_evaluated ?? apiStats.notEvaluated ?? 0),
+        pending: Number(apiStats.pending ?? apiStats.waiting ?? localPending),
+        submitted: Number(apiStats.submitted ?? apiStats.completed ?? localSubmitted),
+        submitted_late: Number(apiStats.submitted_late ?? apiStats.submittedLate ?? apiStats['submitted-late'] ?? localSubmittedLate),
+        overdue: Number(apiStats.overdue ?? apiStats.late ?? localOverdue),
+        evaluated: Number(apiStats.evaluated ?? localEvaluated),
+        not_evaluated: Number(apiStats.not_evaluated ?? apiStats.notEvaluated ?? localNotEvaluated),
       };
     }
-    let all = rawSubmissions.length;
-    let pending = 0;
-    let submitted = 0;
-    let submitted_late = 0;
-    let overdue = 0;
-    let evaluated = 0;
-    let not_evaluated = 0;
-    rawSubmissions.forEach((s) => {
-      if (s.rawStatus === 'pending') pending += 1;
-      else if (s.rawStatus === 'submitted') submitted += 1;
-      else if (s.rawStatus === 'submitted_late') submitted_late += 1;
-      else if (s.rawStatus === 'overdue') overdue += 1;
-      if (s.rawEvaluationStatus === 'evaluated') evaluated += 1;
-      else not_evaluated += 1;
-    });
-    return { all, pending, submitted, submitted_late, overdue, evaluated, not_evaluated };
+
+    return {
+      all: rawSubmissions.length,
+      pending: localPending,
+      submitted: localSubmitted,
+      submitted_late: localSubmittedLate,
+      overdue: localOverdue,
+      evaluated: localEvaluated,
+      not_evaluated: localNotEvaluated,
+    };
   }, [submissionsRes, rawSubmissions]);
+
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((item) => {
       if (statusFilter !== 'all' && item.rawStatus !== statusFilter) {
@@ -214,9 +369,18 @@ export default function HomeworkSubmissions() {
       if (evaluationFilter === 'not_evaluated' && item.rawEvaluationStatus === 'evaluated') {
         return false;
       }
+      if (debouncedSearch && debouncedSearch.trim()) {
+        const query = debouncedSearch.trim().toLowerCase();
+        const studentMatch = (item.studentName || '').toLowerCase().includes(query);
+        const groupMatch = (item.groupName || '').toLowerCase().includes(query);
+        const hwMatch = (item.homeworkTitle || '').toLowerCase().includes(query);
+        if (!studentMatch && !groupMatch && !hwMatch) {
+          return false;
+        }
+      }
       return true;
     });
-  }, [rawSubmissions, statusFilter, evaluationFilter]);
+  }, [rawSubmissions, statusFilter, evaluationFilter, debouncedSearch]);
   if (activeSubmission) {
     return (
       <SubmissionDetailsView
@@ -244,6 +408,15 @@ export default function HomeworkSubmissions() {
           </p>
         </div>
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="p-2 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer shadow-xs disabled:opacity-50"
+            title={t('common.refresh', 'تحديث البيانات')}
+          >
+            <RefreshCw size={14} className={isFetching ? 'animate-spin text-[#00594C]' : ''} />
+          </button>
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
             {currentTimeStr}
           </span>

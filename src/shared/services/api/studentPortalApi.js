@@ -64,7 +64,7 @@ export const studentPortalApi = {
   submitHomework: async (id, submitData) => {
     try {
       const isFormData = submitData instanceof FormData;
-      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+      const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' };
       const response = await api.post(`/api/v1/student/homework/${id}/submit`, submitData, { headers });
       return response.data;
     } catch (error) {

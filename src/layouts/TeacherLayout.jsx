@@ -12,6 +12,7 @@ import {
   Calendar,
   History,
   DollarSign,
+  Receipt,
   CreditCard,
   MessageSquare,
   User,
@@ -88,8 +89,8 @@ export default function TeacherLayout() {
     },
     {
       path: '/dashboard/teacher/earnings',
-      icon: DollarSign,
-      label: t('teacher.navEarnings', 'الأرباح وإثباتات الدفع'),
+      icon: Receipt,
+      label: t('teacher.navEarnings', 'إثباتات الدفع'),
     },
     {
       path: '/dashboard/teacher/curricula',
