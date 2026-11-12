@@ -150,12 +150,6 @@ export function detectCountryCode(candidates = []) {
 }
 
 export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = null, apiResult = null } = {}) {
-  if (storedInfo?.symbol && storedInfo?.symbol !== '$' && storedInfo?.symbol !== 'USD') {
-    return storedInfo;
-  }
-  if (apiResult?.symbol && apiResult.symbol !== '$' && apiResult.symbol !== 'USD') {
-    return apiResult;
-  }
   const countryCode = detectCountryCode([
     user?.country,
     user?.countryCode,
@@ -168,6 +162,26 @@ export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = 
     sub?.phone,
   ]);
   const defaultInfo = DEFAULT_COUNTRY_CURRENCIES[countryCode] || DEFAULT_COUNTRY_CURRENCIES.EG;
+  if (storedInfo?.symbol && storedInfo.symbol !== '$' && storedInfo.symbol !== 'USD' && Number(storedInfo.exchangeRate) > 0) {
+    return storedInfo;
+  }
+  const apiSymbol = apiResult?.symbol ? resolveCurrencySymbol(apiResult.symbol) : null;
+  const hasValidApiSymbol = apiSymbol && apiSymbol !== '$' && apiSymbol !== 'USD';
+  const apiRate = Number(apiResult?.exchangeRate || 0);
+  if (hasValidApiSymbol && apiRate > 0) {
+    return {
+      symbol: apiSymbol,
+      exchangeRate: apiRate,
+      code: countryCode,
+    };
+  }
+  if (apiRate > 1) {
+    return {
+      symbol: defaultInfo.symbol,
+      exchangeRate: apiRate,
+      code: countryCode,
+    };
+  }
   return {
     symbol: defaultInfo.symbol,
     exchangeRate: defaultInfo.exchangeRate,
@@ -175,28 +189,50 @@ export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = 
   };
 }
 
-export function resolvePackagePrice(rawPrice, currencyInfo, _packageItem = null) {
+export function resolvePackagePrice(rawPrice, currencyInfo) {
   const num = Number(rawPrice ?? 0);
   if (isNaN(num) || num <= 0) return 0;
   const rate = Number(currencyInfo?.exchangeRate || 1);
-  const targetSymbol = resolveCurrencySymbol(currencyInfo?.symbol) || '$';
-  if (targetSymbol === 'ج.م' && num >= 150) return Math.round(num);
-  if ((targetSymbol === 'ر.س' || targetSymbol === 'د.إ') && num >= 200) return Math.round(num);
   if (rate > 0 && rate !== 1) return Math.round(num * rate);
-  if (targetSymbol !== '$' && targetSymbol !== 'USD' && rate > 0) return Math.round(num * rate);
   return Math.round(num);
 }
 
-export function useCurrency() {
+export function useCurrency(userOverride = null) {
+  let effectiveUser = userOverride;
+  if (!effectiveUser && typeof document !== 'undefined') {
+    try {
+      const match = document.cookie.match(/(?:^|; )authUser=([^;]*)/);
+      if (match && match[1]) {
+        effectiveUser = JSON.parse(decodeURIComponent(match[1]));
+      }
+    } catch {
+      effectiveUser = null;
+    }
+  }
+  const detectedCode = detectCountryCode([
+    effectiveUser?.country,
+    effectiveUser?.countryCode,
+    effectiveUser?.countryId,
+    effectiveUser?.phone,
+  ]);
   const { data: exchangeRateRes, isLoading, isError, refetch } = useQuery({
-    queryKey: ['currenciesExchangeRate'],
-    queryFn: currenciesApi.fetchExchangeRate,
+    queryKey: ['currenciesExchangeRate', detectedCode],
+    queryFn: () => currenciesApi.fetchExchangeRate({ country: detectedCode }),
     staleTime: 1000 * 60 * 10,
   });
   const currencyInfo = useMemo(() => {
-    if (exchangeRateRes) return parseExchangeRateData(exchangeRateRes);
-    return { symbol: '$', exchangeRate: 1 };
-  }, [exchangeRateRes]);
+    let stored = null;
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('user_currency_info');
+        if (saved) stored = JSON.parse(saved);
+      } catch {
+        stored = null;
+      }
+    }
+    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
+    return resolveUserCurrencyInfo({ user: effectiveUser, storedInfo: stored, apiResult: parsedApi });
+  }, [exchangeRateRes, effectiveUser]);
   const convertPrice = useCallback((usdPrice) => {
     return resolvePackagePrice(usdPrice, currencyInfo);
   }, [currencyInfo]);

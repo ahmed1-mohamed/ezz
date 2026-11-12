@@ -29,7 +29,7 @@ export default function TrialSessionsFilters({
   ] : [
     { key: 'all', label: isRtl ? 'الكل' : 'All', count: stats.total, icon: Sparkles },
     { key: 'pending', label: isRtl ? 'بانتظار التسكين' : 'Pending', count: stats.pending, icon: Clock, activeClass: 'bg-amber-600 text-white' },
-    { key: 'assigned', label: isRtl ? 'تم التسكين' : 'Assigned', count: stats.assigned, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },
+    { key: 'scheduled', label: isRtl ? 'مجدولة' : 'Scheduled', count: stats.scheduled ?? stats.assigned, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },
     { key: 'completed', label: isRtl ? 'مكتملة' : 'Completed', count: stats.completed, icon: CheckCheck, activeClass: 'bg-teal-600 text-white' },
     { key: 'cancelled', label: isRtl ? 'ملغاة' : 'Cancelled', count: stats.cancelled, icon: XCircle, activeClass: 'bg-rose-600 text-white' },
   ]
@@ -80,7 +80,7 @@ export default function TrialSessionsFilters({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none pt-2 border-t border-slate-100 dark:border-slate-800/60">
         {statusOptions.map((opt) => {
           const Icon = opt.icon
-          const isActive = activeStatus === opt.key
+          const isActive = activeStatus === opt.key || (opt.key === 'scheduled' && activeStatus === 'assigned')
           return (
             <button
               key={opt.key}

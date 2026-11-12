@@ -20,7 +20,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
-import { resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
+import { resolvePackagePrice } from '@/shared/services/api/currenciesApi';
 
 function resolveModalIcon(iconName) {
   const norm = String(iconName || '').toLowerCase().trim();
@@ -142,7 +142,7 @@ export default function ParentPackageDetailsModal({
     maxMembers: maxFamilyMembers,
     convertedPrice: convertedFinal,
     convertedOriginalPrice: convertedOriginal,
-    currency: rawCurrency || currencySymbol,
+    currency: activeData?.currency || currencySymbol,
     currencySymbol,
     exchangeRate: rate,
   };

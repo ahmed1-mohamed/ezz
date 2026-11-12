@@ -175,13 +175,8 @@ export default function CreateHomework() {
         }
         const item = {
           type: isMcq ? 'multiple_choice' : 'essay',
-          question: qText,
           questionText: qText,
-          title: qText,
           points: pts,
-          score: pts,
-          grade: pts,
-          degree: pts,
           options: validOptions,
         };
         if (isMcq) {

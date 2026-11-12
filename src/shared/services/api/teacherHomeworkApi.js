@@ -29,7 +29,6 @@ export const teacherHomeworkApi = {
     } catch (error) {
       console.warn('API createHomework failed:', error);
       const rawMsg = error.response?.data?.message || error.response?.data?.error;
-
       // Smart fallback 1: If FormData with JSON questions string failed with "questions must be an array"
       if (retryCount === 0 && error.response?.status === 400 && data instanceof FormData) {
         const errorString = Array.isArray(rawMsg) ? rawMsg.join(' ') : String(rawMsg || '');
@@ -48,7 +47,6 @@ export const teacherHomeworkApi = {
                 parsedQuestions.forEach((q, idx) => {
                   fallbackFd.append(`questions[${idx}][type]`, q.type);
                   fallbackFd.append(`questions[${idx}][questionText]`, q.questionText || q.question || '');
-                  fallbackFd.append(`questions[${idx}][question]`, q.question || q.questionText || '');
                   fallbackFd.append(`questions[${idx}][points]`, q.points);
                   if (q.type === 'multiple_choice') {
                     (q.options || []).forEach((opt, oIdx) => {
@@ -69,7 +67,6 @@ export const teacherHomeworkApi = {
           }
         }
       }
-
       // Smart fallback 2: If JSON request failed because server requires multipart/form-data
       if (retryCount === 0 && (error.response?.status === 415 || error.response?.status === 400) && !(data instanceof FormData) && typeof data === 'object') {
         const errorString = Array.isArray(rawMsg) ? rawMsg.join(' ') : String(rawMsg || '');
@@ -89,7 +86,6 @@ export const teacherHomeworkApi = {
           }
         }
       }
-
       const responseMessage = Array.isArray(rawMsg)
         ? rawMsg.join(' - ')
         : (typeof rawMsg === 'string' ? rawMsg : 'تعذر نشر الواجب، يرجى التأكد من البيانات والمحاولة مجدداً');

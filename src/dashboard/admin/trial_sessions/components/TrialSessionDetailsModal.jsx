@@ -33,6 +33,24 @@ function formatDate(dateStr, isRtl = true) {
   return String(dateStr)
 }
 
+function formatTime(timeVal, isRtl = true) {
+  if (!timeVal) return ''
+  try {
+    if (String(timeVal).includes('T')) {
+      const d = new Date(timeVal)
+      if (!isNaN(d.getTime())) {
+        return new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(d)
+      }
+    }
+  } catch {
+    return String(timeVal)
+  }
+  return String(timeVal)
+}
+
 export default function TrialSessionDetailsModal({
   isOpen,
   onClose,
@@ -52,11 +70,18 @@ export default function TrialSessionDetailsModal({
   const parentEmail = parentObj.email || trialSession.parentEmail || '-'
   const curriculumObj = trialSession.curriculum || {}
   const curriculumName = resolveText(curriculumObj.name || trialSession.curriculumName, isRtl) || '-'
-  const isPending = !trialSession.status || String(trialSession.status).toLowerCase() === 'pending'
-  const isCancelled = String(trialSession.status).toLowerCase() === 'cancelled' || String(trialSession.status).toLowerCase() === 'canceled'
+  const sLower = String(trialSession.status || '').toLowerCase().trim()
+  const isPending = !trialSession.status || sLower === 'pending'
+  const isCancelled = sLower === 'cancelled' || sLower === 'canceled' || sLower === 'rejected'
   const assignedGroup = trialSession.assignedGroup || trialSession.group || null
   const assignedGroupName = resolveText(assignedGroup?.name || trialSession.groupName, isRtl)
-  const assignedTeacher = resolveText(assignedGroup?.teacher?.name || trialSession.teacherName, isRtl)
+  const rawTeacher = assignedGroup?.teacher
+  const assignedTeacher = resolveText(
+    typeof rawTeacher === 'object' && rawTeacher !== null
+      ? (rawTeacher.name || rawTeacher)
+      : (rawTeacher || trialSession.teacherName || trialSession.teacher),
+    isRtl
+  )
   const assignedSession = trialSession.assignedSession || trialSession.session || null
   return createPortal(
     <div
@@ -170,7 +195,7 @@ export default function TrialSessionDetailsModal({
                   <span>{isRtl ? 'التسكين الفعلي للحصة' : 'Assigned Session Details'}</span>
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">
-                  {isRtl ? 'مسكن' : 'Assigned'}
+                  {isRtl ? (trialSession.statusLabel || 'مجدولة') : 'Scheduled'}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1">
@@ -187,7 +212,9 @@ export default function TrialSessionDetailsModal({
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">{isRtl ? 'موعد الحصة:' : 'Session Time:'}</span>
                   <span className="font-mono text-slate-800 dark:text-white">
-                    {formatDate(assignedSession.date, isRtl)} {assignedSession.startTime || ''}
+                    {assignedSession.title ? `${assignedSession.title} • ` : ''}
+                    {formatDate(assignedSession.date, isRtl)}
+                    {assignedSession.startTime ? ` ${formatTime(assignedSession.startTime, isRtl)}` : ''}
                   </span>
                 </div>
               )}

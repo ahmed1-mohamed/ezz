@@ -8,6 +8,7 @@ import {
   BookOpen,
   Calendar,
   CheckCheck,
+  AlertCircle,
 } from 'lucide-react'
 
 function formatDate(dateStr, isRtl = true) {
@@ -36,6 +37,24 @@ function resolveText(val, isRtl = true) {
   return String(val)
 }
 
+function formatTime(timeVal, isRtl = true) {
+  if (!timeVal) return ''
+  try {
+    if (String(timeVal).includes('T')) {
+      const d = new Date(timeVal)
+      if (!isNaN(d.getTime())) {
+        return new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(d)
+      }
+    }
+  } catch {
+    return String(timeVal)
+  }
+  return String(timeVal)
+}
+
 export default function TrialSessionsTable({
   trialSessions = [],
   onViewDetails,
@@ -43,21 +62,22 @@ export default function TrialSessionsTable({
   onCancelRequest,
   isRtl = true,
 }) {
-  const renderStatus = (status) => {
-    const s = String(status || '').toLowerCase()
-    if (s === 'assigned' || s === 'تم التسكين' || s === 'مسكن') {
+  const renderStatus = (status, statusLabel) => {
+    const s = String(status || '').toLowerCase().trim()
+    const label = statusLabel ? String(statusLabel).trim() : ''
+    if (s === 'scheduled' || s === 'assigned' || s === 'مجدولة' || s === 'تم التسكين' || s === 'مسكن') {
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
           <CheckCircle2 size={13} />
-          <span>{isRtl ? 'تم التسكين' : 'Assigned'}</span>
+          <span>{isRtl ? (label || 'مجدولة') : 'Scheduled'}</span>
         </span>
       )
     }
-    if (s === 'cancelled' || s === 'canceled' || s === 'ملغي' || s === 'ملغاة') {
+    if (s === 'cancelled' || s === 'canceled' || s === 'ملغي' || s === 'ملغاة' || s === 'rejected' || s === 'مرفوض' || s === 'مرفوضة') {
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40">
           <XCircle size={13} />
-          <span>{isRtl ? 'ملغاة' : 'Cancelled'}</span>
+          <span>{isRtl ? (label || 'ملغاة') : 'Cancelled'}</span>
         </span>
       )
     }
@@ -65,14 +85,22 @@ export default function TrialSessionsTable({
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/40">
           <CheckCheck size={13} />
-          <span>{isRtl ? 'مكتملة' : 'Completed'}</span>
+          <span>{isRtl ? (label || 'مكتملة') : 'Completed'}</span>
+        </span>
+      )
+    }
+    if (s === 'missed' || s === 'لم يحضر' || s === 'فائتة') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <AlertCircle size={13} />
+          <span>{isRtl ? (label || 'فائتة') : 'Missed'}</span>
         </span>
       )
     }
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40">
         <Clock size={13} />
-        <span>{isRtl ? 'بانتظار التسكين' : 'Pending'}</span>
+        <span>{isRtl ? (label || 'بانتظار التسكين') : 'Pending'}</span>
       </span>
     )
   }
@@ -122,11 +150,18 @@ export default function TrialSessionsTable({
               const parentPhone = parentObj.phone || item.parentPhone || '-'
               const curriculumObj = item.curriculum || {}
               const curriculumName = resolveText(curriculumObj.name || item.curriculumName, isRtl) || '-'
-              const isPending = !item.status || String(item.status).toLowerCase() === 'pending'
-              const isCancelled = String(item.status).toLowerCase() === 'cancelled' || String(item.status).toLowerCase() === 'canceled'
+              const sLower = String(item.status || '').toLowerCase().trim()
+              const isPending = !item.status || sLower === 'pending'
+              const isCancelled = sLower === 'cancelled' || sLower === 'canceled' || sLower === 'rejected'
               const assignedGroup = item.assignedGroup || item.group || null
               const assignedGroupName = resolveText(assignedGroup?.name || item.groupName, isRtl)
-              const assignedTeacher = resolveText(assignedGroup?.teacher?.name || item.teacherName, isRtl)
+              const rawTeacher = assignedGroup?.teacher
+              const assignedTeacher = resolveText(
+                typeof rawTeacher === 'object' && rawTeacher !== null
+                  ? (rawTeacher.name || rawTeacher)
+                  : (rawTeacher || item.teacherName || item.teacher),
+                isRtl
+              )
               const assignedSession = item.assignedSession || item.session || null
               return (
                 <tr
@@ -166,7 +201,7 @@ export default function TrialSessionsTable({
                     {formatDate(item.createdAt || item.requestDate, isRtl)}
                   </td>
                   <td className="py-4 px-4 whitespace-nowrap">
-                    {renderStatus(item.status)}
+                    {renderStatus(item.status, item.statusLabel)}
                   </td>
                   <td className="py-4 px-4 text-xs">
                     {assignedGroupName ? (
@@ -181,7 +216,9 @@ export default function TrialSessionsTable({
                         )}
                         {assignedSession?.date && (
                           <span className="text-[10px] text-slate-500 font-mono block">
-                            {formatDate(assignedSession.date, isRtl)} {assignedSession.startTime || ''}
+                            {assignedSession.title ? `${assignedSession.title} • ` : ''}
+                            {formatDate(assignedSession.date, isRtl)}
+                            {assignedSession.startTime ? ` ${formatTime(assignedSession.startTime, isRtl)}` : ''}
                           </span>
                         )}
                       </div>

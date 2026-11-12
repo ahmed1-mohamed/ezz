@@ -12,7 +12,7 @@ export default function TrialSessionsStats({
 }) {
   const total = Number(stats.total ?? stats.all ?? 0)
   const pending = Number(stats.pending ?? 0)
-  const assigned = Number(stats.assigned ?? 0)
+  const assigned = Number(stats.scheduled ?? stats.assigned ?? 0)
   const accepted = Number(stats.accepted ?? 0)
   const cancelled = Number(stats.cancelled ?? stats.canceled ?? 0)
   const rejected = Number(stats.rejected ?? 0)

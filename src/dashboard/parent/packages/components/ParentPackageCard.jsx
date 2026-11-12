@@ -17,7 +17,7 @@ import {
   ChevronRight,
   Info,
 } from 'lucide-react';
-import { resolvePackagePrice, resolveCurrencySymbol } from '@/shared/services/api/currenciesApi';
+import { resolvePackagePrice } from '@/shared/services/api/currenciesApi';
 
 function resolvePackageIcon(iconName) {
   const norm = String(iconName || '').toLowerCase().trim();

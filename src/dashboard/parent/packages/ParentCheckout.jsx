@@ -26,6 +26,7 @@ import {
   resolveCurrencySymbol,
   formatCurrencyDisplay,
   resolveUserCurrencyInfo,
+  detectCountryCode,
 } from '@/shared/services/api/currenciesApi';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
@@ -72,9 +73,10 @@ export default function ParentCheckout() {
 
   const [selectedPackageOverride, setSelectedPackageOverride] = useState(null);
   const initialCurrencyInfo = location.state?.currencyInfo || null;
+  const userCountryCode = detectCountryCode([user?.country, user?.countryCode, user?.countryId, user?.phone]);
   const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate'],
-    queryFn: currenciesApi.fetchExchangeRate,
+    queryKey: ['currenciesExchangeRate', userCountryCode],
+    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
     staleTime: 1000 * 60 * 10,
     enabled: !initialCurrencyInfo,
   });
@@ -96,8 +98,8 @@ export default function ParentCheckout() {
   const currencySymbol = packageCurrencySymbol || (currencyInfo?.symbol !== '$' ? currencyInfo?.symbol : null) || '$';
   const effectiveCurrencyInfo = useMemo(() => ({
     symbol: currencySymbol,
-    exchangeRate: 1,
-  }), [currencySymbol]);
+    exchangeRate: Number(currencyInfo?.exchangeRate || 1),
+  }), [currencySymbol, currencyInfo?.exchangeRate]);
   const packageDisplayPrice = useMemo(() => {
     if (!selectedPackage) return 0;
     const rawPrice = Number(selectedPackage.price ?? 0);
@@ -301,7 +303,7 @@ export default function ParentCheckout() {
   }, [packageDisplayPrice, effectiveStudentIds.length, isFamilyPackage, selectedPackage, effectiveCurrencyInfo, currencySymbol]);
 
   const summary = useMemo(() => {
-    const effectiveCurrency = resolveCurrencySymbol(previewData?.currency) || resolveCurrencySymbol(selectedPackage?.currency) || currencySymbol;
+    const effectiveCurrency = currencySymbol;
     if (!previewData) return { ...fallbackFinancials, currency: effectiveCurrency };
     const rawSubtotal = Number(
       previewData.subtotalAmount ??
@@ -313,14 +315,20 @@ export default function ParentCheckout() {
     const rawDiscount = Number(previewData.discountAmount ?? previewData.discount ?? 0);
     const rawTax = Number(previewData.taxAmount ?? previewData.tax ?? previewData.vat ?? fallbackFinancials.tax);
     const rawTotal = Number(previewData.finalAmount ?? previewData.total ?? fallbackFinancials.total);
+    const rate = Number(effectiveCurrencyInfo?.exchangeRate || 1);
+    const shouldConvert = rate > 0 && rate !== 1;
+    const subtotal = shouldConvert ? Math.round(rawSubtotal * rate) : rawSubtotal;
+    const discount = shouldConvert ? Math.round(rawDiscount * rate) : rawDiscount;
+    const tax = shouldConvert ? Number((rawTax * rate).toFixed(2)) : rawTax;
+    const total = shouldConvert ? Math.round(rawTotal * rate) : rawTotal;
     return {
-      subtotal: rawSubtotal,
-      discount: rawDiscount,
-      tax: rawTax,
-      total: rawTotal,
+      subtotal,
+      discount,
+      tax,
+      total,
       currency: effectiveCurrency,
     };
-  }, [previewData, fallbackFinancials, selectedPackage, currencySymbol]);
+  }, [previewData, fallbackFinancials, currencySymbol, effectiveCurrencyInfo]);
 
   if (isPackageLoading) {
     return (

@@ -19,8 +19,6 @@ import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import {
   currenciesApi,
   parseExchangeRateData,
-  resolvePackagePrice,
-  resolveCurrencySymbol,
   formatCurrencyDisplay,
 } from '@/shared/services/api/currenciesApi';
 import Spinner from '@/shared/components/Spinner';

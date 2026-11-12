@@ -8,7 +8,7 @@ import {
   Info,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import { currenciesApi, parseExchangeRateData, formatCurrencyDisplay, resolveUserCurrencyInfo } from '@/shared/services/api/currenciesApi';
+import { currenciesApi, parseExchangeRateData, formatCurrencyDisplay, resolveUserCurrencyInfo, detectCountryCode } from '@/shared/services/api/currenciesApi';
 import { useAuth } from '@/shared/context/useAuth';
 
 function formatCurrency(amount, currency = '$', isRtl = true) {
@@ -50,9 +50,23 @@ export default function ParentPaymentStatus() {
   const isRtl = isPathEn ? false : (isPathAr ? true : i18n.language.startsWith('ar'));
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const userCountryCode = useMemo(() => {
+    return detectCountryCode([
+      user?.country,
+      user?.countryCode,
+      user?.countryId,
+      user?.phone,
+      subscriptionData?.country,
+      subscriptionData?.package?.country,
+      subscriptionData?.user?.country,
+      subscriptionData?.student?.country,
+      subscriptionData?.phone,
+    ]);
+  }, [user, subscriptionData]);
   const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate'],
-    queryFn: currenciesApi.fetchExchangeRate,
+    queryKey: ['currenciesExchangeRate', userCountryCode],
+    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
     staleTime: 1000 * 60 * 10,
   });
   const currencyInfo = useMemo(() => {
@@ -66,7 +80,7 @@ export default function ParentPaymentStatus() {
       void e;
     }
     return resolveUserCurrencyInfo({ user, sub: subscriptionData, storedInfo: stored, apiResult: parsedApi });
-  }, [location.state?.currencyInfo, exchangeRateRes, user, subscriptionData]);
+  }, [location.state, exchangeRateRes, user, subscriptionData]);
   const sessionId = searchParams.get('session_id') || searchParams.get('sessionId') || '';
   const querySubId = searchParams.get('subscriptionId') || searchParams.get('id') || searchParams.get('sub_id') || '';
   const storedSubId = localStorage.getItem('last_checkout_sub_id') || '';
@@ -83,7 +97,6 @@ export default function ParentPaymentStatus() {
     if (explicitStatus === 'failed' || explicitStatus === 'cancelled' || explicitStatus === 'canceled') return 'failed';
     return subscriptionId ? 'verifying' : (isPathSuccess ? 'success' : 'failed');
   });
-  const [subscriptionData, setSubscriptionData] = useState(null);
   const pollCountRef = useRef(0);
   const pollTimerRef = useRef(null);
   useEffect(() => {

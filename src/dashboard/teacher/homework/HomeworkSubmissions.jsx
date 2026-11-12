@@ -103,85 +103,97 @@ export default function HomeworkSubmissions() {
       item.status ||
       item.rawStatus ||
       item.state ||
+      item.homeworkStatus ||
+      item.deliveryStatus ||
+      item.submission?.submissionStatus ||
+      item.submission?.status ||
       ''
     ).toString().toLowerCase().trim();
-
-    const hasSubmittedAt = Boolean(
+    const rawStatusLabel = (
+      item.statusLabel ||
+      item.label ||
+      item.submission?.statusLabel ||
+      ''
+    ).toString().toLowerCase().trim();
+    const isExplicitlyOverdue = Boolean(
+      item.isOverdue === true ||
+      item.submission?.isOverdue === true ||
+      rawStatus === 'overdue' ||
+      rawStatus === 'late_not_submitted' ||
+      rawStatus === 'late-not-submitted' ||
+      rawStatus === 'missed' ||
+      rawStatus.includes('overdue') ||
+      rawStatus.includes('متأخر عن الموعد') ||
+      rawStatusLabel.includes('متأخر عن الموعد') ||
+      rawStatusLabel.includes('فائت') ||
+      rawStatus.includes('فائت')
+    );
+    if (isExplicitlyOverdue) {
+      return 'overdue';
+    }
+    const isExplicitlyLate = Boolean(
+      item.isLate === true ||
+      item.submittedLate === true ||
+      item.isSubmittedLate === true ||
+      item.submission?.isLate === true ||
+      item.submission?.submittedLate === true ||
+      rawStatus === 'submitted_late' ||
+      rawStatus === 'submitted-late' ||
+      rawStatus === 'submittedlate' ||
+      rawStatus === 'late' ||
+      rawStatus === 'late_submitted' ||
+      rawStatus.includes('تسليم متأخر') ||
+      rawStatus.includes('متسلم متأخر') ||
+      rawStatusLabel.includes('تسليم متأخر') ||
+      rawStatusLabel.includes('متسلم متأخر')
+    );
+    if (isExplicitlyLate) {
+      return 'submitted_late';
+    }
+    const subDate =
       item.submittedAt ||
       item.submissionDate ||
-      item.submittedDate
-    );
-    const hasStudentWork = Boolean(
-      (Array.isArray(item.answers) && item.answers.length > 0) ||
-      (Array.isArray(item.documents) && item.documents.length > 0) ||
-      (Array.isArray(item.audioRecordings) && item.audioRecordings.length > 0) ||
-      (typeof item.textAnswer === 'string' && item.textAnswer.trim().length > 0)
-    );
-    const hasActualSubmission = hasSubmittedAt || hasStudentWork;
-
+      item.submittedDate ||
+      item.submission?.submittedAt ||
+      item.submission?.submissionDate;
+    const hasSubmittedAt = Boolean(subDate);
     const deadlineDate =
       item.deadline ||
       item.dueDate ||
       item.homework?.deadline ||
-      item.homework?.dueDate;
-
+      item.homework?.dueDate ||
+      item.submission?.deadline ||
+      item.submission?.dueDate;
     const isPastDeadline = Boolean(
       deadlineDate &&
       !isNaN(new Date(deadlineDate).getTime()) &&
       Date.now() > new Date(deadlineDate).getTime()
     );
-
     const isSubmittedAfterDeadline = Boolean(
       hasSubmittedAt &&
       deadlineDate &&
-      !isNaN(new Date(item.submittedAt || item.submissionDate || item.submittedDate).getTime()) &&
+      !isNaN(new Date(subDate).getTime()) &&
       !isNaN(new Date(deadlineDate).getTime()) &&
-      new Date(item.submittedAt || item.submissionDate || item.submittedDate).getTime() > new Date(deadlineDate).getTime()
+      new Date(subDate).getTime() > new Date(deadlineDate).getTime()
     );
-
-    const isExplicitlyLate = Boolean(
-      item.isLate ||
-      item.submittedLate ||
-      item.isSubmittedLate ||
-      rawStatus === 'submitted_late' ||
-      rawStatus === 'submitted-late' ||
-      rawStatus === 'late' ||
-      rawStatus.includes('تسليم متأخر') ||
-      rawStatus.includes('متسلم متأخر') ||
-      isSubmittedAfterDeadline
-    );
-
-    const isExplicitlyOverdue = Boolean(
-      item.isOverdue ||
-      rawStatus === 'overdue' ||
-      rawStatus === 'late_not_submitted' ||
-      rawStatus === 'missed' ||
-      rawStatus.includes('فات') ||
-      rawStatus.includes('متأخر عن الموعد') ||
-      (isPastDeadline && !hasActualSubmission)
-    );
-
-    if (isExplicitlyOverdue && !hasActualSubmission) {
-      return 'overdue';
-    }
-
-    if (isExplicitlyLate || (hasActualSubmission && isPastDeadline && isSubmittedAfterDeadline)) {
-      return 'submitted_late';
-    }
-
-    if (
+    const isTurnedIn = Boolean(
+      hasSubmittedAt ||
       rawStatus === 'submitted' ||
       rawStatus === 'completed' ||
+      rawStatus === 'graded' ||
+      rawStatus === 'evaluated' ||
       rawStatus.includes('تم التسليم') ||
-      hasActualSubmission
-    ) {
+      rawStatusLabel.includes('تم التسليم')
+    );
+    if (isTurnedIn) {
+      if (isSubmittedAfterDeadline) {
+        return 'submitted_late';
+      }
       return 'submitted';
     }
-
     if (isPastDeadline) {
       return 'overdue';
     }
-
     return 'pending';
   }, []);
 
@@ -360,8 +372,24 @@ export default function HomeworkSubmissions() {
 
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((item) => {
-      if (statusFilter !== 'all' && item.rawStatus !== statusFilter) {
-        return false;
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'submitted_late') {
+          const isLateMatch =
+            item.rawStatus === 'submitted_late' ||
+            item.rawStatus === 'late' ||
+            item.rawStatus === 'submitted-late' ||
+            Boolean(item.originalItem?.isLate || item.originalItem?.submittedLate);
+          if (!isLateMatch) return false;
+        } else if (statusFilter === 'overdue') {
+          const isOverdueMatch =
+            item.rawStatus === 'overdue' ||
+            item.rawStatus === 'late_not_submitted' ||
+            item.rawStatus === 'missed' ||
+            Boolean(item.originalItem?.isOverdue);
+          if (!isOverdueMatch) return false;
+        } else if (item.rawStatus !== statusFilter) {
+          return false;
+        }
       }
       if (evaluationFilter === 'evaluated' && item.rawEvaluationStatus !== 'evaluated') {
         return false;

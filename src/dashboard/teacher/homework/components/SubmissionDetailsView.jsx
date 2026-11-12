@@ -128,6 +128,7 @@ export default function SubmissionDetailsView({
   const queryClient = useQueryClient();
   const [internalTimeStr, setInternalTimeStr] = useState('');
   const [internalDateStr, setInternalDateStr] = useState('');
+  const [currentTimestamp] = useState(() => Date.now());
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -185,13 +186,40 @@ export default function SubmissionDetailsView({
       liveData.submissionStatus ||
       liveData.rawSubmissionStatus ||
       liveData.status ||
+      liveData.homeworkStatus ||
+      liveData.deliveryStatus ||
       submission?.submissionStatus ||
       submission?.rawSubmissionStatus ||
       submission?.status ||
+      submission?.homeworkStatus ||
+      submission?.deliveryStatus ||
       liveData.submission?.submissionStatus ||
       liveData.submission?.status ||
       ''
     ).toString().toLowerCase().trim();
+    const stLabel = (
+      liveData.statusLabel ||
+      submission?.statusLabel ||
+      liveData.submission?.statusLabel ||
+      ''
+    ).toString().toLowerCase().trim();
+    const isExplicitlyOverdue = Boolean(
+      liveData.isOverdue === true ||
+      submission?.isOverdue === true ||
+      liveData.submission?.isOverdue === true ||
+      st === 'overdue' ||
+      st === 'late_not_submitted' ||
+      st === 'late-not-submitted' ||
+      st === 'missed' ||
+      st.includes('overdue') ||
+      st.includes('متأخر عن الموعد') ||
+      stLabel.includes('متأخر عن الموعد') ||
+      stLabel.includes('فائت') ||
+      st.includes('فائت')
+    );
+    if (isExplicitlyOverdue) {
+      return 'overdue';
+    }
     const subDate = liveData.submittedAt || liveData.submission?.submittedAt || submission?.submittedAt;
     const deadlineDate = liveData.deadline || liveData.dueDate || liveData.homework?.deadline || liveData.homework?.dueDate || submission?.deadline || submission?.dueDate;
     const isDateLate = Boolean(
@@ -200,25 +228,47 @@ export default function SubmissionDetailsView({
       !isNaN(new Date(deadlineDate).getTime()) &&
       new Date(subDate).getTime() > new Date(deadlineDate).getTime()
     );
-    const isLate = Boolean(
-      liveData.isLate ||
-      liveData.submittedLate ||
-      submission?.isLate ||
-      submission?.submittedLate ||
-      st.includes('late') ||
-      st.includes('متأخر') ||
+    const isExplicitlyLate = Boolean(
+      liveData.isLate === true ||
+      liveData.submittedLate === true ||
+      liveData.isSubmittedLate === true ||
+      submission?.isLate === true ||
+      submission?.submittedLate === true ||
+      submission?.isSubmittedLate === true ||
+      liveData.submission?.isLate === true ||
+      st === 'submitted_late' ||
+      st === 'submitted-late' ||
+      st === 'submittedlate' ||
+      st === 'late' ||
+      st === 'late_submitted' ||
+      st.includes('تسليم متأخر') ||
+      st.includes('متسلم متأخر') ||
+      stLabel.includes('تسليم متأخر') ||
+      stLabel.includes('متسلم متأخر') ||
       isDateLate
     );
-    if (st === 'submitted_late' || st === 'submitted-late' || (st === 'submitted' && isLate)) {
+    if (isExplicitlyLate) {
       return 'submitted_late';
     }
-    if (st === 'submitted' || st.includes('تم التسليم') || st === 'completed' || liveData.submittedAt || submission?.submittedAt) {
-      return isLate ? 'submitted_late' : 'submitted';
+    const hasSubmitted = Boolean(
+      subDate ||
+      st === 'submitted' ||
+      st === 'completed' ||
+      st.includes('تم التسليم') ||
+      stLabel.includes('تم التسليم')
+    );
+    if (hasSubmitted) {
+      return 'submitted';
     }
-    if (st === 'overdue' || st === 'late_not_submitted' || st.includes('متأخرة')) {
+    const isPastDeadline = Boolean(
+      deadlineDate &&
+      !isNaN(new Date(deadlineDate).getTime()) &&
+      currentTimestamp > new Date(deadlineDate).getTime()
+    );
+    if (isPastDeadline) {
       return 'overdue';
     }
-    return st || 'pending';
+    return 'pending';
   })();
 
   const isSubmissionTurnedIn = rawStatus === 'submitted' || rawStatus === 'submitted_late';

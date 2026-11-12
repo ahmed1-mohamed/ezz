@@ -6,6 +6,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useCurrency, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
+import { useAuth } from '@/shared/context/useAuth';
 
 function formatDate(dateStr, isRtl) {
   if (!dateStr) return '-';
@@ -28,8 +29,8 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const { currencyInfo, convertPrice } = useCurrency();
-
+  const { user } = useAuth();
+  const { currencyInfo, convertPrice } = useCurrency(user);
   if (!lastSubscription || typeof lastSubscription !== 'object') {
     return null;
   }
@@ -45,7 +46,6 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
   const formattedPrice = convertedPrice !== null
     ? formatCurrencyDisplay(convertedPrice, currencyInfo.symbol, isRtl)
     : null;
-
   return (
     <div
       className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-100 dark:border-slate-800 shadow-sm space-y-5"

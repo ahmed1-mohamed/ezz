@@ -139,7 +139,7 @@ export default function AdminTrialSessions() {
     }
   }, [trialSessionsResponse, rawList.length, currentPage])
   const stats = useMemo(() => {
-    const apiStats = trialSessionsResponse?.stats || trialSessionsResponse?.summary || {}
+    const apiStats = trialSessionsResponse?.statistics || trialSessionsResponse?.stats || trialSessionsResponse?.summary || {}
     const computedTotal = paginationData.totalItems || rawList.length
     if (activeTab === 'website') {
       let pendingCount = 0
@@ -162,27 +162,33 @@ export default function AdminTrialSessions() {
       return {
         total: Number(apiStats.total ?? 0),
         pending: Number(apiStats.pending ?? 0),
-        assigned: Number(apiStats.assigned ?? 0),
+        scheduled: Number(apiStats.scheduled ?? apiStats.assigned ?? 0),
+        assigned: Number(apiStats.scheduled ?? apiStats.assigned ?? 0),
         completed: Number(apiStats.completed ?? 0),
+        missed: Number(apiStats.missed ?? 0),
         cancelled: Number(apiStats.cancelled ?? apiStats.canceled ?? 0),
       }
     }
     let pendingCount = 0
-    let assignedCount = 0
+    let scheduledCount = 0
     let completedCount = 0
+    let missedCount = 0
     let cancelledCount = 0
     rawList.forEach((item) => {
-      const s = String(item.status || '').toLowerCase()
-      if (s === 'assigned' || s === 'تم التسكين' || s === 'مسكن') assignedCount++
-      else if (s === 'cancelled' || s === 'canceled' || s === 'ملغي' || s === 'ملغاة') cancelledCount++
+      const s = String(item.status || '').toLowerCase().trim()
+      if (s === 'scheduled' || s === 'assigned' || s === 'تم التسكين' || s === 'مسكن' || s === 'مجدولة') scheduledCount++
+      else if (s === 'cancelled' || s === 'canceled' || s === 'ملغي' || s === 'ملغاة' || s === 'rejected') cancelledCount++
       else if (s === 'completed' || s === 'مكتملة') completedCount++
+      else if (s === 'missed' || s === 'لم يحضر' || s === 'فائتة') missedCount++
       else pendingCount++
     })
     return {
       total: computedTotal,
       pending: pendingCount,
-      assigned: assignedCount,
+      scheduled: scheduledCount,
+      assigned: scheduledCount,
       completed: completedCount,
+      missed: missedCount,
       cancelled: cancelledCount,
     }
   }, [trialSessionsResponse, paginationData.totalItems, rawList, activeTab])

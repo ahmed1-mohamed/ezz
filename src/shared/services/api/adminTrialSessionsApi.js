@@ -6,7 +6,9 @@ export const adminTrialSessionsApi = {
       const cleanParams = {}
       if (params.page) cleanParams.page = params.page
       if (params.limit) cleanParams.limit = params.limit
-      if (params.status && params.status !== 'all') cleanParams.status = params.status
+      if (params.status && params.status !== 'all') {
+        cleanParams.status = params.status === 'assigned' ? 'scheduled' : params.status
+      }
       if (params.search && params.search.trim()) cleanParams.search = params.search.trim()
       const response = await api.get('/api/v1/trial-sessions/private', { params: cleanParams })
       return response.data

@@ -23,9 +23,9 @@ import {
   currenciesApi,
   parseExchangeRateData,
   resolvePackagePrice,
-  resolveCurrencySymbol,
   formatCurrencyDisplay,
   resolveUserCurrencyInfo,
+  detectCountryCode,
 } from '@/shared/services/api/currenciesApi';
 import { useAuth } from '@/shared/context/useAuth';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs';
@@ -110,9 +110,17 @@ export default function ParentSubscriptions() {
     return params;
   }, [currentPage, selectedStatus, debouncedSearch]);
   const { user } = useAuth();
+  const userCountryCode = useMemo(() => {
+    return detectCountryCode([
+      user?.country,
+      user?.countryCode,
+      user?.countryId,
+      user?.phone,
+    ]);
+  }, [user]);
   const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate'],
-    queryFn: currenciesApi.fetchExchangeRate,
+    queryKey: ['currenciesExchangeRate', userCountryCode],
+    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
     staleTime: 1000 * 60 * 10,
   });
   const currencyInfo = useMemo(() => {
@@ -126,8 +134,6 @@ export default function ParentSubscriptions() {
     }
     return resolveUserCurrencyInfo({ user, storedInfo: stored, apiResult: parsedApi });
   }, [exchangeRateRes, user]);
-  const currencyRate = Number(currencyInfo?.exchangeRate || 1);
-  const targetCurrency = currencyInfo?.symbol || '$';
   const {
     data: subscriptionsRes,
     isLoading,

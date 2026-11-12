@@ -16,7 +16,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
-import { currenciesApi, parseExchangeRateData, resolveUserCurrencyInfo } from '@/shared/services/api/currenciesApi.js';
+import { currenciesApi, parseExchangeRateData, resolveUserCurrencyInfo, detectCountryCode } from '@/shared/services/api/currenciesApi.js';
 import { useAuth } from '@/shared/context/useAuth';
 import ParentPackageCard from './components/ParentPackageCard.jsx';
 import ParentPackageDetailsModal from './components/ParentPackageDetailsModal.jsx';
@@ -62,9 +62,10 @@ export default function ParentPackages() {
     queryFn: () => parentPackagesApi.fetchPackages(queryParams),
   });
   const { user } = useAuth();
+  const userCountryCode = detectCountryCode([user?.country, user?.countryCode, user?.countryId, user?.phone]);
   const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate'],
-    queryFn: currenciesApi.fetchExchangeRate,
+    queryKey: ['currenciesExchangeRate', userCountryCode],
+    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
     staleTime: 1000 * 60 * 10,
   });
   const currencyInfo = useMemo(() => {
