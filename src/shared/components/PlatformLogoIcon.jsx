@@ -97,3 +97,4 @@ PlatformLogoIcon.propTypes = {
 };
 
 export default memo(PlatformLogoIcon);
+
